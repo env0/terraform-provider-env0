@@ -33,8 +33,9 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"env0_organization": dataOrganization(),
-			"env0_project":      dataProject(),
+			"env0_organization":           dataOrganization(),
+			"env0_project":                dataProject(),
+			"env0_configuration_variable": dataConfigurationVariable(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"env0_project": resourceProject(),
