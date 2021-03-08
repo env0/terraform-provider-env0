@@ -1,7 +1,6 @@
 package env0apiclient
 
 import (
-	"errors"
 	"net/url"
 )
 
@@ -27,19 +26,6 @@ func (self *ApiClient) Project(id string) (Project, error) {
 		return Project{}, err
 	}
 	return result, nil
-}
-
-func (self *ApiClient) ProjectByName(name string) (Project, error) {
-	projects, err := self.Projects()
-	if err != nil {
-		return Project{}, nil
-	}
-	for _, project := range projects {
-		if project.Name == name {
-			return project, nil
-		}
-	}
-	return Project{}, errors.New("No project matched the project name provided")
 }
 
 func (self *ApiClient) ProjectCreate(name string) (Project, error) {

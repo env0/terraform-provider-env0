@@ -22,3 +22,8 @@ output "region_in_project_value" {
 output "region_in_project_id" {
   value = data.env0_configuration_variable.region_in_project.id
 }
+
+resource "env0_configuration_variable" "tested1" {
+  name  = "tested1"
+  value = "fake value 1"
+}

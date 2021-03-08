@@ -15,3 +15,4 @@
 # vendor/
 *.sw?
 terraform-provider-env0
+attic

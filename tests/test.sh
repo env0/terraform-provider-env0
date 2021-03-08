@@ -27,7 +27,7 @@ banner() {
 run_test_dir() {
     set -e
     cd $1
-    rm -fr .terraform .terraform.lock.hcl terraform.state terraform.rc
+    rm -fr .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup terraform.rc
     cat > terraform.rc <<EOF
 provider_installation {
   filesystem_mirror {
@@ -41,6 +41,8 @@ EOF
     terraform fmt
     banner "Terraform init success in $1"
     TF_CLI_CONFIG_FILE=terraform.rc terraform apply -auto-approve
+    banner "Terraform apply success in $1"
+    TF_CLI_CONFIG_FILE=terraform.rc terraform destroy -auto-approve
     banner "Test success in $1"
     cd ..
 }

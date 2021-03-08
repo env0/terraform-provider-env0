@@ -55,9 +55,18 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 		if !ok {
 			return diag.Errorf("Either 'name' or 'id' must be specified")
 		}
-		project, err = apiClient.ProjectByName(name.(string))
+		projects, err := apiClient.Projects()
 		if err != nil {
 			return diag.Errorf("Could not query project by name: %v", err)
+		}
+		for _, candidate := range projects {
+			if candidate.Name == name.(string) {
+				project = candidate
+				break
+			}
+		}
+		if project.Id == "" {
+			return diag.Errorf("Could not find a project with name: %s", name)
 		}
 	}
 

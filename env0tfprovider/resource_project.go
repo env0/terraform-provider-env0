@@ -49,7 +49,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*env0apiclient.ApiClient)
 
-	id := d.Get("id").(string)
+	id := d.Id()
 	_, err := apiClient.Project(id)
 	if err != nil {
 		return diag.Errorf("could not get project: %v", err)
@@ -64,7 +64,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*env0apiclient.ApiClient)
 
-	id := d.Get("id").(string)
+	id := d.Id()
 	err := apiClient.ProjectDelete(id)
 	if err != nil {
 		return diag.Errorf("could not delete project: %v", err)
@@ -75,7 +75,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	apiClient := meta.(*env0apiclient.ApiClient)
 
-	id := d.Get("id").(string)
+	id := d.Id()
 	project, err := apiClient.Project(id)
 	if err != nil {
 		return nil, err

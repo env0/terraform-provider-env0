@@ -29,23 +29,23 @@ func dataConfigurationVariable() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this project, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"blueprint_id", "environment_id", "deployment_id"},
+				ConflictsWith: []string{"blueprint_id", "environment_id", "deployment_log_id"},
 			},
 			"blueprint_id": {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this blueprint, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"project_id", "environment_id", "deployment_id"},
+				ConflictsWith: []string{"project_id", "environment_id", "deployment_log_id"},
 			},
 			"environment_id": {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this environment, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"blueprint_id", "project_id", "deployment_id"},
+				ConflictsWith: []string{"blueprint_id", "project_id", "deployment_log_id"},
 			},
-			"deployment_id": {
+			"deployment_log_id": {
 				Type:          schema.TypeString,
-				Description:   "search for the variable under this deployment, not globally",
+				Description:   "search for the variable under this deployment log, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"blueprint_id", "environment_id", "project_id"},
 			},

@@ -65,6 +65,9 @@ func (self *ApiClient) do(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode == 204 {
+		return nil, nil
+	}
 	if resp.StatusCode != 200 {
 		return nil, errors.New(resp.Status + ": " + string(body))
 	}

@@ -33,26 +33,22 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariable(id string) (ConfigurationVariable, error) {
-	var result ConfigurationVariable
-	err := self.getJSON("/configuration/"+id, nil, &result)
+func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error) {
+	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
+		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
+	}
+	organizationId, err := self.organizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-	return result, nil
-}
-
-func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error) {
-	if scope == ScopeDeploymentLog {
-		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment log")
-	}
 	var result ConfigurationVariable
 	request := map[string]interface{}{
-		"name":        name,
-		"value":       value,
-		"isSensitive": isSensitive,
-		"scope":       scope,
-		"type":        type_,
+		"name":           name,
+		"value":          value,
+		"isSensitive":    isSensitive,
+		"scope":          scope,
+		"type":           type_,
+		"organizationId": organizationId,
 	}
 	if scope != ScopeGlobal {
 		request["scopeId"] = scopeId
@@ -63,7 +59,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 			"enum": enumValues,
 		}
 	}
-	err := self.postJSON("/configuration", request, &result)
+	err = self.postJSON("/configuration", request, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
