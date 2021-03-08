@@ -40,6 +40,7 @@ provider_installation {
 EOF
     banner "Running terraform init in $1"
     TF_CLI_CONFIG_FILE=terraform.rc terraform init
+    terraform fmt
     banner "Terraform init success in $1"
     TF_CLI_CONFIG_FILE=terraform.rc terraform apply -auto-approve
     banner "Test success in $1"
