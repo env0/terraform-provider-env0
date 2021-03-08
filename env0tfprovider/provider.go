@@ -37,7 +37,7 @@ func Provider() *schema.Provider {
 			"env0_project":      dataProject(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			// "env0_project": resourceProject(),
+			"env0_project": resourceProject(),
 		},
 		ConfigureFunc: configureProvider,
 	}

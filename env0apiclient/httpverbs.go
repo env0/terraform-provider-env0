@@ -21,28 +21,8 @@ func (self *ApiClient) post(path string, payload []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(self.ApiKey, self.ApiSecret)
-	req.Header.Add("Accept", "application/json")
-
-	if self.client == nil {
-		self.client = &http.Client{}
-	}
-	resp, err := self.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
-	}
-
-	return body, nil
+	req.Header.Add("Content-Type", "application/json")
+	return self.do(req)
 }
 
 func (self *ApiClient) get(path string, params url.Values) ([]byte, error) {
@@ -54,6 +34,20 @@ func (self *ApiClient) get(path string, params url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	return self.do(req)
+}
+
+func (self *ApiClient) delete(path string) error {
+	self.normalizeEndpoint()
+	req, err := http.NewRequest(http.MethodDelete, self.Endpoint+path, nil)
+	if err != nil {
+		return err
+	}
+	_, err = self.do(req)
+	return err
+}
+
+func (self *ApiClient) do(req *http.Request) ([]byte, error) {
 	req.SetBasicAuth(self.ApiKey, self.ApiSecret)
 	req.Header.Add("Accept", "application/json")
 
@@ -72,9 +66,6 @@ func (self *ApiClient) get(path string, params url.Values) ([]byte, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		////////////
-		ioutil.WriteFile("/tmp/log1", body, 0644)
-		///////////
 		return nil, errors.New(resp.Status)
 	}
 

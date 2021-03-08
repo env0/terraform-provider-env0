@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-if [ ! -f test.sh ]; then
-    echo "Make sure to run this script from the 'tests' directory"
-    exit -1
-fi
 echo -n "Using terraform:"
 if which terraform; then
     terraform version
@@ -13,6 +9,8 @@ else
     exit -1
 fi
 
+tests_dir=`dirname "$0"`
+cd $tests_dir
 tests_dir=`pwd`
 registry_dir=$tests_dir/fake_registry
 registry_bin_dir=$registry_dir/terraform-registry.env0.com/env0/env0/6.6.6/linux_amd64
@@ -44,6 +42,7 @@ EOF
     banner "Terraform init success in $1"
     TF_CLI_CONFIG_FILE=terraform.rc terraform apply -auto-approve
     banner "Test success in $1"
+    cd ..
 }
 
 for name in $@; do
