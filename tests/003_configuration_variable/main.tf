@@ -25,5 +25,13 @@ output "region_in_project_id" {
 
 resource "env0_configuration_variable" "tested1" {
   name  = "tested1"
-  value = "fake value 1"
+  value = "fake value 1 ${var.second_run ? "after update" : ""}"
+}
+data "env0_configuration_variable" "tested1" {
+  name       = "tested1"
+  depends_on = [env0_configuration_variable.tested1]
+}
+
+output "tested1_value" {
+  value = data.env0_configuration_variable.tested1.value
 }

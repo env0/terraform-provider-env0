@@ -34,6 +34,7 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description: "is the variable sensitive, defaults to false",
 				Optional:    true,
 				Default:     false,
+				ForceNew:    true,
 			},
 			"project_id": {
 				Type:          schema.TypeString,
@@ -148,7 +149,33 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return diag.Errorf("not implemented")
+	apiClient := meta.(*env0apiclient.ApiClient)
+
+	id := d.Id()
+	scope, scopeId := whichScope(d)
+	name := d.Get("name").(string)
+	value := d.Get("value").(string)
+	isSensitive := d.Get("is_sensitive").(bool)
+	typeAsString := d.Get("type").(string)
+	var type_ env0apiclient.ConfigurationVariableType
+	switch typeAsString {
+	case "environment":
+		type_ = env0apiclient.ConfigurationVariableTypeEnvironment
+	case "terraform":
+		type_ = env0apiclient.ConfigurationVariableTypeTerraform
+	default:
+		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
+	}
+	var enumValues []string = nil
+	if specified, ok := d.GetOk("enum_values"); ok {
+		enumValues = specified.([]string)
+	}
+	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, enumValues)
+	if err != nil {
+		return diag.Errorf("could not create configurationVariable: %v", err)
+	}
+
+	return nil
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
