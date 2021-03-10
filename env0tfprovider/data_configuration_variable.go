@@ -29,11 +29,11 @@ func dataConfigurationVariable() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this project, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"blueprint_id", "environment_id", "deployment_log_id"},
+				ConflictsWith: []string{"template_id", "environment_id", "deployment_log_id"},
 			},
-			"blueprint_id": {
+			"template_id": {
 				Type:          schema.TypeString,
-				Description:   "search for the variable under this blueprint, not globally",
+				Description:   "search for the variable under this template, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"project_id", "environment_id", "deployment_log_id"},
 			},
@@ -41,13 +41,13 @@ func dataConfigurationVariable() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this environment, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"blueprint_id", "project_id", "deployment_log_id"},
+				ConflictsWith: []string{"template_id", "project_id", "deployment_log_id"},
 			},
 			"deployment_log_id": {
 				Type:          schema.TypeString,
 				Description:   "search for the variable under this deployment log, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"blueprint_id", "environment_id", "project_id"},
+				ConflictsWith: []string{"template_id", "environment_id", "project_id"},
 			},
 			"value": {
 				Type:        schema.TypeString,
@@ -82,9 +82,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		scope = env0apiclient.ScopeProject
 		scopeId = projectId.(string)
 	}
-	if blueprintId, ok := d.GetOk("blueprint_id"); ok {
-		scope = env0apiclient.ScopeBlueprint
-		scopeId = blueprintId.(string)
+	if templateId, ok := d.GetOk("template_id"); ok {
+		scope = env0apiclient.ScopeTemplate
+		scopeId = templateId.(string)
 	}
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		scope = env0apiclient.ScopeEnvironment

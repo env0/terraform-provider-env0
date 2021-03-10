@@ -15,7 +15,7 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	params.Add("organizationId", organizationId)
 	switch {
 	case scope == ScopeGlobal:
-	case scope == ScopeBlueprint:
+	case scope == ScopeTemplate:
 		params.Add("blueprintId", scopeId)
 	case scope == ScopeProject:
 		params.Add("projectId", scopeId)

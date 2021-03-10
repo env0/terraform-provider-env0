@@ -1,5 +1,9 @@
 package env0apiclient
 
+//templates are actually called "blueprints" in some parts of the API, this layer
+//attempts to abstract this detail away - all the users of api client should
+//only use "template", no mention of blueprint
+
 import (
 	"errors"
 	"net/url"
@@ -53,7 +57,7 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.postJSON("/blueprints/"+id, payload, &result)
+	err = self.putJSON("/blueprints/"+id, payload, &result)
 	if err != nil {
 		return Template{}, err
 	}

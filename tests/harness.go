@@ -17,15 +17,20 @@ func main() {
 	testNames := testNamesFromCommandLineArguments()
 	log.Println(len(testNames), " tests to run")
 	buildFakeTerraformRegistry()
+	destroyMode := os.Getenv("DESTROY_MODE")
 	for _, testName := range testNames {
-		success := runTest(testName)
-		if !success {
-			log.Fatalln("Halting due to test failure")
+		if destroyMode == "DESTROY_ONLY" {
+			terraformDestory(testName)
+		} else {
+			success := runTest(testName, destroyMode != "NO_DESTROY")
+			if !success {
+				log.Fatalln("Halting due to test failure")
+			}
 		}
 	}
 }
 
-func runTest(testName string) bool {
+func runTest(testName string, destroy bool) bool {
 	testDir := "tests/" + testName
 	toDelete := []string{
 		".terraform",
@@ -47,7 +52,9 @@ func runTest(testName string) bool {
 	if err != nil {
 		return false
 	}
-	defer terraformDestory(testName)
+	if destroy {
+		defer terraformDestory(testName)
+	}
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
 	if err != nil {
 		return false
@@ -76,9 +83,11 @@ func runTest(testName string) bool {
 		}
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
 	}
-	_, err = terraformCommand(testName, "destroy", "-auto-approve")
-	if err != nil {
-		return false
+	if destroy {
+		_, err = terraformCommand(testName, "destroy", "-auto-approve")
+		if err != nil {
+			return false
+		}
 	}
 	log.Println("Successfully finished running test ", testName)
 	return true
@@ -113,11 +122,11 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 }
 
 func terraformDestory(testName string) {
-	log.Println("Running destroy to clean up")
+	log.Println("Running destroy to clean up in", testName)
 	destroy := exec.Command("terraform", "destroy", "-auto-approve")
 	destroy.Dir = "tests/" + testName
 	destroy.CombinedOutput()
-	log.Println("Done running terraform destroy")
+	log.Println("Done running terraform destroy in", testName)
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {

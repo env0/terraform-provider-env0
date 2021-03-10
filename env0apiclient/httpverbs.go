@@ -25,6 +25,16 @@ func (self *ApiClient) post(path string, payload []byte) ([]byte, error) {
 	return self.do(req)
 }
 
+func (self *ApiClient) put(path string, payload []byte) ([]byte, error) {
+	self.normalizeEndpoint()
+	req, err := http.NewRequest(http.MethodPut, self.Endpoint+path, bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	return self.do(req)
+}
+
 func (self *ApiClient) get(path string, params url.Values) ([]byte, error) {
 	self.normalizeEndpoint()
 	if params != nil {

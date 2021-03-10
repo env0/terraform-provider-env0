@@ -53,7 +53,7 @@ type Scope string
 
 const (
 	ScopeGlobal        Scope = "GLOBAL"
-	ScopeBlueprint     Scope = "BLUEPRINT"
+	ScopeTemplate      Scope = "BLUEPRINT"
 	ScopeProject       Scope = "PROJECT"
 	ScopeEnvironment   Scope = "ENVIRONMENT"
 	ScopeDeployment    Scope = "DEPLOYMENT"
@@ -80,19 +80,20 @@ const (
 )
 
 type TemplateCreatePayload struct {
-	Retry                TemplateRetry `json:"retry"`
-	SshKeys              []string      `json:"sshKeys"`
-	Type                 TemplateType  `json:"type"`
-	Description          string        `json:"description"`
-	Name                 string        `json:"name"`
-	Repository           string        `json:"repository"`
-	IsGitLab             bool          `json:"isGitLab"`
-	TokenName            string        `json:"tokenName"`
-	TokenId              string        `json:"tokenId"`
-	GithubInstallationId string        `json:"githubInstallationId"`
-	Revision             string        `json:"revision"`
-	ProjectIds           []string      `json:"projectIds"`
-	OrganizationId       string        `json:"organizationId"`
+	Retry                *TemplateRetry `json:"retry,omitempty"`
+	SshKeys              []string       `json:"sshKeys,omitempty"`
+	Type                 TemplateType   `json:"type"`
+	Description          string         `json:"description,omitempty"`
+	Name                 string         `json:"name"`
+	Repository           string         `json:"repository"`
+	Path                 string         `json:"path,omitempty"`
+	IsGitLab             bool           `json:"isGitLab"`
+	TokenName            string         `json:"tokenName"`
+	TokenId              string         `json:"tokenId"`
+	GithubInstallationId int            `json:"githubInstallationId"`
+	Revision             string         `json:"revision"`
+	ProjectIds           []string       `json:"projectIds,omitempty"`
+	OrganizationId       string         `json:"organizationId"`
 }
 
 type Template struct {
@@ -102,8 +103,10 @@ type Template struct {
 	Href           string        `json:"href"`
 	Id             string        `json:"id"`
 	Name           string        `json:"name"`
+	Description    string        `json:"description"`
 	OrganizationId string        `json:"organizationId"`
 	Path           string        `json:"path"`
+	Revision       string        `json:"revision"`
 	ProjectId      string        `json:"projectId"`
 	ProjectIds     []string      `json:"projectIds"`
 	Repository     string        `json:"repository"`
