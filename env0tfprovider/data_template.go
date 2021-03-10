@@ -35,6 +35,11 @@ func dataTemplate() *schema.Resource {
 				Description: "terraform / terrgrunt folder inside source code repository",
 				Computed:    true,
 			},
+			"revision": {
+				Type:        schema.TypeString,
+				Description: "source code revision (branch / tag) to use",
+				Computed:    true,
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "'terraform' or 'terragrunt'",
@@ -103,6 +108,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("name", template.Name)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
+	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
 	if template.Retry.OnDeploy != nil {

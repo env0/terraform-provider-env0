@@ -176,7 +176,9 @@ func testNamesFromCommandLineArguments() []string {
 			log.Fatalln("Unable to list 'tests' folder", err)
 		}
 		for _, file := range allFilesUnderTests {
-			testNames = append(testNames, file.Name())
+			if strings.HasPrefix(file.Name(), "0") {
+				testNames = append(testNames, file.Name())
+			}
 		}
 	}
 	return testNames

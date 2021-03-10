@@ -19,6 +19,12 @@ func dataConfigurationVariable() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Description:  "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
+				Optional:     true,
+				AtLeastOneOf: []string{"name"},
+			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the configuration variable",
@@ -64,11 +70,6 @@ func dataConfigurationVariable() *schema.Resource {
 				Description: "scope of the variable",
 				Computed:    true,
 			},
-			"type": {
-				Type:        schema.TypeString,
-				Description: "'terraform' or 'environment'",
-				Computed:    true,
-			},
 		},
 	}
 }
@@ -101,6 +102,17 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
+	type_ := int64(-1)
+	if typeString, ok := d.GetOk("type"); ok {
+		switch typeString.(string) {
+		case "environment":
+			type_ = int64(env0apiclient.ConfigurationVariableTypeEnvironment)
+		case "terraform":
+			type_ = int64(env0apiclient.ConfigurationVariableTypeTerraform)
+		default:
+			return diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString.(string))
+		}
+	}
 	var variable env0apiclient.ConfigurationVariable
 	for _, candidate := range variables {
 		if idOk && candidate.Id == id.(string) {
@@ -108,9 +120,17 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 			break
 		}
 		if nameOk && candidate.Name == name.(string) {
+			if type_ != -1 {
+				if candidate.Type != type_ {
+					continue
+				}
+			}
 			variable = candidate
 			break
 		}
+	}
+	if variable.Id == "" {
+		return diag.Errorf("Could not find variable")
 	}
 
 	d.SetId(variable.Id)
@@ -120,8 +140,10 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("scope", variable.Scope)
 	if variable.Type == int64(env0apiclient.ConfigurationVariableTypeEnvironment) {
 		d.Set("type", "environment")
-	} else {
+	} else if variable.Type == int64(env0apiclient.ConfigurationVariableTypeTerraform) {
 		d.Set("type", "terraform")
+	} else {
+		return diag.Errorf("Unknown variable type: %d", int(variable.Type))
 	}
 
 	return nil
