@@ -66,3 +66,49 @@ const (
 	ConfigurationVariableTypeEnvironment ConfigurationVariableType = 0
 	ConfigurationVariableTypeTerraform   ConfigurationVariableType = 1
 )
+
+type TemplateRetry struct {
+	OnDeploy  string `json:"onDeploy"`
+	OnDestroy string `json:"onDestroy"`
+}
+
+type TemplateType string
+
+const (
+	TemplateTypeTerraform  TemplateType = "terraform"
+	TemplateTypeTerragrunt TemplateType = "terragrunt"
+)
+
+type TemplateCreatePayload struct {
+	Retry                TemplateRetry `json:"retry"`
+	SshKeys              []string      `json:"sshKeys"`
+	Type                 TemplateType  `json:"type"`
+	Description          string        `json:"description"`
+	Name                 string        `json:"name"`
+	Repository           string        `json:"repository"`
+	IsGitLab             bool          `json:"isGitLab"`
+	TokenName            string        `json:"tokenName"`
+	TokenId              string        `json:"tokenId"`
+	GithubInstallationId string        `json:"githubInstallationId"`
+	Revision             string        `json:"revision"`
+	ProjectIds           []string      `json:"projectIds"`
+	OrganizationId       string        `json:"organizationId"`
+}
+
+type Template struct {
+	Author         User          `json:"author"`
+	AuthorId       string        `json:"authorId"`
+	CreatedAt      string        `json:"createdAt"`
+	Href           string        `json:"href"`
+	Id             string        `json:"id"`
+	Name           string        `json:"name"`
+	OrganizationId string        `json:"organizationId"`
+	Path           string        `json:"path"`
+	ProjectId      string        `json:"projectId"`
+	ProjectIds     []string      `json:"projectIds"`
+	Repository     string        `json:"repository"`
+	Retry          TemplateRetry `json:"retry"`
+	SshKeys        []string      `json:"sshKeys"`
+	Type           string        `json:"type"`
+	UpdatedAt      string        `json:"updatedAt"`
+}
