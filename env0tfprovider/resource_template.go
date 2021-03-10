@@ -59,6 +59,28 @@ func resourceTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
+			"retries_on_deploy": {
+				Type:        schema.TypeInt,
+				Description: "number of times to retry when deploying an environment based on this template",
+				Optional:    true,
+			},
+			"retry_on_deploy_only_when_matches_regex": {
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on deploy) if error matches specified regex",
+				Optional:     true,
+				AtLeastOneOf: []string{"retries_on_deploy"},
+			},
+			"retries_on_destroy": {
+				Type:        schema.TypeInt,
+				Description: "number of times to retry when destroying an environment based on this template",
+				Optional:    true,
+			},
+			"retry_on_destroy_only_when_matches_regex": {
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on destroy) if error matches specified regex",
+				Optional:     true,
+				AtLeastOneOf: []string{"retries_on_destroy"},
+			},
 		},
 	}
 }
@@ -91,6 +113,37 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 		for _, projectId := range projectIds.([]interface{}) {
 			result.ProjectIds = append(result.ProjectIds, projectId.(string))
 		}
+	}
+	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")
+	if hasRetriesOnDeploy {
+		if result.Retry == nil {
+			result.Retry = &env0apiclient.TemplateRetry{}
+		}
+		result.Retry.OnDeploy = &env0apiclient.TemplateRetryOn{
+			Times: onDeployRetries.(int),
+		}
+	}
+	if retryOnDeployOnlyIfMatchesRegex, ok := d.GetOk("retry_on_deploy_only_if_matches_regex"); ok {
+		if !hasRetriesOnDeploy {
+			return env0apiclient.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_deploy_only_if_matches_regex'")
+		}
+		result.Retry.OnDeploy.ErrorRegex = retryOnDeployOnlyIfMatchesRegex.(string)
+	}
+
+	onDestroyRetries, hasRetriesOnDestroy := d.GetOk("retries_on_destroy")
+	if hasRetriesOnDestroy {
+		if result.Retry == nil {
+			result.Retry = &env0apiclient.TemplateRetry{}
+		}
+		result.Retry.OnDestroy = &env0apiclient.TemplateRetryOn{
+			Times: onDestroyRetries.(int),
+		}
+	}
+	if retryOnDestroyOnlyIfMatchesRegex, ok := d.GetOk("retry_on_destroy_only_if_matches_regex"); ok {
+		if !hasRetriesOnDestroy {
+			return env0apiclient.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_destroy_only_if_matches_regex'")
+		}
+		result.Retry.OnDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
 	}
 	return result, nil
 }
@@ -127,6 +180,20 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
+	if template.Retry.OnDeploy != nil {
+		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
+		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
+	} else {
+		d.Set("retries_on_deploy", 0)
+		d.Set("retry_on_deploy_only_when_matches_regex", "")
+	}
+	if template.Retry.OnDestroy != nil {
+		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
+		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
+	} else {
+		d.Set("retries_on_destroy", 0)
+		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	}
 
 	return nil
 }

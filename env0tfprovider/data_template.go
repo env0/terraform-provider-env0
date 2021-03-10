@@ -40,6 +40,35 @@ func dataTemplate() *schema.Resource {
 				Description: "'terraform' or 'terragrunt'",
 				Computed:    true,
 			},
+			"project_ids": {
+				Type:        schema.TypeList,
+				Description: "which projects may access this template (id of project)",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "env0_project.id for each project",
+				},
+			},
+			"retries_on_deploy": {
+				Type:        schema.TypeInt,
+				Description: "number of times to retry when deploying an environment based on this template",
+				Computed:    true,
+			},
+			"retry_on_deploy_only_when_matches_regex": {
+				Type:        schema.TypeString,
+				Description: "if specified, will only retry (on deploy) if error matches specified regex",
+				Computed:    true,
+			},
+			"retries_on_destroy": {
+				Type:        schema.TypeInt,
+				Description: "number of times to retry when destroying an environment based on this template",
+				Computed:    true,
+			},
+			"retry_on_destroy_only_when_matches_regex": {
+				Type:        schema.TypeString,
+				Description: "if specified, will only retry (on destroy) if error matches specified regex",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -75,6 +104,22 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
 	d.Set("type", template.Type)
-	//TODO: retry, sshkeys
+	d.Set("project_ids", template.ProjectIds)
+	if template.Retry.OnDeploy != nil {
+		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
+		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
+	} else {
+		d.Set("retries_on_deploy", 0)
+		d.Set("retry_on_deploy_only_when_matches_regex", "")
+	}
+	if template.Retry.OnDestroy != nil {
+		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
+		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
+	} else {
+		d.Set("retries_on_destroy", 0)
+		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	}
+
+	//TODO: sshkeys
 	return nil
 }

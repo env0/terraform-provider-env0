@@ -3,31 +3,33 @@ data "env0_project" "default_project" {
 }
 
 resource "env0_template" "tested1" {
-  name = "tested1"
-  description = "Tested 1 description"
-  type = "terraform"
-  repository = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
-  path = var.second_run ? "second" : ""
-  project_ids = [data.env0_project.default_project.id]
+  name                                    = "tested1"
+  description                             = "Tested 1 description"
+  type                                    = "terraform"
+  repository                              = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
+  path                                    = var.second_run ? "second" : ""
+  project_ids                             = [data.env0_project.default_project.id]
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
 }
 
 resource "env0_configuration_variable" "in_a_template" {
-  name       = "fake_key"
-  value = "fake value"
+  name        = "fake_key"
+  value       = "fake value"
   template_id = env0_template.tested1.id
 }
 
 resource "env0_configuration_variable" "in_a_template2" {
-  name       = "fake_key_2"
-  value = "fake value 2"
+  name        = "fake_key_2"
+  value       = "fake value 2"
   template_id = env0_template.tested1.id
-  type = "terraform"
+  type        = "terraform"
 }
-
 
 data "env0_template" "tested2" {
   depends_on = [env0_template.tested1]
-  name = "tested1"
+  name       = "tested1"
 }
 output "tested2_template_id" {
   value = data.env0_template.tested2.id

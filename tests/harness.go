@@ -48,6 +48,7 @@ func runTest(testName string, destroy bool) bool {
 	if err != nil {
 		return false
 	}
+	terraformCommand(testName, "fmt")
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0")
 	if err != nil {
 		return false

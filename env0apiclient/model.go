@@ -67,9 +67,14 @@ const (
 	ConfigurationVariableTypeTerraform   ConfigurationVariableType = 1
 )
 
+type TemplateRetryOn struct {
+	Times      int    `json:"times,omitempty"`
+	ErrorRegex string `json:"errorRegex,omitempty"`
+}
+
 type TemplateRetry struct {
-	OnDeploy  string `json:"onDeploy"`
-	OnDestroy string `json:"onDestroy"`
+	OnDeploy  *TemplateRetryOn `json:"onDeploy,omitempty"`
+	OnDestroy *TemplateRetryOn `json:"onDestroy,omitempty"`
 }
 
 type TemplateType string
