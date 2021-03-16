@@ -20,10 +20,9 @@ func dataConfigurationVariable() *schema.Resource {
 				ExactlyOneOf: []string{"name", "id"},
 			},
 			"type": {
-				Type:         schema.TypeString,
-				Description:  "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
-				Optional:     true,
-				AtLeastOneOf: []string{"name"},
+				Type:        schema.TypeString,
+				Description: "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
+				Optional:    true,
 			},
 			"id": {
 				Type:         schema.TypeString,
@@ -104,6 +103,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	name, nameOk := d.GetOk("name")
 	type_ := int64(-1)
 	if typeString, ok := d.GetOk("type"); ok {
+		if !nameOk {
+			return diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
+		}
 		switch typeString.(string) {
 		case "environment":
 			type_ = int64(env0apiclient.ConfigurationVariableTypeEnvironment)

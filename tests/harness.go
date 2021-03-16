@@ -31,7 +31,7 @@ func main() {
 }
 
 func runTest(testName string, destroy bool) bool {
-	testDir := "tests/" + testName
+	testDir := "examples/" + testName
 	toDelete := []string{
 		".terraform",
 		".terraform.lock.hcl",
@@ -49,12 +49,12 @@ func runTest(testName string, destroy bool) bool {
 		return false
 	}
 	terraformCommand(testName, "fmt")
+	if destroy {
+		defer terraformDestory(testName)
+	}
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0")
 	if err != nil {
 		return false
-	}
-	if destroy {
-		defer terraformDestory(testName)
 	}
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
 	if err != nil {
@@ -206,8 +206,11 @@ func buildFakeTerraformRegistry() {
 	terraformRc := fmt.Sprintf(`
 provider_installation {
   filesystem_mirror {
-	path    = "%s/tests/fake_registry"
-	include = ["terraform-registry.env0.com/*/*"]
+    path    = "%s/tests/fake_registry"
+    include = ["terraform-registry.env0.com/*/*"]
+  }
+  direct {
+	exclude = ["terraform-registry.env0.com/*/*"]
   }
 }`, cwd)
 	err = ioutil.WriteFile("tests/terraform.rc", []byte(terraformRc), 0644)

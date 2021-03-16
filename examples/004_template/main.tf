@@ -46,3 +46,7 @@ output "tested2_template_repository" {
 output "tested2_template_path" {
   value = data.env0_template.tested2.path
 }
+
+data "env0_template" "tested3" {
+  id = env0_template.tested1.id
+}

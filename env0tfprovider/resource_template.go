@@ -59,16 +59,24 @@ func resourceTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
+			"ssh_key_names": {
+				Type:        schema.TypeList,
+				Description: "names of env0 defined ssh keys to use when accessing git over ssh",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "env0_ssh_key.name for each ssh key",
+				},
+			},
 			"retries_on_deploy": {
 				Type:        schema.TypeInt,
 				Description: "number of times to retry when deploying an environment based on this template",
 				Optional:    true,
 			},
 			"retry_on_deploy_only_when_matches_regex": {
-				Type:         schema.TypeString,
-				Description:  "if specified, will only retry (on deploy) if error matches specified regex",
-				Optional:     true,
-				AtLeastOneOf: []string{"retries_on_deploy"},
+				Type:        schema.TypeString,
+				Description: "if specified, will only retry (on deploy) if error matches specified regex",
+				Optional:    true,
 			},
 			"retries_on_destroy": {
 				Type:        schema.TypeInt,
@@ -76,10 +84,9 @@ func resourceTemplate() *schema.Resource {
 				Optional:    true,
 			},
 			"retry_on_destroy_only_when_matches_regex": {
-				Type:         schema.TypeString,
-				Description:  "if specified, will only retry (on destroy) if error matches specified regex",
-				Optional:     true,
-				AtLeastOneOf: []string{"retries_on_destroy"},
+				Type:        schema.TypeString,
+				Description: "if specified, will only retry (on destroy) if error matches specified regex",
+				Optional:    true,
 			},
 		},
 	}
@@ -112,6 +119,12 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 		result.ProjectIds = []string{}
 		for _, projectId := range projectIds.([]interface{}) {
 			result.ProjectIds = append(result.ProjectIds, projectId.(string))
+		}
+	}
+	if sshKeyNames, ok := d.GetOk("ssh_key_names"); ok {
+		result.SshKeys = []env0apiclient.TemplateSshKey{}
+		for _, sshKeyName := range sshKeyNames.([]interface{}) {
+			result.SshKeys = append(result.SshKeys, env0apiclient.TemplateSshKey{Name: sshKeyName.(string)})
 		}
 	}
 	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")

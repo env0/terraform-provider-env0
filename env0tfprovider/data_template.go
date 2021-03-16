@@ -54,6 +54,15 @@ func dataTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
+			"ssh_key_names": {
+				Type:        schema.TypeList,
+				Description: "which ssh keys are used for accessing git over ssh",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "env0_ssh_key.name for each project",
+				},
+			},
 			"retries_on_deploy": {
 				Type:        schema.TypeInt,
 				Description: "number of times to retry when deploying an environment based on this template",
@@ -98,7 +107,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 			return diag.Errorf("Could not find an env0 template with name %s", name)
 		}
 	} else {
-		template, err = apiClient.Template(d.Id())
+		template, err = apiClient.Template(d.Get("id").(string))
 		if err != nil {
 			return diag.Errorf("Could not query template: %v", err)
 		}
@@ -111,6 +120,11 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
+	sshKeyNames := []string{}
+	for _, sshKey := range template.SshKeys {
+		sshKeyNames = append(sshKeyNames, sshKey.Name)
+	}
+	d.Set("ssh_key_names", sshKeyNames)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
