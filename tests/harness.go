@@ -95,7 +95,7 @@ func runTest(testName string, destroy bool) bool {
 }
 
 func readExpectedOutputs(testName string) (map[string]string, error) {
-	expectedBytes, err := ioutil.ReadFile(path.Join("tests", testName, "expected_outputs.json"))
+	expectedBytes, err := ioutil.ReadFile(path.Join("examples", testName, "expected_outputs.json"))
 	if err != nil {
 		log.Println("Test folder for ", testName, " does not contain expected_outputs.json", err)
 		return nil, err
@@ -125,14 +125,14 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 func terraformDestory(testName string) {
 	log.Println("Running destroy to clean up in", testName)
 	destroy := exec.Command("terraform", "destroy", "-auto-approve")
-	destroy.Dir = "tests/" + testName
+	destroy.Dir = "examples/" + testName
 	destroy.CombinedOutput()
 	log.Println("Done running terraform destroy in", testName)
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd := exec.Command("terraform", arg...)
-	cmd.Dir = "tests/" + testName
+	cmd.Dir = "examples/" + testName
 	log.Println("Running terraform ", arg, " in ", testName)
 	outputBytes, err := cmd.CombinedOutput()
 	output := string(outputBytes)
@@ -162,8 +162,8 @@ func testNamesFromCommandLineArguments() []string {
 	testNames := []string{}
 	if len(os.Args) > 1 {
 		for _, testName := range os.Args[1:] {
-			if strings.HasPrefix(testName, "tests/") {
-				testName = testName[len("tests/"):]
+			if strings.HasPrefix(testName, "examples/") {
+				testName = testName[len("examples/"):]
 			}
 			if strings.HasSuffix(testName, "/") {
 				testName = testName[:len(testName)-1]
@@ -171,7 +171,7 @@ func testNamesFromCommandLineArguments() []string {
 			testNames = append(testNames, testName)
 		}
 	} else {
-		allFilesUnderTests, err := ioutil.ReadDir("tests")
+		allFilesUnderTests, err := ioutil.ReadDir("examples")
 		if err != nil {
 			log.Fatalln("Unable to list 'tests' folder", err)
 		}
