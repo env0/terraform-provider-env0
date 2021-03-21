@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
@@ -11,20 +10,19 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 		return nil, err
 	}
 	var result []ConfigurationVariable
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
+	params := map[string]string{"organizationId": organizationId}
 	switch {
 	case scope == ScopeGlobal:
 	case scope == ScopeTemplate:
-		params.Add("blueprintId", scopeId)
+		params["blueprintId"] = scopeId
 	case scope == ScopeProject:
-		params.Add("projectId", scopeId)
+		params["projectId"] = scopeId
 	case scope == ScopeEnvironment:
-		params.Add("environmentId", scopeId)
+		params["environmentId"] = scopeId
 	case scope == ScopeDeployment:
 		return nil, errors.New("No api to fetch configuration variables by deployment")
 	case scope == ScopeDeploymentLog:
-		params.Add("deploymentLogId", scopeId)
+		params["deploymentLogId"] = scopeId
 	}
 	err = self.getJSON("/configuration", params, &result)
 	if err != nil {

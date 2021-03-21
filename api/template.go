@@ -6,7 +6,6 @@ package api
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
@@ -70,9 +69,7 @@ func (self *ApiClient) Templates() ([]Template, error) {
 		return nil, err
 	}
 	var result []Template
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/blueprints", params, &result)
+	err = self.getJSON("/blueprints", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}

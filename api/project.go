@@ -1,18 +1,12 @@
 package api
 
-import (
-	"net/url"
-)
-
 func (self *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return nil, err
 	}
 	var result []Project
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/projects", params, &result)
+	err = self.getJSON("/projects", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return []Project{}, err
 	}

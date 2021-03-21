@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error) {
@@ -39,9 +38,7 @@ func (self *ApiClient) SshKeys() ([]SshKey, error) {
 		return nil, err
 	}
 	var result []SshKey
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/ssh-keys", params, &result)
+	err = self.getJSON("/ssh-keys", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}
