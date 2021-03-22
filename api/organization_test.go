@@ -1,28 +1,40 @@
-package api
+package api_test
 
 import (
-	"testing"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
+	. "github.com/env0/terraform-provider-env0/api"
 )
 
-func TestOrganization(t *testing.T) {
-	client, err := NewClientFromEnv()
-	if err != nil {
-		t.Error("Unable to init api client:", err)
-		return
-	}
+var _ = Describe("Organization", func() {
+	var client *ApiClient
+	var organization Organization
 
-	organization, err := client.Organization()
-	if err != nil {
-		t.Error("Unable to get organization:", err)
-		return
-	}
-	if organization.IsSelfHosted {
-		t.Error("Expected not self hosted")
-	}
-	if organization.Id == "" {
-		t.Error("Expected non empty id")
-	}
-	if organization.Name == "" {
-		t.Error("Expected non empty name")
-	}
-}
+	BeforeEach(func() {
+		var err error
+		client, err = NewClientFromEnv()
+		Expect(err).To(BeNil())
+		Expect(client).ToNot(BeNil())
+	})
+
+	JustBeforeEach(func() {
+		var err error
+		organization, err = client.Organization()
+		Expect(err).To(BeNil())
+	})
+
+	Describe("Fetch organization data", func() {
+		When("Fetching the default organization of given api key", func() {
+			It("Should have id set", func() {
+				Expect(organization.Id).ToNot(BeEmpty())
+			})
+			It("Should have name set", func() {
+				Expect(organization.Name).ToNot(BeEmpty())
+			})
+			It("Should not be self hosted", func() {
+				Expect(organization.IsSelfHosted).To(BeFalse())
+			})
+		})
+	})
+})
