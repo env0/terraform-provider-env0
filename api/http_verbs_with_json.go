@@ -6,56 +6,46 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+func (self *ApiClient) request() *resty.Request {
+	self.normalizeEndpoint()
+	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
+}
+
+func httpResult(response *resty.Response, err error) error {
+	if err != nil {
+		return err
+	}
+	if response.StatusCode() < 200 || response.StatusCode() > 299 {
+		return errors.New(response.Status() + ": " + string(response.Body()))
+	}
+	return nil
+}
+
 func (self *ApiClient) postJSON(path string, request interface{}, response interface{}) error {
-	return self.executeJSONInJSONOut(resty.MethodPost, path, request, response)
+	result, err := self.request().
+		SetBody(request).
+		SetResult(response).
+		Post(path)
+	return httpResult(result, err)
 }
 
 func (self *ApiClient) putJSON(path string, request interface{}, response interface{}) error {
-	return self.executeJSONInJSONOut(resty.MethodPut, path, request, response)
-}
-
-func (self *ApiClient) executeJSONInJSONOut(method string, path string, request interface{}, response interface{}) error {
-	self.normalizeEndpoint()
-	result, err := self.client.R().
-		SetBasicAuth(self.ApiKey, self.ApiSecret).
+	result, err := self.request().
 		SetBody(request).
 		SetResult(response).
-		Execute(method, self.Endpoint+path)
-	if err != nil {
-		return err
-	}
-	if result.StatusCode() < 200 || result.StatusCode() > 299 {
-		return errors.New(result.Status() + ": " + string(result.Body()))
-	}
-	return nil
+		Put(path)
+	return httpResult(result, err)
 }
 
 func (self *ApiClient) getJSON(path string, params map[string]string, response interface{}) error {
-	self.normalizeEndpoint()
-	result, err := self.client.R().
-		SetBasicAuth(self.ApiKey, self.ApiSecret).
+	result, err := self.request().
 		SetQueryParams(params).
 		SetResult(response).
-		Get(self.Endpoint + path)
-	if err != nil {
-		return err
-	}
-	if result.StatusCode() < 200 || result.StatusCode() > 299 {
-		return errors.New(result.Status() + ": " + string(result.Body()))
-	}
-	return nil
+		Get(path)
+	return httpResult(result, err)
 }
 
 func (self *ApiClient) delete(path string) error {
-	self.normalizeEndpoint()
-	result, err := self.client.R().
-		SetBasicAuth(self.ApiKey, self.ApiSecret).
-		Delete(self.Endpoint + path)
-	if err != nil {
-		return err
-	}
-	if result.StatusCode() < 200 || result.StatusCode() > 299 {
-		return errors.New(result.Status() + ": " + string(result.Body()))
-	}
-	return nil
+	result, err := self.request().Delete(path)
+	return httpResult(result, err)
 }

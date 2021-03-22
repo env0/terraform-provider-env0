@@ -37,6 +37,7 @@ func (self *ApiClient) normalizeEndpoint() {
 	for strings.HasSuffix(self.Endpoint, "/") {
 		self.Endpoint = self.Endpoint[:len(self.Endpoint)-1]
 	}
+	self.client.SetHostURL(self.Endpoint)
 }
 
 func (self *ApiClient) organizationId() (string, error) {
