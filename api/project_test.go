@@ -1,42 +1,57 @@
-package api
+package api_test
 
 import (
-	"testing"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
+	. "github.com/env0/terraform-provider-env0/api"
 )
 
-func TestProject(t *testing.T) {
-	client, err := NewClientFromEnv()
-	if err != nil {
-		t.Error("Unable to init api client:", err)
-		return
-	}
+var _ = Describe("Fetching projects list", func() {
+	var projects []Project
+	var projectsErr error
 
-	projects, err := client.Projects()
-	if err != nil {
-		t.Error("Unable to get projects:", err)
-		return
-	}
-	if len(projects) == 0 {
-		t.Error("Expected at least one project")
-		return
-	}
-	var defaultProject Project
-	for _, project := range projects {
-		if project.Name == "Default Organization Project" {
-			defaultProject = project
-		}
-	}
-	if defaultProject.Name == "" {
-		t.Error("Default project not found")
-		return
-	}
-	defaultProject2, err := client.Project(defaultProject.Id)
-	if err != nil {
-		t.Error("Unable to fetch default project by id:", err)
-		return
-	}
-	if defaultProject2.Name != "Default Organization Project" {
-		t.Error("Fetching by id returned incorrect name:", defaultProject2.Name)
-		return
-	}
-}
+	JustBeforeEach(func() {
+		projects, projectsErr = apiClient.Projects()
+	})
+
+	When("Looking for the Default Organization Project", func() {
+		var defaultProject *Project
+
+		JustBeforeEach(func() {
+			defaultProject = nil
+			for _, project := range projects {
+				if project.Name == "Default Organization Project" {
+					defaultProject = &project
+				}
+			}
+		})
+
+		Specify("fetching the projects list should not fail", func() {
+			Expect(projectsErr).To(BeNil())
+		})
+		Specify("there should be at least one project", func() {
+			Expect(len(projects)).ToNot(BeZero())
+		})
+		Specify("The default project was found", func() {
+			Expect(defaultProject).ToNot(BeNil())
+		})
+
+		When("Refetching the Default Organization Project using get by id", func() {
+			var defaultProjectRefetched Project
+			var defaultProjectRefetchedErr error
+
+			JustBeforeEach(func() {
+				defaultProjectRefetched, defaultProjectRefetchedErr = apiClient.Project(defaultProject.Id)
+			})
+
+			It("Should not fail", func() {
+				Expect(defaultProjectRefetchedErr).To(BeNil())
+			})
+			It("Should return the correct project name", func() {
+				Expect(defaultProjectRefetched.Name, "Default Organization Project")
+			})
+
+		})
+	})
+})

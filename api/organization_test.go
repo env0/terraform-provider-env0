@@ -8,24 +8,18 @@ import (
 )
 
 var _ = Describe("Organization", func() {
-	var client *ApiClient
 	var organization Organization
-
-	BeforeEach(func() {
-		var err error
-		client, err = NewClientFromEnv()
-		Expect(err).To(BeNil())
-		Expect(client).ToNot(BeNil())
-	})
+	var organizationErr error
 
 	JustBeforeEach(func() {
-		var err error
-		organization, err = client.Organization()
-		Expect(err).To(BeNil())
+		organization, organizationErr = apiClient.Organization()
 	})
 
 	Describe("Fetch organization data", func() {
 		When("Fetching the default organization of given api key", func() {
+			It("should not fail", func() {
+				Expect(organizationErr).To(BeNil())
+			})
 			It("Should have id set", func() {
 				Expect(organization.Id).ToNot(BeEmpty())
 			})
