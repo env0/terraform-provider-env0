@@ -16,3 +16,6 @@
 *.sw?
 terraform-provider-env0
 attic
+
+# GoLand files
+.idea/
