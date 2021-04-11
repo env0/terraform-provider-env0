@@ -3,41 +3,29 @@ package api
 import (
 	"errors"
 	"os"
-	"strings"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type ApiClient struct {
-	Endpoint             string
-	ApiKey               string
-	ApiSecret            string
-	client               *resty.Client
+	httpClient           *HttpClient
 	cachedOrganizationId string
 }
 
 func NewClientFromEnv() (*ApiClient, error) {
-	result := &ApiClient{
-		ApiKey:    os.Getenv("ENV0_API_KEY"),
-		ApiSecret: os.Getenv("ENV0_API_SECRET"),
-		Endpoint:  "https://api.env0.com/",
-		client:    resty.New(),
-	}
-	result.normalizeEndpoint()
-	if len(result.ApiKey) == 0 {
+	apiKey := os.Getenv("ENV0_API_KEY")
+	apiSecret := os.Getenv("ENV0_API_SECRET")
+
+	if len(apiKey) == 0 {
 		return nil, errors.New("ENV0_API_KEY must be specified in environment")
 	}
-	if len(result.ApiSecret) == 0 {
+	if len(apiSecret) == 0 {
 		return nil, errors.New("ENV0_API_SECRET must be specified in environment")
 	}
-	return result, nil
-}
 
-func (self *ApiClient) normalizeEndpoint() {
-	for strings.HasSuffix(self.Endpoint, "/") {
-		self.Endpoint = self.Endpoint[:len(self.Endpoint)-1]
+	result := &ApiClient{
+		httpClient: newHttpClient(apiKey, apiSecret),
 	}
-	self.client.SetHostURL(self.Endpoint)
+
+	return result, nil
 }
 
 func (self *ApiClient) organizationId() (string, error) {
