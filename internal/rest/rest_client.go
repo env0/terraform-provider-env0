@@ -3,6 +3,7 @@ package rest
 import (
 	"errors"
 	"github.com/go-resty/resty/v2"
+	"os"
 )
 
 type RestClient struct {
@@ -12,12 +13,22 @@ type RestClient struct {
 	client    *resty.Client
 }
 
-func NewRestClient(apiKey string, apiSecret string) *RestClient {
+func NewRestClientFromEnv() (*RestClient, error) {
+	apiKey := os.Getenv("ENV0_API_KEY")
+	apiSecret := os.Getenv("ENV0_API_SECRET")
+
+	if len(apiKey) == 0 {
+		return nil, errors.New("ENV0_API_KEY must be specified in environment")
+	}
+	if len(apiSecret) == 0 {
+		return nil, errors.New("ENV0_API_SECRET must be specified in environment")
+	}
+
 	return &RestClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
 		client:    resty.New().SetHostURL("https://api.env0.com/"),
-	}
+	}, nil
 }
 
 func (self *RestClient) request() *resty.Request {
