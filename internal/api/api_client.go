@@ -5,11 +5,11 @@ import (
 )
 
 type ApiClient struct {
-	client               *RestClient
+	client               RestClientInterface
 	cachedOrganizationId string
 }
 
-func NewApiClient(client *RestClient) *ApiClient {
+func NewApiClient(client RestClientInterface) *ApiClient {
 	return &ApiClient{
 		client: client,
 	}
