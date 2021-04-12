@@ -1,30 +1,30 @@
-package api
+package rest
 
 import (
 	"errors"
 	"github.com/go-resty/resty/v2"
 )
 
-type HttpClient struct {
+type RestClient struct {
 	ApiKey    string
 	ApiSecret string
 	Endpoint  string
 	client    *resty.Client
 }
 
-func newHttpClient(apiKey string, apiSecret string) *HttpClient {
-	return &HttpClient{
+func NewRestClient(apiKey string, apiSecret string) *RestClient {
+	return &RestClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
 		client:    resty.New().SetHostURL("https://api.env0.com/"),
 	}
 }
 
-func (self *HttpClient) request() *resty.Request {
+func (self *RestClient) request() *resty.Request {
 	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
 }
 
-func (self *HttpClient) httpResult(response *resty.Response, err error) error {
+func (self *RestClient) httpResult(response *resty.Response, err error) error {
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (self *HttpClient) httpResult(response *resty.Response, err error) error {
 	return nil
 }
 
-func (self *HttpClient) postJSON(path string, request interface{}, response interface{}) error {
+func (self *RestClient) Post(path string, request interface{}, response interface{}) error {
 	result, err := self.request().
 		SetBody(request).
 		SetResult(response).
@@ -42,7 +42,7 @@ func (self *HttpClient) postJSON(path string, request interface{}, response inte
 	return self.httpResult(result, err)
 }
 
-func (self *HttpClient) putJSON(path string, request interface{}, response interface{}) error {
+func (self *RestClient) Put(path string, request interface{}, response interface{}) error {
 	result, err := self.request().
 		SetBody(request).
 		SetResult(response).
@@ -50,7 +50,7 @@ func (self *HttpClient) putJSON(path string, request interface{}, response inter
 	return self.httpResult(result, err)
 }
 
-func (self *HttpClient) getJSON(path string, params map[string]string, response interface{}) error {
+func (self *RestClient) Get(path string, params map[string]string, response interface{}) error {
 	result, err := self.request().
 		SetQueryParams(params).
 		SetResult(response).
@@ -58,7 +58,7 @@ func (self *HttpClient) getJSON(path string, params map[string]string, response 
 	return self.httpResult(result, err)
 }
 
-func (self *HttpClient) delete(path string) error {
+func (self *RestClient) Delete(path string) error {
 	result, err := self.request().Delete(path)
 	return self.httpResult(result, err)
 }
