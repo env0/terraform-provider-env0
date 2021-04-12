@@ -6,6 +6,13 @@ import (
 	"os"
 )
 
+type RestClientInterface interface {
+	Get(path string, params map[string]string, response interface{}) error
+	Post(path string, request interface{}, response interface{}) error
+	Put(path string, request interface{}, response interface{}) error
+	Delete(path string) error
+}
+
 type RestClient struct {
 	ApiKey    string
 	ApiSecret string
