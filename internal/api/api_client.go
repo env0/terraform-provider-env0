@@ -2,11 +2,12 @@ package api
 
 import (
 	"errors"
+	. "github.com/env0/terraform-provider-env0/internal/rest"
 	"os"
 )
 
 type ApiClient struct {
-	httpClient           *HttpClient
+	client               *RestClient
 	cachedOrganizationId string
 }
 
@@ -22,7 +23,7 @@ func NewClientFromEnv() (*ApiClient, error) {
 	}
 
 	result := &ApiClient{
-		httpClient: newHttpClient(apiKey, apiSecret),
+		client: NewRestClient(apiKey, apiSecret),
 	}
 
 	return result, nil

@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/env0/terraform-provider-env0/api"
+	. "github.com/env0/terraform-provider-env0/internal/api"
 )
 
 var _ = Describe("Organization", func() {
