@@ -1,4 +1,4 @@
-package rest
+package http
 
 import (
 	"errors"
@@ -6,21 +6,21 @@ import (
 	"os"
 )
 
-type RestClientInterface interface {
+type HttpClientInterface interface {
 	Get(path string, params map[string]string, response interface{}) error
 	Post(path string, request interface{}, response interface{}) error
 	Put(path string, request interface{}, response interface{}) error
 	Delete(path string) error
 }
 
-type RestClient struct {
+type HttpClient struct {
 	ApiKey    string
 	ApiSecret string
 	Endpoint  string
 	client    *resty.Client
 }
 
-func NewRestClientFromEnv() (*RestClient, error) {
+func NewRestClientFromEnv() (*HttpClient, error) {
 	apiKey := os.Getenv("ENV0_API_KEY")
 	apiSecret := os.Getenv("ENV0_API_SECRET")
 
@@ -31,18 +31,18 @@ func NewRestClientFromEnv() (*RestClient, error) {
 		return nil, errors.New("ENV0_API_SECRET must be specified in environment")
 	}
 
-	return &RestClient{
+	return &HttpClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
 		client:    resty.New().SetHostURL("https://api.env0.com/"),
 	}, nil
 }
 
-func (self *RestClient) request() *resty.Request {
+func (self *HttpClient) request() *resty.Request {
 	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
 }
 
-func (self *RestClient) httpResult(response *resty.Response, err error) error {
+func (self *HttpClient) httpResult(response *resty.Response, err error) error {
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (self *RestClient) httpResult(response *resty.Response, err error) error {
 	return nil
 }
 
-func (self *RestClient) Post(path string, request interface{}, response interface{}) error {
+func (self *HttpClient) Post(path string, request interface{}, response interface{}) error {
 	result, err := self.request().
 		SetBody(request).
 		SetResult(response).
@@ -60,7 +60,7 @@ func (self *RestClient) Post(path string, request interface{}, response interfac
 	return self.httpResult(result, err)
 }
 
-func (self *RestClient) Put(path string, request interface{}, response interface{}) error {
+func (self *HttpClient) Put(path string, request interface{}, response interface{}) error {
 	result, err := self.request().
 		SetBody(request).
 		SetResult(response).
@@ -68,7 +68,7 @@ func (self *RestClient) Put(path string, request interface{}, response interface
 	return self.httpResult(result, err)
 }
 
-func (self *RestClient) Get(path string, params map[string]string, response interface{}) error {
+func (self *HttpClient) Get(path string, params map[string]string, response interface{}) error {
 	result, err := self.request().
 		SetQueryParams(params).
 		SetResult(response).
@@ -76,7 +76,7 @@ func (self *RestClient) Get(path string, params map[string]string, response inte
 	return self.httpResult(result, err)
 }
 
-func (self *RestClient) Delete(path string) error {
+func (self *HttpClient) Delete(path string) error {
 	result, err := self.request().Delete(path)
 	return self.httpResult(result, err)
 }

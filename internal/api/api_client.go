@@ -1,15 +1,15 @@
 package api
 
 import (
-	. "github.com/env0/terraform-provider-env0/internal/rest"
+	. "github.com/env0/terraform-provider-env0/internal/http"
 )
 
 type ApiClient struct {
-	client               RestClientInterface
+	client               HttpClientInterface
 	cachedOrganizationId string
 }
 
-func NewApiClient(client RestClientInterface) *ApiClient {
+func NewApiClient(client HttpClientInterface) *ApiClient {
 	return &ApiClient{
 		client: client,
 	}
