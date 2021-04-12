@@ -1,9 +1,7 @@
 package api
 
 import (
-	"errors"
 	. "github.com/env0/terraform-provider-env0/internal/rest"
-	"os"
 )
 
 type ApiClient struct {
@@ -11,22 +9,10 @@ type ApiClient struct {
 	cachedOrganizationId string
 }
 
-func NewClientFromEnv() (*ApiClient, error) {
-	apiKey := os.Getenv("ENV0_API_KEY")
-	apiSecret := os.Getenv("ENV0_API_SECRET")
-
-	if len(apiKey) == 0 {
-		return nil, errors.New("ENV0_API_KEY must be specified in environment")
+func NewApiClient(client *RestClient) *ApiClient {
+	return &ApiClient{
+		client: client,
 	}
-	if len(apiSecret) == 0 {
-		return nil, errors.New("ENV0_API_SECRET must be specified in environment")
-	}
-
-	result := &ApiClient{
-		client: NewRestClient(apiKey, apiSecret),
-	}
-
-	return result, nil
 }
 
 func (self *ApiClient) organizationId() (string, error) {
