@@ -1,73 +1,67 @@
 package api_test
 
 import (
+	. "github.com/env0/terraform-provider-env0/internal/api"
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	. "github.com/env0/terraform-provider-env0/internal/api"
 )
 
-var _ = Describe("Organization wide configuration variable", func() {
-	var configurationVariable ConfigurationVariable
-	var configurationVariableErr error
+var _ = Describe("Configuration Variable", func() {
+	var httpCall *gomock.Call
+	var configVar ConfigurationVariable
+	mockConfigurationVariable := &ConfigurationVariable{
+		Id:             "id",
+		Name:           "config-key",
+		Value:          "config-value",
+		IsSensitive:    false,
+		Scope:          "GLOBAL",
+		OrganizationId: organizationId,
+	}
 
-	JustBeforeEach(func() {
-		configurationVariable = ConfigurationVariable{}
-		configurationVariable, configurationVariableErr = apiClient.ConfigurationVariableCreate(
-			"testing_org_wide_var",
-			"fake value",
-			false,
-			ScopeGlobal,
-			"",
-			ConfigurationVariableTypeTerraform,
-			nil)
+	Describe("Create", func() {
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post(
+				"/configuration",
+				map[string]interface{}{
+					"name":           "testing_org_wide_var",
+					"value":          "fake value",
+					"isSensitive":    false,
+					"scope":          ScopeGlobal,
+					"type":           ConfigurationVariableTypeTerraform,
+					"organizationId": organizationId,
+				},
+				&configVar,
+			).Return(mockConfigurationVariable)
+
+			configVar, _ = apiClient.ConfigurationVariableCreate(
+				"testing_org_wide_var",
+				"fake value",
+				false,
+				ScopeGlobal,
+				"",
+				ConfigurationVariableTypeTerraform,
+				nil)
+		})
+
+		It("Should send POST request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return created configuration variable", func() {
+			Expect(configVar).To(Equal(mockConfigurationVariable))
+		})
 	})
 
-	Specify("Configuration variable creation should succeed", func() {
-		Expect(configurationVariableErr).To(BeNil())
-		Expect(configurationVariable.Name).To(Equal("testing_org_wide_var"))
-	})
-
-	AfterEach(func() {
-		if configurationVariable.Id == "" {
-			return
-		}
-		err := apiClient.ConfigurationVariableDelete(configurationVariable.Id)
-		Expect(err).To(BeNil())
-	})
-
-	When("Fetching all the global configuration variables", func() {
-		var configurationVariables []ConfigurationVariable
-		var configurationVariablesErr error
-
+	Describe("Delete", func() {
 		JustBeforeEach(func() {
-			configurationVariables, configurationVariablesErr = apiClient.ConfigurationVariables(ScopeGlobal, "")
+			httpCall = mockHttpClient.EXPECT().Delete("configuration/" + mockConfigurationVariable.Id).Times(1)
+
+			apiClient.ConfigurationVariableDelete(mockConfigurationVariable.Id)
 		})
 
-		Specify("Fetch should succeed", func() {
-			Expect(configurationVariablesErr).To(BeNil())
-			Expect(len(configurationVariables)).ToNot(BeZero())
-		})
-
-		When("Seaching for created configuration variable in fetched variable list", func() {
-			var found ConfigurationVariable
-
-			JustBeforeEach(func() {
-				found = ConfigurationVariable{}
-				for _, candidate := range configurationVariables {
-					if candidate.Id == configurationVariable.Id {
-						found = candidate
-					}
-				}
-			})
-
-			It("Should have found the created variable", func() {
-				Expect(found.Name).To(Equal("testing_org_wide_var"))
-			})
-
-			It("Shoud not be sensitive", func() {
-				Expect(found.IsSensitive).To(BeFalse())
-			})
+		It("Should call DELETE request with param", func() {
+			httpCall.Times(1)
 		})
 	})
 })
