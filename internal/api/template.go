@@ -15,14 +15,14 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 	if payload.OrganizationId != "" {
 		return Template{}, errors.New("Must not specify organizationId")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := self.getOrganizationId()
 	if err != nil {
 		return Template{}, nil
 	}
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.postJSON("/blueprints", payload, &result)
+	err = self.client.Post("/blueprints", payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -31,7 +31,7 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 
 func (self *ApiClient) Template(id string) (Template, error) {
 	var result Template
-	err := self.getJSON("/blueprints/"+id, nil, &result)
+	err := self.client.Get("/blueprints/"+id, nil, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -39,7 +39,7 @@ func (self *ApiClient) Template(id string) (Template, error) {
 }
 
 func (self *ApiClient) TemplateDelete(id string) error {
-	return self.delete("/blueprints/" + id)
+	return self.client.Delete("/blueprints/" + id)
 }
 
 func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
@@ -49,14 +49,14 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 	if payload.OrganizationId != "" {
 		return Template{}, errors.New("Must not specify organizationId")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := self.getOrganizationId()
 	if err != nil {
 		return Template{}, err
 	}
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.putJSON("/blueprints/"+id, payload, &result)
+	err = self.client.Put("/blueprints/"+id, payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -64,12 +64,12 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 }
 
 func (self *ApiClient) Templates() ([]Template, error) {
-	organizationId, err := self.organizationId()
+	organizationId, err := self.getOrganizationId()
 	if err != nil {
 		return nil, err
 	}
 	var result []Template
-	err = self.getJSON("/blueprints", map[string]string{"organizationId": organizationId}, &result)
+	err = self.client.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}

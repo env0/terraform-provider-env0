@@ -6,7 +6,7 @@ import (
 
 func (self *ApiClient) Organization() (Organization, error) {
 	var result []Organization
-	err := self.getJSON("/organizations", nil, &result)
+	err := self.client.Get("/organizations", nil, &result)
 	if err != nil {
 		return Organization{}, err
 	}
