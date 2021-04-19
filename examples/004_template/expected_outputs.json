@@ -1,0 +1,6 @@
+{
+    "tested2_template_type": "terraform",
+    "tested2_template_name": "tested1",
+    "tested2_template_repository": "https://github.com/shlomimatichin/env0-template-jupyter-gpu",
+    "tested2_template_path": "second"
+}
