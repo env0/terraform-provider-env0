@@ -219,7 +219,7 @@ data "env0_template" "example" {
 }
 
 output "template_id" {
-  value = data.env0_template.example_id
+  value = data.env0_template.example.id
 }
 ```
 
