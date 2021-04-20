@@ -2,11 +2,22 @@
 
 Terraform provider to interact with env0
 
+Available in the [Terraform Registry](https://registry.terraform.io/providers/env0/env0/latest)
+
 The full list of supported resources is available [here](#resources).
 
 ## Example usage
 
 ```terraform
+terraform {
+  required_providers {
+    env0 = {
+      source = "env0/env0"
+      version = "0.0.2"
+    }
+  }
+}
+
 provider "env0" {}
 
 data "env0_project" "default_project" {
@@ -28,19 +39,7 @@ resource "env0_configuration_variable" "in_a_template" {
 }
 ```
 
-you must also include a provider requirement somewhere in your terraform code:
-
-```terraform
-terraform {
-  required_providers {
-    env0 = {
-      source = "terraform-registry.env0.com/"
-    }
-  }
-}
-```
-
-## Setup
+## Authentication
 
 First, generate an `api_key` and `api_secret` from the organization settings page.
 See [here](https://docs.env0.com/reference#authentication).
