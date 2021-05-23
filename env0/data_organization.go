@@ -1,4 +1,4 @@
-package env0tfprovider
+package env0
 
 import (
 	"context"
