@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
@@ -11,22 +10,21 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 		return nil, err
 	}
 	var result []ConfigurationVariable
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
+	params := map[string]string{"organizationId": organizationId}
 	switch {
 	case scope == ScopeGlobal:
 	case scope == ScopeTemplate:
-		params.Add("blueprintId", scopeId)
+		params["blueprintId"] = scopeId
 	case scope == ScopeProject:
-		params.Add("projectId", scopeId)
+		params["projectId"] = scopeId
 	case scope == ScopeEnvironment:
-		params.Add("environmentId", scopeId)
+		params["environmentId"] = scopeId
 	case scope == ScopeDeployment:
 		return nil, errors.New("No api to fetch configuration variables by deployment")
 	case scope == ScopeDeploymentLog:
-		params.Add("deploymentLogId", scopeId)
+		params["deploymentLogId"] = scopeId
 	}
-	err = self.getJSON("/configuration", params, &result)
+	err = self.client.Get("/configuration", params, &result)
 	if err != nil {
 		return []ConfigurationVariable{}, err
 	}
@@ -59,7 +57,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 			"enum": enumValues,
 		}
 	}
-	err = self.postJSON("/configuration", request, &result)
+	err = self.client.Post("configuration", request, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -67,7 +65,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 }
 
 func (self *ApiClient) ConfigurationVariableDelete(id string) error {
-	return self.delete("/configuration/" + id)
+	return self.client.Delete("configuration/" + id)
 }
 
 func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error) {
@@ -97,7 +95,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 			"enum": enumValues,
 		}
 	}
-	err = self.postJSON("/configuration", request, &result)
+	err = self.client.Post("/configuration", request, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}

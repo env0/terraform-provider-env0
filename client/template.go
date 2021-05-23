@@ -6,7 +6,6 @@ package client
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
@@ -23,7 +22,7 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.postJSON("/blueprints", payload, &result)
+	err = self.client.Post("/blueprints", payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -32,7 +31,7 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 
 func (self *ApiClient) Template(id string) (Template, error) {
 	var result Template
-	err := self.getJSON("/blueprints/"+id, nil, &result)
+	err := self.client.Get("/blueprints/"+id, nil, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -40,7 +39,7 @@ func (self *ApiClient) Template(id string) (Template, error) {
 }
 
 func (self *ApiClient) TemplateDelete(id string) error {
-	return self.delete("/blueprints/" + id)
+	return self.client.Delete("/blueprints/" + id)
 }
 
 func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
@@ -57,7 +56,7 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.putJSON("/blueprints/"+id, payload, &result)
+	err = self.client.Put("/blueprints/"+id, payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
@@ -70,9 +69,7 @@ func (self *ApiClient) Templates() ([]Template, error) {
 		return nil, err
 	}
 	var result []Template
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/blueprints", params, &result)
+	err = self.client.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}
