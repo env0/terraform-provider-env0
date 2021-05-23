@@ -19,11 +19,11 @@ type HttpClient struct {
 	client    *resty.Client
 }
 
-func NewHttpClient(apiKey string, apiSecret string) (*HttpClient, error) {
+func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string) (*HttpClient, error) {
 	return &HttpClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
-		client:    resty.New().SetHostURL("https://api.env0.com/"),
+		client:    resty.New().SetHostURL(apiEndpoint),
 	}, nil
 }
 

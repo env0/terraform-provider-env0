@@ -60,7 +60,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		return nil, errors.New("either api_secret must be provided or ENV0_API_SECRET environment variable set")
 	}
 
-	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string))
+	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string), d.Get("api_endpoint").(string))
 	if err != nil {
 		return nil, err
 	}
