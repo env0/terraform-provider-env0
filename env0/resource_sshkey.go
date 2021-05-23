@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -35,9 +35,9 @@ func resourceSshKey() *schema.Resource {
 }
 
 func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
-	request := env0apiclient.SshKeyCreatePayload{
+	request := client.SshKeyCreatePayload{
 		Name:  d.Get("name").(string),
 		Value: d.Get("value").(string),
 	}
@@ -52,7 +52,7 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	sshKeys, err := apiClient.SshKeys()
 	if err != nil {
@@ -72,7 +72,7 @@ func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
 	err := apiClient.SshKeyDelete(id)
@@ -84,7 +84,7 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*env0apiclient.ApiClient)
+	// apiClient := meta.(*client.ApiClient)
 
 	// id := d.Id()
 	// ssh key, err := apiClient.SshKey(id)

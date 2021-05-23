@@ -3,7 +3,7 @@ package env0
 import (
 	"context"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,7 +38,7 @@ func dataOrganization() *schema.Resource {
 }
 
 func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	organization, err := apiClient.Organization()
 	if err != nil {

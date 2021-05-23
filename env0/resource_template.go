@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -92,8 +92,8 @@ func resourceTemplate() *schema.Resource {
 	}
 }
 
-func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.TemplateCreatePayload, diag.Diagnostics) {
-	result := env0apiclient.TemplateCreatePayload{
+func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
+	result := client.TemplateCreatePayload{
 		Name:       d.Get("name").(string),
 		Repository: d.Get("repository").(string),
 	}
@@ -107,12 +107,12 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 		result.Revision = revision.(string)
 	}
 	if type_, ok := d.GetOk("type"); ok {
-		if type_ == string(env0apiclient.TemplateTypeTerraform) {
-			result.Type = env0apiclient.TemplateTypeTerraform
-		} else if type_ == string(env0apiclient.TemplateTypeTerragrunt) {
-			result.Type = env0apiclient.TemplateTypeTerragrunt
+		if type_ == string(client.TemplateTypeTerraform) {
+			result.Type = client.TemplateTypeTerraform
+		} else if type_ == string(client.TemplateTypeTerragrunt) {
+			result.Type = client.TemplateTypeTerragrunt
 		} else {
-			return env0apiclient.TemplateCreatePayload{}, diag.Errorf("'type' can either be 'terraform' or 'terragrunt': %s", type_)
+			return client.TemplateCreatePayload{}, diag.Errorf("'type' can either be 'terraform' or 'terragrunt': %s", type_)
 		}
 	}
 	if projectIds, ok := d.GetOk("project_ids"); ok {
@@ -122,23 +122,23 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 		}
 	}
 	if sshKeyNames, ok := d.GetOk("ssh_key_names"); ok {
-		result.SshKeys = []env0apiclient.TemplateSshKey{}
+		result.SshKeys = []client.TemplateSshKey{}
 		for _, sshKeyName := range sshKeyNames.([]interface{}) {
-			result.SshKeys = append(result.SshKeys, env0apiclient.TemplateSshKey{Name: sshKeyName.(string)})
+			result.SshKeys = append(result.SshKeys, client.TemplateSshKey{Name: sshKeyName.(string)})
 		}
 	}
 	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")
 	if hasRetriesOnDeploy {
 		if result.Retry == nil {
-			result.Retry = &env0apiclient.TemplateRetry{}
+			result.Retry = &client.TemplateRetry{}
 		}
-		result.Retry.OnDeploy = &env0apiclient.TemplateRetryOn{
+		result.Retry.OnDeploy = &client.TemplateRetryOn{
 			Times: onDeployRetries.(int),
 		}
 	}
 	if retryOnDeployOnlyIfMatchesRegex, ok := d.GetOk("retry_on_deploy_only_if_matches_regex"); ok {
 		if !hasRetriesOnDeploy {
-			return env0apiclient.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_deploy_only_if_matches_regex'")
+			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_deploy_only_if_matches_regex'")
 		}
 		result.Retry.OnDeploy.ErrorRegex = retryOnDeployOnlyIfMatchesRegex.(string)
 	}
@@ -146,15 +146,15 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 	onDestroyRetries, hasRetriesOnDestroy := d.GetOk("retries_on_destroy")
 	if hasRetriesOnDestroy {
 		if result.Retry == nil {
-			result.Retry = &env0apiclient.TemplateRetry{}
+			result.Retry = &client.TemplateRetry{}
 		}
-		result.Retry.OnDestroy = &env0apiclient.TemplateRetryOn{
+		result.Retry.OnDestroy = &client.TemplateRetryOn{
 			Times: onDestroyRetries.(int),
 		}
 	}
 	if retryOnDestroyOnlyIfMatchesRegex, ok := d.GetOk("retry_on_destroy_only_if_matches_regex"); ok {
 		if !hasRetriesOnDestroy {
-			return env0apiclient.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_destroy_only_if_matches_regex'")
+			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_destroy_only_if_matches_regex'")
 		}
 		result.Retry.OnDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
 	}
@@ -162,7 +162,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (env0apiclient.
 }
 
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -179,7 +179,7 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	template, err := apiClient.Template(d.Id())
 	if err != nil {
@@ -212,7 +212,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -227,7 +227,7 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
 	err := apiClient.TemplateDelete(id)
@@ -239,7 +239,7 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*env0apiclient.ApiClient)
+	// apiClient := meta.(*client.ApiClient)
 
 	// id := d.Id()
 	// template, err := apiClient.Template(id)

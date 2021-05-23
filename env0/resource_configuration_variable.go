@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -73,19 +73,19 @@ func resourceConfigurationVariable() *schema.Resource {
 	}
 }
 
-func whichScope(d *schema.ResourceData) (env0apiclient.Scope, string) {
-	scope := env0apiclient.ScopeGlobal
+func whichScope(d *schema.ResourceData) (client.Scope, string) {
+	scope := client.ScopeGlobal
 	scopeId := ""
 	if projectId, ok := d.GetOk("project_id"); ok {
-		scope = env0apiclient.ScopeProject
+		scope = client.ScopeProject
 		scopeId = projectId.(string)
 	}
 	if templateId, ok := d.GetOk("template_id"); ok {
-		scope = env0apiclient.ScopeTemplate
+		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
 	if environmentId, ok := d.GetOk("environment_id"); ok {
-		scope = env0apiclient.ScopeEnvironment
+		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
 	}
 
@@ -93,19 +93,19 @@ func whichScope(d *schema.ResourceData) (env0apiclient.Scope, string) {
 }
 
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
-	var type_ env0apiclient.ConfigurationVariableType
+	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
-		type_ = env0apiclient.ConfigurationVariableTypeEnvironment
+		type_ = client.ConfigurationVariableTypeEnvironment
 	case "terraform":
-		type_ = env0apiclient.ConfigurationVariableTypeTerraform
+		type_ = client.ConfigurationVariableTypeTerraform
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
@@ -124,7 +124,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
 	scope, scopeId := whichScope(d)
@@ -137,7 +137,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			d.Set("name", variable.Name)
 			d.Set("value", variable.Value)
 			d.Set("is_sensitive", variable.IsSensitive)
-			if variable.Type == int64(env0apiclient.ConfigurationVariableTypeTerraform) {
+			if variable.Type == int64(client.ConfigurationVariableTypeTerraform) {
 				d.Set("type", "terraform")
 			} else {
 				d.Set("type", "environment")
@@ -149,7 +149,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
 	scope, scopeId := whichScope(d)
@@ -157,12 +157,12 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
-	var type_ env0apiclient.ConfigurationVariableType
+	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
-		type_ = env0apiclient.ConfigurationVariableTypeEnvironment
+		type_ = client.ConfigurationVariableTypeEnvironment
 	case "terraform":
-		type_ = env0apiclient.ConfigurationVariableTypeTerraform
+		type_ = client.ConfigurationVariableTypeTerraform
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
@@ -179,7 +179,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
 	err := apiClient.ConfigurationVariableDelete(id)
@@ -191,7 +191,7 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*env0apiclient.ApiClient)
+	// apiClient := meta.(*client.ApiClient)
 
 	// id := d.Id()
 	// configurationVariable, err := apiClient.ConfigurationVariable(id)

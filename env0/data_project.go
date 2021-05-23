@@ -3,7 +3,7 @@ package env0
 import (
 	"context"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -40,9 +40,9 @@ func dataProject() *schema.Resource {
 }
 
 func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 	var err error
-	var project env0apiclient.Project
+	var project client.Project
 
 	id, ok := d.GetOk("id")
 	if ok {

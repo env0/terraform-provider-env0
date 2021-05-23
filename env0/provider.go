@@ -3,7 +3,7 @@ package env0
 import (
 	"errors"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -59,7 +59,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		return nil, errors.New("either api_secret must be provided or ENV0_API_SECRET environment variable set")
 	}
 
-	return &env0apiclient.ApiClient{
+	return &client.ApiClient{
 		Endpoint:  d.Get("api_endpoint").(string),
 		ApiKey:    apiKey.(string),
 		ApiSecret: apiSecret.(string),

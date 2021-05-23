@@ -3,7 +3,7 @@ package env0
 import (
 	"context"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -74,24 +74,24 @@ func dataConfigurationVariable() *schema.Resource {
 }
 
 func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
-	scope := env0apiclient.ScopeGlobal
+	scope := client.ScopeGlobal
 	scopeId := ""
 	if projectId, ok := d.GetOk("project_id"); ok {
-		scope = env0apiclient.ScopeProject
+		scope = client.ScopeProject
 		scopeId = projectId.(string)
 	}
 	if templateId, ok := d.GetOk("template_id"); ok {
-		scope = env0apiclient.ScopeTemplate
+		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
 	if environmentId, ok := d.GetOk("environment_id"); ok {
-		scope = env0apiclient.ScopeEnvironment
+		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
 	}
 	if deploymentLogId, ok := d.GetOk("deployment_log_id"); ok {
-		scope = env0apiclient.ScopeDeploymentLog
+		scope = client.ScopeDeploymentLog
 		scopeId = deploymentLogId.(string)
 	}
 	variables, err := apiClient.ConfigurationVariables(scope, scopeId)
@@ -108,14 +108,14 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		}
 		switch typeString.(string) {
 		case "environment":
-			type_ = int64(env0apiclient.ConfigurationVariableTypeEnvironment)
+			type_ = int64(client.ConfigurationVariableTypeEnvironment)
 		case "terraform":
-			type_ = int64(env0apiclient.ConfigurationVariableTypeTerraform)
+			type_ = int64(client.ConfigurationVariableTypeTerraform)
 		default:
 			return diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString.(string))
 		}
 	}
-	var variable env0apiclient.ConfigurationVariable
+	var variable client.ConfigurationVariable
 	for _, candidate := range variables {
 		if idOk && candidate.Id == id.(string) {
 			variable = candidate
@@ -140,9 +140,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("value", variable.Value)
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
-	if variable.Type == int64(env0apiclient.ConfigurationVariableTypeEnvironment) {
+	if variable.Type == int64(client.ConfigurationVariableTypeEnvironment) {
 		d.Set("type", "environment")
-	} else if variable.Type == int64(env0apiclient.ConfigurationVariableTypeTerraform) {
+	} else if variable.Type == int64(client.ConfigurationVariableTypeTerraform) {
 		d.Set("type", "terraform")
 	} else {
 		return diag.Errorf("Unknown variable type: %d", int(variable.Type))

@@ -1,4 +1,4 @@
-package env0apiclient
+package client
 
 import (
 	"net/url"

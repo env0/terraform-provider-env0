@@ -1,4 +1,4 @@
-package env0apiclient
+package client
 
 func (self *ApiClient) organizationId() (string, error) {
 	if self.cachedOrganizationId != "" {

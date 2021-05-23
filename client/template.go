@@ -1,4 +1,4 @@
-package env0apiclient
+package client
 
 //templates are actually called "blueprints" in some parts of the API, this layer
 //attempts to abstract this detail away - all the users of api client should
