@@ -6,7 +6,7 @@ func (self *ApiClient) Projects() ([]Project, error) {
 		return nil, err
 	}
 	var result []Project
-	err = self.client.Get("/projects", map[string]string{"organizationId": organizationId}, &result)
+	err = self.http.Get("/projects", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return []Project{}, err
 	}
@@ -15,7 +15,7 @@ func (self *ApiClient) Projects() ([]Project, error) {
 
 func (self *ApiClient) Project(id string) (Project, error) {
 	var result Project
-	err := self.client.Get("/projects/"+id, nil, &result)
+	err := self.http.Get("/projects/"+id, nil, &result)
 	if err != nil {
 		return Project{}, err
 	}
@@ -25,7 +25,7 @@ func (self *ApiClient) Project(id string) (Project, error) {
 func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 	var result Project
 	request := map[string]interface{}{"name": name}
-	err := self.client.Post("/projects", request, &result)
+	err := self.http.Post("/projects", request, &result)
 	if err != nil {
 		return Project{}, err
 	}
@@ -33,5 +33,5 @@ func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 }
 
 func (self *ApiClient) ProjectDelete(id string) error {
-	return self.client.Delete("/projects/" + id)
+	return self.http.Delete("/projects/" + id)
 }

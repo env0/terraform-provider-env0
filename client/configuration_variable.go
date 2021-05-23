@@ -24,7 +24,7 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	case scope == ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
 	}
-	err = self.client.Get("/configuration", params, &result)
+	err = self.http.Get("/configuration", params, &result)
 	if err != nil {
 		return []ConfigurationVariable{}, err
 	}
@@ -57,7 +57,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 			"enum": enumValues,
 		}
 	}
-	err = self.client.Post("configuration", request, &result)
+	err = self.http.Post("configuration", request, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -65,7 +65,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 }
 
 func (self *ApiClient) ConfigurationVariableDelete(id string) error {
-	return self.client.Delete("configuration/" + id)
+	return self.http.Delete("configuration/" + id)
 }
 
 func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error) {
@@ -95,7 +95,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 			"enum": enumValues,
 		}
 	}
-	err = self.client.Post("/configuration", request, &result)
+	err = self.http.Post("/configuration", request, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}

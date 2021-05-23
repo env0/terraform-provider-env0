@@ -5,13 +5,13 @@ import (
 )
 
 type ApiClient struct {
-	client               http.HttpClientInterface
+	http                 http.HttpClientInterface
 	cachedOrganizationId string
 }
 
-func NewApiClient(client http.HttpClientInterface, organizationId string) *ApiClient {
+func NewApiClient(client http.HttpClientInterface) *ApiClient {
 	return &ApiClient{
-		client:               client,
-		cachedOrganizationId: organizationId,
+		http:                 client,
+		cachedOrganizationId: "",
 	}
 }
