@@ -11,7 +11,7 @@ func (self *ApiClient) Organization() (Organization, error) {
 		return Organization{}, err
 	}
 	if len(result) != 1 {
-		return Organization{}, errors.New("Server responded with a too many organizations")
+		return Organization{}, errors.New("Server responded with too many organizations")
 	}
 	return result[0], nil
 }
