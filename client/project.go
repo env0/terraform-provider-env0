@@ -1,8 +1,4 @@
-package env0apiclient
-
-import (
-	"net/url"
-)
+package client
 
 func (self *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := self.organizationId()
@@ -10,9 +6,7 @@ func (self *ApiClient) Projects() ([]Project, error) {
 		return nil, err
 	}
 	var result []Project
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/projects", params, &result)
+	err = self.http.Get("/projects", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return []Project{}, err
 	}
@@ -21,7 +15,7 @@ func (self *ApiClient) Projects() ([]Project, error) {
 
 func (self *ApiClient) Project(id string) (Project, error) {
 	var result Project
-	err := self.getJSON("/projects/"+id, nil, &result)
+	err := self.http.Get("/projects/"+id, nil, &result)
 	if err != nil {
 		return Project{}, err
 	}
@@ -31,7 +25,7 @@ func (self *ApiClient) Project(id string) (Project, error) {
 func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 	var result Project
 	request := map[string]interface{}{"name": name}
-	err := self.postJSON("/projects", request, &result)
+	err := self.http.Post("/projects", request, &result)
 	if err != nil {
 		return Project{}, err
 	}
@@ -39,5 +33,5 @@ func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 }
 
 func (self *ApiClient) ProjectDelete(id string) error {
-	return self.delete("/projects/" + id)
+	return self.http.Delete("/projects/" + id)
 }

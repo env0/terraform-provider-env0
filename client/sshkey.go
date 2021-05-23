@@ -1,8 +1,7 @@
-package env0apiclient
+package client
 
 import (
 	"errors"
-	"net/url"
 )
 
 func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error) {
@@ -22,7 +21,7 @@ func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	payload.OrganizationId = organizationId
 
 	var result SshKey
-	err = self.postJSON("/ssh-keys", payload, &result)
+	err = self.http.Post("/ssh-keys", payload, &result)
 	if err != nil {
 		return SshKey{}, err
 	}
@@ -30,7 +29,7 @@ func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 }
 
 func (self *ApiClient) SshKeyDelete(id string) error {
-	return self.delete("/ssh-keys/" + id)
+	return self.http.Delete("/ssh-keys/" + id)
 }
 
 func (self *ApiClient) SshKeys() ([]SshKey, error) {
@@ -39,9 +38,7 @@ func (self *ApiClient) SshKeys() ([]SshKey, error) {
 		return nil, err
 	}
 	var result []SshKey
-	params := url.Values{}
-	params.Add("organizationId", organizationId)
-	err = self.getJSON("/ssh-keys", params, &result)
+	err = self.http.Get("/ssh-keys", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}

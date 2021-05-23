@@ -1,4 +1,4 @@
-package env0apiclient
+package client
 
 type Organization struct {
 	Id           string `json:"id"`

@@ -1,9 +1,9 @@
-package env0tfprovider
+package env0
 
 import (
 	"context"
 
-	"github.com/env0/terraform-provider-env0/env0apiclient"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -30,10 +30,10 @@ func dataSshKey() *schema.Resource {
 }
 
 func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*env0apiclient.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	name, nameSpecified := d.GetOk("name")
-	var sshKey env0apiclient.SshKey
+	var sshKey client.SshKey
 	if nameSpecified {
 		sshKeys, err := apiClient.SshKeys()
 		if err != nil {
