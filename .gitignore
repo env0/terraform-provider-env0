@@ -16,3 +16,7 @@
 *.sw?
 terraform-provider-env0
 attic
+
+# ide
+.vscode/
+.idea/
