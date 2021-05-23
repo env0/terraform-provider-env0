@@ -2,6 +2,7 @@ package env0
 
 import (
 	"errors"
+	"github.com/env0/terraform-provider-env0/client/http"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -12,7 +13,7 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"api_endpoint": {
 				Type:        schema.TypeString,
-				Description: "override epi endpoint (used for testing)",
+				Description: "override api endpoint (used for testing)",
 				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
 				Optional:    true,
 				Sensitive:   false,
@@ -59,9 +60,10 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		return nil, errors.New("either api_secret must be provided or ENV0_API_SECRET environment variable set")
 	}
 
-	return &client.ApiClient{
-		Endpoint:  d.Get("api_endpoint").(string),
-		ApiKey:    apiKey.(string),
-		ApiSecret: apiSecret.(string),
-	}, nil
+	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string))
+	if err != nil {
+		return nil, err
+	}
+
+	return client.NewApiClient(httpClient), nil
 }
