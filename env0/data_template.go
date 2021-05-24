@@ -83,6 +83,12 @@ func dataTemplate() *schema.Resource {
 				Description: "if specified, will only retry (on destroy) if error matches specified regex",
 				Computed:    true,
 			},
+			"github_installation_id": {
+				Type:        schema.TypeInt,
+				Description: "The installation id env0 application on the repository",
+				Computed:    true,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -138,6 +144,10 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	} else {
 		d.Set("retries_on_destroy", 0)
 		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	}
+
+	if template.GithubInstallationId != 0 {
+		d.Set("github_installation_id", template.GithubInstallationId)
 	}
 
 	//TODO: sshkeys
