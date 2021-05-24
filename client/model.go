@@ -107,23 +107,24 @@ type TemplateCreatePayload struct {
 }
 
 type Template struct {
-	Author         User             `json:"author"`
-	AuthorId       string           `json:"authorId"`
-	CreatedAt      string           `json:"createdAt"`
-	Href           string           `json:"href"`
-	Id             string           `json:"id"`
-	Name           string           `json:"name"`
-	Description    string           `json:"description"`
-	OrganizationId string           `json:"organizationId"`
-	Path           string           `json:"path"`
-	Revision       string           `json:"revision"`
-	ProjectId      string           `json:"projectId"`
-	ProjectIds     []string         `json:"projectIds"`
-	Repository     string           `json:"repository"`
-	Retry          TemplateRetry    `json:"retry"`
-	SshKeys        []TemplateSshKey `json:"sshKeys"`
-	Type           string           `json:"type"`
-	UpdatedAt      string           `json:"updatedAt"`
+	Author               User             `json:"author"`
+	AuthorId             string           `json:"authorId"`
+	CreatedAt            string           `json:"createdAt"`
+	Href                 string           `json:"href"`
+	Id                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	Description          string           `json:"description"`
+	OrganizationId       string           `json:"organizationId"`
+	Path                 string           `json:"path"`
+	Revision             string           `json:"revision"`
+	ProjectId            string           `json:"projectId"`
+	ProjectIds           []string         `json:"projectIds"`
+	Repository           string           `json:"repository"`
+	Retry                TemplateRetry    `json:"retry"`
+	SshKeys              []TemplateSshKey `json:"sshKeys"`
+	Type                 string           `json:"type"`
+	GithubInstallationId int              `json:"githubInstallationId"`
+	UpdatedAt            string           `json:"updatedAt"`
 }
 
 type SshKey struct {
