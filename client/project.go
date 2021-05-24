@@ -24,8 +24,13 @@ func (self *ApiClient) Project(id string) (Project, error) {
 
 func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 	var result Project
-	request := map[string]interface{}{"name": name}
-	err := self.http.Post("/projects", request, &result)
+	organizationId, err := self.organizationId()
+	if err != nil {
+		return Project{}, nil
+	}
+
+	request := map[string]interface{}{"name": name, "organizationId": organizationId}
+	err = self.http.Post("/projects", request, &result)
 	if err != nil {
 		return Project{}, err
 	}
