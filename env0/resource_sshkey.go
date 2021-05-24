@@ -2,8 +2,7 @@ package env0
 
 import (
 	"context"
-	"errors"
-
+	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -83,16 +82,19 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
-	// id := d.Id()
-	// ssh key, err := apiClient.SshKey(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	id := d.Id()
+	sshKeys, err := apiClient.SshKeys()
+	if err != nil {
+		return nil, err
+	}
 
-	// d.Set("name", ssh key.Name)
-
-	// return []*schema.ResourceData{d}, nil
+	for _, sshKey := range sshKeys {
+		if sshKey.Id == id {
+			d.Set("name", sshKey.Name)
+			return []*schema.ResourceData{d}, nil
+		}
+	}
+	return nil, fmt.Errorf("No ssh key for id %s", id)
 }
