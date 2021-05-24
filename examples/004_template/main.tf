@@ -7,6 +7,7 @@ resource "env0_template" "tested1" {
   description                             = "Tested 1 description"
   type                                    = "terraform"
   repository                              = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
+  github_installation_id                  = 3
   path                                    = var.second_run ? "second" : ""
   project_ids                             = [data.env0_project.default_project.id]
   retries_on_deploy                       = 3
