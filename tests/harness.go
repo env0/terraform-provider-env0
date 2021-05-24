@@ -107,7 +107,10 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 	var stringMapUncasted map[string]interface{}
 	err := json.Unmarshal(data, &stringMapUncasted)
 	if err != nil {
-		log.Println("Unable to parse expected_outputs.json:", err)
+		log.Println("Unable to parse json:", err)
+		log.Println("** JSON Input **")
+		log.Println(string(data[:]))
+		log.Println("******")
 		return nil, err
 	}
 	result := map[string]string{}
