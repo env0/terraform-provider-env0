@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -188,7 +189,8 @@ func testNamesFromCommandLineArguments() []string {
 }
 
 func buildFakeTerraformRegistry() {
-	registry_dir := "tests/fake_registry/terraform-registry.env0.com/env0/env0/6.6.6/linux_amd64"
+	architecture := runtime.GOOS + "_" + runtime.GOARCH
+	registry_dir := "tests/fake_registry/terraform-registry.env0.com/env0/env0/6.6.6/" + architecture
 	err := os.MkdirAll(registry_dir, 0755)
 	if err != nil {
 		log.Fatalln("Unable to create registry folder ", registry_dir, " error: ", err)
