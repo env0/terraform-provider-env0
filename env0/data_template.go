@@ -88,6 +88,11 @@ func dataTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"terraform_version": {
+				Type:        schema.TypeString,
+				Description: "terraform version to use",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -125,6 +130,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
+	d.Set("terraform_version", template.TerraformVersion)
 	sshKeyNames := []string{}
 	for _, sshKey := range template.SshKeys {
 		sshKeyNames = append(sshKeyNames, sshKey.Name)
