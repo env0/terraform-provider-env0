@@ -5,15 +5,18 @@ import (
 )
 
 func (self *ApiClient) Organization() (Organization, error) {
-	var result []Organization
-	err := self.http.Get("/organizations", nil, &result)
+	result, err := self.http.Get("/organizations", nil)
 	if err != nil {
 		return Organization{}, err
 	}
-	if len(result) != 1 {
+
+	var organizations []Organization
+	organizations = result.([]Organization)
+
+	if len(organizations) != 1 {
 		return Organization{}, errors.New("Server responded with too many organizations")
 	}
-	return result[0], nil
+	return organizations[0], nil
 }
 
 func (self *ApiClient) organizationId() (string, error) {

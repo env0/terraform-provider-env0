@@ -20,12 +20,11 @@ func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	}
 	payload.OrganizationId = organizationId
 
-	var result SshKey
-	err = self.http.Post("/ssh-keys", payload, &result)
+	result, err := self.http.Post("/ssh-keys", payload)
 	if err != nil {
 		return SshKey{}, err
 	}
-	return result, nil
+	return result.(SshKey), nil
 }
 
 func (self *ApiClient) SshKeyDelete(id string) error {
@@ -37,10 +36,12 @@ func (self *ApiClient) SshKeys() ([]SshKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []SshKey
-	err = self.http.Get("/ssh-keys", map[string]string{"organizationId": organizationId}, &result)
+
+	result, err := self.http.Get("/ssh-keys", map[string]string{"organizationId": organizationId})
 	if err != nil {
 		return nil, err
 	}
-	return result, err
+
+	sshKeys := result.([]SshKey)
+	return sshKeys, err
 }
