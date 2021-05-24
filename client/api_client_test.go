@@ -37,9 +37,7 @@ func mockOrganizationIdCall(organizationId string) {
 		Id: organizationId,
 	}}
 
-	organizationIdCall = mockHttpClient.EXPECT().Get("/organizations", nil, gomock.Any()).Do(func(path string, params interface{}, result *[]Organization) {
-		*result = organizations
-	})
+	organizationIdCall = mockHttpClient.EXPECT().Get("/organizations", nil).Return(organizations, nil)
 }
 
 func TestApiClient(t *testing.T) {
