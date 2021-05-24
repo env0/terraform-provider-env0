@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -107,7 +108,10 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 	var stringMapUncasted map[string]interface{}
 	err := json.Unmarshal(data, &stringMapUncasted)
 	if err != nil {
-		log.Println("Unable to parse expected_outputs.json:", err)
+		log.Println("Unable to parse json:", err)
+		log.Println("** JSON Input **")
+		log.Println(string(data[:]))
+		log.Println("******")
 		return nil, err
 	}
 	result := map[string]string{}
@@ -185,7 +189,8 @@ func testNamesFromCommandLineArguments() []string {
 }
 
 func buildFakeTerraformRegistry() {
-	registry_dir := "tests/fake_registry/terraform-registry.env0.com/env0/env0/6.6.6/linux_amd64"
+	architecture := runtime.GOOS + "_" + runtime.GOARCH
+	registry_dir := "tests/fake_registry/terraform-registry.env0.com/env0/env0/6.6.6/" + architecture
 	err := os.MkdirAll(registry_dir, 0755)
 	if err != nil {
 		log.Fatalln("Unable to create registry folder ", registry_dir, " error: ", err)
