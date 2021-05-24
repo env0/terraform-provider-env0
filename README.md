@@ -382,7 +382,7 @@ If you have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined, 
 Use `go run tests/harness.go 003_configuration_variable` to run a specific test.
 The last argument can also be specified as a full path, e.g., `tests/003_configuration_variable/`.
 
-Each tests perform the following steps:
+Each test perform the following steps:
 
 - `terraform init`
 - `terraform apply -auto-approve -var second_run=0`
