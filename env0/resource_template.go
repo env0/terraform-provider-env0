@@ -88,6 +88,11 @@ func resourceTemplate() *schema.Resource {
 				Description: "if specified, will only retry (on destroy) if error matches specified regex",
 				Optional:    true,
 			},
+			"github_installation_id": {
+				Type:        schema.TypeString,
+				Description: "description for the template",
+				Optional:    true,
+			},
 		},
 	}
 }
