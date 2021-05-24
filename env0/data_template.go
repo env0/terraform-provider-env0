@@ -54,13 +54,13 @@ func dataTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
-			"ssh_key_names": {
+			"ssh_keys": {
 				Type:        schema.TypeList,
 				Description: "which ssh keys are used for accessing git over ssh",
 				Computed:    true,
 				Elem: &schema.Schema{
-					Type:        schema.TypeString,
-					Description: "env0_ssh_key.name for each project",
+					Type:        schema.TypeMap,
+					Description: "a map of env0_ssh_key.id and env0_ssh_key.name for each project",
 				},
 			},
 			"retries_on_deploy": {
@@ -125,11 +125,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
-	sshKeyNames := []string{}
-	for _, sshKey := range template.SshKeys {
-		sshKeyNames = append(sshKeyNames, sshKey.Name)
-	}
-	d.Set("ssh_key_names", sshKeyNames)
+	d.Set("ssh_keys", template.SshKeys)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
