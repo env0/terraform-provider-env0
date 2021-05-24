@@ -59,13 +59,13 @@ func resourceTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
-			"ssh_key_names": {
+			"ssh_keys": {
 				Type:        schema.TypeList,
-				Description: "names of env0 defined ssh keys to use when accessing git over ssh",
+				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
 				Optional:    true,
 				Elem: &schema.Schema{
-					Type:        schema.TypeString,
-					Description: "env0_ssh_key.name for each ssh key",
+					Type:        schema.TypeMap,
+					Description: "a map of env0_ssh_key.id and env0_ssh_key.name for each project",
 				},
 			},
 			"retries_on_deploy": {
@@ -135,10 +135,12 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 			result.ProjectIds = append(result.ProjectIds, projectId.(string))
 		}
 	}
-	if sshKeyNames, ok := d.GetOk("ssh_key_names"); ok {
+	if sshKeys, ok := d.GetOk("ssh_keys"); ok {
 		result.SshKeys = []client.TemplateSshKey{}
-		for _, sshKeyName := range sshKeyNames.([]interface{}) {
-			result.SshKeys = append(result.SshKeys, client.TemplateSshKey{Name: sshKeyName.(string)})
+		for _, sshKey := range sshKeys.([]interface{}) {
+			result.SshKeys = append(result.SshKeys, client.TemplateSshKey{
+				Name: sshKey.(map[string]interface{})["name"].(string),
+				Id:   sshKey.(map[string]interface{})["id"].(string)})
 		}
 	}
 	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")

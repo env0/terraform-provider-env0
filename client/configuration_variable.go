@@ -39,7 +39,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-	var result ConfigurationVariable
+	var result []ConfigurationVariable
 	request := map[string]interface{}{
 		"name":           name,
 		"value":          value,
@@ -57,11 +57,12 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 			"enum": enumValues,
 		}
 	}
-	err = self.http.Post("configuration", request, &result)
+	requestInArray := []map[string]interface{}{request}
+	err = self.http.Post("configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-	return result, nil
+	return result[0], nil
 }
 
 func (self *ApiClient) ConfigurationVariableDelete(id string) error {
@@ -76,7 +77,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-	var result ConfigurationVariable
+	var result []ConfigurationVariable
 	request := map[string]interface{}{
 		"id":             id,
 		"name":           name,
@@ -95,9 +96,10 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 			"enum": enumValues,
 		}
 	}
-	err = self.http.Post("/configuration", request, &result)
+	requestInArray := []map[string]interface{}{request}
+	err = self.http.Post("/configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-	return result, nil
+	return result[0], nil
 }

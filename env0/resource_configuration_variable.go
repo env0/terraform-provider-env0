@@ -172,7 +172,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	}
 	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, enumValues)
 	if err != nil {
-		return diag.Errorf("could not create configurationVariable: %v", err)
+		return diag.Errorf("could not update configurationVariable: %v", err)
 	}
 
 	return nil

@@ -70,6 +70,69 @@ The env0 Terraform provider provides the following building blocks:
 - `env0_project` - [data source](#env0_project-data-source) and [resource](#env0_project-resource)
 - `env0_configuration_variable` - [data source](#env0_configuration_variable-data-source) and [resource](#env0_configuration_variable-resource)
 - `env0_template` - [data source](#env0_template-data-source) and [resource](#env0_template-resource)
+- `ssh_key` - [data source](#env0_ssh_key-data-source) and [resource](#env0_ssh_key-resource)
+
+### `env0_ssh_key` resource
+
+Define a new ssh key.
+
+#### Example usage
+
+```terraform
+resource "tls_private_key" "throwaway" {
+  algorithm = "RSA"
+}
+output "public_key_you_need_to_add_to_github_ssh_keys" {
+  value = tls_private_key.throwaway.public_key_openssh
+}
+
+resource "env0_ssh_key" "tested" {
+  name  = "test key"
+  value = tls_private_key.throwaway.private_key_pem
+}
+
+data "env0_ssh_key" "tested" {
+  name       = "test key"
+  depends_on = [env0_ssh_key.tested]
+}
+```
+
+#### Argument reference
+
+The following arguments are supported:
+
+- `name` - Name for the ssh key;
+- `value` - Value of the key;
+
+
+[^ Back to all resources](#resources)
+
+### `env0_ssh_key` data source
+
+Fetch metadata associated with an existing ssh key.
+
+#### Example usage
+
+```terraform
+data "env0_ssh_key" "my_key" {
+  name = "Secret Key"
+}
+
+resource "env0_template" "example" {
+  # ...
+  ssh_keys = [data.env0_ssh_key.my_keys]
+}
+```
+
+#### Argument reference
+
+The following arguments are supported:
+
+- `id` - (Required if name is not set) - Fetch ssh key by id;
+- `name` - (Required if id not set, mutally exclusive) - Look for the first ssh key that matches said name;
+
+
+[^ Back to all resources](#resources)
 
 ### `env0_template` resource
 
@@ -87,6 +150,7 @@ resource "env0_template" "example" {
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
   project_ids = [data.env0_project.default_project.id]
+  ssh_keys = [data.ssh_keys.my_keys]
 }
 ```
 
@@ -101,6 +165,7 @@ The following arguments are supported:
 - `revision` - (Optional) - source code revision (branch / tag) to use;
 - `type` - (Optional, default "terraform") - `terraform` or `terragrunt`;
 - `project_ids` - (Optional) - a list of which projects may access this template (id of project);
+- `ssh_keys` - (Optional) - an array of references to [`env0_ssh_key`](#env0_ssh_key-data-source) terraform data source to be assigned to this template;
 - `retries_on_deploy` - (Optional) - number of times to retry when deploying an environment based on this template (between 1 and 3)
 - `retry_on_deploy_only_when_matches_regex` - (Optional) - if specified, will only retry (on deploy) if error matches specified regex;
 - `retries_on_destroy` - (Optional) - number of times to retry when destroying an environment based on this template (between 1 and 3)
