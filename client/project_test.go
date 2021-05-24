@@ -81,7 +81,7 @@ var _ = Describe("Project", func() {
 			projects, _ = apiClient.Projects()
 		})
 
-		It("Should send GET request with project id", func() {
+		It("Should send GET request with organization id param", func() {
 			httpCall.Times(1)
 		})
 
