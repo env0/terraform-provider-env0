@@ -85,7 +85,7 @@ func dataTemplate() *schema.Resource {
 			},
 			"github_installation_id": {
 				Type:        schema.TypeInt,
-				Description: "The installation id env0 application on the repository",
+				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
 		},

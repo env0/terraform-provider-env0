@@ -90,7 +90,7 @@ func resourceTemplate() *schema.Resource {
 			},
 			"github_installation_id": {
 				Type:        schema.TypeInt,
-				Description: "description for the template",
+				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
 		},
