@@ -10,7 +10,7 @@ const projectName = "project_test"
 
 var _ = Describe("Project", func() {
 	var project Project
-	mockProject := &Project{
+	mockProject := Project{
 		Id:             "id",
 		Name:           "config-key",
 		OrganizationId: organizationId,
@@ -26,8 +26,7 @@ var _ = Describe("Project", func() {
 					"name":           projectName,
 					"organizationId": organizationId,
 				},
-				&project,
-			)
+			).Return(mockProject, nil)
 
 			project, _ = apiClient.ProjectCreate(projectName)
 		})
