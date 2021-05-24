@@ -105,6 +105,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if description, ok := d.GetOk("description"); ok {
 		result.Description = description.(string)
 	}
+	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
+		result.GithubInstallationId = githubInstallationId.(int)
+	}
 	if path, ok := d.GetOk("path"); ok {
 		result.Path = path.(string)
 	}
@@ -193,6 +196,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	d.Set("name", template.Name)
 	d.Set("description", template.Description)
+	d.Set("github_installation_id", template.GithubInstallationId)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
