@@ -1,5 +1,7 @@
 package http
 
+//go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
+
 import (
 	"errors"
 	"github.com/go-resty/resty/v2"
