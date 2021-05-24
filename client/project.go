@@ -26,7 +26,7 @@ func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 	var result Project
 	organizationId, err := self.organizationId()
 	if err != nil {
-		return Project{}, nil
+		return Project{}, err
 	}
 
 	request := map[string]interface{}{"name": name, "organizationId": organizationId}
