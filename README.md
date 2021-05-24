@@ -72,7 +72,7 @@ The env0 Terraform provider provides the following building blocks:
 - `env0_template` - [data source](#env0_template-data-source) and [resource](#env0_template-resource)
 - `ssh_key` - [data source](#env0_ssh_key-data-source) and [resource](#env0_ssh_key-resource)
 
-### `env0_ssh_key` resource source
+### `env0_ssh_key` resource
 
 Define a new ssh key.
 
