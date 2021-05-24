@@ -28,5 +28,5 @@ resource "env0_template" "usage" {
   description   = "use a ssh key"
   type          = "terraform"
   repository    = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
-  ssh_key_names = [env0_ssh_key.tested.name]
+  ssh_keys = [env0_ssh_key.tested]
 }
