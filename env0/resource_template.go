@@ -121,10 +121,12 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 			result.ProjectIds = append(result.ProjectIds, projectId.(string))
 		}
 	}
-	if sshKeyNames, ok := d.GetOk("ssh_key"); ok {
+	if sshKeys, ok := d.GetOk("ssh_keys"); ok {
 		result.SshKeys = []client.TemplateSshKey{}
-		for _, sshKeyName := range sshKeyNames.([]interface{}) {
-			result.SshKeys = append(result.SshKeys, client.TemplateSshKey{Name: sshKeyName.(string)})
+		for _, sshKey := range sshKeys.([]interface{}) {
+			result.SshKeys = append(result.SshKeys, client.TemplateSshKey{
+				Name: sshKey.(map[string]interface{})["name"].(string),
+				Id:   sshKey.(map[string]interface{})["id"].(string)})
 		}
 	}
 	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")
