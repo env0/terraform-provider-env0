@@ -1,5 +1,14 @@
 package client
 
+//go:generate mockgen -destination=project_mock.go -package=client . ProjectApiClient
+
+type ProjectApiClient interface {
+	Projects() ([]Project, error)
+	Project(id string) (Project, error)
+	ProjectCreate(name string) (Project, error)
+	ProjectDelete(id string) error
+}
+
 func (self *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
