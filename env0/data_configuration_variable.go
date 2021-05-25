@@ -85,24 +85,7 @@ func dataConfigurationVariable() *schema.Resource {
 }
 
 func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scope := client.ScopeGlobal
-	scopeId := ""
-	if projectId, ok := d.GetOk("project_id"); ok {
-		scope = client.ScopeProject
-		scopeId = projectId.(string)
-	}
-	if templateId, ok := d.GetOk("template_id"); ok {
-		scope = client.ScopeTemplate
-		scopeId = templateId.(string)
-	}
-	if environmentId, ok := d.GetOk("environment_id"); ok {
-		scope = client.ScopeEnvironment
-		scopeId = environmentId.(string)
-	}
-	if deploymentLogId, ok := d.GetOk("deployment_log_id"); ok {
-		scope = client.ScopeDeploymentLog
-		scopeId = deploymentLogId.(string)
-	}
+	scope, scopeId := getScopeAndId(d)
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
 	configurationType, configurationOk := d.GetOk("type")
@@ -139,6 +122,28 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	return nil
+}
+
+func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
+	scope := client.ScopeGlobal
+	scopeId := ""
+	if projectId, ok := d.GetOk("project_id"); ok {
+		scope = client.ScopeProject
+		scopeId = projectId.(string)
+	}
+	if templateId, ok := d.GetOk("template_id"); ok {
+		scope = client.ScopeTemplate
+		scopeId = templateId.(string)
+	}
+	if environmentId, ok := d.GetOk("environment_id"); ok {
+		scope = client.ScopeEnvironment
+		scopeId = environmentId.(string)
+	}
+	if deploymentLogId, ok := d.GetOk("deployment_log_id"); ok {
+		scope = client.ScopeDeploymentLog
+		scopeId = deploymentLogId.(string)
+	}
+	return scope, scopeId
 }
 
 func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
