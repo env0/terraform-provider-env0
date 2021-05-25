@@ -260,15 +260,15 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
-	var getTemplateErr diag.Diagnostics
+	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		_, getTemplateErr = getTemplateById(id, meta)
+		_, getErr = getTemplateById(id, meta)
 	} else {
-		_, getTemplateErr = getTemplateByName(id, meta)
+		_, getErr = getTemplateByName(id, meta)
 	}
-	if getTemplateErr != nil {
-		return nil, errors.New(getTemplateErr[0].Summary)
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
 	} else {
 		return []*schema.ResourceData{d}, nil
 	}
