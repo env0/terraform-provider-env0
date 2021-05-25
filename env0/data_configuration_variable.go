@@ -8,6 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type ConfigurationVariableParams struct {
+	Scope             client.Scope
+	ScopeId           string
+	Id                string
+	HaveId            bool
+	Name              string
+	HaveName          bool
+	configurationType string
+	HaveType          bool
+}
+
 func dataConfigurationVariable() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataConfigurationVariableRead,
@@ -74,8 +85,6 @@ func dataConfigurationVariable() *schema.Resource {
 }
 
 func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
-
 	scope := client.ScopeGlobal
 	scopeId := ""
 	if projectId, ok := d.GetOk("project_id"); ok {
@@ -94,45 +103,26 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		scope = client.ScopeDeploymentLog
 		scopeId = deploymentLogId.(string)
 	}
-	variables, err := apiClient.ConfigurationVariables(scope, scopeId)
-	if err != nil {
-		return diag.Errorf("Could not query variables: %v", err)
-	}
-
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
-	type_ := int64(-1)
-	if typeString, ok := d.GetOk("type"); ok {
-		if !nameOk {
-			return diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
-		}
-		switch typeString.(string) {
-		case "environment":
-			type_ = int64(client.ConfigurationVariableTypeEnvironment)
-		case "terraform":
-			type_ = int64(client.ConfigurationVariableTypeTerraform)
-		default:
-			return diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString.(string))
-		}
+	configurationType, configurationOk := d.GetOk("type")
+	parsedId, parsedName, parsedConfigurationType := "", "", ""
+
+	if idOk {
+		parsedId = id.(string)
 	}
-	var variable client.ConfigurationVariable
-	for _, candidate := range variables {
-		if idOk && candidate.Id == id.(string) {
-			variable = candidate
-			break
-		}
-		if nameOk && candidate.Name == name.(string) {
-			if type_ != -1 {
-				if candidate.Type != type_ {
-					continue
-				}
-			}
-			variable = candidate
-			break
-		}
+	if nameOk {
+		parsedName = name.(string)
 	}
-	if variable.Id == "" {
-		return diag.Errorf("Could not find variable")
+	if configurationOk {
+		parsedConfigurationType = configurationType.(string)
+	}
+
+	params := ConfigurationVariableParams{scope, scopeId, parsedId, idOk, parsedName, nameOk, parsedConfigurationType, configurationOk}
+
+	variable, err := getConfigurationVariable(params, scopeId)
+	if err != nil {
+		return err
 	}
 
 	d.SetId(variable.Id)
@@ -149,4 +139,51 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	return nil
+}
+
+func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
+	apiClient := meta.(*client.ApiClient)
+
+	variables, err := apiClient.ConfigurationVariables(params.Scope, params.ScopeId)
+	if err != nil {
+		return client.ConfigurationVariable{}, diag.Errorf("Could not query variables: %v", err)
+	}
+
+	id, idOk := params.Id, params.HaveId
+	name, nameOk := params.Name, params.HaveName
+	typeString, ok := params.configurationType, params.HaveType
+	type_ := int64(-1)
+	if ok {
+		if !nameOk {
+			return client.ConfigurationVariable{}, diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
+		}
+		switch typeString {
+		case "environment":
+			type_ = int64(client.ConfigurationVariableTypeEnvironment)
+		case "terraform":
+			type_ = int64(client.ConfigurationVariableTypeTerraform)
+		default:
+			return client.ConfigurationVariable{}, diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString)
+		}
+	}
+	var variable client.ConfigurationVariable
+	for _, candidate := range variables {
+		if idOk && candidate.Id == id {
+			variable = candidate
+			break
+		}
+		if nameOk && candidate.Name == name {
+			if type_ != -1 {
+				if candidate.Type != type_ {
+					continue
+				}
+			}
+			variable = candidate
+			break
+		}
+	}
+	if variable.Id == "" {
+		return client.ConfigurationVariable{}, diag.Errorf("Could not find variable")
+	}
+	return variable, nil
 }
