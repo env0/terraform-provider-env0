@@ -2,7 +2,7 @@ package env0
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,22 +51,10 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
-
-	sshKeys, err := apiClient.SshKeys()
+	_, err := GetById(d.Id(), meta)
 	if err != nil {
-		return diag.Errorf("could not query ssh keys: %v", err)
+		return err
 	}
-	found := false
-	for _, candidate := range sshKeys {
-		if candidate.Id == d.Id() {
-			found = true
-		}
-	}
-	if !found {
-		return diag.Errorf("ssh key %s not found", d.Id())
-	}
-
 	return nil
 }
 
@@ -82,26 +70,10 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	apiClient := meta.(*client.ApiClient)
-
-	name := d.Id()
-	sshKeys, err := apiClient.SshKeys()
+	_, err := GetById(d.Id(), meta)
 	if err != nil {
-		return nil, err
-	}
-
-	count := 0
-	for _, sshKey := range sshKeys {
-		if sshKey.Name == name && count == 0 {
-			d.Set("name", sshKey.Name)
-			count++
-		} else if sshKey.Name == name && count != 0 {
-			return nil, fmt.Errorf("More then one ssh key using name = %s", name)
-		}
-	}
-	if count == 1 {
-		return []*schema.ResourceData{d}, nil
+		return nil, errors.New(err[0].Summary)
 	} else {
-		return nil, fmt.Errorf("No ssh key for name %s", name)
+		return []*schema.ResourceData{d}, nil
 	}
 }
