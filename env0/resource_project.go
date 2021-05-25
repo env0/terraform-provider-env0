@@ -28,6 +28,11 @@ func resourceProject() *schema.Resource {
 				Description: "id of the project",
 				Computed:    true,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "description of the project",
+				Computed:    true,
+			},
 		},
 	}
 }
