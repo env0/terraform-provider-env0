@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -70,9 +71,16 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	_, err := getSshKeyById(d.Id(), meta)
-	if err != nil {
-		return nil, errors.New(err[0].Summary)
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, uuidErr := uuid.Parse(id)
+	if uuidErr == nil {
+		_, getErr = getSshKeyById(id, meta)
+	} else {
+		_, getErr = getSshKeyByName(id, meta)
+	}
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
 	} else {
 		return []*schema.ResourceData{d}, nil
 	}
