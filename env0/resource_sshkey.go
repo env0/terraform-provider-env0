@@ -51,7 +51,7 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	_, err := GetById(d.Id(), meta)
+	_, err := getSshKeyById(d.Id(), meta)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	_, err := GetById(d.Id(), meta)
+	_, err := getSshKeyById(d.Id(), meta)
 	if err != nil {
 		return nil, errors.New(err[0].Summary)
 	} else {

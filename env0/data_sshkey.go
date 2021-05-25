@@ -10,7 +10,7 @@ import (
 
 func dataSshKey() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: DataSshKeyRead,
+		ReadContext: dataSshKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -29,12 +29,12 @@ func dataSshKey() *schema.Resource {
 	}
 }
 
-func DataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name, nameSpecified := d.GetOk("name")
 	var sshKey client.SshKey
 	var err diag.Diagnostics
 	if nameSpecified {
-		sshKey, err = GetByName(meta, name)
+		sshKey, err = getSshKeyByName(meta, name)
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func DataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		if !idSpecified {
 			return diag.Errorf("At lease one of 'id', 'name' must be specified")
 		}
-		sshKey, err = GetById(meta, id)
+		sshKey, err = getSshKeyById(meta, id)
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func DataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func GetByName(name interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
+func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
 	apiClient := meta.(*client.ApiClient)
 
 	sshKeys, err := apiClient.SshKeys()
@@ -75,7 +75,7 @@ func GetByName(name interface{}, meta interface{}) (client.SshKey, diag.Diagnost
 	return sshKey, nil
 }
 
-func GetById(id interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
+func getSshKeyById(id interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
 	apiClient := meta.(*client.ApiClient)
 
 	sshKeys, err := apiClient.SshKeys()
