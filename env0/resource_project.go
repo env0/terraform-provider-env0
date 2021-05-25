@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -73,13 +74,9 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	apiClient := meta.(*client.ApiClient)
-
-	id := d.Id()
-	_, err := apiClient.Project(id)
+	_, err := getProjectById(d.Id(), meta)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(err[0].Summary)
 	}
-
 	return []*schema.ResourceData{d}, nil
 }
