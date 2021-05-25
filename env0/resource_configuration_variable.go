@@ -84,6 +84,10 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
+	if templateId, ok := d.GetOk("blueprint_id"); ok {
+		scope = client.ScopeTemplate
+		scopeId = templateId.(string)
+	}
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
