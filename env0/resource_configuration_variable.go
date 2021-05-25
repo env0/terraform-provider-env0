@@ -192,14 +192,15 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 	inputData := d.Id()
-	err := json.Unmarshal([]byte(inputData), configurationParams)
+	err := json.Unmarshal([]byte(inputData), &configurationParams)
 	if err != nil {
 		return nil, err
 	}
-	_, getErr := getConfigurationVariable(configurationParams, meta)
+	variable, getErr := getConfigurationVariable(configurationParams, meta)
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
 	} else {
+		d.SetId(variable.Id)
 		return []*schema.ResourceData{d}, nil
 	}
 }
