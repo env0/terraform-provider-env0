@@ -197,6 +197,10 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 	var configurationParams ConfigurationVariableParams
 	inputData := d.Id()
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
+	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
+	if string(configurationParams.Scope) == "TEMPLATE" {
+		configurationParams.Scope = "BLUEPRINT"
+	}
 	if err != nil {
 		return nil, err
 	}
