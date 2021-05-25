@@ -377,6 +377,7 @@ TF_CLI_CONFIG_FILE=<terraform.rc path> terraform init
 
 ## Testing
 
+### Harness
 If you have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined, after building the provider locally, just run `go run tests/harness.go` to run all the tests. Make sure to run from the project root folder.
 
 Use `go run tests/harness.go 003_configuration_variable` to run a specific test.
@@ -392,3 +393,21 @@ Each test perform the following steps:
 
 The harness has two convenient modes to help while developing: If an environment variable `DESTROY_MODE` exists, and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
 Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and *only* `terraform destroy` will run.
+
+### Unit Testing
+#### How to run tests
+Run from root directory:
+```shell
+go test ./...
+```
+
+#### How to use mocks
+1. Make sure to add this line in files that include the interface you'd wish to mock:
+```
+//go:generate mockgen -destination=<file>_mock.go -package=<package> . <interface>
+```
+
+2. Run from root directory:
+```shell
+go generate ./...
+```
