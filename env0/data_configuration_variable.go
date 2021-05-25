@@ -12,11 +12,8 @@ type ConfigurationVariableParams struct {
 	Scope             client.Scope
 	ScopeId           string
 	Id                string
-	HaveId            bool
 	Name              string
-	HaveName          bool
 	configurationType string
-	HaveType          bool
 }
 
 func dataConfigurationVariable() *schema.Resource {
@@ -101,7 +98,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		parsedConfigurationType = configurationType.(string)
 	}
 
-	params := ConfigurationVariableParams{scope, scopeId, parsedId, idOk, parsedName, nameOk, parsedConfigurationType, configurationOk}
+	params := ConfigurationVariableParams{scope, scopeId, parsedId, parsedName, parsedConfigurationType}
 
 	variable, err := getConfigurationVariable(params, scopeId)
 	if err != nil {
@@ -154,9 +151,9 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 		return client.ConfigurationVariable{}, diag.Errorf("Could not query variables: %v", err)
 	}
 
-	id, idOk := params.Id, params.HaveId
-	name, nameOk := params.Name, params.HaveName
-	typeString, ok := params.configurationType, params.HaveType
+	id, idOk := params.Id, params.Id != ""
+	name, nameOk := params.Name, params.Name != ""
+	typeString, ok := params.configurationType, params.configurationType != ""
 	type_ := int64(-1)
 	if ok {
 		if !nameOk {
