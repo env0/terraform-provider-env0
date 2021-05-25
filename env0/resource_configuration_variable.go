@@ -2,8 +2,8 @@ package env0
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -190,16 +190,16 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*client.ApiClient)
-
-	// id := d.Id()
-	// configurationVariable, err := apiClient.ConfigurationVariable(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// d.Set("name", configurationVariable.Name)
-
-	// return []*schema.ResourceData{d}, nil
+	var configurationParams ConfigurationVariableParams
+	inputData := d.Id()
+	err := json.Unmarshal([]byte(inputData), configurationParams)
+	if err != nil {
+		return nil, err
+	}
+	_, getErr := getConfigurationVariable(configurationParams, meta)
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }
