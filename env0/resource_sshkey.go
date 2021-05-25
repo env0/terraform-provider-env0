@@ -84,17 +84,24 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	apiClient := meta.(*client.ApiClient)
 
-	id := d.Id()
+	name := d.Id()
 	sshKeys, err := apiClient.SshKeys()
 	if err != nil {
 		return nil, err
 	}
 
+	count := 0
 	for _, sshKey := range sshKeys {
-		if sshKey.Id == id {
+		if sshKey.Name == name && count == 0 {
 			d.Set("name", sshKey.Name)
-			return []*schema.ResourceData{d}, nil
+			count++
+		} else if sshKey.Name == name && count != 0 {
+			return nil, fmt.Errorf("More then one ssh key using name = %s", name)
 		}
 	}
-	return nil, fmt.Errorf("No ssh key for id %s", id)
+	if count == 1 {
+		return []*schema.ResourceData{d}, nil
+	} else {
+		return nil, fmt.Errorf("No ssh key for name %s", name)
+	}
 }
