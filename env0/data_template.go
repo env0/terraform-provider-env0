@@ -88,6 +88,11 @@ func dataTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"terraform_version": {
+				Type:        schema.TypeString,
+				Description: "terraform version to use",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -125,7 +130,8 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
-	d.Set("ssh_keys", template.SshKeys)
+	d.Set("terraform_version", template.TerraformVersion)
+	d.Set("ssh_keys", template.SshKeys)	
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
