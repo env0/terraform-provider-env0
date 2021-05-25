@@ -77,7 +77,9 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	if uuidErr == nil {
 		_, getErr = getSshKeyById(id, meta)
 	} else {
-		_, getErr = getSshKeyByName(id, meta)
+		var sshKey client.SshKey
+		sshKey, getErr = getSshKeyByName(id, meta)
+		d.SetId(sshKey.Id)
 	}
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
