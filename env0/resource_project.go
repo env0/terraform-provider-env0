@@ -3,8 +3,8 @@ package env0
 import (
 	"context"
 	"errors"
-
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -74,9 +74,17 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	_, err := getProjectById(d.Id(), meta)
-	if err != nil {
-		return nil, errors.New(err[0].Summary)
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, uuidErr := uuid.Parse(id)
+	if uuidErr == nil {
+		_, getErr = getProjectById(id, meta)
+	} else {
+		_, getErr = getProjectByName(id, meta)
 	}
-	return []*schema.ResourceData{d}, nil
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }
