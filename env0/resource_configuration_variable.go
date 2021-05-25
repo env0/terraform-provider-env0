@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -209,6 +212,10 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 		return nil, errors.New(getErr[0].Summary)
 	} else {
 		d.SetId(variable.Id)
+		scopeName := strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
+
+		d.Set(scopeName, configurationParams.ScopeId)
+
 		return []*schema.ResourceData{d}, nil
 	}
 }
