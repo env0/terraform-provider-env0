@@ -98,26 +98,16 @@ func dataTemplate() *schema.Resource {
 }
 
 func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
-
 	name, nameSpecified := d.GetOk("name")
 	var template client.Template
-	var err error
+	var err diag.Diagnostics
 	if nameSpecified {
-		templates, err := apiClient.Templates()
+		template, err = getTemplateByName(name, meta)
 		if err != nil {
-			return diag.Errorf("Could not query templates: %v", err)
-		}
-		for _, candidate := range templates {
-			if candidate.Name == name {
-				template = candidate
-			}
-		}
-		if template.Name == "" {
-			return diag.Errorf("Could not find an env0 template with name %s", name)
+			return err
 		}
 	} else {
-		template, err = apiClient.Template(d.Get("id").(string))
+		template, err = getTemplateById(d.Get("id").(string), meta)
 		if err != nil {
 			return diag.Errorf("Could not query template: %v", err)
 		}
@@ -153,4 +143,33 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	//TODO: sshkeys
 	return nil
+}
+
+func getTemplateByName(name interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
+	apiClient := meta.(*client.ApiClient)
+	templates, err := apiClient.Templates()
+	var template client.Template
+
+	if err != nil {
+		return client.Template{}, diag.Errorf("Could not query templates: %v", err)
+	}
+	for _, candidate := range templates {
+		if candidate.Name == name {
+			template = candidate
+		}
+	}
+	if template.Name == "" {
+		return client.Template{}, diag.Errorf("Could not find an env0 template with name %s", name)
+	}
+
+	return template, nil
+}
+
+func getTemplateById(id interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
+	apiClient := meta.(*client.ApiClient)
+	template, err := apiClient.Template(id.(string))
+	if err != nil {
+		return client.Template{}, diag.Errorf("Could not query template: %v", err)
+	}
+	return template, nil
 }

@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -257,13 +258,10 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	apiClient := meta.(*client.ApiClient)
-
-	id := d.Id()
-	_, err := apiClient.Template(id)
+	_, err := getTemplateById(d.Id(), meta)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(err[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
 	}
-
-	return []*schema.ResourceData{d}, nil
 }
