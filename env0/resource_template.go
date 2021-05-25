@@ -129,10 +129,10 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 			return client.TemplateCreatePayload{}, diag.Errorf("'type' can either be 'terraform' or 'terragrunt': %s", type_)
 		}
 	}
-	if projectIds, ok := d.GetOk("project_ids"); ok {
+	if projects, ok := d.GetOk("projects"); ok {
 		result.ProjectIds = []string{}
-		for _, projectId := range projectIds.([]interface{}) {
-			result.ProjectIds = append(result.ProjectIds, projectId.(string))
+		for _, project := range projects.([]interface{}) {
+			result.ProjectIds = append(result.ProjectIds, project.(map[string]interface{})["id"].(string))
 		}
 	}
 	if sshKeys, ok := d.GetOk("ssh_keys"); ok {
