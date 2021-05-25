@@ -80,7 +80,9 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	if uuidErr == nil {
 		_, getErr = getProjectById(id, meta)
 	} else {
-		_, getErr = getProjectByName(id, meta)
+		var project client.Project
+		project, getErr = getProjectByName(id, meta)
+		d.SetId(project.Id)
 	}
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
