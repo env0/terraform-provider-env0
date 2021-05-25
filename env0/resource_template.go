@@ -265,7 +265,9 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 	if uuidErr == nil {
 		_, getErr = getTemplateById(id, meta)
 	} else {
-		_, getErr = getTemplateByName(id, meta)
+		var template client.Template
+		template, getErr = getTemplateByName(id, meta)
+		d.SetId(template.Id)
 	}
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
