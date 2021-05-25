@@ -342,7 +342,7 @@ In addition to all arguments above, the following attributes are exported:
 A configuration variable is either an environment variable or a terraform variable. Configuration variables can configuration at the organization scope, project scope, template scope or environment scope. If two variables exists with the same name in two different scope, the more specific of the scopes is the value that will be used.
 
 This data source allows fetching existing configuration variables, and their values. Note that
-fetching sensitive configuration variables will result in "**\*\***" as the variable value.
+fetching sensitive configuration variables will result in "******" as the variable value.
 
 #### Example usage
 
@@ -367,7 +367,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-- `value` - value of the variable. will be '\***\*\*\*\***' if configuration variable is sensitive;
+- `value` - value of the variable. will be '*********' if configuration variable is sensitive;
 - `is_sensitive` - `true` if configuration variable is sensitive
 
 [^ Back to all resources](#resources)
