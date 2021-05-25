@@ -21,21 +21,19 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 	}
 	payload.OrganizationId = organizationId
 
-	var result Template
-	err = self.http.Post("/blueprints", payload, &result)
+	result, err := self.http.Post("/blueprints", payload)
 	if err != nil {
 		return Template{}, err
 	}
-	return result, nil
+	return result.(Template), nil
 }
 
 func (self *ApiClient) Template(id string) (Template, error) {
-	var result Template
-	err := self.http.Get("/blueprints/"+id, nil, &result)
+	result, err := self.http.Get("/blueprints/"+id, nil)
 	if err != nil {
 		return Template{}, err
 	}
-	return result, nil
+	return result.(Template), nil
 }
 
 func (self *ApiClient) TemplateDelete(id string) error {
@@ -55,12 +53,11 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 	}
 	payload.OrganizationId = organizationId
 
-	var result Template
-	err = self.http.Put("/blueprints/"+id, payload, &result)
+	result, err := self.http.Put("/blueprints/"+id, payload)
 	if err != nil {
 		return Template{}, err
 	}
-	return result, nil
+	return result.(Template), nil
 }
 
 func (self *ApiClient) Templates() ([]Template, error) {
@@ -68,10 +65,12 @@ func (self *ApiClient) Templates() ([]Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []Template
-	err = self.http.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
+
+	result, err := self.http.Get("/blueprints", map[string]string{"organizationId": organizationId})
 	if err != nil {
 		return nil, err
 	}
-	return result, err
+
+	templates := result.([]Template)
+	return templates, err
 }
