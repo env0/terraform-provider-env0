@@ -9,7 +9,7 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	if err != nil {
 		return nil, err
 	}
-
+	var result []ConfigurationVariable
 	params := map[string]string{"organizationId": organizationId}
 	switch {
 	case scope == ScopeGlobal:
@@ -24,12 +24,11 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	case scope == ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
 	}
-
-	result, err := self.http.Get("/configuration", params)
+	err = self.http.Get("/configuration", params, &result)
 	if err != nil {
 		return []ConfigurationVariable{}, err
 	}
-	return result.([]ConfigurationVariable), nil
+	return result, nil
 }
 
 func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error) {
@@ -40,7 +39,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-
+	var result []ConfigurationVariable
 	request := map[string]interface{}{
 		"name":           name,
 		"value":          value,
@@ -59,13 +58,11 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 		}
 	}
 	requestInArray := []map[string]interface{}{request}
-	result, err := self.http.Post("configuration", requestInArray)
+	err = self.http.Post("configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-
-	configurations := result.([]ConfigurationVariable)
-	return configurations[0], nil
+	return result[0], nil
 }
 
 func (self *ApiClient) ConfigurationVariableDelete(id string) error {
@@ -80,7 +77,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-
+	var result []ConfigurationVariable
 	request := map[string]interface{}{
 		"id":             id,
 		"name":           name,
@@ -100,11 +97,9 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 		}
 	}
 	requestInArray := []map[string]interface{}{request}
-	result, err := self.http.Post("/configuration", requestInArray)
+	err = self.http.Post("/configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
-
-	configurations := result.([]ConfigurationVariable)
-	return configurations[0], nil
+	return result[0], nil
 }
