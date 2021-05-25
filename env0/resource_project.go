@@ -76,12 +76,10 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
-	project, err := apiClient.Project(id)
+	_, err := apiClient.Project(id)
 	if err != nil {
 		return nil, err
 	}
-
-	d.Set("name", project.Name)
 
 	return []*schema.ResourceData{d}, nil
 }
