@@ -126,7 +126,7 @@ type Template struct {
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId"`
 	UpdatedAt            string           `json:"updatedAt"`
-	TerraformVersion	 string			  `json:"terraformVersion"`
+	TerraformVersion     string           `json:"terraformVersion"`
 }
 
 type SshKey struct {
