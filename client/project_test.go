@@ -2,6 +2,7 @@ package client_test
 
 import (
 	. "github.com/env0/terraform-provider-env0/client"
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -20,13 +21,15 @@ var _ = Describe("Project", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
-			httpCall = mockHttpClient.EXPECT().Post(
-				"/projects",
-				map[string]interface{}{
+			httpCall = mockHttpClient.EXPECT().
+				Post("/projects", map[string]interface{}{
 					"name":           projectName,
 					"organizationId": organizationId,
 				},
-			).Return(mockProject, nil)
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *Project) {
+					*response = mockProject
+				})
 
 			project, _ = apiClient.ProjectCreate(projectName)
 		})
@@ -46,7 +49,7 @@ var _ = Describe("Project", func() {
 
 	Describe("ProjectDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/projects/" + mockProject.Id).Return(nil)
+			httpCall = mockHttpClient.EXPECT().Delete("/projects/" + mockProject.Id)
 			apiClient.ProjectDelete(mockProject.Id)
 		})
 
@@ -57,7 +60,11 @@ var _ = Describe("Project", func() {
 
 	Describe("Project", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Get("/projects/"+mockProject.Id, nil).Return(mockProject, nil)
+			httpCall = mockHttpClient.EXPECT().
+				Get("/projects/"+mockProject.Id, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *Project) {
+					*response = mockProject
+				})
 			project, _ = apiClient.Project(mockProject.Id)
 		})
 
@@ -77,7 +84,11 @@ var _ = Describe("Project", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
-			httpCall = mockHttpClient.EXPECT().Get("/projects", map[string]string{"organizationId": organizationId}).Return(mockProjects, nil)
+			httpCall = mockHttpClient.EXPECT().
+				Get("/projects", map[string]string{"organizationId": organizationId}, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]Project) {
+					*response = mockProjects
+				})
 			projects, _ = apiClient.Projects()
 		})
 
