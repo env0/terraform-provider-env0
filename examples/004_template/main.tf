@@ -13,6 +13,7 @@ resource "env0_template" "tested1" {
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
+  terraform_version                       = "0.15.1"
 }
 
 resource "env0_configuration_variable" "in_a_template" {

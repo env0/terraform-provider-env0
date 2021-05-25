@@ -104,6 +104,7 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
+	TerraformVersion     string           `json:"terraformVersion"`
 }
 
 type Template struct {
@@ -125,6 +126,7 @@ type Template struct {
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId"`
 	UpdatedAt            string           `json:"updatedAt"`
+	TerraformVersion	 string			  `json:"terraformVersion"`
 }
 
 type SshKey struct {

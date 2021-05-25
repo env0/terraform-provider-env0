@@ -93,6 +93,12 @@ func resourceTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"terraform_version": {
+				Type:        schema.TypeString,
+				Description: "Terraform version to use",
+				Optional:    true,
+				Default:     "0.15.1",
+			},
 		},
 	}
 }
@@ -168,6 +174,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 		}
 		result.Retry.OnDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
 	}
+	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
+		result.TerraformVersion = terraformVersion.(string)
+	}
 	return result, nil
 }
 
@@ -204,6 +213,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
+	d.Set("terraform_version", template.TerraformVersion)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
