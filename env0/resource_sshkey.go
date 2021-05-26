@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func resourceSshKey() *schema.Resource {
@@ -75,8 +76,11 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
+		log.Println("[INFO] Resolving SSH Key by id: ", id)
 		_, getErr = getSshKeyById(id, meta)
 	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving SSH Key by name: ", id)
 		var sshKey client.SshKey
 		sshKey, getErr = getSshKeyByName(id, meta)
 		d.SetId(sshKey.Id)
