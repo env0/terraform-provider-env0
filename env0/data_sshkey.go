@@ -64,6 +64,9 @@ func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Di
 	if err != nil {
 		return client.SshKey{}, diag.Errorf("Could not query ssh keys: %v", err)
 	}
+	if len(sshKeys) > 1 {
+		return client.SshKey{}, diag.Errorf("Found multiple SSH Keys for name: %s. Use ID instead or make sure SSH Keys names are unique %v", name, sshKeys)
+	}
 	for _, candidate := range sshKeys {
 		if candidate.Name == name {
 			sshKey = candidate
