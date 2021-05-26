@@ -79,7 +79,7 @@ func (self *ApiClient) Templates() ([]Template, error) {
 
 func (self *ApiClient) AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error) {
 	if payload.ProjectId == "" {
-		return Template{}, errors.New("Must specify template name on creation")
+		return Template{}, errors.New("Must specify projectId on assignment to a template")
 	}
 	
 	var result Template
