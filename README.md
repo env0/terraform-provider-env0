@@ -104,7 +104,6 @@ The following arguments are supported:
 - `name` - Name for the ssh key;
 - `value` - Value of the key;
 
-
 [^ Back to all resources](#resources)
 
 ### `env0_ssh_key` data source
@@ -131,6 +130,34 @@ The following arguments are supported:
 - `id` - (Required if name is not set) - Fetch ssh key by id;
 - `name` - (Required if id not set, mutually exclusive) - Look for the first ssh key that matches said name;
 
+[^ Back to all resources](#resources)
+
+### `env0_project` resource
+
+Define a new project in the organization
+
+#### Example usage
+
+```terraform
+data "env0_project" "default_project" {
+  name = "Default Organization Project"
+}
+resource "env0_project" "example" {
+  name        = "example"
+  description = "Example project"
+}
+```
+
+#### Argument reference
+
+The following arguments are supported:
+
+- `name` - (Required) - name to give the template;
+- `description` - (Optional) - description for the template;
+
+#### Attributes reference
+
+There are no additional attributes other than the arguments above.
 
 [^ Back to all resources](#resources)
 
@@ -210,7 +237,6 @@ In addition to all arguments above, the following attributes are exported:
 - `name` - The name of the organization;
 
 [^ Back to all resources](#resources)
-
 
 ### `env0_organization` data source
 
@@ -391,8 +417,9 @@ Each test perform the following steps:
 - `terraform outputs -json` - and verifies expected outputs from `expected_outputs.json`
 - `terraform destroy`
 
-The harness has two convenient modes to help while developing: If an environment variable `DESTROY_MODE` exists, and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
-Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and *only* `terraform destroy` will run.
+
+The harness has two convineint modes to help while developing: If an environment variable `DESTROY_MODE` exists and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
+Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and _only_ `terraform destroy` will run.
 
 ### Unit Testing
 #### How to run tests

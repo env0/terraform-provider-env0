@@ -30,6 +30,7 @@ type Project struct {
 	CreatedBy      string `json:"createdBy"`
 	Role           string `json:"role"`
 	CreatedByUser  User   `json:"createdByUser"`
+	Description    string `json:"description"`
 }
 
 type ConfigurationVariableSchema struct {

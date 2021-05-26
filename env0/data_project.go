@@ -35,6 +35,11 @@ func dataProject() *schema.Resource {
 				Description: "role of the authenticated user (through api key) in the project",
 				Computed:    true,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "textual description of the project",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -64,6 +69,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	d.Set("name", project.Name)
 	d.Set("created_by", project.CreatedBy)
 	d.Set("role", project.Role)
+	d.Set("description", project.Description)
 
 	return nil
 }
