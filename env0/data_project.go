@@ -76,6 +76,9 @@ func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.
 	if err != nil {
 		return client.Project{}, diag.Errorf("Could not query project by name: %v", err)
 	}
+	if len(projects) > 1 {
+		return client.Project{}, diag.Errorf("Found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projects)		
+	}
 	for _, candidate := range projects {
 		if candidate.Name == name.(string) {
 			project = candidate
