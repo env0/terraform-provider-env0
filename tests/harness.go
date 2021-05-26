@@ -13,6 +13,11 @@ import (
 )
 
 func main() {
+	err := compileProvider()
+	if err != nil {
+		log.Fatalln("Couldn't compile go")
+		return
+	}
 	printTerraformVersion()
 	makeSureRunningFromProjectRoot()
 	testNames := testNamesFromCommandLineArguments()
@@ -30,7 +35,14 @@ func main() {
 		}
 	}
 }
-
+func compileProvider() error {
+	cmd := exec.Command("go", "build")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func runTest(testName string, destroy bool) bool {
 	testDir := "examples/" + testName
 	toDelete := []string{

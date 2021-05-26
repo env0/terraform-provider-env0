@@ -30,6 +30,7 @@ type Project struct {
 	CreatedBy      string `json:"createdBy"`
 	Role           string `json:"role"`
 	CreatedByUser  User   `json:"createdByUser"`
+	Description    string `json:"description"`
 }
 
 type ConfigurationVariableSchema struct {
@@ -38,6 +39,7 @@ type ConfigurationVariableSchema struct {
 }
 
 type ConfigurationVariable struct {
+	ScopeId        string                      `json:"scopId"`
 	Value          string                      `json:"value"`
 	OrganizationId string                      `json:"organizationId"`
 	UserId         string                      `json:"userId"`
@@ -104,6 +106,7 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
+	TerraformVersion     string           `json:"terraformVersion"`
 }
 
 type Template struct {
@@ -125,6 +128,7 @@ type Template struct {
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId"`
 	UpdatedAt            string           `json:"updatedAt"`
+	TerraformVersion     string           `json:"terraformVersion"`
 }
 
 type SshKey struct {

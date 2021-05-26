@@ -104,7 +104,6 @@ The following arguments are supported:
 - `name` - Name for the ssh key;
 - `value` - Value of the key;
 
-
 [^ Back to all resources](#resources)
 
 ### `env0_ssh_key` data source
@@ -129,8 +128,36 @@ resource "env0_template" "example" {
 The following arguments are supported:
 
 - `id` - (Required if name is not set) - Fetch ssh key by id;
-- `name` - (Required if id not set, mutally exclusive) - Look for the first ssh key that matches said name;
+- `name` - (Required if id not set, mutually exclusive) - Look for the first ssh key that matches said name;
 
+[^ Back to all resources](#resources)
+
+### `env0_project` resource
+
+Define a new project in the organization
+
+#### Example usage
+
+```terraform
+data "env0_project" "default_project" {
+  name = "Default Organization Project"
+}
+resource "env0_project" "example" {
+  name        = "example"
+  description = "Example project"
+}
+```
+
+#### Argument reference
+
+The following arguments are supported:
+
+- `name` - (Required) - name to give the template;
+- `description` - (Optional) - description for the template;
+
+#### Attributes reference
+
+There are no additional attributes other than the arguments above.
 
 [^ Back to all resources](#resources)
 
@@ -179,7 +206,7 @@ There are no additional attributes other than the arguments above.
 
 ### `env0_configuration_variable` resource
 
-A configuration variable is either an environment variable or a terraform variable. Configuration variables can configuration at the organization scope, project scope, template scope or environment scope. If two variables exists with the same name in two different scope, the more specific of the scopes is the value that will be used.
+A configuration variable is either an environment variable, or a terraform variable. Configuration variables can configuration at the organization scope, project scope, template scope or environment scope. If two variables exists with the same name in two different scope, the more specific of the scopes is the value that will be used.
 
 #### Example usage
 
@@ -211,7 +238,6 @@ In addition to all arguments above, the following attributes are exported:
 
 [^ Back to all resources](#resources)
 
-
 ### `env0_organization` data source
 
 Each api key is associated with a single organization, so this resource can be used to fetch
@@ -237,13 +263,13 @@ In addition to all arguments above, the following attributes are exported:
 
 - `name` - The name of the organization;
 - `role` - The role of the api key in the organization;
-- `is_self_hosted` - Is the organizaton self hosted;
+- `is_self_hosted` - Is the organization self hosted;
 
 [^ Back to all resources](#resources)
 
 ### `env0_project` data source
 
-Fetch metadata associated with a existing project.
+Fetch metadata associated with an existing project.
 
 #### Example usage
 
@@ -262,7 +288,7 @@ output "project_id" {
 The following arguments are supported:
 
 - `id` - (Required if name is not set) - Fetch project by the project id;
-- `name` - (Required if id not set, mutally exclusive) - Look for the first project that matches said name;
+- `name` - (Required if id not set, mutually exclusive) - Look for the first project that matches said name;
 
 #### Attributes reference
 
@@ -274,7 +300,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ### `env0_template` data source
 
-Fetch metadata of already defined template.
+Fetch metadata of an already defined template.
 
 #### Example usage
 
@@ -293,14 +319,14 @@ output "template_id" {
 The following arguments are supported:
 
 - `id` - (Required if name is not set) - Fetch template by the template id;
-- `name` - (Required if id not set, mutally exclusive) - Look for the first template that matches said name;
+- `name` - (Required if id not set, mutually exclusive) - Look for the first template that matches said name;
 
 #### Attributes reference
 
 In addition to all arguments above, the following attributes are exported:
 
 - `repository` - template source code repository url;
-- `path` - terraform / terrgrunt folder inside source code repository;
+- `path` - terraform / terragrunt folder inside source code repository;
 - `revision` - source code revision (branch / tag) to use;
 - `type` - `terraform` or `terragrunt`;
 - `project_ids` - which projects may access this template (id of project);
@@ -377,12 +403,13 @@ TF_CLI_CONFIG_FILE=<terraform.rc path> terraform init
 
 ## Testing
 
+### Harness
 If you have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined, after building the provider locally, just run `go run tests/harness.go` to run all the tests. Make sure to run from the project root folder.
 
 Use `go run tests/harness.go 003_configuration_variable` to run a specific test.
 The last argument can also be specified as a full path, e.g., `tests/003_configuration_variable/`.
 
-Each tests performs the following steps:
+Each test perform the following steps:
 
 - `terraform init`
 - `terraform apply -auto-approve -var second_run=0`
@@ -390,5 +417,24 @@ Each tests performs the following steps:
 - `terraform outputs -json` - and verifies expected outputs from `expected_outputs.json`
 - `terraform destroy`
 
+
 The harness has two convineint modes to help while developing: If an environment variable `DESTROY_MODE` exists and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
-Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and *only* `terraform destroy` will run.
+Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and _only_ `terraform destroy` will run.
+
+### Unit Testing
+#### How to run tests
+Run from root directory:
+```shell
+go test ./...
+```
+
+#### How to use mocks
+1. Make sure to add this line in files that include the interface you'd wish to mock:
+```
+//go:generate mockgen -destination=<file>_mock.go -package=<package> . <interface>
+```
+
+2. Run from root directory:
+```shell
+go generate ./...
+```
