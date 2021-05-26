@@ -17,6 +17,7 @@ description: |-
 
 ### Optional
 
+- **description** (String) textual description of the project
 - **id** (String) id of the project
 - **name** (String) the name of the project
 

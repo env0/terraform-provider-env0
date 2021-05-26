@@ -32,6 +32,7 @@ description: |-
 - **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
 - **revision** (String) source code revision (branch / tag) to use
 - **ssh_keys** (List of Map of String) which ssh keys are used for accessing git over ssh
+- **terraform_version** (String) terraform version to use
 - **type** (String) 'terraform' or 'terragrunt'
 
 

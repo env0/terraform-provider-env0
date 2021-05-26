@@ -19,6 +19,10 @@ description: |-
 
 - **name** (String) name to give the project
 
+### Optional
+
+- **description** (String) description of the project
+
 ### Read-Only
 
 - **id** (String) id of the project
