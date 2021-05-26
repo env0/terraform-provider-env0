@@ -109,6 +109,11 @@ type TemplateCreatePayload struct {
 	TerraformVersion     string           `json:"terraformVersion"`
 }
 
+type TemplateAssignmentToProjectPayload struct {
+	Retry                *TemplateRetry   `json:"retry,omitempty"`
+	ProjectId            string           `json:"projectIds"`
+}
+
 type Template struct {
 	Author               User             `json:"author"`
 	AuthorId             string           `json:"authorId"`
