@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func resourceTemplate() *schema.Resource {
@@ -263,8 +264,11 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
+		log.Println("[INFO] Resolving Template by id: ", id)
 		_, getErr = getTemplateById(id, meta)
 	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving Template by name: ", id)
 		var template client.Template
 		template, getErr = getTemplateByName(id, meta)
 		d.SetId(template.Id)
