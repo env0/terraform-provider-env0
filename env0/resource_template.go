@@ -3,10 +3,11 @@ package env0
 import (
 	"context"
 	"errors"
-
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func resourceTemplate() *schema.Resource {
@@ -93,6 +94,12 @@ func resourceTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"terraform_version": {
+				Type:        schema.TypeString,
+				Description: "Terraform version to use",
+				Optional:    true,
+				Default:     "0.15.1",
+			},
 		},
 	}
 }
@@ -168,6 +175,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 		}
 		result.Retry.OnDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
 	}
+	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
+		result.TerraformVersion = terraformVersion.(string)
+	}
 	return result, nil
 }
 
@@ -204,6 +214,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
+	d.Set("terraform_version", template.TerraformVersion)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
@@ -249,16 +260,22 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*client.ApiClient)
-
-	// id := d.Id()
-	// template, err := apiClient.Template(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// d.Set("name", template.Name)
-
-	// return []*schema.ResourceData{d}, nil
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, uuidErr := uuid.Parse(id)
+	if uuidErr == nil {
+		log.Println("[INFO] Resolving Template by id: ", id)
+		_, getErr = getTemplateById(id, meta)
+	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving Template by name: ", id)
+		var template client.Template
+		template, getErr = getTemplateByName(id, meta)
+		d.SetId(template.Id)
+	}
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }

@@ -2,10 +2,12 @@ package env0
 
 import (
 	"context"
-
+	"errors"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func resourceProject() *schema.Resource {
@@ -78,15 +80,22 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	apiClient := meta.(*client.ApiClient)
-
 	id := d.Id()
-	project, err := apiClient.Project(id)
-	if err != nil {
-		return nil, err
+	var getErr diag.Diagnostics
+	_, uuidErr := uuid.Parse(id)
+	if uuidErr == nil {
+		log.Println("[INFO] Resolving Project by id: ", id)
+		_, getErr = getProjectById(id, meta)
+	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving Project by name: ", id)
+		var project client.Project
+		project, getErr = getProjectByName(id, meta)
+		d.SetId(project.Id)
 	}
-
-	d.Set("name", project.Name)
-
-	return []*schema.ResourceData{d}, nil
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }

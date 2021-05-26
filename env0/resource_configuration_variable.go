@@ -2,7 +2,10 @@ package env0
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -81,6 +84,10 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 		scopeId = projectId.(string)
 	}
 	if templateId, ok := d.GetOk("template_id"); ok {
+		scope = client.ScopeTemplate
+		scopeId = templateId.(string)
+	}
+	if templateId, ok := d.GetOk("blueprint_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
@@ -190,16 +197,25 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*client.ApiClient)
+	var configurationParams ConfigurationVariableParams
+	inputData := d.Id()
+	err := json.Unmarshal([]byte(inputData), &configurationParams)
+	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
+	if string(configurationParams.Scope) == "TEMPLATE" {
+		configurationParams.Scope = "BLUEPRINT"
+	}
+	if err != nil {
+		return nil, err
+	}
+	variable, getErr := getConfigurationVariable(configurationParams, meta)
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		d.SetId(variable.Id)
+		scopeName := strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
 
-	// id := d.Id()
-	// configurationVariable, err := apiClient.ConfigurationVariable(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
+		d.Set(scopeName, configurationParams.ScopeId)
 
-	// d.Set("name", configurationVariable.Name)
-
-	// return []*schema.ResourceData{d}, nil
+		return []*schema.ResourceData{d}, nil
+	}
 }
