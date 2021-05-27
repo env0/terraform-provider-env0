@@ -34,7 +34,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	var sshKey client.SshKey
 	var err diag.Diagnostics
 	if nameSpecified {
-		sshKey, err = getSshKeyByName(meta, name)
+		sshKey, err = getSshKeyByName(name, meta)
 		if err != nil {
 			return err
 		}
