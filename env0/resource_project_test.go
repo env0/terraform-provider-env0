@@ -20,12 +20,10 @@ func (c testEnv0ProjectConfig) hcl() string {
 	`, c.name, c.description)
 }
 
-func TestAccEnv0Project(t *testing.T) {
+func TestUnitEnv0Project(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          nil,
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      nil,
-		ErrorCheck:        nil,
-		Steps:             nil,
+		ProviderFactories: testUnitProviders,
+		IsUnitTest:        true,
+		Steps:             []resource.TestStep{},
 	})
 }
