@@ -100,7 +100,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 
 	params := ConfigurationVariableParams{scope, scopeId, parsedId, parsedName, parsedConfigurationType}
 
-	variable, err := getConfigurationVariable(params, scopeId)
+	variable, err := getConfigurationVariable(params, meta)
 	if err != nil {
 		return err
 	}
