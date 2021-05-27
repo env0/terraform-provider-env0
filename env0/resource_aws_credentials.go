@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/google/uuid"
+	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -59,48 +61,45 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
-
-	sshKeys, err := apiClient.SshKeys()
-	if err != nil {
-		return diag.Errorf("could not query ssh keys: %v", err)
-	}
-	found := false
-	for _, candidate := range sshKeys {
-		if candidate.Id == d.Id() {
-			found = true
-		}
-	}
-	if !found {
-		return diag.Errorf("ssh key %s not found", d.Id())
-	}
-
-	return nil
-}
-
-func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
 	id := d.Id()
-	err := apiClient.SshKeyDelete(id)
+	_, err := apiClient.AwsCredentials(id)
 	if err != nil {
-		return diag.Errorf("could not delete ssh key: %v", err)
+		return diag.Errorf("could not get credentials: %v", err)
 	}
 	return nil
 }
 
-func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, errors.New("Not implemented")
-	// apiClient := meta.(*client.ApiClient)
+func resourceAwsCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(*client.ApiClient)
 
-	// id := d.Id()
-	// ssh key, err := apiClient.SshKey(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	id := d.Id()
+	err := apiClient.AwsCredentialsDelete(id)
+	if err != nil {
+		return diag.Errorf("could not delete credentials: %v", err)
+	}
+	return nil
+}
 
-	// d.Set("name", ssh key.Name)
-
-	// return []*schema.ResourceData{d}, nil
+func resourceAwsCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, uuidErr := uuid.Parse(id)
+	if uuidErr == nil {
+		log.Println("[INFO] Resolving AWS Credentials by id: ", id)
+		_, getErr = getAwsCredentialsById(id, meta)
+	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving AWS Credentials by name: ", id)
+		var project client.Project
+		project, getErr = getAwsCredentialsByName(id, meta)
+		d.SetId(project.Id)
+	}
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }
