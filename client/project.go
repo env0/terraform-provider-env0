@@ -14,34 +14,36 @@ func (self *ApiClient) Projects() ([]Project, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	result, err := self.http.Get("/projects", map[string]string{"organizationId": organizationId})
+	var result []Project
+	err = self.http.Get("/projects", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return []Project{}, err
 	}
-	return result.([]Project), nil
+	return result, nil
 }
 
 func (self *ApiClient) Project(id string) (Project, error) {
-	result, err := self.http.Get("/projects/"+id, nil)
+	var result Project
+	err := self.http.Get("/projects/"+id, nil, &result)
 	if err != nil {
 		return Project{}, err
 	}
-	return result.(Project), nil
+	return result, nil
 }
 
 func (self *ApiClient) ProjectCreate(name string) (Project, error) {
+	var result Project
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return Project{}, err
 	}
 
 	request := map[string]interface{}{"name": name, "organizationId": organizationId}
-	result, err := self.http.Post("/projects", request)
+	err = self.http.Post("/projects", request, &result)
 	if err != nil {
 		return Project{}, err
 	}
-	return result.(Project), nil
+	return result, nil
 }
 
 func (self *ApiClient) ProjectDelete(id string) error {

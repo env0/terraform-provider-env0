@@ -12,7 +12,14 @@ import (
 	"strings"
 )
 
+const TESTS_FOLDER = "tests/integration"
+
 func main() {
+	err := compileProvider()
+	if err != nil {
+		log.Fatalln("Couldn't compile go")
+		return
+	}
 	printTerraformVersion()
 	makeSureRunningFromProjectRoot()
 	testNames := testNamesFromCommandLineArguments()
@@ -30,9 +37,16 @@ func main() {
 		}
 	}
 }
-
+func compileProvider() error {
+	cmd := exec.Command("go", "build")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func runTest(testName string, destroy bool) bool {
-	testDir := "examples/" + testName
+	testDir := TESTS_FOLDER + "/" + testName
 	toDelete := []string{
 		".terraform",
 		".terraform.lock.hcl",
@@ -86,7 +100,7 @@ func runTest(testName string, destroy bool) bool {
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
 	}
 	if destroy {
-		_, err = terraformCommand(testName, "destroy", "-auto-approve")
+		_, err = terraformCommand(testName, "destroy", "-auto-approve", "-var", "second_run=0")
 		if err != nil {
 			return false
 		}
@@ -96,7 +110,7 @@ func runTest(testName string, destroy bool) bool {
 }
 
 func readExpectedOutputs(testName string) (map[string]string, error) {
-	expectedBytes, err := ioutil.ReadFile(path.Join("examples", testName, "expected_outputs.json"))
+	expectedBytes, err := ioutil.ReadFile(path.Join(TESTS_FOLDER, testName, "expected_outputs.json"))
 	if err != nil {
 		log.Println("Test folder for ", testName, " does not contain expected_outputs.json", err)
 		return nil, err
@@ -128,15 +142,15 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 
 func terraformDestory(testName string) {
 	log.Println("Running destroy to clean up in", testName)
-	destroy := exec.Command("terraform", "destroy", "-auto-approve")
-	destroy.Dir = "examples/" + testName
+	destroy := exec.Command("terraform", "destroy", "-auto-approve", "-var", "second_run=0")
+	destroy.Dir = TESTS_FOLDER + "/" + testName
 	destroy.CombinedOutput()
 	log.Println("Done running terraform destroy in", testName)
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd := exec.Command("terraform", arg...)
-	cmd.Dir = "examples/" + testName
+	cmd.Dir = TESTS_FOLDER + "/" + testName
 	log.Println("Running terraform ", arg, " in ", testName)
 	outputBytes, err := cmd.CombinedOutput()
 	output := string(outputBytes)
@@ -166,8 +180,8 @@ func testNamesFromCommandLineArguments() []string {
 	testNames := []string{}
 	if len(os.Args) > 1 {
 		for _, testName := range os.Args[1:] {
-			if strings.HasPrefix(testName, "examples/") {
-				testName = testName[len("examples/"):]
+			if strings.HasPrefix(testName, TESTS_FOLDER+"/") {
+				testName = testName[len(TESTS_FOLDER+"/"):]
 			}
 			if strings.HasSuffix(testName, "/") {
 				testName = testName[:len(testName)-1]
@@ -175,7 +189,7 @@ func testNamesFromCommandLineArguments() []string {
 			testNames = append(testNames, testName)
 		}
 	} else {
-		allFilesUnderTests, err := ioutil.ReadDir("examples")
+		allFilesUnderTests, err := ioutil.ReadDir(TESTS_FOLDER)
 		if err != nil {
 			log.Fatalln("Unable to list 'tests' folder", err)
 		}

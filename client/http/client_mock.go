@@ -48,46 +48,43 @@ func (mr *MockHttpClientInterfaceMockRecorder) Delete(arg0 interface{}) *gomock.
 }
 
 // Get mocks base method.
-func (m *MockHttpClientInterface) Get(arg0 string, arg1 map[string]string) (interface{}, error) {
+func (m *MockHttpClientInterface) Get(arg0 string, arg1 map[string]string, arg2 interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", arg0, arg1)
-	ret0, _ := ret[0].(interface{})
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Get", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockHttpClientInterfaceMockRecorder) Get(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockHttpClientInterfaceMockRecorder) Get(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpClientInterface)(nil).Get), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpClientInterface)(nil).Get), arg0, arg1, arg2)
 }
 
 // Post mocks base method.
-func (m *MockHttpClientInterface) Post(arg0 string, arg1 interface{}) (interface{}, error) {
+func (m *MockHttpClientInterface) Post(arg0 string, arg1, arg2 interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Post", arg0, arg1)
-	ret0, _ := ret[0].(interface{})
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Post", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Post indicates an expected call of Post.
-func (mr *MockHttpClientInterfaceMockRecorder) Post(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockHttpClientInterfaceMockRecorder) Post(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockHttpClientInterface)(nil).Post), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockHttpClientInterface)(nil).Post), arg0, arg1, arg2)
 }
 
 // Put mocks base method.
-func (m *MockHttpClientInterface) Put(arg0 string, arg1 interface{}) (interface{}, error) {
+func (m *MockHttpClientInterface) Put(arg0 string, arg1, arg2 interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Put", arg0, arg1)
-	ret0, _ := ret[0].(interface{})
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Put", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Put indicates an expected call of Put.
-func (mr *MockHttpClientInterfaceMockRecorder) Put(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockHttpClientInterfaceMockRecorder) Put(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockHttpClientInterface)(nil).Put), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockHttpClientInterface)(nil).Put), arg0, arg1, arg2)
 }

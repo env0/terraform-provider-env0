@@ -8,6 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type ConfigurationVariableParams struct {
+	Scope             client.Scope
+	ScopeId           string
+	Id                string
+	Name              string
+	configurationType string
+}
+
 func dataConfigurationVariable() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataConfigurationVariableRead,
@@ -74,8 +82,46 @@ func dataConfigurationVariable() *schema.Resource {
 }
 
 func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	scope, scopeId := getScopeAndId(d)
+	id, idOk := d.GetOk("id")
+	name, nameOk := d.GetOk("name")
+	configurationType, configurationOk := d.GetOk("type")
+	parsedId, parsedName, parsedConfigurationType := "", "", ""
 
+	if idOk {
+		parsedId = id.(string)
+	}
+	if nameOk {
+		parsedName = name.(string)
+	}
+	if configurationOk {
+		parsedConfigurationType = configurationType.(string)
+	}
+
+	params := ConfigurationVariableParams{scope, scopeId, parsedId, parsedName, parsedConfigurationType}
+
+	variable, err := getConfigurationVariable(params, meta)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(variable.Id)
+	d.Set("name", variable.Name)
+	d.Set("value", variable.Value)
+	d.Set("is_sensitive", variable.IsSensitive)
+	d.Set("scope", variable.Scope)
+	if variable.Type == int64(client.ConfigurationVariableTypeEnvironment) {
+		d.Set("type", "environment")
+	} else if variable.Type == int64(client.ConfigurationVariableTypeTerraform) {
+		d.Set("type", "terraform")
+	} else {
+		return diag.Errorf("Unknown variable type: %d", int(variable.Type))
+	}
+
+	return nil
+}
+
+func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 	scope := client.ScopeGlobal
 	scopeId := ""
 	if projectId, ok := d.GetOk("project_id"); ok {
@@ -94,34 +140,41 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		scope = client.ScopeDeploymentLog
 		scopeId = deploymentLogId.(string)
 	}
-	variables, err := apiClient.ConfigurationVariables(scope, scopeId)
+	return scope, scopeId
+}
+
+func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
+	apiClient := meta.(*client.ApiClient)
+
+	variables, err := apiClient.ConfigurationVariables(params.Scope, params.ScopeId)
 	if err != nil {
-		return diag.Errorf("Could not query variables: %v", err)
+		return client.ConfigurationVariable{}, diag.Errorf("Could not query variables: %v", err)
 	}
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id, idOk := params.Id, params.Id != ""
+	name, nameOk := params.Name, params.Name != ""
+	typeString, ok := params.configurationType, params.configurationType != ""
 	type_ := int64(-1)
-	if typeString, ok := d.GetOk("type"); ok {
+	if ok {
 		if !nameOk {
-			return diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
+			return client.ConfigurationVariable{}, diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
 		}
-		switch typeString.(string) {
+		switch typeString {
 		case "environment":
 			type_ = int64(client.ConfigurationVariableTypeEnvironment)
 		case "terraform":
 			type_ = int64(client.ConfigurationVariableTypeTerraform)
 		default:
-			return diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString.(string))
+			return client.ConfigurationVariable{}, diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString)
 		}
 	}
 	var variable client.ConfigurationVariable
 	for _, candidate := range variables {
-		if idOk && candidate.Id == id.(string) {
+		if idOk && candidate.Id == id {
 			variable = candidate
 			break
 		}
-		if nameOk && candidate.Name == name.(string) {
+		if nameOk && candidate.Name == name {
 			if type_ != -1 {
 				if candidate.Type != type_ {
 					continue
@@ -132,21 +185,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 	if variable.Id == "" {
-		return diag.Errorf("Could not find variable")
+		return client.ConfigurationVariable{}, diag.Errorf("Could not find variable")
 	}
-
-	d.SetId(variable.Id)
-	d.Set("name", variable.Name)
-	d.Set("value", variable.Value)
-	d.Set("is_sensitive", variable.IsSensitive)
-	d.Set("scope", variable.Scope)
-	if variable.Type == int64(client.ConfigurationVariableTypeEnvironment) {
-		d.Set("type", "environment")
-	} else if variable.Type == int64(client.ConfigurationVariableTypeTerraform) {
-		d.Set("type", "terraform")
-	} else {
-		return diag.Errorf("Unknown variable type: %d", int(variable.Type))
-	}
-
-	return nil
+	return variable, nil
 }
