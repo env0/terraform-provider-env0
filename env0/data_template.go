@@ -148,27 +148,26 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 func getTemplateByName(name interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(*client.ApiClient)
 	templates, err := apiClient.Templates()
-	var templatesWithName []client.Template
-
 	if err != nil {
 		return client.Template{}, diag.Errorf("Could not query templates: %v", err)
 	}
 
+	var templatesByName []client.Template
 	for _, candidate := range templates {
 		if candidate.Name == name {
-			templatesWithName = append(templatesWithName, candidate)
+			templatesByName = append(templatesByName, candidate)
 		}
 	}
 
-	if len(templatesWithName) > 1 {
-		return client.Template{}, diag.Errorf("Found multiple Templates for name: %s. Use ID instead or make sure Template names are unique.", name)
+	if len(templatesByName) > 1 {
+		return client.Template{}, diag.Errorf("Found multiple Templates for name: %s. Use ID instead or make sure Template names are unique %v", name, templatesByName)
 	}
 
-	if len(templatesWithName) == 0 {
+	if len(templatesByName) == 0 {
 		return client.Template{}, diag.Errorf("Could not find an env0 template with name %s", name)
 	}
 
-	return templatesWithName[0], nil
+	return templatesByName[0], nil
 }
 
 func getTemplateById(id interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
