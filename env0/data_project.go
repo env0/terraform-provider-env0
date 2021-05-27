@@ -77,24 +77,24 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.Diagnostics) {
 	apiClient := meta.(*client.ApiClient)
 	projects, err := apiClient.Projects()
-	var project client.Project
-
 	if err != nil {
 		return client.Project{}, diag.Errorf("Could not query project by name: %v", err)
 	}
-	if len(projects) > 1 {
-		return client.Project{}, diag.Errorf("Found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projects)		
-	}
+
+	projectsByName := make([]client.Project, 0)
 	for _, candidate := range projects {
 		if candidate.Name == name.(string) {
-			project = candidate
-			break
+			projectsByName = append(projectsByName, candidate)
 		}
 	}
-	if project.Id == "" {
+
+	if len(projectsByName) > 1 {
+		return client.Project{}, diag.Errorf("Found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projectsByName)
+	}
+	if len(projectsByName) == 0 {
 		return client.Project{}, diag.Errorf("Could not find a project with name: %s", name)
 	}
-	return project, nil
+	return projectsByName[0], nil
 }
 
 func getProjectById(id string, meta interface{}) (client.Project, diag.Diagnostics) {
