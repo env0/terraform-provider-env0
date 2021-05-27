@@ -34,7 +34,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	var sshKey client.SshKey
 	var err diag.Diagnostics
 	if nameSpecified {
-		sshKey, err = getSshKeyByName(meta, name)
+		sshKey, err = getSshKeyByName(name, meta)
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		if !idSpecified {
 			return diag.Errorf("At lease one of 'id', 'name' must be specified")
 		}
-		sshKey, err = getSshKeyById(meta, id)
+		sshKey, err = getSshKeyById(id, meta)
 		if err != nil {
 			return err
 		}
@@ -60,22 +60,25 @@ func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Di
 	apiClient := meta.(*client.ApiClient)
 
 	sshKeys, err := apiClient.SshKeys()
-	var sshKey client.SshKey
 	if err != nil {
 		return client.SshKey{}, diag.Errorf("Could not query ssh keys: %v", err)
 	}
-	if len(sshKeys) > 1 {
-		return client.SshKey{}, diag.Errorf("Found multiple SSH Keys for name: %s. Use ID instead or make sure SSH Keys names are unique %v", name, sshKeys)
-	}
+
+	var sshKeysByName []client.SshKey
 	for _, candidate := range sshKeys {
 		if candidate.Name == name {
-			sshKey = candidate
+			sshKeysByName = append(sshKeysByName, candidate)
 		}
 	}
-	if sshKey.Name == "" {
+
+	if len(sshKeysByName) > 1 {
+		return client.SshKey{}, diag.Errorf("Found multiple SSH Keys for name: %s. Use ID instead or make sure SSH Keys names are unique %v", name, sshKeysByName)
+	}
+	if len(sshKeysByName) == 0 {
 		return client.SshKey{}, diag.Errorf("Could not find an env0 ssh key with name %s", name)
 	}
-	return sshKey, nil
+
+	return sshKeysByName[0], nil
 }
 
 func getSshKeyById(id interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
@@ -86,6 +89,7 @@ func getSshKeyById(id interface{}, meta interface{}) (client.SshKey, diag.Diagno
 	if err != nil {
 		return client.SshKey{}, diag.Errorf("Could not query ssh keys: %v", err)
 	}
+
 	for _, candidate := range sshKeys {
 		if candidate.Id == id.(string) {
 			sshKey = candidate
