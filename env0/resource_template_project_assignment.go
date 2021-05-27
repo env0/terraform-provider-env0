@@ -71,30 +71,17 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	return nil
 }
 
-func resourceTemplateProjectAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	/*apiClient := meta.(*client.ApiClient)
-
-	request, problem := templateCreatePayloadFromParameters(d)
-	if problem != nil {
-		return problem
-	}
-	_, err := apiClient.TemplateUpdate(d.Id(), request)
-	if err != nil {
-		return diag.Errorf("could not update template: %v", err)
-	}
-
-	return nil*/
-}
 
 func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	/*apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
-	id := d.Id()
-	err := apiClient.TemplateDelete(id)
+	templateId := d.Get("template_id").(string)
+	projectId := d.Get("project_id").(string)
+	err := apiClient.RemoveTemplateFromProject(templateId, projectId)
 	if err != nil {
-		return diag.Errorf("could not delete template: %v", err)
+		return diag.Errorf("could not delete template from project: %v", err)
 	}
-	return nil*/
+	return nil
 }
 
 

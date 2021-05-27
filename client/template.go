@@ -89,11 +89,8 @@ func (self *ApiClient) AssignTemplateToProject(id string, payload TemplateAssign
 	return result, nil
 }
 
-func (self *ApiClient) RemoveTemplateFromProject(id string , payload TemplateAssignmentToProjectPayload) error {
-	if payload.ProjectId == "" {
-		return errors.New("Must specify projectId on assignment to a template")
-	}
-	return self.http.Delete("/blueprints/"+id+"projects/"+payload.ProjectId)
+func (self *ApiClient) RemoveTemplateFromProject(templateId string, projectId string ) error {
+	return self.http.Delete("/blueprints/"+templateId+"projects/"+projectId)
 }
 
 
