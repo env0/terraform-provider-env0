@@ -35,6 +35,7 @@ func resourceAwsCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the aws role external id",
 				Required:    true,
+				Sensitive:   true,
 			},
 		},
 	}
