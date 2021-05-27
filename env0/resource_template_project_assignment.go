@@ -12,7 +12,7 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTemplateProjectAssignmenetCreate,
 		ReadContext:   resourceTemplateProjectAssignmentRead,
-		UpdateContext: resourceTemplateProjectAssignmentUpdate,
+		//UpdateContext: resourceTemplateProjectAssignmentUpdate,
 		DeleteContext: resourceTemplateProjectAssignmentDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceTemplateImport},
@@ -26,15 +26,15 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
-				Computed:    true,
+				Required:    true,
 			},
 		},
 	}
 }
 
-func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload) {
+func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateAssignmentToProjectPayload) {
 	result := client.TemplateAssignmentToProjectPayload{
-		projectId:       d.Get("project_id").(string),
+		ProjectId:       d.Get("project_id").(string),
 	}
 
 	return result
@@ -43,13 +43,13 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (cli
 func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
+	templateId := d.Get("template_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
 	
-	template, err := apiClient.AssignTemplateToProject(d.templateId, request)
+	template, err := apiClient.AssignTemplateToProject(templateId, request)
 	if err != nil {
 		return diag.Errorf("could not assign template to project: %v", err)
 	}
-
 	return nil
 }
 
