@@ -33,8 +33,8 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 }
 
 func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload) {
-	result := client.TemplateCreatePayload{
-		projectId:       d.Get("project_id").(string)
+	result := client.TemplateAssignmentToProjectPayload{
+		projectId:       d.Get("project_id").(string),
 	}
 
 	return result
@@ -56,15 +56,16 @@ func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.Res
 func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
-	template, err := apiClient.Template(d.Id())
+	templateId := d.Get("template_id").(string)
+	template, err := apiClient.Template(templateId)
 	if err != nil {
 		return diag.Errorf("could not get template: %v", err)
 	}
 	var assignProjectId = d.Get("project_id").(string)
-	d.set("project_id", "")
+	d.Set("project_id", "")
 
-	for _, projectId := range templat.projectIds.([]interface{}) {
-		if assignProjectId = projectId {
+	for _, projectId := range template.ProjectIds {
+		if assignProjectId == projectId {
 			d.Set("project_id", projectId)
 		}
 	}
