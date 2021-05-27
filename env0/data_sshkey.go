@@ -43,7 +43,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		if !idSpecified {
 			return diag.Errorf("At lease one of 'id', 'name' must be specified")
 		}
-		sshKey, err = getSshKeyById(meta, id)
+		sshKey, err = getSshKeyById(id, meta)
 		if err != nil {
 			return err
 		}
