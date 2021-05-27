@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -31,56 +32,43 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 	}
 }
 
+func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload) {
+	result := client.TemplateCreatePayload{
+		projectId:       d.Get("project_id").(string)
+	}
+
+	return result
+}
+
 func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	/*apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
-	request, problem := templateCreatePayloadFromParameters(d)
-	if problem != nil {
-		return problem
-	}
-	template, err := apiClient.TemplateCreate(request)
+	request := templateProjectAssignmentPayloadFromParameters(d)
+	
+	template, err := apiClient.AssignTemplateToProject(d.templateId, request)
 	if err != nil {
-		return diag.Errorf("could not create template: %v", err)
+		return diag.Errorf("could not assign template to project: %v", err)
 	}
 
-	d.SetId(template.Id)
-
-	return nil*/
+	return nil
 }
 
 func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	/*apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(*client.ApiClient)
 
 	template, err := apiClient.Template(d.Id())
 	if err != nil {
 		return diag.Errorf("could not get template: %v", err)
 	}
+	var assignProjectId = d.Get("project_id").(string)
+	d.set("project_id", "")
 
-	d.Set("name", template.Name)
-	d.Set("description", template.Description)
-	d.Set("github_installation_id", template.GithubInstallationId)
-	d.Set("repository", template.Repository)
-	d.Set("path", template.Path)
-	d.Set("revision", template.Revision)
-	d.Set("type", template.Type)
-	d.Set("project_ids", template.ProjectIds)
-	d.Set("terraform_version", template.TerraformVersion)
-	if template.Retry.OnDeploy != nil {
-		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
-		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
-	} else {
-		d.Set("retries_on_deploy", 0)
-		d.Set("retry_on_deploy_only_when_matches_regex", "")
+	for _, projectId := range templat.projectIds.([]interface{}) {
+		if assignProjectId = projectId {
+			d.Set("project_id", projectId)
+		}
 	}
-	if template.Retry.OnDestroy != nil {
-		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
-		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
-	} else {
-		d.Set("retries_on_destroy", 0)
-		d.Set("retry_on_destroy_only_when_matches_regex", "")
-	}
-
-	return nil*/
+	return nil
 }
 
 func resourceTemplateProjectAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
