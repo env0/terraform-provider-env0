@@ -63,7 +63,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 	}
 
 	if len(credentialsByNameAndType) > 1 {
-		return client.ApiKey{}, diag.Errorf("Found multiple AWS Credentials for name: %s. Use ID instead or make sure Project names are unique %v", name)
+		return client.ApiKey{}, diag.Errorf("Found multiple AWS Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
 		return client.ApiKey{}, diag.Errorf("Could not find AWS Credentials with name: %s", name)
