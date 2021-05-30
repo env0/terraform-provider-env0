@@ -6,24 +6,29 @@ import (
 	"testing"
 )
 
-type testEnv0ProjectConfig struct {
-	name        string
-	description string
-}
-
-func (c testEnv0ProjectConfig) hcl() string {
+func testEnv0ProjectResourceConfig(name string, description string) string {
 	return fmt.Sprintf(`
 	resource "env0_project" "test" {
 		name = "%s"
 		description = "%s"
 	}
-	`, c.name, c.description)
+	`, name, description)
 }
 
-func TestUnitEnv0Project(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		ProviderFactories: testUnitProviders,
-		IsUnitTest:        true,
-		Steps:             []resource.TestStep{},
+func TestUnitEnv0ProjectCreate(t *testing.T) {
+	const name = "name0"
+	const description = "description0"
+
+	ctrl, _ := mockApiClient(t)
+	defer ctrl.Finish()
+
+	runUnitTest(t, resource.TestCase{
+		IsUnitTest: true,
+		Steps: []resource.TestStep{
+			{
+				Config: testEnv0ProjectResourceConfig("name0", "description0"),
+				Check:  resource.ComposeTestCheckFunc(),
+			},
+		},
 	})
 }
