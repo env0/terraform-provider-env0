@@ -11,14 +11,15 @@ const sshKeyName = "new_ssh_key"
 const sshKeyValue = "fake key"
 
 var _ = Describe("SshKey", func() {
-	var sshKey SshKey
 	mockSshKey := SshKey{
+		Id:             "123",
 		Name:           sshKeyName,
 		Value:          sshKeyValue,
 		OrganizationId: organizationId,
 	}
 
 	Describe("SshKeyCreate", func() {
+		var sshKey SshKey
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 			expectedPayload := SshKeyCreatePayloadExtended{SshKeyCreatePayload: SshKeyCreatePayload{
@@ -45,6 +46,42 @@ var _ = Describe("SshKey", func() {
 
 		It("Should return project", func() {
 			Expect(sshKey).To(Equal(mockSshKey))
+		})
+	})
+
+	Describe("SshKeyDelete", func() {
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Delete("/ssh-keys/" + mockSshKey.Id)
+			_ = apiClient.SshKeyDelete(mockSshKey.Id)
+		})
+
+		It("Should send DELETE request once for correct id", func() {
+			httpCall.Times(1)
+		})
+	})
+
+	Describe("SshKeys", func() {
+		var sshKeys []SshKey
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			httpCall = mockHttpClient.EXPECT().
+				Get("/ssh-keys",
+					map[string]string{"organizationId": organizationId},
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *[]SshKey) {
+					*response = []SshKey{mockSshKey}
+				})
+
+			sshKeys, _ = apiClient.SshKeys()
+		})
+
+		It("Should send GET request once", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return ssh keys", func() {
+			Expect(sshKeys).Should(HaveLen(1))
+			Expect(sshKeys).Should(ContainElement(mockSshKey))
 		})
 	})
 })
