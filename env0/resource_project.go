@@ -65,7 +65,18 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return diag.Errorf("not implemented")
+	apiClient := meta.(*client.ApiClient)
+
+	id := d.Id()
+	payload := client.UpdateProjectPayload{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+	}
+	_, err := apiClient.ProjectUpdate(id, payload)
+	if err != nil {
+		return diag.Errorf("could not update project: %v", err)
+	}
+	return nil
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
