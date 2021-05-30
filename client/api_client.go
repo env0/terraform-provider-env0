@@ -20,7 +20,7 @@ type ApiClientInterface interface {
 	Organization() (Organization, error)
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
-	ProjectCreate(name string) (Project, error)
+	ProjectCreate(name string, description string) (Project, error)
 	ProjectDelete(id string) error
 	Template(id string) (Template, error)
 	Templates() ([]Template, error)
