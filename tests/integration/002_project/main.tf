@@ -4,7 +4,7 @@ data "env0_project" "default" {
 
 resource "env0_project" "test_project" {
   name        = "Test-Project"
-  description = "Test Description"
+  description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 
 data "env0_project" "default2" {

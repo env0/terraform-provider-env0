@@ -49,3 +49,13 @@ func (self *ApiClient) ProjectCreate(name string) (Project, error) {
 func (self *ApiClient) ProjectDelete(id string) error {
 	return self.http.Delete("/projects/" + id)
 }
+
+func (self *ApiClient) ProjectUpdate(id string, payload UpdateProjectPayload) (Project, error) {
+	var result Project
+	err := self.http.Put("/projects/" + id, payload, &result)
+
+	if err != nil {
+		return Project{}, err
+	}
+	return result, nil
+}
