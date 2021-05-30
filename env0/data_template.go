@@ -154,7 +154,7 @@ func getTemplateByName(name interface{}, meta interface{}) (client.Template, dia
 		return client.Template{}, diag.Errorf("Could not query templates: %v", err)
 	}
 	if len(templates) > 1 {
-		return client.Template{}, diag.Errorf("Found multiple Templates for name: %s. Use ID instead or make sure Template names are unique %v", name, templates)		
+		return client.Template{}, diag.Errorf("Found multiple Templates for name: %s. Use ID instead or make sure Template names are unique %v", name, templates)
 	}
 	for _, candidate := range templates {
 		if candidate.Name == name {

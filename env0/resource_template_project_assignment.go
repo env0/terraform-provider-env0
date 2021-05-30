@@ -22,19 +22,21 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id of the template",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
 				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}
 }
 
-func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateAssignmentToProjectPayload) {
+func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) client.TemplateAssignmentToProjectPayload {
 	result := client.TemplateAssignmentToProjectPayload{
-		ProjectId:       d.Get("project_id").(string),
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	return result
@@ -45,7 +47,7 @@ func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.Res
 
 	templateId := d.Get("template_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
-	
+
 	err := apiClient.AssignTemplateToProject(templateId, request)
 	if err != nil {
 		return diag.Errorf("could not assign template to project: %v", err)
@@ -72,7 +74,6 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	return nil
 }
 
-
 func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
@@ -84,5 +85,3 @@ func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.Reso
 	}
 	return nil
 }
-
-
