@@ -151,6 +151,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectDelete(arg0 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectDelete), arg0)
 }
 
+// ProjectUpdate mocks base method.
+func (m *MockApiClientInterface) ProjectUpdate(arg0 string, arg1 UpdateProjectPayload) (Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectUpdate", arg0, arg1)
+	ret0, _ := ret[0].(Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProjectUpdate indicates an expected call of ProjectUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectUpdate), arg0, arg1)
+}
+
 // Projects mocks base method.
 func (m *MockApiClientInterface) Projects() ([]Project, error) {
 	m.ctrl.T.Helper()
