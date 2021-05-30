@@ -148,3 +148,22 @@ type SshKeyCreatePayload struct {
 	OrganizationId string `json:"organizationId"`
 	Value          string `json:"value"`
 }
+
+type AwsCredentialsCreatePayload struct {
+	Name           string                     `json:"name"`
+	OrganizationId string                     `json:"organizationId"`
+	Type           string                     `json:"type"`
+	Value          AwsCredentialsValuePayload `json:"value"`
+}
+
+type AwsCredentialsValuePayload struct {
+	RoleArn    string `json:"roleArn"`
+	ExternalId string `json:"externalId"`
+}
+
+type ApiKey struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	OrganizationId string `json:"organizationId"`
+	Type           string `json:"type"`
+}
