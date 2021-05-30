@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
 	"log"
@@ -43,14 +42,12 @@ func resourceAwsCredentials() *schema.Resource {
 
 func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
-	value, _ := json.Marshal(map[string]string{
-		"arn":        d.Get("arn").(string),
-		"externalId": d.Get("external_id").(string),
-	})
 	request := client.AwsCredentialsCreatePayload{
 		Name:  d.Get("name").(string),
-		Type:  "aws_assumed_role",
-		Value: value,
+		Value: client.AwsCredentialsValuePayload{
+			RoleArn: d.Get("arn").(string),
+			ExternalId: d.Get("external_id").(string),
+		},
 	}
 	credentials, err := apiClient.AwsCredentialsCreate(request)
 	if err != nil {
@@ -94,9 +91,9 @@ func resourceAwsCredentialsImport(ctx context.Context, d *schema.ResourceData, m
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving AWS Credentials by name: ", id)
-		var project client.Project
-		project, getErr = getAwsCredentialsByName(id, meta)
-		d.SetId(project.Id)
+		var awsCredential client.ApiKey
+		awsCredential, getErr = getAwsCredentialsByName(id, meta)
+		d.SetId(awsCredential.Id)
 	}
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
