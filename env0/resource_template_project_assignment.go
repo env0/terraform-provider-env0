@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -13,9 +12,7 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTemplateProjectAssignmenetCreate,
 		ReadContext:   resourceTemplateProjectAssignmentRead,
-		//UpdateContext: resourceTemplateProjectAssignmentUpdate,
 		DeleteContext: resourceTemplateProjectAssignmentDelete,
-
 
 		Schema: map[string]*schema.Schema{
 			"template_id": {
@@ -43,8 +40,8 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) clie
 }
 
 func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Println("[DEBUG] Eyal!! start")
 	apiClient := meta.(*client.ApiClient)
+
 	templateId := d.Get("template_id").(string)
 	projectId := d.Get("project_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
@@ -59,6 +56,7 @@ func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.Res
 
 func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
+
 	templateId := d.Get("template_id").(string)
 	template, err := apiClient.Template(templateId)
 	if err != nil {

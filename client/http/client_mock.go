@@ -83,7 +83,7 @@ func (m *MockHttpClientInterface) Patch(arg0 string, arg1, arg2 interface{}) err
 	return ret0
 }
 
-// Patch indicates an expected call of Post.
+// Patch indicates an expected call of Patch.
 func (mr *MockHttpClientInterfaceMockRecorder) Patch(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Patch", reflect.TypeOf((*MockHttpClientInterface)(nil).Patch), arg0, arg1, arg2)
