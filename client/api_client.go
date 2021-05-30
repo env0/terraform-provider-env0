@@ -21,6 +21,7 @@ type ApiClientInterface interface {
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
 	ProjectCreate(name string, description string) (Project, error)
+	ProjectUpdate(id string, payload UpdateProjectPayload) (Project, error)
 	ProjectDelete(id string) error
 	Template(id string) (Template, error)
 	Templates() ([]Template, error)
