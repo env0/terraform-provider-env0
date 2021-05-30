@@ -46,7 +46,7 @@ func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.Res
 	templateId := d.Get("template_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
 	
-	template, err := apiClient.AssignTemplateToProject(templateId, request)
+	err := apiClient.AssignTemplateToProject(templateId, request)
 	if err != nil {
 		return diag.Errorf("could not assign template to project: %v", err)
 	}
