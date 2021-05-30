@@ -4,6 +4,7 @@ import (
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -123,4 +124,56 @@ var _ = Describe("Configuration Variable", func() {
 			Expect(updatedConfigurationVariable).To(Equal(mockConfigurationVariable))
 		})
 	})
+
+	Describe("ConfigurationVariables", func() {
+		var returnedVariables []ConfigurationVariable
+		mockVariables := []ConfigurationVariable{mockConfigurationVariable}
+		expectedParams := map[string]string{"organizationId": organizationId}
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
+			httpCall = mockHttpClient.EXPECT().
+				Get("/configuration", expectedParams, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+					*response = mockVariables
+				})
+			returnedVariables, _ = apiClient.ConfigurationVariables("GLOBAL", "")
+		})
+
+		It("Should send GET request with expected params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should return variables", func() {
+			Expect(returnedVariables).To(Equal(mockVariables))
+		})
+
+		DescribeTable("Different Scopes",
+			func(scope string, expectedFieldName string) {
+				scopeId := expectedFieldName + "-id"
+				expectedParams := map[string]string{
+					"organizationId":  organizationId,
+					expectedFieldName: scopeId,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Get("/configuration", expectedParams, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+						*response = mockVariables
+					})
+				returnedVariables, _ = apiClient.ConfigurationVariables(Scope(scope), scopeId)
+				httpCall.Times(1)
+			},
+			Entry("Template Scope", "BLUEPRINT", "blueprintId"),
+			Entry("Project Scope", "PROJECT", "projectId"),
+			Entry("Environment Scope", "ENVIRONMENT", "environmentId"),
+			Entry("Project Scope", "DEPLOYMENT_LOG", "deploymentLogId"),
+		)
+	})
+
 })
