@@ -138,18 +138,18 @@ func (mr *MockApiClientInterfaceMockRecorder) Project(arg0 interface{}) *gomock.
 }
 
 // ProjectCreate mocks base method.
-func (m *MockApiClientInterface) ProjectCreate(arg0 string) (Project, error) {
+func (m *MockApiClientInterface) ProjectCreate(arg0, arg1 string) (Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectCreate", arg0)
+	ret := m.ctrl.Call(m, "ProjectCreate", arg0, arg1)
 	ret0, _ := ret[0].(Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectCreate indicates an expected call of ProjectCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectCreate(arg0 interface{}) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectCreate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectCreate), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectCreate), arg0, arg1)
 }
 
 // ProjectDelete mocks base method.
