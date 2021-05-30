@@ -12,12 +12,12 @@ type ApiClient struct {
 }
 
 type ApiClientInterface interface {
-	NewApiClient(client http.HttpClientInterface) *ApiClient
 	ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error)
 	ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error)
 	ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
+	organizationId() (string, error)
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
 	ProjectCreate(name string, description string) (Project, error)
@@ -32,7 +32,7 @@ type ApiClientInterface interface {
 	SshKeyDelete(id string) error
 }
 
-func NewApiClient(client http.HttpClientInterface) *ApiClient {
+func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
 	return &ApiClient{
 		http:                 client,
 		cachedOrganizationId: "",

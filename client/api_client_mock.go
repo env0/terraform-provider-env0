@@ -7,7 +7,6 @@ package client
 import (
 	reflect "reflect"
 
-	http "github.com/env0/terraform-provider-env0/client/http"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -91,20 +90,6 @@ func (m *MockApiClientInterface) ConfigurationVariables(arg0 Scope, arg1 string)
 func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariables", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariables), arg0, arg1)
-}
-
-// NewApiClient mocks base method.
-func (m *MockApiClientInterface) NewApiClient(arg0 http.HttpClientInterface) *ApiClient {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NewApiClient", arg0)
-	ret0, _ := ret[0].(*ApiClient)
-	return ret0
-}
-
-// NewApiClient indicates an expected call of NewApiClient.
-func (mr *MockApiClientInterfaceMockRecorder) NewApiClient(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewApiClient", reflect.TypeOf((*MockApiClientInterface)(nil).NewApiClient), arg0)
 }
 
 // Organization mocks base method.
@@ -297,4 +282,19 @@ func (m *MockApiClientInterface) Templates() ([]Template, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
+}
+
+// organizationId mocks base method.
+func (m *MockApiClientInterface) organizationId() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "organizationId")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// organizationId indicates an expected call of organizationId.
+func (mr *MockApiClientInterfaceMockRecorder) organizationId() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "organizationId", reflect.TypeOf((*MockApiClientInterface)(nil).organizationId))
 }
