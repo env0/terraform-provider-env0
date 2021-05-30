@@ -120,7 +120,7 @@ type TemplateAssignmentToProjectPayload struct {
 }
 
 type TemplateAssignmentToProject struct {
-	//Id                   string           `json:"id"`
+	Id                   string           `json:"id"`
 	TemplateId string `json:"templateId"`
 	ProjectId  string `json:"projectId"`
 }
