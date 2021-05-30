@@ -89,5 +89,5 @@ func (self *ApiClient) AssignTemplateToProject(id string, payload TemplateAssign
 }
 
 func (self *ApiClient) RemoveTemplateFromProject(templateId string, projectId string) error {
-	return self.http.Delete("/blueprints/" + templateId + "projects/" + projectId)
+	return self.http.Delete("/blueprints/" + templateId + "/projects/" + projectId)
 }
