@@ -63,14 +63,17 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 		return diag.Errorf("could not get template: %v", err)
 	}
 	var assignProjectId = d.Get("project_id").(string)
-	d.Set("project_id", "")
-	
+	projectIdInTemplate:= false 
 	for _, projectId := range template.ProjectIds {
 		if assignProjectId == projectId {
-			d.Set("project_id", projectId)
-			
+			projectIdInTemplate = true 
 		}
 	}
+	if !projectIdInTemplate {
+		return diag.Errorf("could not find projectId in template.\n projectId = %v, templateId = %v", assignProjectId, templateId)
+
+	}
+
 	return nil
 }
 
