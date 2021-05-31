@@ -33,6 +33,65 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 	return m.recorder
 }
 
+// AwsCredentials mocks base method.
+func (m *MockApiClientInterface) AwsCredentials(arg0 string) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AwsCredentials", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AwsCredentials indicates an expected call of AwsCredentials.
+func (mr *MockApiClientInterfaceMockRecorder) AwsCredentials(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentials", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentials), arg0)
+}
+
+// AwsCredentialsCreate mocks base method.
+func (m *MockApiClientInterface) AwsCredentialsCreate(arg0 AwsCredentialsCreatePayload) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AwsCredentialsCreate", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AwsCredentialsCreate indicates an expected call of AwsCredentialsCreate.
+func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsCreate), arg0)
+}
+
+// AwsCredentialsDelete mocks base method.
+func (m *MockApiClientInterface) AwsCredentialsDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AwsCredentialsDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AwsCredentialsDelete indicates an expected call of AwsCredentialsDelete.
+func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsDelete", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsDelete), arg0)
+}
+
+// AwsCredentialsList mocks base method.
+func (m *MockApiClientInterface) AwsCredentialsList() ([]ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AwsCredentialsList")
+	ret0, _ := ret[0].([]ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AwsCredentialsList indicates an expected call of AwsCredentialsList.
+func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsList", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsList))
+}
+
 // ConfigurationVariableCreate mocks base method.
 func (m *MockApiClientInterface) ConfigurationVariableCreate(arg0, arg1 string, arg2 bool, arg3 Scope, arg4 string, arg5 ConfigurationVariableType, arg6 []string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()

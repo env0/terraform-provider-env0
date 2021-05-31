@@ -31,6 +31,10 @@ type ApiClientInterface interface {
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	SshKeyDelete(id string) error
+	AwsCredentials(id string) (ApiKey, error)
+	AwsCredentialsList() ([]ApiKey, error)
+	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
+	AwsCredentialsDelete(id string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
