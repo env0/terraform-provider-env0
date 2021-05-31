@@ -9,10 +9,17 @@ import (
 
 func TestUnitProjectResource(t *testing.T) {
 	resourceName := "env0_project.test"
+
 	project := client.Project{
 		Id:          "id0",
 		Name:        "name0",
 		Description: "description0",
+	}
+
+	updatedProject := client.Project{
+		Id:          project.Id,
+		Name:        "new name",
+		Description: "new description",
 	}
 
 	testCase := resource.TestCase{
@@ -26,13 +33,26 @@ func TestUnitProjectResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", project.Description),
 				),
 			},
+			{
+				Config: testEnv0ProjectResourceConfig(updatedProject.Name, updatedProject.Description),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "id", updatedProject.Id),
+					resource.TestCheckResourceAttr(resourceName, "name", updatedProject.Name),
+					resource.TestCheckResourceAttr(resourceName, "description", updatedProject.Description),
+				),
+			},
 		},
 	}
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().ProjectCreate(project.Name, project.Description).Times(1).Return(project, nil)
-		mock.EXPECT().Project(project.Id).Times(1).Return(project, nil)
-		mock.EXPECT().ProjectDelete(project.Id).Times(1).Return(nil)
+		mock.EXPECT().ProjectUpdate(updatedProject.Id, client.UpdateProjectPayload{
+			Name:        updatedProject.Name,
+			Description: updatedProject.Description,
+		}).Times(1).Return(updatedProject, nil)
+
+		mock.EXPECT().Project(project.Id).AnyTimes()
+		mock.EXPECT().ProjectDelete(project.Id).Times(1)
 	})
 }
 
