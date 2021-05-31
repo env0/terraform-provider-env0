@@ -2,6 +2,7 @@ package env0
 
 import (
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,13 +25,15 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 }
 
 func runUnitTest(t *testing.T, c resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
-	ctrl = gomock.NewController(t)
+	tr := utils.TestReporter{T: t}
+
+	ctrl = gomock.NewController(&tr)
 
 	apiClientMock = client.NewMockApiClientInterface(ctrl)
 	mockFunc(apiClientMock)
 
 	c.ProviderFactories = testUnitProviders
-	resource.UnitTest(t, c)
+	resource.UnitTest(&tr, c)
 
 	ctrl.Finish()
 }
