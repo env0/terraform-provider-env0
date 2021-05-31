@@ -12,29 +12,28 @@ func resourceTemplateProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTemplateProjectAssignmenetCreate,
 		ReadContext:   resourceTemplateProjectAssignmentRead,
-		UpdateContext: resourceTemplateProjectAssignmentUpdate,
 		DeleteContext: resourceTemplateProjectAssignmentDelete,
-
-		Importer: &schema.ResourceImporter{StateContext: resourceTemplateImport},
 
 		Schema: map[string]*schema.Schema{
 			"template_id": {
 				Type:        schema.TypeString,
 				Description: "id of the template",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}
 }
 
-func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload) {
+func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) client.TemplateAssignmentToProjectPayload {
 	result := client.TemplateAssignmentToProjectPayload{
-		projectId:       d.Get("project_id").(string),
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	return result
@@ -43,13 +42,15 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) (cli
 func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
+	templateId := d.Get("template_id").(string)
+	projectId := d.Get("project_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
-	
-	template, err := apiClient.AssignTemplateToProject(d.templateId, request)
+	result, err := apiClient.AssignTemplateToProject(templateId, request)
 	if err != nil {
 		return diag.Errorf("could not assign template to project: %v", err)
 	}
-
+	resourceId := result.Id + "|" + projectId
+	d.SetId(resourceId)
 	return nil
 }
 
@@ -62,16 +63,19 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 		return diag.Errorf("could not get template: %v", err)
 	}
 	var assignProjectId = d.Get("project_id").(string)
-	d.Set("project_id", "")
-
+	isProjectIdInTemplate:= false 
 	for _, projectId := range template.ProjectIds {
 		if assignProjectId == projectId {
-			d.Set("project_id", projectId)
+			isProjectIdInTemplate = true 
 		}
 	}
+	if !isProjectIdInTemplate {
+		return diag.Errorf("could not find projectId in template.\n projectId = %v, templateId = %v", assignProjectId, templateId)
+
+	}
+
 	return nil
 }
-
 
 func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
@@ -84,5 +88,3 @@ func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.Reso
 	}
 	return nil
 }
-
-

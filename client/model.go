@@ -115,8 +115,13 @@ type TemplateCreatePayload struct {
 }
 
 type TemplateAssignmentToProjectPayload struct {
-	Retry                *TemplateRetry   `json:"retry,omitempty"`
-	ProjectId            string           `json:"projectIds"`
+	ProjectId string         `json:"projectId"`
+}
+
+type TemplateAssignmentToProject struct {
+	Id                   string           `json:"id"`
+	TemplateId string `json:"templateId"`
+	ProjectId  string `json:"projectId"`
 }
 
 type Template struct {
