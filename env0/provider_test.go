@@ -3,8 +3,8 @@ package env0
 import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	. "github.com/onsi/ginkgo"
 	"testing"
 )
 
@@ -23,15 +23,14 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 	},
 }
 
-var _ = BeforeEach(func() {
-	ctrl = gomock.NewController(GinkgoT())
+func runUnitTest(t *testing.T, c resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	ctrl = gomock.NewController(t)
+
 	apiClientMock = client.NewMockApiClientInterface(ctrl)
-})
+	mockFunc(apiClientMock)
 
-var _ = AfterEach(func() {
+	c.ProviderFactories = testUnitProviders
+	resource.UnitTest(t, c)
+
 	ctrl.Finish()
-})
-
-func TestProvider(t *testing.T) {
-	RunSpecs(t, "Provider Tests")
 }
