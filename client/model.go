@@ -34,8 +34,8 @@ type Project struct {
 }
 
 type UpdateProjectPayload struct {
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type ConfigurationVariableSchema struct {
@@ -107,7 +107,7 @@ type TemplateCreatePayload struct {
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
 	TokenId              string           `json:"tokenId"`
-	GithubInstallationId int              `json:"githubInstallationId"`
+	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
 	Revision             string           `json:"revision"`
 	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
