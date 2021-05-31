@@ -27,6 +27,7 @@ var _ = Describe("Project", func() {
 				Post("/projects", map[string]interface{}{
 					"name":           projectName,
 					"organizationId": organizationId,
+					"description":    projectDescription,
 				},
 					gomock.Any()).
 				Do(func(path string, request interface{}, response *Project) {
