@@ -11,14 +11,17 @@ func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	if payload.Value == "" {
 		return SshKey{}, errors.New("Must specify ssh key value (private key in PEM format) on creation")
 	}
+	if payload.OrganizationId != "" {
+		return SshKey{}, errors.New("Must not specify organizationId")
+	}
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return SshKey{}, nil
 	}
-	extendedPayload := SshKeyCreatePayloadExtended{SshKeyCreatePayload: payload, OrganizationId: organizationId}
+	payload.OrganizationId = organizationId
 
 	var result SshKey
-	err = self.http.Post("/ssh-keys", extendedPayload, &result)
+	err = self.http.Post("/ssh-keys", payload, &result)
 	if err != nil {
 		return SshKey{}, err
 	}

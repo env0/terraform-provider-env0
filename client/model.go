@@ -34,8 +34,8 @@ type Project struct {
 }
 
 type UpdateProjectPayload struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+	Name           string `json:"name,omitempty"`
+	Description    string `json:"description,omitempty"`
 }
 
 type ConfigurationVariableSchema struct {
@@ -149,11 +149,7 @@ type SshKey struct {
 }
 
 type SshKeyCreatePayload struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type SshKeyCreatePayloadExtended struct {
-	SshKeyCreatePayload
+	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
+	Value          string `json:"value"`
 }

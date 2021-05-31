@@ -22,13 +22,9 @@ var _ = Describe("SshKey", func() {
 		var sshKey SshKey
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
-			expectedPayload := SshKeyCreatePayloadExtended{SshKeyCreatePayload: SshKeyCreatePayload{
-				Name:  sshKeyName,
-				Value: sshKeyValue,
-			}, OrganizationId: organizationId}
+			expectedPayload := SshKeyCreatePayload{Name: sshKeyName, Value: sshKeyValue, OrganizationId: organizationId}
 			httpCall = mockHttpClient.EXPECT().
-				Post("/ssh-keys", expectedPayload,
-					gomock.Any()).
+				Post("/ssh-keys", expectedPayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *SshKey) {
 					*response = mockSshKey
 				})
