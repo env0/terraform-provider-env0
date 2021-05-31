@@ -32,7 +32,7 @@ func TestUnitProjectResource(t *testing.T) {
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().ProjectCreate(project.Name, project.Description).Times(1).Return(project, nil)
 		mock.EXPECT().Project(project.Id).Times(1).Return(project, nil)
-		//mock.EXPECT().ProjectDelete(project.Id).Times(1).Return(nil)
+		mock.EXPECT().ProjectDelete(project.Id).Times(1).Return(nil)
 	})
 }
 
