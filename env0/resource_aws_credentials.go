@@ -24,17 +24,20 @@ func resourceAwsCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "name for the credentials",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"arn": {
 				Type:        schema.TypeString,
 				Description: "the aws role arn",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"external_id": {
 				Type:        schema.TypeString,
 				Description: "the aws role external id",
 				Required:    true,
 				Sensitive:   true,
+				ForceNew:    true,
 			},
 		},
 	}

@@ -9,6 +9,7 @@ data "env0_aws_credentials" "my_role" {
   depends_on = [env0_aws_credentials.my_role]
 }
 
+
 output "name" {
   value = data.env0_aws_credentials.my_role.name
 }

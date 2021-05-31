@@ -81,8 +81,10 @@ var _ = Describe("AwsCredentials", func() {
 
 	Describe("AwsCredentials", func() {
 		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
 			httpCall = mockHttpClient.EXPECT().
-				Get("/credentials", nil, gomock.Any()).
+				Get("/credentials",  map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ApiKey) {
 					*response = keys
 				})
@@ -102,8 +104,10 @@ var _ = Describe("AwsCredentials", func() {
 		var credentials []ApiKey
 
 		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
 			httpCall = mockHttpClient.EXPECT().
-				Get("/credentials", nil, gomock.Any()).
+				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ApiKey) {
 					*response = keys
 				})

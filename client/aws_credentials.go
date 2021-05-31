@@ -20,8 +20,13 @@ func (self *ApiClient) AwsCredentials(id string) (ApiKey, error) {
 }
 
 func (self *ApiClient) AwsCredentialsList() ([]ApiKey, error) {
+	organizationId, err := self.organizationId()
+	if err != nil {
+		return []ApiKey{}, err
+	}
+
 	var credentials []ApiKey
-	err := self.http.Get("/credentials", nil, &credentials)
+	err = self.http.Get("/credentials", map[string]string{"organizationId": organizationId}, &credentials)
 	if err != nil {
 		return []ApiKey{}, err
 	}

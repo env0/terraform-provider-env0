@@ -14,8 +14,16 @@ func dataAwsCredentials() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Description: "name for the credentials",
+				Type:         schema.TypeString,
+				Description:  "the name of the credential",
+				Optional:     true,
+				ExactlyOneOf: []string{"name", "id"},
+			},
+			"id": {
+				Type:         schema.TypeString,
+				Description:  "the id of the credential",
+				Optional:     true,
+				ExactlyOneOf: []string{"name", "id"},
 			},
 		},
 	}
@@ -57,7 +65,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
 	for _, candidate := range credentialsList {
-		if candidate.Name == name.(string) && candidate.Type == "aws_assumed_role" {
+		if candidate.Name == name.(string) && candidate.Type == "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT" {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
 		}
 	}
