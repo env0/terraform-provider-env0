@@ -30,7 +30,6 @@ resource "env0_configuration_variable" "example" {
 ### Optional
 
 - **enum** (List of String) limit possible values to values from this list
-- **id** (String) The ID of this resource.
 - **is_sensitive** (Boolean) is the variable sensitive, defaults to false
 - **project_id** (String) create the variable under this project, not globally
 - **template_id** (String) create the variable under this template, not globally
