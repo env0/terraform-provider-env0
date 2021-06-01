@@ -16,20 +16,19 @@ func Provider() *schema.Provider {
 				Description: "override api endpoint (used for testing)",
 				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
 				Optional:    true,
-				Sensitive:   false,
 			},
 			"api_key": {
 				Type:        schema.TypeString,
 				Description: "env0 api key (https://docs.env0.com/reference#authentication)",
 				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
-				Optional:    true,
+				Required:    true,
 				Sensitive:   true,
 			},
 			"api_secret": {
 				Type:        schema.TypeString,
 				Description: "env0 api key secret",
 				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_SECRET", nil),
-				Optional:    true,
+				Required:    true,
 				Sensitive:   true,
 			},
 		},
@@ -53,21 +52,8 @@ func Provider() *schema.Provider {
 }
 
 func configureProvider(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	apiKey, ok := d.GetOk("api_key")
-	if !ok {
-		return nil, diag.Diagnostics{diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Either api_key must be provided, or ENV0_API_KEY environment variable set",
-		}}
-	}
-
-	apiSecret, ok := d.GetOk("api_secret")
-	if !ok {
-		return nil, diag.Diagnostics{diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Either api_secret must be provided or ENV0_API_SECRET environment variable set",
-		}}
-	}
+	apiKey := d.Get("api_key")
+	apiSecret := d.Get("api_secret")
 
 	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string), d.Get("api_endpoint").(string))
 	if err != nil {
