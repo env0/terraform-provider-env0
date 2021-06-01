@@ -2,7 +2,7 @@ package http_test
 
 import (
 	"encoding/json"
-	httpkaki "github.com/env0/terraform-provider-env0/client/http"
+	httpModule "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
@@ -15,19 +15,19 @@ import (
 	"testing"
 )
 
-const BaseUrl = "https://fake.kaka"
+const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
 const ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
 
 const ErrorStatusCode = 500
 const ErrorMessage = "Very bad!"
-var httpclient *httpkaki.HttpClient
+var httpclient *httpModule.HttpClient
 
 var _ = BeforeSuite(func() {
 	// mock all HTTP requests
 	restClient := resty.New()
-	httpclient, _ = httpkaki.NewHttpClient(ApiKey, ApiSecret, BaseUrl, restClient)
+	httpclient, _ = httpModule.NewHttpClient(ApiKey, ApiSecret, BaseUrl, restClient)
 	httpmock.ActivateNonDefault(restClient.GetClient())
 })
 
