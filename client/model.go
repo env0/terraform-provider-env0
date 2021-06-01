@@ -109,7 +109,6 @@ type TemplateCreatePayload struct {
 	TokenId              string           `json:"tokenId"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
 	Revision             string           `json:"revision"`
-	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
 }
@@ -126,7 +125,6 @@ type Template struct {
 	Path                 string           `json:"path"`
 	Revision             string           `json:"revision"`
 	ProjectId            string           `json:"projectId"`
-	ProjectIds           []string         `json:"projectIds"`
 	Repository           string           `json:"repository"`
 	Retry                TemplateRetry    `json:"retry"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
