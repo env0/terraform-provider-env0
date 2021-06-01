@@ -34,6 +34,6 @@ resource "env0_configuration_variable" "example" {
 - **project_id** (String) create the variable under this project, not globally
 - **template_id** (String) create the variable under this template, not globally
 - **environment_id** (String) create the variable under this environment, not globally
-- **type** (String) default 'environment'. set to 'terraform' to create a terraform variable
+- **type** (String) default as 'environment' variable. set to 'terraform' to create a terraform variable
 
 
