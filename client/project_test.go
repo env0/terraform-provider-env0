@@ -8,13 +8,14 @@ import (
 )
 
 const projectName = "project_test"
+const projectDescription = "project description"
 
 var _ = Describe("Project", func() {
 	var project Project
 	mockProject := Project{
 		Id:             "idX",
 		Name:           "projectX",
-		Description: 	"descriptionX",
+		Description:    "descriptionX",
 		OrganizationId: organizationId,
 	}
 
@@ -26,13 +27,14 @@ var _ = Describe("Project", func() {
 				Post("/projects", map[string]interface{}{
 					"name":           projectName,
 					"organizationId": organizationId,
+					"description":    projectDescription,
 				},
 					gomock.Any()).
 				Do(func(path string, request interface{}, response *Project) {
 					*response = mockProject
 				})
 
-			project, _ = apiClient.ProjectCreate(projectName)
+			project, _ = apiClient.ProjectCreate(projectName, projectDescription)
 		})
 
 		It("Should get organization id", func() {
@@ -72,7 +74,7 @@ var _ = Describe("Project", func() {
 			mockedResponse.Description = payload.Description
 
 			httpCall = mockHttpClient.EXPECT().
-				Put("/projects/" + mockProject.Id, payload, gomock.Any()).
+				Put("/projects/"+mockProject.Id, payload, gomock.Any()).
 				Do(func(path string, request interface{}, response *Project) {
 					*response = mockedResponse
 				})

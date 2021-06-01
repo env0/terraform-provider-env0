@@ -57,7 +57,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 }
 
 func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	sshKeys, err := apiClient.SshKeys()
 	if err != nil {
@@ -82,7 +82,7 @@ func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Di
 }
 
 func getSshKeyById(id interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	sshKeys, err := apiClient.SshKeys()
 	var sshKey client.SshKey

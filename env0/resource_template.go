@@ -182,7 +182,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 }
 
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -199,7 +199,7 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	template, err := apiClient.Template(d.Id())
 	if err != nil {
@@ -234,7 +234,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -249,7 +249,7 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.TemplateDelete(id)

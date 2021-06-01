@@ -144,7 +144,7 @@ func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 }
 
 func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	variables, err := apiClient.ConfigurationVariables(params.Scope, params.ScopeId)
 	if err != nil {

@@ -44,11 +44,11 @@ func resourceAwsCredentials() *schema.Resource {
 }
 
 func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 	request := client.AwsCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
+		Name: d.Get("name").(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn: d.Get("arn").(string),
+			RoleArn:    d.Get("arn").(string),
 			ExternalId: d.Get("external_id").(string),
 		},
 	}
@@ -63,7 +63,7 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	_, err := apiClient.AwsCredentials(id)
@@ -74,7 +74,7 @@ func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceAwsCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.AwsCredentialsDelete(id)
