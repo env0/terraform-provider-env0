@@ -15,6 +15,16 @@ import (
 	"testing"
 )
 
+// The JSON here returns camelCase keys
+type ResponseType struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type RequestBody struct {
+	Message string `json:"message"`
+}
+
 const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
@@ -43,16 +53,6 @@ var _ = AfterSuite(func() {
 func TestHttpClient(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "HTTP Client Tests")
-}
-
-// The JSON here returns camelCase keys
-type ResponseType struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type RequestBody struct {
-	Message string `json:"message"`
 }
 
 var _ = Describe("Http Client", func() {
