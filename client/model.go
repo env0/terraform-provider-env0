@@ -115,13 +115,19 @@ type TemplateCreatePayload struct {
 }
 
 type TemplateAssignmentToProjectPayload struct {
-	ProjectId string         `json:"projectId"`
+	ProjectId string `json:"projectId"`
 }
 
 type TemplateAssignmentToProject struct {
-	Id                   string           `json:"id"`
+	Id         string `json:"id"`
 	TemplateId string `json:"templateId"`
 	ProjectId  string `json:"projectId"`
+}
+
+type CloudCredentialsProjectAssignment struct {
+	Id           string `json:"id"`
+	CredentialId string `json:"credentialId"`
+	ProjectId    string `json:"projectId"`
 }
 
 type Template struct {
