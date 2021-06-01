@@ -1,9 +1,11 @@
 package env0
 
 import (
+	"errors"
 	"context"
-	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/go-resty/resty/v2"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -55,7 +57,7 @@ func configureProvider(ctx context.Context, d *schema.ResourceData) (interface{}
 	apiKey := d.Get("api_key")
 	apiSecret := d.Get("api_secret")
 
-	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string), d.Get("api_endpoint").(string))
+      httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string), d.Get("api_endpoint").(string), resty.New())
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 	}
