@@ -21,11 +21,11 @@ type HttpClient struct {
 	client    *resty.Client
 }
 
-func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string) (*HttpClient, error) {
+func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string, restClient *resty.Client) (*HttpClient, error) {
 	return &HttpClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
-		client:    resty.New().SetHostURL(apiEndpoint),
+		client:    restClient.SetHostURL(apiEndpoint),
 	}, nil
 }
 
