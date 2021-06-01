@@ -64,51 +64,43 @@ provider "env0" {
 
 ## Dev setup
 
-To build locally, you can use the `./build.sh` script.
-The rest of the steps below are relevant if you would like to use the provider outside of the test harness (the test harness performs the steps described here).
+### Build 
+- Use the `./build.sh` script.
+- The output binary is called `terraform-provider-env0`
 
-To use local binary version, you'll need to create a local terraform provider repository.
-The simplest way to do so would be to create a folder on your disk.
-Under that folder, copy the built provider binary to `terraform-registry.env0.com/env0/env0/6.6.6/linux_amd64/terraform-provider-env0` (note to replace linux_amd64 if using a different platform).
-Then, create a `terraform.rc` file (location doesn't matter).
-The content of said file should look like so:
-
+### Run local version of the provider
+- Build - `./build.sh`
+- Create the plugins folder - `mkdir -p ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64`
+- Copy the built binary - `cp ~/env0/terraform-provider-env0/terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (Replace `darwin` with `linux` on Linux)
+- Require the local provider in your `main.tf` - 
 ```
-provider_installation {
-  filesystem_mirror {
-    path    = "<absolute path to local repository folder>"
-    include = ["terraform-registry.env0.com/*/*"]
+terraform {
+  required_providers {
+    env0 = {
+      version = "6.6.6"
+      source  = "terraform.env0.com/local/env0"
+    }
   }
-  direct {}
 }
-```
-
-Finally, set an environment variable `TF_CLI_CONFIG_FILE` to point to the `terraform.rc` file created.
-After that, `terraform init` should be able to locate the provider on disk.
-To define this variable only when running terraform once, you can, in bash shell:
-
-```bash
-TF_CLI_CONFIG_FILE=<terraform.rc path> terraform init
 ```
 
 ## Testing
 
-### Harness
-If you have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined, after building the provider locally, just run `go run tests/harness.go` to run all the tests. Make sure to run from the project root folder.
-
-Use `go run tests/harness.go 003_configuration_variable` to run a specific test.
-The last argument can also be specified as a full path, e.g., `tests/003_configuration_variable/`.
+### Integration tests
+- The integration tests run against the real env0 API 
+- Have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined.
+- Also set `ENV0_API_ENDPOINT` if you want to run against a non-prod environment.
+- Run `go run tests/harness.go` (from the project root folder) to run all the tests.
+- Use `go run tests/harness.go 003_configuration_variable` to run a specific test.
 
 Each test perform the following steps:
-
 - `terraform init`
 - `terraform apply -auto-approve -var second_run=0`
 - `terraform apply -auto-approve -var second_run=1`
 - `terraform outputs -json` - and verifies expected outputs from `expected_outputs.json`
 - `terraform destroy`
 
-
-The harness has two convineint modes to help while developing: If an environment variable `DESTROY_MODE` exists and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
+The harness has two modes to help while developing: If an environment variable `DESTROY_MODE` exists and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
 Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and _only_ `terraform destroy` will run.
 
 ### Unit Testing
