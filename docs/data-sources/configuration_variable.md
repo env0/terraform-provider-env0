@@ -27,13 +27,13 @@ output "aws_default_region" {
 
 ### Optional
 
-- **deployment_log_id** (String) search for the variable under this deployment log, not globally
-- **environment_id** (String) search for the variable under this environment, not globally
 - **id** (String) id of the configuration variable
 - **name** (String) the name of the configuration variable
+- **type** (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
 - **project_id** (String) search for the variable under this project, not globally
 - **template_id** (String) search for the variable under this template, not globally
-- **type** (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
+- **environment_id** (String) search for the variable under this environment, not globally
+- **deployment_log_id** (String) search for the variable under this deployment log, not globally
 
 ### Read-Only
 
