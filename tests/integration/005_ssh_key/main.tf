@@ -24,9 +24,9 @@ output "name" {
 }
 
 resource "env0_template" "usage" {
-  name          = "use a ssh key"
-  description   = "use a ssh key"
-  type          = "terraform"
-  repository    = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
-  ssh_keys = [env0_ssh_key.tested]
+  name                   = "use a ssh key"
+  description            = "use a ssh key"
+  type                   = "terraform"
+  repository             = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
+  ssh_keys               = [env0_ssh_key.tested]
 }

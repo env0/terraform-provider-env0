@@ -33,6 +33,11 @@ type Project struct {
 	Description    string `json:"description"`
 }
 
+type UpdateProjectPayload struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 type ConfigurationVariableSchema struct {
 	Type string   `json:"string"`
 	Enum []string `json:"enum"`
@@ -102,7 +107,7 @@ type TemplateCreatePayload struct {
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
 	TokenId              string           `json:"tokenId"`
-	GithubInstallationId int              `json:"githubInstallationId"`
+	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
 	Revision             string           `json:"revision"`
 	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
@@ -147,4 +152,23 @@ type SshKeyCreatePayload struct {
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
 	Value          string `json:"value"`
+}
+
+type AwsCredentialsCreatePayload struct {
+	Name           string                     `json:"name"`
+	OrganizationId string                     `json:"organizationId"`
+	Type           string                     `json:"type"`
+	Value          AwsCredentialsValuePayload `json:"value"`
+}
+
+type AwsCredentialsValuePayload struct {
+	RoleArn    string `json:"roleArn"`
+	ExternalId string `json:"externalId"`
+}
+
+type ApiKey struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	OrganizationId string `json:"organizationId"`
+	Type           string `json:"type"`
 }

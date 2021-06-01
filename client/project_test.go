@@ -14,6 +14,7 @@ var _ = Describe("Project", func() {
 	mockProject := Project{
 		Id:             "idX",
 		Name:           "projectX",
+		Description:    "descriptionX",
 		OrganizationId: organizationId,
 	}
 
@@ -55,6 +56,35 @@ var _ = Describe("Project", func() {
 
 		It("Should send DELETE request with project id", func() {
 			httpCall.Times(1)
+		})
+	})
+
+	Describe("ProjectUpdate", func() {
+		var mockedResponse Project
+		BeforeEach(func() {
+			payload := UpdateProjectPayload{
+				Name:        "newName",
+				Description: "newDesc",
+			}
+
+			mockedResponse = mockProject
+			mockedResponse.Name = payload.Name
+			mockedResponse.Description = payload.Description
+
+			httpCall = mockHttpClient.EXPECT().
+				Put("/projects/"+mockProject.Id, payload, gomock.Any()).
+				Do(func(path string, request interface{}, response *Project) {
+					*response = mockedResponse
+				})
+			project, _ = apiClient.ProjectUpdate(mockProject.Id, payload)
+		})
+
+		It("Should send PUT request with project ID and expected payload", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return project received from API", func() {
+			Expect(project).To(Equal(mockedResponse))
 		})
 	})
 
