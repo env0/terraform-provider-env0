@@ -42,7 +42,7 @@ var _ = AfterSuite(func() {
 
 func TestHttpClient(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "API Client Tests")
+	RunSpecs(t, "HTTP Client Tests")
 }
 
 // The JSON here returns camelCase keys
