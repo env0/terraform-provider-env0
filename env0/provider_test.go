@@ -24,16 +24,16 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 	},
 }
 
-func runUnitTest(t *testing.T, c resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
-	tr := utils.TestReporter{T: t}
+func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	testReporter := utils.TestReporter{T: t}
 
-	ctrl = gomock.NewController(&tr)
+	ctrl = gomock.NewController(&testReporter)
 
 	apiClientMock = client.NewMockApiClientInterface(ctrl)
 	mockFunc(apiClientMock)
 
-	c.ProviderFactories = testUnitProviders
-	resource.UnitTest(&tr, c)
+	testCase.ProviderFactories = testUnitProviders
+	resource.UnitTest(&testReporter, testCase)
 
 	ctrl.Finish()
 }
