@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("Templates Client", func() {
 	mockTemplate := Template{
-		Id:  "template-id",
+		Id:         "template-id",
 		Name:       "template-name",
 		Repository: "https://re.po",
 	}
