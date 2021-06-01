@@ -3,6 +3,7 @@ package env0
 import (
 	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	. "github.com/onsi/ginkgo"
 )
@@ -18,11 +19,11 @@ var _ = Describe("Project Resource", func() {
 	BeforeEach(func() {
 		apiClientMock.EXPECT().ProjectCreate(project.Name, project.Description).Times(1).Return(project, nil)
 		apiClientMock.EXPECT().Project(project.Id).Times(1)
-		apiClientMock.EXPECT().ProjectDelete(project.Id).Times(1)
+		//apiClientMock.EXPECT().ProjectDelete(project.Id).Times(1)
 	})
 
 	It("Should validate project creation", func() {
-		resource.UnitTest(GinkgoT(), resource.TestCase{
+		resource.UnitTest(utils.RecoveringGinkgoT(), resource.TestCase{
 			ProviderFactories: testUnitProviders,
 			Steps: []resource.TestStep{
 				{
