@@ -34,7 +34,7 @@ var _ = Describe("Organization", func() {
 				httpCall.Times(1)
 			})
 
-			It("Should return ssh keys", func() {
+			It("Should return organization", func() {
 				Expect(organization).Should(Equal(mockOrganization))
 				Expect(err).Should(BeNil())
 			})
@@ -61,6 +61,7 @@ var _ = Describe("Organization", func() {
 
 				_, err = apiClient.Organization()
 				Expect(err).ShouldNot(BeNil())
+				Expect(err.Error()).Should(Equal("Server responded with too many organizations"))
 			})
 		})
 	})
