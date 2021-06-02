@@ -1,6 +1,8 @@
 package client_test
 
 import (
+	"errors"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -146,6 +148,53 @@ var _ = Describe("Templates Client", func() {
 
 		It("Should return configuration value received from API", func() {
 			Expect(updatedTemplate).To(Equal(mockTemplate))
+		})
+	})
+	Describe("add template to project", func() {
+		templateAssignmentToProjectPayload := TemplateAssignmentToProjectPayload{
+			ProjectId:         "project-id",
+		}
+		var assignedTemplate Template
+		var err error
+
+		BeforeEach(func() {
+
+			expectedAssignRequest := templateAssignmentToProjectPayload
+
+			httpCall = mockHttpClient.EXPECT().
+				Patch("/blueprints/"+mockTemplate.Id+"/projects", expectedAssignRequest, gomock.Any()).
+				Do(func(path string, request interface{}, response *Template) {
+					*response = mockTemplate
+				})
+
+			assignedTemplate, err = apiClient.AssignTemplateToProject(mockTemplate.Id, templateAssignmentToProjectPayload)
+		})
+
+		It("Should send POST request with expected payload", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return template from API", func() {
+			Expect(assignedTemplate).To(Equal(mockTemplate))
+		})
+		It("should return an error on empty projectId", func() {
+			assignedTemplate, err = apiClient.AssignTemplateToProject(mockTemplate.Id, TemplateAssignmentToProjectPayload{})
+			Expect(err).To(BeEquivalentTo(errors.New("Must specify projectId on assignment to a template")))
+		})
+	})
+	Describe("remove template from project", func() {
+		projectId := "project-id"
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/" + mockTemplate.Id + "/projects/" + projectId)
+			apiClient.RemoveTemplateFromProject(mockTemplate.Id, projectId)
+		})
+
+		It("Should send DELETE request with template id and project id", func() {
+			httpCall.Times(1)
 		})
 	})
 })

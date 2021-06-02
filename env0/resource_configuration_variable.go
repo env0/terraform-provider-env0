@@ -100,7 +100,7 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 }
 
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
@@ -131,7 +131,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	scope, scopeId := whichScope(d)
@@ -156,7 +156,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	scope, scopeId := whichScope(d)
@@ -186,7 +186,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.ConfigurationVariableDelete(id)

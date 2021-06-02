@@ -40,10 +40,11 @@ func resourceProject() *schema.Resource {
 }
 
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	name := d.Get("name").(string)
-	project, err := apiClient.ProjectCreate(name)
+	description := d.Get("description").(string)
+	project, err := apiClient.ProjectCreate(name, description)
 	if err != nil {
 		return diag.Errorf("could not create project: %v", err)
 	}
@@ -54,7 +55,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	_, err := apiClient.Project(id)
@@ -65,7 +66,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	payload := client.UpdateProjectPayload{
@@ -80,7 +81,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.ProjectDelete(id)

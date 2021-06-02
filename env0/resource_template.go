@@ -51,15 +51,6 @@ func resourceTemplate() *schema.Resource {
 				Optional:    true,
 				Default:     "terraform",
 			},
-			"project_ids": {
-				Type:        schema.TypeList,
-				Description: "which projects may access this template (id of project)",
-				Optional:    true,
-				Elem: &schema.Schema{
-					Type:        schema.TypeString,
-					Description: "env0_project.id for each project",
-				},
-			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
 				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
@@ -130,12 +121,6 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 			return client.TemplateCreatePayload{}, diag.Errorf("'type' can either be 'terraform' or 'terragrunt': %s", type_)
 		}
 	}
-	if projectIds, ok := d.GetOk("project_ids"); ok {
-		result.ProjectIds = []string{}
-		for _, projectId := range projectIds.([]interface{}) {
-			result.ProjectIds = append(result.ProjectIds, projectId.(string))
-		}
-	}
 	if sshKeys, ok := d.GetOk("ssh_keys"); ok {
 		result.SshKeys = []client.TemplateSshKey{}
 		for _, sshKey := range sshKeys.([]interface{}) {
@@ -182,7 +167,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 }
 
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -199,7 +184,7 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	template, err := apiClient.Template(d.Id())
 	if err != nil {
@@ -213,7 +198,6 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
-	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
@@ -234,7 +218,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
@@ -249,7 +233,7 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.TemplateDelete(id)

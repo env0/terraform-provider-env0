@@ -29,7 +29,6 @@ resource "env0_template" "example" {
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
-  project_ids = [data.env0_project.default_project.id]
 }
 
 resource "env0_configuration_variable" "in_a_template" {

@@ -75,7 +75,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 }
 
 func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
 	if err != nil {
 		return client.Project{}, diag.Errorf("Could not query project by name: %v", err)
@@ -98,7 +98,7 @@ func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.
 }
 
 func getProjectById(id string, meta interface{}) (client.Project, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 	project, err := apiClient.Project(id)
 	if err != nil {
 		return client.Project{}, diag.Errorf("Could not query template: %v", err)

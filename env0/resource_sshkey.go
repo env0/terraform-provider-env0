@@ -36,7 +36,7 @@ func resourceSshKey() *schema.Resource {
 }
 
 func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	request := client.SshKeyCreatePayload{
 		Name:  d.Get("name").(string),
@@ -61,7 +61,7 @@ func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 	err := apiClient.SshKeyDelete(id)

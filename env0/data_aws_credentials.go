@@ -57,7 +57,7 @@ func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 	credentialsList, err := apiClient.AwsCredentialsList()
 	if err != nil {
 		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
@@ -80,7 +80,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 }
 
 func getAwsCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.AwsCredentials(id)
 	if credentials.Type != "aws_assumed_role" {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
