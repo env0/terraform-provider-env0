@@ -39,6 +39,11 @@ func resourceProject() *schema.Resource {
 	}
 }
 
+func setProjectSchema(d *schema.ResourceData, project client.Project) {
+	d.Set("name", project.Name)
+	d.Set("description", project.Description)
+}
+
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -50,8 +55,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(project.Id)
-	d.Set("name", project.Name)
-	d.Set("description", project.Description)
+	setProjectSchema(d, project)
 
 	return nil
 }
@@ -64,8 +68,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("could not get project: %v", err)
 	}
 
-	d.Set("name", project.Name)
-	d.Set("description", project.Description)
+	setProjectSchema(d, project)
 
 	return nil
 }
@@ -78,10 +81,14 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 	}
-	_, err := apiClient.ProjectUpdate(id, payload)
+
+	project, err := apiClient.ProjectUpdate(id, payload)
 	if err != nil {
 		return diag.Errorf("could not update project: %v", err)
 	}
+
+	setProjectSchema(d, project)
+
 	return nil
 }
 
@@ -99,17 +106,21 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	var getErr diag.Diagnostics
-	_, uuidErr := uuid.Parse(id)
-	if uuidErr == nil {
+	_, err := uuid.Parse(id)
+	if err == nil {
 		log.Println("[INFO] Resolving Project by id: ", id)
 		_, getErr = getProjectById(id, meta)
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving Project by name: ", id)
+
 		var project client.Project
 		project, getErr = getProjectByName(id, meta)
+
 		d.SetId(project.Id)
+		setProjectSchema(d, project)
 	}
+
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
 	} else {
