@@ -52,8 +52,8 @@ func TestUnitProjectResource(t *testing.T) {
 		}).Times(1).Return(updatedProject, nil)
 
 		gomock.InOrder(
-			mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil), // 1 after create, 1 before update
-			mock.EXPECT().Project(gomock.Any()).Return(updatedProject, nil),   // 1 after update
+			mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),        // 1 after create, 1 before update
+			mock.EXPECT().Project(gomock.Any()).Times(1).Return(updatedProject, nil), // 1 after update
 		)
 
 		mock.EXPECT().ProjectDelete(project.Id).Times(1)
