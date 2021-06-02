@@ -28,6 +28,8 @@ type ApiClientInterface interface {
 	TemplateCreate(payload TemplateCreatePayload) (Template, error)
 	TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error)
 	TemplateDelete(id string) error
+	AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error)
+	RemoveTemplateFromProject(templateId string, projectId string) error
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	SshKeyDelete(id string) error
@@ -35,6 +37,9 @@ type ApiClientInterface interface {
 	AwsCredentialsList() ([]ApiKey, error)
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
 	AwsCredentialsDelete(id string) error
+	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
+	RemoveCloudCredentialsFromProject(credentialId string, projectId string) error
+	CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
