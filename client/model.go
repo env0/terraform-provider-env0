@@ -114,6 +114,16 @@ type TemplateCreatePayload struct {
 	TerraformVersion     string           `json:"terraformVersion"`
 }
 
+type TemplateAssignmentToProjectPayload struct {
+	ProjectId string         `json:"projectId"`
+}
+
+type TemplateAssignmentToProject struct {
+	Id         string `json:"id"`
+	TemplateId string `json:"templateId"`
+	ProjectId  string `json:"projectId"`
+}
+
 type Template struct {
 	Author               User             `json:"author"`
 	AuthorId             string           `json:"authorId"`

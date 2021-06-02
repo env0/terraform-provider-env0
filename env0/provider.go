@@ -42,11 +42,12 @@ func Provider() *schema.Provider {
 			"env0_aws_credentials":        dataAwsCredentials(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"env0_project":                resourceProject(),
-			"env0_configuration_variable": resourceConfigurationVariable(),
-			"env0_template":               resourceTemplate(),
-			"env0_ssh_key":                resourceSshKey(),
-			"env0_aws_credentials":        resourceAwsCredentials(),
+			"env0_project":                	    resourceProject(),
+			"env0_configuration_variable": 	    resourceConfigurationVariable(),
+			"env0_template":               	    resourceTemplate(),
+			"env0_ssh_key":                	    resourceSshKey(),
+			"env0_aws_credentials":        	    resourceAwsCredentials(),
+			"env0_template_project_assignment": resourceTemplateProjectAssignment(),
 		},
 		ConfigureContextFunc: configureProvider,
 	}
