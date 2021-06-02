@@ -40,7 +40,7 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) clie
 }
 
 func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
 	projectId := d.Get("project_id").(string)
@@ -55,7 +55,7 @@ func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.Reso
 }
 
 func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
 	template, err := apiClient.Template(templateId)
@@ -63,10 +63,10 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 		return diag.Errorf("could not get template: %v", err)
 	}
 	var assignProjectId = d.Get("project_id").(string)
-	isProjectIdInTemplate:= false 
+	isProjectIdInTemplate := false
 	for _, projectId := range template.ProjectIds {
 		if assignProjectId == projectId {
-			isProjectIdInTemplate = true 
+			isProjectIdInTemplate = true
 		}
 	}
 	if !isProjectIdInTemplate {
@@ -78,7 +78,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 }
 
 func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
 	projectId := d.Get("project_id").(string)
