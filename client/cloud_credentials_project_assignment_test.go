@@ -35,12 +35,5 @@ var _ = Describe("Credentials Project Assignment", func() {
 				Expect(actualResult).To(Equal(expectedResponse))
 			})
 		})
-
-		//Describe("Validation Checks", func() {
-		//	It("Should return error for missing CredentialId", func () {
-		//		_, err := apiClient.AssignCloudCredentialsToProject(projectId, CloudCredentialsProjectAssignmentPatchPayload{nil})
-		//		Expect(err).To(Equal("Must specify cloud credentials to assign to be assigned to project"))
-		//	})
-		//})
 	})
 })
