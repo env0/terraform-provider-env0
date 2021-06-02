@@ -23,7 +23,6 @@ func TestUnitProjectResource(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testEnv0ProjectResourceConfig(project.Name, project.Description),
