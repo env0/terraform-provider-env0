@@ -37,4 +37,10 @@ resource "env0_configuration_variable" "example" {
 - **template_id** (String) create the variable under this template, not globally
 - **type** (String) default 'environment'. set to 'terraform' to create a terraform variable
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_configuration_variable.my_config '{  "Scope": "PROJECT",  "ScopeId": "project id",  "name": "configuration variable name"}'
+```
