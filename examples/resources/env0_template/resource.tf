@@ -11,6 +11,5 @@ resource "env0_template" "example" {
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
-  project_ids = [ data.env0_project.default_project.id ]
   ssh_keys    = [ data.ssh_keys.my_key ]
 }
