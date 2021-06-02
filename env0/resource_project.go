@@ -57,11 +57,14 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	id := d.Id()
-	_, err := apiClient.Project(id)
+	project, err := apiClient.Project(d.Id())
 	if err != nil {
 		return diag.Errorf("could not get project: %v", err)
 	}
+
+	d.Set("name", project.Name)
+	d.Set("description", project.Description)
+
 	return nil
 }
 
