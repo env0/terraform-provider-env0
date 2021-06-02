@@ -33,4 +33,11 @@ resource "env0_aws_credentials" "example" {
 
 - **id** (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_aws_credentials.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_aws_credentials.by_name ProductionCredentials
+```
