@@ -26,7 +26,6 @@ resource "env0_template" "example" {
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
-  project_ids = [ data.env0_project.default_project.id ]
   ssh_keys    = [ data.ssh_keys.my_key ]
 }
 ```
@@ -45,7 +44,6 @@ resource "env0_template" "example" {
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
 - **id** (String) The ID of this resource.
 - **path** (String) terraform / terragrunt file folder inside source code
-- **project_ids** (List of String) which projects may access this template (id of project)
 - **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
 - **retries_on_destroy** (Number) number of times to retry when destroying an environment based on this template
 - **retry_on_deploy_only_when_matches_regex** (String) if specified, will only retry (on deploy) if error matches specified regex
