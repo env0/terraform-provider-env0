@@ -15,14 +15,14 @@ var _ = Describe("AwsCredentials", func() {
 		Id:             "id1",
 		Name:           "key1",
 		OrganizationId: organizationId,
-		Type: "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
 	mockApiKeySecond := ApiKey{
 		Id:             "id2",
 		Name:           "key2",
 		OrganizationId: organizationId,
-		Type: "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
 	keys := []ApiKey{mockApiKey, mockApiKeySecond}
@@ -35,9 +35,9 @@ var _ = Describe("AwsCredentials", func() {
 				Post("/credentials", AwsCredentialsCreatePayload{
 					Name:           awsCredentialsName,
 					OrganizationId: organizationId,
-					Type: "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 					Value: AwsCredentialsValuePayload{
-						RoleArn: "role",
+						RoleArn:    "role",
 						ExternalId: "external",
 					},
 				},
@@ -49,7 +49,7 @@ var _ = Describe("AwsCredentials", func() {
 			apiKey, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
 				Name: awsCredentialsName,
 				Value: AwsCredentialsValuePayload{
-					RoleArn: "role",
+					RoleArn:    "role",
 					ExternalId: "external",
 				},
 			})
@@ -84,7 +84,7 @@ var _ = Describe("AwsCredentials", func() {
 			mockOrganizationIdCall(organizationId)
 
 			httpCall = mockHttpClient.EXPECT().
-				Get("/credentials",  map[string]string{"organizationId": organizationId}, gomock.Any()).
+				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ApiKey) {
 					*response = keys
 				})

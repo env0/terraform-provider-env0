@@ -4,6 +4,7 @@ package http
 
 import (
 	"errors"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -12,6 +13,7 @@ type HttpClientInterface interface {
 	Post(path string, request interface{}, response interface{}) error
 	Put(path string, request interface{}, response interface{}) error
 	Delete(path string) error
+	Patch(path string, request interface{}, response interface{}) error
 }
 
 type HttpClient struct {
@@ -21,11 +23,11 @@ type HttpClient struct {
 	client    *resty.Client
 }
 
-func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string) (*HttpClient, error) {
+func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string, restClient *resty.Client) (*HttpClient, error) {
 	return &HttpClient{
 		ApiKey:    apiKey,
 		ApiSecret: apiSecret,
-		client:    resty.New().SetHostURL(apiEndpoint),
+		client:    restClient.SetHostURL(apiEndpoint),
 	}, nil
 }
 
@@ -69,5 +71,13 @@ func (self *HttpClient) Get(path string, params map[string]string, response inte
 
 func (self *HttpClient) Delete(path string) error {
 	result, err := self.request().Delete(path)
+	return self.httpResult(result, err)
+}
+
+func (self *HttpClient) Patch(path string, request interface{}, response interface{}) error {
+	result, err := self.request().
+		SetBody(request).
+		SetResult(response).
+		Patch(path)
 	return self.httpResult(result, err)
 }

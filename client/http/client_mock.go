@@ -61,6 +61,20 @@ func (mr *MockHttpClientInterfaceMockRecorder) Get(arg0, arg1, arg2 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpClientInterface)(nil).Get), arg0, arg1, arg2)
 }
 
+// Patch mocks base method.
+func (m *MockHttpClientInterface) Patch(arg0 string, arg1, arg2 interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Patch", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Patch indicates an expected call of Patch.
+func (mr *MockHttpClientInterfaceMockRecorder) Patch(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Patch", reflect.TypeOf((*MockHttpClientInterface)(nil).Patch), arg0, arg1, arg2)
+}
+
 // Post mocks base method.
 func (m *MockHttpClientInterface) Post(arg0 string, arg1, arg2 interface{}) error {
 	m.ctrl.T.Helper()
