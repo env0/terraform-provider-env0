@@ -3,6 +3,7 @@ package env0
 import (
 	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -50,7 +51,11 @@ func TestUnitProjectResource(t *testing.T) {
 			Description: updatedProject.Description,
 		}).Times(1).Return(updatedProject, nil)
 
-		mock.EXPECT().Project(project.Id).AnyTimes()
+		gomock.InOrder(
+			mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil), // 1 after create, 1 before update
+			mock.EXPECT().Project(gomock.Any()).Return(updatedProject, nil),   // 1 after update
+		)
+
 		mock.EXPECT().ProjectDelete(project.Id).Times(1)
 	})
 }
