@@ -18,22 +18,20 @@ var _ = Describe("Credentials Project Assignment", func() {
 	}
 
 	Describe("AssignCloudCredentialsToProject", func() {
-		Describe("Successful", func() {
-			var actualResult CloudCredentialsProjectAssignment
-			BeforeEach(func() {
+		var actualResult CloudCredentialsProjectAssignment
+		BeforeEach(func() {
 
-				httpCall = mockHttpClient.EXPECT().
-					Put("/credentials/deployment/"+projectId+"/project"+credentialId, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *CloudCredentialsProjectAssignment) {
-						*response = expectedResponse
-					}).Times(1)
-				actualResult, _ = apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
+			httpCall = mockHttpClient.EXPECT().
+				Put("/credentials/deployment/"+projectId+"/project"+credentialId, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *CloudCredentialsProjectAssignment) {
+					*response = expectedResponse
+				}).Times(1)
+			actualResult, _ = apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
 
-			})
+		})
 
-			It("should return the PATCH result", func() {
-				Expect(actualResult).To(Equal(expectedResponse))
-			})
+		It("should return the PATCH result", func() {
+			Expect(actualResult).To(Equal(expectedResponse))
 		})
 	})
 })
