@@ -33,7 +33,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 	}
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().SshKeyCreate(client.SshKeyCreatePayload{Name: sshKey.Name, Value: sshKey.Value}).Times(1).Return(sshKey, nil).Return(sshKey, nil)
+		mock.EXPECT().SshKeyCreate(client.SshKeyCreatePayload{Name: sshKey.Name, Value: sshKey.Value}).Times(1).Return(sshKey, nil)
 		mock.EXPECT().SshKeys().Times(1).Return([]client.SshKey{sshKey}, nil)
 		mock.EXPECT().SshKeyDelete(sshKey.Id).Times(1).Return(nil)
 	})
