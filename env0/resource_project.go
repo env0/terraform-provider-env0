@@ -50,6 +50,8 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(project.Id)
+	d.Set("name", project.Name)
+	d.Set("description", project.Description)
 
 	return nil
 }
