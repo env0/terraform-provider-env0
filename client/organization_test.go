@@ -41,7 +41,7 @@ var _ = Describe("Organization", func() {
 		})
 
 		Describe("Failure", func() {
-			It("On error from server", func() {
+			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations", nil, gomock.Any()).
@@ -51,7 +51,7 @@ var _ = Describe("Organization", func() {
 				Expect(expectedErr).Should(Equal(err))
 			})
 
-			It("On error from server", func() {
+			It("On too many organizations return error", func() {
 				organizationsResult := []Organization{mockOrganization, mockOrganization}
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations", nil, gomock.Any()).
