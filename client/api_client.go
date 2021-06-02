@@ -35,6 +35,9 @@ type ApiClientInterface interface {
 	AwsCredentialsList() ([]ApiKey, error)
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
 	AwsCredentialsDelete(id string) error
+	AssignCloudCredentialsToProject(projectId string, payload CloudCredentialsProjectAssignmentPatchPayload) (CloudCredentialsProjectAssignment, error)
+	RemoveCloudCredentialsFromProject(credentialId string, projectId string) error
+	CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
