@@ -36,9 +36,7 @@ func resourceCloudCredentialsProjectAssignmenetCreate(ctx context.Context, d *sc
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	result, err := apiClient.AssignCloudCredentialsToProject(projectId, client.CloudCredentialsProjectAssignmentPatchPayload{
-		CredentialIds: []string{credentialId},
-	})
+	result, err := apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not assign cloud credentials to project: %v", err)
 	}
