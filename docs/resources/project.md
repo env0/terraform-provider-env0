@@ -34,4 +34,11 @@ resource "env0_project" "example" {
 
 - **id** (String) id of the project
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_project.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_project.by_name "Example Project"
+```

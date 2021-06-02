@@ -1,0 +1,1 @@
+terraform import env0_configuration_variable.my_config '{  "Scope": "PROJECT",  "ScopeId": "project id",  "name": "configuration variable name"}'

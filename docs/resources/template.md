@@ -17,11 +17,21 @@ data "env0_project" "default_project" {
   name = "Default Organization Project"
 }
 
+data "env0_ssh_key" "my_key" {
+  name = "Secret Key"
+}
+
 resource "env0_template" "example" {
   name        = "example"
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
+  ssh_keys    = [data.ssh_keys.my_key]
+}
+
+resource "env0_template_project_assignment" "assignment" {
+  template_id = env0_template.example.id
+  project_id  = data.env0_project.default_project.id
 }
 ```
 
@@ -48,4 +58,11 @@ resource "env0_template" "example" {
 - **terraform_version** (String) Terraform version to use
 - **type** (String) 'terraform' or 'terragrunt'
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_template.by_id 29b8037a-f877-48f5-a60b-3152ae1a1405
+terraform import env0_template.by_name Best-Template
+```
