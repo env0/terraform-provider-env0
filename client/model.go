@@ -114,7 +114,7 @@ type TemplateCreatePayload struct {
 }
 
 type TemplateAssignmentToProjectPayload struct {
-	ProjectId string         `json:"projectId"`
+	ProjectId string `json:"projectId"`
 }
 
 type TemplateAssignmentToProject struct {
@@ -135,6 +135,7 @@ type Template struct {
 	Path                 string           `json:"path"`
 	Revision             string           `json:"revision"`
 	ProjectId            string           `json:"projectId"`
+	ProjectIds           []string         `json:"projectIds"`
 	Repository           string           `json:"repository"`
 	Retry                TemplateRetry    `json:"retry"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
