@@ -17,7 +17,6 @@ func TestUnitSshKeyDataSourceById(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]string{
@@ -47,7 +46,6 @@ func TestUnitSshKeyDataSourceByName(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]string{
