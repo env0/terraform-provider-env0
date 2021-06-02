@@ -17,7 +17,7 @@ const organizationId = "organization0"
 var (
 	ctrl               *gomock.Controller
 	mockHttpClient     *http.MockHttpClientInterface
-	apiClient          *ApiClient
+	apiClient          ApiClientInterface
 	httpCall           *gomock.Call
 	organizationIdCall *gomock.Call
 )

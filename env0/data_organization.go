@@ -38,7 +38,7 @@ func dataOrganization() *schema.Resource {
 }
 
 func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	organization, err := apiClient.Organization()
 	if err != nil {

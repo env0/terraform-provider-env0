@@ -10,6 +10,4 @@ terraform {
 
 provider "env0" {}
 
-variable "second_run" {
-  default = false
-}
+variable "second_run" {}

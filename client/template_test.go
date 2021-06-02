@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("Templates Client", func() {
 	mockTemplate := Template{
-		Id:  "template-id",
+		Id:         "template-id",
 		Name:       "template-name",
 		Repository: "https://re.po",
 	}
@@ -178,10 +178,10 @@ var _ = Describe("Templates Client", func() {
 			Expect(err).To(BeNil())
 		})
 
-		It("Should return configuration value received from API", func() {
+		It("Should return template from API", func() {
 			Expect(assignedTemplate).To(Equal(mockTemplate))
 		})
-		It("should return an errot on empty projectId", func() {
+		It("should return an error on empty projectId", func() {
 			assignedTemplate, err = apiClient.AssignTemplateToProject(mockTemplate.Id, TemplateAssignmentToProjectPayload{})
 			Expect(err).To(BeEquivalentTo(errors.New("Must specify projectId on assignment to a template")))
 		})

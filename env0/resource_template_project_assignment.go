@@ -10,7 +10,7 @@ import (
 
 func resourceTemplateProjectAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTemplateProjectAssignmenetCreate,
+		CreateContext: resourceTemplateProjectAssignmentCreate,
 		ReadContext:   resourceTemplateProjectAssignmentRead,
 		DeleteContext: resourceTemplateProjectAssignmentDelete,
 
@@ -39,7 +39,7 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) clie
 	return result
 }
 
-func resourceTemplateProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
 	templateId := d.Get("template_id").(string)
