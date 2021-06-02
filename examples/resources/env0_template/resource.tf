@@ -7,7 +7,7 @@ data "env0_ssh_key" "my_key" {
 }
 
 resource "env0_template" "example" {
-  name        = "example"
+  name = "example"
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
