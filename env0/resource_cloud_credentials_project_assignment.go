@@ -10,7 +10,7 @@ import (
 
 func resourceCloudCredentialsProjectAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCloudCredentialsProjectAssignmenetCreate,
+		CreateContext: resourceCloudCredentialsProjectAssignmentCreate,
 		ReadContext:   resourceCloudCredentialsProjectAssignmentRead,
 		DeleteContext: resourceCloudCredentialsProjectAssignmentDelete,
 
@@ -31,7 +31,7 @@ func resourceCloudCredentialsProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceCloudCredentialsProjectAssignmenetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
 	credentialId := d.Get("credential_id").(string)
