@@ -18,7 +18,7 @@ func (self *ApiClient) RemoveCloudCredentialsFromProject(credentialId string, pr
 	return self.http.Delete("/credentials/deployment/" + credentialId + "/project/" + projectId)
 }
 
-func (self *ApiClient) CloudCredentialProjectAssginments(projectId string) ([]CloudCredentialsProjectAssignment, error) {
+func (self *ApiClient) CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error) {
 	var result []CloudCredentialsProjectAssignment
 	err := self.http.Get("/credentials/deployment/project/"+projectId, nil, &result)
 
