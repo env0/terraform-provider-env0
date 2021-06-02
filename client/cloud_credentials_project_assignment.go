@@ -1,13 +1,15 @@
 package client
 
-import "errors"
+import (
+	"fmt"
+)
 
-func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, payload CloudCredentialsProjectAssignmentPatchPayload) (CloudCredentialsProjectAssignment, error) {
+func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error) {
 	var result CloudCredentialsProjectAssignment
-	if payload.CredentialIds == nil || len(payload.CredentialIds) == 0 {
-		return result, errors.New("Must specify cloud credentials to assign to be assigned to project")
-	}
-	err := self.http.Patch("/credentials/deployment/project/"+projectId, payload, &result)
+
+	//err := self.http.Patch("/credentials/deployment/project/"+projectId, payload, &result)
+	sprintf := fmt.Sprintf("/credentials/deployment/%s/project/%s", projectId, credentialId)
+	err := self.http.Put(sprintf, nil, &result)
 	if err != nil {
 		return result, err
 	}

@@ -34,7 +34,7 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 }
 
 // AssignCloudCredentialsToProject mocks base method.
-func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0 string, arg1 CloudCredentialsProjectAssignmentPatchPayload) (CloudCredentialsProjectAssignment, error) {
+func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0, arg1 string) (CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AssignCloudCredentialsToProject", arg0, arg1)
 	ret0, _ := ret[0].(CloudCredentialsProjectAssignment)

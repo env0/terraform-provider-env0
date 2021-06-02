@@ -37,7 +37,7 @@ type ApiClientInterface interface {
 	AwsCredentialsList() ([]ApiKey, error)
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
 	AwsCredentialsDelete(id string) error
-	AssignCloudCredentialsToProject(projectId string, payload CloudCredentialsProjectAssignmentPatchPayload) (CloudCredentialsProjectAssignment, error)
+	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(credentialId string, projectId string) error
 	CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error)
 }
