@@ -1,15 +1,9 @@
 package client
 
-import (
-	"fmt"
-)
-
 func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error) {
 	var result CloudCredentialsProjectAssignment
 
-	//err := self.http.Patch("/credentials/deployment/project/"+projectId, payload, &result)
-	sprintf := fmt.Sprintf("/credentials/deployment/%s/project/%s", projectId, credentialId)
-	err := self.http.Put(sprintf, nil, &result)
+	err := self.http.Put("/credentials/deployment/"+projectId+"/project"+credentialId, nil, &result)
 	if err != nil {
 		return result, err
 	}
