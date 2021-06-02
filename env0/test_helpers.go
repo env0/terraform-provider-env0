@@ -8,40 +8,40 @@ import (
 type TFSource string
 
 const (
-	DataResource TFSource = "data"
-	Resource     TFSource = "resource"
+	DataSource TFSource = "data"
+	Resource   TFSource = "resource"
 )
 
-func DataSourceAccessor(resourceType string, resourceName string) string {
-	return hclAccessor(DataResource, resourceType, resourceName)
+func dataSourceAccessor(resourceType string, resourceName string) string {
+	return hclAccessor(DataSource, resourceType, resourceName)
 }
 
-func ResourceAccessor(resourceType string, resourceName string) string {
+func resourceAccessor(resourceType string, resourceName string) string {
 	return hclAccessor(Resource, resourceType, resourceName)
 }
 
 func hclAccessor(source TFSource, resourceType string, resourceName string) string {
-	if source == DataResource {
+	if source == DataSource {
 		return fmt.Sprintf("%s.%s.%s", source, resourceType, resourceName)
 	}
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
 
-func DataSourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
-	return hclConfigCreate(DataResource, resourceType, resourceName, fields)
+func dataSourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
+	return hclConfigCreate(DataSource, resourceType, resourceName, fields)
 }
 
-func ResourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
+func resourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
 	return hclConfigCreate(Resource, resourceType, resourceName, fields)
 }
 
 func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]string) string {
 	hclFields := ""
 	for key, value := range fields {
-		hclFields += fmt.Sprintf(`\n	"%s" = "%s"`, key, value)
+		hclFields += fmt.Sprintf("\n\t\"%s\" = \"%s\"", key, value)
 	}
 	if hclFields != "" {
-		hclFields = "\n"
+		hclFields += "\n"
 	}
 	return fmt.Sprintf(`%s "%s" "%s" {%s}`, source, resourceType, resourceName, hclFields)
 }

@@ -10,7 +10,7 @@ import (
 func TestUnitOrganizationData(t *testing.T) {
 	resourceType := "env0_organization"
 	resourceName := "test"
-	resourceFullName := DataSourceAccessor(resourceType, resourceName)
+	resourceFullName := dataSourceAccessor(resourceType, resourceName)
 	organization := client.Organization{
 		Id:           "id0",
 		Name:         "name0",
@@ -23,7 +23,7 @@ func TestUnitOrganizationData(t *testing.T) {
 		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: DataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
+				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name),
