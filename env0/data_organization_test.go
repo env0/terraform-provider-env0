@@ -1,7 +1,6 @@
 package env0
 
 import (
-	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"strconv"
@@ -11,7 +10,7 @@ import (
 func TestUnitOrganizationData(t *testing.T) {
 	resourceType := "env0_organization"
 	resourceName := "test"
-	resourceFullName := fmt.Sprintf("data.%s.%s", resourceType, resourceName)
+	resourceFullName := DataSourceAccessor(resourceType, resourceName)
 	organization := client.Organization{
 		Id:           "id0",
 		Name:         "name0",
@@ -24,7 +23,7 @@ func TestUnitOrganizationData(t *testing.T) {
 		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testEnv0OrganizationDataConfig(resourceType, resourceName),
+				Config: DataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name),
@@ -39,8 +38,4 @@ func TestUnitOrganizationData(t *testing.T) {
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().Organization().AnyTimes().Return(organization, nil)
 	})
-}
-
-func testEnv0OrganizationDataConfig(resourceType string, resourceName string) string {
-	return fmt.Sprintf(`data "%s" "%s" {}`, resourceType, resourceName)
 }
