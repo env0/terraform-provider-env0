@@ -4,30 +4,34 @@ import (
 	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"strconv"
 	"testing"
 )
 
-var resourceType = "env0_organization"
-var resourceName = "test"
-var resourceFullName = fmt.Sprintf("%s.%s", resourceType, resourceName)
-var organization = client.Organization{
-	Id:           "id0",
-	Name:         "name0",
-	CreatedBy:    "env0",
-	Role:         "role0",
-	IsSelfHosted: false,
-}
+func TestUnitOrganizationData(t *testing.T) {
+	resourceType := "env0_organization"
+	resourceName := "test"
+	resourceFullName := fmt.Sprintf("data.%s.%s", resourceType, resourceName)
+	organization := client.Organization{
+		Id:           "id0",
+		Name:         "name0",
+		CreatedBy:    "env0",
+		Role:         "role0",
+		IsSelfHosted: false,
+	}
 
-func TestUnitOrganizationDataById(t *testing.T) {
 	testCase := resource.TestCase{
 		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testEnv0OrganizationDataConfig(),
-				//Check: resource.ComposeAggregateTestCheckFunc(
-				//	//resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
-				//	//resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name)
-				//),
+				Config: testEnv0OrganizationDataConfig(resourceType, resourceName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
+					resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name),
+					resource.TestCheckResourceAttr(resourceFullName, "created_by", organization.CreatedBy),
+					resource.TestCheckResourceAttr(resourceFullName, "role", organization.Role),
+					resource.TestCheckResourceAttr(resourceFullName, "is_self_hosted", strconv.FormatBool(organization.IsSelfHosted)),
+				),
 			},
 		},
 	}
@@ -37,6 +41,6 @@ func TestUnitOrganizationDataById(t *testing.T) {
 	})
 }
 
-func testEnv0OrganizationDataConfig() string {
-	return fmt.Sprintf(`	data "%s" "%s" {}`, resourceType, resourceName)
+func testEnv0OrganizationDataConfig(resourceType string, resourceName string) string {
+	return fmt.Sprintf(`data "%s" "%s" {}`, resourceType, resourceName)
 }
