@@ -33,6 +33,7 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 	mockFunc(apiClientMock)
 
 	testCase.ProviderFactories = testUnitProviders
+	testCase.PreventPostDestroyRefresh = true
 	resource.UnitTest(&testReporter, testCase)
 
 	ctrl.Finish()
