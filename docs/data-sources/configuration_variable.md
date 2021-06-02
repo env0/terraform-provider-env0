@@ -27,7 +27,7 @@ output "aws_default_region" {
 
 ### Required
 - Either name or id in order
-- if the variable scoep is not global set the relevant scope id (for example project_id)
+- if the variable scope is not global set the relevant scope id (for example project_id)
 
 ### Optional
 
