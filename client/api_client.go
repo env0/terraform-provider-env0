@@ -28,6 +28,8 @@ type ApiClientInterface interface {
 	TemplateCreate(payload TemplateCreatePayload) (Template, error)
 	TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error)
 	TemplateDelete(id string) error
+	AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error)
+	RemoveTemplateFromProject(templateId string, projectId string) error
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	SshKeyDelete(id string) error
