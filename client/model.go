@@ -124,6 +124,10 @@ type TemplateAssignmentToProject struct {
 	ProjectId  string `json:"projectId"`
 }
 
+type CloudCredentialsProjectAssignmentPatchPayload struct {
+	CredentialIds []string `json:"credentialIds"`
+}
+
 type CloudCredentialsProjectAssignment struct {
 	Id           string `json:"id"`
 	CredentialId string `json:"credentialId"`

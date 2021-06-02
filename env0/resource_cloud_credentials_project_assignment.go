@@ -36,7 +36,9 @@ func resourceCloudCredentialsProjectAssignmenetCreate(ctx context.Context, d *sc
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	result, err := apiClient.AssignCloudCredentialsToProject(credentialId, projectId)
+	result, err := apiClient.AssignCloudCredentialsToProject(projectId, client.CloudCredentialsProjectAssignmentPatchPayload{
+		CredentialIds: []string{credentialId},
+	})
 	if err != nil {
 		return diag.Errorf("could not assign cloud credentials to project: %v", err)
 	}
@@ -49,19 +51,21 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	credentialsList, err := apiClient.ProjectCloudCredentials(projectId)
+	credentialsList, err := apiClient.CloudCredentialProjectAssginments(projectId)
 	if err != nil {
 		return diag.Errorf("could not get cloud_credentials: %v", err)
 	}
-	var credentials
+	var credentials *client.CloudCredentialsProjectAssignment
 	for _, candidate := range credentialsList {
 		if candidate.CredentialId == credentialId {
-			credentials = candidate
+			credentials = &candidate
 		}
 	}
 	if credentials == nil {
 		return diag.Errorf("could not find cloud credential project assignment.\n project id = %v, cloud credentials id = %v", projectId, credentialId)
 	}
+
+	d.SetId(credentials.Id)
 
 	return nil
 }
