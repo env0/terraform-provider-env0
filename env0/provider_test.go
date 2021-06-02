@@ -32,16 +32,19 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
 	testReporter := utils.TestReporter{T: t}
-
 	ctrl = gomock.NewController(&testReporter)
+	defer ctrl.Finish()
+
+	os.Setenv("ENV0_API_KEY", "value")
+	os.Setenv("ENV0_API_SECRET", "value")
+	defer os.Setenv("ENV0_API_KEY", "")
+	defer os.Setenv("ENV0_API_SECRET", "")
 
 	apiClientMock = client.NewMockApiClientInterface(ctrl)
 	mockFunc(apiClientMock)
 
 	testCase.ProviderFactories = testUnitProviders
 	resource.UnitTest(&testReporter, testCase)
-
-	ctrl.Finish()
 }
 
 func TestProvider(t *testing.T) {
