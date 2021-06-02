@@ -109,13 +109,12 @@ type TemplateCreatePayload struct {
 	TokenId              string           `json:"tokenId"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
 	Revision             string           `json:"revision"`
-	ProjectIds           []string         `json:"projectIds,omitempty"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
-	ProjectId string         `json:"projectId"`
+	ProjectId string `json:"projectId"`
 }
 
 type TemplateAssignmentToProject struct {
