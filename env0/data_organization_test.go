@@ -11,8 +11,11 @@ var resourceType = "env0_organization"
 var resourceName = "test"
 var resourceFullName = fmt.Sprintf("%s.%s", resourceType, resourceName)
 var organization = client.Organization{
-	Id:   "id0",
-	Name: "name0",
+	Id:           "id0",
+	Name:         "name0",
+	CreatedBy:    "env0",
+	Role:         "role0",
+	IsSelfHosted: false,
 }
 
 func TestUnitOrganizationDataById(t *testing.T) {
@@ -21,7 +24,10 @@ func TestUnitOrganizationDataById(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testEnv0OrganizationDataConfig(),
-				Check:  resource.ComposeAggregateTestCheckFunc(),
+				//Check: resource.ComposeAggregateTestCheckFunc(
+				//	//resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
+				//	//resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name)
+				//),
 			},
 		},
 	}
