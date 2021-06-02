@@ -30,6 +30,7 @@ data "env0_template" "example" {
 ### Read-Only
 
 - **path** (String) terraform / terrgrunt folder inside source code repository
+- **project_ids** (List of String) which projects may access this template (id of project)
 - **repository** (String) template source code repository url
 - **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
 - **retries_on_destroy** (Number) number of times to retry when destroying an environment based on this template

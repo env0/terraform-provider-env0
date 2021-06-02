@@ -45,6 +45,15 @@ func dataTemplate() *schema.Resource {
 				Description: "'terraform' or 'terragrunt'",
 				Computed:    true,
 			},
+			"project_ids": {
+				Type:        schema.TypeList,
+				Description: "which projects may access this template (id of project)",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "env0_project.id for each project",
+				},
+			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
 				Description: "which ssh keys are used for accessing git over ssh",
@@ -110,6 +119,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
+	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
 	d.Set("ssh_keys", template.SshKeys)
 	if template.Retry.OnDeploy != nil {
