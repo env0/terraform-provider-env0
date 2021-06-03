@@ -10,7 +10,7 @@ import (
 func TestUnitOrganizationData(t *testing.T) {
 	resourceType := "env0_organization"
 	resourceName := "test"
-	resourceFullName := dataSourceAccessor(resourceType, resourceName)
+	accessor := dataSourceAccessor(resourceType, resourceName)
 	organization := client.Organization{
 		Id:           "id0",
 		Name:         "name0",
@@ -20,16 +20,15 @@ func TestUnitOrganizationData(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "created_by", organization.CreatedBy),
-					resource.TestCheckResourceAttr(resourceFullName, "role", organization.Role),
-					resource.TestCheckResourceAttr(resourceFullName, "is_self_hosted", strconv.FormatBool(organization.IsSelfHosted)),
+					resource.TestCheckResourceAttr(accessor, "id", organization.Id),
+					resource.TestCheckResourceAttr(accessor, "name", organization.Name),
+					resource.TestCheckResourceAttr(accessor, "created_by", organization.CreatedBy),
+					resource.TestCheckResourceAttr(accessor, "role", organization.Role),
+					resource.TestCheckResourceAttr(accessor, "is_self_hosted", strconv.FormatBool(organization.IsSelfHosted)),
 				),
 			},
 		},

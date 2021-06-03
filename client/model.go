@@ -100,10 +100,10 @@ type TemplateCreatePayload struct {
 	Retry                TemplateRetry   `json:"retry,omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
 	Type                 TemplateType     `json:"type"`
-	Description          string           `json:"description,omitempty"`
+	Description          string           `json:"description"`
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
-	Path                 string           `json:"path,omitempty"`
+	Path                 string           `json:"path"`
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
 	TokenId              string           `json:"tokenId"`
