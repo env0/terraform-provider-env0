@@ -2,6 +2,7 @@ package env0
 
 import (
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/go2hcl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"strconv"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestUnitOrganizationData(t *testing.T) {
 	resourceType := "env0_organization"
 	resourceName := "test"
-	accessor := dataSourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.DataSourceAccessor(resourceType, resourceName)
 	organization := client.Organization{
 		Id:           "id0",
 		Name:         "name0",
@@ -22,7 +23,7 @@ func TestUnitOrganizationData(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
+				Config: go2hcl.DataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", organization.Id),
 					resource.TestCheckResourceAttr(accessor, "name", organization.Name),

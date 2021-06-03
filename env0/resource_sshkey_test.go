@@ -2,6 +2,7 @@ package env0
 
 import (
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/go2hcl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -9,7 +10,7 @@ import (
 func TestUnitSshKeyResource(t *testing.T) {
 	resourceType := "env0_ssh_key"
 	resourceName := "test"
-	accessor := resourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.ResourceAccessor(resourceType, resourceName)
 	sshKey := client.SshKey{
 		Id:    "id0",
 		Name:  "name0",
@@ -19,7 +20,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  sshKey.Name,
 					"value": sshKey.Value,
 				}),

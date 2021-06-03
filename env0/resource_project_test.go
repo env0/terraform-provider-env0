@@ -2,6 +2,7 @@ package env0
 
 import (
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/go2hcl"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestUnitProjectResource(t *testing.T) {
 	resourceType := "env0_project"
 	resourceName := "test"
-	accessor := resourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.ResourceAccessor(resourceType, resourceName)
 
 	project := client.Project{
 		Id:          "id0",
@@ -27,7 +28,7 @@ func TestUnitProjectResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":        project.Name,
 					"description": project.Description,
 				}),
@@ -38,7 +39,7 @@ func TestUnitProjectResource(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":        updatedProject.Name,
 					"description": updatedProject.Description,
 				}),

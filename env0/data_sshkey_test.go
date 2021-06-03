@@ -3,6 +3,7 @@ package env0
 import (
 	"encoding/json"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/go2hcl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -18,7 +19,7 @@ func TestUnitSshKeyDataSourceByName(t *testing.T) {
 func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	resourceType := "env0_ssh_key"
 	resourceName := "test"
-	accessor := dataSourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.DataSourceAccessor(resourceType, resourceName)
 	sshKey := client.SshKey{
 		Id:    "id0",
 		Name:  "name0",
@@ -32,7 +33,7 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.DataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					byKey: jsonData[byKey],
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
