@@ -23,7 +23,7 @@ func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
 					"name":  configVar.Name,
 					"value": configVar.Value,
-				}),
+				}, make(map[string]int), make(map[string]bool)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
@@ -61,7 +61,7 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
 					"name":  configVar.Name,
 					"value": configVar.Value,
-				}),
+				}, make(map[string]int), make(map[string]bool)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
@@ -72,7 +72,7 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
 					"name":  newConfigVar.Name,
 					"value": newConfigVar.Value,
-				}),
+				}, make(map[string]int), make(map[string]bool)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", newConfigVar.Name),
