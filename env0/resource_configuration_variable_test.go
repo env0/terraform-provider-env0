@@ -21,10 +21,10 @@ func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
-				}, make(map[string]int64), make(map[string]bool)),
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
@@ -55,12 +55,11 @@ func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
-				}, map[string]int64{
-					"type": configVar.Type,
-				}, make(map[string]bool)),
+					"type":  configVar.Type,
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
@@ -93,10 +92,10 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 	updateTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
-				}, make(map[string]int64), make(map[string]bool)),
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
@@ -104,10 +103,10 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  newConfigVar.Name,
 					"value": newConfigVar.Value,
-				}, make(map[string]int64), make(map[string]bool)),
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
 					resource.TestCheckResourceAttr(accessor, "name", newConfigVar.Name),
