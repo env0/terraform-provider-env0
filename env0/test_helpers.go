@@ -44,7 +44,7 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
 		}
 		if boolOk {
-			hclFields += fmt.Sprintf("\n\t%s = \"%t\"", key, boolValue)
+			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
 		}
 		if !intOk && !boolOk {
 			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
