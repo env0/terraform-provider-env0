@@ -23,7 +23,7 @@ func TestUnitOrganizationData(t *testing.T) {
 		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
+				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", organization.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", organization.Name),
