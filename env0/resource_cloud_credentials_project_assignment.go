@@ -40,7 +40,7 @@ func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *sch
 	if err != nil {
 		return diag.Errorf("could not assign cloud credentials to project: %v", err)
 	}
-	d.SetId(result.Id)
+	d.SetId(getResourceId(result.CredentialId, result.ProjectId))
 	return nil
 }
 
@@ -49,23 +49,27 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	credentialsList, err := apiClient.CloudCredentialProjectAssignments(projectId)
+	credentialsList, err := apiClient.CloudCredentialIdsInProject(projectId)
 	if err != nil {
 		return diag.Errorf("could not get cloud_credentials: %v", err)
 	}
-	var credentials *client.CloudCredentialsProjectAssignment
+	found := false
 	for _, candidate := range credentialsList {
-		if candidate.CredentialId == credentialId {
-			credentials = &candidate
+		if candidate == credentialId {
+			found = true
 		}
 	}
-	if credentials == nil {
+	if !found {
 		return diag.Errorf("could not find cloud credential project assignment.\n project id = %v, cloud credentials id = %v", projectId, credentialId)
 	}
 
-	d.SetId(credentials.Id)
+	d.SetId(getResourceId(credentialId, projectId))
 
 	return nil
+}
+
+func getResourceId(credentialId string, projectId string) string {
+	return credentialId + "|" + projectId
 }
 
 func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

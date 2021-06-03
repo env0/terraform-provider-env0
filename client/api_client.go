@@ -39,7 +39,7 @@ type ApiClientInterface interface {
 	AwsCredentialsDelete(id string) error
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(credentialId string, projectId string) error
-	CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error)
+	CloudCredentialIdsInProject(projectId string) ([]string, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

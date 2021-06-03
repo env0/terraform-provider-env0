@@ -125,7 +125,7 @@ func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsList() *gomock.Call 
 // CloudCredentialProjectAssignments mocks base method.
 func (m *MockApiClientInterface) CloudCredentialProjectAssignments(arg0 string) ([]CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudCredentialProjectAssignments", arg0)
+	ret := m.ctrl.Call(m, "CloudCredentialIdsInProject", arg0)
 	ret0, _ := ret[0].([]CloudCredentialsProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -134,7 +134,7 @@ func (m *MockApiClientInterface) CloudCredentialProjectAssignments(arg0 string) 
 // CloudCredentialProjectAssignments indicates an expected call of CloudCredentialProjectAssignments.
 func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialProjectAssignments(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialProjectAssignments), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialProjectAssignments), arg0)
 }
 
 // ConfigurationVariableCreate mocks base method.

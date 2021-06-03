@@ -72,7 +72,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 		})
 	})
 
-	Describe("CloudCredentialProjectAssignments", func() {
+	Describe("CloudCredentialIdsInProject", func() {
 		Describe("Successful", func() {
 			var actualResult []CloudCredentialsProjectAssignment
 
@@ -89,7 +89,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 					Do(func(path string, request interface{}, response *[]CloudCredentialsProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
-				actualResult, _ = apiClient.CloudCredentialProjectAssignments(projectId)
+				actualResult, _ = apiClient.CloudCredentialIdsInProject(projectId)
 
 			})
 
@@ -105,7 +105,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 					Get("/credentials/deployment/project/"+projectId, nil, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
-				_, actualError = apiClient.CloudCredentialProjectAssignments(projectId)
+				_, actualError = apiClient.CloudCredentialIdsInProject(projectId)
 
 			})
 

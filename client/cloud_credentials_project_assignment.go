@@ -14,12 +14,16 @@ func (self *ApiClient) RemoveCloudCredentialsFromProject(credentialId string, pr
 	return self.http.Delete("/credentials/deployment/" + credentialId + "/project/" + projectId)
 }
 
-func (self *ApiClient) CloudCredentialProjectAssignments(projectId string) ([]CloudCredentialsProjectAssignment, error) {
-	var result []CloudCredentialsProjectAssignment
+type cloudCredentialProjectAssignmentsResult struct {
+	CredentialIds []string `json:"credentialIds"`
+}
+
+func (self *ApiClient) CloudCredentialIdsInProject(projectId string) ([]string, error) {
+	var result cloudCredentialProjectAssignmentsResult
 	err := self.http.Get("/credentials/deployment/project/"+projectId, nil, &result)
 
 	if err != nil {
-		return []CloudCredentialsProjectAssignment{}, err
+		return nil, err
 	}
-	return result, nil
+	return result.CredentialIds, nil
 }
