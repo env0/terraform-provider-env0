@@ -150,9 +150,10 @@ var _ = Describe("Templates Client", func() {
 			Expect(updatedTemplate).To(Equal(mockTemplate))
 		})
 	})
+
 	Describe("add template to project", func() {
 		templateAssignmentToProjectPayload := TemplateAssignmentToProjectPayload{
-			ProjectId:         "project-id",
+			ProjectId: "project-id",
 		}
 		var assignedTemplate Template
 		var err error
@@ -186,6 +187,7 @@ var _ = Describe("Templates Client", func() {
 			Expect(err).To(BeEquivalentTo(errors.New("Must specify projectId on assignment to a template")))
 		})
 	})
+
 	Describe("remove template from project", func() {
 		projectId := "project-id"
 		BeforeEach(func() {
