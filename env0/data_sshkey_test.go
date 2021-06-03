@@ -32,9 +32,9 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					byKey: jsonData[byKey],
-				}, make(map[string]int64), make(map[string]bool)),
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),
