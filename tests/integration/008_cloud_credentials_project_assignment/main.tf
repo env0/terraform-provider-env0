@@ -1,6 +1,6 @@
 resource "env0_cloud_credentials_project_assignment" "example" {
   credential_id = env0_aws_credentials.credentials.id
-  project_id = env0_project.test_project.id
+  project_id    = env0_project.test_project.id
 }
 
 resource "env0_project" "test_project" {
