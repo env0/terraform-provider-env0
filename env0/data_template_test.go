@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -11,54 +12,53 @@ func TestUnitTemplateData(t *testing.T) {
 	resourceType := "env0_template"
 	resourceName := "test"
 	resourceFullName := dataSourceAccessor(resourceType, resourceName)
-	/*retryOnDeploy := client.TemplateRetryOn{
+	retryOnDeploy := client.TemplateRetryOn{
 		Times: 2,
+		ErrorRegex: "error retry on deploy",
 	}
 	retryOnDestroy := client.TemplateRetryOn{
-		Times: 2,
+		Times: 3,
+		ErrorRegex: "error retry on destroy",
 	}
 	templateRetry := client.TemplateRetry{
 		OnDeploy:  &retryOnDeploy,
 		OnDestroy: &retryOnDestroy,
-	}*/
-	/*
-		Author               User             `json:"author"`
-			AuthorId             string           `json:"authorId"`
-			CreatedAt            string           `json:"createdAt"`
-			Href                 string           `json:"href"`
-			Id                   string           `json:"id"`
-			Name                 string           `json:"name"`
-			Description          string           `json:"description"`
-			OrganizationId       string           `json:"organizationId"`
-			Path                 string           `json:"path"`
-			Revision             string           `json:"revision"`
-			ProjectId            string           `json:"projectId"`
-			ProjectIds           []string         `json:"projectIds"`
-			Repository           string           `json:"repository"`
-			Retry                TemplateRetry    `json:"retry"`
-			SshKeys              []TemplateSshKey `json:"sshKeys"`
-			Type                 string           `json:"type"`
-			GithubInstallationId int              `json:"githubInstallationId"`
-			UpdatedAt            string           `json:"updatedAt"`
-			TerraformVersion     string           `json:"terraformVersion"`
-	*/
+	}
+/*
+d.SetId(template.Id)
+	d.Set("name", template.Name)
+	d.Set("repository", template.Repository)
+	d.Set("path", template.Path)
+	d.Set("revision", template.Revision)
+	d.Set("type", template.Type)
+	d.Set("project_ids", template.ProjectIds)
+	d.Set("terraform_version", template.TerraformVersion)
+	d.Set("ssh_keys", template.SshKeys)
+	if template.Retry.OnDeploy != nil {
+		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
+		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
+	} else {
+		d.Set("retries_on_deploy", 0)
+		d.Set("retry_on_deploy_only_when_matches_regex", "")
+	}
+	if template.Retry.OnDestroy != nil {
+		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
+		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
+	} else {
+		d.Set("retries_on_destroy", 0)
+		d.Set("retry_on_destroy_only_when_matches_regex", "")
+*/
 	template := client.Template{
-		Id:                   "id0",
-		AuthorId:       "author",
-		CreatedAt:      "createdAt",
-		Href:           "href",
+		Id:             "id0",
 		Name:           "name0",
-		Description:    "description",
-		OrganizationId: "organizationId",
+		Repository:     "repository",
 		Path:           "path",
 		Revision:       "revision",
-		ProjectId:      "projectId",
-		Repository:     "repository",
-		//Retry:                templateRetry,
 		Type:                 "terraform",
-		GithubInstallationId: 123,
-		UpdatedAt:            "updatedAt",
 		TerraformVersion:     "0.15.1",
+		//sshkeys
+		Retry:                templateRetry,
+		
 	}
 
 	templateByName := map[string]string{
@@ -76,19 +76,39 @@ func TestUnitTemplateData(t *testing.T) {
 				{
 					Config: dataSourceConfigCreate(resourceType, resourceName, input),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						//resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
-						//resource.TestCheckResourceAttr(resourceFullName, "author_id", template.AuthorId),
-						/*resource.TestCheckResourceAttr(resourceFullName, "created_at", template.CreatedAt),
-						resource.TestCheckResourceAttr(resourceFullName, "href", template.Href),
+						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
-						resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
-						resource.TestCheckResourceAttr(resourceFullName, "organization_id", template.OrganizationId),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
 						resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
 						resource.TestCheckResourceAttr(resourceFullName, "revision", template.Revision),
+						resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
+						resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
+						/*
+
+		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
+		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
+						resource.TestCheckResourceAttr(resourceFullName, "created_at", template.CreatedAt),
+						resource.TestCheckResourceAttr(resourceFullName, "href", template.Href),
+						resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
+						resource.TestCheckResourceAttr(resourceFullName, "organization_id", template.OrganizationId),
 						resource.TestCheckResourceAttr(resourceFullName, "project_id", template.ProjectId),
-						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),*/
-						//resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
 						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+						
+							template := client.Template{
+		Id:             "id0",
+		Name:           "name0",
+		Repository:     "repository",
+		Path:           "path",
+		Revision:       "revision",
+		Type:                 "terraform",
+		TerraformVersion:     "0.15.1",
+		//sshkeys
+		//Retry:                templateRetry,
+		
+	}*/
 					),
 				},
 			},
