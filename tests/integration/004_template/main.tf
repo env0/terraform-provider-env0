@@ -6,9 +6,9 @@ resource "env0_template" "tested1" {
   name                                    = "tested1"
   description                             = "Tested 1 description"
   type                                    = "terraform"
-  repository                              = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
-  github_installation_id                  = 3
-  path                                    = var.second_run ? "second" : ""
+  repository                              = "https://github.com/env0/templates"
+  github_installation_id                  = 11551359
+  path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
