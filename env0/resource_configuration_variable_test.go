@@ -69,6 +69,62 @@ func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 
 	})
 }
+func TestUnitConfigurationVariableResourceReadWrongApiClientError(t *testing.T) {
+	resourceType := "env0_configuration_variable"
+	resourceName := "test"
+	configVar := client.ConfigurationVariable{
+		Id:    "id0",
+		Name:  "name0",
+		Value: "Variable",
+	}
+
+	createTestCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"name":  configVar.Name,
+					"value": configVar.Value,
+				}),
+				ExpectError: regexp.MustCompile(`(Error: could not get configurationVariable: error)`),
+			},
+		},
+	}
+
+	runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
+			nil).Times(1).Return(configVar, nil)
+		mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, errors.New("error"))
+		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+	})
+}
+func TestUnitConfigurationVariableResourceReadWrongNotFound(t *testing.T) {
+	resourceType := "env0_configuration_variable"
+	resourceName := "test"
+	configVar := client.ConfigurationVariable{
+		Id:    "id0",
+		Name:  "name0",
+		Value: "Variable",
+	}
+
+	createTestCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"name":  configVar.Name,
+					"value": configVar.Value,
+				}),
+				ExpectError: regexp.MustCompile(`(Error: variable .+ not found)`),
+			},
+		},
+	}
+
+	runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
+			nil).Times(1).Return(configVar, nil)
+		mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, nil)
+		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+	})
+}
 func TestUnitConfigurationVariableResourceCreateApiClientError(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -194,6 +250,5 @@ func TestUnitConfigurationVariableResourceUpdateWrongType(t *testing.T) {
 			nil).Times(1).Return(configVar, nil)
 		mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2)
 		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
-
 	})
 }
