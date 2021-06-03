@@ -1,7 +1,6 @@
 package env0
 
 import (
-	"log"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -45,16 +44,16 @@ func TestUnitTemplateData(t *testing.T) {
 	*/
 	template := client.Template{
 		Id:                   "id0",
-		AuthorId:             "author",
-		CreatedAt:            "createdAt",
-		Href:                 "href",
-		Name:                 "name0",
-		Description:          "description",
-		OrganizationId:       "organizationId",
-		Path:                 "path",
-		Revision:             "revision",
-		ProjectId:            "projectId",
-		Repository:           "repository",
+		AuthorId:       "author",
+		CreatedAt:      "createdAt",
+		Href:           "href",
+		Name:           "name0",
+		Description:    "description",
+		OrganizationId: "organizationId",
+		Path:           "path",
+		Revision:       "revision",
+		ProjectId:      "projectId",
+		Repository:     "repository",
 		//Retry:                templateRetry,
 		Type:                 "terraform",
 		GithubInstallationId: 123,
@@ -62,32 +61,48 @@ func TestUnitTemplateData(t *testing.T) {
 		TerraformVersion:     "0.15.1",
 	}
 
-	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					//resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
-					//resource.TestCheckResourceAttr(resourceFullName, "author_id", template.AuthorId),
-					/*resource.TestCheckResourceAttr(resourceFullName, "created_at", template.CreatedAt),
-					resource.TestCheckResourceAttr(resourceFullName, "href", template.Href),
-					resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
-					resource.TestCheckResourceAttr(resourceFullName, "organization_id", template.OrganizationId),
-					resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
-					resource.TestCheckResourceAttr(resourceFullName, "revision", template.Revision),
-					resource.TestCheckResourceAttr(resourceFullName, "project_id", template.ProjectId),
-					resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),*/
-					//resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
-					resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
-				),
-			},
-		},
+	templateByName := map[string]string{
+		"name": template.Name,
 	}
 
-	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-		log.Println("template", template)
+	templateById := map[string]string{
+		"id": template.Id,
+	}
+
+	runScenario := func(input map[string]string, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+		testCase := resource.TestCase{
+			ProviderFactories: testUnitProviders,
+			Steps: []resource.TestStep{
+				{
+					Config: dataSourceConfigCreate(resourceType, resourceName, input),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						//resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
+						//resource.TestCheckResourceAttr(resourceFullName, "author_id", template.AuthorId),
+						/*resource.TestCheckResourceAttr(resourceFullName, "created_at", template.CreatedAt),
+						resource.TestCheckResourceAttr(resourceFullName, "href", template.Href),
+						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
+						resource.TestCheckResourceAttr(resourceFullName, "organization_id", template.OrganizationId),
+						resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
+						resource.TestCheckResourceAttr(resourceFullName, "revision", template.Revision),
+						resource.TestCheckResourceAttr(resourceFullName, "project_id", template.ProjectId),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),*/
+						//resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, mockFunc)
+	}
+
+	runScenario(templateByName, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template}, nil)
+	})
+
+	runScenario(templateById, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
 	})
+
 }
