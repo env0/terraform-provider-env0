@@ -27,7 +27,7 @@ func TestUnitProjectResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":        project.Name,
 					"description": project.Description,
 				}),
@@ -38,7 +38,7 @@ func TestUnitProjectResource(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":        updatedProject.Name,
 					"description": updatedProject.Description,
 				}),
