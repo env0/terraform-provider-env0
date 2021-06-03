@@ -38,15 +38,17 @@ func resourceConfigCreate(resourceType string, resourceName string, fields map[s
 func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
 	hclFields := ""
 	for key, value := range fields {
-		var valueString string
-		intValue, isInt := value.(int)
-		if isInt {
-			valueString = fmt.Sprintf(`%d`, intValue)
-		} else {
-			valueString = fmt.Sprintf(`"%s"`, value)
+		intValue, intOk := value.(int64)
+		boolValue, boolOk := value.(bool)
+		if intOk {
+			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
 		}
-
-		hclFields += fmt.Sprintf("\n\t%s = %s", key, valueString)
+		if boolOk {
+			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
+		}
+		if !intOk && !boolOk {
+			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
+		}
 	}
 	if hclFields != "" {
 		hclFields += "\n"
