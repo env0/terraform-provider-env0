@@ -34,7 +34,7 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 			{
 				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]string{
 					byKey: jsonData[byKey],
-				}, make(map[string]int), make(map[string]bool)),
+				}, make(map[string]int64), make(map[string]bool)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),
