@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
@@ -24,6 +25,13 @@ func resourceProject() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "name to give the project",
 				Required:    true,
+				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
+					name := i.(string)
+					if name == "" {
+						return diag.Errorf("Project name cannot be empty")
+					}
+					return nil
+				},
 			},
 			"id": {
 				Type:        schema.TypeString,
@@ -47,9 +55,10 @@ func setProjectSchema(d *schema.ResourceData, project client.Project) {
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	project, err := apiClient.ProjectCreate(name, description)
+	project, err := apiClient.ProjectCreate(client.ProjectCreatePayload{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+	})
 	if err != nil {
 		return diag.Errorf("could not create project: %v", err)
 	}
@@ -77,7 +86,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	payload := client.UpdateProjectPayload{
+	payload := client.ProjectCreatePayload{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 	}
