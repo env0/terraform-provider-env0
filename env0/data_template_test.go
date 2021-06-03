@@ -2,6 +2,7 @@ package env0
 
 import (
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -24,40 +25,24 @@ func TestUnitTemplateData(t *testing.T) {
 		OnDeploy:  &retryOnDeploy,
 		OnDestroy: &retryOnDestroy,
 	}
-	/*
-	   d.SetId(template.Id)
-	   	d.Set("name", template.Name)
-	   	d.Set("repository", template.Repository)
-	   	d.Set("path", template.Path)
-	   	d.Set("revision", template.Revision)
-	   	d.Set("type", template.Type)
-	   	d.Set("project_ids", template.ProjectIds)
-	   	d.Set("terraform_version", template.TerraformVersion)
-	   	d.Set("ssh_keys", template.SshKeys)
-	   	if template.Retry.OnDeploy != nil {
-	   		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
-	   		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
-	   	} else {
-	   		d.Set("retries_on_deploy", 0)
-	   		d.Set("retry_on_deploy_only_when_matches_regex", "")
-	   	}
-	   	if template.Retry.OnDestroy != nil {
-	   		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
-	   		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
-	   	} else {
-	   		d.Set("retries_on_destroy", 0)
-	   		d.Set("retry_on_destroy_only_when_matches_regex", "")
-	*/
+
+	sshKey := client.TemplateSshKey{
+		Id:   "id0",
+		Name: "ssh-name",
+	}
+
 	template := client.Template{
-		Id:               "id0",
-		Name:             "name0",
-		Repository:       "repository",
-		Path:             "path",
-		Revision:         "revision",
-		Type:             "terraform",
-		TerraformVersion: "0.15.1",
-		//sshkeys
-		Retry: templateRetry,
+		Id:                   "id0",
+		Name:                 "name0",
+		Repository:           "repository",
+		Path:                 "path",
+		Revision:             "revision",
+		Type:                 "terraform",
+		TerraformVersion:     "0.15.1",
+		SshKeys:              []client.TemplateSshKey{sshKey},
+		Retry:                templateRetry,
+		ProjectIds:           []string{"pId1", "pId2", "pId3"},
+		GithubInstallationId: 123,
 	}
 
 	templateByName := map[string]string{
@@ -85,29 +70,10 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
 						resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
 						resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
-						/*
-
-							d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
-							d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
-											resource.TestCheckResourceAttr(resourceFullName, "created_at", template.CreatedAt),
-											resource.TestCheckResourceAttr(resourceFullName, "href", template.Href),
-											resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
-											resource.TestCheckResourceAttr(resourceFullName, "organization_id", template.OrganizationId),
-											resource.TestCheckResourceAttr(resourceFullName, "project_id", template.ProjectId),
-											resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
-
-												template := client.Template{
-							Id:             "id0",
-							Name:           "name0",
-							Repository:     "repository",
-							Path:           "path",
-							Revision:       "revision",
-							Type:                 "terraform",
-							TerraformVersion:     "0.15.1",
-							//sshkeys
-							//Retry:                templateRetry,
-
-						}*/
+						resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
+						//strings.Join(template.ProjectIds,",")
+						resource.TestCheckResourceAttr(resourceFullName, "project_ids", "ddfdf"),
+						resource.TestCheckResourceAttr(resourceFullName, "ssh_keys", strings.Join(template.ProjectIds, ",")),
 					),
 				},
 			},
