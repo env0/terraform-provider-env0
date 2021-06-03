@@ -123,6 +123,20 @@ type TemplateAssignmentToProject struct {
 	ProjectId  string `json:"projectId"`
 }
 
+type CloudCredentialIdsInProjectResponse struct {
+	CredentialIds []string `json:"credentialIds"`
+}
+
+type CloudCredentialsProjectAssignmentPatchPayload struct {
+	CredentialIds []string `json:"credentialIds"`
+}
+
+type CloudCredentialsProjectAssignment struct {
+	Id           string `json:"id"`
+	CredentialId string `json:"credentialId"`
+	ProjectId    string `json:"projectId"`
+}
+
 type Template struct {
 	Author               User             `json:"author"`
 	AuthorId             string           `json:"authorId"`

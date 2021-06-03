@@ -44,6 +44,7 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 	mockFunc(apiClientMock)
 
 	testCase.ProviderFactories = testUnitProviders
+	testCase.PreventPostDestroyRefresh = true
 	resource.UnitTest(&testReporter, testCase)
 }
 
@@ -87,10 +88,10 @@ func TestMissingConfigurations(t *testing.T) {
 	expectedApiSecretConfig := "api_secret"
 
 	configTestCases := map[string]map[string]interface{}{
-		expectedApiKeyConfig: map[string]interface{}{
+		expectedApiKeyConfig: {
 			"api_secret": "value",
 		},
-		expectedApiSecretConfig: map[string]interface{}{
+		expectedApiSecretConfig: {
 			"api_key": "value",
 		},
 	}
@@ -100,10 +101,10 @@ func TestMissingConfigurations(t *testing.T) {
 	}
 
 	envVarsTestCases := map[string]map[string]string{
-		expectedApiKeyConfig: map[string]string{
+		expectedApiKeyConfig: {
 			"ENV0_API_SECRET": "value",
 		},
-		expectedApiSecretConfig: map[string]string{
+		expectedApiSecretConfig: {
 			"ENV0_API_KEY": "value",
 		},
 	}
