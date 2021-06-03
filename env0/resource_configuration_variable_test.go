@@ -65,7 +65,7 @@ func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 					resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
 				),
-				ExpectError: regexp.MustCompile(`^Error: 'type' can only receive either 'environment' or 'terraform':.+$`),
+				ExpectError: regexp.MustCompile(`(Error: 'type' can only receive either 'environment' or 'terraform')`),
 			},
 		},
 	}
