@@ -76,19 +76,21 @@ var _ = Describe("Credentials Project Assignment", func() {
 		Describe("Successful", func() {
 			var actualResult []string
 
-			expectedResponse := []string{"some-id"}
-
+			expectedResponse := CloudCredentialIdsInProjectResponse{
+				CredentialIds: []string{"credentialId"},
+			}
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/credentials/deployment/project/"+projectId, nil, gomock.Any()).
-					Do(func(path string, request interface{}) {
-					}).Return(expectedResponse).Times(1)
+					Do(func(path string, request interface{}, response *CloudCredentialIdsInProjectResponse) {
+						*response = expectedResponse
+					}).Times(1)
 				actualResult, _ = apiClient.CloudCredentialIdsInProject(projectId)
 
 			})
 
 			It("should return the GET result", func() {
-				Expect(actualResult).To(Equal(expectedResponse))
+				Expect(actualResult).To(Equal(expectedResponse.CredentialIds))
 			})
 		})
 		Describe("On Error", func() {
