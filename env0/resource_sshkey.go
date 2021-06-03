@@ -30,6 +30,7 @@ func resourceSshKey() *schema.Resource {
 				Description: "value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)",
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 			},
 		},
 	}
