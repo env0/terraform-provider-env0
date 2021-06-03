@@ -5,6 +5,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"regexp"
 	"strconv"
 	"testing"
 )
@@ -147,6 +148,29 @@ func TestUnitTemplateResourceBasic(t *testing.T) {
 		}).Times(1).Return(template, nil)
 		mock.EXPECT().TemplateDelete(template.Id).Return(nil)
 	})
+}
+
+func TestUnitTemplateResourceInvalidType(t *testing.T) {
+	template := client.Template{
+		Name:       "template0",
+		Repository: "env0/repo",
+	}
+
+	testCase := resource.TestCase{
+		ProviderFactories: testUnitProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"name":       template.Name,
+					"repository": template.Repository,
+					"type":       "gruntyform",
+				}),
+				ExpectError: regexp.MustCompile(`'type' can either be 'terraform' or 'terragrunt'`),
+			},
+		},
+	}
+
+	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 }
 
 func TestUnitTemplateResourceSshKeys(t *testing.T) {
