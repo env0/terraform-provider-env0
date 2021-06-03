@@ -18,7 +18,7 @@ func TestUnitSshKeyDataSourceByName(t *testing.T) {
 func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	resourceType := "env0_ssh_key"
 	resourceName := "test"
-	resourceFullName := dataSourceAccessor(resourceType, resourceName)
+	accessor := dataSourceAccessor(resourceType, resourceName)
 	sshKey := client.SshKey{
 		Id:    "id0",
 		Name:  "name0",
@@ -32,12 +32,12 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					byKey: jsonData[byKey],
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),
+					resource.TestCheckResourceAttr(accessor, "id", sshKey.Id),
+					resource.TestCheckResourceAttr(accessor, "name", sshKey.Name),
 				),
 			},
 		},
