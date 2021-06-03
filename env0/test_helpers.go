@@ -27,18 +27,24 @@ func hclAccessor(source TFSource, resourceType string, resourceName string) stri
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
 
-func dataSourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
-	return hclConfigCreate(DataSource, resourceType, resourceName, fields)
+func dataSourceConfigCreate(resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int, boolFields map[string]bool) string {
+	return hclConfigCreate(DataSource, resourceType, resourceName, stringFields, intFields, boolFields)
 }
 
-func resourceConfigCreate(resourceType string, resourceName string, fields map[string]string) string {
-	return hclConfigCreate(Resource, resourceType, resourceName, fields)
+func resourceConfigCreate(resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int, boolFields map[string]bool) string {
+	return hclConfigCreate(Resource, resourceType, resourceName, stringFields, intFields, boolFields)
 }
 
-func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]string) string {
+func hclConfigCreate(source TFSource, resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int, boolFields map[string]bool) string {
 	hclFields := ""
-	for key, value := range fields {
+	for key, value := range stringFields {
 		hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
+	}
+	for key, value := range intFields {
+		hclFields += fmt.Sprintf("\n\t%s = \"%d\"", key, value)
+	}
+	for key, value := range boolFields {
+		hclFields += fmt.Sprintf("\n\t%s = \"%t\"", key, value)
 	}
 	if hclFields != "" {
 		hclFields += "\n"

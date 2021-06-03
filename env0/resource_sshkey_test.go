@@ -22,7 +22,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
 					"name":  sshKey.Name,
 					"value": sshKey.Value,
-				}),
+				}, make(map[string]int), make(map[string]bool)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),
