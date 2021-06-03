@@ -3,7 +3,7 @@ package client
 func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error) {
 	var result CloudCredentialsProjectAssignment
 
-	err := self.http.Put("/credentials/deployment/"+projectId+"/project"+credentialId, nil, &result)
+	err := self.http.Put("/credentials/deployment/"+credentialId+"/project/"+projectId, nil, &result)
 	if err != nil {
 		return result, err
 	}
