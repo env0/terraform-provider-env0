@@ -1,6 +1,6 @@
 module github.com/env0/terraform-provider-env0
 
-go 1.16
+go 1.16 // please change also in `ci.yml` and `release.yml`
 
 require (
 	github.com/go-resty/resty/v2 v2.6.0
