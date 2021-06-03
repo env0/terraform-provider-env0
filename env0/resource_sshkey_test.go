@@ -19,7 +19,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  sshKey.Name,
 					"value": sshKey.Value,
 				}),

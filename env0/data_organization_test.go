@@ -22,7 +22,7 @@ func TestUnitOrganizationData(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]string)),
+				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "id", organization.Id),
 					resource.TestCheckResourceAttr(accessor, "name", organization.Name),
