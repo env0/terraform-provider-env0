@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestUnitConfigurationVariableResource(t *testing.T) {
+func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -15,11 +15,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		Id:    "id0",
 		Name:  "name0",
 		Value: "Variable",
-	}
-	newConfigVar := client.ConfigurationVariable{
-		Id:    configVar.Id,
-		Name:  configVar.Name,
-		Value: "I want to be the config value",
 	}
 
 	createTestCase := resource.TestCase{
@@ -36,6 +31,28 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 				),
 			},
 		},
+	}
+
+	runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
+			nil).Times(1).Return(configVar, nil)
+		mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+	})
+}
+func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
+	resourceType := "env0_configuration_variable"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+	configVar := client.ConfigurationVariable{
+		Id:    "id0",
+		Name:  "name0",
+		Value: "Variable",
+	}
+	newConfigVar := client.ConfigurationVariable{
+		Id:    configVar.Id,
+		Name:  configVar.Name,
+		Value: "I want to be the config value",
 	}
 
 	updateTestCase := resource.TestCase{
@@ -64,13 +81,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			},
 		},
 	}
-
-	runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-			nil).Times(1).Return(configVar, nil)
-		mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
-		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
-	})
 
 	runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
