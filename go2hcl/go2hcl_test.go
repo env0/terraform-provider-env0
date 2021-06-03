@@ -14,6 +14,34 @@ func TestHelpers(t *testing.T) {
 }
 
 var _ = Describe("Help Functions", func() {
+	Describe("ResourceConfigCreate", func() {
+		It("should create hcl resource correctly", func() {
+			hcl := ResourceConfigCreate("env0_x", "myresource", map[string]interface{}{
+				"root": "test",
+				"arr":  []int{0, 1, 2},
+				"statement": map[string]interface{}{
+					"field1": 123,
+					"field2": true,
+					"field3": "hello",
+				},
+			})
+
+			Expect(hcl).To(Equal(`resource "env0_x" "myresource" {
+	root = "test"
+	arr = [
+	0,
+	1,
+	2
+]
+	statement {
+	field1 = 123
+	field2 = true
+	field3 = "hello"
+}
+}`))
+		})
+	})
+
 	DescribeTable("toHclValue",
 		func(value interface{}, expected types.GomegaMatcher, expectedError types.GomegaMatcher) {
 			result, err := toHclValue(value)
@@ -34,5 +62,12 @@ var _ = Describe("Help Functions", func() {
 			"field2": true,
 			"field3": "hello",
 		}, Equal("{\n\tfield1 = 123\n\tfield2 = true\n\tfield3 = \"hello\"\n}"), BeNil()),
+		Entry("map of map fields", map[string]map[string]interface{}{
+			"statement": {
+				"field1": 123,
+				"field2": true,
+				"field3": "hello",
+			},
+		}, Equal("{\n\tstatement {\n\tfield1 = 123\n\tfield2 = true\n\tfield3 = \"hello\"\n}\n}"), BeNil()),
 	)
 })

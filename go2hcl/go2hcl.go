@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -41,7 +42,11 @@ func ResourceConfigCreate(resourceType string, resourceName string, fields map[s
 func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
 	hclFields := ""
 	for key, value := range fields {
-		hclFields += toHclField(key, value)
+		field, err := toHclField(key, value)
+		if err != nil {
+			panic(err)
+		}
+		hclFields += "\n\t" + field
 	}
 	if hclFields != "" {
 		hclFields += "\n"
@@ -76,26 +81,27 @@ func toHclValue(value interface{}) (string, error) {
 		var hclMapFields []string
 		for _, key := range mapValue.MapKeys() {
 			fieldKey := key.String()
-			fieldValue, err := toHclValue(mapValue.MapIndex(key).Interface())
+			fieldValue := mapValue.MapIndex(key).Interface()
+			hclField, err := toHclField(fieldKey, fieldValue)
 			if err != nil {
 				return "", err
 			}
-			hclField := fmt.Sprintf("%s = %s", fieldKey, fieldValue)
 			hclMapFields = append(hclMapFields, hclField)
 		}
+		sort.Strings(hclMapFields)
 		return fmt.Sprintf("{\n\t%s\n}", strings.Join(hclMapFields, "\n\t")), nil
 	default:
 		return "", errors.New("can't convert value to hcl")
 	}
 }
 
-func toHclField(name string, value interface{}) string {
+func toHclField(name string, value interface{}) (string, error) {
 	hclValue, err := toHclValue(value)
 	if err != nil {
-		return fmt.Sprintf("%s field has unsupported value - %s", name, err)
+		return "", errors.New(fmt.Sprintf("'%s' field has unsupported value - %s", name, err.Error()))
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Map {
-		return fmt.Sprintf("\n\t%s %s", name, hclValue)
+		return fmt.Sprintf("%s %s", name, hclValue), nil
 	}
-	return fmt.Sprintf("\n\t%s = %s", name, hclValue)
+	return fmt.Sprintf("%s = %s", name, hclValue), nil
 }
