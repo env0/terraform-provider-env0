@@ -19,10 +19,10 @@ func TestUnitSshKeyResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  sshKey.Name,
 					"value": sshKey.Value,
-				}, make(map[string]int64), make(map[string]bool)),
+				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
 					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),

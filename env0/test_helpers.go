@@ -27,24 +27,28 @@ func hclAccessor(source TFSource, resourceType string, resourceName string) stri
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
 
-func dataSourceConfigCreate(resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int64, boolFields map[string]bool) string {
-	return hclConfigCreate(DataSource, resourceType, resourceName, stringFields, intFields, boolFields)
+func dataSourceConfigCreate(resourceType string, resourceName string, fields map[string]interface{}) string {
+	return hclConfigCreate(DataSource, resourceType, resourceName, fields)
 }
 
-func resourceConfigCreate(resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int64, boolFields map[string]bool) string {
-	return hclConfigCreate(Resource, resourceType, resourceName, stringFields, intFields, boolFields)
+func resourceConfigCreate(resourceType string, resourceName string, fields map[string]interface{}) string {
+	return hclConfigCreate(Resource, resourceType, resourceName, fields)
 }
 
-func hclConfigCreate(source TFSource, resourceType string, resourceName string, stringFields map[string]string, intFields map[string]int64, boolFields map[string]bool) string {
+func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
 	hclFields := ""
-	for key, value := range stringFields {
-		hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
-	}
-	for key, value := range intFields {
-		hclFields += fmt.Sprintf("\n\t%s = \"%d\"", key, value)
-	}
-	for key, value := range boolFields {
-		hclFields += fmt.Sprintf("\n\t%s = \"%t\"", key, value)
+	for key, value := range fields {
+		intValue, intOk := value.(int)
+		boolValue, boolOk := value.(bool)
+		if intOk {
+			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
+		}
+		if boolOk {
+			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
+		}
+		if !intOk && !boolOk {
+			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
+		}
 	}
 	if hclFields != "" {
 		hclFields += "\n"
