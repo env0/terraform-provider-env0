@@ -84,7 +84,7 @@ func toHclValue(value interface{}, indentLevel uint) (string, error) {
 		listValues := reflect.ValueOf(value)
 		var hclValues []string
 		for i := 0; i < listValues.Len(); i++ {
-			innerValue, err := toHclValue(listValues.Index(i).Interface(), 0)
+			innerValue, err := toHclValue(listValues.Index(i).Interface(), indentLevel)
 			if err != nil {
 				return "", err
 			}
