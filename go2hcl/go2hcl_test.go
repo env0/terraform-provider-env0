@@ -13,7 +13,7 @@ func TestHelpers(t *testing.T) {
 	RunSpecs(t, "HTTP Client Tests")
 }
 
-var _ = Describe("Help Functions", func() {
+var _ = Describe("go2hcl tests", func() {
 	Describe("ResourceConfigCreate", func() {
 		It("should create hcl resource correctly", func() {
 			hcl := ResourceConfigCreate("env0_x", "myresource", map[string]interface{}{
