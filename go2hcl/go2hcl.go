@@ -8,12 +8,12 @@ import (
 	"strings"
 )
 
-// TFSource Enum
-type TFSource string
+// TFBlock Enum
+type TFBlock string
 
 const (
-	DataSource TFSource = "data"
-	Resource   TFSource = "resource"
+	DataSource TFBlock = "data"
+	Resource   TFBlock = "resource"
 )
 
 func DataSourceAccessor(resourceType string, resourceName string) string {
@@ -24,9 +24,9 @@ func ResourceAccessor(resourceType string, resourceName string) string {
 	return hclAccessor(Resource, resourceType, resourceName)
 }
 
-func hclAccessor(source TFSource, resourceType string, resourceName string) string {
-	if source == DataSource {
-		return fmt.Sprintf("%s.%s.%s", source, resourceType, resourceName)
+func hclAccessor(blockType TFBlock, resourceType string, resourceName string) string {
+	if blockType == DataSource {
+		return fmt.Sprintf("%s.%s.%s", blockType, resourceType, resourceName)
 	}
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
@@ -39,7 +39,7 @@ func ResourceConfigCreate(resourceType string, resourceName string, fields map[s
 	return hclConfigCreate(Resource, resourceType, resourceName, fields)
 }
 
-func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
+func hclConfigCreate(source TFBlock, resourceType string, resourceName string, fields map[string]interface{}) string {
 	var hclFields []string
 	for key, value := range fields {
 		field, err := toHclField(key, value, 1)
