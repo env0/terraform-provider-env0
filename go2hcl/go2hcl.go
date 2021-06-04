@@ -40,21 +40,36 @@ func ResourceConfigCreate(resourceType string, resourceName string, fields map[s
 }
 
 func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
-	hclFields := ""
+	var hclFields []string
 	for key, value := range fields {
-		field, err := toHclField(key, value)
+		field, err := toHclField(key, value, 1)
 		if err != nil {
 			panic(err)
 		}
-		hclFields += "\n\t" + field
+		hclFields = append(hclFields, field)
 	}
-	if hclFields != "" {
-		hclFields += "\n"
+	sort.Strings(hclFields)
+	object := "{}"
+	if len(hclFields) != 0 {
+		object = fmt.Sprintf("{\n%s\n}", strings.Join(hclFields, "\n"))
 	}
-	return fmt.Sprintf(`%s "%s" "%s" {%s}`, source, resourceType, resourceName, hclFields)
+	return fmt.Sprintf(`%s "%s" "%s" %s`, source, resourceType, resourceName, object)
 }
 
-func toHclValue(value interface{}) (string, error) {
+func toHclField(name string, value interface{}, indentLevel uint) (string, error) {
+	hclValue, err := toHclValue(value, indentLevel)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("'%s' field has unsupported value - %s", name, err.Error()))
+	}
+
+	indentation := strings.Repeat("\t", int(indentLevel))
+	if reflect.ValueOf(value).Kind() == reflect.Map {
+		return fmt.Sprintf("%s%s %s", indentation, name, hclValue), nil
+	}
+	return fmt.Sprintf("%s%s = %s", indentation, name, hclValue), nil
+}
+
+func toHclValue(value interface{}, indentLevel uint) (string, error) {
 	reflectedType := reflect.TypeOf(value)
 	switch reflectedType.Kind() {
 	case reflect.Int:
@@ -69,39 +84,31 @@ func toHclValue(value interface{}) (string, error) {
 		listValues := reflect.ValueOf(value)
 		var hclValues []string
 		for i := 0; i < listValues.Len(); i++ {
-			innerValue, err := toHclValue(listValues.Index(i).Interface())
+			innerValue, err := toHclValue(listValues.Index(i).Interface(), 0)
 			if err != nil {
 				return "", err
 			}
 			hclValues = append(hclValues, innerValue)
 		}
-		return fmt.Sprintf("[\n\t%s\n]", strings.Join(hclValues, ",\n\t")), nil
+		arrayContent := strings.Join(hclValues, ", ")
+		return fmt.Sprintf("[%s]", arrayContent), nil
 	case reflect.Map:
 		mapValue := reflect.ValueOf(value)
 		var hclMapFields []string
 		for _, key := range mapValue.MapKeys() {
 			fieldKey := key.String()
 			fieldValue := mapValue.MapIndex(key).Interface()
-			hclField, err := toHclField(fieldKey, fieldValue)
+			hclField, err := toHclField(fieldKey, fieldValue, indentLevel+1)
 			if err != nil {
 				return "", err
 			}
 			hclMapFields = append(hclMapFields, hclField)
 		}
 		sort.Strings(hclMapFields)
-		return fmt.Sprintf("{\n\t%s\n}", strings.Join(hclMapFields, "\n\t")), nil
+		mapContent := strings.Join(hclMapFields, "\n")
+		indentation := strings.Repeat("\t", int(indentLevel))
+		return fmt.Sprintf("{\n%s\n%s}", mapContent, indentation), nil
 	default:
 		return "", errors.New("can't convert value to hcl")
 	}
-}
-
-func toHclField(name string, value interface{}) (string, error) {
-	hclValue, err := toHclValue(value)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("'%s' field has unsupported value - %s", name, err.Error()))
-	}
-	if reflect.ValueOf(value).Kind() == reflect.Map {
-		return fmt.Sprintf("%s %s", name, hclValue), nil
-	}
-	return fmt.Sprintf("%s = %s", name, hclValue), nil
 }

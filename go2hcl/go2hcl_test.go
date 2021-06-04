@@ -17,34 +17,58 @@ var _ = Describe("Help Functions", func() {
 	Describe("ResourceConfigCreate", func() {
 		It("should create hcl resource correctly", func() {
 			hcl := ResourceConfigCreate("env0_x", "myresource", map[string]interface{}{
-				"root": "test",
-				"arr":  []int{0, 1, 2},
-				"statement": map[string]interface{}{
+				"aaa": "test",
+				"bbb": []int{0, 1, 2},
+				"ccc": map[string]interface{}{
 					"field1": 123,
 					"field2": true,
 					"field3": "hello",
 				},
 			})
 
-			Expect(hcl).To(Equal(`resource "env0_x" "myresource" {
-	root = "test"
-	arr = [
-	0,
-	1,
-	2
-]
-	statement {
-	field1 = 123
-	field2 = true
-	field3 = "hello"
-}
-}`))
+			expected :=
+				`resource "env0_x" "myresource" {
+	aaa = "test"
+	bbb = [0, 1, 2]
+	ccc {
+		field1 = 123
+		field2 = true
+		field3 = "hello"
+	}
+}`
+			Expect(hcl).To(Equal(expected))
+		})
+	})
+
+	Describe("DataSourceConfigCreate", func() {
+		It("should create hcl resource correctly", func() {
+			hcl := DataSourceConfigCreate("env0_x", "mydata", map[string]interface{}{
+				"aaa": "test",
+				"bbb": []int{0, 1, 2},
+				"ccc": map[string]interface{}{
+					"field1": 123,
+					"field2": true,
+					"field3": "hello",
+				},
+			})
+
+			expected :=
+				`data "env0_x" "mydata" {
+	aaa = "test"
+	bbb = [0, 1, 2]
+	ccc {
+		field1 = 123
+		field2 = true
+		field3 = "hello"
+	}
+}`
+			Expect(hcl).To(Equal(expected))
 		})
 	})
 
 	DescribeTable("toHclValue",
 		func(value interface{}, expected types.GomegaMatcher, expectedError types.GomegaMatcher) {
-			result, err := toHclValue(value)
+			result, err := toHclValue(value, 0)
 			Expect(result).To(expected)
 			Expect(err).To(expectedError)
 		},
@@ -54,9 +78,9 @@ var _ = Describe("Help Functions", func() {
 		Entry("string", "hello", Equal("\"hello\""), BeNil()),
 		Entry("boolean true", true, Equal("true"), BeNil()),
 		Entry("boolean false", false, Equal("false"), BeNil()),
-		Entry("array of strings", []string{"hello", "world"}, Equal("[\n\t\"hello\",\n\t\"world\"\n]"), BeNil()),
-		Entry("array of int", []int{123, 456}, Equal("[\n\t123,\n\t456\n]"), BeNil()),
-		Entry("array of bool", []bool{true, false}, Equal("[\n\ttrue,\n\tfalse\n]"), BeNil()),
+		Entry("array of strings", []string{"hello", "world"}, Equal("[\"hello\", \"world\"]"), BeNil()),
+		Entry("array of int", []int{123, 456}, Equal("[123, 456]"), BeNil()),
+		Entry("array of bool", []bool{true, false}, Equal("[true, false]"), BeNil()),
 		Entry("map fields", map[string]interface{}{
 			"field1": 123,
 			"field2": true,
@@ -68,6 +92,6 @@ var _ = Describe("Help Functions", func() {
 				"field2": true,
 				"field3": "hello",
 			},
-		}, Equal("{\n\tstatement {\n\tfield1 = 123\n\tfield2 = true\n\tfield3 = \"hello\"\n}\n}"), BeNil()),
+		}, Equal("{\n\tstatement {\n\t\tfield1 = 123\n\t\tfield2 = true\n\t\tfield3 = \"hello\"\n\t}\n}"), BeNil()),
 	)
 })
