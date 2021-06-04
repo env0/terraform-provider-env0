@@ -10,7 +10,7 @@ import (
 
 func TestHelpers(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "HTTP Client Tests")
+	RunSpecs(t, "go2hcl Tests")
 }
 
 var _ = Describe("go2hcl tests", func() {
@@ -73,8 +73,8 @@ var _ = Describe("go2hcl tests", func() {
 			Expect(err).To(expectedError)
 		},
 		Entry("int", 123, Equal("123"), BeNil()),
-		Entry("float", 123.456, Equal("123.456"), BeNil()),
-		Entry("float", 123.456789012345678, Equal("123.45678901234568"), BeNil()),
+		Entry("float32", 123.456, Equal("123.456"), BeNil()),
+		Entry("float64", 123.456789012345678, Equal("123.45678901234568"), BeNil()),
 		Entry("string", "hello", Equal("\"hello\""), BeNil()),
 		Entry("boolean true", true, Equal("true"), BeNil()),
 		Entry("boolean false", false, Equal("false"), BeNil()),
