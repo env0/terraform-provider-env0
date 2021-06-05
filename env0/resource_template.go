@@ -199,6 +199,13 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("terraform_version", template.TerraformVersion)
+
+	var rawSshKeys []map[string]string
+	for _, sshKey := range template.SshKeys {
+		rawSshKeys = append(rawSshKeys, map[string]string{"id": sshKey.Id, "name": sshKey.Name})
+	}
+	d.Set("ssh_keys", rawSshKeys)
+
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
