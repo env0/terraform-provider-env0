@@ -32,7 +32,10 @@ func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string, restClie
 }
 
 func (self *HttpClient) request() *resty.Request {
-	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
+	headers := map[string]string{
+		"User-Agent": "terraform-provider-env0",
+	}
+	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret).SetHeaders(headers)
 }
 
 func (self *HttpClient) httpResult(response *resty.Response, err error) error {
