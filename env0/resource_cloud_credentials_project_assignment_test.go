@@ -16,15 +16,15 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		CredentialId: "cred-it",
 		ProjectId:    "proj-it",
 	}
-
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		"credential_id": assignment.CredentialId,
+		"project_id":    assignment.ProjectId,
+	})
 	t.Run("Create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"credential_id": assignment.CredentialId,
-						"project_id":    assignment.ProjectId,
-					}),
+					Config: stepConfig,
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", assignment.CredentialId+"|"+assignment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "credential_id", assignment.CredentialId),
@@ -44,10 +44,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"credential_id": assignment.CredentialId,
-						"project_id":    assignment.ProjectId,
-					}),
+					Config:      stepConfig,
 					ExpectError: regexp.MustCompile(`(could not assign cloud credentials to project)`),
 				},
 			},
@@ -61,10 +58,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"credential_id": assignment.CredentialId,
-						"project_id":    assignment.ProjectId,
-					}),
+					Config:      stepConfig,
 					ExpectError: regexp.MustCompile(`(could not get cloud_credentials:)`),
 				},
 			},
@@ -80,10 +74,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"credential_id": assignment.CredentialId,
-						"project_id":    assignment.ProjectId,
-					}),
+					Config: stepConfig,
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", assignment.CredentialId+"|"+assignment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "credential_id", assignment.CredentialId),
@@ -103,10 +94,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"credential_id": assignment.CredentialId,
-						"project_id":    assignment.ProjectId,
-					}),
+					Config:      stepConfig,
 					ExpectError: regexp.MustCompile(`(could not find cloud credential project assignment)`),
 				},
 			},
