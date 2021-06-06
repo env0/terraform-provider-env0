@@ -33,9 +33,9 @@ type Project struct {
 	Description    string `json:"description"`
 }
 
-type UpdateProjectPayload struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+type ProjectCreatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type ConfigurationVariableSchema struct {
