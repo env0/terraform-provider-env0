@@ -42,6 +42,7 @@ func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
 		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 	})
 }
+
 func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -69,6 +70,7 @@ func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 
 	})
 }
+
 func TestUnitConfigurationVariableResourceReadWrongApiClientError(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -97,6 +99,7 @@ func TestUnitConfigurationVariableResourceReadWrongApiClientError(t *testing.T) 
 		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 	})
 }
+
 func TestUnitConfigurationVariableResourceReadWrongNotFound(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -125,6 +128,7 @@ func TestUnitConfigurationVariableResourceReadWrongNotFound(t *testing.T) {
 		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 	})
 }
+
 func TestUnitConfigurationVariableResourceCreateApiClientError(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -151,6 +155,7 @@ func TestUnitConfigurationVariableResourceCreateApiClientError(t *testing.T) {
 			nil).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 	})
 }
+
 func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
@@ -205,6 +210,7 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 		mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 	})
 }
+
 func TestUnitConfigurationVariableResourceUpdateWrongType(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
