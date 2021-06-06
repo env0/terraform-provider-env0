@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -15,6 +16,9 @@ func TestProjectDataSource(t *testing.T) {
 		Role:        "role0",
 		Description: "A project's description",
 	}
+
+	projectDataByName := map[string]interface{}{"name": project.Name}
+	projectDataById := map[string]interface{}{"id": project.Id}
 
 	resourceType := "env0_project"
 	resourceName := "test_project"
@@ -39,7 +43,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("By ID", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]interface{}{"id": project.Id}),
+			getValidTestCase(projectDataById),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Project(project.Id).AnyTimes().Return(project, nil)
 			})
@@ -47,18 +51,26 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]interface{}{"name": project.Name}),
+			getValidTestCase(projectDataByName),
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project}, nil)
+			})
+	})
+
+	t.Run("Throw error when by name and more than one project exists", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      dataSourceConfigCreate(resourceType, resourceName, projectDataByName),
+					ExpectError: regexp.MustCompile(`Found multiple Projects for name`),
+				},
+			},
+		}
+
+		runUnitTest(t,
+			testCase,
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
 			})
 	})
-
-	// t.Run("Throw error when by name and more than one project exists", func(t *testing.T) {
-	// 	testProjectDataSource(
-	// 		map[string]string{"name": project.Name},
-	// 		func(mock *client.MockApiClientInterface) {
-	// 			mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
-	// 		},
-	// 	)
-	// })
 }
