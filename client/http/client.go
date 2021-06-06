@@ -23,19 +23,24 @@ type HttpClient struct {
 	client    *resty.Client
 }
 
-func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string, restClient *resty.Client) (*HttpClient, error) {
+type HttpClientConfig struct {
+	ApiKey      string
+	ApiSecret   string
+	ApiEndpoint string
+	UserAgent   string
+	RestClient  *resty.Client
+}
+
+func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	return &HttpClient{
-		ApiKey:    apiKey,
-		ApiSecret: apiSecret,
-		client:    restClient.SetHostURL(apiEndpoint),
+		ApiKey:    config.ApiKey,
+		ApiSecret: config.ApiSecret,
+		client:    config.RestClient.SetHostURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}, nil
 }
 
 func (self *HttpClient) request() *resty.Request {
-	headers := map[string]string{
-		"User-Agent": "terraform-provider-env0",
-	}
-	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret).SetHeaders(headers)
+	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
 }
 
 func (self *HttpClient) httpResult(response *resty.Response, err error) error {
