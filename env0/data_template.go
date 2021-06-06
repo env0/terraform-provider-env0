@@ -54,15 +54,6 @@ func dataTemplate() *schema.Resource {
 					Description: "env0_project.id for each project",
 				},
 			},
-			"ssh_keys": {
-				Type:        schema.TypeList,
-				Description: "which ssh keys are used for accessing git over ssh",
-				Computed:    true,
-				Elem: &schema.Schema{
-					Type:        schema.TypeMap,
-					Description: "a map of env0_ssh_key.id and env0_ssh_key.name for each project",
-				},
-			},
 			"retries_on_deploy": {
 				Type:        schema.TypeInt,
 				Description: "number of times to retry when deploying an environment based on this template",
@@ -121,7 +112,6 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
-	d.Set("ssh_keys", template.SshKeys)
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
@@ -141,7 +131,6 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		d.Set("github_installation_id", template.GithubInstallationId)
 	}
 
-	//TODO: sshkeys
 	return nil
 }
 
