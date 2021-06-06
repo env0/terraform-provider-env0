@@ -15,8 +15,8 @@ var _ = Describe("Configuration Variable", func() {
 		Value:          "configValue",
 		OrganizationId: organizationId,
 		IsSensitive:    true,
-		Scope:          "PROJECT",
-		Type:           0,
+		Scope:          ScopeProject,
+		Type:           ConfigurationVariableTypeEnvironment,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 	}
@@ -33,8 +33,8 @@ var _ = Describe("Configuration Variable", func() {
 				"value":          mockConfigurationVariable.Value,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
-				"scope":          Scope(mockConfigurationVariable.Scope),
-				"type":           ConfigurationVariableType(mockConfigurationVariable.Type),
+				"scope":          mockConfigurationVariable.Scope,
+				"type":           mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -47,9 +47,9 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.Name,
 				mockConfigurationVariable.Value,
 				mockConfigurationVariable.IsSensitive,
-				Scope(mockConfigurationVariable.Scope),
+				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				ConfigurationVariableType(mockConfigurationVariable.Type),
+				mockConfigurationVariable.Type,
 				nil,
 			)
 		})
@@ -94,8 +94,8 @@ var _ = Describe("Configuration Variable", func() {
 				"isSensitive":    mockConfigurationVariable.IsSensitive,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
-				"scope":          Scope(mockConfigurationVariable.Scope),
-				"type":           ConfigurationVariableType(mockConfigurationVariable.Type),
+				"scope":          mockConfigurationVariable.Scope,
+				"type":           mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -109,9 +109,9 @@ var _ = Describe("Configuration Variable", func() {
 				newName,
 				newValue,
 				mockConfigurationVariable.IsSensitive,
-				Scope(mockConfigurationVariable.Scope),
+				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				ConfigurationVariableType(mockConfigurationVariable.Type),
+				mockConfigurationVariable.Type,
 				nil,
 			)
 		})
@@ -138,7 +138,7 @@ var _ = Describe("Configuration Variable", func() {
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = mockVariables
 				})
-			returnedVariables, _ = apiClient.ConfigurationVariables("GLOBAL", "")
+			returnedVariables, _ = apiClient.ConfigurationVariables(ScopeGlobal, "")
 		})
 
 		It("Should send GET request with expected params", func() {
@@ -169,11 +169,10 @@ var _ = Describe("Configuration Variable", func() {
 				returnedVariables, _ = apiClient.ConfigurationVariables(Scope(scope), scopeId)
 				httpCall.Times(1)
 			},
-			Entry("Template Scope", "BLUEPRINT", "blueprintId"),
-			Entry("Project Scope", "PROJECT", "projectId"),
-			Entry("Environment Scope", "ENVIRONMENT", "environmentId"),
-			Entry("Project Scope", "DEPLOYMENT_LOG", "deploymentLogId"),
+			Entry("Template Scope", string(ScopeTemplate), "blueprintId"),
+			Entry("Project Scope", string(ScopeProject), "projectId"),
+			Entry("Environment Scope", string(ScopeEnvironment), "environmentId"),
+			Entry("Project Scope", string(ScopeDeploymentLog), "deploymentLogId"),
 		)
 	})
-
 })
