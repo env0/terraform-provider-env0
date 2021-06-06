@@ -16,12 +16,12 @@ func TestProjectDataSource(t *testing.T) {
 		Description: "A project's description",
 	}
 
-	testProjectDataSource := func(input map[string]string, mockFunc func(mockFunc *client.MockApiClientInterface)) {
-		resourceType := "env0_project"
-		resourceName := "test_project"
-		accessor := dataSourceAccessor(resourceType, resourceName)
+	resourceType := "env0_project"
+	resourceName := "test_project"
+	accessor := dataSourceAccessor(resourceType, resourceName)
 
-		testCase := resource.TestCase{
+	getValidTestCase := func(input map[string]string) resource.TestCase {
+		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: dataSourceConfigCreate(resourceType, resourceName, input),
@@ -35,25 +35,30 @@ func TestProjectDataSource(t *testing.T) {
 				},
 			},
 		}
-
-		runUnitTest(t, testCase, mockFunc)
 	}
 
 	t.Run("By ID", func(t *testing.T) {
-		testProjectDataSource(
-			map[string]string{"id": project.Id},
+		runUnitTest(t,
+			getValidTestCase(map[string]string{"id": project.Id}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Project(project.Id).AnyTimes().Return(project, nil)
-			},
-		)
+			})
 	})
 
 	t.Run("By Name", func(t *testing.T) {
-		testProjectDataSource(
-			map[string]string{"name": project.Name},
+		runUnitTest(t,
+			getValidTestCase(map[string]string{"name": project.Name}),
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project}, nil)
-			},
-		)
+				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
+			})
 	})
+
+	// t.Run("Throw error when by name and more than one project exists", func(t *testing.T) {
+	// 	testProjectDataSource(
+	// 		map[string]string{"name": project.Name},
+	// 		func(mock *client.MockApiClientInterface) {
+	// 			mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
+	// 		},
+	// 	)
+	// })
 }
