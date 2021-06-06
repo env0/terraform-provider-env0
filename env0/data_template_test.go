@@ -2,7 +2,6 @@ package env0
 
 import (
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -71,9 +70,9 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
 						resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 						resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
-						//strings.Join(template.ProjectIds,",")
-						resource.TestCheckResourceAttr(resourceFullName, "project_ids", "ddfdf"),
-						resource.TestCheckResourceAttr(resourceFullName, "ssh_keys", strings.Join(template.ProjectIds, ",")),
+						resource.TestCheckResourceAttr(resourceFullName, "project_ids.0", template.ProjectIds[0]),
+						resource.TestCheckResourceAttr(resourceFullName, "project_ids.1", template.ProjectIds[1]),
+						
 					),
 				},
 			},
