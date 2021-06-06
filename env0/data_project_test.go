@@ -20,7 +20,7 @@ func TestProjectDataSource(t *testing.T) {
 	resourceName := "test_project"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]string) resource.TestCase {
+	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -39,7 +39,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("By ID", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]string{"id": project.Id}),
+			getValidTestCase(map[string]interface{}{"id": project.Id}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Project(project.Id).AnyTimes().Return(project, nil)
 			})
@@ -47,7 +47,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]string{"name": project.Name}),
+			getValidTestCase(map[string]interface{}{"name": project.Name}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
 			})
