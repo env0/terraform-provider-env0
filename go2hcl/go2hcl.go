@@ -72,14 +72,15 @@ func toHclField(name string, value interface{}, indentLevel uint) (string, error
 func toHclValue(value interface{}, indentLevel uint) (string, error) {
 	reflectedType := reflect.TypeOf(value)
 	switch reflectedType.Kind() {
-	case reflect.Int:
+	case reflect.String:
+		return fmt.Sprintf("\"%v\"", reflect.ValueOf(value).Interface()), nil
+	case reflect.Bool:
+		return fmt.Sprintf("%v", reflect.ValueOf(value).Interface()), nil
+	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8,
+		reflect.Uint, reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8:
 		return fmt.Sprintf("%v", reflect.ValueOf(value).Interface()), nil
 	case reflect.Float32, reflect.Float64:
 		return fmt.Sprintf("%v", reflect.ValueOf(value).Interface()), nil
-	case reflect.Bool:
-		return fmt.Sprintf("%v", reflect.ValueOf(value).Interface()), nil
-	case reflect.String:
-		return fmt.Sprintf("\"%v\"", reflect.ValueOf(value).Interface()), nil
 	case reflect.Slice, reflect.Array:
 		listValues := reflect.ValueOf(value)
 		var hclValues []string
@@ -109,6 +110,6 @@ func toHclValue(value interface{}, indentLevel uint) (string, error) {
 		indentation := strings.Repeat("\t", int(indentLevel))
 		return fmt.Sprintf("{\n%s\n%s}", mapContent, indentation), nil
 	default:
-		return "", errors.New("can't convert value to hcl")
+		return "", errors.New(`can't convert {reflectedType.Name()} value to hcl`)
 	}
 }

@@ -3,6 +3,7 @@ package env0
 import (
 	"errors"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/go2hcl"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
@@ -12,7 +13,7 @@ import (
 func TestUnitConfigurationVariableResource_Create(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
-	accessor := resourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.ResourceAccessor(resourceType, resourceName)
 	configVar := client.ConfigurationVariable{
 		Id:    "id0",
 		Name:  "name0",
@@ -22,7 +23,7 @@ func TestUnitConfigurationVariableResource_Create(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -56,7 +57,7 @@ func TestUnitConfigurationVariableResource_CreateWrongType(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 					"type":  configVar.Type,
@@ -83,7 +84,7 @@ func TestUnitConfigurationVariableResource_ReadWrongApiClientError(t *testing.T)
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -112,7 +113,7 @@ func TestUnitConfigurationVariableResource_ReadWrongNotFound(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -141,7 +142,7 @@ func TestUnitConfigurationVariableResource_CreateApiClientError(t *testing.T) {
 	createTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -159,7 +160,7 @@ func TestUnitConfigurationVariableResource_CreateApiClientError(t *testing.T) {
 func TestUnitConfigurationVariableResource_Update(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
-	accessor := resourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.ResourceAccessor(resourceType, resourceName)
 	configVar := client.ConfigurationVariable{
 		Id:    "id0",
 		Name:  "name0",
@@ -174,7 +175,7 @@ func TestUnitConfigurationVariableResource_Update(t *testing.T) {
 	updateTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -185,7 +186,7 @@ func TestUnitConfigurationVariableResource_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  newConfigVar.Name,
 					"value": newConfigVar.Value,
 				}),
@@ -214,7 +215,7 @@ func TestUnitConfigurationVariableResource_Update(t *testing.T) {
 func TestUnitConfigurationVariableResource_UpdateWrongType(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
-	accessor := resourceAccessor(resourceType, resourceName)
+	accessor := go2hcl.ResourceAccessor(resourceType, resourceName)
 	configVar := client.ConfigurationVariable{
 		Id:    "id0",
 		Name:  "name0",
@@ -230,7 +231,7 @@ func TestUnitConfigurationVariableResource_UpdateWrongType(t *testing.T) {
 	updateTestCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  configVar.Name,
 					"value": configVar.Value,
 				}),
@@ -241,7 +242,7 @@ func TestUnitConfigurationVariableResource_UpdateWrongType(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: go2hcl.ResourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  newConfigVar.Name,
 					"value": newConfigVar.Value,
 					"type":  newConfigVar.Type,
