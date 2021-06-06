@@ -59,6 +59,7 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
 						resource.TestCheckResourceAttr(resourceFullName, "revision", template.Revision),
 						resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 						resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
 						resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
 						resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
