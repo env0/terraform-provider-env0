@@ -75,9 +75,9 @@ func getResourceId(credentialId string, projectId string) string {
 func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*client.ApiClient)
 
-	credential_id := d.Get("credential_id").(string)
+	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	err := apiClient.RemoveCloudCredentialsFromProject(credential_id, projectId)
+	err := apiClient.RemoveCloudCredentialsFromProject(credentialId, projectId)
 	if err != nil {
 		return diag.Errorf("could not delete cloud credentials from project: %v", err)
 	}
