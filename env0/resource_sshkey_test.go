@@ -9,7 +9,7 @@ import (
 func TestUnitSshKeyResource(t *testing.T) {
 	resourceType := "env0_ssh_key"
 	resourceName := "test"
-	resourceFullName := resourceAccessor(resourceType, resourceName)
+	accessor := resourceAccessor(resourceType, resourceName)
 	sshKey := client.SshKey{
 		Id:    "id0",
 		Name:  "name0",
@@ -19,14 +19,14 @@ func TestUnitSshKeyResource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, map[string]string{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"name":  sshKey.Name,
 					"value": sshKey.Value,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceFullName, "id", sshKey.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "name", sshKey.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "value", sshKey.Value),
+					resource.TestCheckResourceAttr(accessor, "id", sshKey.Id),
+					resource.TestCheckResourceAttr(accessor, "name", sshKey.Name),
+					resource.TestCheckResourceAttr(accessor, "value", sshKey.Value),
 				),
 			},
 		},

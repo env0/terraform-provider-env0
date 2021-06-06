@@ -38,7 +38,7 @@ func dataProject() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Description: "textual description of the project",
-				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

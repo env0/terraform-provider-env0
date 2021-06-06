@@ -7,7 +7,7 @@ resource "env0_template" "test_template" {
   name        = "Test-Template"
   description = "test template"
   type        = "terraform"
-  repository  = "https://github.com/shlomimatichin/env0-template-jupyter-gpu"
+  repository  = "https://github.com/env0/templates"
 }
 
 resource "env0_project" "test_project" {
