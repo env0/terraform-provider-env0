@@ -32,7 +32,7 @@ func resourceCloudCredentialsProjectAssignment() *schema.Resource {
 }
 
 func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
@@ -45,7 +45,7 @@ func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *sch
 }
 
 func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
@@ -73,7 +73,7 @@ func getResourceId(credentialId string, projectId string) string {
 }
 
 func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(*client.ApiClient)
+	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
