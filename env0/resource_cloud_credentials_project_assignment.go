@@ -77,7 +77,7 @@ func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *sch
 
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
-	err := apiClient.RemoveCloudCredentialsFromProject(credentialId, projectId)
+	err := apiClient.RemoveCloudCredentialsFromProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not delete cloud credentials from project: %v", err)
 	}

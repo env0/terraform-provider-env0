@@ -10,7 +10,7 @@ func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, credent
 	return result, nil
 }
 
-func (self *ApiClient) RemoveCloudCredentialsFromProject(credentialId string, projectId string) error {
+func (self *ApiClient) RemoveCloudCredentialsFromProject(projectId string, credentialId string) error {
 	return self.http.Delete("/credentials/deployment/" + credentialId + "/project/" + projectId)
 }
 
