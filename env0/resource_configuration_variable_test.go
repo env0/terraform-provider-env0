@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
+func TestUnitConfigurationVariableResource_Create(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -43,7 +43,7 @@ func TestUnitConfigurationVariableResourceCreate(t *testing.T) {
 	})
 }
 
-func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
+func TestUnitConfigurationVariableResource_CreateWrongType(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	configVar := client.ConfigurationVariable{
@@ -71,7 +71,7 @@ func TestUnitConfigurationVariableResourceCreateWrongType(t *testing.T) {
 	})
 }
 
-func TestUnitConfigurationVariableResourceReadWrongApiClientError(t *testing.T) {
+func TestUnitConfigurationVariableResource_ReadWrongApiClientError(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	configVar := client.ConfigurationVariable{
@@ -100,7 +100,7 @@ func TestUnitConfigurationVariableResourceReadWrongApiClientError(t *testing.T) 
 	})
 }
 
-func TestUnitConfigurationVariableResourceReadWrongNotFound(t *testing.T) {
+func TestUnitConfigurationVariableResource_ReadWrongNotFound(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	configVar := client.ConfigurationVariable{
@@ -129,7 +129,7 @@ func TestUnitConfigurationVariableResourceReadWrongNotFound(t *testing.T) {
 	})
 }
 
-func TestUnitConfigurationVariableResourceCreateApiClientError(t *testing.T) {
+func TestUnitConfigurationVariableResource_CreateApiClientError(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	configVar := client.ConfigurationVariable{
@@ -156,7 +156,7 @@ func TestUnitConfigurationVariableResourceCreateApiClientError(t *testing.T) {
 	})
 }
 
-func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
+func TestUnitConfigurationVariableResource_Update(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -211,7 +211,7 @@ func TestUnitConfigurationVariableResourceUpdate(t *testing.T) {
 	})
 }
 
-func TestUnitConfigurationVariableResourceUpdateWrongType(t *testing.T) {
+func TestUnitConfigurationVariableResource_UpdateWrongType(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
