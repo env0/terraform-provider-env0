@@ -62,7 +62,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 				Delete("/credentials/deployment/" + credentialId + "/project/" + projectId).
 				Return(errors.New(errorInfo)).
 				Times(1)
-			actualError = apiClient.RemoveCloudCredentialsFromProject(credentialId, projectId)
+			actualError = apiClient.RemoveCloudCredentialsFromProject(projectId, credentialId)
 
 		})
 
