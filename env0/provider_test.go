@@ -22,7 +22,7 @@ var (
 
 var testUnitProviders = map[string]func() (*schema.Provider, error){
 	"env0": func() (*schema.Provider, error) {
-		provider := Provider()
+		provider := Provider("")()
 		provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			return apiClientMock, nil
 		}
@@ -49,7 +49,7 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().InternalValidate(); err != nil {
+	if err := Provider("")().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
@@ -74,12 +74,12 @@ func testMissingEnvVar(t *testing.T, envVars map[string]string, expectedKey stri
 		defer os.Setenv(key, "")
 	}
 
-	diags := Provider().Validate(&terraform.ResourceConfig{})
+	diags := Provider("")().Validate(&terraform.ResourceConfig{})
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
 func testMissingConfig(t *testing.T, config map[string]interface{}, expectedKey string) {
-	diags := Provider().Validate(terraform.NewResourceConfigRaw(config))
+	diags := Provider("")().Validate(terraform.NewResourceConfigRaw(config))
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
