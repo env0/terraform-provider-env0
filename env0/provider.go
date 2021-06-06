@@ -9,59 +9,70 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() *schema.Provider {
-	return &schema.Provider{
-		Schema: map[string]*schema.Schema{
-			"api_endpoint": {
-				Type:        schema.TypeString,
-				Description: "override api endpoint (used for testing)",
-				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
-				Optional:    true,
+func Provider(version string) func() *schema.Provider {
+	return func() *schema.Provider {
+		provider := &schema.Provider{
+			Schema: map[string]*schema.Schema{
+				"api_endpoint": {
+					Type:        schema.TypeString,
+					Description: "override api endpoint (used for testing)",
+					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
+					Optional:    true,
+				},
+				"api_key": {
+					Type:        schema.TypeString,
+					Description: "env0 api key (https://docs.env0.com/reference#authentication)",
+					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
+					Required:    true,
+					Sensitive:   true,
+				},
+				"api_secret": {
+					Type:        schema.TypeString,
+					Description: "env0 api key secret",
+					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_SECRET", nil),
+					Required:    true,
+					Sensitive:   true,
+				},
 			},
-			"api_key": {
-				Type:        schema.TypeString,
-				Description: "env0 api key (https://docs.env0.com/reference#authentication)",
-				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
-				Required:    true,
-				Sensitive:   true,
+			DataSourcesMap: map[string]*schema.Resource{
+				"env0_organization":           dataOrganization(),
+				"env0_project":                dataProject(),
+				"env0_configuration_variable": dataConfigurationVariable(),
+				"env0_template":               dataTemplate(),
+				"env0_ssh_key":                dataSshKey(),
+				"env0_aws_credentials":        dataAwsCredentials(),
 			},
-			"api_secret": {
-				Type:        schema.TypeString,
-				Description: "env0 api key secret",
-				DefaultFunc: schema.EnvDefaultFunc("ENV0_API_SECRET", nil),
-				Required:    true,
-				Sensitive:   true,
+			ResourcesMap: map[string]*schema.Resource{
+				"env0_project":                              resourceProject(),
+				"env0_configuration_variable":               resourceConfigurationVariable(),
+				"env0_template":                             resourceTemplate(),
+				"env0_ssh_key":                              resourceSshKey(),
+				"env0_aws_credentials":                      resourceAwsCredentials(),
+				"env0_template_project_assignment":          resourceTemplateProjectAssignment(),
+				"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
 			},
-		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"env0_organization":           dataOrganization(),
-			"env0_project":                dataProject(),
-			"env0_configuration_variable": dataConfigurationVariable(),
-			"env0_template":               dataTemplate(),
-			"env0_ssh_key":                dataSshKey(),
-			"env0_aws_credentials":        dataAwsCredentials(),
-		},
-		ResourcesMap: map[string]*schema.Resource{
-			"env0_project":                              resourceProject(),
-			"env0_configuration_variable":               resourceConfigurationVariable(),
-			"env0_template":                             resourceTemplate(),
-			"env0_ssh_key":                              resourceSshKey(),
-			"env0_aws_credentials":                      resourceAwsCredentials(),
-			"env0_template_project_assignment":          resourceTemplateProjectAssignment(),
-			"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
-		},
-		ConfigureContextFunc: configureProvider,
+		}
+
+		provider.ConfigureContextFunc = configureProvider(version, provider)
+		return provider
 	}
 }
 
-func configureProvider(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	apiKey := d.Get("api_key")
-	apiSecret := d.Get("api_secret")
+func configureProvider(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	userAgent := p.UserAgent("terraform-provider-env0", version)
 
-	httpClient, err := http.NewHttpClient(apiKey.(string), apiSecret.(string), d.Get("api_endpoint").(string), resty.New())
-	if err != nil {
-		return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
+	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		httpClient, err := http.NewHttpClient(http.HttpClientConfig{
+			ApiKey:      d.Get("api_key").(string),
+			ApiSecret:   d.Get("api_secret").(string),
+			ApiEndpoint: d.Get("api_endpoint").(string),
+			UserAgent:   userAgent,
+			RestClient:  resty.New(),
+		})
+		if err != nil {
+			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
+		}
+
+		return client.NewApiClient(httpClient), nil
 	}
-
-	return client.NewApiClient(httpClient), nil
 }
