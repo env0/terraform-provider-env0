@@ -38,17 +38,8 @@ func TestUnitTemplateData(t *testing.T) {
 		GithubInstallationId: 123,
 	}
 
-	templateByName := map[string]string{
-		"name": template.Name,
-	}
-
-	templateById := map[string]string{
-		"id": template.Id,
-	}
-
-	runScenario := func(input map[string]string, mockFunc func(mockFunc *client.MockApiClientInterface)) {
-		testCase := resource.TestCase{
-			ProviderFactories: testUnitProviders,
+	getValidTestCase := func(input map[string]string) resource.TestCase {
+		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: dataSourceConfigCreate(resourceType, resourceName, input),
@@ -71,16 +62,21 @@ func TestUnitTemplateData(t *testing.T) {
 				},
 			},
 		}
-
-		runUnitTest(t, testCase, mockFunc)
 	}
 
-	runScenario(templateByName, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template}, nil)
+	t.Run("Template By ID", func(t *testing.T) {
+		runUnitTest(t,
+			getValidTestCase(map[string]string{"id": template.Id}),
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
+			})
 	})
 
-	runScenario(templateById, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
+	t.Run("Template By Name", func(t *testing.T) {
+		runUnitTest(t,
+			getValidTestCase(map[string]string{"name": template.Name}),
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template}, nil)
+			})
 	})
-
 }
