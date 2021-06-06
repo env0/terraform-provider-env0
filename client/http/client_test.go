@@ -29,15 +29,24 @@ const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
 const ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
-
+const UserAgent = "super-cool-ua"
 const ErrorStatusCode = 500
 const ErrorMessage = "Very bad!"
+
 var httpclient *httpModule.HttpClient
 
 var _ = BeforeSuite(func() {
 	// mock all HTTP requests
 	restClient := resty.New()
-	httpclient, _ = httpModule.NewHttpClient(ApiKey, ApiSecret, BaseUrl, restClient)
+
+	config := httpModule.HttpClientConfig{
+		ApiKey:      ApiKey,
+		ApiSecret:   ApiSecret,
+		ApiEndpoint: BaseUrl,
+		UserAgent:   UserAgent,
+		RestClient:  restClient,
+	}
+	httpclient, _ = httpModule.NewHttpClient(config)
 	httpmock.ActivateNonDefault(restClient.GetClient())
 })
 
@@ -58,7 +67,7 @@ func TestHttpClient(t *testing.T) {
 var _ = Describe("Http Client", func() {
 	var httpRequest *http.Request
 
-	mockRequest := RequestBody {
+	mockRequest := RequestBody{
 		Message: "I have a request",
 	}
 	mockedResponse := ResponseType{
@@ -69,7 +78,6 @@ var _ = Describe("Http Client", func() {
 	failureURI := "/path/to/failure"
 	successUrl := BaseUrl + successURI
 	failureUrl := BaseUrl + failureURI
-	
 
 	AssertAuth := func() {
 		authorization := httpRequest.Header["Authorization"]
@@ -82,19 +90,19 @@ var _ = Describe("Http Client", func() {
 	}
 
 	AssertError := func(err error) {
-		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode) + ": " + ErrorMessage), "Should return error message")
+		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode)+": "+ErrorMessage), "Should return error message")
 	}
 
 	AssertHttpCall := func(method string, url string) {
 		methodAndUrl := method + " " + url
 		// Validate call happened once
 		callMap := httpmock.GetCallCountInfo()
-		Expect(callMap[methodAndUrl]).Should(Equal(1), "Should call " + methodAndUrl)
+		Expect(callMap[methodAndUrl]).Should(Equal(1), "Should call "+methodAndUrl)
 
 		// Validate no other call happened
 		delete(callMap, methodAndUrl)
 		for unexpectedCall, amount := range callMap {
-			Expect(amount).To(BeZero(), "Should not call " + unexpectedCall)
+			Expect(amount).To(BeZero(), "Should not call "+unexpectedCall)
 		}
 	}
 
@@ -123,7 +131,7 @@ var _ = Describe("Http Client", func() {
 			})
 			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
 				httpRequest = req
-				return httpmock.NewStringResponse(ErrorStatusCode,  ErrorMessage), nil
+				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
 			})
 		}
 	})
