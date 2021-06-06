@@ -25,11 +25,6 @@ func TestUnitTemplateData(t *testing.T) {
 		OnDestroy: &retryOnDestroy,
 	}
 
-	sshKey := client.TemplateSshKey{
-		Id:   "id0",
-		Name: "ssh-name",
-	}
-
 	template := client.Template{
 		Id:                   "id0",
 		Name:                 "name0",
@@ -38,7 +33,6 @@ func TestUnitTemplateData(t *testing.T) {
 		Revision:             "revision",
 		Type:                 "terraform",
 		TerraformVersion:     "0.15.1",
-		SshKeys:              []client.TemplateSshKey{sshKey},
 		Retry:                templateRetry,
 		ProjectIds:           []string{"pId1", "pId2", "pId3"},
 		GithubInstallationId: 123,
