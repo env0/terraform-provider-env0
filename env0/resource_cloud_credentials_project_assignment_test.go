@@ -63,3 +63,29 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource_CreateApiProb(t *
 		mock.EXPECT().AssignCloudCredentialsToProject(assignment.ProjectId, assignment.CredentialId).Times(1).Return(client.CloudCredentialsProjectAssignment{}, errors.New("err"))
 	})
 }
+func TestUnitResourceCloudCredentialsProjectAssignmentResource_ReadApiProb(t *testing.T) {
+	resourceType := "env0_cloud_credentials_project_assignment"
+	resourceName := "test"
+	assignment := client.CloudCredentialsProjectAssignment{
+		CredentialId: "cred-it",
+		ProjectId:    "proj-it",
+	}
+
+	createTestCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"credential_id": assignment.CredentialId,
+					"project_id":    assignment.ProjectId,
+				}),
+				ExpectError: regexp.MustCompile(`(could not get cloud_credentials:)`),
+			},
+		},
+	}
+
+	runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().AssignCloudCredentialsToProject(assignment.ProjectId, assignment.CredentialId).Times(1).Return(assignment, nil)
+		mock.EXPECT().CloudCredentialIdsInProject(assignment.ProjectId).Times(1).Return([]string{}, errors.New("err"))
+		mock.EXPECT().RemoveCloudCredentialsFromProject(assignment.ProjectId, assignment.CredentialId).Times(1).Return(nil)
+	})
+}
