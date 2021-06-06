@@ -34,7 +34,7 @@ func TestUnitTemplateData(t *testing.T) {
 		Type:                 "terraform",
 		TerraformVersion:     "0.15.1",
 		Retry:                templateRetry,
-		ProjectIds:           []string{"pId1", "pId2", "pId3"},
+		ProjectIds:           []string{"pId1", "pId2"},
 		GithubInstallationId: 123,
 	}
 
@@ -66,7 +66,6 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
 						resource.TestCheckResourceAttr(resourceFullName, "project_ids.0", template.ProjectIds[0]),
 						resource.TestCheckResourceAttr(resourceFullName, "project_ids.1", template.ProjectIds[1]),
-						
 					),
 				},
 			},
