@@ -34,7 +34,10 @@ var _ = Describe("Project", func() {
 					*response = mockProject
 				})
 
-			project, _ = apiClient.ProjectCreate(projectName, projectDescription)
+			project, _ = apiClient.ProjectCreate(ProjectCreatePayload{
+				Name:        projectName,
+				Description: projectDescription,
+			})
 		})
 
 		It("Should get organization id", func() {
@@ -64,7 +67,7 @@ var _ = Describe("Project", func() {
 	Describe("ProjectUpdate", func() {
 		var mockedResponse Project
 		BeforeEach(func() {
-			payload := UpdateProjectPayload{
+			payload := ProjectCreatePayload{
 				Name:        "newName",
 				Description: "newDesc",
 			}
