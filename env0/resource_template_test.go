@@ -63,7 +63,6 @@ func TestUnitTemplateResourceFull(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fullTemplateResourceConfig(resourceType, resourceName, template),
@@ -123,7 +122,6 @@ func TestUnitTemplateResourceBasic(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: basicTemplateResourceConfig(resourceType, resourceName, template),
@@ -157,7 +155,6 @@ func TestUnitTemplateResourceInvalidType(t *testing.T) {
 	}
 
 	testCase := resource.TestCase{
-		ProviderFactories: testUnitProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
