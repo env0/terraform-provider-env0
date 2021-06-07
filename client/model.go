@@ -39,20 +39,20 @@ type ProjectCreatePayload struct {
 }
 
 type ConfigurationVariableSchema struct {
-	Type string   `json:"string"`
+	Type string   `json:"type"`
 	Enum []string `json:"enum"`
 }
 
 type ConfigurationVariable struct {
-	ScopeId        string                      `json:"scopId"`
+	ScopeId        string                      `json:"scopeId"`
 	Value          string                      `json:"value"`
 	OrganizationId string                      `json:"organizationId"`
 	UserId         string                      `json:"userId"`
 	IsSensitive    bool                        `json:"isSensitive"`
-	Scope          string                      `json:"scope"`
+	Scope          Scope                       `json:"scope"`
 	Id             string                      `json:"id"`
 	Name           string                      `json:"name"`
-	Type           int64                       `json:"type"`
+	Type           ConfigurationVariableType   `json:"type"`
 	Schema         ConfigurationVariableSchema `json:"schema"`
 }
 
