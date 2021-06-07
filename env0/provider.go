@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
