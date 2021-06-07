@@ -12,17 +12,17 @@ func TestUnitTemplateData(t *testing.T) {
 	resourceType := "env0_template"
 	resourceName := "test"
 	resourceFullName := dataSourceAccessor(resourceType, resourceName)
-	retryOnDeploy := client.TemplateRetryOn{
+	onDeploy := client.TemplateRetryOn{
 		Times:      2,
 		ErrorRegex: "error retry on deploy",
 	}
-	retryOnDestroy := client.TemplateRetryOn{
+	onDestroy := client.TemplateRetryOn{
 		Times:      3,
 		ErrorRegex: "error retry on destroy",
 	}
 	templateRetry := client.TemplateRetry{
-		OnDeploy:  &retryOnDeploy,
-		OnDestroy: &retryOnDestroy,
+		OnDeploy:  onDeploy,
+		OnDestroy: onDestroy,
 	}
 
 	template := client.Template{
