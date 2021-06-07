@@ -214,27 +214,11 @@ func TestUnitTemplateResourceSshKeys(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: sshKeyTemplateResourceConfig(template.Name, template.Repository, initialSshKey1, initialSshKey2),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.id", initialSshKey1.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.name", initialSshKey1.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.id", initialSshKey2.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.name", initialSshKey2.Name),
-				),
+				Check:  sshTemplateResourceCheck(resourceFullName, template, initialSshKey1, initialSshKey2),
 			},
 			{
 				Config: sshKeyTemplateResourceConfig(template.Name, template.Repository, updatedSshKey1, updatedSshKey2),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceFullName, "id", updatedTemplate.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "name", updatedTemplate.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "repository", updatedTemplate.Repository),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.id", updatedSshKey1.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.name", updatedSshKey1.Name),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.id", updatedSshKey2.Id),
-					resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.name", updatedSshKey2.Name),
-				),
+				Check:  sshTemplateResourceCheck(resourceFullName, updatedTemplate, updatedSshKey1, updatedSshKey2),
 			},
 		},
 	}
@@ -276,6 +260,18 @@ func fullTemplateResourceCheck(resourceFullName string, template client.Template
 		resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 		resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
 		resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+	)
+}
+
+func sshTemplateResourceCheck(resourceFullName string, template client.Template, sshKey1 client.TemplateSshKey, sshKey2 client.TemplateSshKey) resource.TestCheckFunc {
+	return resource.ComposeAggregateTestCheckFunc(
+		resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
+		resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
+		resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
+		resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.id", sshKey1.Id),
+		resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.name", sshKey1.Name),
+		resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.id", sshKey2.Id),
+		resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.1.name", sshKey2.Name),
 	)
 }
 
