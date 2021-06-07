@@ -1,8 +1,11 @@
 package env0
 
 import (
+	"errors"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"regexp"
 	"strconv"
 	"testing"
 )
@@ -24,33 +27,68 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		Schema:         client.ConfigurationVariableSchema{Type: "string"},
 	}
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
-		return resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, input),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", configurationVariable.Id),
-						resource.TestCheckResourceAttr(accessor, "name", configurationVariable.Name),
-						resource.TestCheckResourceAttr(accessor, "type", strconv.Itoa(int(configurationVariable.Type))),
-						//resource.TestCheckResourceAttr(accessor, "project_id", strconv.FormatBool(configurationVariable)),
-						//resource.TestCheckResourceAttr(accessor, "template_id", strconv.FormatBool(configurationVariable.)),
-						//resource.TestCheckResourceAttr(accessor, "environment_id", strconv.FormatBool(configurationVariable.)),
-						//resource.TestCheckResourceAttr(accessor, "deployment_log_id", strconv.FormatBool(configurationVariable.)),
-						resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
-						resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
-						resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(configurationVariable.IsSensitive)),
-					),
+	checkResources := resource.ComposeAggregateTestCheckFunc(
+		resource.TestCheckResourceAttr(accessor, "id", configurationVariable.Id),
+		resource.TestCheckResourceAttr(accessor, "name", configurationVariable.Name),
+		resource.TestCheckResourceAttr(accessor, "type", "environment"),
+		resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
+		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
+		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(configurationVariable.IsSensitive)),
+	)
+
+	t.Run("ScopeGlobal", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id}),
+						Check: checkResources,
+					},
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": configurationVariable.Name}),
+						Check: checkResources,
+					},
+					{
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
+						ExpectError: regexp.MustCompile("Could not find variable"),
+					},
 				},
 			},
-		}
-	}
-
-	t.Run("By id", func(t *testing.T) {
-		runUnitTest(t,
-			getValidTestCase(map[string]interface{}{"id": configurationVariable.Id}),
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().Return(configurationVariable, nil)
+				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+					Return([]client.ConfigurationVariable{configurationVariable}, nil)
+			})
+	})
+
+	t.Run("ScopeTemplate", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id, "template_id": "template_id"}),
+						Check: checkResources,
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariables(client.ScopeTemplate, "template_id").AnyTimes().
+					Return([]client.ConfigurationVariable{configurationVariable}, nil)
+			})
+	})
+
+	t.Run("configuration variable not exists in the server", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
+						ExpectError: regexp.MustCompile("Could not query variables"),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+					Return(nil, errors.New("not found"))
 			})
 	})
 }
