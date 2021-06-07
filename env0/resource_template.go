@@ -130,36 +130,43 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 		}
 	}
 	onDeployRetries, hasRetriesOnDeploy := d.GetOk("retries_on_deploy")
+	var onDeploy *client.TemplateRetryOn = nil
+	var onDestroy *client.TemplateRetryOn = nil
 	if hasRetriesOnDeploy {
-		if result.Retry == nil {
-			result.Retry = &client.TemplateRetry{}
-		}
-		result.Retry.OnDeploy = &client.TemplateRetryOn{
+		onDeploy = &client.TemplateRetryOn{
 			Times: onDeployRetries.(int),
 		}
 	}
-	if retryOnDeployOnlyIfMatchesRegex, ok := d.GetOk("retry_on_deploy_only_if_matches_regex"); ok {
+	if retryOnDeployOnlyIfMatchesRegex, ok := d.GetOk("retry_on_deploy_only_when_matches_regex"); ok {
 		if !hasRetriesOnDeploy {
-			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_deploy_only_if_matches_regex'")
+			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_deploy_only_when_matches_regex'")
 		}
-		result.Retry.OnDeploy.ErrorRegex = retryOnDeployOnlyIfMatchesRegex.(string)
+		onDeploy.ErrorRegex = retryOnDeployOnlyIfMatchesRegex.(string)
 	}
 
 	onDestroyRetries, hasRetriesOnDestroy := d.GetOk("retries_on_destroy")
 	if hasRetriesOnDestroy {
-		if result.Retry == nil {
-			result.Retry = &client.TemplateRetry{}
-		}
-		result.Retry.OnDestroy = &client.TemplateRetryOn{
+		onDestroy = &client.TemplateRetryOn{
 			Times: onDestroyRetries.(int),
 		}
 	}
-	if retryOnDestroyOnlyIfMatchesRegex, ok := d.GetOk("retry_on_destroy_only_if_matches_regex"); ok {
+	if retryOnDestroyOnlyIfMatchesRegex, ok := d.GetOk("retry_on_destroy_only_when_matches_regex"); ok {
 		if !hasRetriesOnDestroy {
-			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_destroy_only_if_matches_regex'")
+			return client.TemplateCreatePayload{}, diag.Errorf("may only specify 'retry_on_destroy_only_when_matches_regex'")
 		}
-		result.Retry.OnDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
+		onDestroy.ErrorRegex = retryOnDestroyOnlyIfMatchesRegex.(string)
 	}
+
+	if onDeploy != nil || onDestroy != nil {
+		result.Retry = client.TemplateRetry{}
+		if onDeploy != nil {
+			result.Retry.OnDeploy = *onDeploy
+		}
+		if onDestroy != nil {
+			result.Retry.OnDestroy = *onDestroy
+		}
+	}
+
 	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
 		result.TerraformVersion = terraformVersion.(string)
 	}
@@ -206,14 +213,14 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	d.Set("ssh_keys", rawSshKeys)
 
-	if template.Retry.OnDeploy != nil {
+	if (template.Retry.OnDeploy != client.TemplateRetryOn{}) {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
 	} else {
 		d.Set("retries_on_deploy", 0)
 		d.Set("retry_on_deploy_only_when_matches_regex", "")
 	}
-	if template.Retry.OnDestroy != nil {
+	if (template.Retry.OnDestroy != client.TemplateRetryOn{}) {
 		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
 		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
 	} else {

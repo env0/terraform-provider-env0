@@ -80,8 +80,8 @@ type TemplateRetryOn struct {
 }
 
 type TemplateRetry struct {
-	OnDeploy  *TemplateRetryOn `json:"onDeploy,omitempty"`
-	OnDestroy *TemplateRetryOn `json:"onDestroy,omitempty"`
+	OnDeploy  TemplateRetryOn `json:"onDeploy,omitempty"`
+	OnDestroy TemplateRetryOn `json:"onDestroy,omitempty"`
 }
 
 type TemplateType string
@@ -97,7 +97,7 @@ type TemplateSshKey struct {
 }
 
 type TemplateCreatePayload struct {
-	Retry                *TemplateRetry   `json:"retry,omitempty"`
+	Retry                TemplateRetry   `json:"retry,omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
 	Type                 TemplateType     `json:"type"`
 	Description          string           `json:"description"`
