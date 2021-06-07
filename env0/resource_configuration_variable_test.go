@@ -64,6 +64,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		})
 	})
+
 	t.Run("Read with wrong api error", func(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -81,6 +82,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
 	t.Run("Read not found", func(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -98,6 +100,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
 	t.Run("Create api client error", func(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -113,6 +116,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 				nil).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 		})
 	})
+
 	t.Run("Update", func(t *testing.T) {
 		newConfigVar := client.ConfigurationVariable{
 			Id:    configVar.Id,
@@ -159,6 +163,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
 	t.Run("Update with wrong type", func(t *testing.T) {
 		newConfigVar := client.ConfigurationVariable{
 			Id:    configVar.Id,
