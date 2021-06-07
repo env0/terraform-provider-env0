@@ -27,7 +27,7 @@ var _ = Describe("Models", func() {
 	})
 
 	Describe("ConfigurationVariable", func() {
-		Describe("Deserialize", func() {
+		Describe("Schema", func() {
 			It("On schema type is free text, enum should be nil", func() {
 				var parsedPayload ConfigurationVariable
 				json.Unmarshal([]byte(`{"schema": {"type": "string"}}`), &parsedPayload)
@@ -43,5 +43,13 @@ var _ = Describe("Models", func() {
 			})
 		})
 
+		Describe("Enums", func() {
+			It("Should convert enums correctly", func() {
+				var parsedPayload ConfigurationVariable
+				json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
+				Expect(parsedPayload.Scope).Should(Equal(ScopeProject))
+				Expect(parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
+			})
+		})
 	})
 })
