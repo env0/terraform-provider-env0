@@ -103,7 +103,7 @@ func TestUnitTemplateResourceFull(t *testing.T) {
 			Retry:                updatedTemplate.Retry,
 			TerraformVersion:     updatedTemplate.TerraformVersion,
 		}).Times(1).Return(updatedTemplate, nil)
-		mock.EXPECT().TemplateDelete(template.Id).Return(nil)
+		mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
 	})
 }
 
@@ -146,7 +146,7 @@ func TestUnitTemplateResourceBasic(t *testing.T) {
 			Type:             defaultType,
 			TerraformVersion: defaultVersion,
 		}).Times(1).Return(template, nil)
-		mock.EXPECT().TemplateDelete(template.Id).Return(nil)
+		mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
 	})
 }
 
@@ -242,7 +242,7 @@ func TestUnitTemplateResourceSshKeys(t *testing.T) {
 			TerraformVersion: defaultVersion,
 			SshKeys:          updatedTemplate.SshKeys,
 		}).Times(1).Return(updatedTemplate, nil)
-		mock.EXPECT().TemplateDelete(template.Id).Return(nil)
+		mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
 	})
 }
 
