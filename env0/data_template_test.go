@@ -38,7 +38,7 @@ func TestUnitTemplateData(t *testing.T) {
 		GithubInstallationId: 123,
 	}
 
-	getValidTestCase := func(input map[string]string) resource.TestCase {
+	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -66,7 +66,7 @@ func TestUnitTemplateData(t *testing.T) {
 
 	t.Run("Template By ID", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]string{"id": template.Id}),
+			getValidTestCase(map[string]interface{}{"id": template.Id}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
 			})
@@ -74,7 +74,7 @@ func TestUnitTemplateData(t *testing.T) {
 
 	t.Run("Template By Name", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]string{"name": template.Name}),
+			getValidTestCase(map[string]interface{}{"name": template.Name}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template}, nil)
 			})
