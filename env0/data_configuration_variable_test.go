@@ -48,10 +48,6 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": configurationVariable.Name}),
 						Check: checkResources,
 					},
-					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
-						ExpectError: regexp.MustCompile("Could not find variable"),
-					},
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
@@ -89,6 +85,22 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
 					Return(nil, errors.New("not found"))
+			})
+	})
+
+	t.Run("configuration variable not match to name", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
+						ExpectError: regexp.MustCompile("Could not find variable"),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})
 }
