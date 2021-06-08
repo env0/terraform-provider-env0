@@ -41,36 +41,69 @@ func TestProjectDataSource(t *testing.T) {
 		}
 	}
 
+	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+		return resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      dataSourceConfigCreate(resourceType, resourceName, input),
+					ExpectError: regexp.MustCompile(expectedError),
+				},
+			},
+		}
+	}
+
+	mockGetProjectCall := func(returnValue client.Project) func(mockFunc *client.MockApiClientInterface) {
+		return func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Project(project.Id).AnyTimes().Return(returnValue, nil)
+		}
+	}
+
+	mockListProjectsCall := func(returnValue []client.Project) func(mockFunc *client.MockApiClientInterface) {
+		return func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Projects().AnyTimes().Return(returnValue, nil)
+		}
+	}
+
 	t.Run("By ID", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(projectDataById),
-			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Project(project.Id).AnyTimes().Return(project, nil)
-			})
+			mockGetProjectCall(project),
+		)
 	})
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(projectDataByName),
-			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project}, nil)
-			})
+			mockListProjectsCall([]client.Project{project}),
+		)
+	})
+
+	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+			func(mock *client.MockApiClientInterface) {},
+		)
 	})
 
 	t.Run("Throw error when by name and more than one project exists", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      dataSourceConfigCreate(resourceType, resourceName, projectDataByName),
-					ExpectError: regexp.MustCompile(`Found multiple Projects for name`),
-				},
-			},
-		}
-
 		runUnitTest(t,
-			testCase,
-			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{project, project}, nil)
-			})
+			getErrorTestCase(projectDataByName, "Found multiple Projects for name"),
+			mockListProjectsCall([]client.Project{project, project}),
+		)
+	})
+
+	t.Run("Throw error when by name and no projects found at all", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(projectDataByName, "Could not find a project with name"),
+			mockListProjectsCall([]client.Project{}),
+		)
+	})
+
+	t.Run("Throw error when by name and no projects found with that name", func(t *testing.T) {
+		projectWithOtherName := map[string]interface{}{"name": "other-name"}
+		runUnitTest(t,
+			getErrorTestCase(projectWithOtherName, "Could not find a project with name"),
+			mockListProjectsCall([]client.Project{project, project}),
+		)
 	})
 }
