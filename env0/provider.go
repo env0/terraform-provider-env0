@@ -2,15 +2,15 @@ package env0
 
 import (
 	"context"
-
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )
 
-func Provider(version string) func() *schema.Provider {
+func Provider(version string) plugin.ProviderFunc {
 	return func() *schema.Provider {
 		provider := &schema.Provider{
 			Schema: map[string]*schema.Schema{
@@ -59,7 +59,7 @@ func Provider(version string) func() *schema.Provider {
 	}
 }
 
-func configureProvider(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func configureProvider(version string, p *schema.Provider) schema.ConfigureContextFunc {
 	userAgent := p.UserAgent("terraform-provider-env0", version)
 
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
