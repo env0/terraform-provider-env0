@@ -23,11 +23,19 @@ type HttpClient struct {
 	client    *resty.Client
 }
 
-func NewHttpClient(apiKey string, apiSecret string, apiEndpoint string, restClient *resty.Client) (*HttpClient, error) {
+type HttpClientConfig struct {
+	ApiKey      string
+	ApiSecret   string
+	ApiEndpoint string
+	UserAgent   string
+	RestClient  *resty.Client
+}
+
+func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	return &HttpClient{
-		ApiKey:    apiKey,
-		ApiSecret: apiSecret,
-		client:    restClient.SetHostURL(apiEndpoint),
+		ApiKey:    config.ApiKey,
+		ApiSecret: config.ApiSecret,
+		client:    config.RestClient.SetHostURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}, nil
 }
 
