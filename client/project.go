@@ -22,14 +22,14 @@ func (self *ApiClient) Project(id string) (Project, error) {
 	return result, nil
 }
 
-func (self *ApiClient) ProjectCreate(name string, description string) (Project, error) {
+func (self *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, error) {
 	var result Project
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return Project{}, err
 	}
 
-	request := map[string]interface{}{"name": name, "organizationId": organizationId, "description": description}
+	request := map[string]interface{}{"name": payload.Name, "organizationId": organizationId, "description": payload.Description}
 	err = self.http.Post("/projects", request, &result)
 	if err != nil {
 		return Project{}, err
@@ -41,7 +41,7 @@ func (self *ApiClient) ProjectDelete(id string) error {
 	return self.http.Delete("/projects/" + id)
 }
 
-func (self *ApiClient) ProjectUpdate(id string, payload UpdateProjectPayload) (Project, error) {
+func (self *ApiClient) ProjectUpdate(id string, payload ProjectCreatePayload) (Project, error) {
 	var result Project
 	err := self.http.Put("/projects/"+id, payload, &result)
 

@@ -20,8 +20,8 @@ type ApiClientInterface interface {
 	organizationId() (string, error)
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
-	ProjectCreate(name string, description string) (Project, error)
-	ProjectUpdate(id string, payload UpdateProjectPayload) (Project, error)
+	ProjectCreate(payload ProjectCreatePayload) (Project, error)
+	ProjectUpdate(id string, payload ProjectCreatePayload) (Project, error)
 	ProjectDelete(id string) error
 	Template(id string) (Template, error)
 	Templates() ([]Template, error)
@@ -38,7 +38,7 @@ type ApiClientInterface interface {
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
 	AwsCredentialsDelete(id string) error
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
-	RemoveCloudCredentialsFromProject(credentialId string, projectId string) error
+	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
 }
 

@@ -110,9 +110,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("value", variable.Value)
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
-	if variable.Type == int64(client.ConfigurationVariableTypeEnvironment) {
+	if variable.Type == client.ConfigurationVariableTypeEnvironment {
 		d.Set("type", "environment")
-	} else if variable.Type == int64(client.ConfigurationVariableTypeTerraform) {
+	} else if variable.Type == client.ConfigurationVariableTypeTerraform {
 		d.Set("type", "terraform")
 	} else {
 		return diag.Errorf("Unknown variable type: %d", int(variable.Type))
@@ -154,16 +154,16 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 	id, idOk := params.Id, params.Id != ""
 	name, nameOk := params.Name, params.Name != ""
 	typeString, ok := params.configurationType, params.configurationType != ""
-	type_ := int64(-1)
+	type_ := -1
 	if ok {
 		if !nameOk {
 			return client.ConfigurationVariable{}, diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
 		}
 		switch typeString {
 		case "environment":
-			type_ = int64(client.ConfigurationVariableTypeEnvironment)
+			type_ = int(client.ConfigurationVariableTypeEnvironment)
 		case "terraform":
-			type_ = int64(client.ConfigurationVariableTypeTerraform)
+			type_ = int(client.ConfigurationVariableTypeTerraform)
 		default:
 			return client.ConfigurationVariable{}, diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString)
 		}
@@ -176,7 +176,7 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 		}
 		if nameOk && candidate.Name == name {
 			if type_ != -1 {
-				if candidate.Type != type_ {
+				if int(candidate.Type) != type_ {
 					continue
 				}
 			}

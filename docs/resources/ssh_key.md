@@ -33,7 +33,7 @@ resource "env0_ssh_key" "tested" {
 ### Required
 
 - **name** (String) name to give the ssh key
-- **value** (String) value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)
+- **value** (String, Sensitive) value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)
 
 ### Optional
 

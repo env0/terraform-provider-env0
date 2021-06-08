@@ -33,26 +33,26 @@ type Project struct {
 	Description    string `json:"description"`
 }
 
-type UpdateProjectPayload struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+type ProjectCreatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type ConfigurationVariableSchema struct {
-	Type string   `json:"string"`
+	Type string   `json:"type"`
 	Enum []string `json:"enum"`
 }
 
 type ConfigurationVariable struct {
-	ScopeId        string                      `json:"scopId"`
+	ScopeId        string                      `json:"scopeId"`
 	Value          string                      `json:"value"`
 	OrganizationId string                      `json:"organizationId"`
 	UserId         string                      `json:"userId"`
 	IsSensitive    bool                        `json:"isSensitive"`
-	Scope          string                      `json:"scope"`
+	Scope          Scope                       `json:"scope"`
 	Id             string                      `json:"id"`
 	Name           string                      `json:"name"`
-	Type           int64                       `json:"type"`
+	Type           ConfigurationVariableType   `json:"type"`
 	Schema         ConfigurationVariableSchema `json:"schema"`
 }
 
@@ -80,8 +80,8 @@ type TemplateRetryOn struct {
 }
 
 type TemplateRetry struct {
-	OnDeploy  *TemplateRetryOn `json:"onDeploy,omitempty"`
-	OnDestroy *TemplateRetryOn `json:"onDestroy,omitempty"`
+	OnDeploy  TemplateRetryOn `json:"onDeploy,omitempty"`
+	OnDestroy TemplateRetryOn `json:"onDestroy,omitempty"`
 }
 
 type TemplateType string
@@ -97,7 +97,7 @@ type TemplateSshKey struct {
 }
 
 type TemplateCreatePayload struct {
-	Retry                *TemplateRetry   `json:"retry,omitempty"`
+	Retry                TemplateRetry   `json:"retry,omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
 	Type                 TemplateType     `json:"type"`
 	Description          string           `json:"description"`

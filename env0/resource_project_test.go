@@ -4,6 +4,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"regexp"
 	"testing"
 )
 
@@ -52,8 +53,11 @@ func TestUnitProjectResource(t *testing.T) {
 	}
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().ProjectCreate(project.Name, project.Description).Times(1).Return(project, nil)
-		mock.EXPECT().ProjectUpdate(updatedProject.Id, client.UpdateProjectPayload{
+		mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+			Name:        project.Name,
+			Description: project.Description,
+		}).Times(1).Return(project, nil)
+		mock.EXPECT().ProjectUpdate(updatedProject.Id, client.ProjectCreatePayload{
 			Name:        updatedProject.Name,
 			Description: updatedProject.Description,
 		}).Times(1).Return(updatedProject, nil)
@@ -65,4 +69,17 @@ func TestUnitProjectResource(t *testing.T) {
 
 		mock.EXPECT().ProjectDelete(project.Id).Times(1)
 	})
+}
+
+func TestUnitProjectInvalidParams(t *testing.T) {
+	testCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate("env0_project", "test", map[string]interface{}{"name": ""}),
+				ExpectError: regexp.MustCompile("Project name cannot be empty"),
+			},
+		},
+	}
+
+	runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
 }
