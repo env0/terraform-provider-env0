@@ -24,7 +24,7 @@ data "env0_project" "project" {
 }
 
 resource "env0_cloud_credentials_project_assignment" "example" {
-  credential_id = data.env0_aws_credentials.credentials.id
+  credential_id = env0_aws_credentials.credentials.id
   project_id = data.env0_project.project.id
 }
 ```
