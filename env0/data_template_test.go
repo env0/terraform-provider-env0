@@ -21,8 +21,8 @@ func TestUnitTemplateData(t *testing.T) {
 		ErrorRegex: "error retry on destroy",
 	}
 	templateRetry := client.TemplateRetry{
-		OnDeploy:  onDeploy,
-		OnDestroy: onDestroy,
+		OnDeploy:  &onDeploy,
+		OnDestroy: &onDestroy,
 	}
 
 	template := client.Template{

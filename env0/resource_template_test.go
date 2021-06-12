@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestUnitTeplateResource(t *testing.T) {
+func TestUnitTemplateResource(t *testing.T) {
 	const resourceType = "env0_template"
 	const resourceName = "test"
 	const defaultVersion = "0.15.1"
@@ -27,11 +27,11 @@ func TestUnitTeplateResource(t *testing.T) {
 			Path:        "path/zero",
 			Revision:    "branch-zero",
 			Retry: client.TemplateRetry{
-				OnDeploy: client.TemplateRetryOn{
+				OnDeploy: &client.TemplateRetryOn{
 					Times:      2,
 					ErrorRegex: "RetryMeForDeploy.*",
 				},
-				OnDestroy: client.TemplateRetryOn{
+				OnDestroy: &client.TemplateRetryOn{
 					Times:      1,
 					ErrorRegex: "RetryMeForDestroy.*",
 				},
@@ -49,11 +49,11 @@ func TestUnitTeplateResource(t *testing.T) {
 			Path:        "path/zero/new",
 			Revision:    "branch-zero-new",
 			Retry: client.TemplateRetry{
-				OnDeploy: client.TemplateRetryOn{
+				OnDeploy: &client.TemplateRetryOn{
 					Times:      1,
 					ErrorRegex: "NewForDeploy.*",
 				},
-				OnDestroy: client.TemplateRetryOn{
+				OnDestroy: &client.TemplateRetryOn{
 					Times:      2,
 					ErrorRegex: "NewForDestroy.*",
 				},
