@@ -112,14 +112,14 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
-	if (template.Retry.OnDeploy != client.TemplateRetryOn{}) {
+	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
 	} else {
 		d.Set("retries_on_deploy", 0)
 		d.Set("retry_on_deploy_only_when_matches_regex", "")
 	}
-	if (template.Retry.OnDestroy != client.TemplateRetryOn{}) {
+	if template.Retry.OnDestroy != nil {
 		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
 		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
 	} else {
