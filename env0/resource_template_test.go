@@ -312,4 +312,49 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("Invalid retry times field", func(t *testing.T) {
+		testMatrix := map[string][]int{
+			"retries_on_deploy":  {-1, 0, 4, 5},
+			"retries_on_destroy": {-1, 0, 4, 5},
+		}
+
+		var testCases []resource.TestCase
+		for attribute, amounts := range testMatrix {
+			for _, amount := range amounts {
+				testCases = append(testCases, resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", attribute: amount}),
+							ExpectError: regexp.MustCompile("Retries amount must be between 1 and 3"),
+						},
+					},
+				})
+			}
+		}
+
+		for _, testCase := range testCases {
+			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+		}
+	})
+
+	t.Run("Invalid retry regex field", func(t *testing.T) {
+		testMatrix := map[string]string{
+			"retries_on_deploy":  "retry_on_deploy_only_when_matches_regex",
+			"retries_on_destroy": "retry_on_destroy_only_when_matches_regex",
+		}
+
+		var testCases []resource.TestCase
+		for timesAttribute, regexAttribute := range testMatrix {
+			testCases = append(testCases, resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", regexAttribute: "bla"}),
+						ExpectError: regexp.MustCompile(fmt.Sprintf("`%s,%s` must be specified", timesAttribute, regexAttribute)),
+					},
+				},
+			})
+		}
+
+	})
 }
