@@ -42,11 +42,11 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id}),
-						Check: checkResources,
+						Check:  checkResources,
 					},
 					{
 						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": configurationVariable.Name}),
-						Check: checkResources,
+						Check:  checkResources,
 					},
 				},
 			},
@@ -62,7 +62,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id, "template_id": "template_id"}),
-						Check: checkResources,
+						Check:  checkResources,
 					},
 				},
 			},
