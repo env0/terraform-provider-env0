@@ -76,12 +76,12 @@ const (
 
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`
-	ErrorRegex string `json:"errorRegex,omitempty"`
+	ErrorRegex string `json:"errorRegex"`
 }
 
 type TemplateRetry struct {
-	OnDeploy  TemplateRetryOn `json:"onDeploy,omitempty"`
-	OnDestroy TemplateRetryOn `json:"onDestroy,omitempty"`
+	OnDeploy  *TemplateRetryOn `json:"onDeploy"`
+	OnDestroy *TemplateRetryOn `json:"onDestroy"`
 }
 
 type TemplateType string
@@ -97,7 +97,7 @@ type TemplateSshKey struct {
 }
 
 type TemplateCreatePayload struct {
-	Retry                TemplateRetry   `json:"retry,omitempty"`
+	Retry                TemplateRetry    `json:"retry"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
 	Type                 TemplateType     `json:"type"`
 	Description          string           `json:"description"`
