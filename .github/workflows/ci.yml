@@ -15,6 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Go fmt
-        run: ! go fmt ./... 2>&1 | read
+        run: |
+            ! go fmt ./... 2>&1 | read
       - name: Go Test
         run: go test -v ./...
