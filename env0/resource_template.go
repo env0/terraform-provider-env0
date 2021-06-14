@@ -5,12 +5,22 @@ import (
 	"errors"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
 func resourceTemplate() *schema.Resource {
+	validateRetries := func(i interface{}, path cty.Path) diag.Diagnostics {
+		retries := i.(int)
+		if retries < 1 || retries > 3 {
+			return diag.Errorf("Retries amount must be between 1 and 3")
+		}
+
+		return nil
+	}
+
 	return &schema.Resource{
 		CreateContext: resourceTemplateCreate,
 		ReadContext:   resourceTemplateRead,
@@ -61,24 +71,28 @@ func resourceTemplate() *schema.Resource {
 				},
 			},
 			"retries_on_deploy": {
-				Type:        schema.TypeInt,
-				Description: "number of times to retry when deploying an environment based on this template",
-				Optional:    true,
+				Type:             schema.TypeInt,
+				Description:      "number of times to retry when deploying an environment based on this template",
+				Optional:         true,
+				ValidateDiagFunc: validateRetries,
 			},
 			"retry_on_deploy_only_when_matches_regex": {
-				Type:        schema.TypeString,
-				Description: "if specified, will only retry (on deploy) if error matches specified regex",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on deploy) if error matches specified regex",
+				Optional:     true,
+				RequiredWith: []string{"retries_on_deploy"},
 			},
 			"retries_on_destroy": {
-				Type:        schema.TypeInt,
-				Description: "number of times to retry when destroying an environment based on this template",
-				Optional:    true,
+				Type:             schema.TypeInt,
+				Description:      "number of times to retry when destroying an environment based on this template",
+				Optional:         true,
+				ValidateDiagFunc: validateRetries,
 			},
 			"retry_on_destroy_only_when_matches_regex": {
-				Type:        schema.TypeString,
-				Description: "if specified, will only retry (on destroy) if error matches specified regex",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on destroy) if error matches specified regex",
+				Optional:     true,
+				RequiredWith: []string{"retries_on_destroy"},
 			},
 			"github_installation_id": {
 				Type:        schema.TypeInt,
@@ -160,10 +174,10 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if onDeploy != nil || onDestroy != nil {
 		result.Retry = client.TemplateRetry{}
 		if onDeploy != nil {
-			result.Retry.OnDeploy = *onDeploy
+			result.Retry.OnDeploy = onDeploy
 		}
 		if onDestroy != nil {
-			result.Retry.OnDestroy = *onDestroy
+			result.Retry.OnDestroy = onDestroy
 		}
 	}
 
@@ -213,14 +227,14 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	d.Set("ssh_keys", rawSshKeys)
 
-	if (template.Retry.OnDeploy != client.TemplateRetryOn{}) {
+	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
 	} else {
 		d.Set("retries_on_deploy", 0)
 		d.Set("retry_on_deploy_only_when_matches_regex", "")
 	}
-	if (template.Retry.OnDestroy != client.TemplateRetryOn{}) {
+	if template.Retry.OnDestroy != nil {
 		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
 		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
 	} else {
