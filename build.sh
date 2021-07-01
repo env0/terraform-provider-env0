@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env sh
+
 set -e
 go fmt
 (cd env0 && go fmt)
