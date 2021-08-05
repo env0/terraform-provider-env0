@@ -136,9 +136,13 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if gitlabProjectId, ok := d.GetOk("gitlab_project_id"); ok {
 		result.GitlabProjectId = gitlabProjectId.(int)
 	}
-	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
-		result.GithubInstallationId = githubInstallationId.(int)
+
+	if result.GithubInstallationId != 0 && result.GitlabTokenId != 0 {
+		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set gitlab_token_id and github_installation_id")
+	} else {
+		result.IsGitlab = result.GitlabTokenId != 0
 	}
+
 	if path, ok := d.GetOk("path"); ok {
 		result.Path = path.(string)
 	}
