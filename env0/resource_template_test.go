@@ -162,7 +162,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				},
 			},
 			Type:             "terraform",
-			GitlabTokenId:    1,
+			TokenId:          "1",
 			GitlabProjectId:  1,
 			TerraformVersion: "0.12.24",
 		}
@@ -185,7 +185,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				},
 			},
 			Type:             "terragrunt",
-			GitlabTokenId:    2,
+			TokenId:          "2",
 			GitlabProjectId:  2,
 			TerraformVersion: "0.15.1",
 		}
@@ -202,7 +202,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
 				resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
 				resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
-				resource.TestCheckResourceAttr(resourceFullName, "gitlab_token_id", strconv.Itoa(template.GitlabTokenId)),
+				resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId),
 				resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId)),
 				resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			)
@@ -220,9 +220,9 @@ func TestUnitTemplateResource(t *testing.T) {
 				"retry_on_deploy_only_when_matches_regex":  template.Retry.OnDeploy.ErrorRegex,
 				"retries_on_destroy":                       template.Retry.OnDestroy.Times,
 				"retry_on_destroy_only_when_matches_regex": template.Retry.OnDestroy.ErrorRegex,
-				"gitlab_token_id":                          template.GitlabTokenId,
-				"gitlab_project_id":                        template.GitlabProjectId,
-				"terraform_version":                        template.TerraformVersion,
+				"token_id":          template.TokenId,
+				"gitlab_project_id": template.GitlabProjectId,
+				"terraform_version": template.TerraformVersion,
 			})
 		}
 
@@ -248,7 +248,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Name:             template.Name,
 				Repository:       template.Repository,
 				Description:      template.Description,
-				GitlabTokenId:    template.GitlabTokenId,
+				TokenId:          template.TokenId,
 				GitlabProjectId:  template.GitlabProjectId,
 				IsGitlab:         true,
 				Path:             template.Path,
@@ -261,7 +261,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Name:             updatedTemplate.Name,
 				Repository:       updatedTemplate.Repository,
 				Description:      updatedTemplate.Description,
-				GitlabTokenId:    updatedTemplate.GitlabTokenId,
+				TokenId:          updatedTemplate.TokenId,
 				GitlabProjectId:  updatedTemplate.GitlabProjectId,
 				IsGitlab:         true,
 				Path:             updatedTemplate.Path,
@@ -497,8 +497,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCases = append(testCases, resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "gitlab_token_id": 2}),
-					ExpectError: regexp.MustCompile("Cannot set gitlab_token_id and github_installation_id for the same template"),
+					Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}),
+					ExpectError: regexp.MustCompile("Cannot set token_id and github_installation_id for the same template"),
 				},
 			},
 		})

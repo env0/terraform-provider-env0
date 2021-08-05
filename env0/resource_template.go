@@ -130,17 +130,17 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
 		result.GithubInstallationId = githubInstallationId.(int)
 	}
-	if gitlabTokenId, ok := d.GetOk("gitlab_token_id"); ok {
-		result.GitlabTokenId = gitlabTokenId.(int)
+	if tokenId, ok := d.GetOk("token_id"); ok {
+		result.TokenId = tokenId.(string)
 	}
 	if gitlabProjectId, ok := d.GetOk("gitlab_project_id"); ok {
 		result.GitlabProjectId = gitlabProjectId.(int)
 	}
 
-	if result.GithubInstallationId != 0 && result.GitlabTokenId != 0 {
-		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set gitlab_token_id and github_installation_id for the same template")
+	if result.GithubInstallationId != 0 && result.TokenId != "" {
+		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set token_id and github_installation_id for the same template")
 	} else {
-		result.IsGitlab = result.GitlabTokenId != 0
+		result.IsGitlab = result.TokenId != ""
 	}
 
 	if path, ok := d.GetOk("path"); ok {
@@ -238,7 +238,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("name", template.Name)
 	d.Set("description", template.Description)
 	d.Set("github_installation_id", template.GithubInstallationId)
-	d.Set("gitlab_token_id", template.GitlabTokenId)
+	d.Set("token_id", template.TokenId)
 	d.Set("gitlab_project_id", template.GitlabProjectId)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
