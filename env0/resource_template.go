@@ -99,8 +99,8 @@ func resourceTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
-			"gitlab_token_id": {
-				Type:        schema.TypeInt,
+			"token_id": {
+				Type:        schema.TypeString,
 				Description: "The env0 application token id on the relevant gitlab account",
 				Optional:    true,
 			},
