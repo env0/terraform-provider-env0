@@ -99,6 +99,16 @@ func resourceTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"gitlab_token_id": {
+				Type:        schema.TypeInt,
+				Description: "The env0 application token id on the relevant gitlab account",
+				Optional:    true,
+			},
+			"gitlab_project_id": {
+				Type:        schema.TypeInt,
+				Description: "The project id of the relevant repository",
+				Optional:    true,
+			},
 			"terraform_version": {
 				Type:        schema.TypeString,
 				Description: "Terraform version to use",
@@ -116,6 +126,15 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	}
 	if description, ok := d.GetOk("description"); ok {
 		result.Description = description.(string)
+	}
+	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
+		result.GithubInstallationId = githubInstallationId.(int)
+	}
+	if gitlabTokenId, ok := d.GetOk("gitlab_token_id"); ok {
+		result.GitlabTokenId = gitlabTokenId.(int)
+	}
+	if gitlabProjectId, ok := d.GetOk("gitlab_project_id"); ok {
+		result.GitlabProjectId = gitlabProjectId.(int)
 	}
 	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
 		result.GithubInstallationId = githubInstallationId.(int)

@@ -108,6 +108,8 @@ type TemplateCreatePayload struct {
 	TokenName            string           `json:"tokenName"`
 	TokenId              string           `json:"tokenId"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
+	GitlabTokenId        int              `json:"gitlabTokenId,omitempty"`
+	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
