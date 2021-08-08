@@ -143,6 +143,8 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	if template.TokenId != "" {
 		d.Set("token_id", template.TokenId)
+	}
+	if template.GitlabProjectId != 0 {
 		d.Set("gitlab_project_id", template.GitlabProjectId)
 	}
 
