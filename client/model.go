@@ -106,7 +106,7 @@ type TemplateCreatePayload struct {
 	Path                 string           `json:"path"`
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
-	TokenId              string           `json:"tokenId"`
+	TokenId              string           `json:"tokenId,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
