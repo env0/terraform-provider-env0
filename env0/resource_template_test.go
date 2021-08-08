@@ -163,7 +163,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			},
 			Type:             "terraform",
 			TokenId:          "1",
-			GitlabProjectId:  1,
+			GitlabProjectId:  10,
 			TerraformVersion: "0.12.24",
 		}
 
