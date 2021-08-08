@@ -112,7 +112,6 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
-	IsGitlab             bool             `json:"IsGitlab"`
 }
 
 type TemplateAssignmentToProjectPayload struct {

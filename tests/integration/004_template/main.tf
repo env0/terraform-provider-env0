@@ -15,6 +15,20 @@ resource "env0_template" "tested1" {
   terraform_version                       = "0.15.1"
 }
 
+resource "env0_template" "tested2" {
+  name                                    = "GitLab Test"
+  description                             = "Tested 2 description - Gitlab"
+  type                                    = "terraform"
+  repository                              = "https://gitlab.com/eran.elbaz/templates.git"
+  token_id                                = "6be35256-b685-4e92-8f6b-a332f5832c06"
+  gitlab_project_id                       = 28713760
+  path                                    = var.second_run ? "second" : "misc/null-resource"
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
+  terraform_version                       = "0.15.1"
+}
+
 resource "env0_configuration_variable" "in_a_template" {
   name        = "fake_key"
   value       = "fake value"
@@ -29,8 +43,14 @@ resource "env0_configuration_variable" "in_a_template2" {
 }
 
 data "env0_template" "tested2" {
-  depends_on = [env0_template.tested1]
-  name       = "tested1"
+  depends_on = [
+  env0_template.tested1]
+  name = "tested1"
+}
+data "env0_template" "tested1" {
+  depends_on = [
+  env0_template.tested2]
+  name = "GitLab Test"
 }
 output "tested2_template_id" {
   value = data.env0_template.tested2.id
@@ -43,6 +63,9 @@ output "tested2_template_name" {
 }
 output "tested2_template_repository" {
   value = data.env0_template.tested2.repository
+}
+output "tested1_template_repository" {
+  value = data.env0_template.tested1.repository
 }
 output "tested2_template_path" {
   value = data.env0_template.tested2.path

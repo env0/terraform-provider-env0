@@ -140,7 +140,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if result.GithubInstallationId != 0 && result.TokenId != "" {
 		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set token_id and github_installation_id for the same template")
 	} else {
-		result.IsGitlab = result.TokenId != ""
+		result.IsGitLab = result.TokenId != ""
 	}
 
 	if path, ok := d.GetOk("path"); ok {
