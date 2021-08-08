@@ -24,8 +24,10 @@ data "env0_template" "example" {
 ### Optional
 
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
+- **gitlab_project_id** (Number) The project id of the relevant repository
 - **id** (String) id of the template
 - **name** (String) the name of the template
+- **token_id** (String) The token id used for private git repos or for integration with GitLab
 
 ### Read-Only
 

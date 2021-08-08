@@ -47,6 +47,7 @@ resource "env0_template_project_assignment" "assignment" {
 
 - **description** (String) description for the template
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
+- **gitlab_project_id** (Number) The project id of the relevant repository
 - **id** (String) The ID of this resource.
 - **path** (String) terraform / terragrunt file folder inside source code
 - **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
@@ -56,6 +57,7 @@ resource "env0_template_project_assignment" "assignment" {
 - **revision** (String) source code revision (branch / tag) to use
 - **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - **terraform_version** (String) Terraform version to use
+- **token_id** (String) The token id used for private git repos or for integration with GitLab
 - **type** (String) 'terraform' or 'terragrunt'
 
 ## Import

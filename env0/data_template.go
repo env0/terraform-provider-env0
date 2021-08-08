@@ -79,6 +79,16 @@ func dataTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"token_id": {
+				Type:        schema.TypeString,
+				Description: "The token id used for private git repos or for integration with GitLab",
+				Optional:    true,
+			},
+			"gitlab_project_id": {
+				Type:        schema.TypeInt,
+				Description: "The project id of the relevant repository",
+				Optional:    true,
+			},
 			"terraform_version": {
 				Type:        schema.TypeString,
 				Description: "terraform version to use",
@@ -129,6 +139,13 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	if template.GithubInstallationId != 0 {
 		d.Set("github_installation_id", template.GithubInstallationId)
+	}
+
+	if template.TokenId != "" {
+		d.Set("token_id", template.TokenId)
+	}
+	if template.GitlabProjectId != 0 {
+		d.Set("gitlab_project_id", template.GitlabProjectId)
 	}
 
 	return nil

@@ -99,6 +99,16 @@ func resourceTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
+			"token_id": {
+				Type:        schema.TypeString,
+				Description: "The token id used for private git repos or for integration with GitLab",
+				Optional:    true,
+			},
+			"gitlab_project_id": {
+				Type:        schema.TypeInt,
+				Description: "The project id of the relevant repository",
+				Optional:    true,
+			},
 			"terraform_version": {
 				Type:        schema.TypeString,
 				Description: "Terraform version to use",
@@ -120,6 +130,23 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if githubInstallationId, ok := d.GetOk("github_installation_id"); ok {
 		result.GithubInstallationId = githubInstallationId.(int)
 	}
+	if tokenId, ok := d.GetOk("token_id"); ok {
+		result.TokenId = tokenId.(string)
+	}
+	if gitlabProjectId, ok := d.GetOk("gitlab_project_id"); ok {
+		result.GitlabProjectId = gitlabProjectId.(int)
+	}
+
+	if result.GitlabProjectId != 0 && result.TokenId == "" {
+		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set gitlab_project_id without token_id")
+	}
+
+	if result.GithubInstallationId != 0 && result.TokenId != "" {
+		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set token_id and github_installation_id for the same template")
+	} else {
+		result.IsGitLab = result.TokenId != ""
+	}
+
 	if path, ok := d.GetOk("path"); ok {
 		result.Path = path.(string)
 	}
@@ -215,6 +242,8 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("name", template.Name)
 	d.Set("description", template.Description)
 	d.Set("github_installation_id", template.GithubInstallationId)
+	d.Set("token_id", template.TokenId)
+	d.Set("gitlab_project_id", template.GitlabProjectId)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
