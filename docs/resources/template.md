@@ -57,7 +57,7 @@ resource "env0_template_project_assignment" "assignment" {
 - **revision** (String) source code revision (branch / tag) to use
 - **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - **terraform_version** (String) Terraform version to use
-- **token_id** (String) The token id used for private git repos or for integration with GitLab
+- **token_id** (String) The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - **type** (String) 'terraform' or 'terragrunt'
 
 ## Import
