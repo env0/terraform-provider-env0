@@ -101,7 +101,7 @@ func resourceTemplate() *schema.Resource {
 			},
 			"token_id": {
 				Type:        schema.TypeString,
-				Description: "The token id used for private git repos or for integration with GitLab, you can get this value by using data resource of an existing Gitlab template or contact our support team",
+				Description: "The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
 				Optional:    true,
 			},
 			"gitlab_project_id": {
