@@ -7,6 +7,7 @@ require (
 	github.com/golang/mock v1.4.3
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
+	github.com/hashicorp/terraform-json v0.12.0 // indirect
 	github.com/hashicorp/terraform-plugin-docs v0.4.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.4
 	github.com/jarcoal/httpmock v1.0.8
