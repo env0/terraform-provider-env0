@@ -116,11 +116,16 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
-	var enumValues []string = nil
-	if specified, ok := d.GetOk("enum_values"); ok {
-		enumValues = specified.([]string)
+	var enumValues []interface{} = nil
+	var actualEnumValues []string = nil
+	if specified, ok := d.GetOk("enum"); ok {
+		enumValues = specified.([]interface{})
+		for _, val := range enumValues {
+			actualEnumValues = append(actualEnumValues, val.(string))
+		}
 	}
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, enumValues)
+
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}

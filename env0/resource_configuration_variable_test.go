@@ -2,6 +2,7 @@ package env0
 
 import (
 	"errors"
+	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -41,6 +42,34 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
 				nil).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+	t.Run("Create Enum", func(t *testing.T) {
+		stepConfig := fmt.Sprintf(`
+	resource "%s" "test" {
+		name = "%s"
+		value= "%s"
+		enum = ["a","b"]
+	}`, resourceType, configVar.Name, configVar.Value)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
+				[]string{"a", "b"}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
