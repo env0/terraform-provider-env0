@@ -79,11 +79,11 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"enum": {
 				Type:        schema.TypeList,
-				Description: "limit possible values to values from this list",
+				Description: "possible values of this variable",
 				Computed:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
-					Description: "name to give the configuration variable",
+					Description: "the configuration variable option",
 				},
 			},
 		},

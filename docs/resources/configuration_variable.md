@@ -19,7 +19,7 @@ resource "env0_configuration_variable" "example" {
 }
 
 resource "env0_configuration_variable" "drop_down" {
-  name  = "ENVIRONMENT_VARIABLE_NAME"
+  name  = "ENVIRONMENT_VARIABLE_DROP_DOWN"
   value = "first option"
   enum  = [
     "first option",

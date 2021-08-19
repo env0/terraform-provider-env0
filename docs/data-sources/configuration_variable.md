@@ -37,7 +37,7 @@ output "aws_default_region" {
 
 ### Read-Only
 
-- **enum** (List of String) limit possible values to values from this list
+- **enum** (List of String) possible values of this variable
 - **is_sensitive** (Boolean) is the variable defined as sensitive
 - **scope** (String) scope of the variable
 - **value** (String) value stored in the variable
