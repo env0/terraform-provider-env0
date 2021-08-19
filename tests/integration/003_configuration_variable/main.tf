@@ -32,3 +32,28 @@ data "env0_configuration_variable" "tested1" {
   depends_on = [env0_configuration_variable.tested1]
 }
 
+output "tested1_value" {
+  value = data.env0_configuration_variable.tested1.value
+}
+
+data "env0_configuration_variable" "tested2" {
+  id = env0_configuration_variable.tested1.id
+}
+
+resource "env0_configuration_variable" "tested3" {
+  name  = "tested3"
+  value = "First"
+  enum  = ["First", "Second"]
+}
+data "env0_configuration_variable" "tested3" {
+  name       = "tested3"
+  depends_on = [env0_configuration_variable.tested3]
+}
+
+
+output "tested3_enum_1" {
+  value = data.env0_configuration_variable.tested3.enum[0]
+}
+output "tested3_enum_2" {
+  value = data.env0_configuration_variable.tested3.enum[1]
+}
