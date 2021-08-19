@@ -161,6 +161,9 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			} else {
 				d.Set("type", "environment")
 			}
+			if len(variable.Schema.Enum) > 0 {
+				d.Set("enum", variable.Schema.Enum)
+			}
 			return nil
 		}
 	}
@@ -185,11 +188,22 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
-	var enumValues []string = nil
-	if specified, ok := d.GetOk("enum_values"); ok {
-		enumValues = specified.([]string)
+	var enumValues []interface{} = nil
+	var actualEnumValues []string = nil
+	if specified, ok := d.GetOk("enum"); ok {
+		enumValues = specified.([]interface{})
+		var valueExists = false
+		for _, val := range enumValues {
+			actualEnumValues = append(actualEnumValues, val.(string))
+			if val == value {
+				valueExists = true
+			}
+		}
+		if !valueExists {
+			return diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
+		}
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, enumValues)
+	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}

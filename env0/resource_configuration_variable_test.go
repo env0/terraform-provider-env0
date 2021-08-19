@@ -47,12 +47,21 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		})
 	})
 	t.Run("Create Enum", func(t *testing.T) {
+		configVar := client.ConfigurationVariable{
+			Id:    "id0",
+			Name:  "name0",
+			Value: "Variable",
+			Schema: client.ConfigurationVariableSchema{
+				Type: "string",
+				Enum: []string{"Variable", "a"},
+			},
+		}
 		stepConfig := fmt.Sprintf(`
 	resource "%s" "test" {
 		name = "%s"
 		value= "%s"
-		enum = ["%s","b"]
-	}`, resourceType, configVar.Name, configVar.Value, configVar.Value)
+		enum = ["%s","%s"]
+	}`, resourceType, configVar.Name, configVar.Value, configVar.Schema.Enum[0], configVar.Schema.Enum[1])
 
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -62,6 +71,8 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "enum.0", configVar.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "enum.1", configVar.Schema.Enum[1]),
 					),
 				},
 			},
@@ -69,7 +80,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				[]string{"a", "b"}).Times(1).Return(configVar, nil)
+				configVar.Schema.Enum).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
