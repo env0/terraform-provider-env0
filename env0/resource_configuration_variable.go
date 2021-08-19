@@ -116,6 +116,22 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
+	actualEnumValues, getEnumErr := getEnum(d, value)
+	if getEnumErr != nil {
+		return getEnumErr
+	}
+
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
+	if err != nil {
+		return diag.Errorf("could not create configurationVariable: %v", err)
+	}
+
+	d.SetId(configurationVariable.Id)
+
+	return nil
+}
+
+func getEnum(d *schema.ResourceData, value string) ([]string, diag.Diagnostics) {
 	var enumValues []interface{} = nil
 	var actualEnumValues []string = nil
 	if specified, ok := d.GetOk("enum"); ok {
@@ -128,18 +144,10 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 			}
 		}
 		if !valueExists {
-			return diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
+			return nil, diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
 		}
 	}
-
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
-	if err != nil {
-		return diag.Errorf("could not create configurationVariable: %v", err)
-	}
-
-	d.SetId(configurationVariable.Id)
-
-	return nil
+	return actualEnumValues, nil
 }
 
 func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -188,20 +196,9 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
-	var enumValues []interface{} = nil
-	var actualEnumValues []string = nil
-	if specified, ok := d.GetOk("enum"); ok {
-		enumValues = specified.([]interface{})
-		var valueExists = false
-		for _, val := range enumValues {
-			actualEnumValues = append(actualEnumValues, val.(string))
-			if val == value {
-				valueExists = true
-			}
-		}
-		if !valueExists {
-			return diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
-		}
+	actualEnumValues, getEnumErr := getEnum(d, value)
+	if getEnumErr != nil {
+		return getEnumErr
 	}
 	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
 	if err != nil {
