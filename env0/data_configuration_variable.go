@@ -77,6 +77,15 @@ func dataConfigurationVariable() *schema.Resource {
 				Description: "scope of the variable",
 				Computed:    true,
 			},
+			"enum": {
+				Type:        schema.TypeList,
+				Description: "limit possible values to values from this list",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "name to give the configuration variable",
+				},
+			},
 		},
 	}
 }
@@ -110,6 +119,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("value", variable.Value)
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
+	d.Set("enum", variable.Schema.Enum)
 	if variable.Type == client.ConfigurationVariableTypeEnvironment {
 		d.Set("type", "environment")
 	} else if variable.Type == client.ConfigurationVariableTypeTerraform {
