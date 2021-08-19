@@ -131,20 +131,20 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func getEnum(d *schema.ResourceData, value string) ([]string, diag.Diagnostics) {
+func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagnostics) {
 	var enumValues []interface{} = nil
 	var actualEnumValues []string = nil
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
 		var valueExists = false
-		for _, val := range enumValues {
-			actualEnumValues = append(actualEnumValues, val.(string))
-			if val == value {
+		for _, enumValue := range enumValues {
+			actualEnumValues = append(actualEnumValues, enumValue.(string))
+			if enumValue == selectedValue {
 				valueExists = true
 			}
 		}
 		if !valueExists {
-			return nil, diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
+			return nil, diag.Errorf("selectedValue - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
 		}
 	}
 	return actualEnumValues, nil
