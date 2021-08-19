@@ -51,8 +51,8 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 	resource "%s" "test" {
 		name = "%s"
 		value= "%s"
-		enum = ["a","b"]
-	}`, resourceType, configVar.Name, configVar.Value)
+		enum = ["%s","b"]
+	}`, resourceType, configVar.Name, configVar.Value, configVar.Value)
 
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -73,6 +73,24 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
+	})
+	t.Run("Create Enum with wrong value", func(t *testing.T) {
+		stepConfig := fmt.Sprintf(`
+	resource "%s" "test" {
+		name = "%s"
+		value= "%s"
+		enum = ["a","b"]
+	}`, resourceType, configVar.Name, configVar.Value)
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      stepConfig,
+					ExpectError: regexp.MustCompile(fmt.Sprintf("value - '%s' is not one of the enum options", configVar.Value)),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {})
 	})
 
 	t.Run("Create with wrong type", func(t *testing.T) {

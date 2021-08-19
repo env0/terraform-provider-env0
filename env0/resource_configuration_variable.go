@@ -120,8 +120,15 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	var actualEnumValues []string = nil
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
+		var valueExists = false
 		for _, val := range enumValues {
 			actualEnumValues = append(actualEnumValues, val.(string))
+			if val == value {
+				valueExists = true
+			}
+		}
+		if !valueExists {
+			return diag.Errorf("value - '%s' is not one of the enum options %v", value, actualEnumValues)
 		}
 	}
 

@@ -32,10 +32,3 @@ data "env0_configuration_variable" "tested1" {
   depends_on = [env0_configuration_variable.tested1]
 }
 
-output "tested1_value" {
-  value = data.env0_configuration_variable.tested1.value
-}
-
-data "env0_configuration_variable" "tested2" {
-  id = env0_configuration_variable.tested1.id
-}
