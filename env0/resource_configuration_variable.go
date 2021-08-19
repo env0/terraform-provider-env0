@@ -144,7 +144,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagn
 			}
 		}
 		if !valueExists {
-			return nil, diag.Errorf("selectedValue - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
+			return nil, diag.Errorf("value - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
 		}
 	}
 	return actualEnumValues, nil
