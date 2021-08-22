@@ -136,7 +136,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagn
 	var actualEnumValues []string = nil
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
-		var valueExists = false
+		valueExists := false
 		for _, enumValue := range enumValues {
 			actualEnumValues = append(actualEnumValues, enumValue.(string))
 			if enumValue == selectedValue {
