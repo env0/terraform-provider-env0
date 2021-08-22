@@ -132,8 +132,8 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 }
 
 func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagnostics) {
-	var enumValues []interface{} = nil
-	var actualEnumValues []string = nil
+	var enumValues []interface{}
+	var actualEnumValues []string
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
 		valueExists := false
