@@ -116,11 +116,12 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
-	var enumValues []string = nil
-	if specified, ok := d.GetOk("enum_values"); ok {
-		enumValues = specified.([]string)
+	actualEnumValues, getEnumErr := getEnum(d, value)
+	if getEnumErr != nil {
+		return getEnumErr
 	}
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, enumValues)
+
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -128,6 +129,25 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	d.SetId(configurationVariable.Id)
 
 	return nil
+}
+
+func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagnostics) {
+	var enumValues []interface{}
+	var actualEnumValues []string
+	if specified, ok := d.GetOk("enum"); ok {
+		enumValues = specified.([]interface{})
+		valueExists := false
+		for _, enumValue := range enumValues {
+			actualEnumValues = append(actualEnumValues, enumValue.(string))
+			if enumValue == selectedValue {
+				valueExists = true
+			}
+		}
+		if !valueExists {
+			return nil, diag.Errorf("value - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
+		}
+	}
+	return actualEnumValues, nil
 }
 
 func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -148,6 +168,9 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 				d.Set("type", "terraform")
 			} else {
 				d.Set("type", "environment")
+			}
+			if len(variable.Schema.Enum) > 0 {
+				d.Set("enum", variable.Schema.Enum)
 			}
 			return nil
 		}
@@ -173,11 +196,11 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	default:
 		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
 	}
-	var enumValues []string = nil
-	if specified, ok := d.GetOk("enum_values"); ok {
-		enumValues = specified.([]string)
+	actualEnumValues, getEnumErr := getEnum(d, value)
+	if getEnumErr != nil {
+		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, enumValues)
+	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}
