@@ -112,7 +112,7 @@ var _ = Describe("Teams Client", func() {
 		})
 	})
 
-	Describe("TemplateUpdate", func() {
+	Describe("TeamUpdate", func() {
 		var updatedTeam Team
 		var err error
 
