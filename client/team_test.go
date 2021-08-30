@@ -15,7 +15,7 @@ var _ = Describe("Teams Client", func() {
 		Name: "team-name",
 	}
 
-	Describe("Team", func() {
+	Describe("Get Single Team", func() {
 		var returnedTeam Team
 
 		BeforeEach(func() {
@@ -36,7 +36,7 @@ var _ = Describe("Teams Client", func() {
 		})
 	})
 
-	Describe("Teams", func() {
+	Describe("Get All Teams", func() {
 		var returnedTeams []Team
 		mockTeams := []Team{mockTeam}
 
