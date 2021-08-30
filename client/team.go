@@ -6,7 +6,6 @@ func (self *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
 	if payload.Name == "" {
 		return Team{}, errors.New("Must specify team name on creation")
 	}
-	// AREL TODO: Check this
 	if payload.OrganizationId != "" {
 		return Team{}, errors.New("Must not specify organizationId")
 	}
