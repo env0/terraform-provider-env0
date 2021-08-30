@@ -198,3 +198,21 @@ type ApiKey struct {
 	OrganizationId string `json:"organizationId"`
 	Type           string `json:"type"`
 }
+
+type TeamCreatePayload struct {
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	OrganizationId string `json:"organizationId"`
+}
+
+type TeamUpdatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type Team struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	OrganizationId string `json:"organizationId"`
+}

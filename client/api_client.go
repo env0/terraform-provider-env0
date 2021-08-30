@@ -40,6 +40,11 @@ type ApiClientInterface interface {
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
+	Team(id string) (Team, error)
+	Teams() ([]Team, error)
+	TeamCreate(payload TeamCreatePayload) (Team, error)
+	TeamUpdate(id string, payload TeamUpdatePayload) (Team, error)
+	TeamDelete(id string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
