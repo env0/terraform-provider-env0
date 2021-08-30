@@ -357,6 +357,80 @@ func (mr *MockApiClientInterfaceMockRecorder) SshKeys() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeys", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeys))
 }
 
+// Team mocks base method.
+func (m *MockApiClientInterface) Team(arg0 string) (Team, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Team", arg0)
+	ret0, _ := ret[0].(Team)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Team indicates an expected call of Team.
+func (mr *MockApiClientInterfaceMockRecorder) Team(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Team", reflect.TypeOf((*MockApiClientInterface)(nil).Team), arg0)
+}
+
+// TeamCreate mocks base method.
+func (m *MockApiClientInterface) TeamCreate(arg0 TeamCreatePayload) (Team, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamCreate", arg0)
+	ret0, _ := ret[0].(Team)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TeamCreate indicates an expected call of TeamCreate.
+func (mr *MockApiClientInterfaceMockRecorder) TeamCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamCreate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamCreate), arg0)
+}
+
+// TeamDelete mocks base method.
+func (m *MockApiClientInterface) TeamDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// TeamDelete indicates an expected call of TeamDelete.
+func (mr *MockApiClientInterfaceMockRecorder) TeamDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamDelete), arg0)
+}
+
+// TeamUpdate mocks base method.
+func (m *MockApiClientInterface) TeamUpdate(arg0 string, arg1 TeamUpdatePayload) (Team, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamUpdate", arg0, arg1)
+	ret0, _ := ret[0].(Team)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TeamUpdate indicates an expected call of TeamUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) TeamUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamUpdate), arg0, arg1)
+}
+
+// Teams mocks base method.
+func (m *MockApiClientInterface) Teams() ([]Team, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Teams")
+	ret0, _ := ret[0].([]Team)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Teams indicates an expected call of Teams.
+func (mr *MockApiClientInterfaceMockRecorder) Teams() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Teams", reflect.TypeOf((*MockApiClientInterface)(nil).Teams))
+}
+
 // Template mocks base method.
 func (m *MockApiClientInterface) Template(arg0 string) (Template, error) {
 	m.ctrl.T.Helper()
