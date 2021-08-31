@@ -401,6 +401,35 @@ func (mr *MockApiClientInterfaceMockRecorder) TeamDelete(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamDelete), arg0)
 }
 
+// TeamProjectAssignmentCreateOrUpdate mocks base method.
+func (m *MockApiClientInterface) TeamProjectAssignmentCreateOrUpdate(arg0 TeamProjectAssignmentPayload) (TeamProjectAssignmentResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamProjectAssignmentCreateOrUpdate", arg0)
+	ret0, _ := ret[0].(TeamProjectAssignmentResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TeamProjectAssignmentCreateOrUpdate indicates an expected call of TeamProjectAssignmentCreateOrUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) TeamProjectAssignmentCreateOrUpdate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamProjectAssignmentCreateOrUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamProjectAssignmentCreateOrUpdate), arg0)
+}
+
+// TeamProjectAssignmentDelete mocks base method.
+func (m *MockApiClientInterface) TeamProjectAssignmentDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamProjectAssignmentDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// TeamProjectAssignmentDelete indicates an expected call of TeamProjectAssignmentDelete.
+func (mr *MockApiClientInterfaceMockRecorder) TeamProjectAssignmentDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamProjectAssignmentDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamProjectAssignmentDelete), arg0)
+}
+
 // TeamUpdate mocks base method.
 func (m *MockApiClientInterface) TeamUpdate(arg0 string, arg1 TeamUpdatePayload) (Team, error) {
 	m.ctrl.T.Helper()

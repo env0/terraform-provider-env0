@@ -45,6 +45,8 @@ type ApiClientInterface interface {
 	TeamCreate(payload TeamCreatePayload) (Team, error)
 	TeamUpdate(id string, payload TeamUpdatePayload) (Team, error)
 	TeamDelete(id string) error
+	TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignmentResponse, error)
+	TeamProjectAssignmentDelete(assignmentId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
