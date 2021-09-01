@@ -42,6 +42,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_template":               dataTemplate(),
 				"env0_ssh_key":                dataSshKey(),
 				"env0_aws_credentials":        dataAwsCredentials(),
+				"env0_team":                   dataTeam(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
