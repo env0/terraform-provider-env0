@@ -110,12 +110,22 @@ go test ./...
 ```
 
 #### How to use mocks
-1. Make sure to add this line in files that include the interface you'd wish to mock:
+
+1. Make sure `GOPATH` is in your `PATH`
+```shell
+go env GOPATH
+echo $PATH
+export PATH=$PATH:$(go env GOPATH)  # if not
+```
+2. Install mockgen
+```
+go install github.com/golang/mock/mockgen@v1.6.0
+```
+3. Make sure to add this line in files that include the interface you'd wish to mock:
 ```
 //go:generate mockgen -destination=<file>_mock.go -package=<package> . <interface>
 ```
-
-2. Run from root directory:
+4. Run from root directory:
 ```shell
 go generate ./...
 ```
