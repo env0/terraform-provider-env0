@@ -4,22 +4,22 @@ import (
 	"errors"
 )
 
-func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignmentResponse, error) {
+func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
 	if payload.ProjectId == "" {
-		return TeamProjectAssignmentResponse{}, errors.New("must specify project_id")
+		return TeamProjectAssignment{}, errors.New("must specify project_id")
 	}
 	if payload.TeamId == "" {
-		return TeamProjectAssignmentResponse{}, errors.New("must specify team_id")
+		return TeamProjectAssignment{}, errors.New("must specify team_id")
 	}
 	if payload.ProjectRole == "" {
-		return TeamProjectAssignmentResponse{}, errors.New("must specify project_role")
+		return TeamProjectAssignment{}, errors.New("must specify project_role")
 	}
-	var result TeamProjectAssignmentResponse
+	var result TeamProjectAssignment
 
 	var err = self.http.Post("/teams/assignments/", payload, &result)
 
 	if err != nil {
-		return TeamProjectAssignmentResponse{}, err
+		return TeamProjectAssignment{}, err
 	}
 	return result, nil
 }

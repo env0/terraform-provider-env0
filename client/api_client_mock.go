@@ -402,10 +402,10 @@ func (mr *MockApiClientInterfaceMockRecorder) TeamDelete(arg0 interface{}) *gomo
 }
 
 // TeamProjectAssignmentCreateOrUpdate mocks base method.
-func (m *MockApiClientInterface) TeamProjectAssignmentCreateOrUpdate(arg0 TeamProjectAssignmentPayload) (TeamProjectAssignmentResponse, error) {
+func (m *MockApiClientInterface) TeamProjectAssignmentCreateOrUpdate(arg0 TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TeamProjectAssignmentCreateOrUpdate", arg0)
-	ret0, _ := ret[0].(TeamProjectAssignmentResponse)
+	ret0, _ := ret[0].(TeamProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

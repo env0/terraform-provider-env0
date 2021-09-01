@@ -49,7 +49,7 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 	request := client.TeamProjectAssignmentPayload{
 		TeamId:      d.Get("team_id").(string),
 		ProjectId:   d.Get("project_id").(string),
-		ProjectRole: d.Get("role").(client.Role),
+		ProjectRole: client.Role(d.Get("role").(string)),
 	}
 	_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(request)
 	if err != nil {

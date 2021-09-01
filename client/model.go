@@ -232,9 +232,9 @@ type TeamProjectAssignmentPayload struct {
 	ProjectRole Role   `json:"projectRole"`
 }
 
-type TeamProjectAssignmentResponse struct {
+type TeamProjectAssignment struct {
 	Id          string `json:"id"`
 	TeamId      string `json:"teamId"`
 	ProjectId   string `json:"projectId"`
-	ProjectRole string `json:"projectRole"`
+	ProjectRole Role   `json:"projectRole"`
 }
