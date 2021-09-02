@@ -25,5 +25,19 @@ func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAs
 }
 
 func (self *ApiClient) TeamProjectAssignmentDelete(assignmentId string) error {
+	if assignmentId == "" {
+		return errors.New("empty assignmentId")
+	}
 	return self.http.Delete("/teams/assignments/" + assignmentId)
+}
+
+func (self *ApiClient) TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error) {
+
+	var result []TeamProjectAssignment
+	err := self.http.Get("/teams/assignments", map[string]string{"projectId": projectId}, &result)
+
+	if err != nil {
+		return []TeamProjectAssignment{}, err
+	}
+	return result, nil
 }

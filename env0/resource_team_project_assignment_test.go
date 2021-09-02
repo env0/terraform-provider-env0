@@ -35,8 +35,8 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 	}
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-		mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(client.TeamProjectAssignment{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, ProjectRole: assignment.ProjectRole}).Times(1).Return(assignment, nil)
-		//mock.EXPECT().TeamProjectAssignmentCreateOrUpdate().Times(1) //.Return([]client.SshKey{sshKey}, nil)
+		mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, ProjectRole: assignment.ProjectRole}).Times(1).Return(assignment, nil)
+		mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{assignment}, nil)
 		mock.EXPECT().TeamProjectAssignmentDelete(assignment.Id).Times(1).Return(nil)
 	})
 }

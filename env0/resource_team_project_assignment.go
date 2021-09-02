@@ -10,7 +10,7 @@ import (
 func resourceTeamProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTeamProjectAssignmentCreateOrUpdate,
-		ReadContext:   resourceSshKeyRead,
+		ReadContext:   resourceTeamProjectAssignmentRead,
 		UpdateContext: resourceTeamProjectAssignmentCreateOrUpdate,
 		DeleteContext: resourceTeamProjectAssignmentDelete,
 
@@ -19,11 +19,13 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id of the team",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"role": {
 				Type:        schema.TypeString,
@@ -39,7 +41,23 @@ func resourceTeamProjectAssignment() *schema.Resource {
 }
 
 func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	//TODO: complete this
+	apiClient := meta.(client.ApiClientInterface)
+
+	id := d.Id()
+	projectId := d.Get("project_id").(string)
+	assignments, err := apiClient.TeamProjectAssignments(projectId)
+
+	if err != nil {
+		return diag.Errorf("could not get TeamProjectAssignment: %v", err)
+	}
+
+	for _, assignment := range assignments {
+		if assignment.Id == id {
+			d.Set("project_id", assignment.ProjectId)
+			d.Set("team_id", assignment.TeamId)
+			d.Set("role", assignment.ProjectRole)
+		}
+	}
 	return nil
 }
 
