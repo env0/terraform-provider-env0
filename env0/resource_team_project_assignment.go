@@ -29,7 +29,7 @@ func resourceTeamProjectAssignment() *schema.Resource {
 			},
 			"role": {
 				Type:        schema.TypeString,
-				Description: "the assigned role",
+				Description: "the assigned role (Admin, Planner, Viewer, Deployer)",
 				Required:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					_ = client.Role(val.(string))
@@ -69,10 +69,13 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 		ProjectId:   d.Get("project_id").(string),
 		ProjectRole: client.Role(d.Get("role").(string)),
 	}
-	_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(request)
+	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(request)
 	if err != nil {
 		return diag.Errorf("could not Create or Update TeamProjectAssignment: %v", err)
 	}
+
+	d.SetId(response.Id)
+
 	return nil
 }
 
