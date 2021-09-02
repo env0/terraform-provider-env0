@@ -11,12 +11,16 @@ func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAs
 	if payload.TeamId == "" {
 		return TeamProjectAssignment{}, errors.New("must specify team_id")
 	}
-	if payload.ProjectRole == "" {
-		return TeamProjectAssignment{}, errors.New("must specify project_role")
+	if payload.ProjectRole == "" ||
+		payload.ProjectRole != Admin &&
+			payload.ProjectRole != Deployer &&
+			payload.ProjectRole != Viewer &&
+			payload.ProjectRole != Planner {
+		return TeamProjectAssignment{}, errors.New("must specify valid project_role")
 	}
 	var result TeamProjectAssignment
 
-	var err = self.http.Post("/teams/assignments/", payload, &result)
+	var err = self.http.Post("/teams/assignments", payload, &result)
 
 	if err != nil {
 		return TeamProjectAssignment{}, err
