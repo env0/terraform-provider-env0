@@ -85,4 +85,38 @@ var _ = Describe("TeamProjectAssignment", func() {
 
 	})
 
+	Describe("Get", func() {
+		mockTeamProjectAssignments := []TeamProjectAssignment{mockTeamProjectAssignment}
+		var teamProjectAssignments []TeamProjectAssignment
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Get("/teams/assignments", map[string]string{"projectId": mockTeamProjectAssignment.ProjectId}, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]TeamProjectAssignment) {
+					*response = mockTeamProjectAssignments
+				})
+			teamProjectAssignments, _ = apiClient.TeamProjectAssignments(mockTeamProjectAssignment.ProjectId)
+		})
+
+		It("Should send GET request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return the projects assignments", func() {
+			Expect(teamProjectAssignments).To(Equal(mockTeamProjectAssignments))
+		})
+
+	})
+
+	Describe("Delete", func() {
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Delete("/teams/assignments/" + mockTeamProjectAssignment.Id)
+			apiClient.TeamProjectAssignmentDelete(mockTeamProjectAssignment.Id)
+		})
+
+		It("Should send DELETE request with assignment id", func() {
+			httpCall.Times(1)
+		})
+	})
+
 })
