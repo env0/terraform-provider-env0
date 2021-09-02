@@ -53,6 +53,11 @@ func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
+func setTeamSchema(d *schema.ResourceData, team client.Team) {
+	d.Set("name", team.Name)
+	d.Set("description", team.Description)
+}
+
 func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -61,8 +66,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("could not get team: %v", err)
 	}
 
-	d.Set("name", team.Name)
-	d.Set("description", team.Description)
+	setTeamSchema(d, team)
 
 	return nil
 }
@@ -100,11 +104,11 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		log.Println("[INFO] Resolving Team by id: ", id)
+		log.Println("[INFO] Resolving team by id: ", id)
 		_, getErr = getTeamById(id, meta)
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving Team by name: ", id)
+		log.Println("[INFO] Resolving team by name: ", id)
 		var team client.Team
 		team, getErr = getTeamByName(id, meta)
 		d.SetId(team.Id)
@@ -131,7 +135,7 @@ func getTeamByName(name interface{}, meta interface{}) (client.Team, diag.Diagno
 	}
 
 	if len(teamsByName) > 1 {
-		return client.Team{}, diag.Errorf("Found multiple Teams for name: %s. Use ID instead or make sure Team names are unique %v", name, teamsByName)
+		return client.Team{}, diag.Errorf("Found multiple teams for name: %s. Use ID instead or make sure team names are unique %v", name, teamsByName)
 	}
 
 	if len(teamsByName) == 0 {
