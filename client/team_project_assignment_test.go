@@ -22,7 +22,7 @@ var _ = Describe("TeamProjectAssignment", func() {
 		TeamId:      dummyTeamId,
 	}
 
-	Describe("Create + Update", func() {
+	Describe("CreateOrUpdate", func() {
 		Describe("Success", func() {
 			var teamProjectAssignment TeamProjectAssignment
 			BeforeEach(func() {
