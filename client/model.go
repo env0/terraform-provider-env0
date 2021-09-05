@@ -91,6 +91,15 @@ const (
 	TemplateTypeTerragrunt TemplateType = "terragrunt"
 )
 
+type Role string
+
+const (
+	Admin    Role = "Admin"
+	Deployer Role = "Deployer"
+	Planner  Role = "Planner"
+	Viewer   Role = "Viewer"
+)
+
 type TemplateSshKey struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -215,4 +224,17 @@ type Team struct {
 	Name           string `json:"name"`
 	Description    string `json:"description"`
 	OrganizationId string `json:"organizationId"`
+}
+
+type TeamProjectAssignmentPayload struct {
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole Role   `json:"projectRole"`
+}
+
+type TeamProjectAssignment struct {
+	Id          string `json:"id"`
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole Role   `json:"projectRole"`
 }
