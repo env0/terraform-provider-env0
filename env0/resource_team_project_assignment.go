@@ -2,7 +2,8 @@ package env0
 
 import (
 	"context"
-	"github.com/env0/terraform-provider-env0/client"
+	"fmt"
+	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -32,7 +33,14 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				Description: "the assigned role (Admin, Planner, Viewer, Deployer)",
 				Required:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					_ = client.Role(val.(string))
+					role := Role(val.(string))
+					if role == "" ||
+						role != Admin &&
+							role != Deployer &&
+							role != Viewer &&
+							role != Planner {
+						errs = append(errs, fmt.Errorf("%v must be one of [Admin, Deployer, Viewer, Planner], got: %v", key, role))
+					}
 					return
 				},
 			},
@@ -41,7 +49,7 @@ func resourceTeamProjectAssignment() *schema.Resource {
 }
 
 func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
+	apiClient := meta.(ApiClientInterface)
 
 	id := d.Id()
 	projectId := d.Get("project_id").(string)
@@ -63,12 +71,12 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
+	apiClient := meta.(ApiClientInterface)
 
-	request := client.TeamProjectAssignmentPayload{
+	request := TeamProjectAssignmentPayload{
 		TeamId:      d.Get("team_id").(string),
 		ProjectId:   d.Get("project_id").(string),
-		ProjectRole: client.Role(d.Get("role").(string)),
+		ProjectRole: Role(d.Get("role").(string)),
 	}
 	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(request)
 	if err != nil {
@@ -81,7 +89,7 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 }
 
 func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
+	apiClient := meta.(ApiClientInterface)
 
 	err := apiClient.TeamProjectAssignmentDelete(d.Id())
 	if err != nil {
