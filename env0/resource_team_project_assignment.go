@@ -56,6 +56,7 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 			d.Set("project_id", assignment.ProjectId)
 			d.Set("team_id", assignment.TeamId)
 			d.Set("role", assignment.ProjectRole)
+			break
 		}
 	}
 	return nil
