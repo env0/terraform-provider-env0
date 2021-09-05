@@ -23,5 +23,3 @@ resource "env0_team_project_assignment" "assignment" {
   team_id    = env0_team.team_resource.id
   role       = "Admin"
 }
-
-//TODO: expected output?

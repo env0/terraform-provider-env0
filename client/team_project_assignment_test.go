@@ -70,7 +70,7 @@ var _ = Describe("TeamProjectAssignment", func() {
 			})
 
 			It("Should fail if assignment has invalid project_role", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, TeamId: dummyTeamId, ProjectRole: "sdf"}
+				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, TeamId: dummyTeamId, ProjectRole: "wrongProjectRole"}
 				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
 				Expect(err).To(BeEquivalentTo(errors.New("must specify valid project_role")))
 			})
