@@ -483,12 +483,15 @@ func TestUnitTemplateResource(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", regexAttribute: "bla"}),
-						ExpectError: regexp.MustCompile(fmt.Sprintf("`%s,%s` must be specified", timesAttribute, regexAttribute)),
+						ExpectError: regexp.MustCompile(fmt.Sprintf("`%s,%s`\\s+must\\s+be\\s+specified", timesAttribute, regexAttribute)),
 					},
 				},
 			})
 		}
 
+		for _, testCase := range testCases {
+			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+		}
 	})
 
 	t.Run("Gitlab and Github template", func(t *testing.T) {
