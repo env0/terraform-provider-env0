@@ -70,7 +70,7 @@ provider "env0" {
 ### Run local version of the provider
 - Build - `./build.sh`
 - Create the plugins folder - `mkdir -p ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64`
-- Copy the built binary - `cp ~/env0/terraform-provider-env0/terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (Replace `darwin` with `linux` on Linux)
+- Copy the built binary - `cp ./terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (Replace `darwin` with `linux` on Linux)
 - Require the local provider in your `main.tf` - 
 ```
 terraform {

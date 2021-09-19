@@ -243,7 +243,6 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("description", template.Description)
 	d.Set("github_installation_id", template.GithubInstallationId)
 	d.Set("token_id", template.TokenId)
-	d.Set("gitlab_project_id", template.GitlabProjectId)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
