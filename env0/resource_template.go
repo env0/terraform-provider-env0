@@ -243,12 +243,12 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("description", template.Description)
 	d.Set("github_installation_id", template.GithubInstallationId)
 	d.Set("token_id", template.TokenId)
-	d.Set("gitlab_project_id", template.GitlabProjectId)
 	d.Set("repository", template.Repository)
 	d.Set("path", template.Path)
 	d.Set("revision", template.Revision)
 	d.Set("type", template.Type)
 	d.Set("terraform_version", template.TerraformVersion)
+	// 'gitlab_project_id' should not be set because it doesn't exist on 'template'
 
 	var rawSshKeys []map[string]string
 	for _, sshKey := range template.SshKeys {
