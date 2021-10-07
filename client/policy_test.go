@@ -65,4 +65,43 @@ var _ = Describe("Policy", func() {
 			})
 		})
 	})
+
+	Describe("PolicyUpdate", func() {
+		Describe("Success", func() {
+			var updatedPolicy Policy
+			var err error
+
+			BeforeEach(func() {
+				updatePolicyPayload := PolicyUpdatePayload{ProjectId: "project0"}
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/policies/"+mockPolicy.Id, updatePolicyPayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *Policy) {
+						*response = mockPolicy
+					})
+
+				updatedPolicy, err = apiClient.PolicyUpdate(mockPolicy.Id, updatePolicyPayload)
+			})
+
+			It("Should send Put request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return team received from API", func() {
+				Expect(updatedPolicy).To(Equal(mockPolicy))
+			})
+		})
+
+		Describe("Failure", func() {
+			It("Should fail if project ID is empty", func() {
+				payloadWithNoProject := PolicyUpdatePayload{NumberOfEnvironments: 1}
+				_, err := apiClient.PolicyUpdate(mockPolicy.Id, payloadWithNoProject)
+				Expect(err).To(BeEquivalentTo(errors.New("Must specify project ID on update")))
+			})
+		})
+	})
 })

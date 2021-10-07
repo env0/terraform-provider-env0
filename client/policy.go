@@ -15,6 +15,10 @@ func (self *ApiClient) Policy() (Policy, error) {
 }
 
 func (self *ApiClient) PolicyUpdate(id string, payload PolicyUpdatePayload) (Policy, error) {
+	if payload.ProjectId == "" {
+		return Policy{}, errors.New("Must specify project ID on update")
+	}
+
 	var result Policy
 	if err := self.http.Put("/policies/"+id, payload, &result); err != nil {
 		return Policy{}, err
