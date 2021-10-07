@@ -238,3 +238,15 @@ type TeamProjectAssignment struct {
 	ProjectId   string `json:"projectId"`
 	ProjectRole Role   `json:"projectRole"`
 }
+
+type Policy struct {
+	Id                             string `json:"id"`
+	ProjectId                      string `json:"projectId"`
+	NumberOfEnvironments           int    `json:"numberOfEnvironments"`
+	NumberOfEnvironmentsPerProject int    `json:"numberOfEnvironmentsPerProject"`
+	RequiresApprovalDefault        bool   `json:"requiresApprovalDefault"`
+	IncludeCostEstimation          bool   `json:"includeCostEstimation"`
+	SkipApplyWhenPlanIsEmpty       bool   `json:"skipApplyWhenPlanIsEmpty"`
+	DisableDestroyEnvironments     bool   `json:"disableDestroyEnvironments"`
+	UpdatedBy                      string `json:"updatedBy"`
+}
