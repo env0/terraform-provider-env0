@@ -1,17 +1,21 @@
 package client_test
 
 import (
+	"testing"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"testing"
 )
 
 // This file wraps the test suite for the entire client folder
 
-const organizationId = "organization0"
+const (
+	organizationId = "organization0"
+	policyId       = "policy0"
+)
 
 var (
 	ctrl               *gomock.Controller

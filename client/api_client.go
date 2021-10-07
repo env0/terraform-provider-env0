@@ -18,6 +18,7 @@ type ApiClientInterface interface {
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
 	organizationId() (string, error)
+	Policy() (Policy, error)
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
 	ProjectCreate(payload ProjectCreatePayload) (Project, error)
