@@ -250,3 +250,12 @@ type Policy struct {
 	DisableDestroyEnvironments     bool   `json:"disableDestroyEnvironments"`
 	UpdatedBy                      string `json:"updatedBy"`
 }
+
+type PolicyUpdatePayload struct {
+	ProjectId                  string `json:"projectId"`
+	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
+	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
+	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
+	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
+	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
+}

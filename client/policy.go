@@ -13,3 +13,11 @@ func (self *ApiClient) Policy() (Policy, error) {
 	}
 	return result[0], nil
 }
+
+func (self *ApiClient) PolicyUpdate(id string, payload PolicyUpdatePayload) (Policy, error) {
+	var result Policy
+	if err := self.http.Put("/policies/"+id, payload, &result); err != nil {
+		return Policy{}, err
+	}
+	return result, nil
+}
