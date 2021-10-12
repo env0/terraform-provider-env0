@@ -14,7 +14,6 @@ import (
 
 const (
 	organizationId = "organization0"
-	policyId       = "policy0"
 )
 
 var (

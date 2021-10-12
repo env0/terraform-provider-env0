@@ -10,6 +10,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	policyId = "policy0"
+)
+
 var _ = Describe("Policy", func() {
 	mockPolicy := Policy{
 		Id: policyId,
