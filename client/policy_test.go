@@ -84,11 +84,6 @@ var _ = Describe("Policy", func() {
 		})
 
 		Describe("Failure", func() {
-			It("Should fail if project ID is empty", func() {
-				payloadWithNoProject := PolicyUpdatePayload{NumberOfEnvironments: 1}
-				_, err := apiClient.PolicyUpdate(mockPolicy.Id, payloadWithNoProject)
-				Expect(err).To(BeEquivalentTo(errors.New("Must specify project ID on update")))
-			})
 		})
 	})
 })
