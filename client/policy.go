@@ -2,18 +2,17 @@ package client
 
 import "errors"
 
+// Policy retrieves a policy from the API
 func (self *ApiClient) Policy() (Policy, error) {
-	var result []Policy
+	var result Policy
 	err := self.http.Get("/policies", nil, &result)
 	if err != nil {
 		return Policy{}, err
 	}
-	if len(result) != 1 {
-		return Policy{}, errors.New("Server responded with too many policies")
-	}
-	return result[0], nil
+	return result, nil
 }
 
+// PolicyUpdate updates a policy through the API
 func (self *ApiClient) PolicyUpdate(id string, payload PolicyUpdatePayload) (Policy, error) {
 	if payload.ProjectId == "" {
 		return Policy{}, errors.New("Must specify project ID on update")

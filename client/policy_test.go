@@ -20,10 +20,10 @@ var _ = Describe("Policy", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
-				policiesResult := []Policy{mockPolicy}
+				policiesResult := mockPolicy
 				httpCall = mockHttpClient.EXPECT().
 					Get("/policies", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Policy) {
+					Do(func(path string, request interface{}, response *Policy) {
 						*response = policiesResult
 					})
 
@@ -49,19 +49,6 @@ var _ = Describe("Policy", func() {
 
 				_, err = apiClient.Policy()
 				Expect(expectedErr).Should(Equal(err))
-			})
-
-			It("On too many policies return error", func() {
-				policiesResult := []Policy{mockPolicy, mockPolicy}
-				httpCall = mockHttpClient.EXPECT().
-					Get("/policies", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Policy) {
-						*response = policiesResult
-					})
-
-				_, err = apiClient.Policy()
-				Expect(err).ShouldNot(BeNil())
-				Expect(err.Error()).Should(Equal("Server responded with too many policies"))
 			})
 		})
 	})
