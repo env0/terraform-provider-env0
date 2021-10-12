@@ -62,12 +62,12 @@ var _ = Describe("Policy", func() {
 				updatePolicyPayload := PolicyUpdatePayload{ProjectId: "project0"}
 
 				httpCall = mockHttpClient.EXPECT().
-					Put("/policies/"+mockPolicy.Id, updatePolicyPayload, gomock.Any()).
+					Put("/policies", updatePolicyPayload, gomock.Any()).
 					Do(func(path string, request interface{}, response *Policy) {
 						*response = mockPolicy
 					})
 
-				updatedPolicy, err = apiClient.PolicyUpdate(mockPolicy.Id, updatePolicyPayload)
+				updatedPolicy, err = apiClient.PolicyUpdate(updatePolicyPayload)
 			})
 
 			It("Should send Put request with expected payload", func() {

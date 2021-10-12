@@ -11,9 +11,9 @@ func (self *ApiClient) Policy() (Policy, error) {
 }
 
 // PolicyUpdate updates a policy through the API
-func (self *ApiClient) PolicyUpdate(id string, payload PolicyUpdatePayload) (Policy, error) {
+func (self *ApiClient) PolicyUpdate(payload PolicyUpdatePayload) (Policy, error) {
 	var result Policy
-	if err := self.http.Put("/policies/"+id, payload, &result); err != nil {
+	if err := self.http.Put("/policies", payload, &result); err != nil {
 		return Policy{}, err
 	}
 	return result, nil

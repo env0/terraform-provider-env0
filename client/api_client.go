@@ -19,7 +19,7 @@ type ApiClientInterface interface {
 	Organization() (Organization, error)
 	organizationId() (string, error)
 	Policy() (Policy, error)
-	PolicyUpdate(id string, payload PolicyUpdatePayload) (Policy, error)
+	PolicyUpdate(payload PolicyUpdatePayload) (Policy, error)
 	Projects() ([]Project, error)
 	Project(id string) (Project, error)
 	ProjectCreate(payload ProjectCreatePayload) (Project, error)
