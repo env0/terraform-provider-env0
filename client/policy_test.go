@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"errors"
+	"fmt"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	gomock "github.com/golang/mock/gomock"
@@ -18,16 +19,18 @@ var _ = Describe("Policy", func() {
 		var policy Policy
 		var err error
 
+		path := fmt.Sprintf("/policies?projectId=%s", mockPolicy.ProjectId)
+
 		Describe("Success", func() {
 			BeforeEach(func() {
 				policiesResult := mockPolicy
 				httpCall = mockHttpClient.EXPECT().
-					Get("/policies", nil, gomock.Any()).
+					Get(path, nil, gomock.Any()).
 					Do(func(path string, request interface{}, response *Policy) {
 						*response = policiesResult
 					})
 
-				policy, err = apiClient.Policy()
+				policy, err = apiClient.Policy(mockPolicy.ProjectId)
 			})
 
 			It("Should send GET request once", func() {
@@ -44,10 +47,10 @@ var _ = Describe("Policy", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().
-					Get("/policies", nil, gomock.Any()).
+					Get(path, nil, gomock.Any()).
 					Return(expectedErr)
 
-				_, err = apiClient.Policy()
+				_, err = apiClient.Policy(mockPolicy.ProjectId)
 				Expect(expectedErr).Should(Equal(err))
 			})
 		})
