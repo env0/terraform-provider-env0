@@ -39,6 +39,9 @@ var _ = Describe("Policy", func() {
 
 			It("Should return policy", func() {
 				Expect(policy).Should(Equal(mockPolicy))
+			})
+
+			It("Should not return an error", func() {
 				Expect(err).Should(BeNil())
 			})
 		})
