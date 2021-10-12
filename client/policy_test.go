@@ -60,13 +60,12 @@ var _ = Describe("Policy", func() {
 	})
 
 	Describe("PolicyUpdate", func() {
+		updatePolicyPayload := PolicyUpdatePayload{ProjectId: "project0"}
 		Describe("Success", func() {
 			var updatedPolicy Policy
 			var err error
 
 			BeforeEach(func() {
-				updatePolicyPayload := PolicyUpdatePayload{ProjectId: "project0"}
-
 				httpCall = mockHttpClient.EXPECT().
 					Put("/policies", updatePolicyPayload, gomock.Any()).
 					Do(func(path string, request interface{}, response *Policy) {
@@ -90,6 +89,15 @@ var _ = Describe("Policy", func() {
 		})
 
 		Describe("Failure", func() {
+			It("On error from server return the error", func() {
+				expectedErr := errors.New("some error")
+				httpCall = mockHttpClient.EXPECT().
+					Put("/policies", updatePolicyPayload, gomock.Any()).
+					Return(expectedErr)
+
+				_, err := apiClient.PolicyUpdate(updatePolicyPayload)
+				Expect(expectedErr).Should(Equal(err))
+			})
 		})
 	})
 })
