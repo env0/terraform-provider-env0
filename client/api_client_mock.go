@@ -211,6 +211,36 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
+// Policy mocks base method.
+func (m *MockApiClientInterface) Policy(arg0 string) (Policy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Policy", arg0)
+	ret0, _ := ret[0].(Policy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Policy indicates an expected call of Policy.
+func (mr *MockApiClientInterfaceMockRecorder) Policy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Policy", reflect.TypeOf((*MockApiClientInterface)(nil).Policy), arg0)
+}
+
+// PolicyUpdate mocks base method.
+func (m *MockApiClientInterface) PolicyUpdate(arg0 PolicyUpdatePayload) (Policy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PolicyUpdate", arg0)
+	ret0, _ := ret[0].(Policy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PolicyUpdate indicates an expected call of PolicyUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) PolicyUpdate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).PolicyUpdate), arg0)
+}
+
 // Project mocks base method.
 func (m *MockApiClientInterface) Project(arg0 string) (Project, error) {
 	m.ctrl.T.Helper()
