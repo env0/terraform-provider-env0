@@ -1,17 +1,11 @@
 package client
 
-import "net/url"
-
 // Policy retrieves a policy from the API
 func (self *ApiClient) Policy(projectId string) (Policy, error) {
-	u, err := url.Parse("/policies")
+	u, err := newQueryURL("/policies", parameter{"projectId", projectId})
 	if err != nil {
 		return Policy{}, err
 	}
-
-	q := u.Query()
-	q.Add("projectId", projectId)
-	u.RawQuery = q.Encode()
 
 	var result Policy
 	err = self.http.Get(u.String(), nil, &result)
