@@ -10,10 +10,10 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: nil,
-		ReadContext:   nil,
-		UpdateContext: nil,
-		DeleteContext: nil,
+		CreateContext: resourcePolicyCreate,
+		ReadContext:   resourcePolicyRead,
+		UpdateContext: resourcePolicyUpdate,
+		DeleteContext: resourcePolicyDelete,
 
 		Importer: nil,
 
@@ -55,20 +55,34 @@ func resourcePolicy() *schema.Resource {
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+	payload := client.PolicyCreatePayload{}
+	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
+		payload.NumberOfEnvironments = numberOfEnvironments.(int)
+	}
+	// TODO: complete additional fields
+
+	policy, err := apiClient.PolicyCreate(payload)
+	if err != nil {
+		return diag.Errorf("could not create policy: %v", err)
+	}
 	return nil
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+	_ = apiClient
 	return nil
 }
 
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+	payload := client.PolicyUpdatePayload{}
+	_ = apiClient
 	return nil
 }
 
 func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+	_ = apiClient
 	return nil
 }
