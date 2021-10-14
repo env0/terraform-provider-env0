@@ -10,10 +10,10 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePolicyCreate,
+		CreateContext: nil,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: resourcePolicyDelete,
+		DeleteContext: nil,
 
 		Importer: nil,
 
@@ -53,36 +53,51 @@ func resourcePolicy() *schema.Resource {
 	}
 }
 
-func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-	payload := client.PolicyCreatePayload{}
-	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
-		payload.NumberOfEnvironments = numberOfEnvironments.(int)
-	}
-	// TODO: complete additional fields
-
-	policy, err := apiClient.PolicyCreate(payload)
-	if err != nil {
-		return diag.Errorf("could not create policy: %v", err)
-	}
-	return nil
+func setPolicySchema(d *schema.ResourceData, policy client.Policy) {
+	d.Set("number_of_environments", policy.NumberOfEnvironments)
+	d.Set("requires_approval_default", policy.RequiresApprovalDefault)
+	d.Set("include_cost_estimation", policy.IncludeCostEstimation)
+	d.Set("skip_apply_when_plan_is_empty", policy.SkipApplyWhenPlanIsEmpty)
+	d.Set("disable_destroy_environments", policy.DisableDestroyEnvironments)
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	_ = apiClient
+
+	policy, err := apiClient.Policy(d.Id())
+	if err != nil {
+		return diag.Errorf("could not get policy: %v", err)
+	}
+
+	setPolicySchema(d, policy)
+
 	return nil
 }
 
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	payload := client.PolicyUpdatePayload{}
-	_ = apiClient
-	return nil
-}
 
-func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-	_ = apiClient
+	payload := client.PolicyUpdatePayload{}
+	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
+		payload.NumberOfEnvironments = numberOfEnvironments.(int)
+	}
+	if requiresApprovalDefault, ok := d.GetOk("requires_approval_default"); ok {
+		payload.RequiresApprovalDefault = requiresApprovalDefault.(bool)
+	}
+	if includeCostEstimation, ok := d.GetOk("include_cost_estimation"); ok {
+		payload.IncludeCostEstimation = includeCostEstimation.(bool)
+	}
+	if skipApplyWhenPlanIsEmpty, ok := d.GetOk("skip_apply_when_plan_is_empty"); ok {
+		payload.SkipApplyWhenPlanIsEmpty = skipApplyWhenPlanIsEmpty.(bool)
+	}
+	if disableDestroyEnvironments, ok := d.GetOk("disable_destroy_environments"); ok {
+		payload.DisableDestroyEnvironments = disableDestroyEnvironments.(bool)
+	}
+
+	_, err := apiClient.PolicyUpdate(payload)
+	if err != nil {
+		return diag.Errorf("could not create policy: %v", err)
+	}
+
 	return nil
 }
