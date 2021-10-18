@@ -49,7 +49,7 @@ func dataPolicy() *schema.Resource {
 				Required:    true,
 			},
 			"updated_by": {
-				Type:        schema.String,
+				Type:        schema.TypeString,
 				Description: "updated by",
 				Required:    true,
 			},
@@ -67,20 +67,10 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-	} else {
-		name, ok := d.GetOk("name")
-		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
-		}
-		policy, err = getPolicyByName(name.(string), meta)
-		if err != nil {
-			return err
-		}
 	}
-
 	d.SetId(policy.Id)
 	d.Set("project_id", policy.ProjectId)
-	setPolicySchema(d.policy)
+	setPolicySchema(d, policy)
 	d.Set("updated_by", policy.UpdatedBy)
 	return nil
 }
