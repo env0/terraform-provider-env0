@@ -10,10 +10,10 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: nil,
+		CreateContext: resourcePolicyUpdate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: nil,
+		DeleteContext: resourcePolicyReset,
 
 		Importer: nil,
 
@@ -97,6 +97,19 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	_, err := apiClient.PolicyUpdate(payload)
 	if err != nil {
 		return diag.Errorf("could not create policy: %v", err)
+	}
+
+	return nil
+}
+
+func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	payload := client.PolicyUpdatePayload{}
+
+	_, err := apiClient.PolicyUpdate(payload)
+	if err != nil {
+		return diag.Errorf("could not delete policy: %v", err)
 	}
 
 	return nil

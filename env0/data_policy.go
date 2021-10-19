@@ -13,45 +13,40 @@ func dataPolicy() *schema.Resource {
 		ReadContext: dataPolicyRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": {
-				Type:        schema.TypeString,
-				Description: "id of the policy",
-				Required:    true,
-			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
-				Required:    true,
+				Computed:    true,
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
 				Description: "number of environments",
-				Required:    true,
+				Computed:    true,
 			},
 			"requires_approval_default": {
 				Type:        schema.TypeBool,
 				Description: "requires approval",
-				Required:    true,
+				Computed:    true,
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
 				Description: "include cost estimation",
-				Required:    true,
+				Computed:    true,
 			},
 			"skip_apply_when_plan_is_empty": {
 				Type:        schema.TypeBool,
 				Description: "skip apply when plan is empty",
-				Required:    true,
+				Computed:    true,
 			},
 			"disable_destroy_environments": {
 				Type:        schema.TypeBool,
 				Description: "disable destroy environments",
-				Required:    true,
+				Computed:    true,
 			},
 			"updated_by": {
 				Type:        schema.TypeString,
 				Description: "updated by",
-				Required:    true,
+				Computed:    true,
 			},
 		},
 	}
