@@ -21,8 +21,9 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		Value:       "Variable",
 	}
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-		"name":  configVar.Name,
-		"value": configVar.Value,
+		"name":        configVar.Name,
+		"description": configVar.Description,
+		"value":       configVar.Value,
 	})
 
 	t.Run("Create", func(t *testing.T) {
