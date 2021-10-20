@@ -194,8 +194,9 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":  configVar.Name,
-						"value": configVar.Value,
+						"name":        configVar.Name,
+						"description": configVar.Description,
+						"value":       configVar.Value,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
