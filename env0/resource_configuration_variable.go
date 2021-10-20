@@ -28,7 +28,7 @@ func resourceConfigurationVariable() *schema.Resource {
 				Required:    true,
 			},
 			"description": {
-				Type:        schema.TypeBool,
+				Type:        schema.TypeString,
 				Description: "a description of the variables",
 				Optional:    true,
 			},
