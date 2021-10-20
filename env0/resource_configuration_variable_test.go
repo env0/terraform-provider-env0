@@ -15,9 +15,10 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 	configVar := client.ConfigurationVariable{
-		Id:    "id0",
-		Name:  "name0",
-		Value: "Variable",
+		Id:          "id0",
+		Name:        "name0",
+		Description: "desc0",
+		Value:       "Variable",
 	}
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 		"name":  configVar.Name,
@@ -94,7 +95,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		description = "%s"
 		value= "%s"
 		enum = ["a","b"]
-	}`, resourceType, configVar.Name, configVar.Value)
+	}`, resourceType, configVar.Name, configVar.Description, configVar.Value)
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
