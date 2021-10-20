@@ -17,6 +17,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 	configurationVariable := client.ConfigurationVariable{
 		Id:             "id0",
 		Name:           "name0",
+		Description:    "desc0",
 		ScopeId:        "scope0",
 		Value:          "value0",
 		OrganizationId: "organization0",
@@ -30,6 +31,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 	checkResources := resource.ComposeAggregateTestCheckFunc(
 		resource.TestCheckResourceAttr(accessor, "id", configurationVariable.Id),
 		resource.TestCheckResourceAttr(accessor, "name", configurationVariable.Name),
+		resource.TestCheckResourceAttr(accessor, "description", configurationVariable.Description),
 		resource.TestCheckResourceAttr(accessor, "type", "environment"),
 		resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),

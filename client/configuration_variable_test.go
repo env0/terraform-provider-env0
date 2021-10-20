@@ -12,6 +12,7 @@ var _ = Describe("Configuration Variable", func() {
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
+		Description:    "configDescription",
 		Value:          "configValue",
 		OrganizationId: organizationId,
 		IsSensitive:    true,
@@ -29,6 +30,7 @@ var _ = Describe("Configuration Variable", func() {
 
 			expectedCreateRequest := []map[string]interface{}{{
 				"name":           mockConfigurationVariable.Name,
+				"description":    mockConfigurationVariable.Description,
 				"isSensitive":    mockConfigurationVariable.IsSensitive,
 				"value":          mockConfigurationVariable.Value,
 				"organizationId": organizationId,
@@ -51,6 +53,7 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.ScopeId,
 				mockConfigurationVariable.Type,
 				nil,
+				mockConfigurationVariable.Description,
 			)
 		})
 
@@ -85,10 +88,12 @@ var _ = Describe("Configuration Variable", func() {
 			mockOrganizationIdCall(organizationId)
 
 			newName := "new-" + mockConfigurationVariable.Name
+			newDescription := "new-" + mockConfigurationVariable.Description
 			newValue := "new-" + mockConfigurationVariable.Value
 
 			expectedUpdateRequest := []map[string]interface{}{{
 				"name":           newName,
+				"description":    newDescription,
 				"value":          newValue,
 				"id":             mockConfigurationVariable.Id,
 				"isSensitive":    mockConfigurationVariable.IsSensitive,
@@ -113,6 +118,7 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.ScopeId,
 				mockConfigurationVariable.Type,
 				nil,
+				mockConfigurationVariable.Description,
 			)
 		})
 

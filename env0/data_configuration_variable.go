@@ -27,6 +27,11 @@ func dataConfigurationVariable() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "a description of the variable",
+				Optional:    true,
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
@@ -116,6 +121,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 
 	d.SetId(variable.Id)
 	d.Set("name", variable.Name)
+	d.Set("description", variable.Description)
 	d.Set("value", variable.Value)
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
