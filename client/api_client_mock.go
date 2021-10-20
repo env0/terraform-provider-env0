@@ -138,18 +138,18 @@ func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialIdsInProject(arg0 i
 }
 
 // ConfigurationVariableCreate mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariableCreate(arg0, arg1 string, arg2 bool, arg3 Scope, arg4 string, arg5 ConfigurationVariableType, arg6 []string) (ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariableCreate(arg0, arg1 string, arg2 bool, arg3 Scope, arg4 string, arg5 ConfigurationVariableType, arg6 []string, arg7 string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariableCreate", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+	ret := m.ctrl.Call(m, "ConfigurationVariableCreate", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariableCreate indicates an expected call of ConfigurationVariableCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableCreate(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableCreate(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableCreate), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableCreate), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 }
 
 // ConfigurationVariableDelete mocks base method.
@@ -167,18 +167,18 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableDelete(arg0 i
 }
 
 // ConfigurationVariableUpdate mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariableUpdate(arg0, arg1, arg2 string, arg3 bool, arg4 Scope, arg5 string, arg6 ConfigurationVariableType, arg7 []string) (ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariableUpdate(arg0, arg1, arg2 string, arg3 bool, arg4 Scope, arg5 string, arg6 ConfigurationVariableType, arg7 []string, arg8 string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariableUpdate", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	ret := m.ctrl.Call(m, "ConfigurationVariableUpdate", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariableUpdate indicates an expected call of ConfigurationVariableUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7 interface{}) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 }
 
 // ConfigurationVariables mocks base method.
