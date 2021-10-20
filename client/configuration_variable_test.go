@@ -118,7 +118,7 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.ScopeId,
 				mockConfigurationVariable.Type,
 				nil,
-				mockConfigurationVariable.Description,
+				newDescription,
 			)
 		})
 
