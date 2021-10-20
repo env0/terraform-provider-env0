@@ -199,6 +199,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
 					),
@@ -244,20 +245,23 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":  configVar.Name,
-						"value": configVar.Value,
+						"name":        configVar.Name,
+						"description": configVar.Description,
+						"value":       configVar.Value,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":  newConfigVar.Name,
-						"value": newConfigVar.Value,
-						"type":  newConfigVar.Type,
+						"name":        newConfigVar.Name,
+						"description": newConfigVar.Description,
+						"value":       newConfigVar.Value,
+						"type":        newConfigVar.Type,
 					}),
 					ExpectError: regexp.MustCompile(`'type' can only receive either 'environment' or 'terraform'`),
 				},
