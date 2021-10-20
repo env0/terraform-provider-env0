@@ -63,9 +63,10 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		stepConfig := fmt.Sprintf(`
 	resource "%s" "test" {
 		name = "%s"
+		description = "%s"
 		value= "%s"
 		enum = ["%s","%s"]
-	}`, resourceType, configVar.Name, configVar.Value, configVar.Schema.Enum[0], configVar.Schema.Enum[1])
+	}`, resourceType, configVar.Name, configVar.Description, configVar.Value, configVar.Schema.Enum[0], configVar.Schema.Enum[1])
 
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
