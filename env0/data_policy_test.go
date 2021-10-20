@@ -30,7 +30,7 @@ func TestPolicyDataSource(t *testing.T) {
 			{
 				Config: dataSourceConfigCreate(resourceType, resourceName, make(map[string]interface{})),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// resource.TestCheckResourceAttr(accessor, "id", policy.Id),
+					resource.TestCheckResourceAttr(accessor, "id", policy.Id),
 					resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", "true"),
 				),
