@@ -66,6 +66,7 @@ func dataConfigurationVariable() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "value stored in the variable",
 				Computed:    true,
+				Sensitive:   true,
 			},
 			"is_sensitive": {
 				Type:        schema.TypeBool,
