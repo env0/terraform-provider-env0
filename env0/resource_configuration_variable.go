@@ -27,6 +27,11 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description: "name to give the configuration variable",
 				Required:    true,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "a description of the variables",
+				Optional:    true,
+			},
 			"value": {
 				Type:        schema.TypeString,
 				Description: "value for the configuration variable",
@@ -105,6 +110,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
@@ -122,7 +128,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		return getEnumErr
 	}
 
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -163,6 +169,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	for _, variable := range variables {
 		if variable.Id == id {
 			d.Set("name", variable.Name)
+			d.Set("description", variable.Description)
 			d.Set("value", variable.Value)
 			d.Set("is_sensitive", variable.IsSensitive)
 			if variable.Type == client.ConfigurationVariableTypeTerraform {
@@ -185,6 +192,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	id := d.Id()
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
@@ -201,7 +209,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues)
+	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}

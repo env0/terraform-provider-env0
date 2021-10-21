@@ -52,6 +52,7 @@ type ConfigurationVariable struct {
 	Scope          Scope                       `json:"scope"`
 	Id             string                      `json:"id"`
 	Name           string                      `json:"name"`
+	Description    string                      `json:"description"`
 	Type           ConfigurationVariableType   `json:"type"`
 	Schema         ConfigurationVariableSchema `json:"schema"`
 }
