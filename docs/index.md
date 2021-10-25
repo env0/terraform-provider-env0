@@ -24,7 +24,7 @@ provider "env0" {
 
 ### Required
 
-- **api_key** (String, Sensitive) env0 api key (https://docs.env0.com/reference#authentication)
+- **api_key** (String, Sensitive) env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)
 - **api_secret** (String, Sensitive) env0 api key secret
 
 ### Optional
