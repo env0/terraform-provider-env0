@@ -22,7 +22,7 @@ func Provider(version string) plugin.ProviderFunc {
 				},
 				"api_key": {
 					Type:        schema.TypeString,
-					Description: "env0 api key (https://docs.env0.com/reference#authentication)",
+					Description: "env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)",
 					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
 					Required:    true,
 					Sensitive:   true,

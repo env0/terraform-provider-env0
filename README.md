@@ -41,7 +41,7 @@ resource "env0_configuration_variable" "in_a_template" {
 ## Authentication
 
 First, generate an `api_key` and `api_secret` from the organization settings page.
-See [here](https://docs.env0.com/reference#authentication).
+See [here](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key).
 
 These can be provided by one of two methods. First method consists of setting `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables, and just declaring the provider with no parameters:
 
