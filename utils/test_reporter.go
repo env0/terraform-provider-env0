@@ -16,14 +16,17 @@ type TestReporter struct {
 }
 
 func (r *TestReporter) Error(args ...interface{}) {
+	r.T.Helper()
 	r.T.Error(args...)
 }
 
 func (r *TestReporter) Fail() {
+	r.T.Helper()
 	r.T.Fail()
 }
 
 func (r *TestReporter) FailNow() {
+	r.T.Helper()
 	r.T.FailNow()
 }
 
@@ -32,6 +35,7 @@ func (r *TestReporter) Failed() bool {
 }
 
 func (r *TestReporter) Fatal(args ...interface{}) {
+	r.T.Helper()
 	r.T.Fatal(args...)
 }
 
@@ -72,11 +76,13 @@ func (r *TestReporter) Helper() {
 }
 
 func (r *TestReporter) Fatalf(format string, args ...interface{}) {
+	r.T.Helper()
 	r.Log(fmt.Sprintf(format, args...))
 	r.T.Fail()
 	os.Exit(1)
 }
 
 func (r *TestReporter) Errorf(format string, args ...interface{}) {
+	r.T.Helper()
 	r.T.Errorf(format, args...)
 }
