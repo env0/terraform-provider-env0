@@ -28,6 +28,7 @@ output "aws_default_region" {
 ### Optional
 
 - **deployment_log_id** (String) search for the variable under this deployment log, not globally
+- **description** (String) a description of the variable
 - **environment_id** (String) search for the variable under this environment, not globally
 - **id** (String) id of the configuration variable
 - **name** (String) the name of the configuration variable
@@ -40,6 +41,6 @@ output "aws_default_region" {
 - **enum** (List of String) possible values of this variable
 - **is_sensitive** (Boolean) is the variable defined as sensitive
 - **scope** (String) scope of the variable
-- **value** (String) value stored in the variable
+- **value** (String, Sensitive) value stored in the variable
 
 
