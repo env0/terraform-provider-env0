@@ -14,8 +14,9 @@ description: |-
 
 ```terraform
 resource "env0_configuration_variable" "example" {
-  name  = "ENVIRONMENT_VARIABLE_NAME"
-  value = "example value"
+  name        = "ENVIRONMENT_VARIABLE_NAME"
+  value       = "example value"
+  description = "Here you can fill description for this variable"
 }
 
 resource "env0_configuration_variable" "drop_down" {
@@ -34,10 +35,11 @@ resource "env0_configuration_variable" "drop_down" {
 ### Required
 
 - **name** (String) name to give the configuration variable
-- **value** (String) value for the configuration variable
+- **value** (String, Sensitive) value for the configuration variable
 
 ### Optional
 
+- **description** (String) a description of the variables
 - **enum** (List of String) limit possible values to values from this list
 - **environment_id** (String) create the variable under this environment, not globally
 - **id** (String) The ID of this resource.
