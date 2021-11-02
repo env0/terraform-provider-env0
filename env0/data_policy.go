@@ -16,7 +16,7 @@ func dataPolicy() *schema.Resource {
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
-				Computed:    true,
+				Required:    true,
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
