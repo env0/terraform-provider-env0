@@ -1,13 +1,12 @@
+data "env0_project" "default" {
+  name = "Default Organization Project"
+}
+
 data "env0_policy" "default" {
-  project_id = "Project0"
+  project_id = data.env0_project.default.id
 }
 
 resource "env0_policy" "test_policy" {
-  id         = data.env0_policy.default.id
-  project_id = data.env0_policy.default.project_id
+  project_id             = data.env0_policy.default.project_id
+  number_of_environments = 1
 }
-
-output "policy_project_id" {
-  value = data.env0_policy.default.project_id
-}
-
