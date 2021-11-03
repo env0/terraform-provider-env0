@@ -54,6 +54,7 @@ func resourcePolicy() *schema.Resource {
 }
 
 func setPolicySchema(d *schema.ResourceData, policy client.Policy) {
+	d.Set("project_id", policy.ProjectId)
 	d.Set("number_of_environments", policy.NumberOfEnvironments)
 	d.Set("requires_approval_default", policy.RequiresApprovalDefault)
 	d.Set("include_cost_estimation", policy.IncludeCostEstimation)
@@ -78,6 +79,9 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	apiClient := meta.(client.ApiClientInterface)
 
 	payload := client.PolicyUpdatePayload{}
+	if projectID, ok := d.GetOk("project_id"); ok {
+		payload.ProjectId = projectID.(string)
+	}
 	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
 		payload.NumberOfEnvironments = numberOfEnvironments.(int)
 	}
