@@ -7,6 +7,5 @@ data "env0_policy" "default" {
 }
 
 resource "env0_policy" "test_policy" {
-  project_id             = data.env0_policy.default.project_id
   number_of_environments = 1
 }
