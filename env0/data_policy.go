@@ -13,6 +13,11 @@ func dataPolicy() *schema.Resource {
 		ReadContext: dataPolicyRead,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Description: "id of the policy",
+				Computed:    true,
+			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "id of the project",
@@ -56,9 +61,9 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	var err diag.Diagnostics
 	var policy client.Policy
 
-	id, ok := d.GetOk("id")
+	projectId, ok := d.GetOk("project_id")
 	if ok {
-		policy, err = getPolicyById(id.(string), meta)
+		policy, err = getPolicyByProjectId(projectId.(string), meta)
 		if err != nil {
 			return err
 		}
@@ -70,11 +75,14 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func getPolicyById(id string, meta interface{}) (client.Policy, diag.Diagnostics) {
+func getPolicyByProjectId(projectId string, meta interface{}) (client.Policy, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	policy, err := apiClient.Policy(id)
+	policy, err := apiClient.Policy(projectId)
 	if err != nil {
 		return client.Policy{}, diag.Errorf("Could not query template: %v", err)
+	}
+	if policy.Id == "" {
+		return client.Policy{}, diag.Errorf("Policy has empty id")
 	}
 	return policy, nil
 }
