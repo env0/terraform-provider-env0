@@ -69,9 +69,12 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		}
 	}
 	d.SetId(policy.Id)
+	d.Set("id", policy.Id)
 	d.Set("project_id", policy.ProjectId)
-	setPolicySchema(d, policy)
+	d.Set("number_of_environments", policy.NumberOfEnvironments)
 	d.Set("updated_by", policy.UpdatedBy)
+
+	setPolicySchema(d, policy)
 	return nil
 }
 
