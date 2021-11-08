@@ -9,14 +9,14 @@ import (
 
 func TestPolicyDataSource(t *testing.T) {
 	policy := client.Policy{
-		Id:                             "id0",
-		ProjectId:                      "project0",
-		NumberOfEnvironments:           1,
-		NumberOfEnvironmentsPerProject: 2,
-		RequiresApprovalDefault:        true,
-		IncludeCostEstimation:          true,
-		SkipApplyWhenPlanIsEmpty:       true,
-		DisableDestroyEnvironments:     true,
+		Id:                         "id0",
+		ProjectId:                  "project0",
+		NumberOfEnvironments:       1,
+		NumberOfEnvironmentsTotal:  2,
+		RequiresApprovalDefault:    true,
+		IncludeCostEstimation:      true,
+		SkipApplyWhenPlanIsEmpty:   true,
+		DisableDestroyEnvironments: true,
 	}
 
 	resourceType := "env0_policy"
@@ -45,5 +45,4 @@ func TestPolicyDataSource(t *testing.T) {
 			mock.EXPECT().Policy(policy.ProjectId).AnyTimes().Return(policy, nil)
 		})
 	})
-
 }
