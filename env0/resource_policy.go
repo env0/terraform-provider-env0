@@ -154,9 +154,7 @@ func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta inter
 	id := d.Id()
 
 	payload := client.PolicyUpdatePayload{
-		ProjectId:                 id,
-		NumberOfEnvironments:      1,
-		NumberOfEnvironmentsTotal: 1,
+		ProjectId: id,
 	}
 
 	_, err := apiClient.PolicyUpdate(payload)

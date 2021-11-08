@@ -255,8 +255,8 @@ type Policy struct {
 
 type PolicyCreatePayload struct {
 	ProjectId                  string `json:"projectId"`
-	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
-	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
+	NumberOfEnvironments       int    `json:"numberOfEnvironments,omitempty"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal,omitempty"`
 	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
@@ -266,8 +266,8 @@ type PolicyCreatePayload struct {
 
 type PolicyUpdatePayload struct {
 	ProjectId                  string `json:"projectId"`
-	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
-	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
+	NumberOfEnvironments       int    `json:"numberOfEnvironments,omitempty"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal,omitempty"`
 	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
