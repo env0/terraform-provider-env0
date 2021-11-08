@@ -241,31 +241,36 @@ type TeamProjectAssignment struct {
 }
 
 type Policy struct {
-	Id                             string `json:"id"`
-	ProjectId                      string `json:"projectId"`
-	NumberOfEnvironments           int    `json:"numberOfEnvironments"`
-	NumberOfEnvironmentsPerProject int    `json:"numberOfEnvironmentsPerProject"`
-	RequiresApprovalDefault        bool   `json:"requiresApprovalDefault"`
-	IncludeCostEstimation          bool   `json:"includeCostEstimation"`
-	SkipApplyWhenPlanIsEmpty       bool   `json:"skipApplyWhenPlanIsEmpty"`
-	DisableDestroyEnvironments     bool   `json:"disableDestroyEnvironments"`
-	UpdatedBy                      string `json:"updatedBy"`
+	Id                         string `json:"id"`
+	ProjectId                  string `json:"projectId"`
+	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
+	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
+	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
+	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
+	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
+	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+	UpdatedBy                  string `json:"updatedBy"`
 }
 
 type PolicyCreatePayload struct {
 	ProjectId                  string `json:"projectId"`
 	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
 	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
 	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
+	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
 }
 
 type PolicyUpdatePayload struct {
 	ProjectId                  string `json:"projectId"`
 	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
 	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
 	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
+	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
 }
