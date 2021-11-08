@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -15,29 +16,31 @@ func TestUnitPolicyResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	policy := client.Policy{
-		Id: "id0",
+		Id:        "id0",
+		ProjectId: "project0",
 	}
 
 	updatedPolicy := client.Policy{
-		Id: policy.Id,
+		Id:        policy.Id,
+		ProjectId: policy.ProjectId,
 	}
 
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"id": policy.Id,
+					"project_id": policy.ProjectId,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "id", policy.Id),
+					resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
 				),
 			},
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"id": updatedPolicy.Id,
+					"number_of_environments": fmt.Sprintf("%d", policy.NumberOfEnvironmentsTotal),
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "id", updatedPolicy.Id),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", fmt.Sprintf("%d", updatedPolicy.NumberOfEnvironmentsTotal)),
 				),
 			},
 		},
@@ -45,10 +48,24 @@ func TestUnitPolicyResource(t *testing.T) {
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
-			NumberOfEnvironments: policy.NumberOfEnvironments,
+			ProjectId:                  policy.ProjectId,
+			NumberOfEnvironments:       policy.NumberOfEnvironments,
+			NumberOfEnvironmentsTotal:  policy.NumberOfEnvironmentsTotal,
+			RequiresApprovalDefault:    policy.RequiresApprovalDefault,
+			IncludeCostEstimation:      policy.IncludeCostEstimation,
+			SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
+			DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
+			SkipRedundantDepolyments:   policy.SkipRedundantDepolyments,
 		}).Times(1).Return(policy, nil)
 		mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
-			NumberOfEnvironments: updatedPolicy.NumberOfEnvironments,
+			ProjectId:                  updatedPolicy.ProjectId,
+			NumberOfEnvironments:       updatedPolicy.NumberOfEnvironments,
+			NumberOfEnvironmentsTotal:  updatedPolicy.NumberOfEnvironmentsTotal,
+			RequiresApprovalDefault:    updatedPolicy.RequiresApprovalDefault,
+			IncludeCostEstimation:      updatedPolicy.IncludeCostEstimation,
+			SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
+			DisableDestroyEnvironments: updatedPolicy.DisableDestroyEnvironments,
+			SkipRedundantDepolyments:   updatedPolicy.SkipRedundantDepolyments,
 		}).Times(1).Return(updatedPolicy, nil)
 
 		gomock.InOrder(
