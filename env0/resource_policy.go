@@ -2,8 +2,12 @@ package env0
 
 import (
 	"context"
+	"errors"
+	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -15,7 +19,7 @@ func resourcePolicy() *schema.Resource {
 		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyReset,
 
-		Importer: nil,
+		Importer: &schema.ResourceImporter{StateContext: resourcePolicyImport},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -27,6 +31,13 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id  of the project",
 				Required:    true,
+				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
+					projectId := i.(string)
+					if projectId == "" {
+						return diag.Errorf("Project ID cannot be empty")
+					}
+					return nil
+				},
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
@@ -103,6 +114,9 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	payload := client.PolicyUpdatePayload{}
 	if projectID, ok := d.GetOk("project_id"); ok {
 		payload.ProjectId = projectID.(string)
+		log.Printf("[INFO] updating policy for project: %s\n", projectID)
+	} else {
+		return diag.Errorf("project id not ok")
 	}
 	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
 		payload.NumberOfEnvironments = numberOfEnvironments.(int)
@@ -130,19 +144,20 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	if err != nil {
 		return diag.Errorf("could not update policy: %v", err)
 	}
-
-	policy, err := apiClient.Policy(payload.ProjectId)
-	if err != nil {
-		_ = policy
-		return diag.Errorf("err: %#v", err)
-	}
+	d.SetId(payload.ProjectId)
 	return nil
 }
 
 func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := client.PolicyUpdatePayload{}
+	id := d.Id()
+
+	payload := client.PolicyUpdatePayload{
+		ProjectId:                 id,
+		NumberOfEnvironments:      1,
+		NumberOfEnvironmentsTotal: 1,
+	}
 
 	_, err := apiClient.PolicyUpdate(payload)
 	if err != nil {
@@ -150,4 +165,20 @@ func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	return nil
+}
+
+func resourcePolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, err := uuid.Parse(id)
+	if err == nil {
+		log.Println("[INFO] Resolving Policy by Project id: ", id)
+		_, getErr = getPolicyByProjectId(id, meta)
+	}
+
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }

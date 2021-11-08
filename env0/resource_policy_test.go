@@ -37,6 +37,7 @@ func TestUnitPolicyResource(t *testing.T) {
 			},
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"project_id":             policy.ProjectId,
 					"number_of_environments": fmt.Sprintf("%d", policy.NumberOfEnvironmentsTotal),
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
