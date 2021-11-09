@@ -20,7 +20,7 @@ func TestPolicyDataSource(t *testing.T) {
 		DisableDestroyEnvironments: true,
 	}
 
-	resourceType := "env0_policy"
+	resourceType := "env0_project_policy"
 	resourceName := "test_policy"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 

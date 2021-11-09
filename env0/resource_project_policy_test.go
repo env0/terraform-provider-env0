@@ -11,7 +11,7 @@ import (
 )
 
 func TestUnitPolicyResource(t *testing.T) {
-	resourceType := "env0_policy"
+	resourceType := "env0_project_policy"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 
@@ -84,7 +84,7 @@ func TestUnitPolicyInvalidParams(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config:      resourceConfigCreate("env0_policy", "test", map[string]interface{}{"project_id": ""}),
+				Config:      resourceConfigCreate("env0_project_policy", "test", map[string]interface{}{"project_id": ""}),
 				ExpectError: regexp.MustCompile("Project ID cannot be empty"),
 			},
 		},
