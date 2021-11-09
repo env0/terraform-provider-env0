@@ -79,17 +79,6 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		}
 	}
 	d.SetId(policy.Id)
-	d.Set("id", policy.Id)
-	d.Set("project_id", policy.ProjectId)
-	d.Set("number_of_environments", policy.NumberOfEnvironments)
-	d.Set("number_of_environments_total", policy.NumberOfEnvironmentsTotal)
-	d.Set("requires_approval_default", policy.RequiresApprovalDefault)
-	d.Set("include_cost_estimation", policy.IncludeCostEstimation)
-	d.Set("skip_apply_when_plan_is_empty", policy.SkipApplyWhenPlanIsEmpty)
-	d.Set("disable_destroy_environments", policy.DisableDestroyEnvironments)
-	d.Set("skip_redundant_deployments", policy.SkipRedundantDepolyments)
-	d.Set("updated_by", policy.UpdatedBy)
-
 	setPolicySchema(d, policy)
 	return nil
 }
