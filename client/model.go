@@ -1,5 +1,7 @@
 package client
 
+import "encoding/json"
+
 type Organization struct {
 	Id           string `json:"id"`
 	Name         string `json:"name"`
@@ -253,10 +255,10 @@ type Policy struct {
 	UpdatedBy                  string `json:"updatedBy"`
 }
 
-type PolicyCreatePayload struct {
+type PolicyUpdatePayload struct {
 	ProjectId                  string `json:"projectId"`
-	NumberOfEnvironments       int    `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal,omitempty"`
+	NumberOfEnvironments       int    `json:"numberOfEnvironments"`
+	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal"`
 	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
@@ -264,13 +266,33 @@ type PolicyCreatePayload struct {
 	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
 }
 
-type PolicyUpdatePayload struct {
-	ProjectId                  string `json:"projectId"`
-	NumberOfEnvironments       int    `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal  int    `json:"numberOfEnvironmentsTotal,omitempty"`
-	RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
-	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
-	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
-	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
-	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
+	type serial struct {
+		ProjectId                  string `json:"projectId"`
+		NumberOfEnvironments       *int   `json:"numberOfEnvironments"`
+		NumberOfEnvironmentsTotal  *int   `json:"numberOfEnvironmentsTotal"`
+		RequiresApprovalDefault    bool   `json:"requiresApprovalDefault"`
+		IncludeCostEstimation      bool   `json:"includeCostEstimation"`
+		SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
+		DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
+		SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+	}
+
+	s := serial{
+		ProjectId:                  p.ProjectId,
+		RequiresApprovalDefault:    p.RequiresApprovalDefault,
+		IncludeCostEstimation:      p.IncludeCostEstimation,
+		SkipApplyWhenPlanIsEmpty:   p.SkipApplyWhenPlanIsEmpty,
+		DisableDestroyEnvironments: p.DisableDestroyEnvironments,
+		SkipRedundantDepolyments:   p.SkipRedundantDepolyments,
+	}
+
+	if p.NumberOfEnvironments != 0 {
+		s.NumberOfEnvironments = &p.NumberOfEnvironments
+	}
+	if p.NumberOfEnvironmentsTotal != 0 {
+		s.NumberOfEnvironmentsTotal = &p.NumberOfEnvironmentsTotal
+	}
+
+	return json.Marshal(s)
 }

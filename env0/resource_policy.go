@@ -41,12 +41,12 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
-				Description: "number of environments per project",
+				Description: "number of environments per project, 0 indicates no limit",
 				Optional:    true,
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "number of environments total",
+				Description: "number of environments total, 0 indicates no limit",
 				Optional:    true,
 			},
 			"requires_approval_default": {

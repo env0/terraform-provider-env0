@@ -16,32 +16,36 @@ func TestUnitPolicyResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	policy := client.Policy{
-		Id:        "id0",
-		ProjectId: "project0",
+		Id:                   "id0",
+		ProjectId:            "project0",
+		NumberOfEnvironments: 1,
 	}
 
 	updatedPolicy := client.Policy{
-		Id:        policy.Id,
-		ProjectId: policy.ProjectId,
+		Id:                   policy.Id,
+		ProjectId:            policy.ProjectId,
+		NumberOfEnvironments: 0,
 	}
 
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"project_id": policy.ProjectId,
+					"project_id":             policy.ProjectId,
+					"number_of_environments": policy.NumberOfEnvironments,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
+					resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", fmt.Sprintf("%d", policy.NumberOfEnvironments)),
 				),
 			},
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"project_id":             policy.ProjectId,
-					"number_of_environments": fmt.Sprintf("%d", policy.NumberOfEnvironmentsTotal),
+					"project_id":             updatedPolicy.ProjectId,
+					"number_of_environments": updatedPolicy.NumberOfEnvironments,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "number_of_environments", fmt.Sprintf("%d", updatedPolicy.NumberOfEnvironmentsTotal)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", fmt.Sprintf("%d", updatedPolicy.NumberOfEnvironments)),
 				),
 			},
 		},
@@ -67,7 +71,7 @@ func TestUnitPolicyResource(t *testing.T) {
 			SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: updatedPolicy.DisableDestroyEnvironments,
 			SkipRedundantDepolyments:   updatedPolicy.SkipRedundantDepolyments,
-		}).Times(1).Return(updatedPolicy, nil)
+		}).Times(2).Return(updatedPolicy, nil)
 
 		gomock.InOrder(
 			mock.EXPECT().Policy(gomock.Any()).Times(2).Return(policy, nil),        // 1 after create, 1 before update
