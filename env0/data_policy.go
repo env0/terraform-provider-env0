@@ -87,10 +87,7 @@ func getPolicyByProjectId(projectId string, meta interface{}) (client.Policy, di
 	apiClient := meta.(client.ApiClientInterface)
 	policy, err := apiClient.Policy(projectId)
 	if err != nil {
-		return client.Policy{}, diag.Errorf("Could not query template: %v", err)
-	}
-	if policy.Id == "" {
-		return client.Policy{}, diag.Errorf("Policy has empty id")
+		return client.Policy{}, diag.Errorf("Could not query policy: %v", err)
 	}
 	return policy, nil
 }
