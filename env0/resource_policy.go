@@ -7,7 +7,6 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -31,13 +30,6 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id  of the project",
 				Required:    true,
-				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
-					projectId := i.(string)
-					if projectId == "" {
-						return diag.Errorf("Project ID cannot be empty")
-					}
-					return nil
-				},
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
