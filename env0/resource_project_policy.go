@@ -7,6 +7,7 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -35,11 +36,25 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "number of environments per project, 0 indicates no limit",
 				Optional:    true,
+				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+					n := i.(int)
+					if n < 0 {
+						return diag.Errorf("Number of environments must not be negative")
+					}
+					return nil
+				},
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
 				Description: "number of environments total, 0 indicates no limit",
 				Optional:    true,
+				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+					n := i.(int)
+					if n < 0 {
+						return diag.Errorf("Number of total environments must not be negative")
+					}
+					return nil
+				},
 			},
 			"requires_approval_default": {
 				Type:        schema.TypeBool,
@@ -59,6 +74,11 @@ func resourcePolicy() *schema.Resource {
 			"disable_destroy_environments": {
 				Type:        schema.TypeBool,
 				Description: "disable destroy environments",
+				Optional:    true,
+			},
+			"skip_redundant_deployments": {
+				Type:        schema.TypeBool,
+				Description: "skip redundant deployments",
 				Optional:    true,
 			},
 			"updated_by": {
@@ -158,17 +178,16 @@ func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourcePolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id := d.Id()
+	projectId := d.Id()
 	var getErr diag.Diagnostics
-	_, err := uuid.Parse(id)
+	_, err := uuid.Parse(projectId)
 	if err == nil {
-		log.Println("[INFO] Resolving Policy by Project id: ", id)
-		_, getErr = getPolicyByProjectId(id, meta)
+		log.Println("[INFO] Resolving Policy by Project id: ", projectId)
+		_, getErr = getPolicyByProjectId(projectId, meta)
 	}
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
 	}
+	return []*schema.ResourceData{d}, nil
 }
