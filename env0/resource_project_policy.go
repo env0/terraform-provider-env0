@@ -38,8 +38,8 @@ func resourcePolicy() *schema.Resource {
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
-					if n < 0 {
-						return diag.Errorf("Number of environments must not be negative")
+					if n < 1 {
+						return diag.Errorf("Number of environments must be greater than zero")
 					}
 					return nil
 				},
@@ -50,8 +50,8 @@ func resourcePolicy() *schema.Resource {
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
-					if n < 0 {
-						return diag.Errorf("Number of total environments must not be negative")
+					if n < 1 {
+						return diag.Errorf("Number of total environments must be greater that zero")
 					}
 					return nil
 				},
