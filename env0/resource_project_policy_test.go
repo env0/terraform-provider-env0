@@ -144,7 +144,7 @@ func TestUnitPolicyInvalidParams(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate("env0_project_policy", "test", map[string]interface{}{"project_id": ""}),
-				ExpectError: regexp.MustCompile("project id not ok"),
+				ExpectError: regexp.MustCompile("project id must not be empty"),
 			},
 		},
 	}

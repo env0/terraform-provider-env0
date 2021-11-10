@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/go-cty/cty"
@@ -30,6 +31,12 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id  of the project",
 				Required:    true,
+				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+					if strings.TrimSpace(i.(string)) == "" {
+						return diag.Errorf("project id must not be empty")
+					}
+					return nil
+				},
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
