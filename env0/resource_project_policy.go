@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -104,17 +103,22 @@ func setPolicySchema(d *schema.ResourceData, policy client.Policy) {
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	projectId := d.Get("project_id").(string)
+	d.SetId(projectId)
 	return resourcePolicyUpdate(ctx, d, meta)
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	policy, err := apiClient.Policy(d.Id())
+	projectId := d.Id()
+
+	policy, err := apiClient.Policy(projectId)
 	if err != nil {
 		return diag.Errorf("could not get policy: %v", err)
 	}
 
+	d.SetId(projectId)
 	setPolicySchema(d, policy)
 
 	return nil
@@ -123,18 +127,21 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	projectId := d.Id()
+	d.SetId(projectId)
+	log.Printf("[INFO] updating policy for project: %s\n", projectId)
+
 	payload := client.PolicyUpdatePayload{}
-	if projectID, ok := d.GetOk("project_id"); ok {
-		payload.ProjectId = projectID.(string)
-		log.Printf("[INFO] updating policy for project: %s\n", projectID)
-	} else {
-		return diag.Errorf("project id not ok")
+	if projectId, ok := d.GetOk("project_id"); ok {
+		payload.ProjectId = projectId.(string)
 	}
 	if numberOfEnvironments, ok := d.GetOk("number_of_environments"); ok {
 		payload.NumberOfEnvironments = numberOfEnvironments.(int)
+		// return diag.Errorf("number of environments: %d", payload.NumberOfEnvironments)
 	}
 	if numberOfEnvironmentsTotal, ok := d.GetOk("number_of_environments_total"); ok {
 		payload.NumberOfEnvironmentsTotal = numberOfEnvironmentsTotal.(int)
+		// return diag.Errorf("number of environments total: %d", payload.NumberOfEnvironmentsTotal)
 	}
 	if requiresApprovalDefault, ok := d.GetOk("requires_approval_default"); ok {
 		payload.RequiresApprovalDefault = requiresApprovalDefault.(bool)
@@ -156,38 +163,40 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	if err != nil {
 		return diag.Errorf("could not update policy: %v", err)
 	}
-	d.SetId(payload.ProjectId)
 	return nil
 }
 
 func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	id := d.Id()
+	projectId := d.Id()
 
 	payload := client.PolicyUpdatePayload{
-		ProjectId: id,
+		ProjectId:               projectId,
+		RequiresApprovalDefault: true,
 	}
 
-	_, err := apiClient.PolicyUpdate(payload)
+	policy, err := apiClient.PolicyUpdate(payload)
 	if err != nil {
-		return diag.Errorf("could not delete policy: %v", err)
+		return diag.Errorf("could not reset policy: %v", err)
 	}
+
+	d.SetId(projectId)
+	setPolicySchema(d, policy)
 
 	return nil
 }
 
 func resourcePolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	projectId := d.Id()
-	var getErr diag.Diagnostics
-	_, err := uuid.Parse(projectId)
-	if err == nil {
-		log.Println("[INFO] Resolving Policy by Project id: ", projectId)
-		_, getErr = getPolicyByProjectId(projectId, meta)
+
+	policy, err := getPolicyByProjectId(projectId, meta)
+	if err != nil {
+		return nil, errors.New(err[0].Summary)
 	}
 
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	}
+	d.SetId(projectId)
+	setPolicySchema(d, policy)
+
 	return []*schema.ResourceData{d}, nil
 }
