@@ -4,7 +4,6 @@ data "env0_project" "default" {
 
 resource "env0_project_policy" "test_policy" {
   project_id                    = data.env0_project.default.id
-  number_of_environments        = 0
   number_of_environments_total  = 1
   requires_approval_default     = true
   include_cost_estimation       = false
@@ -16,7 +15,6 @@ resource "env0_project_policy" "test_policy" {
 resource "env0_project_policy" "test_policy_2" {
   project_id                    = data.env0_project.default.id
   number_of_environments        = 1
-  number_of_environments_total  = 0
   requires_approval_default     = false
   include_cost_estimation       = true
   skip_apply_when_plan_is_empty = true
