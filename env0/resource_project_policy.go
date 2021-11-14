@@ -69,7 +69,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
-				Description: "include cost estimation",
+				Description: "Enable cost estimation for the project",
 				Optional:    true,
 			},
 			"skip_apply_when_plan_is_empty": {

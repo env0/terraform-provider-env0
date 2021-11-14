@@ -23,7 +23,7 @@ description: |-
 
 - **disable_destroy_environments** (Boolean) Disallow destroying environment in the project
 - **id** (String) id of the policy
-- **include_cost_estimation** (Boolean) include cost estimation
+- **include_cost_estimation** (Boolean) Enable cost estimation for the project
 - **number_of_environments** (Number) number of environments per project
 - **number_of_environments_total** (Number) number of environments total
 - **requires_approval_default** (Boolean) requires approval
