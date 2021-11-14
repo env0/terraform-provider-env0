@@ -26,7 +26,7 @@ description: |-
 - **include_cost_estimation** (Boolean) Enable cost estimation for the project
 - **number_of_environments** (Number) Max number of environment a single user can have in this project
 - **number_of_environments_total** (Number) Max number of environments in this project
-- **requires_approval_default** (Boolean) requires approval
+- **requires_approval_default** (Boolean) Requires approval default value when creating a new environment in the project
 - **skip_apply_when_plan_is_empty** (Boolean) skip apply when plan is empty
 - **skip_redundant_deployments** (Boolean) skip redundant deployments
 - **updated_by** (String) updated by

@@ -35,7 +35,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"requires_approval_default": {
 				Type:        schema.TypeBool,
-				Description: "requires approval",
+				Description: "Requires approval default value when creating a new environment in the project",
 				Computed:    true,
 			},
 			"include_cost_estimation": {
