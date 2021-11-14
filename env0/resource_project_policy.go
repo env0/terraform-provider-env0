@@ -84,7 +84,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"skip_redundant_deployments": {
 				Type:        schema.TypeBool,
-				Description: "skip redundant deployments",
+				Description: "Automatically skip queued deployments when a newer deployment is triggered",
 				Optional:    true,
 			},
 			"updated_by": {
