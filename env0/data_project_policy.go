@@ -50,7 +50,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"disable_destroy_environments": {
 				Type:        schema.TypeBool,
-				Description: "disable destroy environments",
+				Description: "Disallow destroying environment in the project",
 				Computed:    true,
 			},
 			"skip_redundant_deployments": {

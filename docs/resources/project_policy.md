@@ -21,7 +21,7 @@ description: |-
 
 ### Optional
 
-- **disable_destroy_environments** (Boolean) disable destroy environments
+- **disable_destroy_environments** (Boolean) Disallow destroying environment in the project
 - **include_cost_estimation** (Boolean) include cost estimation
 - **number_of_environments** (Number) number of environments per project, 0 indicates no limit
 - **number_of_environments_total** (Number) number of environments total, 0 indicates no limit

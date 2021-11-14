@@ -21,7 +21,7 @@ description: |-
 
 ### Read-Only
 
-- **disable_destroy_environments** (Boolean) disable destroy environments
+- **disable_destroy_environments** (Boolean) Disallow destroying environment in the project
 - **id** (String) id of the policy
 - **include_cost_estimation** (Boolean) include cost estimation
 - **number_of_environments** (Number) number of environments per project
