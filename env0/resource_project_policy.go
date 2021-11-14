@@ -52,7 +52,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "number of environments total, 0 indicates no limit",
+				Description: "Max number of environments in this project, 0 indicates no limit",
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)

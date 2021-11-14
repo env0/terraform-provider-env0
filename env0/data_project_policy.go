@@ -30,7 +30,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "number of environments total",
+				Description: "Max number of environments in this project",
 				Computed:    true,
 			},
 			"requires_approval_default": {

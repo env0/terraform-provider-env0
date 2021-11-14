@@ -24,7 +24,7 @@ description: |-
 - **disable_destroy_environments** (Boolean) Disallow destroying environment in the project
 - **include_cost_estimation** (Boolean) Enable cost estimation for the project
 - **number_of_environments** (Number) Max number of environment a single user can have in this project, 0 indicates no limit
-- **number_of_environments_total** (Number) number of environments total, 0 indicates no limit
+- **number_of_environments_total** (Number) Max number of environments in this project, 0 indicates no limit
 - **requires_approval_default** (Boolean) requires approval
 - **skip_apply_when_plan_is_empty** (Boolean) skip apply when plan is empty
 - **skip_redundant_deployments** (Boolean) skip redundant deployments
