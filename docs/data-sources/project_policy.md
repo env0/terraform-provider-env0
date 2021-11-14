@@ -27,7 +27,7 @@ description: |-
 - **number_of_environments** (Number) Max number of environment a single user can have in this project
 - **number_of_environments_total** (Number) Max number of environments in this project
 - **requires_approval_default** (Boolean) Requires approval default value when creating a new environment in the project
-- **skip_apply_when_plan_is_empty** (Boolean) skip apply when plan is empty
+- **skip_apply_when_plan_is_empty** (Boolean) Skip apply when plan has no changes
 - **skip_redundant_deployments** (Boolean) skip redundant deployments
 - **updated_by** (String) updated by
 

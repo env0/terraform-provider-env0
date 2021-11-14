@@ -45,7 +45,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"skip_apply_when_plan_is_empty": {
 				Type:        schema.TypeBool,
-				Description: "skip apply when plan is empty",
+				Description: "Skip apply when plan has no changes",
 				Computed:    true,
 			},
 			"disable_destroy_environments": {
