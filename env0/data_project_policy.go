@@ -25,37 +25,37 @@ func dataPolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
-				Description: "number of environments per project",
+				Description: "Max number of environments a single user can have in this project, 0 indicates no limit",
 				Computed:    true,
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "number of environments total",
+				Description: "Max number of environments in this project, 0 indicates no limit",
 				Computed:    true,
 			},
 			"requires_approval_default": {
 				Type:        schema.TypeBool,
-				Description: "requires approval",
+				Description: "Requires approval default value when creating a new environment in the project",
 				Computed:    true,
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
-				Description: "include cost estimation",
+				Description: "Enable cost estimation for the project",
 				Computed:    true,
 			},
 			"skip_apply_when_plan_is_empty": {
 				Type:        schema.TypeBool,
-				Description: "skip apply when plan is empty",
+				Description: "Skip apply when plan has no changes",
 				Computed:    true,
 			},
 			"disable_destroy_environments": {
 				Type:        schema.TypeBool,
-				Description: "disable destroy environments",
+				Description: "Disallow destroying environment in the project",
 				Computed:    true,
 			},
 			"skip_redundant_deployments": {
 				Type:        schema.TypeBool,
-				Description: "skip redundant deployments",
+				Description: "Automatically skip queued deployments when a newer deployment is triggered",
 				Computed:    true,
 			},
 			"updated_by": {

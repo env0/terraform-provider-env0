@@ -40,7 +40,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
-				Description: "number of environments per project, 0 indicates no limit",
+				Description: "Max number of environments a single user can have in this project, 0 indicates no limit",
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
@@ -52,7 +52,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "number of environments total, 0 indicates no limit",
+				Description: "Max number of environments in this project, 0 indicates no limit",
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
@@ -64,27 +64,27 @@ func resourcePolicy() *schema.Resource {
 			},
 			"requires_approval_default": {
 				Type:        schema.TypeBool,
-				Description: "requires approval",
+				Description: "Requires approval default value when creating a new environment in the project",
 				Optional:    true,
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
-				Description: "include cost estimation",
+				Description: "Enable cost estimation for the project",
 				Optional:    true,
 			},
 			"skip_apply_when_plan_is_empty": {
 				Type:        schema.TypeBool,
-				Description: "skip apply when plan is empty",
+				Description: "Skip apply when plan has no changes",
 				Optional:    true,
 			},
 			"disable_destroy_environments": {
 				Type:        schema.TypeBool,
-				Description: "disable destroy environments",
+				Description: "Disallow destroying environment in the project",
 				Optional:    true,
 			},
 			"skip_redundant_deployments": {
 				Type:        schema.TypeBool,
-				Description: "skip redundant deployments",
+				Description: "Automatically skip queued deployments when a newer deployment is triggered",
 				Optional:    true,
 			},
 			"updated_by": {
