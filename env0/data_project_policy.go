@@ -25,7 +25,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
-				Description: "number of environments per project",
+				Description: "Max number of environment a single user can have in this project",
 				Computed:    true,
 			},
 			"number_of_environments_total": {
