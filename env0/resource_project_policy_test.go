@@ -21,10 +21,10 @@ func TestUnitPolicyResource(t *testing.T) {
 		NumberOfEnvironments: 1,
 		// NumberOfEnvironmentsTotal: 0,
 		RequiresApprovalDefault:    true,
-		IncludeCostEstimation:      false,
-		SkipApplyWhenPlanIsEmpty:   false,
-		DisableDestroyEnvironments: false,
-		SkipRedundantDepolyments:   false,
+		IncludeCostEstimation:      true,
+		SkipApplyWhenPlanIsEmpty:   true,
+		DisableDestroyEnvironments: true,
+		SkipRedundantDeployments:   true,
 		UpdatedBy:                  "updater0",
 	}
 
@@ -37,7 +37,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		IncludeCostEstimation:      false,
 		SkipApplyWhenPlanIsEmpty:   false,
 		DisableDestroyEnvironments: false,
-		SkipRedundantDepolyments:   false,
+		SkipRedundantDeployments:   false,
 		UpdatedBy:                  "updater0",
 	}
 
@@ -57,7 +57,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					"include_cost_estimation":       policy.IncludeCostEstimation,
 					"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
 					"disable_destroy_environments":  policy.DisableDestroyEnvironments,
-					"skip_redundant_deployments":    policy.SkipRedundantDepolyments,
+					"skip_redundant_deployments":    policy.SkipRedundantDeployments,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
@@ -67,7 +67,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
 					resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(policy.DisableDestroyEnvironments)),
-					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(policy.SkipRedundantDepolyments)),
+					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(policy.SkipRedundantDeployments)),
 				),
 			},
 			{
@@ -79,7 +79,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					"include_cost_estimation":       updatedPolicy.IncludeCostEstimation,
 					"skip_apply_when_plan_is_empty": updatedPolicy.SkipApplyWhenPlanIsEmpty,
 					"disable_destroy_environments":  updatedPolicy.DisableDestroyEnvironments,
-					"skip_redundant_deployments":    updatedPolicy.SkipRedundantDepolyments,
+					"skip_redundant_deployments":    updatedPolicy.SkipRedundantDeployments,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
@@ -89,7 +89,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(updatedPolicy.IncludeCostEstimation)),
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(updatedPolicy.SkipApplyWhenPlanIsEmpty)),
 					resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(updatedPolicy.DisableDestroyEnvironments)),
-					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(updatedPolicy.SkipRedundantDepolyments)),
+					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(updatedPolicy.SkipRedundantDeployments)),
 				),
 			},
 		},
@@ -105,7 +105,7 @@ func TestUnitPolicyResource(t *testing.T) {
 			IncludeCostEstimation:      policy.IncludeCostEstimation,
 			SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
-			SkipRedundantDepolyments:   policy.SkipRedundantDepolyments,
+			SkipRedundantDeployments:   policy.SkipRedundantDeployments,
 		}).Times(1).Return(policy, nil)
 
 		// Update
@@ -117,7 +117,7 @@ func TestUnitPolicyResource(t *testing.T) {
 			IncludeCostEstimation:      updatedPolicy.IncludeCostEstimation,
 			SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: updatedPolicy.DisableDestroyEnvironments,
-			SkipRedundantDepolyments:   updatedPolicy.SkipRedundantDepolyments,
+			SkipRedundantDeployments:   updatedPolicy.SkipRedundantDeployments,
 		}).Times(1).Return(policy, nil)
 
 		gomock.InOrder(
@@ -134,7 +134,7 @@ func TestUnitPolicyResource(t *testing.T) {
 			IncludeCostEstimation:      resetPolicy.IncludeCostEstimation,
 			SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
-			SkipRedundantDepolyments:   resetPolicy.SkipRedundantDepolyments,
+			SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
 		}).Times(1).Return(resetPolicy, nil)
 	})
 }

@@ -251,7 +251,7 @@ type Policy struct {
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
 	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
-	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+	SkipRedundantDeployments   bool   `json:"skipRedundantDeployments"`
 	UpdatedBy                  string `json:"updatedBy"`
 }
 
@@ -263,7 +263,7 @@ type PolicyUpdatePayload struct {
 	IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
 	DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
-	SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+	SkipRedundantDeployments   bool   `json:"skipRedundantDeployments"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
@@ -275,7 +275,7 @@ func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 		IncludeCostEstimation      bool   `json:"includeCostEstimation"`
 		SkipApplyWhenPlanIsEmpty   bool   `json:"skipApplyWhenPlanIsEmpty"`
 		DisableDestroyEnvironments bool   `json:"disableDestroyEnvironments"`
-		SkipRedundantDepolyments   bool   `json:"skipRedundantDeployments"`
+		SkipRedundantDeployments   bool   `json:"skipRedundantDeployments"`
 	}
 
 	s := serial{
@@ -284,7 +284,7 @@ func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 		IncludeCostEstimation:      p.IncludeCostEstimation,
 		SkipApplyWhenPlanIsEmpty:   p.SkipApplyWhenPlanIsEmpty,
 		DisableDestroyEnvironments: p.DisableDestroyEnvironments,
-		SkipRedundantDepolyments:   p.SkipRedundantDepolyments,
+		SkipRedundantDeployments:   p.SkipRedundantDeployments,
 	}
 
 	if p.NumberOfEnvironments != 0 {
