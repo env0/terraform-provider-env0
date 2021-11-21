@@ -105,7 +105,7 @@ func setPolicySchema(d *schema.ResourceData, policy client.Policy) {
 	d.Set("include_cost_estimation", policy.IncludeCostEstimation)
 	d.Set("skip_apply_when_plan_is_empty", policy.SkipApplyWhenPlanIsEmpty)
 	d.Set("disable_destroy_environments", policy.DisableDestroyEnvironments)
-	d.Set("skip_redundant_deployments", policy.SkipRedundantDepolyments)
+	d.Set("skip_redundant_deployments", policy.SkipRedundantDeployments)
 	d.Set("updated_by", policy.UpdatedBy)
 }
 
@@ -162,8 +162,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	if disableDestroyEnvironments, ok := d.GetOk("disable_destroy_environments"); ok {
 		payload.DisableDestroyEnvironments = disableDestroyEnvironments.(bool)
 	}
-	if skipRedundantDeployments, ok := d.GetOk("skip_redundant_depolyments"); ok {
-		payload.SkipRedundantDepolyments = skipRedundantDeployments.(bool)
+	if skipRedundantDeployments, ok := d.GetOk("skip_redundant_deployments"); ok {
+		payload.SkipRedundantDeployments = skipRedundantDeployments.(bool)
 	}
 
 	_, err := apiClient.PolicyUpdate(payload)

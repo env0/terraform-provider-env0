@@ -134,6 +134,7 @@ go generate ./...
 - Docs are generated using github.com/hashicorp/terraform-plugin-docs
 - Run `./generate-docs.sh` to generate docs
 - Must be run manually before releasing a version
+- Please add an example to `examples/<resources or data-sources>/env0_<name>` dir and make sure it is added to the docs.
 
 ## Release
 To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true) -
