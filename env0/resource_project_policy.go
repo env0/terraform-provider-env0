@@ -66,6 +66,7 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Requires approval default value when creating a new environment in the project",
 				Optional:    true,
+				Default:     true,
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
