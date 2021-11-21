@@ -16,10 +16,10 @@ func TestUnitPolicyResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	policy := client.Policy{
-		Id:                   "id0",
-		ProjectId:            "project0",
-		NumberOfEnvironments: 1,
-		// NumberOfEnvironmentsTotal: 0,
+		Id:                         "id0",
+		ProjectId:                  "project0",
+		NumberOfEnvironments:       1,
+		NumberOfEnvironmentsTotal:  1,
 		RequiresApprovalDefault:    true,
 		IncludeCostEstimation:      true,
 		SkipApplyWhenPlanIsEmpty:   true,
@@ -29,9 +29,9 @@ func TestUnitPolicyResource(t *testing.T) {
 	}
 
 	updatedPolicy := client.Policy{
-		Id:        policy.Id,
-		ProjectId: policy.ProjectId,
-		// NumberOfEnvironments: 0,
+		Id:                         policy.Id,
+		ProjectId:                  policy.ProjectId,
+		NumberOfEnvironments:       1,
 		NumberOfEnvironmentsTotal:  1,
 		RequiresApprovalDefault:    false,
 		IncludeCostEstimation:      false,
@@ -50,9 +50,9 @@ func TestUnitPolicyResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"project_id":             policy.ProjectId,
-					"number_of_environments": policy.NumberOfEnvironments,
-					// "number_of_environments_total":  policy.NumberOfEnvironmentsTotal,
+					"project_id":                    policy.ProjectId,
+					"number_of_environments":        policy.NumberOfEnvironments,
+					"number_of_environments_total":  policy.NumberOfEnvironmentsTotal,
 					"requires_approval_default":     policy.RequiresApprovalDefault,
 					"include_cost_estimation":       policy.IncludeCostEstimation,
 					"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
@@ -72,8 +72,8 @@ func TestUnitPolicyResource(t *testing.T) {
 			},
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-					"project_id": updatedPolicy.ProjectId,
-					// "number_of_environments":        updatedPolicy.NumberOfEnvironments,
+					"project_id":                    updatedPolicy.ProjectId,
+					"number_of_environments":        updatedPolicy.NumberOfEnvironments,
 					"number_of_environments_total":  updatedPolicy.NumberOfEnvironmentsTotal,
 					"requires_approval_default":     updatedPolicy.RequiresApprovalDefault,
 					"include_cost_estimation":       updatedPolicy.IncludeCostEstimation,
@@ -83,7 +83,7 @@ func TestUnitPolicyResource(t *testing.T) {
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
-					// resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(updatedPolicy.NumberOfEnvironments)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(updatedPolicy.NumberOfEnvironments)),
 					resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(updatedPolicy.NumberOfEnvironmentsTotal)),
 					resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(updatedPolicy.RequiresApprovalDefault)),
 					resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(updatedPolicy.IncludeCostEstimation)),
