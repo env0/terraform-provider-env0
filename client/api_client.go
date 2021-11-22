@@ -50,6 +50,11 @@ type ApiClientInterface interface {
 	TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error)
 	TeamProjectAssignmentDelete(assignmentId string) error
 	TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error)
+	Environments() ([]Environment, error)
+	Environment(id string) (Environment, error)
+	EnvironmentCreate(payload EnvironmentCreatePayload) (Environment, error)
+	EnvironmentDestroy(id string) (Environment, error)
+	EnvironmentUpdate(id string, payload EnvironmentUpdatePayload) (Environment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

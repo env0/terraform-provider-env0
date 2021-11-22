@@ -40,6 +40,15 @@ type ProjectCreatePayload struct {
 	Description string `json:"description"`
 }
 
+type EnvironmentCreatePayload struct {
+	Name      string `json:"name"`
+	ProjectId string `json:"projectId"`
+}
+
+type EnvironmentUpdatePayload struct {
+	Name string `json:"name"`
+}
+
 type ConfigurationVariableSchema struct {
 	Type string   `json:"type"`
 	Enum []string `json:"enum"`
@@ -172,6 +181,14 @@ type Template struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
+}
+
+type Environment struct {
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	ProjectId     string `json:"projectId"`
+	TemplateId    string `json:"templateId"`
+	WorkspaceName string `json:"workspaceName"`
 }
 
 type SshKey struct {

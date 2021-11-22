@@ -18,7 +18,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"api_endpoint": {
 					Type:        schema.TypeString,
 					Description: "override api endpoint (used for testing)",
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
+					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api-dev.env0.com/"),
 					Optional:    true,
 				},
 				"api_key": {
@@ -45,6 +45,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ssh_key":                dataSshKey(),
 				"env0_aws_credentials":        dataAwsCredentials(),
 				"env0_team":                   dataTeam(),
+				"env0_environment":            dataEnvironment(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -57,6 +58,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
 				"env0_team_project_assignment":              resourceTeamProjectAssignment(),
 				"env0_team":                                 resourceTeam(),
+				"env0_environment":                          resourceEnvironment(),
 			},
 		}
 
