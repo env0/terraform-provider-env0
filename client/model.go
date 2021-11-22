@@ -41,8 +41,15 @@ type ProjectCreatePayload struct {
 }
 
 type EnvironmentCreatePayload struct {
-	Name      string `json:"name"`
-	ProjectId string `json:"projectId"`
+	Name          string        `json:"name"`
+	ProjectId     string        `json:"projectId"`
+	DeployRequest DeployRequest `json:"deployRequest"`
+}
+
+type DeployRequest struct {
+	BlueprintId string `json:"blueprintId"`
+	//BlueprintRevision   string `json:"blueprintRevision"`
+	//BlueprintRepository string `json:"blueprintRepository"`
 }
 
 type EnvironmentUpdatePayload struct {

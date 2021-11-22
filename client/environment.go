@@ -24,7 +24,13 @@ func (self *ApiClient) Environment(id string) (Environment, error) {
 
 func (self *ApiClient) EnvironmentCreate(payload EnvironmentCreatePayload) (Environment, error) {
 	var result Environment
-	request := map[string]interface{}{"name": payload.Name, "projectId": payload.ProjectId}
+	request := map[string]interface{}{
+		"name":      payload.Name,
+		"projectId": payload.ProjectId,
+		"deployRequest": map[string]interface{}{
+			"blueprintId": payload.DeployRequest.BlueprintId,
+		},
+	}
 	err := self.http.Post("/environments", request, &result)
 	if err != nil {
 		return Environment{}, err

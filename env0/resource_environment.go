@@ -36,7 +36,7 @@ func resourceEnvironment() *schema.Resource {
 			"template_id": {
 				Type:        schema.TypeString,
 				Description: "the environment's template id",
-				Computed:    true,
+				Required:    true,
 			},
 		},
 	}
@@ -70,12 +70,17 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	environment, err := apiClient.EnvironmentCreate(client.EnvironmentCreatePayload{
+	request := client.EnvironmentCreatePayload{
 		Name:      d.Get("name").(string),
 		ProjectId: d.Get("project_id").(string),
-	})
+		DeployRequest: client.DeployRequest{
+			BlueprintId: d.Get("template_id").(string),
+		},
+	}
+
+	environment, err := apiClient.EnvironmentCreate(request)
 	if err != nil {
-		return diag.Errorf("could not create project: %v", err)
+		return diag.Errorf("could not create environment: %v", err)
 	}
 
 	d.SetId(environment.Id)
