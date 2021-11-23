@@ -258,7 +258,6 @@ type Policy struct {
 }
 
 type PolicyUpdatePayload struct {
-	Id                          string `json:"id"`
 	ProjectId                   string `json:"projectId"`
 	NumberOfEnvironments        int    `json:"numberOfEnvironments"`
 	NumberOfEnvironmentsTotal   int    `json:"numberOfEnvironmentsTotal"`
