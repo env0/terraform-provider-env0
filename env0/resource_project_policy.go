@@ -66,7 +66,6 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Requires approval default value when creating a new environment in the project",
 				Optional:    true,
-				Default:     true,
 			},
 			"include_cost_estimation": {
 				Type:        schema.TypeBool,
@@ -97,13 +96,11 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Run Terraform Plan on Pull Requests for new environments targeting their branch default value",
 				Optional:    true,
-				Default:     false,
 			},
 			"continuous_deployment_default": {
 				Type:        schema.TypeBool,
 				Description: "Redeploy on every push to the git branch default value",
 				Optional:    true,
-				Default:     false,
 			},
 		},
 	}
