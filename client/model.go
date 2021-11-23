@@ -266,7 +266,6 @@ type PolicyUpdatePayload struct {
 	SkipApplyWhenPlanIsEmpty    bool   `json:"skipApplyWhenPlanIsEmpty"`
 	DisableDestroyEnvironments  bool   `json:"disableDestroyEnvironments"`
 	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
-	UpdatedBy                   string `json:"updatedBy"`
 	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
 }
