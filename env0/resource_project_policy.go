@@ -94,17 +94,17 @@ func resourcePolicy() *schema.Resource {
 				Computed:    true,
 			},
 			"run_pull_request_plan_default": {
-            	Type:        schema.TypeBool,
-            	Description: "Run Terraform Plan on Pull Requests for new environments targeting their branch default value",
-            	Optional:    true,
-            	Default:     false,
-            },
-            "continuous_deployment_default": {
-            	Type:        schema.TypeBool,
-            	Description: "Redeploy on every push to the git branch default value",
-            	Optional:    true,
-            	Default:     false,
-            },
+				Type:        schema.TypeBool,
+				Description: "Run Terraform Plan on Pull Requests for new environments targeting their branch default value",
+				Optional:    true,
+				Default:     false,
+			},
+			"continuous_deployment_default": {
+				Type:        schema.TypeBool,
+				Description: "Redeploy on every push to the git branch default value",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -121,7 +121,7 @@ func setPolicySchema(d *schema.ResourceData, policy client.Policy) {
 	d.Set("skip_redundant_deployments", policy.SkipRedundantDeployments)
 	d.Set("updated_by", policy.UpdatedBy)
 	d.Set("run_pull_request_plan_default", policy.RunPullRequestPlanDefault)
-    d.Set("continuous_deployment_default"  , policy.ContinuousDeploymentDefault)
+	d.Set("continuous_deployment_default", policy.ContinuousDeploymentDefault)
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
