@@ -10,14 +10,16 @@ import (
 
 func TestPolicyDataSource(t *testing.T) {
 	policy := client.Policy{
-		Id:                         "id0",
-		ProjectId:                  "project0",
-		NumberOfEnvironments:       1,
-		NumberOfEnvironmentsTotal:  2,
-		RequiresApprovalDefault:    true,
-		IncludeCostEstimation:      true,
-		SkipApplyWhenPlanIsEmpty:   true,
-		DisableDestroyEnvironments: true,
+		Id:                          "id0",
+		ProjectId:                   "project0",
+		NumberOfEnvironments:        1,
+		NumberOfEnvironmentsTotal:   2,
+		RequiresApprovalDefault:     true,
+		IncludeCostEstimation:       true,
+		SkipApplyWhenPlanIsEmpty:    true,
+		DisableDestroyEnvironments:  true,
+		ContinuousDeploymentDefault: true,
+		RunPullRequestPlanDefault:   false,
 	}
 
 	resourceType := "env0_project_policy"
@@ -40,6 +42,8 @@ func TestPolicyDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
 						resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
 						resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(policy.DisableDestroyEnvironments)),
+						resource.TestCheckResourceAttr(accessor, "run_pull_request_plan_default", strconv.FormatBool(policy.RunPullRequestPlanDefault)),
+						resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
 					),
 				},
 			},
