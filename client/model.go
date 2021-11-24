@@ -41,19 +41,25 @@ type ProjectCreatePayload struct {
 }
 
 type EnvironmentCreatePayload struct {
-	Name          string        `json:"name"`
-	ProjectId     string        `json:"projectId"`
-	DeployRequest DeployRequest `json:"deployRequest"`
+	Name          string         `json:"name"`
+	ProjectId     string         `json:"projectId"`
+	DeployRequest *DeployRequest `json:"deployRequest"`
 }
 
 type DeployRequest struct {
-	BlueprintId string `json:"blueprintId"`
-	//BlueprintRevision   string `json:"blueprintRevision"`
-	//BlueprintRepository string `json:"blueprintRepository"`
+	BlueprintId         string `json:"blueprintId,omitempty"`
+	BlueprintRevision   string `json:"blueprintRevision,omitempty"`
+	BlueprintRepository string `json:"blueprintRepository,omitempty"`
 }
 
 type EnvironmentUpdatePayload struct {
-	Name string `json:"name"`
+	Name                        string `json:"name,omitempty"`
+	RequiresApproval            bool   `json:"requiresApproval,omitempty"`
+	IsArchived                  bool   `json:"isArchived,omitempty"`
+	ContinuousDeployment        bool   `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  bool   `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly bool   `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 }
 
 type ConfigurationVariableSchema struct {

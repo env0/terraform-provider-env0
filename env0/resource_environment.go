@@ -70,15 +70,9 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request := client.EnvironmentCreatePayload{
-		Name:      d.Get("name").(string),
-		ProjectId: d.Get("project_id").(string),
-		DeployRequest: client.DeployRequest{
-			BlueprintId: d.Get("template_id").(string),
-		},
-	}
+	payload := getCreatePayload(d)
 
-	environment, err := apiClient.EnvironmentCreate(request)
+	environment, err := apiClient.EnvironmentCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
@@ -105,9 +99,9 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := client.EnvironmentUpdatePayload{
-		Name: d.Get("name").(string),
-	}
+	payload := getUpdatePayload(d)
+
+	// TODO: deploy if needed?
 
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
@@ -125,6 +119,63 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	//	return diag.Errorf("could not delete team: %v", err)
 	//}
 	return nil
+}
+
+func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreatePayload {
+	payload := client.EnvironmentCreatePayload{}
+
+	if name, ok := d.GetOk("name"); ok {
+		payload.Name = name.(string)
+	}
+
+	if projectId, ok := d.GetOk("project_id"); ok {
+		payload.ProjectId = projectId.(string)
+	}
+
+	payload.DeployRequest = &client.DeployRequest{}
+
+	if blueprintId, ok := d.GetOk("template_id"); ok {
+		payload.DeployRequest.BlueprintId = blueprintId.(string)
+	}
+
+	if blueprintRepository, ok := d.GetOk("repository"); ok {
+		payload.DeployRequest.BlueprintRepository = blueprintRepository.(string)
+	}
+
+	if blueprintRevision, ok := d.GetOk("revision"); ok {
+		payload.DeployRequest.BlueprintRepository = blueprintRevision.(string)
+	}
+
+	return payload
+}
+
+func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdatePayload {
+	// TODO: check if not filling them make these null or false
+	payload := client.EnvironmentUpdatePayload{}
+
+	if name, ok := d.GetOk("name"); ok {
+		payload.Name = name.(string)
+	}
+	if requiresApproval, ok := d.GetOk("requires_approval"); ok {
+		payload.RequiresApproval = requiresApproval.(bool)
+	}
+	if isArchived, ok := d.GetOk("is_archived"); ok {
+		payload.IsArchived = isArchived.(bool)
+	}
+	if continuousDeployment, ok := d.GetOk("redeploy_on_push"); ok {
+		payload.ContinuousDeployment = continuousDeployment.(bool)
+	}
+	if pullRequestPlanDeployments, ok := d.GetOk("pr_plan_on_pull_request"); ok {
+		payload.PullRequestPlanDeployments = pullRequestPlanDeployments.(bool)
+	}
+	if autoDeployOnPathChangesOnly, ok := d.GetOk("auto_deploy_on_path_change_only"); ok {
+		payload.AutoDeployOnPathChangesOnly = autoDeployOnPathChangesOnly.(bool)
+	}
+	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
+		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
+	}
+
+	return payload
 }
 
 //
