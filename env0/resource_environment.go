@@ -42,25 +42,6 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-//func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-//	apiClient := meta.(client.ApiClientInterface)
-//	payload := client.TeamCreatePayload{
-//		Name: d.Get("name").(string),
-//	}
-//	if description, ok := d.GetOk("description"); ok {
-//		payload.Description = description.(string)
-//	}
-//
-//	team, err := apiClient.TeamCreate(payload)
-//	if err != nil {
-//		return diag.Errorf("could not create team: %v", err)
-//	}
-//
-//	d.SetId(team.Id)
-//
-//	return nil
-//}
-
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
