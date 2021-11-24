@@ -40,19 +40,64 @@ type ProjectCreatePayload struct {
 	Description string `json:"description"`
 }
 
-type EnvironmentCreatePayload struct {
-	Name          string         `json:"name"`
-	ProjectId     string         `json:"projectId"`
-	DeployRequest *DeployRequest `json:"deployRequest"`
+type EnvironmentCreate struct {
+	Name                        string         `json:"name"`
+	ProjectId                   string         `json:"projectId"`
+	DeployRequest               *DeployRequest `json:"deployRequest"`
+	WorkspaceName               string         `json:"workspaceName,omitempty"`
+	RequiresApproval            bool           `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        bool           `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  bool           `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly bool           `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      bool           `json:"autoDeployByCustomGlob,omitempty"`
 }
 
 type DeployRequest struct {
-	BlueprintId         string `json:"blueprintId,omitempty"`
-	BlueprintRevision   string `json:"blueprintRevision,omitempty"`
-	BlueprintRepository string `json:"blueprintRepository,omitempty"`
+	BlueprintId          string                `json:"blueprintId,omitempty"`
+	BlueprintRevision    string                `json:"blueprintRevision,omitempty"`
+	BlueprintRepository  string                `json:"blueprintRepository,omitempty"`
+	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
+	TTL                  *TTL                  `json:"ttl,omitempty"`
+	EnvName              string                `json:"envName,omitempty"`
+	UserRequiresApproval bool                  `json:"userRequiresApproval,omitempty"`
+	Targets              string                `json:"targets,omitempty"`
+	PrPlanOnly           bool                  `json:"prPlanOnly,omitempty"`
+	// TODO: not sure about this one
+	CustomEnv0EnvironmentVariables *interface{} `json:"customEnv0EnvironmentVariables,omitempty"`
+	GitUserData                    *GitUserData `json:"gitUserData,omitempty"`
+	TriggerName                    string       `json:"triggerName,omitempty"`
 }
 
-type EnvironmentUpdatePayload struct {
+type GitUserData struct {
+	GitUser      string `json:"gitUser,omitempty"`
+	GitAvatarUrl string `json:"gitAvatarUrl,omitempty"`
+	PrNumber     string `json:"prNumber,omitempty"`
+}
+
+type TTL struct {
+	Type  string `json:"type"`
+	Value string `json:"value,omitempty"`
+}
+
+type ConfigurationChanges struct {
+	Name        string                      `json:"name"`
+	Value       string                      `json:"value"`
+	ScopeId     string                      `json:"scopeId,omitempty"`
+	Scope       string                      `json:"scope"`
+	Type        string                      `json:"type"`
+	ToDelete    string                      `json:"toDelete,omitempty"`
+	Schema      *ConfigurationChangesSchema `json:"schema,omitempty"`
+	Description string                      `json:"description,omitempty"`
+	IsSensitive string                      `json:"isSensitive,omitempty"`
+}
+
+type ConfigurationChangesSchema struct {
+	Type string `json:"type,omitempty"`
+	// TODO: not sure this works
+	Enum []string `json:"enum,omitempty"`
+}
+
+type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
 	RequiresApproval            bool   `json:"requiresApproval,omitempty"`
 	IsArchived                  bool   `json:"isArchived,omitempty"`

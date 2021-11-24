@@ -121,8 +121,8 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreatePayload {
-	payload := client.EnvironmentCreatePayload{}
+func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
+	payload := client.EnvironmentCreate{}
 
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)
@@ -149,9 +149,9 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreatePayload {
 	return payload
 }
 
-func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdatePayload {
+func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	// TODO: check if not filling them make these null or false
-	payload := client.EnvironmentUpdatePayload{}
+	payload := client.EnvironmentUpdate{}
 
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)

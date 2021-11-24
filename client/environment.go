@@ -22,7 +22,7 @@ func (self *ApiClient) Environment(id string) (Environment, error) {
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentCreate(payload EnvironmentCreatePayload) (Environment, error) {
+func (self *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environment, error) {
 	var result Environment
 
 	err := self.http.Post("/environments", payload, &result)
@@ -41,7 +41,7 @@ func (self *ApiClient) EnvironmentDestroy(id string) (Environment, error) {
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdatePayload) (Environment, error) {
+func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {
 	var result Environment
 	err := self.http.Put("/environments/"+id, payload, &result)
 
