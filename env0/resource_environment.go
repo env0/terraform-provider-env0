@@ -112,12 +112,12 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	//apiClient := meta.(client.ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
-	//err := apiClient.EnvironmentDelete(d.Id())
-	//if err != nil {
-	//	return diag.Errorf("could not delete team: %v", err)
-	//}
+	_, err := apiClient.EnvironmentDestroy(d.Id())
+	if err != nil {
+		return diag.Errorf("could not delete team: %v", err)
+	}
 	return nil
 }
 
