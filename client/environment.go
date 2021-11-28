@@ -1,12 +1,8 @@
 package client
 
 func (self *ApiClient) Environments() ([]Environment, error) {
-	organizationId, err := self.organizationId()
-	if err != nil {
-		return nil, err
-	}
 	var result []Environment
-	err = self.http.Get("/environments", map[string]string{"organizationId": organizationId}, &result)
+	err := self.http.Get("/environments", nil, &result)
 	if err != nil {
 		return []Environment{}, err
 	}
