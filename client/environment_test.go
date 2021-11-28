@@ -96,35 +96,74 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("EnvironmentCreate", func() {
 		var createdEnvironment Environment
+		var err error
 
+		BeforeEach(func() {
+			createEnvironmentPayload := EnvironmentCreate{}
+			copier.Copy(&createEnvironmentPayload, &mockEnvironment)
+
+			expectedCreateRequest := createEnvironmentPayload
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/environments", expectedCreateRequest, gomock.Any()).
+				Do(func(path string, request interface{}, response *Environment) {
+					*response = mockEnvironment
+				})
+
+			createdEnvironment, err = apiClient.EnvironmentCreate(createEnvironmentPayload)
+		})
+
+		It("Should send POST request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return the created environment", func() {
+			Expect(createdEnvironment).To(Equal(mockEnvironment))
+		})
+	})
+
+	Describe("EnvironmentDelete", func() {
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any())
+			apiClient.EnvironmentDestroy(mockEnvironment.Id)
+		})
+
+		It("Should send a destroy request", func() {
+			httpCall.Times(1)
+		})
+	})
+
+	Describe("EnvironmentUpdate", func() {
 		Describe("Success", func() {
+			var updatedEnvironment Environment
 			var err error
 
 			BeforeEach(func() {
-				createEnvironmentPayload := EnvironmentCreate{}
-				copier.Copy(&createEnvironmentPayload, &mockEnvironment)
-
-				expectedCreateRequest := createEnvironmentPayload
+				updateEnvironmentPayload := EnvironmentUpdate{Name: "updated-name"}
 
 				httpCall = mockHttpClient.EXPECT().
-					Post("/environments", expectedCreateRequest, gomock.Any()).
+					Put("/environments/"+mockEnvironment.Id, updateEnvironmentPayload, gomock.Any()).
 					Do(func(path string, request interface{}, response *Environment) {
 						*response = mockEnvironment
 					})
 
-				createdEnvironment, err = apiClient.EnvironmentCreate(createEnvironmentPayload)
+				updatedEnvironment, err = apiClient.EnvironmentUpdate(mockEnvironment.Id, updateEnvironmentPayload)
 			})
 
-			It("Should send POST request", func() {
+			It("Should send Put request with expected payload", func() {
 				httpCall.Times(1)
 			})
 
-			It("Should not return error", func() {
+			It("Should not return an error", func() {
 				Expect(err).To(BeNil())
 			})
 
-			It("Should return the created environment", func() {
-				Expect(createdEnvironment).To(Equal(mockEnvironment))
+			It("Should return the environment received from API", func() {
+				Expect(updatedEnvironment).To(Equal(mockEnvironment))
 			})
 		})
 	})
