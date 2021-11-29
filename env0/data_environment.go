@@ -14,80 +14,27 @@ func dataEnvironment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Description: "the environment's id",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "the environment's id",
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "id"},
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Description: "the environments name",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "the environments name",
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "id"},
 			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "the environment's project id",
-				Required:    true,
+				Optional:    true,
 			},
 			"template_id": {
 				Type:        schema.TypeString,
 				Description: "the environment's template id",
 				Computed:    true,
 			},
-			//"workspace": {
-			//	Type:        schema.TypeString,
-			//	Description: "The environments workspace",
-			//	Computed:    true,
-			//},
-			//"revision": {
-			//	Type:        schema.TypeString,
-			//	Description: "The environments revision",
-			//	Computed:    true,
-			//},
-			//"redeploy_on_git_push": {
-			//	Type:        schema.TypeBool,
-			//	Description: "Indicate if git push events should trigger deployments",
-			//	Computed:    true,
-			//},
-			//"run_plan_on_pull_request": {
-			//	Type:        schema.TypeBool,
-			//	Description: "Indicate if a pull request creation should trigger a plan",
-			//	Computed:    true,
-			//},
-			//"approve_plan_automatically": {
-			//	Type:        schema.TypeBool,
-			//	Description: "Indicate if the environment requires approval after plan",
-			//	Computed:    true,
-			//},
-			//"force_destroy": {
-			//	Type:        schema.TypeBool,
-			//	// TODO: update this description
-			//	Description: "idk",
-			//	Computed:    true,
-			//},
-			//"configuration": {
-			//	Type: schema.TypeList,
-			//	Elem: &schema.Schema{
-			//		Type: schema.TypeSet,
-			//		Elem: &schema.Resource{
-			//			Schema: map[string]*schema.Schema{
-			//				"name": {
-			//					Type:     schema.TypeString,
-			//					Required: true,
-			//				},
-			//				"type": {
-			//					Type:     schema.TypeString,
-			//					Description: "variable type, either environment or terraform (defaults to environment)",
-			//					Optional: true,
-			//					Default:  "environment",
-			//				},
-			//				"value": {
-			//					Type:     schema.TypeString,
-			//					Required: true,
-			//				},
-			//			},
-			//		},
-			//	},
-			//},
 		},
 	}
 }
@@ -96,14 +43,24 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	var err diag.Diagnostics
 	var environment client.Environment
 
-	environmentId, ok := d.GetOk("id")
+	id, ok := d.GetOk("id")
 	if ok {
-		environment, err = getEnvironment(environmentId.(string), meta)
+		environment, err = getEnvironment(id.(string), meta)
+		if err != nil {
+			return err
+		}
+	} else {
+		name, ok := d.GetOk("name")
+		if !ok {
+			return diag.Errorf("Either 'name' or 'id' must be specified")
+		}
+		environment, err = getEnvironmentByName(name.(string), meta)
 		if err != nil {
 			return err
 		}
 	}
-	//d.SetId(policy.Id)
+
+	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment)
 	return nil
 }
