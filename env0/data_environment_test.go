@@ -91,7 +91,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 		)
 	})
 
-	t.Run("Throw error when by name and no projects found at all", func(t *testing.T) {
+	t.Run("Throw error when by name and no environments found at all", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Could not find an env0 environment with name"),
 			mockListEnvironmentsCall([]client.Environment{}),

@@ -14,8 +14,6 @@ func resourceEnvironment() *schema.Resource {
 		UpdateContext: resourceEnvironmentUpdate,
 		DeleteContext: resourceEnvironmentDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceTeamImport},
-
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
@@ -97,7 +95,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
-		return diag.Errorf("could not delete team: %v", err)
+		return diag.Errorf("could not delete environment: %v", err)
 	}
 	return nil
 }
@@ -181,4 +179,13 @@ func getEnvironmentByName(name interface{}, meta interface{}) (client.Environmen
 	}
 
 	return environmentsByName[0], nil
+}
+
+func getEnvironmentById(environmentId string, meta interface{}) (client.Environment, diag.Diagnostics) {
+	apiClient := meta.(client.ApiClientInterface)
+	environment, err := apiClient.Environment(environmentId)
+	if err != nil {
+		return client.Environment{}, diag.Errorf("Could not find environment: %v", err)
+	}
+	return environment, nil
 }

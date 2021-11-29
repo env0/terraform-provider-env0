@@ -45,15 +45,12 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	id, ok := d.GetOk("id")
 	if ok {
-		environment, err = getEnvironment(id.(string), meta)
+		environment, err = getEnvironmentById(id.(string), meta)
 		if err != nil {
 			return err
 		}
 	} else {
-		name, ok := d.GetOk("name")
-		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
-		}
+		name := d.Get("name")
 		environment, err = getEnvironmentByName(name.(string), meta)
 		if err != nil {
 			return err
@@ -63,13 +60,4 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment)
 	return nil
-}
-
-func getEnvironment(environmentId string, meta interface{}) (client.Environment, diag.Diagnostics) {
-	apiClient := meta.(client.ApiClientInterface)
-	environment, err := apiClient.Environment(environmentId)
-	if err != nil {
-		return client.Environment{}, diag.Errorf("Could not find environment: %v", err)
-	}
-	return environment, nil
 }
