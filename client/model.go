@@ -53,18 +53,16 @@ type EnvironmentCreate struct {
 }
 
 type DeployRequest struct {
-	BlueprintId          string                `json:"blueprintId,omitempty"`
-	BlueprintRevision    string                `json:"blueprintRevision,omitempty"`
-	BlueprintRepository  string                `json:"blueprintRepository,omitempty"`
-	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                  *TTL                  `json:"ttl,omitempty"`
-	EnvName              string                `json:"envName,omitempty"`
-	UserRequiresApproval bool                  `json:"userRequiresApproval,omitempty"`
-	Targets              string                `json:"targets,omitempty"`
-	PrPlanOnly           bool                  `json:"prPlanOnly,omitempty"`
+	BlueprintId          string                  `json:"blueprintId,omitempty"`
+	BlueprintRevision    string                  `json:"blueprintRevision,omitempty"`
+	BlueprintRepository  string                  `json:"blueprintRepository,omitempty"`
+	ConfigurationChanges *[]ConfigurationChanges `json:"configurationChanges,omitempty"`
+	TTL                  *TTL                    `json:"ttl,omitempty"`
+	EnvName              string                  `json:"envName,omitempty"`
+	UserRequiresApproval bool                    `json:"userRequiresApproval,omitempty"`
+	Targets              string                  `json:"targets,omitempty"`
 	// TODO: not sure about this one
 	CustomEnv0EnvironmentVariables *interface{} `json:"customEnv0EnvironmentVariables,omitempty"`
-	GitUserData                    *GitUserData `json:"gitUserData,omitempty"`
 	TriggerName                    string       `json:"triggerName,omitempty"`
 }
 
