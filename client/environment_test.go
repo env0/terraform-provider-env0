@@ -76,7 +76,7 @@ var _ = Describe("Environment Client", func() {
 				httpCall.Times(1)
 			})
 
-			It("Should return teams", func() {
+			It("Should return environments", func() {
 				Expect(environment).To(Equal(mockEnvironment))
 			})
 		})
