@@ -122,7 +122,7 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	}
 
 	if blueprintRevision, ok := d.GetOk("revision"); ok {
-		payload.DeployRequest.BlueprintRepository = blueprintRevision.(string)
+		payload.DeployRequest.BlueprintRevision = blueprintRevision.(string)
 	}
 
 	return payload
