@@ -196,6 +196,81 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariables", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariables), arg0, arg1)
 }
 
+// Environment mocks base method.
+func (m *MockApiClientInterface) Environment(arg0 string) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Environment", arg0)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Environment indicates an expected call of Environment.
+func (mr *MockApiClientInterfaceMockRecorder) Environment(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environment", reflect.TypeOf((*MockApiClientInterface)(nil).Environment), arg0)
+}
+
+// EnvironmentCreate mocks base method.
+func (m *MockApiClientInterface) EnvironmentCreate(arg0 EnvironmentCreate) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentCreate", arg0)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentCreate indicates an expected call of EnvironmentCreate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), arg0)
+}
+
+// EnvironmentDestroy mocks base method.
+func (m *MockApiClientInterface) EnvironmentDestroy(arg0 string) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentDestroy", arg0)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentDestroy indicates an expected call of EnvironmentDestroy.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), arg0)
+}
+
+// EnvironmentUpdate mocks base method.
+func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 EnvironmentUpdate) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentUpdate", arg0, arg1)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentUpdate indicates an expected call of EnvironmentUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), arg0, arg1)
+}
+
+// Environments mocks base method.
+func (m *MockApiClientInterface) Environments() ([]Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Environments")
+	ret0, _ := ret[0].([]Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Environments indicates an expected call of Environments.
+func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
+}
+
 // Organization mocks base method.
 func (m *MockApiClientInterface) Organization() (Organization, error) {
 	m.ctrl.T.Helper()
