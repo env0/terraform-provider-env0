@@ -21,18 +21,18 @@ func dataEnvironment() *schema.Resource {
 			},
 			"name": {
 				Type:         schema.TypeString,
-				Description:  "the environments name",
+				Description:  "name of the environment",
 				Optional:     true,
 				AtLeastOneOf: []string{"name", "id"},
 			},
 			"project_id": {
 				Type:        schema.TypeString,
-				Description: "the environment's project id",
+				Description: "project id of the environment",
 				Optional:    true,
 			},
 			"template_id": {
 				Type:        schema.TypeString,
-				Description: "the environment's template id",
+				Description: "the template id the environment is to be created from",
 				Computed:    true,
 			},
 		},

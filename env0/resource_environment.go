@@ -28,12 +28,12 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"project_id": {
 				Type:        schema.TypeString,
-				Description: "the environment's project id",
+				Description: "project id of the environment",
 				Required:    true,
 			},
 			"template_id": {
 				Type:        schema.TypeString,
-				Description: "the environment's template id",
+				Description: "the template id the environment is to be created from",
 				Required:    true,
 			},
 		},
