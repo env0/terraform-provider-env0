@@ -82,7 +82,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	payload := getUpdatePayload(d)
 
-	// TODO: deploy if needed?
+	// TODO: deploy if needed
 
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
@@ -131,7 +131,6 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 }
 
 func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
-	// TODO: check if not filling them make these null or false
 	payload := client.EnvironmentUpdate{}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -159,58 +158,27 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	return payload
 }
 
-//
-//func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-//	id := d.Id()
-//	var getErr diag.Diagnostics
-//	_, uuidErr := uuid.Parse(id)
-//	if uuidErr == nil {
-//		log.Println("[INFO] Resolving team by id: ", id)
-//		_, getErr = getTeamById(id, meta)
-//	} else {
-//		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-//		log.Println("[INFO] Resolving team by name: ", id)
-//		var team client.Team
-//		team, getErr = getTeamByName(id, meta)
-//		d.SetId(team.Id)
-//	}
-//	if getErr != nil {
-//		return nil, errors.New(getErr[0].Summary)
-//	} else {
-//		return []*schema.ResourceData{d}, nil
-//	}
-//}
-//
-//func getTeamByName(name interface{}, meta interface{}) (client.Team, diag.Diagnostics) {
-//	apiClient := meta.(client.ApiClientInterface)
-//	teams, err := apiClient.Teams()
-//	if err != nil {
-//		return client.Team{}, diag.Errorf("Could not get teams: %v", err)
-//	}
-//
-//	var teamsByName []client.Team
-//	for _, candidate := range teams {
-//		if candidate.Name == name {
-//			teamsByName = append(teamsByName, candidate)
-//		}
-//	}
-//
-//	if len(teamsByName) > 1 {
-//		return client.Team{}, diag.Errorf("Found multiple teams for name: %s. Use ID instead or make sure team names are unique %v", name, teamsByName)
-//	}
-//
-//	if len(teamsByName) == 0 {
-//		return client.Team{}, diag.Errorf("Could not find an env0 team with name %s", name)
-//	}
-//
-//	return teamsByName[0], nil
-//}
-//
-//func getTeamById(id interface{}, meta interface{}) (client.Team, diag.Diagnostics) {
-//	apiClient := meta.(client.ApiClientInterface)
-//	team, err := apiClient.Team(id.(string))
-//	if err != nil {
-//		return client.Team{}, diag.Errorf("Could not get team: %v", err)
-//	}
-//	return team, nil
-//}
+func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {
+	apiClient := meta.(client.ApiClientInterface)
+	environments, err := apiClient.Environments()
+	if err != nil {
+		return client.Environment{}, diag.Errorf("Could not get Environment: %v", err)
+	}
+
+	var environmentsByName []client.Environment
+	for _, candidate := range environments {
+		if candidate.Name == name {
+			environmentsByName = append(environmentsByName, candidate)
+		}
+	}
+
+	if len(environmentsByName) > 1 {
+		return client.Environment{}, diag.Errorf("Found multiple environments for name: %s. Use ID instead or make sure environment names are unique %v", name, environmentsByName)
+	}
+
+	if len(environmentsByName) == 0 {
+		return client.Environment{}, diag.Errorf("Could not find an env0 environment with name %s", name)
+	}
+
+	return environmentsByName[0], nil
+}
