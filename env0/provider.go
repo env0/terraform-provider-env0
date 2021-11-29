@@ -18,8 +18,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"api_endpoint": {
 					Type:        schema.TypeString,
 					Description: "override api endpoint (used for testing)",
-					//TODO: change back
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api-dev.dev.env0.com/"),
+					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
 					Optional:    true,
 				},
 				"api_key": {
