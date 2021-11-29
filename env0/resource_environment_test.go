@@ -28,15 +28,19 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		TemplateId: "template-id",
 	}
 
+	createEnvironmentResourceConfig := func(environment client.Environment) string {
+		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"name":        environment.Name,
+			"project_id":  environment.ProjectId,
+			"template_id": environment.TemplateId,
+		})
+	}
+
 	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        environment.Name,
-						"project_id":  environment.ProjectId,
-						"template_id": environment.TemplateId,
-					}),
+					Config: createEnvironmentResourceConfig(environment),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
@@ -45,11 +49,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.TemplateId,
-					}),
+					Config: createEnvironmentResourceConfig(updatedEnvironment),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
@@ -85,11 +85,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        environment.Name,
-						"project_id":  environment.ProjectId,
-						"template_id": environment.TemplateId,
-					}),
+					Config:      createEnvironmentResourceConfig(environment),
 					ExpectError: regexp.MustCompile("could not create environment: error"),
 				},
 			},
@@ -111,18 +107,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        environment.Name,
-						"project_id":  environment.ProjectId,
-						"template_id": environment.TemplateId,
-					}),
+					Config: createEnvironmentResourceConfig(environment),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.TemplateId,
-					}),
+					Config:      createEnvironmentResourceConfig(updatedEnvironment),
 					ExpectError: regexp.MustCompile("could not update environment: error"),
 				},
 			},
@@ -149,11 +137,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        environment.Name,
-						"project_id":  environment.ProjectId,
-						"template_id": environment.TemplateId,
-					}),
+					Config:      createEnvironmentResourceConfig(environment),
 					ExpectError: regexp.MustCompile("could not get environment: error"),
 				},
 			},
