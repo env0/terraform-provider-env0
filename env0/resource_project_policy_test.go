@@ -57,6 +57,8 @@ func TestUnitPolicyResource(t *testing.T) {
 					"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
 					"disable_destroy_environments":  policy.DisableDestroyEnvironments,
 					"skip_redundant_deployments":    policy.SkipRedundantDeployments,
+					"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
+					"continuous_deployment_default": policy.ContinuousDeploymentDefault,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
@@ -67,6 +69,8 @@ func TestUnitPolicyResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
 					resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(policy.DisableDestroyEnvironments)),
 					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(policy.SkipRedundantDeployments)),
+					resource.TestCheckResourceAttr(accessor, "run_pull_request_plan_default", strconv.FormatBool(policy.RunPullRequestPlanDefault)),
+					resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
 				),
 			},
 			{

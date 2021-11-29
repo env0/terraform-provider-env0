@@ -63,6 +63,16 @@ func dataPolicy() *schema.Resource {
 				Description: "updated by",
 				Computed:    true,
 			},
+			"run_pull_request_plan_default": {
+				Type:        schema.TypeBool,
+				Description: "Run Terraform Plan on Pull Requests for new environments targeting their branch default value",
+				Computed:    true,
+			},
+			"continuous_deployment_default": {
+				Type:        schema.TypeBool,
+				Description: "Redeploy on every push to the git branch default value",
+				Computed:    true,
+			},
 		},
 	}
 }
