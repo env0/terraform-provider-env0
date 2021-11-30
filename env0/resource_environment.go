@@ -40,6 +40,12 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
+// TODO: make it a const
+var VariableTypes = map[string]client.ConfigurationVariableType{
+"terraform": client.ConfigurationVariableTypeTerraform,
+"environment": client.ConfigurationVariableTypeEnvironment,
+}
+
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
@@ -154,6 +160,77 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	}
 
 	return payload
+}
+
+func getDeployPayload(d *schema.ResourceData) client.EnvironmentDeploy {
+	payload := client.EnvironmentDeploy{}
+
+	if templateId, ok := d.GetOk("templateId"); ok {
+		payload.BlueprintId = templateId.(string)
+	}
+
+	if revision, ok := d.GetOk("revision"); ok {
+		payload.BlueprintRevision = revision.(string)
+	}
+
+	if repository, ok := d.GetOk("repository"); ok {
+		payload.BlueprintRepository = repository.(string)
+	}
+
+	if configuration, ok := d.GetOk("configuration"); ok {
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		// TODO: does this work (passing the variable address)
+		payload.ConfigurationChanges = &configurationChanges
+	}
+
+	if ttl, ok := d.GetOk("ttl"); ok {
+		payload.TTL = &client.TTL{
+			Type:  ttl.(map[string]interface{})["type"].(string),
+			Value: ttl.(map[string]interface{})["value"].(string),,
+		}
+	}
+
+	if envName, ok := d.GetOk("name"); ok {
+		payload.EnvName = envName.(string)
+	}
+
+	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
+		payload.UserRequiresApproval = userRequiresApproval.(string)
+	}
+
+	return payload
+}
+
+func getConfigurationVariables (configuration []interface{}) client.ConfigurationChanges {
+	configurationChanges := client.ConfigurationChanges{}
+	for _, variable := range configuration {
+		configurationChanges = append(configurationChanges, getConfigurationVariableForEnvironment(variable))
+	}
+	return configurationChanges
+}
+
+func getConfigurationVariableForEnvironment(variable interface{}) client.ConfigurationVariable {
+	return client.ConfigurationVariable{
+		ScopeId:        variable.(map[string]interface{})["scope_id"].(string),
+		Value:          variable.(map[string]interface{})["value"].(string),
+		OrganizationId: variable.(map[string]interface{})["organization_id"].(string),
+		UserId:         variable.(map[string]interface{})["user_id"].(string),
+		IsSensitive:    variable.(map[string]interface{})["is_sensitive"].(bool),
+		Scope:          variable.(map[string]interface{})["scope"].(client.Scope),
+		Id:             variable.(map[string]interface{})["id"].(string),
+		Name:           variable.(map[string]interface{})["name"].(string),
+		Description:    variable.(map[string]interface{})["description"].(string),
+		Type:           VariableTypes[variable.(map[string]interface{})["type"].(string)],
+		Schema:         getConfigurationVariableSchema(variable.(map[string]interface{})["schema"]),
+	}
+}
+
+func getConfigurationVariableSchema(schema interface{}) client.ConfigurationVariableSchema {
+	return client.ConfigurationVariableSchema{
+		Type: schema.(map[string]interface{})["type"].(string),
+		// TODO: check this
+		Enum: schema.(map[string]interface{})["enum"].([]string),
+	}
 }
 
 func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {
