@@ -229,11 +229,25 @@ type Template struct {
 }
 
 type Environment struct {
-	Id            string `json:"id"`
-	Name          string `json:"name"`
-	ProjectId     string `json:"projectId"`
-	TemplateId    string `json:"templateId"`
-	WorkspaceName string `json:"workspaceName"`
+	Id                          string        `json:"id"`
+	Name                        string        `json:"name"`
+	ProjectId                   string        `json:"projectId"`
+	WorkspaceName               string        `json:"workspaceName,omitempty"`
+	RequiresApproval            bool          `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        bool          `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  bool          `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      bool          `json:"autoDeployByCustomGlob,omitempty"`
+	Status                      string        `json:"status"`
+	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
+	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
+}
+
+type DeploymentLog struct {
+	Id                  string `json:"id"`
+	BlueprintId         string `json:"blueprintId"`
+	BlueprintRepository string `json:"blueprintRepository"`
+	BlueprintRevision   string `json:"blueprintRevision"`
 }
 
 type SshKey struct {

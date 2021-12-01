@@ -69,6 +69,17 @@ func resourceEnvironment() *schema.Resource {
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
 			},
+			"auto_deploy_by_custom_glob": {
+				Type: schema.TypeString,
+				// TODO: description
+				Description: "should deploy by custom glob",
+				Optional:    true,
+			},
+			"deployment_id": {
+				Type:        schema.TypeString,
+				Description: "id of the last deployment",
+				Computed:    true,
+			},
 			"ttl": {
 				Type:        schema.TypeMap,
 				Description: "The environment's time to live",
@@ -133,9 +144,18 @@ var VariableTypes = map[string]client.ConfigurationVariableType{
 }
 
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
+	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
-	d.Set("template_id", environment.TemplateId)
+	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+	d.Set("workspace", environment.WorkspaceName)
+	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	d.Set("repository", environment.LatestDeploymentLog.BlueprintRepository)
+	d.Set("run_plan_on_pull_requests", environment.PullRequestPlanDeployments)
+	d.Set("approve_plan_automatically", !environment.RequiresApproval)
+	d.Set("deploy_on_push", environment.ContinuousDeployment)
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
+	//TODO: TTL and env variables aren't returned from get environment api
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -170,13 +190,26 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := getUpdatePayload(d)
+	if d.HasChanges("template_id", "revision", "repository", "configuration") {
+		deployPayload, err := getDeployPayload(d)
+		if err != nil {
+			return diag.Errorf("could not create deploy request: %v", err)
+		}
+		deployResponse, deployErr := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+		if err != nil {
+			return diag.Errorf("failed deploying environment: %v", deployErr)
+		}
+		d.Set("deployment_id", deployResponse.Id)
+	}
 
-	// TODO: deploy if needed
+	// TODO: update TTL if needed
 
-	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
-	if err != nil {
-		return diag.Errorf("could not update environment: %v", err)
+	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob") {
+		payload := getUpdatePayload(d)
+		_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
+		if err != nil {
+			return diag.Errorf("could not update environment: %v", err)
+		}
 	}
 
 	return nil
