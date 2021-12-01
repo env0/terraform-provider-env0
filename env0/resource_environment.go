@@ -259,16 +259,16 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) (cl
 	}
 
 	if variable["schema"] != nil {
-		configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"])
+		configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"].(map[string]interface{}))
 	}
 
 	return configurationVariable, nil
 }
 
-func getConfigurationVariableSchema(schema interface{}) client.ConfigurationVariableSchema {
+func getConfigurationVariableSchema(schema map[string]interface{}) client.ConfigurationVariableSchema {
 	return client.ConfigurationVariableSchema{
-		Type: schema.(map[string]interface{})["type"].(string),
-		Enum: schema.(map[string]interface{})["enum"].([]string),
+		Type: schema["type"].(string),
+		Enum: schema["enum"].([]string),
 	}
 }
 
