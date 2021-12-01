@@ -23,7 +23,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The environment's name",
+				Description: "the environment's name",
 				Required:    true,
 			},
 			"project_id": {
@@ -35,6 +35,93 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the template id the environment is to be created from",
 				Required:    true,
+			},
+			"workspace": {
+				Type:        schema.TypeString,
+				Description: "the terraform workspace of the environment",
+				Optional:    true,
+			},
+			"revision": {
+				Type: schema.TypeString,
+				// TODO: not sure about this description
+				Description: "the revision the environment is to be run against",
+				Optional:    true,
+			},
+			"repository": {
+				Type: schema.TypeString,
+				// TODO: not sure about this description
+				Description: "the repository the environment is to be run against",
+				Optional:    true,
+			},
+			"run_plan_on_pull_requests": {
+				Type:        schema.TypeBool,
+				Description: "should run terraform plan on pull requests creations",
+				Optional:    true,
+			},
+			"approve_plan_automatically": {
+				Type:        schema.TypeBool,
+				Description: "should deployments require manual approvals ( defaults to true )",
+				Optional:    true,
+				Default:     true,
+			},
+			"deploy_on_push": {
+				Type:        schema.TypeBool,
+				Description: "should run terraform deploy on push events",
+				Optional:    true,
+			},
+			"ttl": {
+				Type:        schema.TypeMap,
+				Description: "The environment's time to live",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "A map of ttl.type (INFINITE | HOURS | DATE) and ttl.value",
+				},
+			},
+			"configuration": {
+				Type:        schema.TypeList,
+				Description: "terraform and environment variables for the environment",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable name",
+							Required:    true,
+						},
+						"value": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable value",
+							Required:    true,
+						},
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable type (allowed values are: terraform, environment)",
+							Default:     "environment",
+							Required:    true,
+						},
+						"scope": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable scope ( allowed values are: GLOBAL, BLUEPRINT, PROJECT, ENVIRONMENT, DEPLOYMENT )",
+							Required:    true,
+						},
+						"scope_id": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "the scope's id",
+							Optional:    true,
+						},
+						"description": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "description for the variable",
+							Optional:    true,
+						},
+						"is_sensitive": &schema.Schema{
+							Type:        schema.TypeBool,
+							Description: "should the variable value be hidden",
+							Optional:    true,
+						},
+					},
+				},
 			},
 		},
 	}
