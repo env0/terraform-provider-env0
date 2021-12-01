@@ -59,7 +59,7 @@ func (self *ApiClient) EnvironmentUpdateTTL(id string, payload EnvironmentUpdate
 
 func (self *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
 	var result EnvironmentDeployResponse
-	err := self.http.Put("/environments/"+id+"/deployments", payload, &result)
+	err := self.http.Post("/environments/"+id+"/deployments", payload, &result)
 
 	if err != nil {
 		return EnvironmentDeployResponse{}, err

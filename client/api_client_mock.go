@@ -226,6 +226,21 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(arg0 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), arg0)
 }
 
+// EnvironmentDeploy mocks base method.
+func (m *MockApiClientInterface) EnvironmentDeploy(arg0 string, arg1 DeployRequest) (EnvironmentDeployResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentDeploy", arg0, arg1)
+	ret0, _ := ret[0].(EnvironmentDeployResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentDeploy indicates an expected call of EnvironmentDeploy.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploy(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploy), arg0, arg1)
+}
+
 // EnvironmentDestroy mocks base method.
 func (m *MockApiClientInterface) EnvironmentDestroy(arg0 string) (Environment, error) {
 	m.ctrl.T.Helper()
@@ -254,6 +269,21 @@ func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 Environment
 func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), arg0, arg1)
+}
+
+// EnvironmentUpdateTTL mocks base method.
+func (m *MockApiClientInterface) EnvironmentUpdateTTL(arg0 string, arg1 EnvironmentUpdateTTL) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentUpdateTTL", arg0, arg1)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentUpdateTTL indicates an expected call of EnvironmentUpdateTTL.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTTL(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTTL", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTTL), arg0, arg1)
 }
 
 // Environments mocks base method.
