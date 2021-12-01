@@ -73,12 +73,6 @@ type TTL struct {
 	Value string `json:"value,omitempty"`
 }
 
-type ConfigurationChangesSchema struct {
-	Type string `json:"type,omitempty"`
-	// TODO: not sure this works
-	Enum []string `json:"enum,omitempty"`
-}
-
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
 	RequiresApproval            bool   `json:"requiresApproval,omitempty"`

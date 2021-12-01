@@ -162,7 +162,7 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	return payload
 }
 
-func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
+func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagnostics) {
 	payload := client.DeployRequest{}
 
 	if templateId, ok := d.GetOk("templateId"); ok {
@@ -178,7 +178,10 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges, err := getConfigurationVariables(configuration.([]interface{}))
+		if err != nil {
+			return client.DeployRequest{}, err
+		}
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -197,31 +200,69 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 		payload.UserRequiresApproval = userRequiresApproval.(bool)
 	}
 
-	return payload
+	return payload, nil
 }
 
-func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariables(configuration []interface{}) (client.ConfigurationChanges, diag.Diagnostics) {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
-		configurationChanges = append(configurationChanges, getConfigurationVariableForEnvironment(variable))
+		configurationVariable, err := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
+		if err != nil {
+			return client.ConfigurationChanges{}, err
+		}
+		configurationChanges = append(configurationChanges, configurationVariable)
 	}
-	return configurationChanges
+	return configurationChanges, nil
 }
 
-func getConfigurationVariableForEnvironment(variable interface{}) client.ConfigurationVariable {
-	return client.ConfigurationVariable{
-		ScopeId:        variable.(map[string]interface{})["scope_id"].(string),
-		Value:          variable.(map[string]interface{})["value"].(string),
-		OrganizationId: variable.(map[string]interface{})["organization_id"].(string),
-		UserId:         variable.(map[string]interface{})["user_id"].(string),
-		IsSensitive:    variable.(map[string]interface{})["is_sensitive"].(bool),
-		Scope:          variable.(map[string]interface{})["scope"].(client.Scope),
-		Id:             variable.(map[string]interface{})["id"].(string),
-		Name:           variable.(map[string]interface{})["name"].(string),
-		Description:    variable.(map[string]interface{})["description"].(string),
-		Type:           VariableTypes[variable.(map[string]interface{})["type"].(string)],
-		Schema:         getConfigurationVariableSchema(variable.(map[string]interface{})["schema"]),
+func getConfigurationVariableForEnvironment(variable map[string]interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
+	configurationVariable := client.ConfigurationVariable{}
+
+	if variable["name"] == nil {
+		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
 	}
+	configurationVariable.Name = variable["name"].(string)
+
+	if variable["value"] == nil {
+		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
+	}
+	configurationVariable.Value = variable["value"].(string)
+
+	if variable["scope"] == nil {
+		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
+	}
+	configurationVariable.Scope = variable["scope"].(client.Scope)
+
+	if variable["type"] == nil {
+		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
+	}
+	configurationVariable.Type = VariableTypes[variable["type"].(string)]
+
+	if variable["scope_id"] != nil {
+		configurationVariable.ScopeId = variable["scope_id"].(string)
+	}
+
+	if variable["organization_id"] != nil {
+		configurationVariable.OrganizationId = variable["organization_id"].(string)
+	}
+
+	if variable["user_id"] != nil {
+		configurationVariable.UserId = variable["user_id"].(string)
+	}
+
+	if variable["is_sensitive"] != nil {
+		configurationVariable.IsSensitive = variable["is_sensitive"].(bool)
+	}
+
+	if variable["description"] != nil {
+		configurationVariable.Description = variable["description"].(string)
+	}
+
+	if variable["schema"] != nil {
+		configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"])
+	}
+
+	return configurationVariable, nil
 }
 
 func getConfigurationVariableSchema(schema interface{}) client.ConfigurationVariableSchema {
