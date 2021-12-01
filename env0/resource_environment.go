@@ -202,6 +202,21 @@ func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagno
 	return payload, nil
 }
 
+func getTTlPayload(ttl map[string]interface{}) (client.EnvironmentUpdateTTL, diag.Diagnostics) {
+	payload := client.EnvironmentUpdateTTL{}
+
+	if ttl["type"] == nil {
+		return client.EnvironmentUpdateTTL{}, diag.Errorf("failed reading ttl. ttl type is required when specifying ttl")
+	}
+	payload.Type = ttl["type"].(string)
+
+	if ttl["value"] != nil {
+		payload.Value = ttl["value"].(string)
+	}
+
+	return payload, nil
+}
+
 func getConfigurationVariables(configuration []interface{}) (client.ConfigurationChanges, diag.Diagnostics) {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
