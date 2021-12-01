@@ -42,8 +42,8 @@ func resourceEnvironment() *schema.Resource {
 
 // TODO: make it a const
 var VariableTypes = map[string]client.ConfigurationVariableType{
-"terraform": client.ConfigurationVariableTypeTerraform,
-"environment": client.ConfigurationVariableTypeEnvironment,
+	"terraform":   client.ConfigurationVariableTypeTerraform,
+	"environment": client.ConfigurationVariableTypeEnvironment,
 }
 
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
@@ -162,8 +162,8 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	return payload
 }
 
-func getDeployPayload(d *schema.ResourceData) client.EnvironmentDeploy {
-	payload := client.EnvironmentDeploy{}
+func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
+	payload := client.DeployRequest{}
 
 	if templateId, ok := d.GetOk("templateId"); ok {
 		payload.BlueprintId = templateId.(string)
@@ -179,14 +179,13 @@ func getDeployPayload(d *schema.ResourceData) client.EnvironmentDeploy {
 
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
-		// TODO: does this work (passing the variable address)
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
 	if ttl, ok := d.GetOk("ttl"); ok {
 		payload.TTL = &client.TTL{
 			Type:  ttl.(map[string]interface{})["type"].(string),
-			Value: ttl.(map[string]interface{})["value"].(string),,
+			Value: ttl.(map[string]interface{})["value"].(string),
 		}
 	}
 
@@ -195,13 +194,13 @@ func getDeployPayload(d *schema.ResourceData) client.EnvironmentDeploy {
 	}
 
 	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
-		payload.UserRequiresApproval = userRequiresApproval.(string)
+		payload.UserRequiresApproval = userRequiresApproval.(bool)
 	}
 
 	return payload
 }
 
-func getConfigurationVariables (configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
 		configurationChanges = append(configurationChanges, getConfigurationVariableForEnvironment(variable))

@@ -94,20 +94,6 @@ type EnvironmentUpdateTTL struct {
 	Value string `json:"value,omitempty"`
 }
 
-type EnvironmentDeploy struct {
-	BlueprintId          string                `json:"blueprintId"`
-	BlueprintRevision    string                `json:"blueprintRevision,omitempty"`
-	BlueprintRepository  string                `json:"blueprintRepository,omitempty"`
-	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                  *TTL                  `json:"ttl,omitempty"`
-	EnvName              string                `json:"envName,omitempty"`
-	UserRequiresApproval string                `json:"userRequiresApproval,omitempty"`
-	Targets              string                `json:"targets,omitempty"`
-	//	TODO: not sure and maybe make them the same type like in create
-	CustomEnv0EnvironmentVariables *interface{} `json:"customEnv0EnvironmentVariables,omitempty"`
-	TriggerName                    string       `json:"triggerName,omitempty"`
-}
-
 type EnvironmentDeployResponse struct {
 	Id string `json:"id"`
 }
