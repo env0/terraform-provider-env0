@@ -40,7 +40,6 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-// TODO: make it a const
 var VariableTypes = map[string]client.ConfigurationVariableType{
 	"terraform":   client.ConfigurationVariableTypeTerraform,
 	"environment": client.ConfigurationVariableTypeEnvironment,
