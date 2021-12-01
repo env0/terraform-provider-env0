@@ -268,7 +268,6 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) (cl
 func getConfigurationVariableSchema(schema interface{}) client.ConfigurationVariableSchema {
 	return client.ConfigurationVariableSchema{
 		Type: schema.(map[string]interface{})["type"].(string),
-		// TODO: check this
 		Enum: schema.(map[string]interface{})["enum"].([]string),
 	}
 }
