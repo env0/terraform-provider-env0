@@ -46,3 +46,23 @@ func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (
 	}
 	return result, nil
 }
+
+func (self *ApiClient) EnvironmentUpdateTTL(id string, payload EnvironmentUpdateTTL) (Environment, error) {
+	var result Environment
+	err := self.http.Put("/environments/"+id+"/ttl", payload, &result)
+
+	if err != nil {
+		return Environment{}, err
+	}
+	return result, nil
+}
+
+func (self *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
+	var result EnvironmentDeployResponse
+	err := self.http.Post("/environments/"+id+"/deployments", payload, &result)
+
+	if err != nil {
+		return EnvironmentDeployResponse{}, err
+	}
+	return result, nil
+}

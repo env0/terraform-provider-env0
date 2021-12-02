@@ -167,4 +167,80 @@ var _ = Describe("Environment Client", func() {
 			})
 		})
 	})
+
+	Describe("EnvironmentDeploy", func() {
+		Describe("Success", func() {
+			var response EnvironmentDeployResponse
+			var err error
+			deployResponseMock := EnvironmentDeployResponse{
+				Id: "deployment-id",
+			}
+
+			BeforeEach(func() {
+				deployRequest := DeployRequest{
+					BlueprintId:          "",
+					BlueprintRevision:    "",
+					BlueprintRepository:  "",
+					ConfigurationChanges: nil,
+					TTL:                  nil,
+					EnvName:              "",
+					UserRequiresApproval: false,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Post("/environments/"+mockEnvironment.Id+"/deployments", deployRequest, gomock.Any()).
+					Do(func(path string, request interface{}, response *EnvironmentDeployResponse) {
+						*response = deployResponseMock
+					})
+
+				response, err = apiClient.EnvironmentDeploy(mockEnvironment.Id, deployRequest)
+			})
+
+			It("Should send post request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return the deployment id received from API", func() {
+				Expect(response).To(Equal(deployResponseMock))
+			})
+		})
+	})
+
+	Describe("EnvironmentUpdateTTL", func() {
+		Describe("Success", func() {
+			var updatedEnvironment Environment
+			var err error
+
+			BeforeEach(func() {
+				updateTTLRequest := EnvironmentUpdateTTL{
+					Type:  "",
+					Value: "",
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/environments/"+mockEnvironment.Id+"/ttl", updateTTLRequest, gomock.Any()).
+					Do(func(path string, request interface{}, response *Environment) {
+						*response = mockEnvironment
+					})
+
+				updatedEnvironment, err = apiClient.EnvironmentUpdateTTL(mockEnvironment.Id, updateTTLRequest)
+			})
+
+			It("Should send Put request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return the deployment id received from API", func() {
+				Expect(updatedEnvironment).To(Equal(mockEnvironment))
+			})
+		})
+	})
 })

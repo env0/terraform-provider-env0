@@ -53,17 +53,13 @@ type EnvironmentCreate struct {
 }
 
 type DeployRequest struct {
-	BlueprintId          string                  `json:"blueprintId,omitempty"`
-	BlueprintRevision    string                  `json:"blueprintRevision,omitempty"`
-	BlueprintRepository  string                  `json:"blueprintRepository,omitempty"`
-	ConfigurationChanges *[]ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                  *TTL                    `json:"ttl,omitempty"`
-	EnvName              string                  `json:"envName,omitempty"`
-	UserRequiresApproval bool                    `json:"userRequiresApproval,omitempty"`
-	Targets              string                  `json:"targets,omitempty"`
-	// TODO: not sure about this one
-	CustomEnv0EnvironmentVariables *interface{} `json:"customEnv0EnvironmentVariables,omitempty"`
-	TriggerName                    string       `json:"triggerName,omitempty"`
+	BlueprintId          string                `json:"blueprintId,omitempty"`
+	BlueprintRevision    string                `json:"blueprintRevision,omitempty"`
+	BlueprintRepository  string                `json:"blueprintRepository,omitempty"`
+	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
+	TTL                  *TTL                  `json:"ttl,omitempty"`
+	EnvName              string                `json:"envName,omitempty"`
+	UserRequiresApproval bool                  `json:"userRequiresApproval,omitempty"`
 }
 
 type GitUserData struct {
@@ -77,24 +73,6 @@ type TTL struct {
 	Value string `json:"value,omitempty"`
 }
 
-type ConfigurationChanges struct {
-	Name        string                      `json:"name"`
-	Value       string                      `json:"value"`
-	ScopeId     string                      `json:"scopeId,omitempty"`
-	Scope       string                      `json:"scope"`
-	Type        string                      `json:"type"`
-	ToDelete    string                      `json:"toDelete,omitempty"`
-	Schema      *ConfigurationChangesSchema `json:"schema,omitempty"`
-	Description string                      `json:"description,omitempty"`
-	IsSensitive string                      `json:"isSensitive,omitempty"`
-}
-
-type ConfigurationChangesSchema struct {
-	Type string `json:"type,omitempty"`
-	// TODO: not sure this works
-	Enum []string `json:"enum,omitempty"`
-}
-
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
 	RequiresApproval            bool   `json:"requiresApproval,omitempty"`
@@ -103,6 +81,15 @@ type EnvironmentUpdate struct {
 	PullRequestPlanDeployments  bool   `json:"pullRequestPlanDeployments,omitempty"`
 	AutoDeployOnPathChangesOnly bool   `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
+}
+
+type EnvironmentUpdateTTL struct {
+	Type  string `json:"type"`
+	Value string `json:"value,omitempty"`
+}
+
+type EnvironmentDeployResponse struct {
+	Id string `json:"id"`
 }
 
 type ConfigurationVariableSchema struct {
@@ -136,6 +123,8 @@ const (
 )
 
 type ConfigurationVariableType int
+
+type ConfigurationChanges []ConfigurationVariable
 
 const (
 	ConfigurationVariableTypeEnvironment ConfigurationVariableType = 0
