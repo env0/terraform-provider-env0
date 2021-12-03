@@ -55,7 +55,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Name:        "name0",
 			Description: "desc0",
 			Value:       "Variable",
-			Schema: client.ConfigurationVariableSchema{
+			Schema: &client.ConfigurationVariableSchema{
 				Type: "string",
 				Enum: []string{"Variable", "a"},
 			},
@@ -235,11 +235,12 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 	})
 
 	t.Run("Update with wrong type", func(t *testing.T) {
+		wrongType := client.ConfigurationVariableType(6)
 		newConfigVar := client.ConfigurationVariable{
 			Id:    configVar.Id,
 			Name:  configVar.Name,
 			Value: "I want to be the config value",
-			Type:  6,
+			Type:  &wrongType,
 		}
 
 		updateTestCase := resource.TestCase{

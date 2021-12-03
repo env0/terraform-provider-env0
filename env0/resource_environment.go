@@ -318,10 +318,6 @@ func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagno
 		}
 	}
 
-	if envName, ok := d.GetOk("name"); ok {
-		payload.EnvName = envName.(string)
-	}
-
 	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
 		payload.UserRequiresApproval = userRequiresApproval.(bool)
 	}

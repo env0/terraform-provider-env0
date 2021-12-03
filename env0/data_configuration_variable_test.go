@@ -14,6 +14,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)
+	isSensitive := false
+	variableType := client.ConfigurationVariableTypeEnvironment
 	configurationVariable := client.ConfigurationVariable{
 		Id:             "id0",
 		Name:           "name0",
@@ -22,10 +24,10 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		Value:          "value0",
 		OrganizationId: "organization0",
 		UserId:         "user0",
-		IsSensitive:    false,
+		IsSensitive:    &isSensitive,
 		Scope:          client.ScopeEnvironment,
-		Type:           client.ConfigurationVariableTypeEnvironment,
-		Schema:         client.ConfigurationVariableSchema{Type: "string"},
+		Type:           &variableType,
+		Schema:         &client.ConfigurationVariableSchema{Type: "string"},
 	}
 
 	checkResources := resource.ComposeAggregateTestCheckFunc(
@@ -35,7 +37,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "type", "environment"),
 		resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
-		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(configurationVariable.IsSensitive)),
+		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
 	)
 
 	t.Run("ScopeGlobal", func(t *testing.T) {
@@ -58,7 +60,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			})
 	})
 	t.Run("ScopeGlobal Enum", func(t *testing.T) {
-
+		isSensitive := false
+		variableType := client.ConfigurationVariableTypeEnvironment
 		configurationVariable := client.ConfigurationVariable{
 			Id:             "id0",
 			Name:           "name0",
@@ -66,10 +69,10 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			Value:          "value0",
 			OrganizationId: "organization0",
 			UserId:         "user0",
-			IsSensitive:    false,
+			IsSensitive:    &isSensitive,
 			Scope:          client.ScopeEnvironment,
-			Type:           client.ConfigurationVariableTypeEnvironment,
-			Schema:         client.ConfigurationVariableSchema{Type: "string", Enum: []string{"a", "b"}},
+			Type:           &variableType,
+			Schema:         &client.ConfigurationVariableSchema{Type: "string", Enum: []string{"a", "b"}},
 		}
 
 		checkResources := resource.ComposeAggregateTestCheckFunc(
@@ -78,7 +81,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCheckResourceAttr(accessor, "type", "environment"),
 			resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
 			resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
-			resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(configurationVariable.IsSensitive)),
+			resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
 			resource.TestCheckResourceAttr(accessor, "enum.0", "a"),
 			resource.TestCheckResourceAttr(accessor, "enum.1", "b"),
 		)
