@@ -127,12 +127,12 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
 	d.Set("enum", variable.Schema.Enum)
-	if variable.Type == client.ConfigurationVariableTypeEnvironment {
+	if *variable.Type == client.ConfigurationVariableTypeEnvironment {
 		d.Set("type", "environment")
-	} else if variable.Type == client.ConfigurationVariableTypeTerraform {
+	} else if *variable.Type == client.ConfigurationVariableTypeTerraform {
 		d.Set("type", "terraform")
 	} else {
-		return diag.Errorf("Unknown variable type: %d", int(variable.Type))
+		return diag.Errorf("Unknown variable type: %d", int(*variable.Type))
 	}
 
 	return nil
@@ -193,7 +193,7 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 		}
 		if nameOk && candidate.Name == name {
 			if type_ != -1 {
-				if int(candidate.Type) != type_ {
+				if int(*candidate.Type) != type_ {
 					continue
 				}
 			}

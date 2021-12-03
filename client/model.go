@@ -98,17 +98,17 @@ type ConfigurationVariableSchema struct {
 }
 
 type ConfigurationVariable struct {
-	ScopeId        string                      `json:"scopeId"`
-	Value          string                      `json:"value"`
-	OrganizationId string                      `json:"organizationId"`
-	UserId         string                      `json:"userId"`
-	IsSensitive    bool                        `json:"isSensitive"`
-	Scope          Scope                       `json:"scope"`
-	Id             string                      `json:"id"`
-	Name           string                      `json:"name"`
-	Description    string                      `json:"description"`
-	Type           ConfigurationVariableType   `json:"type"`
-	Schema         ConfigurationVariableSchema `json:"schema"`
+	ScopeId        string                       `json:"scopeId,omitempty"`
+	Value          string                       `json:"value"`
+	OrganizationId string                       `json:"organizationId,omitempty"`
+	UserId         string                       `json:"userId,omitempty"`
+	IsSensitive    *bool                        `json:"isSensitive,omitempty"`
+	Scope          Scope                        `json:"scope,omitempty"`
+	Id             string                       `json:"id,omitempty"`
+	Name           string                       `json:"name"`
+	Description    string                       `json:"description,omitempty"`
+	Type           *ConfigurationVariableType   `json:"type,omitempty"`
+	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 }
 
 type Scope string

@@ -40,18 +40,21 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the terraform workspace of the environment",
 				Optional:    true,
+				Computed:    true,
 			},
 			"revision": {
 				Type: schema.TypeString,
 				// TODO: not sure about this description
 				Description: "the revision the environment is to be run against",
 				Optional:    true,
+				Computed:    true,
 			},
 			"repository": {
 				Type: schema.TypeString,
 				// TODO: not sure about this description
 				Description: "the repository the environment is to be run against",
 				Optional:    true,
+				Computed:    true,
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
@@ -68,6 +71,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
+				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type: schema.TypeString,
@@ -109,12 +113,13 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "variable type (allowed values are: terraform, environment)",
 							Default:     "environment",
-							Required:    true,
+							Optional:    true,
 						},
 						"scope": &schema.Schema{
 							Type:        schema.TypeString,
 							Description: "variable scope ( allowed values are: GLOBAL, BLUEPRINT, PROJECT, ENVIRONMENT, DEPLOYMENT )",
-							Required:    true,
+							Optional:    true,
+							Default:     client.ScopeGlobal,
 						},
 						"scope_id": &schema.Schema{
 							Type:        schema.TypeString,
@@ -155,6 +160,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("approve_plan_automatically", !environment.RequiresApproval)
 	d.Set("deploy_on_push", environment.ContinuousDeployment)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
+	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	//TODO: TTL and env variables aren't returned from get environment api
 }
 
@@ -190,6 +196,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	//TODO: move each check to its own func
 	if d.HasChanges("template_id", "revision", "repository", "configuration") {
 		deployPayload, err := getDeployPayload(d)
 		if err != nil {
@@ -202,7 +209,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("deployment_id", deployResponse.Id)
 	}
 
-	// TODO: update TTL if needed
+	// TODO: update TTL if needed, also consider not updateing ttl if deploy happened (cause we update ttl there too)
 
 	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob") {
 		payload := getUpdatePayload(d)
@@ -284,7 +291,7 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagnostics) {
 	payload := client.DeployRequest{}
 
-	if templateId, ok := d.GetOk("templateId"); ok {
+	if templateId, ok := d.GetOk("template_id"); ok {
 		payload.BlueprintId = templateId.(string)
 	}
 
@@ -340,71 +347,49 @@ func getTTlPayload(ttl map[string]interface{}) (client.EnvironmentUpdateTTL, dia
 func getConfigurationVariables(configuration []interface{}) (client.ConfigurationChanges, diag.Diagnostics) {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
-		configurationVariable, err := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
-		if err != nil {
-			return client.ConfigurationChanges{}, err
-		}
+		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
 	return configurationChanges, nil
 }
 
-func getConfigurationVariableForEnvironment(variable map[string]interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
-	configurationVariable := client.ConfigurationVariable{}
+func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
+	varType := VariableTypes[variable["type"].(string)]
 
-	if variable["name"] == nil {
-		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
+	configurationVariable := client.ConfigurationVariable{
+		Name:  variable["name"].(string),
+		Value: variable["value"].(string),
+		Scope: client.Scope(variable["scope"].(string)),
+		Type:  &varType,
 	}
-	configurationVariable.Name = variable["name"].(string)
-
-	if variable["value"] == nil {
-		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
-	}
-	configurationVariable.Value = variable["value"].(string)
-
-	if variable["scope"] == nil {
-		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
-	}
-	configurationVariable.Scope = variable["scope"].(client.Scope)
-
-	if variable["type"] == nil {
-		return client.ConfigurationVariable{}, diag.Errorf("failed reading configuration variables. name, value, scope and type are required")
-	}
-	configurationVariable.Type = VariableTypes[variable["type"].(string)]
 
 	if variable["scope_id"] != nil {
 		configurationVariable.ScopeId = variable["scope_id"].(string)
 	}
 
-	if variable["organization_id"] != nil {
-		configurationVariable.OrganizationId = variable["organization_id"].(string)
-	}
-
-	if variable["user_id"] != nil {
-		configurationVariable.UserId = variable["user_id"].(string)
-	}
-
 	if variable["is_sensitive"] != nil {
-		configurationVariable.IsSensitive = variable["is_sensitive"].(bool)
+		isSensitive := variable["is_sensitive"].(bool)
+		configurationVariable.IsSensitive = &isSensitive
 	}
 
 	if variable["description"] != nil {
 		configurationVariable.Description = variable["description"].(string)
 	}
 
-	if variable["schema"] != nil {
-		configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"].(map[string]interface{}))
-	}
+	//TODO: check if schema is needed
+	//if variable["schema"] != nil {
+	//	configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"].(map[string]interface{}))
+	//}
 
-	return configurationVariable, nil
+	return configurationVariable
 }
 
-func getConfigurationVariableSchema(schema map[string]interface{}) client.ConfigurationVariableSchema {
-	return client.ConfigurationVariableSchema{
-		Type: schema["type"].(string),
-		Enum: schema["enum"].([]string),
-	}
-}
+//func getConfigurationVariableSchema(schema map[string]interface{}) client.ConfigurationVariableSchema {
+//	return client.ConfigurationVariableSchema{
+//		Type: schema["type"].(string),
+//		Enum: schema["enum"].([]string),
+//	}
+//}
 
 func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
