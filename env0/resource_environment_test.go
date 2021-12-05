@@ -88,44 +88,62 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 	// TODO: test deploy with variables
 
-	//		updatedEnvironmentResource := fmt.Sprintf(`
-	//			resource "%s" "%s" {
-	//				name = "%s"
-	//				project_id = "%s"
-	//				template_id = "%s"
-	//			}`,
-	//			resourceType, resourceName, environment.Name,
-	//			environment.ProjectId, otherTemplateId,
-	//			)
-
 	t.Run("Update to: template id, revision, repository, configuration should trigger a deployment", func(t *testing.T) {
-		otherTemplateId := "other-template-id"
-		updatedEnvironment := client.Environment{
+		environment := client.Environment{
+			Id:        "id0",
 			Name:      "my-environment",
 			ProjectId: "project-id",
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId: otherTemplateId,
+				BlueprintId:         "template-id",
+				BlueprintRepository: "repository",
+				BlueprintRevision:   "revision",
+			},
+		}
+		updatedEnvironment := client.Environment{
+			Id:        updatedEnvironment.Id,
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId:         environment.LatestDeploymentLog.BlueprintId,
+				BlueprintRepository: "updated repository",
+				BlueprintRevision:   "updated revision",
 			},
 		}
 
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: createEnvironmentResourceConfig(environment),
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        environment.Name,
+						"project_id":  environment.ProjectId,
+						"template_id": environment.LatestDeploymentLog.BlueprintId,
+						"repository":  environment.LatestDeploymentLog.BlueprintRepository,
+						"revision":    environment.LatestDeploymentLog.BlueprintRevision,
+					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
-						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "repository", environment.LatestDeploymentLog.BlueprintRepository),
+						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 					),
 				},
 				{
-					Config: createEnvironmentResourceConfig(updatedEnvironment),
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        updatedEnvironment.Name,
+						"project_id":  updatedEnvironment.ProjectId,
+						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"repository":  updatedEnvironment.LatestDeploymentLog.BlueprintRepository,
+						"revision":    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
-						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
-						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
-						resource.TestCheckResourceAttr(accessor, "template_id", otherTemplateId),
+						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "repository", updatedEnvironment.LatestDeploymentLog.BlueprintRepository),
+						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 					),
 				},
 			},
@@ -136,11 +154,15 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
 				DeployRequest: &client.DeployRequest{
-					BlueprintId: templateId,
+					BlueprintId:         environment.LatestDeploymentLog.BlueprintId,
+					BlueprintRevision:   environment.LatestDeploymentLog.BlueprintRevision,
+					BlueprintRepository: environment.LatestDeploymentLog.BlueprintRepository,
 				},
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
-				BlueprintId: otherTemplateId,
+				BlueprintId:         updatedEnvironment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision:   updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+				BlueprintRepository: updatedEnvironment.LatestDeploymentLog.BlueprintRepository,
 			}).Times(1).Return(client.EnvironmentDeployResponse{
 				Id: "deployment-id",
 			}, nil)
