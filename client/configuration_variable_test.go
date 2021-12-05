@@ -33,12 +33,12 @@ var _ = Describe("Configuration Variable", func() {
 			expectedCreateRequest := []map[string]interface{}{{
 				"name":           mockConfigurationVariable.Name,
 				"description":    mockConfigurationVariable.Description,
-				"isSensitive":    mockConfigurationVariable.IsSensitive,
+				"isSensitive":    *mockConfigurationVariable.IsSensitive,
 				"value":          mockConfigurationVariable.Value,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
-				"type":           mockConfigurationVariable.Type,
+				"type":           *mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -98,11 +98,11 @@ var _ = Describe("Configuration Variable", func() {
 				"description":    newDescription,
 				"value":          newValue,
 				"id":             mockConfigurationVariable.Id,
-				"isSensitive":    mockConfigurationVariable.IsSensitive,
+				"isSensitive":    *mockConfigurationVariable.IsSensitive,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
-				"type":           mockConfigurationVariable.Type,
+				"type":           *mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
