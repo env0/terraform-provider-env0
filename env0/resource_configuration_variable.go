@@ -177,7 +177,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			} else {
 				d.Set("type", "environment")
 			}
-			if len(variable.Schema.Enum) > 0 {
+			if variable.Schema != nil && len(variable.Schema.Enum) > 0 {
 				d.Set("enum", variable.Schema.Enum)
 			}
 			return nil
