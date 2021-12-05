@@ -198,13 +198,10 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	//TODO: move each check to its own func
 	if d.HasChanges("template_id", "revision", "repository", "configuration") {
-		deployPayload, err := getDeployPayload(d)
+		deployPayload := getDeployPayload(d)
+		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
 		if err != nil {
-			return diag.Errorf("could not create deploy request: %v", err)
-		}
-		deployResponse, deployErr := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
-		if err != nil {
-			return diag.Errorf("failed deploying environment: %v", deployErr)
+			return diag.Errorf("failed deploying environment: %v", err)
 		}
 		d.Set("deployment_id", deployResponse.Id)
 	}
@@ -288,7 +285,7 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	return payload
 }
 
-func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagnostics) {
+func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 	payload := client.DeployRequest{}
 
 	if templateId, ok := d.GetOk("template_id"); ok {
@@ -304,10 +301,7 @@ func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagno
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges, err := getConfigurationVariables(configuration.([]interface{}))
-		if err != nil {
-			return client.DeployRequest{}, err
-		}
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -322,7 +316,7 @@ func getDeployPayload(d *schema.ResourceData) (client.DeployRequest, diag.Diagno
 		payload.UserRequiresApproval = userRequiresApproval.(bool)
 	}
 
-	return payload, nil
+	return payload
 }
 
 func getTTlPayload(ttl map[string]interface{}) (client.EnvironmentUpdateTTL, diag.Diagnostics) {
@@ -340,13 +334,13 @@ func getTTlPayload(ttl map[string]interface{}) (client.EnvironmentUpdateTTL, dia
 	return payload, nil
 }
 
-func getConfigurationVariables(configuration []interface{}) (client.ConfigurationChanges, diag.Diagnostics) {
+func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
 		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
-	return configurationChanges, nil
+	return configurationChanges
 }
 
 func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
