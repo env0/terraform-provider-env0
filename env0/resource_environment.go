@@ -40,21 +40,16 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the terraform workspace of the environment",
 				Optional:    true,
-				Computed:    true,
 			},
 			"revision": {
-				Type: schema.TypeString,
-				// TODO: not sure about this description
+				Type:        schema.TypeString,
 				Description: "the revision the environment is to be run against",
 				Optional:    true,
-				Computed:    true,
 			},
 			"repository": {
-				Type: schema.TypeString,
-				// TODO: not sure about this description
-				Description: "the repository the environment is to be run against",
+				Type:        schema.TypeString,
+				Description: "the repository the environment should use",
 				Optional:    true,
-				Computed:    true,
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
@@ -136,6 +131,20 @@ func resourceEnvironment() *schema.Resource {
 							Description: "should the variable value be hidden",
 							Optional:    true,
 						},
+						"schema_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "the type the variable must be of",
+							Optional:    true,
+						},
+						"schema_enum": &schema.Schema{
+							Type:        schema.TypeList,
+							Description: "a list of possible variable values",
+							Optional:    true,
+							Elem: &schema.Schema{
+								Type:        schema.TypeString,
+								Description: "name to give the configuration variable",
+							},
+						},
 					},
 				},
 			},
@@ -161,7 +170,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("deploy_on_push", environment.ContinuousDeployment)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
-	//TODO: TTL and env variables aren't returned from get environment api
+	//TODO: TTL and env\terraform variables
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -196,7 +205,6 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	//TODO: move each check to its own func
 	if d.HasChanges("template_id", "revision", "repository", "configuration") {
 		deployPayload := getDeployPayload(d)
 		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
@@ -206,7 +214,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("deployment_id", deployResponse.Id)
 	}
 
-	// TODO: update TTL if needed, also consider not updateing ttl if deploy happened (cause we update ttl there too)
+	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
 
 	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob") {
 		payload := getUpdatePayload(d)
@@ -319,21 +327,6 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 	return payload
 }
 
-func getTTlPayload(ttl map[string]interface{}) (client.EnvironmentUpdateTTL, diag.Diagnostics) {
-	payload := client.EnvironmentUpdateTTL{}
-
-	if ttl["type"] == nil {
-		return client.EnvironmentUpdateTTL{}, diag.Errorf("failed reading ttl. ttl type is required when specifying ttl")
-	}
-	payload.Type = ttl["type"].(string)
-
-	if ttl["value"] != nil {
-		payload.Value = ttl["value"].(string)
-	}
-
-	return payload, nil
-}
-
 func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
@@ -366,20 +359,16 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.Description = variable["description"].(string)
 	}
 
-	//TODO: check if schema is needed
-	//if variable["schema"] != nil {
-	//	configurationVariable.Schema = getConfigurationVariableSchema(variable["schema"].(map[string]interface{}))
-	//}
+	if variable["schema_type"] != nil && variable["schema_enum"] != nil {
+		schema := client.ConfigurationVariableSchema{
+			Type: variable["schema_type"].(string),
+			Enum: variable["schema_enum"].([]string),
+		}
+		configurationVariable.Schema = &schema
+	}
 
 	return configurationVariable
 }
-
-//func getConfigurationVariableSchema(schema map[string]interface{}) client.ConfigurationVariableSchema {
-//	return client.ConfigurationVariableSchema{
-//		Type: schema["type"].(string),
-//		Enum: schema["enum"].([]string),
-//	}
-//}
 
 func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
