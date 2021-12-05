@@ -2,10 +2,12 @@ package env0
 
 import (
 	"errors"
+	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -104,11 +106,44 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Name:      environment.Name,
 			ProjectId: environment.ProjectId,
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId:         environment.LatestDeploymentLog.BlueprintId,
+				BlueprintId:         "updated template id",
 				BlueprintRepository: "updated repository",
 				BlueprintRevision:   "updated revision",
 			},
 		}
+
+		varType := client.ConfigurationVariableTypeEnvironment
+		varSchema := client.ConfigurationVariableSchema{
+			Type: "string",
+			Enum: []string{"a", "b"},
+		}
+		configurationVariables := client.ConfigurationVariable{
+			Value:  "my env var value",
+			Name:   "my env var",
+			Type:   &varType,
+			Schema: &varSchema,
+		}
+
+		updatedEnvironmentResource := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					repository = "%s"
+					revision = "%s"
+					configuration {
+						name = "%s"
+						value = "%s"
+						schema_type = "%s"
+						schema_enum = ["%s"]
+					}
+				}`,
+			resourceType, resourceName, environment.Name,
+			updatedEnvironment.ProjectId, updatedEnvironment.LatestDeploymentLog.BlueprintId,
+			updatedEnvironment.LatestDeploymentLog.BlueprintRepository, updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+			configurationVariables.Name, configurationVariables.Value, configurationVariables.Schema.Type,
+			strings.Join(configurationVariables.Schema.Enum, "\",\""),
+		)
 
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -130,13 +165,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
-						"repository":  updatedEnvironment.LatestDeploymentLog.BlueprintRepository,
-						"revision":    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
-					}),
+					Config: updatedEnvironmentResource,
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
@@ -144,6 +173,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "repository", updatedEnvironment.LatestDeploymentLog.BlueprintRepository),
 						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
 					),
 				},
 			},
@@ -159,11 +193,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintRepository: environment.LatestDeploymentLog.BlueprintRepository,
 				},
 			}).Times(1).Return(environment, nil)
-			mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
-				BlueprintId:         updatedEnvironment.LatestDeploymentLog.BlueprintId,
-				BlueprintRevision:   updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
-				BlueprintRepository: updatedEnvironment.LatestDeploymentLog.BlueprintRepository,
-			}).Times(1).Return(client.EnvironmentDeployResponse{
+
+			mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
 				Id: "deployment-id",
 			}, nil)
 
@@ -222,6 +253,45 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 				Name: updatedEnvironment.Name,
 			}).Times(1).Return(client.Environment{}, errors.New("error"))
+			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
+
+	})
+
+	t.Run("Failure in deploy", func(t *testing.T) {
+		updatedEnvironment := client.Environment{
+			Id:        updatedEnvironment.Id,
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: "updated template id",
+			},
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+				},
+				{
+					Config:      createEnvironmentResourceConfig(updatedEnvironment),
+					ExpectError: regexp.MustCompile("failed deploying environment: error"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: templateId,
+				},
+			}).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentDeploy(updatedEnvironment.Id, client.DeployRequest{
+				BlueprintId: updatedEnvironment.LatestDeploymentLog.BlueprintId,
+			}).Times(1).Return(client.EnvironmentDeployResponse{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
