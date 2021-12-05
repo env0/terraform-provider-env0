@@ -40,38 +40,45 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the terraform workspace of the environment",
 				Optional:    true,
+				Computed:    true,
 			},
 			"revision": {
 				Type:        schema.TypeString,
 				Description: "the revision the environment is to be run against",
 				Optional:    true,
+				Computed:    true,
 			},
 			"repository": {
 				Type:        schema.TypeString,
 				Description: "the repository the environment should use",
 				Optional:    true,
+				Computed:    true,
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform plan on pull requests creations",
 				Optional:    true,
+				Computed:    true,
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
 				Description: "should deployments require manual approvals ( defaults to true )",
 				Optional:    true,
+				Computed:    true,
 				Default:     true,
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
+				Computed:    true,
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type: schema.TypeString,
 				// TODO: description
 				Description: "should deploy by custom glob",
+				Computed:    true,
 				Optional:    true,
 			},
 			"deployment_id": {
