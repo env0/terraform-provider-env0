@@ -172,7 +172,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			d.Set("description", variable.Description)
 			d.Set("value", variable.Value)
 			d.Set("is_sensitive", variable.IsSensitive)
-			if variable.Type == nil || *variable.Type == client.ConfigurationVariableTypeTerraform {
+			if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
 				d.Set("type", "terraform")
 			} else {
 				d.Set("type", "environment")

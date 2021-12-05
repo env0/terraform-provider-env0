@@ -50,15 +50,16 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		})
 	})
 	t.Run("Create Enum", func(t *testing.T) {
+		schema := client.ConfigurationVariableSchema{
+			Type: "string",
+			Enum: []string{"Variable", "a"},
+		}
 		configVar := client.ConfigurationVariable{
 			Id:          "id0",
 			Name:        "name0",
 			Description: "desc0",
 			Value:       "Variable",
-			Schema: &client.ConfigurationVariableSchema{
-				Type: "string",
-				Enum: []string{"Variable", "a"},
-			},
+			Schema:      &schema,
 		}
 		stepConfig := fmt.Sprintf(`
 	resource "%s" "test" {
