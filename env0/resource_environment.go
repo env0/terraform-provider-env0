@@ -30,6 +30,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "project id of the environment",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"template_id": {
 				Type:        schema.TypeString,
@@ -40,60 +41,46 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the terraform workspace of the environment",
 				Optional:    true,
-				Computed:    true,
+				ForceNew:    true,
 			},
 			"revision": {
 				Type:        schema.TypeString,
 				Description: "the revision the environment is to be run against",
 				Optional:    true,
-				Computed:    true,
 			},
 			"repository": {
 				Type:        schema.TypeString,
 				Description: "the repository the environment should use",
 				Optional:    true,
-				Computed:    true,
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform plan on pull requests creations",
 				Optional:    true,
-				Computed:    true,
+				Default:     false,
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
 				Description: "should deployments require manual approvals ( defaults to true )",
 				Optional:    true,
-				Computed:    true,
 				Default:     true,
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
-				Computed:    true,
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type: schema.TypeString,
 				// TODO: description
 				Description: "should deploy by custom glob",
-				Computed:    true,
 				Optional:    true,
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
 				Description: "id of the last deployment",
 				Computed:    true,
-			},
-			"ttl": {
-				Type:        schema.TypeMap,
-				Description: "The environment's time to live",
-				Optional:    true,
-				Elem: &schema.Schema{
-					Type:        schema.TypeString,
-					Description: "A map of ttl.type (INFINITE | HOURS | DATE) and ttl.value",
-				},
 			},
 			"configuration": {
 				Type:        schema.TypeList,
@@ -121,7 +108,6 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "variable scope ( allowed values are: GLOBAL, BLUEPRINT, PROJECT, ENVIRONMENT, DEPLOYMENT )",
 							Optional:    true,
-							Default:     client.ScopeGlobal,
 						},
 						"scope_id": &schema.Schema{
 							Type:        schema.TypeString,
