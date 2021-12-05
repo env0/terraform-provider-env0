@@ -9,15 +9,17 @@ import (
 )
 
 var _ = Describe("Configuration Variable", func() {
+	isSensitive := true
+	varType := ConfigurationVariableTypeEnvironment
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
 		Description:    "configDescription",
 		Value:          "configValue",
 		OrganizationId: organizationId,
-		IsSensitive:    true,
+		IsSensitive:    &isSensitive,
 		Scope:          ScopeProject,
-		Type:           ConfigurationVariableTypeEnvironment,
+		Type:           &varType,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 	}
@@ -48,10 +50,10 @@ var _ = Describe("Configuration Variable", func() {
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
 				mockConfigurationVariable.Name,
 				mockConfigurationVariable.Value,
-				mockConfigurationVariable.IsSensitive,
+				*mockConfigurationVariable.IsSensitive,
 				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				mockConfigurationVariable.Type,
+				*mockConfigurationVariable.Type,
 				nil,
 				mockConfigurationVariable.Description,
 			)
@@ -113,10 +115,10 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.Id,
 				newName,
 				newValue,
-				mockConfigurationVariable.IsSensitive,
+				*mockConfigurationVariable.IsSensitive,
 				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				mockConfigurationVariable.Type,
+				*mockConfigurationVariable.Type,
 				nil,
 				newDescription,
 			)
