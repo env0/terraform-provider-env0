@@ -42,16 +42,13 @@ func resourceEnvironment() *schema.Resource {
 				Description: "the terraform workspace of the environment",
 				Optional:    true,
 				ForceNew:    true,
+				Computed:    true,
 			},
 			"revision": {
 				Type:        schema.TypeString,
 				Description: "the revision the environment is to be run against",
 				Optional:    true,
-			},
-			"repository": {
-				Type:        schema.TypeString,
-				Description: "the repository the environment should use",
-				Optional:    true,
+				Computed:    true,
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
@@ -157,11 +154,9 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
-	d.Set("repository", environment.LatestDeploymentLog.BlueprintRepository)
 	d.Set("run_plan_on_pull_requests", environment.PullRequestPlanDeployments)
 	d.Set("approve_plan_automatically", !environment.RequiresApproval)
 	d.Set("deploy_on_push", environment.ContinuousDeployment)
-	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	//TODO: TTL and env\terraform variables
 }
@@ -177,6 +172,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.SetId(environment.Id)
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment)
 
 	return nil
@@ -198,7 +194,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if d.HasChanges("template_id", "revision", "repository", "configuration") {
+	if d.HasChanges("template_id", "revision", "configuration") {
 		deployPayload := getDeployPayload(d)
 		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
 		if err != nil {
@@ -285,10 +281,6 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 
 	if revision, ok := d.GetOk("revision"); ok {
 		payload.BlueprintRevision = revision.(string)
-	}
-
-	if repository, ok := d.GetOk("repository"); ok {
-		payload.BlueprintRepository = repository.(string)
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {

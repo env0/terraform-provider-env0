@@ -88,17 +88,16 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
-	// TODO: test deploy with variables
+	// TODO: test deploy with variables ( needs configuration changes read )
 
-	t.Run("Update to: template id, revision, repository, configuration should trigger a deployment", func(t *testing.T) {
+	t.Run("Update to: template id, revision, configuration should trigger a deployment", func(t *testing.T) {
 		environment := client.Environment{
 			Id:        "id0",
 			Name:      "my-environment",
 			ProjectId: "project-id",
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId:         "template-id",
-				BlueprintRepository: "repository",
-				BlueprintRevision:   "revision",
+				BlueprintId:       "template-id",
+				BlueprintRevision: "revision",
 			},
 		}
 		updatedEnvironment := client.Environment{
@@ -106,9 +105,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Name:      environment.Name,
 			ProjectId: environment.ProjectId,
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId:         "updated template id",
-				BlueprintRepository: "updated repository",
-				BlueprintRevision:   "updated revision",
+				BlueprintId:       "updated template id",
+				BlueprintRevision: "updated revision",
 			},
 		}
 
@@ -129,7 +127,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					name = "%s"
 					project_id = "%s"
 					template_id = "%s"
-					repository = "%s"
 					revision = "%s"
 					configuration {
 						name = "%s"
@@ -140,8 +137,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				}`,
 			resourceType, resourceName, environment.Name,
 			updatedEnvironment.ProjectId, updatedEnvironment.LatestDeploymentLog.BlueprintId,
-			updatedEnvironment.LatestDeploymentLog.BlueprintRepository, updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
-			configurationVariables.Name, configurationVariables.Value, configurationVariables.Schema.Type,
+			updatedEnvironment.LatestDeploymentLog.BlueprintRevision, configurationVariables.Name,
+			configurationVariables.Value, configurationVariables.Schema.Type,
 			strings.Join(configurationVariables.Schema.Enum, "\",\""),
 		)
 
@@ -152,7 +149,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						"name":        environment.Name,
 						"project_id":  environment.ProjectId,
 						"template_id": environment.LatestDeploymentLog.BlueprintId,
-						"repository":  environment.LatestDeploymentLog.BlueprintRepository,
 						"revision":    environment.LatestDeploymentLog.BlueprintRevision,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -160,7 +156,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
-						resource.TestCheckResourceAttr(accessor, "repository", environment.LatestDeploymentLog.BlueprintRepository),
 						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 					),
 				},
@@ -171,7 +166,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
-						resource.TestCheckResourceAttr(accessor, "repository", updatedEnvironment.LatestDeploymentLog.BlueprintRepository),
 						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
@@ -188,9 +182,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
 				DeployRequest: &client.DeployRequest{
-					BlueprintId:         environment.LatestDeploymentLog.BlueprintId,
-					BlueprintRevision:   environment.LatestDeploymentLog.BlueprintRevision,
-					BlueprintRepository: environment.LatestDeploymentLog.BlueprintRepository,
+					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
+					BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
 				},
 			}).Times(1).Return(environment, nil)
 
