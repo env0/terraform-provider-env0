@@ -150,11 +150,19 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
-	d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
-	d.Set("approve_plan_automatically", !*environment.RequiresApproval)
-	d.Set("deploy_on_push", *environment.ContinuousDeployment)
-	d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	if environment.PullRequestPlanDeployments != nil {
+		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
+	}
+	if environment.RequiresApproval != nil {
+		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
+	}
+	if environment.ContinuousDeployment != nil {
+		d.Set("deploy_on_push", *environment.ContinuousDeployment)
+	}
+	if environment.AutoDeployOnPathChangesOnly != nil {
+		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
+	}
 	//TODO: TTL and env\terraform variables
 }
 
