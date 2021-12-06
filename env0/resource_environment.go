@@ -55,19 +55,25 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "should run terraform plan on pull requests creations",
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
-				Description: "should deployments require manual approvals ( defaults to true )",
+				Description: "should deployments require manual approvals",
 				Optional:    true,
-				Default:     true,
+				Computed:    true,
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
+			},
+			"auto_deploy_on_path_changes_only": {
+				Type:        schema.TypeBool,
+				Description: "redeploy only on path changes only",
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
@@ -144,9 +150,10 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
-	d.Set("run_plan_on_pull_requests", environment.PullRequestPlanDeployments)
-	d.Set("approve_plan_automatically", !environment.RequiresApproval)
-	d.Set("deploy_on_push", environment.ContinuousDeployment)
+	d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
+	d.Set("approve_plan_automatically", !*environment.RequiresApproval)
+	d.Set("deploy_on_push", *environment.ContinuousDeployment)
+	d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	//TODO: TTL and env\terraform variables
 }
@@ -222,9 +229,27 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)
 	}
-
 	if projectId, ok := d.GetOk("project_id"); ok {
 		payload.ProjectId = projectId.(string)
+	}
+	if continuousDeployment, ok := d.GetOkExists("deploy_on_push"); ok {
+		continuousDeployment := continuousDeployment.(bool)
+		payload.ContinuousDeployment = &continuousDeployment
+	}
+	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
+		requiresApproval := requiresApproval.(bool)
+		payload.RequiresApproval = &requiresApproval
+	}
+	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {
+		pullRequestPlanDeployments := pullRequestPlanDeployments.(bool)
+		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
+	}
+	if autoDeployOnPathChangesOnly, ok := d.GetOkExists("auto_deploy_on_path_changes_only"); ok {
+		autoDeployOnPathChangesOnly := autoDeployOnPathChangesOnly.(bool)
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
+	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
+		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
 	}
 
 	deployPayload := getDeployPayload(d)
@@ -240,20 +265,21 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)
 	}
-	if requiresApproval, ok := d.GetOk("requires_approval"); ok {
-		payload.RequiresApproval = requiresApproval.(bool)
+	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
+		requiresApproval := requiresApproval.(bool)
+		payload.RequiresApproval = &requiresApproval
 	}
-	if isArchived, ok := d.GetOk("is_archived"); ok {
-		payload.IsArchived = isArchived.(bool)
+	if continuousDeployment, ok := d.GetOkExists("deploy_on_push"); ok {
+		continuousDeployment := continuousDeployment.(bool)
+		payload.ContinuousDeployment = &continuousDeployment
 	}
-	if continuousDeployment, ok := d.GetOk("redeploy_on_push"); ok {
-		payload.ContinuousDeployment = continuousDeployment.(bool)
+	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {
+		pullRequestPlanDeployments := pullRequestPlanDeployments.(bool)
+		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
-	if pullRequestPlanDeployments, ok := d.GetOk("pr_plan_on_pull_request"); ok {
-		payload.PullRequestPlanDeployments = pullRequestPlanDeployments.(bool)
-	}
-	if autoDeployOnPathChangesOnly, ok := d.GetOk("auto_deploy_on_path_change_only"); ok {
-		payload.AutoDeployOnPathChangesOnly = autoDeployOnPathChangesOnly.(bool)
+	if autoDeployOnPathChangesOnly, ok := d.GetOkExists("auto_deploy_on_path_changes_only"); ok {
+		autoDeployOnPathChangesOnly := autoDeployOnPathChangesOnly.(bool)
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	}
 	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
 		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
@@ -285,8 +311,9 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 		}
 	}
 
-	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
-		payload.UserRequiresApproval = userRequiresApproval.(bool)
+	if userRequiresApproval, ok := d.GetOkExists("requires_approval"); ok {
+		userRequiresApproval := userRequiresApproval.(bool)
+		payload.UserRequiresApproval = &userRequiresApproval
 	}
 
 	return payload

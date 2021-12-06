@@ -45,11 +45,11 @@ type EnvironmentCreate struct {
 	ProjectId                   string         `json:"projectId"`
 	DeployRequest               *DeployRequest `json:"deployRequest"`
 	WorkspaceName               string         `json:"workspaceName,omitempty"`
-	RequiresApproval            bool           `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        bool           `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  bool           `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly bool           `json:"autoDeployOnPathChangesOnly,omitempty"`
-	AutoDeployByCustomGlob      bool           `json:"autoDeployByCustomGlob,omitempty"`
+	RequiresApproval            *bool          `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        *bool          `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool          `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string         `json:"autoDeployByCustomGlob,omitempty"`
 }
 
 type DeployRequest struct {
@@ -59,7 +59,7 @@ type DeployRequest struct {
 	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
 	TTL                  *TTL                  `json:"ttl,omitempty"`
 	EnvName              string                `json:"envName,omitempty"`
-	UserRequiresApproval bool                  `json:"userRequiresApproval,omitempty"`
+	UserRequiresApproval *bool                 `json:"userRequiresApproval,omitempty"`
 }
 
 type GitUserData struct {
@@ -75,11 +75,11 @@ type TTL struct {
 
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
-	RequiresApproval            bool   `json:"requiresApproval,omitempty"`
-	IsArchived                  bool   `json:"isArchived,omitempty"`
-	ContinuousDeployment        bool   `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  bool   `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly bool   `json:"autoDeployOnPathChangesOnly,omitempty"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
+	IsArchived                  *bool  `json:"isArchived,omitempty"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 }
 
@@ -233,10 +233,10 @@ type Environment struct {
 	Name                        string        `json:"name"`
 	ProjectId                   string        `json:"projectId"`
 	WorkspaceName               string        `json:"workspaceName,omitempty"`
-	RequiresApproval            bool          `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        bool          `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  bool          `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
+	RequiresApproval            *bool         `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
