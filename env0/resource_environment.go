@@ -245,7 +245,7 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
-		requiresApproval := requiresApproval.(bool)
+		requiresApproval := !requiresApproval.(bool)
 		payload.RequiresApproval = &requiresApproval
 	}
 	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {

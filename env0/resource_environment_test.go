@@ -258,7 +258,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Name:      environment.Name,
 			ProjectId: environment.ProjectId,
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId: "updated template id",
+				BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision: "updated template id",
 			},
 		}
 
@@ -268,22 +269,22 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					Config: createEnvironmentResourceConfig(environment),
 				},
 				{
-					Config:      createEnvironmentResourceConfig(updatedEnvironment),
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        updatedEnvironment.Name,
+						"project_id":  updatedEnvironment.ProjectId,
+						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"revision":    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+					}),
 					ExpectError: regexp.MustCompile("failed deploying environment: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				DeployRequest: &client.DeployRequest{
-					BlueprintId: templateId,
-				},
-			}).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentDeploy(updatedEnvironment.Id, client.DeployRequest{
-				BlueprintId: updatedEnvironment.LatestDeploymentLog.BlueprintId,
+				BlueprintId:       updatedEnvironment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision: updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
 			}).Times(1).Return(client.EnvironmentDeployResponse{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
