@@ -36,6 +36,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the template id the environment is to be created from",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"workspace": {
 				Type:        schema.TypeString,
@@ -69,9 +70,8 @@ func resourceEnvironment() *schema.Resource {
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type: schema.TypeString,
-				// TODO: description
-				Description: "should deploy by custom glob",
+				Type:        schema.TypeString,
+				Description: "redeploy on file filter pattern",
 				Optional:    true,
 			},
 			"deployment_id": {
@@ -99,16 +99,6 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "variable type (allowed values are: terraform, environment)",
 							Default:     "environment",
-							Optional:    true,
-						},
-						"scope": &schema.Schema{
-							Type:        schema.TypeString,
-							Description: "variable scope ( allowed values are: GLOBAL, BLUEPRINT, PROJECT, ENVIRONMENT, DEPLOYMENT )",
-							Optional:    true,
-						},
-						"scope_id": &schema.Schema{
-							Type:        schema.TypeString,
-							Description: "the scope's id",
 							Optional:    true,
 						},
 						"description": &schema.Schema{
@@ -194,7 +184,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if d.HasChanges("template_id", "revision", "configuration") {
+	if d.HasChanges("revision", "configuration") {
 		deployPayload := getDeployPayload(d)
 		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
 		if err != nil {
@@ -317,7 +307,7 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 	configurationVariable := client.ConfigurationVariable{
 		Name:  variable["name"].(string),
 		Value: variable["value"].(string),
-		Scope: client.Scope(variable["scope"].(string)),
+		Scope: client.ScopeDeployment,
 		Type:  &varType,
 	}
 

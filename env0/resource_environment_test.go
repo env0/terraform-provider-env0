@@ -90,7 +90,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 	// TODO: test deploy with variables ( needs configuration changes read )
 
-	t.Run("Update to: template id, revision, configuration should trigger a deployment", func(t *testing.T) {
+	t.Run("Update to: revision, configuration should trigger a deployment", func(t *testing.T) {
 		environment := client.Environment{
 			Id:        "id0",
 			Name:      "my-environment",
@@ -105,7 +105,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Name:      environment.Name,
 			ProjectId: environment.ProjectId,
 			LatestDeploymentLog: client.DeploymentLog{
-				BlueprintId:       "updated template id",
+				BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 				BlueprintRevision: "updated revision",
 			},
 		}
