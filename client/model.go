@@ -237,7 +237,7 @@ type Environment struct {
 	ContinuousDeployment        bool          `json:"continuousDeployment,omitempty"`
 	PullRequestPlanDeployments  bool          `json:"pullRequestPlanDeployments,omitempty"`
 	AutoDeployOnPathChangesOnly bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
-	AutoDeployByCustomGlob      bool          `json:"autoDeployByCustomGlob,omitempty"`
+	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`

@@ -69,7 +69,7 @@ func resourceEnvironment() *schema.Resource {
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type: schema.TypeBool,
+				Type: schema.TypeString,
 				// TODO: description
 				Description: "should deploy by custom glob",
 				Optional:    true,
