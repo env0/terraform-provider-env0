@@ -177,6 +177,7 @@ var _ = Describe("Environment Client", func() {
 			}
 
 			BeforeEach(func() {
+				userRequiresApproval := false
 				deployRequest := DeployRequest{
 					BlueprintId:          "",
 					BlueprintRevision:    "",
@@ -184,7 +185,7 @@ var _ = Describe("Environment Client", func() {
 					ConfigurationChanges: nil,
 					TTL:                  nil,
 					EnvName:              "",
-					UserRequiresApproval: false,
+					UserRequiresApproval: &userRequiresApproval,
 				}
 
 				httpCall = mockHttpClient.EXPECT().
