@@ -72,7 +72,7 @@ func resourceEnvironment() *schema.Resource {
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type: schema.TypeString,
+				Type: schema.TypeBool,
 				// TODO: description
 				Description: "should deploy by custom glob",
 				Optional:    true,
@@ -241,19 +241,9 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 		payload.ProjectId = projectId.(string)
 	}
 
-	payload.DeployRequest = &client.DeployRequest{}
+	deployPayload := getDeployPayload(d)
 
-	if blueprintId, ok := d.GetOk("template_id"); ok {
-		payload.DeployRequest.BlueprintId = blueprintId.(string)
-	}
-
-	if blueprintRepository, ok := d.GetOk("repository"); ok {
-		payload.DeployRequest.BlueprintRepository = blueprintRepository.(string)
-	}
-
-	if blueprintRevision, ok := d.GetOk("revision"); ok {
-		payload.DeployRequest.BlueprintRevision = blueprintRevision.(string)
-	}
+	payload.DeployRequest = &deployPayload
 
 	return payload
 }
