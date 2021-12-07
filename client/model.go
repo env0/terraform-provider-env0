@@ -239,6 +239,7 @@ type Environment struct {
 	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
+	LifespanEndAt               string        `json:"lifespanEndAt"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 }

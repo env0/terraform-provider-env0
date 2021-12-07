@@ -85,6 +85,12 @@ func resourceEnvironment() *schema.Resource {
 				Description: "id of the last deployment",
 				Computed:    true,
 			},
+			"ttl": {
+				Type:        schema.TypeString,
+				Description: "the date the environment should be destroyed at (iso format)",
+				Optional:    true,
+				Computed:    true,
+			},
 			"configuration": {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
@@ -151,6 +157,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	d.Set("ttl", environment.LifespanEndAt)
 	if environment.PullRequestPlanDeployments != nil {
 		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
 	}
