@@ -23,27 +23,145 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The environment's name",
+				Description: "the environment's name",
 				Required:    true,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "project id of the environment",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"template_id": {
 				Type:        schema.TypeString,
 				Description: "the template id the environment is to be created from",
 				Required:    true,
+				ForceNew:    true,
+			},
+			"workspace": {
+				Type:        schema.TypeString,
+				Description: "the terraform workspace of the environment",
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+			},
+			"revision": {
+				Type:        schema.TypeString,
+				Description: "the revision the environment is to be run against",
+				Optional:    true,
+				Computed:    true,
+			},
+			"run_plan_on_pull_requests": {
+				Type:        schema.TypeBool,
+				Description: "should run terraform plan on pull requests creations",
+				Optional:    true,
+				Computed:    true,
+			},
+			"approve_plan_automatically": {
+				Type:        schema.TypeBool,
+				Description: "should deployments require manual approvals",
+				Optional:    true,
+				Computed:    true,
+			},
+			"deploy_on_push": {
+				Type:        schema.TypeBool,
+				Description: "should run terraform deploy on push events",
+				Optional:    true,
+				Computed:    true,
+			},
+			"auto_deploy_on_path_changes_only": {
+				Type:        schema.TypeBool,
+				Description: "redeploy only on path changes only",
+				Optional:    true,
+				Computed:    true,
+			},
+			"auto_deploy_by_custom_glob": {
+				Type:         schema.TypeString,
+				Description:  "redeploy on file filter pattern",
+				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
+				Optional:     true,
+			},
+			"deployment_id": {
+				Type:        schema.TypeString,
+				Description: "id of the last deployment",
+				Computed:    true,
+			},
+			"configuration": {
+				Type:        schema.TypeList,
+				Description: "terraform and environment variables for the environment",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable name",
+							Required:    true,
+						},
+						"value": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable value",
+							Required:    true,
+						},
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "variable type (allowed values are: terraform, environment)",
+							Default:     "environment",
+							Optional:    true,
+						},
+						"description": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "description for the variable",
+							Optional:    true,
+						},
+						"is_sensitive": &schema.Schema{
+							Type:        schema.TypeBool,
+							Description: "should the variable value be hidden",
+							Optional:    true,
+						},
+						"schema_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "the type the variable must be of",
+							Optional:    true,
+						},
+						"schema_enum": &schema.Schema{
+							Type:        schema.TypeList,
+							Description: "a list of possible variable values",
+							Optional:    true,
+							Elem: &schema.Schema{
+								Type:        schema.TypeString,
+								Description: "name to give the configuration variable",
+							},
+						},
+					},
+				},
 			},
 		},
 	}
 }
 
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
+	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
-	d.Set("template_id", environment.TemplateId)
+	d.Set("workspace", environment.WorkspaceName)
+	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	}
+	if environment.PullRequestPlanDeployments != nil {
+		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
+	}
+	if environment.RequiresApproval != nil {
+		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
+	}
+	if environment.ContinuousDeployment != nil {
+		d.Set("deploy_on_push", *environment.ContinuousDeployment)
+	}
+	if environment.AutoDeployOnPathChangesOnly != nil {
+		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
+	}
+	//TODO: TTL and env\terraform variables
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -57,6 +175,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.SetId(environment.Id)
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment)
 
 	return nil
@@ -78,15 +197,49 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	if shouldDeploy(d) {
+		err := deploy(d, apiClient)
+		if err != nil {
+			return err
+		}
+	}
+
+	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
+
+	if shouldUpdate(d) {
+		err := update(d, apiClient)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func shouldDeploy(d *schema.ResourceData) bool {
+	return d.HasChanges("revision", "configuration")
+}
+
+func shouldUpdate(d *schema.ResourceData) bool {
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+}
+
+func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	deployPayload := getDeployPayload(d)
+	deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+	if err != nil {
+		return diag.Errorf("failed deploying environment: %v", err)
+	}
+	d.Set("deployment_id", deployResponse.Id)
+	return nil
+}
+
+func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	payload := getUpdatePayload(d)
-
-	// TODO: deploy if needed
-
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
 	}
-
 	return nil
 }
 
@@ -106,24 +259,32 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)
 	}
-
 	if projectId, ok := d.GetOk("project_id"); ok {
 		payload.ProjectId = projectId.(string)
 	}
-
-	payload.DeployRequest = &client.DeployRequest{}
-
-	if blueprintId, ok := d.GetOk("template_id"); ok {
-		payload.DeployRequest.BlueprintId = blueprintId.(string)
+	if continuousDeployment, ok := d.GetOkExists("deploy_on_push"); ok {
+		continuousDeployment := continuousDeployment.(bool)
+		payload.ContinuousDeployment = &continuousDeployment
+	}
+	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
+		requiresApproval := !requiresApproval.(bool)
+		payload.RequiresApproval = &requiresApproval
+	}
+	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {
+		pullRequestPlanDeployments := pullRequestPlanDeployments.(bool)
+		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
+	}
+	if autoDeployOnPathChangesOnly, ok := d.GetOkExists("auto_deploy_on_path_changes_only"); ok {
+		autoDeployOnPathChangesOnly := autoDeployOnPathChangesOnly.(bool)
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
+	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
+		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
 	}
 
-	if blueprintRepository, ok := d.GetOk("repository"); ok {
-		payload.DeployRequest.BlueprintRepository = blueprintRepository.(string)
-	}
+	deployPayload := getDeployPayload(d)
 
-	if blueprintRevision, ok := d.GetOk("revision"); ok {
-		payload.DeployRequest.BlueprintRevision = blueprintRevision.(string)
-	}
+	payload.DeployRequest = &deployPayload
 
 	return payload
 }
@@ -134,26 +295,106 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	if name, ok := d.GetOk("name"); ok {
 		payload.Name = name.(string)
 	}
-	if requiresApproval, ok := d.GetOk("requires_approval"); ok {
-		payload.RequiresApproval = requiresApproval.(bool)
+	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
+		requiresApproval := requiresApproval.(bool)
+		payload.RequiresApproval = &requiresApproval
 	}
-	if isArchived, ok := d.GetOk("is_archived"); ok {
-		payload.IsArchived = isArchived.(bool)
+	if continuousDeployment, ok := d.GetOkExists("deploy_on_push"); ok {
+		continuousDeployment := continuousDeployment.(bool)
+		payload.ContinuousDeployment = &continuousDeployment
 	}
-	if continuousDeployment, ok := d.GetOk("redeploy_on_push"); ok {
-		payload.ContinuousDeployment = continuousDeployment.(bool)
+	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {
+		pullRequestPlanDeployments := pullRequestPlanDeployments.(bool)
+		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
-	if pullRequestPlanDeployments, ok := d.GetOk("pr_plan_on_pull_request"); ok {
-		payload.PullRequestPlanDeployments = pullRequestPlanDeployments.(bool)
-	}
-	if autoDeployOnPathChangesOnly, ok := d.GetOk("auto_deploy_on_path_change_only"); ok {
-		payload.AutoDeployOnPathChangesOnly = autoDeployOnPathChangesOnly.(bool)
+	if autoDeployOnPathChangesOnly, ok := d.GetOkExists("auto_deploy_on_path_changes_only"); ok {
+		autoDeployOnPathChangesOnly := autoDeployOnPathChangesOnly.(bool)
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	}
 	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
 		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
 	}
 
 	return payload
+}
+
+func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
+	payload := client.DeployRequest{}
+
+	if templateId, ok := d.GetOk("template_id"); ok {
+		payload.BlueprintId = templateId.(string)
+	}
+
+	if revision, ok := d.GetOk("revision"); ok {
+		payload.BlueprintRevision = revision.(string)
+	}
+
+	if configuration, ok := d.GetOk("configuration"); ok {
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		payload.ConfigurationChanges = &configurationChanges
+	}
+
+	if ttl, ok := d.GetOk("ttl"); ok {
+		payload.TTL = &client.TTL{
+			Type:  ttl.(map[string]interface{})["type"].(string),
+			Value: ttl.(map[string]interface{})["value"].(string),
+		}
+	}
+
+	if userRequiresApproval, ok := d.GetOkExists("requires_approval"); ok {
+		userRequiresApproval := userRequiresApproval.(bool)
+		payload.UserRequiresApproval = &userRequiresApproval
+	}
+
+	return payload
+}
+
+func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
+	configurationChanges := client.ConfigurationChanges{}
+	for _, variable := range configuration {
+		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
+		configurationChanges = append(configurationChanges, configurationVariable)
+	}
+	return configurationChanges
+}
+
+func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
+	varType := client.VariableTypes[variable["type"].(string)]
+
+	configurationVariable := client.ConfigurationVariable{
+		Name:  variable["name"].(string),
+		Value: variable["value"].(string),
+		Scope: client.ScopeDeployment,
+		Type:  &varType,
+	}
+
+	if variable["scope_id"] != nil {
+		configurationVariable.ScopeId = variable["scope_id"].(string)
+	}
+
+	if variable["is_sensitive"] != nil {
+		isSensitive := variable["is_sensitive"].(bool)
+		configurationVariable.IsSensitive = &isSensitive
+	}
+
+	if variable["description"] != nil {
+		configurationVariable.Description = variable["description"].(string)
+	}
+
+	if variable["schema_type"] != nil && variable["schema_enum"] != nil {
+		enumOfAny := variable["schema_enum"].([]interface{})
+		enum := make([]string, len(enumOfAny))
+		for i := range enum {
+			enum[i] = enumOfAny[i].(string)
+		}
+		schema := client.ConfigurationVariableSchema{
+			Type: variable["schema_type"].(string),
+			Enum: enum,
+		}
+		configurationVariable.Schema = &schema
+	}
+
+	return configurationVariable
 }
 
 func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {

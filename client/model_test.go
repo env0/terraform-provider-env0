@@ -48,7 +48,7 @@ var _ = Describe("Models", func() {
 				var parsedPayload ConfigurationVariable
 				json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
 				Expect(parsedPayload.Scope).Should(Equal(ScopeProject))
-				Expect(parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
+				Expect(*parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
 			})
 		})
 	})

@@ -9,15 +9,17 @@ import (
 )
 
 var _ = Describe("Configuration Variable", func() {
+	isSensitive := true
+	varType := ConfigurationVariableTypeEnvironment
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
 		Description:    "configDescription",
 		Value:          "configValue",
 		OrganizationId: organizationId,
-		IsSensitive:    true,
+		IsSensitive:    &isSensitive,
 		Scope:          ScopeProject,
-		Type:           ConfigurationVariableTypeEnvironment,
+		Type:           &varType,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 	}
@@ -31,12 +33,12 @@ var _ = Describe("Configuration Variable", func() {
 			expectedCreateRequest := []map[string]interface{}{{
 				"name":           mockConfigurationVariable.Name,
 				"description":    mockConfigurationVariable.Description,
-				"isSensitive":    mockConfigurationVariable.IsSensitive,
+				"isSensitive":    *mockConfigurationVariable.IsSensitive,
 				"value":          mockConfigurationVariable.Value,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
-				"type":           mockConfigurationVariable.Type,
+				"type":           *mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -48,10 +50,10 @@ var _ = Describe("Configuration Variable", func() {
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
 				mockConfigurationVariable.Name,
 				mockConfigurationVariable.Value,
-				mockConfigurationVariable.IsSensitive,
+				*mockConfigurationVariable.IsSensitive,
 				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				mockConfigurationVariable.Type,
+				*mockConfigurationVariable.Type,
 				nil,
 				mockConfigurationVariable.Description,
 			)
@@ -96,11 +98,11 @@ var _ = Describe("Configuration Variable", func() {
 				"description":    newDescription,
 				"value":          newValue,
 				"id":             mockConfigurationVariable.Id,
-				"isSensitive":    mockConfigurationVariable.IsSensitive,
+				"isSensitive":    *mockConfigurationVariable.IsSensitive,
 				"organizationId": organizationId,
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
-				"type":           mockConfigurationVariable.Type,
+				"type":           *mockConfigurationVariable.Type,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -113,10 +115,10 @@ var _ = Describe("Configuration Variable", func() {
 				mockConfigurationVariable.Id,
 				newName,
 				newValue,
-				mockConfigurationVariable.IsSensitive,
+				*mockConfigurationVariable.IsSensitive,
 				mockConfigurationVariable.Scope,
 				mockConfigurationVariable.ScopeId,
-				mockConfigurationVariable.Type,
+				*mockConfigurationVariable.Type,
 				nil,
 				newDescription,
 			)

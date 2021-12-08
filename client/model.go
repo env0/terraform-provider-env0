@@ -45,11 +45,11 @@ type EnvironmentCreate struct {
 	ProjectId                   string         `json:"projectId"`
 	DeployRequest               *DeployRequest `json:"deployRequest"`
 	WorkspaceName               string         `json:"workspaceName,omitempty"`
-	RequiresApproval            bool           `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        bool           `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  bool           `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly bool           `json:"autoDeployOnPathChangesOnly,omitempty"`
-	AutoDeployByCustomGlob      bool           `json:"autoDeployByCustomGlob,omitempty"`
+	RequiresApproval            *bool          `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        *bool          `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool          `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string         `json:"autoDeployByCustomGlob,omitempty"`
 }
 
 type DeployRequest struct {
@@ -59,7 +59,7 @@ type DeployRequest struct {
 	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
 	TTL                  *TTL                  `json:"ttl,omitempty"`
 	EnvName              string                `json:"envName,omitempty"`
-	UserRequiresApproval bool                  `json:"userRequiresApproval,omitempty"`
+	UserRequiresApproval *bool                 `json:"userRequiresApproval,omitempty"`
 }
 
 type GitUserData struct {
@@ -75,11 +75,11 @@ type TTL struct {
 
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
-	RequiresApproval            bool   `json:"requiresApproval,omitempty"`
-	IsArchived                  bool   `json:"isArchived,omitempty"`
-	ContinuousDeployment        bool   `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  bool   `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly bool   `json:"autoDeployOnPathChangesOnly,omitempty"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
+	IsArchived                  *bool  `json:"isArchived,omitempty"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 }
 
@@ -98,17 +98,17 @@ type ConfigurationVariableSchema struct {
 }
 
 type ConfigurationVariable struct {
-	ScopeId        string                      `json:"scopeId"`
-	Value          string                      `json:"value"`
-	OrganizationId string                      `json:"organizationId"`
-	UserId         string                      `json:"userId"`
-	IsSensitive    bool                        `json:"isSensitive"`
-	Scope          Scope                       `json:"scope"`
-	Id             string                      `json:"id"`
-	Name           string                      `json:"name"`
-	Description    string                      `json:"description"`
-	Type           ConfigurationVariableType   `json:"type"`
-	Schema         ConfigurationVariableSchema `json:"schema"`
+	ScopeId        string                       `json:"scopeId,omitempty"`
+	Value          string                       `json:"value"`
+	OrganizationId string                       `json:"organizationId,omitempty"`
+	UserId         string                       `json:"userId,omitempty"`
+	IsSensitive    *bool                        `json:"isSensitive,omitempty"`
+	Scope          Scope                        `json:"scope,omitempty"`
+	Id             string                       `json:"id,omitempty"`
+	Name           string                       `json:"name"`
+	Description    string                       `json:"description,omitempty"`
+	Type           *ConfigurationVariableType   `json:"type,omitempty"`
+	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 }
 
 type Scope string
@@ -130,6 +130,11 @@ const (
 	ConfigurationVariableTypeEnvironment ConfigurationVariableType = 0
 	ConfigurationVariableTypeTerraform   ConfigurationVariableType = 1
 )
+
+var VariableTypes = map[string]ConfigurationVariableType{
+	"terraform":   ConfigurationVariableTypeTerraform,
+	"environment": ConfigurationVariableTypeEnvironment,
+}
 
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`
@@ -229,11 +234,25 @@ type Template struct {
 }
 
 type Environment struct {
-	Id            string `json:"id"`
-	Name          string `json:"name"`
-	ProjectId     string `json:"projectId"`
-	TemplateId    string `json:"templateId"`
-	WorkspaceName string `json:"workspaceName"`
+	Id                          string        `json:"id"`
+	Name                        string        `json:"name"`
+	ProjectId                   string        `json:"projectId"`
+	WorkspaceName               string        `json:"workspaceName,omitempty"`
+	RequiresApproval            *bool         `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
+	Status                      string        `json:"status"`
+	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
+	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
+}
+
+type DeploymentLog struct {
+	Id                  string `json:"id"`
+	BlueprintId         string `json:"blueprintId"`
+	BlueprintRepository string `json:"blueprintRepository"`
+	BlueprintRevision   string `json:"blueprintRevision"`
 }
 
 type SshKey struct {
