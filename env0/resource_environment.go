@@ -196,25 +196,49 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if d.HasChanges("revision", "configuration") {
-		deployPayload := getDeployPayload(d)
-		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+	if shouldDeploy(d) {
+		err := deploy(d, apiClient)
 		if err != nil {
-			return diag.Errorf("failed deploying environment: %v", err)
+			return err
 		}
-		d.Set("deployment_id", deployResponse.Id)
 	}
 
 	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
 
-	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob") {
-		payload := getUpdatePayload(d)
-		_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
+	if shouldUpdate(d) {
+		err := update(d, apiClient)
 		if err != nil {
-			return diag.Errorf("could not update environment: %v", err)
+			return err
 		}
 	}
 
+	return nil
+}
+
+func shouldDeploy(d *schema.ResourceData) bool {
+	return d.HasChanges("revision", "configuration")
+}
+
+func shouldUpdate(d *schema.ResourceData) bool {
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+}
+
+func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	deployPayload := getDeployPayload(d)
+	deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+	if err != nil {
+		return diag.Errorf("failed deploying environment: %v", err)
+	}
+	d.Set("deployment_id", deployResponse.Id)
+	return nil
+}
+
+func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	payload := getUpdatePayload(d)
+	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
+	if err != nil {
+		return diag.Errorf("could not update environment: %v", err)
+	}
 	return nil
 }
 
