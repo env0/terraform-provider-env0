@@ -142,10 +142,12 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
-	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 	d.Set("workspace", environment.WorkspaceName)
-	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	}
 	if environment.PullRequestPlanDeployments != nil {
 		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
 	}
