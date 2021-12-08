@@ -339,6 +339,51 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
+	t.Run("should only allow destroy when force destroy is enabled", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+					),
+				},
+				{
+					Destroy:     true,
+					Config:      createEnvironmentResourceConfig(environment),
+					ExpectError: regexp.MustCompile(`must enable "force_destroy" safeguard in order to destroy`),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":          environment.Name,
+						"project_id":    environment.ProjectId,
+						"template_id":   environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy": true,
+					}),
+				},
+				{
+					Destroy: true,
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":          environment.Name,
+						"project_id":    environment.ProjectId,
+						"template_id":   environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy": true,
+					}),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
+			mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1).Return(environment, nil)
+
+		})
+	})
+
 	t.Run("Failure in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

@@ -101,6 +101,11 @@ func resourceEnvironment() *schema.Resource {
 					return
 				},
 			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Description: "destroy safegurad",
+				Optional:    true,
+			},
 			"configuration": {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
@@ -248,6 +253,12 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	canDestroy := d.Get("force_destroy")
+
+	if canDestroy != true {
+		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
 	_, err := apiClient.EnvironmentDestroy(d.Id())
