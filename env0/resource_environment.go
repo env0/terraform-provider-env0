@@ -138,11 +138,6 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-var VariableTypes = map[string]client.ConfigurationVariableType{
-	"terraform":   client.ConfigurationVariableTypeTerraform,
-	"environment": client.ConfigurationVariableTypeEnvironment,
-}
-
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
@@ -337,7 +332,7 @@ func getConfigurationVariables(configuration []interface{}) client.Configuration
 }
 
 func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
-	varType := VariableTypes[variable["type"].(string)]
+	varType := client.VariableTypes[variable["type"].(string)]
 
 	configurationVariable := client.ConfigurationVariable{
 		Name:  variable["name"].(string),
