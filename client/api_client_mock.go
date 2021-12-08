@@ -272,7 +272,7 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 inter
 }
 
 // EnvironmentUpdateTTL mocks base method.
-func (m *MockApiClientInterface) EnvironmentUpdateTTL(arg0 string, arg1 EnvironmentUpdateTTL) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentUpdateTTL(arg0 string, arg1 TTL) (Environment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EnvironmentUpdateTTL", arg0, arg1)
 	ret0, _ := ret[0].(Environment)
