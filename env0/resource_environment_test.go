@@ -271,6 +271,74 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Deleting TTL from environment should update ttl to infinite", func(t *testing.T) {
+		environment := client.Environment{
+			Id:            "id0",
+			Name:          "my-environment",
+			ProjectId:     "project-id",
+			LifespanEndAt: "2021-12-08T11:45:11Z",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: "template-id",
+			},
+		}
+		updatedEnvironment := client.Environment{
+			Id:        updatedEnvironment.Id,
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
+			},
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        environment.Name,
+						"project_id":  environment.ProjectId,
+						"template_id": environment.LatestDeploymentLog.BlueprintId,
+						"ttl":         environment.LifespanEndAt,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "ttl", environment.LifespanEndAt),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        updatedEnvironment.Name,
+						"project_id":  updatedEnvironment.ProjectId,
+						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentUpdateTTL(environment.Id, client.TTL{
+				Type:  client.TTlTypeInfinite,
+				Value: "",
+			}).Times(1).Return(environment, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+			)
+
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
+	})
+
 	t.Run("Failure in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
