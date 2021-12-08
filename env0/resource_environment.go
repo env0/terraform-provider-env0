@@ -230,12 +230,10 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if d.HasChange("ttl") {
-		ttl := d.Get("ttl").(string)
-		payload := getTTl(ttl)
-		_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
+	if shouldUpdateTTL(d) {
+		err := updateTTL(d, apiClient)
 		if err != nil {
-			return diag.Errorf("could not update the environment's ttl: %v", err)
+			return err
 		}
 	}
 
@@ -248,6 +246,10 @@ func shouldDeploy(d *schema.ResourceData) bool {
 
 func shouldUpdate(d *schema.ResourceData) bool {
 	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+}
+
+func shouldUpdateTTL(d *schema.ResourceData) bool {
+	return d.HasChange("ttl")
 }
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
@@ -265,6 +267,16 @@ func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
+	}
+	return nil
+}
+
+func updateTTL(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	ttl := d.Get("ttl").(string)
+	payload := getTTl(ttl)
+	_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
+	if err != nil {
+		return diag.Errorf("could not update the environment's ttl: %v", err)
 	}
 	return nil
 }
