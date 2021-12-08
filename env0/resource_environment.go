@@ -368,7 +368,7 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 	configurationVariable := client.ConfigurationVariable{
 		Name:  variable["name"].(string),
 		Value: variable["value"].(string),
-		Scope: client.ScopeEnvironment,
+		Scope: client.ScopeDeployment,
 		Type:  &varType,
 	}
 
