@@ -135,6 +135,11 @@ const (
 	ConfigurationVariableTypeTerraform   ConfigurationVariableType = 1
 )
 
+var VariableTypes = map[string]ConfigurationVariableType{
+	"terraform":   ConfigurationVariableTypeTerraform,
+	"environment": ConfigurationVariableTypeEnvironment,
+}
+
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`
 	ErrorRegex string `json:"errorRegex"`
