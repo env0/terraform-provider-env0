@@ -37,9 +37,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
 		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-			"name":        environment.Name,
-			"project_id":  environment.ProjectId,
-			"template_id": environment.LatestDeploymentLog.BlueprintId,
+			"name":          environment.Name,
+			"project_id":    environment.ProjectId,
+			"template_id":   environment.LatestDeploymentLog.BlueprintId,
+			"force_destroy": true,
 		})
 	}
 
@@ -128,6 +129,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					project_id = "%s"
 					template_id = "%s"
 					revision = "%s"
+					force_destroy = true
 					configuration {
 						name = "%s"
 						value = "%s"
@@ -146,10 +148,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        environment.Name,
-						"project_id":  environment.ProjectId,
-						"template_id": environment.LatestDeploymentLog.BlueprintId,
-						"revision":    environment.LatestDeploymentLog.BlueprintRevision,
+						"name":          environment.Name,
+						"project_id":    environment.ProjectId,
+						"template_id":   environment.LatestDeploymentLog.BlueprintId,
+						"revision":      environment.LatestDeploymentLog.BlueprintRevision,
+						"force_destroy": true,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -239,10 +242,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
-						"ttl":         updatedEnvironment.LifespanEndAt,
+						"name":          updatedEnvironment.Name,
+						"project_id":    updatedEnvironment.ProjectId,
+						"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"ttl":           updatedEnvironment.LifespanEndAt,
+						"force_destroy": true,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
@@ -309,9 +313,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"name":          updatedEnvironment.Name,
+						"project_id":    updatedEnvironment.ProjectId,
+						"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"force_destroy": true,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
@@ -343,7 +348,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: createEnvironmentResourceConfig(environment),
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        environment.Name,
+						"project_id":  environment.ProjectId,
+						"template_id": environment.LatestDeploymentLog.BlueprintId,
+					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
@@ -352,8 +361,13 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					),
 				},
 				{
-					Destroy:     true,
-					Config:      createEnvironmentResourceConfig(environment),
+					Destroy: true,
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":          environment.Name,
+						"project_id":    environment.ProjectId,
+						"template_id":   environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy": true,
+					}),
 					ExpectError: regexp.MustCompile(`must enable "force_destroy" safeguard in order to destroy`),
 				},
 				{
@@ -454,10 +468,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        updatedEnvironment.Name,
-						"project_id":  updatedEnvironment.ProjectId,
-						"template_id": updatedEnvironment.LatestDeploymentLog.BlueprintId,
-						"revision":    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+						"name":          updatedEnvironment.Name,
+						"project_id":    updatedEnvironment.ProjectId,
+						"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"revision":      updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+						"force_destroy": true,
 					}),
 					ExpectError: regexp.MustCompile("failed deploying environment: error"),
 				},
