@@ -266,7 +266,6 @@ func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
 	}
-
 	return nil
 }
 
