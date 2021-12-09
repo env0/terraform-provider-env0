@@ -78,9 +78,10 @@ func resourceEnvironment() *schema.Resource {
 				Computed:    true,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type:        schema.TypeString,
-				Description: "redeploy on file filter pattern",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "redeploy on file filter pattern",
+				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
+				Optional:     true,
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
@@ -96,7 +97,7 @@ func resourceEnvironment() *schema.Resource {
 					ttl := val.(string)
 					matched, err := regexp.MatchString(utcPattern, ttl)
 					if !matched || err != nil {
-						errs = append(errs, fmt.Errorf("%q must be of iso format, got: %q", key, ttl))
+						errs = append(errs, fmt.Errorf("%q must be of iso format (for example: \"2021-12-13T10:00:00Z\"), got: %q", key, ttl))
 					}
 					return
 				},
@@ -159,20 +160,17 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-var VariableTypes = map[string]client.ConfigurationVariableType{
-	"terraform":   client.ConfigurationVariableTypeTerraform,
-	"environment": client.ConfigurationVariableTypeEnvironment,
-}
-
 func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
-	d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 	d.Set("workspace", environment.WorkspaceName)
-	d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	d.Set("ttl", environment.LifespanEndAt)
+	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	}
 	if environment.PullRequestPlanDeployments != nil {
 		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
 	}
@@ -221,34 +219,70 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if d.HasChanges("revision", "configuration") {
-		deployPayload := getDeployPayload(d)
-		deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+	if shouldDeploy(d) {
+		err := deploy(d, apiClient)
 		if err != nil {
-			return diag.Errorf("failed deploying environment: %v", err)
+			return err
 		}
-		d.Set("deployment_id", deployResponse.Id)
 	}
 
 	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
 
-	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob") {
-		payload := getUpdatePayload(d)
-		_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
+	if shouldUpdate(d) {
+		err := update(d, apiClient)
 		if err != nil {
-			return diag.Errorf("could not update environment: %v", err)
+			return err
 		}
 	}
 
-	if d.HasChange("ttl") {
-		ttl := d.Get("ttl").(string)
-		payload := getTTl(ttl)
-		_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
+	if shouldUpdateTTL(d) {
+		err := updateTTL(d, apiClient)
 		if err != nil {
-			return diag.Errorf("could not update the environment's ttl: %v", err)
+			return err
 		}
 	}
 
+	return nil
+}
+
+func shouldDeploy(d *schema.ResourceData) bool {
+	return d.HasChanges("revision", "configuration")
+}
+
+func shouldUpdate(d *schema.ResourceData) bool {
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+}
+
+func shouldUpdateTTL(d *schema.ResourceData) bool {
+	return d.HasChange("ttl")
+}
+
+func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	deployPayload := getDeployPayload(d)
+	deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
+	if err != nil {
+		return diag.Errorf("failed deploying environment: %v", err)
+	}
+	d.Set("deployment_id", deployResponse.Id)
+	return nil
+}
+
+func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	payload := getUpdatePayload(d)
+	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
+	if err != nil {
+		return diag.Errorf("could not update environment: %v", err)
+	}
+	return nil
+}
+
+func updateTTL(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	ttl := d.Get("ttl").(string)
+	payload := getTTl(ttl)
+	_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
+	if err != nil {
+		return diag.Errorf("could not update the environment's ttl: %v", err)
+	}
 	return nil
 }
 
@@ -295,6 +329,10 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	}
 	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
 		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
+	}
+	if configuration, ok := d.GetOk("configuration"); ok {
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		payload.ConfigurationChanges = &configurationChanges
 	}
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
@@ -384,7 +422,7 @@ func getConfigurationVariables(configuration []interface{}) client.Configuration
 }
 
 func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
-	varType := VariableTypes[variable["type"].(string)]
+	varType := client.VariableTypes[variable["type"].(string)]
 
 	configurationVariable := client.ConfigurationVariable{
 		Name:  variable["name"].(string),
@@ -406,7 +444,7 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.Description = variable["description"].(string)
 	}
 
-	if variable["schema_type"] != nil && variable["schema_enum"] != nil {
+	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 		enumOfAny := variable["schema_enum"].([]interface{})
 		enum := make([]string, len(enumOfAny))
 		for i := range enum {

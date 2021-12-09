@@ -41,16 +41,17 @@ type ProjectCreatePayload struct {
 }
 
 type EnvironmentCreate struct {
-	Name                        string         `json:"name"`
-	ProjectId                   string         `json:"projectId"`
-	DeployRequest               *DeployRequest `json:"deployRequest"`
-	WorkspaceName               string         `json:"workspaceName,omitempty"`
-	RequiresApproval            *bool          `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        *bool          `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool          `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly *bool          `json:"autoDeployOnPathChangesOnly,omitempty"`
-	AutoDeployByCustomGlob      string         `json:"autoDeployByCustomGlob,omitempty"`
-	TTL                         *TTL           `json:"ttl,omitempty"`
+	Name                        string                `json:"name"`
+	ProjectId                   string                `json:"projectId"`
+	DeployRequest               *DeployRequest        `json:"deployRequest"`
+	WorkspaceName               string                `json:"workspaceName,omitempty"`
+	RequiresApproval            *bool                 `json:"requiresApproval,omitempty"`
+	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
+	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
+	TTL                         *TTL                  `json:"ttl,omitempty"`
 }
 
 type DeployRequest struct {
@@ -134,6 +135,11 @@ const (
 	ConfigurationVariableTypeEnvironment ConfigurationVariableType = 0
 	ConfigurationVariableTypeTerraform   ConfigurationVariableType = 1
 )
+
+var VariableTypes = map[string]ConfigurationVariableType{
+	"terraform":   ConfigurationVariableTypeTerraform,
+	"environment": ConfigurationVariableTypeEnvironment,
+}
 
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`

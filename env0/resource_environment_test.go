@@ -343,7 +343,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
-
 	t.Run("should only allow destroy when force destroy is enabled", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
