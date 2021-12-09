@@ -47,7 +47,7 @@ func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentUpdateTTL(id string, payload EnvironmentUpdateTTL) (Environment, error) {
+func (self *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
 	var result Environment
 	err := self.http.Put("/environments/"+id+"/ttl", payload, &result)
 

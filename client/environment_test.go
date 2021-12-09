@@ -217,7 +217,7 @@ var _ = Describe("Environment Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				updateTTLRequest := EnvironmentUpdateTTL{
+				updateTTLRequest := TTL{
 					Type:  "",
 					Value: "",
 				}

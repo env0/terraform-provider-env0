@@ -2,9 +2,11 @@ package env0
 
 import (
 	"context"
+	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"regexp"
 )
 
 func resourceEnvironment() *schema.Resource {
@@ -86,6 +88,20 @@ func resourceEnvironment() *schema.Resource {
 				Description: "id of the last deployment",
 				Computed:    true,
 			},
+			"ttl": {
+				Type:        schema.TypeString,
+				Description: "the date the environment should be destroyed at (iso format)",
+				Optional:    true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					utcPattern := `\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d`
+					ttl := val.(string)
+					matched, err := regexp.MatchString(utcPattern, ttl)
+					if !matched || err != nil {
+						errs = append(errs, fmt.Errorf("%q must be of iso format (for example: \"2021-12-13T10:00:00Z\"), got: %q", key, ttl))
+					}
+					return
+				},
+			},
 			"configuration": {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
@@ -145,6 +161,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("project_id", environment.ProjectId)
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	d.Set("ttl", environment.LifespanEndAt)
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
@@ -161,7 +178,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	}
-	//TODO: TTL and env\terraform variables
+	//TODO: env\terraform variables
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -213,6 +230,13 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if shouldUpdateTTL(d) {
+		err := updateTTL(d, apiClient)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -222,6 +246,10 @@ func shouldDeploy(d *schema.ResourceData) bool {
 
 func shouldUpdate(d *schema.ResourceData) bool {
 	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+}
+
+func shouldUpdateTTL(d *schema.ResourceData) bool {
+	return d.HasChange("ttl")
 }
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
@@ -239,6 +267,16 @@ func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
+	}
+	return nil
+}
+
+func updateTTL(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	ttl := d.Get("ttl").(string)
+	payload := getTTl(ttl)
+	_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
+	if err != nil {
+		return diag.Errorf("could not update the environment's ttl: %v", err)
 	}
 	return nil
 }
@@ -280,6 +318,10 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	}
 	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
 		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
+	}
+	if ttl, ok := d.GetOk("ttl"); ok {
+		ttlPayload := getTTl(ttl.(string))
+		payload.TTL = &ttlPayload
 	}
 
 	deployPayload := getDeployPayload(d)
@@ -334,19 +376,25 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
-	if ttl, ok := d.GetOk("ttl"); ok {
-		payload.TTL = &client.TTL{
-			Type:  ttl.(map[string]interface{})["type"].(string),
-			Value: ttl.(map[string]interface{})["value"].(string),
-		}
-	}
-
 	if userRequiresApproval, ok := d.GetOkExists("requires_approval"); ok {
 		userRequiresApproval := userRequiresApproval.(bool)
 		payload.UserRequiresApproval = &userRequiresApproval
 	}
 
 	return payload
+}
+
+func getTTl(date string) client.TTL {
+	if date != "" {
+		return client.TTL{
+			Type:  client.TTLTypeDate,
+			Value: date,
+		}
+	}
+	return client.TTL{
+		Type:  client.TTlTypeInfinite,
+		Value: "",
+	}
 }
 
 func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
