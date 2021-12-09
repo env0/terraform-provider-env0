@@ -319,6 +319,10 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
 		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
 	}
+	if configuration, ok := d.GetOk("configuration"); ok {
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		payload.ConfigurationChanges = &configurationChanges
+	}
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
 		payload.TTL = &ttlPayload
@@ -429,7 +433,7 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.Description = variable["description"].(string)
 	}
 
-	if variable["schema_type"] != nil && variable["schema_enum"] != nil {
+	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 		enumOfAny := variable["schema_enum"].([]interface{})
 		enum := make([]string, len(enumOfAny))
 		for i := range enum {
