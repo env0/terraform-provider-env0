@@ -51,6 +51,7 @@ type EnvironmentCreate struct {
 	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
 	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
+	TTL                         *TTL                  `json:"ttl,omitempty"`
 }
 
 type DeployRequest struct {
@@ -70,9 +71,17 @@ type GitUserData struct {
 }
 
 type TTL struct {
-	Type  string `json:"type"`
-	Value string `json:"value,omitempty"`
+	Type  TTLType `json:"type"`
+	Value string  `json:"value,omitempty"`
 }
+
+type TTLType string
+
+const (
+	TTLTypeDate     TTLType = "DATE"
+	TTLTypeHours    TTLType = "HOURS"
+	TTlTypeInfinite TTLType = "INFINITE"
+)
 
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
@@ -82,11 +91,6 @@ type EnvironmentUpdate struct {
 	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
-}
-
-type EnvironmentUpdateTTL struct {
-	Type  string `json:"type"`
-	Value string `json:"value,omitempty"`
 }
 
 type EnvironmentDeployResponse struct {
@@ -245,6 +249,7 @@ type Environment struct {
 	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
+	LifespanEndAt               string        `json:"lifespanEndAt"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 }
