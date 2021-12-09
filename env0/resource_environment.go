@@ -97,7 +97,7 @@ func resourceEnvironment() *schema.Resource {
 					ttl := val.(string)
 					matched, err := regexp.MatchString(utcPattern, ttl)
 					if !matched || err != nil {
-						errs = append(errs, fmt.Errorf("%q must be of iso format, got: %q", key, ttl))
+						errs = append(errs, fmt.Errorf("%q must be of iso format (for example: \"2021-12-13T10:00:00Z\"), got: %q", key, ttl))
 					}
 					return
 				},
