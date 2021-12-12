@@ -2,6 +2,7 @@ package env0
 
 import (
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -34,6 +35,15 @@ func TestEnvironmentDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", strconv.FormatBool(*environment.RequiresApproval)),
+						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", strconv.FormatBool(*environment.PullRequestPlanDeployments)),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", environment.AutoDeployByCustomGlob),
+						resource.TestCheckResourceAttr(accessor, "deploy_on_push", strconv.FormatBool(*environment.ContinuousDeployment)),
+						resource.TestCheckResourceAttr(accessor, "status", environment.Status),
+						resource.TestCheckResourceAttr(accessor, "latest_deployment_log_id", environment.LatestDeploymentLogId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintId),
 					),
 				},
 			},
