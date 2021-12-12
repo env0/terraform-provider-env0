@@ -83,7 +83,7 @@ terraform {
 }
 ```
 
-[comment]: <> (## Testing)
+## Testing
 
 ### Integration tests
 - The integration tests run against the real env0 API 
