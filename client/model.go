@@ -84,13 +84,13 @@ const (
 )
 
 type EnvironmentUpdate struct {
-	Name                        string `json:"name"`
-	RequiresApproval            *bool  `json:"requiresApproval"`
-	IsArchived                  *bool  `json:"isArchived"`
-	ContinuousDeployment        *bool  `json:"continuousDeployment"`
-	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments"`
-	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly"`
-	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob"`
+	Name                        string `json:"name,omitempty"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
+	IsArchived                  *bool  `json:"isArchived,omitempty"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
+	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 }
 
 type EnvironmentDeployResponse struct {
