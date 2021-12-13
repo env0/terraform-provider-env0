@@ -2,10 +2,13 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 	"regexp"
 )
 
@@ -15,6 +18,8 @@ func resourceEnvironment() *schema.Resource {
 		ReadContext:   resourceEnvironmentRead,
 		UpdateContext: resourceEnvironmentUpdate,
 		DeleteContext: resourceEnvironmentDelete,
+
+		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -492,4 +497,29 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 		return client.Environment{}, diag.Errorf("Could not find environment: %v", err)
 	}
 	return environment, nil
+}
+
+func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id := d.Id()
+	var getErr diag.Diagnostics
+	_, err := uuid.Parse(id)
+	if err == nil {
+		log.Println("[INFO] Resolving Environment by id: ", id)
+		_, getErr = getEnvironmentById(id, meta)
+	} else {
+		log.Println("[DEBUG] ID is not a valid env0 id ", id)
+		log.Println("[INFO] Resolving Environment by name: ", id)
+
+		var environment client.Environment
+		environment, getErr = getEnvironmentByName(id, meta)
+
+		d.SetId(environment.Id)
+		setEnvironmentSchema(d, environment)
+	}
+
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	} else {
+		return []*schema.ResourceData{d}, nil
+	}
 }
