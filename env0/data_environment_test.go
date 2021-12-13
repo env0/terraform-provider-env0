@@ -53,7 +53,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", strconv.FormatBool(*environment.AutoDeployOnPathChangesOnly)),
 						resource.TestCheckResourceAttr(accessor, "deploy_on_push", strconv.FormatBool(*environment.ContinuousDeployment)),
 						resource.TestCheckResourceAttr(accessor, "status", environment.Status),
-						resource.TestCheckResourceAttr(accessor, "latest_deployment_log_id", environment.LatestDeploymentLogId),
+						resource.TestCheckResourceAttr(accessor, "deployment_id", environment.LatestDeploymentLogId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 					),
