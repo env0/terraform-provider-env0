@@ -82,7 +82,6 @@ func resourceEnvironment() *schema.Resource {
 				Description:  "redeploy on file filter pattern",
 				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
 				Optional:     true,
-				Default:      false,
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
