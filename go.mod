@@ -3,6 +3,7 @@ module github.com/env0/terraform-provider-env0
 go 1.16 // please change also in `ci.yml` and `release.yml`
 
 require (
+	github.com/hashicorp/terraform-json v0.12.0 // indirect
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/golang/mock v1.4.3
 	github.com/google/uuid v1.2.0
