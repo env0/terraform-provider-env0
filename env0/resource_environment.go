@@ -129,6 +129,13 @@ func resourceEnvironment() *schema.Resource {
 							Description: "variable type (allowed values are: terraform, environment)",
 							Default:     "environment",
 							Optional:    true,
+							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+								value := val.(string)
+								if value != "environment" && value != "terraform" {
+									errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
+								}
+								return
+							},
 						},
 						"description": &schema.Schema{
 							Type:        schema.TypeString,
@@ -161,7 +168,7 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment) {
+func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) {
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
@@ -184,22 +191,45 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	}
-	//TODO: env\terraform variables
+	setEnvironmentSchemaConfiguration(d, configurationVariables)
+}
+
+func setEnvironmentSchemaConfiguration(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
+	for _, configurationVariable := range configurationVariables {
+		variable := make(map[string]interface{})
+		variable["name"] = configurationVariable.Name
+		variable["value"] = configurationVariable.Value
+		variable["type"] = configurationVariable.Type
+		if configurationVariable.Description != "" {
+			variable["description"] = configurationVariable.Description
+		}
+		if configurationVariable.IsSensitive != nil {
+			variable["is_sensitive"] = configurationVariable.IsSensitive
+		}
+		if configurationVariable.Schema != nil {
+			variable["schema_type"] = configurationVariable.Schema.Type
+			variable["schema_enum"] = configurationVariable.Schema.Enum
+		}
+		d.Set("configuration", variable)
+	}
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := getCreatePayload(d)
+	payload := getCreatePayload(d, apiClient)
 
 	environment, err := apiClient.EnvironmentCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
-
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
+	if err != nil {
+		return diag.Errorf("could not get environment configuration variables: %v", err)
+	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment)
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
 }
@@ -211,8 +241,11 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("could not get environment: %v", err)
 	}
-
-	setEnvironmentSchema(d, environment)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
+	if err != nil {
+		return diag.Errorf("could not get environment configuration variables: %v", err)
+	}
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
 }
@@ -259,7 +292,7 @@ func shouldUpdateTTL(d *schema.ResourceData) bool {
 }
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
-	deployPayload := getDeployPayload(d)
+	deployPayload := getDeployPayload(d, apiClient, true)
 	deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
 	if err != nil {
 		return diag.Errorf("failed deploying environment: %v", err)
@@ -303,7 +336,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
+func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) client.EnvironmentCreate {
 	payload := client.EnvironmentCreate{}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -346,7 +379,7 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 		payload.TTL = &ttlPayload
 	}
 
-	deployPayload := getDeployPayload(d)
+	deployPayload := getDeployPayload(d, apiClient, false)
 
 	payload.DeployRequest = &deployPayload
 
@@ -382,7 +415,7 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 	return payload
 }
 
-func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
+func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterface, isRedeploy bool) client.DeployRequest {
 	payload := client.DeployRequest{}
 
 	if templateId, ok := d.GetOk("template_id"); ok {
@@ -394,7 +427,13 @@ func getDeployPayload(d *schema.ResourceData) client.DeployRequest {
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := client.ConfigurationChanges{}
+		if isRedeploy {
+			configurationChanges = getUpdateConfigurationVariables(configuration.([]interface{}), d.Get("id").(string), apiClient)
+
+		} else {
+			configurationChanges = getConfigurationVariables(configuration.([]interface{}))
+		}
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -419,13 +458,50 @@ func getTTl(date string) client.TTL {
 	}
 }
 
+func getUpdateConfigurationVariables(configuration []interface{}, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
+	existVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environmentId)
+	if err != nil {
+		diag.Errorf("could not get environment configuration variables: %v", err)
+	}
+	configurationChanges := getConfigurationVariables(configuration)
+	linkToExistConfigurationVariables(configurationChanges, existVariables)
+	deleteUnusedConfigurationVariables(configurationChanges, existVariables, apiClient)
+	return configurationChanges
+}
+
 func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
 		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
+
 	return configurationChanges
+}
+
+func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges, apiClient client.ApiClientInterface) {
+	for _, existVariable := range existVariables {
+		if isExist, variableToDelete := getExistVariable(configurationChanges, existVariable); isExist != true {
+			apiClient.ConfigurationVariableDelete(variableToDelete.Id)
+		}
+	}
+}
+
+func linkToExistConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) {
+	for _, change := range configurationChanges {
+		if isExist, existVariable := getExistVariable(existVariables, change); isExist {
+			change.Id = existVariable.Id
+		}
+	}
+}
+
+func getExistVariable(variables client.ConfigurationChanges, search client.ConfigurationVariable) (bool, client.ConfigurationVariable) {
+	for _, variable := range variables {
+		if variable.Name == search.Name {
+			return true, variable
+		}
+	}
+	return false, client.ConfigurationVariable{}
 }
 
 func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
