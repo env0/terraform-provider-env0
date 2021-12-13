@@ -57,28 +57,24 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "should run terraform plan on pull requests creations",
 				Optional:    true,
-				Computed:    true,
 				Default:     false,
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
 				Description: "should deployments require manual approvals",
 				Optional:    true,
-				Computed:    true,
 				Default:     false,
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
 				Description: "should run terraform deploy on push events",
 				Optional:    true,
-				Computed:    true,
 				Default:     false,
 			},
 			"auto_deploy_on_path_changes_only": {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
-				Computed:    true,
 				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
