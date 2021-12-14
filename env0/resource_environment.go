@@ -307,25 +307,21 @@ func getCreatePayload(d *schema.ResourceData) client.EnvironmentCreate {
 	if projectId, ok := d.GetOk("project_id"); ok {
 		payload.ProjectId = projectId.(string)
 	}
-	if continuousDeployment, ok := d.GetOkExists("deploy_on_push"); ok {
-		continuousDeployment := continuousDeployment.(bool)
-		payload.ContinuousDeployment = &continuousDeployment
-	}
-	if requiresApproval, ok := d.GetOkExists("approve_plan_automatically"); ok {
-		requiresApproval := !requiresApproval.(bool)
-		payload.RequiresApproval = &requiresApproval
-	}
-	if pullRequestPlanDeployments, ok := d.GetOkExists("run_plan_on_pull_requests"); ok {
-		pullRequestPlanDeployments := pullRequestPlanDeployments.(bool)
-		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
-	}
-	if autoDeployOnPathChangesOnly, ok := d.GetOkExists("auto_deploy_on_path_changes_only"); ok {
-		autoDeployOnPathChangesOnly := autoDeployOnPathChangesOnly.(bool)
-		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	}
-	if autoDeployByCustomGlob, ok := d.GetOk("auto_deploy_by_custom_glob"); ok {
-		payload.AutoDeployByCustomGlob = autoDeployByCustomGlob.(string)
-	}
+
+	continuousDeployment := d.Get("deploy_on_push").(bool)
+	payload.ContinuousDeployment = &continuousDeployment
+
+	requiresApproval := !d.Get("approve_plan_automatically").(bool)
+	payload.RequiresApproval = &requiresApproval
+
+	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
+	payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
+
+	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
+	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+
+	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
+
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges

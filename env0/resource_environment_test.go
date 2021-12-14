@@ -343,6 +343,99 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
+
+	t.Run("Deleting triggers should set them to false", func(t *testing.T) {
+		falsey := false
+		truthyFruity := true
+		environment := client.Environment{
+			Id:        "id0",
+			Name:      "my-environment",
+			ProjectId: "project-id",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: "template-id",
+			},
+
+			ContinuousDeployment:        &truthyFruity,
+			AutoDeployOnPathChangesOnly: &truthyFruity,
+			RequiresApproval:            &falsey,
+			PullRequestPlanDeployments:  &truthyFruity,
+			AutoDeployByCustomGlob:      ".*",
+		}
+		//updatedEnvironment := client.Environment{
+		//	Id:        updatedEnvironment.Id,
+		//	Name:      environment.Name,
+		//	ProjectId: environment.ProjectId,
+		//	LatestDeploymentLog: client.DeploymentLog{
+		//		BlueprintId: environment.LatestDeploymentLog.BlueprintId,
+		//	},
+		//}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                             environment.Name,
+						"project_id":                       environment.ProjectId,
+						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+						"deploy_on_push":                   *environment.ContinuousDeployment,
+						"approve_plan_automatically":       !*environment.RequiresApproval,
+						"run_plan_on_pull_requests":        *environment.PullRequestPlanDeployments,
+						"auto_deploy_on_path_changes_only": *environment.AutoDeployOnPathChangesOnly,
+						"auto_deploy_by_custom_glob":       environment.AutoDeployByCustomGlob,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
+						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ".*"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":          environment.Name,
+						"project_id":    environment.ProjectId,
+						"template_id":   environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
+						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ""),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentUpdate(environment.Id, client.EnvironmentUpdate{
+				Name: environment.Name,
+
+				ContinuousDeployment:        &falsey,
+				AutoDeployOnPathChangesOnly: &falsey,
+				RequiresApproval:            &truthyFruity,
+				PullRequestPlanDeployments:  &falsey,
+				AutoDeployByCustomGlob:      "",
+			}).Times(1).Return(environment, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+			)
+
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
+	})
+
 	t.Run("should only allow destroy when force destroy is enabled", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
