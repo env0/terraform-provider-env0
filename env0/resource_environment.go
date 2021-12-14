@@ -502,20 +502,19 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	var getErr diag.Diagnostics
+	var environment client.Environment
 	_, err := uuid.Parse(id)
 	if err == nil {
 		log.Println("[INFO] Resolving Environment by id: ", id)
-		_, getErr = getEnvironmentById(id, meta)
+		environment, getErr = getEnvironmentById(id, meta)
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving Environment by name: ", id)
 
-		var environment client.Environment
 		environment, getErr = getEnvironmentByName(id, meta)
-
-		d.SetId(environment.Id)
-		setEnvironmentSchema(d, environment)
 	}
+	d.SetId(environment.Id)
+	setEnvironmentSchema(d, environment)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
