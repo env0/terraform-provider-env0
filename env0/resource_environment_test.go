@@ -361,14 +361,20 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			PullRequestPlanDeployments:  &truthyFruity,
 			AutoDeployByCustomGlob:      ".*",
 		}
-		//updatedEnvironment := client.Environment{
-		//	Id:        updatedEnvironment.Id,
-		//	Name:      environment.Name,
-		//	ProjectId: environment.ProjectId,
-		//	LatestDeploymentLog: client.DeploymentLog{
-		//		BlueprintId: environment.LatestDeploymentLog.BlueprintId,
-		//	},
-		//}
+		environmentAfterUpdate := client.Environment{
+			Id:        environment.Id,
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
+			},
+
+			ContinuousDeployment:        &falsey,
+			AutoDeployOnPathChangesOnly: &falsey,
+			RequiresApproval:            &truthyFruity,
+			PullRequestPlanDeployments:  &falsey,
+			AutoDeployByCustomGlob:      "",
+		}
 
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -425,11 +431,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				RequiresApproval:            &truthyFruity,
 				PullRequestPlanDeployments:  &falsey,
 				AutoDeployByCustomGlob:      "",
-			}).Times(1).Return(environment, nil)
+			}).Times(1).Return(environmentAfterUpdate, nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
-				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),            // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environmentAfterUpdate, nil), // 1 after update
 			)
 
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)

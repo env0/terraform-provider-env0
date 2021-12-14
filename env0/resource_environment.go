@@ -345,7 +345,7 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 		payload.Name = name.(string)
 	}
 	if d.HasChange("approve_plan_automatically") {
-		requiresApproval := d.Get("approve_plan_automatically").(bool)
+		requiresApproval := !d.Get("approve_plan_automatically").(bool)
 		payload.RequiresApproval = &requiresApproval
 	}
 	if d.HasChange("deploy_on_push") {
