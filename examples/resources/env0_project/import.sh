@@ -1,1 +1,2 @@
-terraform import env0_project.by_id 930a4d85-2847-4745-9ae5-df2fe48da848
+terraform import env0_project.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_project.by_name "Example Project"
