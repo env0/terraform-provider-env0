@@ -30,9 +30,44 @@ func dataEnvironment() *schema.Resource {
 				Description: "project id of the environment",
 				Computed:    true,
 			},
+			"approve_plan_automatically": {
+				Type:        schema.TypeBool,
+				Description: "the default require approval of the environment",
+				Computed:    true,
+			},
+			"run_plan_on_pull_requests": {
+				Type:        schema.TypeBool,
+				Description: "does pr plan enable",
+				Computed:    true,
+			},
+			"auto_deploy_on_path_changes_only": {
+				Type:        schema.TypeBool,
+				Description: "does continuous deployment on file changes in path enable",
+				Computed:    true,
+			},
+			"deploy_on_push": {
+				Type:        schema.TypeBool,
+				Description: "does continuous deployment is enabled",
+				Computed:    true,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Description: "the status of the environment",
+				Computed:    true,
+			},
+			"deployment_id": {
+				Type:        schema.TypeString,
+				Description: "the id of the latest deployment",
+				Computed:    true,
+			},
 			"template_id": {
 				Type:        schema.TypeString,
 				Description: "the template id the environment is to be created from",
+				Computed:    true,
+			},
+			"revision": {
+				Type:        schema.TypeString,
+				Description: "the last deployed revision",
 				Computed:    true,
 			},
 		},
@@ -59,5 +94,7 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment)
+	d.Set("status", environment.Status)
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	return nil
 }
