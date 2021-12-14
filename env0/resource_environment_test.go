@@ -79,7 +79,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 				Name: updatedEnvironment.Name,
 			}).Times(1).Return(updatedEnvironment, nil)
-
+			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
@@ -89,7 +89,120 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
-	// TODO: test deploy with variables ( needs configuration changes read )
+	t.Run("Success in create and deploy with variables", func(t *testing.T) {
+		environment := client.Environment{
+			Id:        "id0",
+			Name:      "my-environment",
+			ProjectId: "project-id",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId:       "template-id",
+				BlueprintRevision: "revision",
+			},
+		}
+		updatedEnvironment := client.Environment{
+			Id:        updatedEnvironment.Id,
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision: "updated revision",
+			},
+		}
+
+		varType := client.ConfigurationVariableTypeEnvironment
+		varSchema := client.ConfigurationVariableSchema{
+			Type: "string",
+			Enum: []string{"a", "b"},
+		}
+		configurationVariables := client.ConfigurationVariable{
+			Value:  varSchema.Enum[0],
+			Name:   "my env var",
+			Type:   &varType,
+			Schema: &varSchema,
+		}
+		formatResourceWithConfiguration := func(env client.Environment, variable client.ConfigurationVariable) string {
+			return fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					revision = "%s"
+					force_destroy = true
+					configuration {
+						name = "%s"
+						value = "%s"
+						schema_type = "%s"
+						schema_enum = ["%s"]
+					}
+				}`,
+				resourceType, resourceName, env.Name,
+				env.ProjectId, env.LatestDeploymentLog.BlueprintId,
+				env.LatestDeploymentLog.BlueprintRevision, variable.Name,
+				variable.Value, variable.Schema.Type,
+				strings.Join(variable.Schema.Enum, "\",\""))
+		}
+
+		environmentResource := formatResourceWithConfiguration(environment, configurationVariables)
+		configurationVariables.Value = configurationVariables.Schema.Enum[1]
+		updatedEnvironmentResource := formatResourceWithConfiguration(updatedEnvironment, configurationVariables)
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: environmentResource,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
+					),
+				},
+				{
+					Config: updatedEnvironmentResource,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
+					BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
+				},
+			}).Times(1).Return(environment, nil)
+
+			mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
+				Id: "deployment-id",
+			}, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+			)
+
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
+	})
 
 	t.Run("Update to: revision, configuration should trigger a deployment", func(t *testing.T) {
 		environment := client.Environment{
