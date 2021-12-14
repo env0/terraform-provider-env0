@@ -55,7 +55,7 @@ func dataEnvironment() *schema.Resource {
 				Description: "the status of the environment",
 				Computed:    true,
 			},
-			"latest_deployment_log_id": {
+			"deployment_id": {
 				Type:        schema.TypeString,
 				Description: "the id of the latest deployment",
 				Computed:    true,
@@ -95,6 +95,6 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment)
 	d.Set("status", environment.Status)
-	d.Set("latest_deployment_log_id", environment.LatestDeploymentLogId)
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	return nil
 }
