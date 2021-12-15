@@ -63,6 +63,7 @@ provider "env0" {
 
 ## Dev setup
 
+**make sure you run with go version 1.16**
 ### Build 
 - Use the `./build.sh` script.
 - The output binary is called `terraform-provider-env0`

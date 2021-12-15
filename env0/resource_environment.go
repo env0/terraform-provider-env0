@@ -195,7 +195,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 }
 
 func setEnvironmentSchemaConfiguration(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
-	for _, configurationVariable := range configurationVariables {
+	for index, configurationVariable := range configurationVariables {
 		variable := make(map[string]interface{})
 		variable["name"] = configurationVariable.Name
 		variable["value"] = configurationVariable.Value
@@ -210,7 +210,7 @@ func setEnvironmentSchemaConfiguration(d *schema.ResourceData, configurationVari
 			variable["schema_type"] = configurationVariable.Schema.Type
 			variable["schema_enum"] = configurationVariable.Schema.Enum
 		}
-		d.Set("configuration", variable)
+		d.Set(fmt.Sprintf(`configuration.%d`, index), variable)
 	}
 }
 
@@ -223,9 +223,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
-	if err != nil {
-		return diag.Errorf("could not get environment configuration variables: %v", err)
+	environmentConfigurationVariables := client.ConfigurationChanges{}
+	if payload.DeployRequest.ConfigurationChanges != nil {
+		environmentConfigurationVariables = *payload.DeployRequest.ConfigurationChanges
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
