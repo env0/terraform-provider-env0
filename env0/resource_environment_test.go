@@ -593,7 +593,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),            // 1 after create, 1 before update
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environmentAfterUpdate, nil), // 1 after update
 			)
-
+			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})

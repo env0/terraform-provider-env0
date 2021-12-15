@@ -599,8 +599,13 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 		environment, getErr = getEnvironmentByName(id, meta)
 	}
+	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
-	setEnvironmentSchema(d, environment)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get environment configuration variables: %v", err))
+	}
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
