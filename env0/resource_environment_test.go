@@ -89,7 +89,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Success in create and deploy with variables", func(t *testing.T) {
+	t.Run("Success in create and deploy with variables update", func(t *testing.T) {
 		environment := client.Environment{
 			Id:        "id0",
 			Name:      "my-environment",

@@ -191,10 +191,10 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	}
-	setEnvironmentSchemaConfiguration(d, configurationVariables)
+	setEnvironmentConfigurationSchema(d, configurationVariables)
 }
 
-func setEnvironmentSchemaConfiguration(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
+func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
 	for index, configurationVariable := range configurationVariables {
 		variable := make(map[string]interface{})
 		variable["name"] = configurationVariable.Name
@@ -427,12 +427,9 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := client.ConfigurationChanges{}
+		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
 		if isRedeploy {
-			configurationChanges = getUpdateConfigurationVariables(configuration.([]interface{}), d.Get("id").(string), apiClient)
-
-		} else {
-			configurationChanges = getConfigurationVariables(configuration.([]interface{}))
+			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
 		payload.ConfigurationChanges = &configurationChanges
 	}
@@ -458,12 +455,11 @@ func getTTl(date string) client.TTL {
 	}
 }
 
-func getUpdateConfigurationVariables(configuration []interface{}, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
+func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
 	existVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environmentId)
 	if err != nil {
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
-	configurationChanges := getConfigurationVariables(configuration)
 	configurationChanges = linkToExistConfigurationVariables(configurationChanges, existVariables)
 	configurationChanges = deleteUnusedConfigurationVariables(configurationChanges, existVariables)
 	return configurationChanges
