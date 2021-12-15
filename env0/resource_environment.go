@@ -464,8 +464,8 @@ func getUpdateConfigurationVariables(configuration []interface{}, environmentId 
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
 	configurationChanges := getConfigurationVariables(configuration)
-	linkToExistConfigurationVariables(&configurationChanges, existVariables)
-	deleteUnusedConfigurationVariables(configurationChanges, existVariables, apiClient)
+	configurationChanges = linkToExistConfigurationVariables(configurationChanges, existVariables)
+	configurationChanges = deleteUnusedConfigurationVariables(configurationChanges, existVariables)
 	return configurationChanges
 }
 
@@ -479,25 +479,29 @@ func getConfigurationVariables(configuration []interface{}) client.Configuration
 	return configurationChanges
 }
 
-func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges, apiClient client.ApiClientInterface) {
+func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) client.ConfigurationChanges {
 	for _, existVariable := range existVariables {
-		if isExist, variableToDelete := getExistVariable(configurationChanges, existVariable); isExist != true {
-			varTrue := true
-			variableToDelete.ToDelete = &varTrue
-			configurationChanges = append(configurationChanges, variableToDelete)
+		if isExist, _ := isVariableExist(configurationChanges, existVariable); isExist != true {
+			toDelete := true
+			existVariable.ToDelete = &toDelete
+			configurationChanges = append(configurationChanges, existVariable)
 		}
 	}
+	return configurationChanges
 }
 
-func linkToExistConfigurationVariables(configurationChanges *client.ConfigurationChanges, existVariables client.ConfigurationChanges) {
-	for _, change := range *configurationChanges {
-		if isExist, existVariable := getExistVariable(existVariables, change); isExist {
+func linkToExistConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) client.ConfigurationChanges {
+	updateConfigurationChanges := client.ConfigurationChanges{}
+	for _, change := range configurationChanges {
+		if isExist, existVariable := isVariableExist(existVariables, change); isExist {
 			change.Id = existVariable.Id
 		}
+		updateConfigurationChanges = append(updateConfigurationChanges, change)
 	}
+	return updateConfigurationChanges
 }
 
-func getExistVariable(variables client.ConfigurationChanges, search client.ConfigurationVariable) (bool, client.ConfigurationVariable) {
+func isVariableExist(variables client.ConfigurationChanges, search client.ConfigurationVariable) (bool, client.ConfigurationVariable) {
 	for _, variable := range variables {
 		if variable.Name == search.Name && typeEqual(variable, search) {
 			return true, variable

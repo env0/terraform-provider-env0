@@ -131,14 +131,19 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									`, variable.Schema.Type,
 						strings.Join(variable.Schema.Enum, "\",\""))
 				}
+				varType := "environment"
+				if *variable.Type == client.ConfigurationVariableTypeTerraform {
+					varType = "terraform"
+				}
 				foramt += fmt.Sprintf(`configuration{
 									name = "%s"
 									value = "%s"
+									type = "%s"
 									%s
 									}
 
 							`, variable.Name,
-					variable.Value, schemaFormat)
+					variable.Value, varType, schemaFormat)
 			}
 
 			return foramt
@@ -160,10 +165,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		}
 
 		environmentResource := formatResourceWithConfiguration(environment, client.ConfigurationChanges{configurationVariables})
-		redeployConfigurationVariables := client.ConfigurationChanges{configurationVariables, client.ConfigurationVariable{
+		newVarType := client.ConfigurationVariableTypeTerraform
+		redeployConfigurationVariables := client.ConfigurationChanges{client.ConfigurationVariable{
 			Value: "configurationVariables.Value",
-			Name:  "new new new",
-			Type:  &varType,
+			Name:  configurationVariables.Name,
+			Type:  &newVarType,
 		}}
 		updatedEnvironmentResource := formatResourceWithConfiguration(updatedEnvironment, redeployConfigurationVariables)
 		testCase := resource.TestCase{
@@ -192,21 +198,16 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
-						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Schema.Enum[0]),
-						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
-						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
-						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
-						resource.TestCheckResourceAttr(accessor, "configuration.1.name", redeployConfigurationVariables[1].Name),
-						resource.TestCheckResourceAttr(accessor, "configuration.1.value", redeployConfigurationVariables[1].Value),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.value", "configurationVariables.Value"),
 					),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			falseValue := false
+			isSensitive := false
 			configurationVariables.Scope = client.ScopeDeployment
-			configurationVariables.IsSensitive = &falseValue
+			configurationVariables.IsSensitive = &isSensitive
 			configurationVariables.Value = configurationVariables.Schema.Enum[0]
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
@@ -217,11 +218,23 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					ConfigurationChanges: &client.ConfigurationChanges{configurationVariables},
 				}, ConfigurationChanges: &client.ConfigurationChanges{configurationVariables},
 			}).Times(1).Return(environment, nil)
+			configurationVariables.Id = "generated-id-from-server"
 
-			mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
+			varTrue := true
+			configurationVariables.ToDelete = &varTrue
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{configurationVariables}, nil), // read after create -> on update
+				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(redeployConfigurationVariables, nil),                      // read after create -> on update -> read after update
+			)
+			redeployConfigurationVariables[0].Scope = client.ScopeDeployment
+			redeployConfigurationVariables[0].IsSensitive = &isSensitive
+			mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
+				BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision:    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+				ConfigurationChanges: &client.ConfigurationChanges{redeployConfigurationVariables[0], configurationVariables},
+			}).Times(1).Return(client.EnvironmentDeployResponse{
 				Id: environment.Id,
 			}, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(4).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
 
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
