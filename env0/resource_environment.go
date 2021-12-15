@@ -253,13 +253,6 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if shouldDeploy(d) {
-		err := deploy(d, apiClient)
-		if err != nil {
-			return err
-		}
-	}
-
 	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
 
 	if shouldUpdate(d) {
@@ -271,6 +264,13 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	if shouldUpdateTTL(d) {
 		err := updateTTL(d, apiClient)
+		if err != nil {
+			return err
+		}
+	}
+
+	if shouldDeploy(d) {
+		err := deploy(d, apiClient)
 		if err != nil {
 			return err
 		}
@@ -464,7 +464,7 @@ func getUpdateConfigurationVariables(configuration []interface{}, environmentId 
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
 	configurationChanges := getConfigurationVariables(configuration)
-	linkToExistConfigurationVariables(configurationChanges, existVariables)
+	linkToExistConfigurationVariables(&configurationChanges, existVariables)
 	deleteUnusedConfigurationVariables(configurationChanges, existVariables, apiClient)
 	return configurationChanges
 }
@@ -482,13 +482,15 @@ func getConfigurationVariables(configuration []interface{}) client.Configuration
 func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges, apiClient client.ApiClientInterface) {
 	for _, existVariable := range existVariables {
 		if isExist, variableToDelete := getExistVariable(configurationChanges, existVariable); isExist != true {
-			apiClient.ConfigurationVariableDelete(variableToDelete.Id)
+			varTrue := true
+			variableToDelete.ToDelete = &varTrue
+			configurationChanges = append(configurationChanges, variableToDelete)
 		}
 	}
 }
 
-func linkToExistConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) {
-	for _, change := range configurationChanges {
+func linkToExistConfigurationVariables(configurationChanges *client.ConfigurationChanges, existVariables client.ConfigurationChanges) {
+	for _, change := range *configurationChanges {
 		if isExist, existVariable := getExistVariable(existVariables, change); isExist {
 			change.Id = existVariable.Id
 		}
@@ -497,11 +499,17 @@ func linkToExistConfigurationVariables(configurationChanges client.Configuration
 
 func getExistVariable(variables client.ConfigurationChanges, search client.ConfigurationVariable) (bool, client.ConfigurationVariable) {
 	for _, variable := range variables {
-		if variable.Name == search.Name {
+		if variable.Name == search.Name && typeEqual(variable, search) {
 			return true, variable
 		}
 	}
 	return false, client.ConfigurationVariable{}
+}
+
+func typeEqual(variable client.ConfigurationVariable, search client.ConfigurationVariable) bool {
+	return *variable.Type == *search.Type ||
+		variable.Type == nil && *search.Type == client.ConfigurationVariableTypeEnvironment ||
+		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
 }
 
 func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
