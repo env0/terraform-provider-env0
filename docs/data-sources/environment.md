@@ -43,7 +43,7 @@ output "environment_name" {
 - **approve_plan_automatically** (Boolean) the default require approval of the environment
 - **auto_deploy_on_path_changes_only** (Boolean) does continuous deployment on file changes in path enable
 - **deploy_on_push** (Boolean) does continuous deployment is enabled
-- **latest_deployment_log_id** (String) the id of the latest deployment
+- **deployment_id** (String) the id of the latest deployment
 - **project_id** (String) project id of the environment
 - **revision** (String) the last deployed revision
 - **run_plan_on_pull_requests** (Boolean) does pr plan enable

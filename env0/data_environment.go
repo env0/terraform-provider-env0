@@ -91,9 +91,8 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 			return err
 		}
 	}
-
 	d.SetId(environment.Id)
-	setEnvironmentSchema(d, environment)
+	setEnvironmentSchema(d, environment, client.ConfigurationChanges{})
 	d.Set("status", environment.Status)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	return nil
