@@ -253,8 +253,6 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	// TODO: update TTL if needed, also consider not updating ttl if deploy happened (cause we update ttl there too)
-
 	if shouldUpdate(d) {
 		err := update(d, apiClient)
 		if err != nil {
