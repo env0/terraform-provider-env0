@@ -603,6 +603,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("could not get environment configuration variables: %v", err))
 	}
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	if getErr != nil {
