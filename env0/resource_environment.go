@@ -77,12 +77,14 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
+				Default:     false,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:         schema.TypeString,
 				Description:  "redeploy on file filter pattern",
 				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
 				Optional:     true,
+				Default:      "",
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
@@ -359,14 +361,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
-	if d.HasChange("auto_deploy_on_path_changes_only") {
-		autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	}
+	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
+	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 
-	if d.HasChange("auto_deploy_by_custom_glob") {
-		payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	}
+	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
