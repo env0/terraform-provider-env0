@@ -17,6 +17,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 	templateId := "template-id"
 
+	truthy := true
 	environment := client.Environment{
 		Id:        "id0",
 		Name:      "my-environment",
@@ -24,6 +25,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
+		AutoDeployOnPathChangesOnly: &truthy,
 	}
 
 	updatedEnvironment := client.Environment{
@@ -75,6 +77,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				AutoDeployOnPathChangesOnly: environment.AutoDeployOnPathChangesOnly,
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 				Name: updatedEnvironment.Name,
@@ -217,6 +220,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
 					ConfigurationChanges: &client.ConfigurationChanges{configurationVariables},
 				}, ConfigurationChanges: &client.ConfigurationChanges{configurationVariables},
+				AutoDeployOnPathChangesOnly: &truthy,
 			}).Times(1).Return(environment, nil)
 			configurationVariables.Id = "generated-id-from-server"
 
@@ -342,6 +346,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
 				},
+				AutoDeployOnPathChangesOnly: &truthy,
 			}).Times(1).Return(environment, nil)
 
 			mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
@@ -366,6 +371,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId: "template-id",
 			},
+			AutoDeployOnPathChangesOnly: &truthy,
 		}
 		updatedEnvironment := client.Environment{
 			Id:            updatedEnvironment.Id,
@@ -375,6 +381,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 			},
+			AutoDeployOnPathChangesOnly: &truthy,
 		}
 
 		testCase := resource.TestCase{
@@ -439,6 +446,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId: "template-id",
 			},
+			AutoDeployOnPathChangesOnly: &truthy,
 		}
 		updatedEnvironment := client.Environment{
 			Id:        updatedEnvironment.Id,
@@ -447,6 +455,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 			},
+			AutoDeployOnPathChangesOnly: &truthy,
 		}
 
 		testCase := resource.TestCase{
@@ -512,7 +521,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			},
 
 			ContinuousDeployment:        &truthyFruity,
-			AutoDeployOnPathChangesOnly: &truthyFruity,
+			AutoDeployOnPathChangesOnly: &falsey,
 			RequiresApproval:            &falsey,
 			PullRequestPlanDeployments:  &truthyFruity,
 			AutoDeployByCustomGlob:      ".*",
@@ -526,7 +535,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			},
 
 			ContinuousDeployment:        &falsey,
-			AutoDeployOnPathChangesOnly: &falsey,
+			AutoDeployOnPathChangesOnly: &truthy,
 			RequiresApproval:            &truthyFruity,
 			PullRequestPlanDeployments:  &falsey,
 			AutoDeployByCustomGlob:      "",
@@ -552,7 +561,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ".*"),
 					),
 				},
@@ -570,7 +579,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ""),
 					),
 				},
@@ -583,7 +592,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name: environment.Name,
 
 				ContinuousDeployment:        &falsey,
-				AutoDeployOnPathChangesOnly: &falsey,
+				AutoDeployOnPathChangesOnly: &truthy,
 				RequiresApproval:            &truthyFruity,
 				PullRequestPlanDeployments:  &falsey,
 				AutoDeployByCustomGlob:      "",
@@ -653,7 +662,44 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Failure in create", func(t *testing.T) {
+	t.Run("Failure in validation while both glob and pathChanges are enabled (pathChanges is enabled by default)", func(t *testing.T) {
+		autoDeployWithCustomGlobEnabled := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                       environment.Name,
+						"project_id":                 environment.ProjectId,
+						"template_id":                environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy":              true,
+						"run_plan_on_pull_requests":  true,
+						"auto_deploy_by_custom_glob": "/**",
+					}),
+					ExpectError: regexp.MustCompile("cannot set both auto_deploy_by_custom_glob and auto_deploy_on_path_changes_only"),
+				},
+			},
+		}
+		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Failure in validation while prPlan and CD are disabled", func(t *testing.T) {
+		autoDeployWithCustomGlobEnabled := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                       environment.Name,
+						"project_id":                 environment.ProjectId,
+						"template_id":                environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy":              true,
+						"auto_deploy_by_custom_glob": "/**",
+					}),
+					ExpectError: regexp.MustCompile("run_plan_on_pull_requests or deploy_on_push must be enabled.*"),
+				},
+			},
+		}
+		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Failure in create API", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -695,6 +741,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				AutoDeployOnPathChangesOnly: &truthy,
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
@@ -715,6 +762,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 				BlueprintRevision: "updated template id",
 			},
+			AutoDeployOnPathChangesOnly: &truthy,
 		}
 
 		testCase := resource.TestCase{
@@ -765,6 +813,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				AutoDeployOnPathChangesOnly: &truthy,
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
