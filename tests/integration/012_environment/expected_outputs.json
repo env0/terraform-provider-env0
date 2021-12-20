@@ -1,3 +1,4 @@
 {
-  "name": "environment"
+  "name": "environment",
+  "configurationVariable": "environment configuration variable"
 }
