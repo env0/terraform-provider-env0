@@ -81,11 +81,10 @@ func resourceEnvironment() *schema.Resource {
 				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type:         schema.TypeString,
-				Description:  "redeploy on file filter pattern",
-				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
-				Optional:     true,
-				Default:      "",
+				Type:        schema.TypeString,
+				Description: "redeploy on file filter pattern",
+				Optional:    true,
+				Default:     "",
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
@@ -220,7 +219,11 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := getCreatePayload(d, apiClient)
+	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
+
+	if createEnvPayloadErr != nil {
+		return diag.Errorf("%v", createEnvPayloadErr)
+	}
 
 	environment, err := apiClient.EnvironmentCreate(payload)
 	if err != nil {
@@ -337,7 +340,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) client.EnvironmentCreate {
+func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
 	payload := client.EnvironmentCreate{}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -370,6 +373,13 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
+	if payload.AutoDeployByCustomGlob != "" && (payload.ContinuousDeployment == nil || *payload.ContinuousDeployment == false) &&
+		(payload.PullRequestPlanDeployments == nil || *payload.PullRequestPlanDeployments == false) {
+		return client.EnvironmentCreate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
+	}
+	if *payload.AutoDeployOnPathChangesOnly == true && payload.AutoDeployByCustomGlob != "" {
+		return client.EnvironmentCreate{}, diag.Errorf("cannot set both auto_deploy_by_custom_glob and auto_deploy_on_path_changes_only")
+	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
@@ -384,7 +394,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	payload.DeployRequest = &deployPayload
 
-	return payload
+	return payload, nil
 }
 
 func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
