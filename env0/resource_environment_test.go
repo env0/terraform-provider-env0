@@ -47,7 +47,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"force_destroy": true,
 		})
 	}
-
+	autoDeployOnPathChangesOnlyDefault := true
+	autoDeployByCustomGlobDefault := ""
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -76,15 +77,19 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				WorkspaceName: environment.WorkspaceName,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
-				Name: updatedEnvironment.Name,
+				Name:                        updatedEnvironment.Name,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(updatedEnvironment, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			gomock.InOrder(
@@ -98,9 +103,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 	t.Run("Success in create and deploy with variables update", func(t *testing.T) {
 		environment := client.Environment{
-			Id:        "id0",
-			Name:      "my-environment",
-			ProjectId: "project-id",
+			Id:                          "id0",
+			Name:                        "my-environment",
+			ProjectId:                   "project-id",
+			AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+			AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId:       "template-id",
 				BlueprintRevision: "revision",
@@ -217,9 +224,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			configurationVariables.IsSensitive = &isSensitive
 			configurationVariables.Value = configurationVariables.Schema.Enum[0]
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				WorkspaceName: environment.WorkspaceName,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
@@ -255,9 +264,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 	t.Run("Update to: revision, configuration should trigger a deployment", func(t *testing.T) {
 		environment := client.Environment{
-			Id:        "id0",
-			Name:      "my-environment",
-			ProjectId: "project-id",
+			Id:                          "id0",
+			Name:                        "my-environment",
+			ProjectId:                   "project-id",
+			AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+			AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			LatestDeploymentLog: client.DeploymentLog{
 				BlueprintId:       "template-id",
 				BlueprintRevision: "revision",
@@ -344,8 +355,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
@@ -534,10 +547,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			},
 
 			ContinuousDeployment:        &falsey,
-			AutoDeployOnPathChangesOnly: &falsey,
+			AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 			RequiresApproval:            &truthyFruity,
 			PullRequestPlanDeployments:  &falsey,
-			AutoDeployByCustomGlob:      "",
+			AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 		}
 
 		testCase := resource.TestCase{
@@ -578,7 +591,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ""),
 					),
 				},
@@ -591,10 +604,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name: environment.Name,
 
 				ContinuousDeployment:        &falsey,
-				AutoDeployOnPathChangesOnly: &falsey,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				RequiresApproval:            &truthyFruity,
 				PullRequestPlanDeployments:  &falsey,
-				AutoDeployByCustomGlob:      "",
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(environmentAfterUpdate, nil)
 
 			gomock.InOrder(
@@ -673,9 +686,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				WorkspaceName: environment.WorkspaceName,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
@@ -699,16 +714,20 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				WorkspaceName: environment.WorkspaceName,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
-				Name: updatedEnvironment.Name,
+				Name:                        updatedEnvironment.Name,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -770,9 +789,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-				Name:      environment.Name,
-				ProjectId: environment.ProjectId,
-				WorkspaceName: environment.WorkspaceName,
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
