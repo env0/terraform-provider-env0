@@ -19,9 +19,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	templateId := "template-id"
 
 	environment := client.Environment{
-		Id:        "id0",
-		Name:      "my-environment",
-		ProjectId: "project-id",
+		Id:            "id0",
+		Name:          "my-environment",
+		ProjectId:     "project-id",
 		WorkspaceName: "workspace-name",
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
@@ -29,9 +29,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	updatedEnvironment := client.Environment{
-		Id:        environment.Id,
-		Name:      "my-updated-environment-name",
-		ProjectId: "project-id",
+		Id:            environment.Id,
+		Name:          "my-updated-environment-name",
+		ProjectId:     "project-id",
 		WorkspaceName: environment.WorkspaceName,
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
