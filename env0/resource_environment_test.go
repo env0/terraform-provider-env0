@@ -43,7 +43,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"force_destroy": true,
 		})
 	}
-	autoDeployOnPathChangesOnlyDefault := false
+	autoDeployOnPathChangesOnlyDefault := true
 	autoDeployByCustomGlobDefault := ""
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
