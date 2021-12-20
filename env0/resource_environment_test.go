@@ -532,7 +532,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				BlueprintId: "template-id",
 			},
 
-			AutoDeployOnPathChangesOnly: &falsey,
+			AutoDeployOnPathChangesOnly: &truthyFruity,
 			ContinuousDeployment:        &truthyFruity,
 			RequiresApproval:            &falsey,
 			PullRequestPlanDeployments:  &truthyFruity,
@@ -572,16 +572,17 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":          environment.Name,
-						"project_id":    environment.ProjectId,
-						"template_id":   environment.LatestDeploymentLog.BlueprintId,
-						"force_destroy": true,
+						"name":                             environment.Name,
+						"project_id":                       environment.ProjectId,
+						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+						"force_destroy":                    true,
+						"auto_deploy_on_path_changes_only": false,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -590,7 +591,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", autoDeployByCustomGlobDefault),
 					),
 				},
@@ -603,7 +604,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name: environment.Name,
 
 				ContinuousDeployment:        &falsey,
-				AutoDeployOnPathChangesOnly: &truthyFruity,
+				AutoDeployOnPathChangesOnly: &falsey,
 				RequiresApproval:            &truthyFruity,
 				PullRequestPlanDeployments:  &falsey,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
@@ -673,23 +674,50 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Failure in validation while both glob and pathChanges are enabled (pathChanges is enabled by default)", func(t *testing.T) {
+	t.Run("Failure in validation while  glob is enabled and pathChanges no", func(t *testing.T) {
 		autoDeployWithCustomGlobEnabled := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":                       environment.Name,
-						"project_id":                 environment.ProjectId,
-						"template_id":                environment.LatestDeploymentLog.BlueprintId,
-						"force_destroy":              true,
-						"run_plan_on_pull_requests":  true,
-						"auto_deploy_by_custom_glob": "/**",
+						"name":                             environment.Name,
+						"project_id":                       environment.ProjectId,
+						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+						"auto_deploy_on_path_changes_only": false,
+						"force_destroy":                    true,
+						"run_plan_on_pull_requests":        true,
+						"auto_deploy_by_custom_glob":       "/**",
 					}),
-					ExpectError: regexp.MustCompile("cannot set both auto_deploy_by_custom_glob and auto_deploy_on_path_changes_only"),
+					ExpectError: regexp.MustCompile("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled"),
 				},
+				{
+					Destroy: true,
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                             environment.Name,
+						"project_id":                       environment.ProjectId,
+						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+						"auto_deploy_on_path_changes_only": true,
+						"force_destroy":                    true,
+						"run_plan_on_pull_requests":        true,
+						"auto_deploy_by_custom_glob":       "/**",
+					}),
+				},
+				/*{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                             environment.Name,
+						"project_id":                       environment.ProjectId,
+						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+						"auto_deploy_on_path_changes_only": false,
+						"force_destroy":                    true,
+						"run_plan_on_pull_requests":        true,
+						"auto_deploy_by_custom_glob":       "/**",
+					}),
+					ExpectError: regexp.MustCompile("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled"),
+				},*/
 			},
 		}
-		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
+			//mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1)
+		})
 	})
 
 	t.Run("Failure in validation while prPlan and CD are disabled", func(t *testing.T) {

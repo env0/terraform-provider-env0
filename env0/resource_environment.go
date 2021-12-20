@@ -288,7 +288,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -378,12 +378,14 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	if payload.AutoDeployByCustomGlob != "" && (payload.ContinuousDeployment == nil || *payload.ContinuousDeployment == false) &&
-		(payload.PullRequestPlanDeployments == nil || *payload.PullRequestPlanDeployments == false) {
-		return client.EnvironmentCreate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
-	}
-	if *payload.AutoDeployOnPathChangesOnly == true && payload.AutoDeployByCustomGlob != "" {
-		return client.EnvironmentCreate{}, diag.Errorf("cannot set both auto_deploy_by_custom_glob and auto_deploy_on_path_changes_only")
+	if payload.AutoDeployByCustomGlob != "" {
+		if (payload.ContinuousDeployment == nil || *payload.ContinuousDeployment == false) &&
+			(payload.PullRequestPlanDeployments == nil || *payload.PullRequestPlanDeployments == false) {
+			return client.EnvironmentCreate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
+		}
+		if *payload.AutoDeployOnPathChangesOnly == false {
+			return client.EnvironmentCreate{}, diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
+		}
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
@@ -430,8 +432,8 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 			pullRequestPlanDeployments == false {
 			return client.EnvironmentUpdate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
 		}
-		if *payload.AutoDeployOnPathChangesOnly == true {
-			return client.EnvironmentUpdate{}, diag.Errorf("cannot set both auto_deploy_by_custom_glob and auto_deploy_on_path_changes_only")
+		if *payload.AutoDeployOnPathChangesOnly == false {
+			return client.EnvironmentUpdate{}, diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
 	}
 
