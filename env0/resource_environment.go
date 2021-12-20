@@ -77,7 +77,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
-				Default:     false,
+				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:         schema.TypeString,
