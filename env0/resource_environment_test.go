@@ -3,12 +3,13 @@ package env0
 import (
 	"errors"
 	"fmt"
-	"github.com/env0/terraform-provider-env0/client"
-	"github.com/golang/mock/gomock"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitEnvironmentResource(t *testing.T) {
@@ -21,6 +22,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		Id:        "id0",
 		Name:      "my-environment",
 		ProjectId: "project-id",
+		WorkspaceName: "workspace-name",
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
@@ -30,6 +32,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		Id:        environment.Id,
 		Name:      "my-updated-environment-name",
 		ProjectId: "project-id",
+		WorkspaceName: environment.WorkspaceName,
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
@@ -40,6 +43,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"name":          environment.Name,
 			"project_id":    environment.ProjectId,
 			"template_id":   environment.LatestDeploymentLog.BlueprintId,
+			"workspace":     environment.WorkspaceName,
 			"force_destroy": true,
 		})
 	}
@@ -54,6 +58,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 					),
 				},
 				{
@@ -63,6 +68,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 					),
 				},
 			},
@@ -72,6 +78,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
+				WorkspaceName: environment.WorkspaceName,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
@@ -212,6 +219,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
+				WorkspaceName: environment.WorkspaceName,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
@@ -667,6 +675,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
+				WorkspaceName: environment.WorkspaceName,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
@@ -692,6 +701,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
+				WorkspaceName: environment.WorkspaceName,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
@@ -762,6 +772,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:      environment.Name,
 				ProjectId: environment.ProjectId,
+				WorkspaceName: environment.WorkspaceName,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
