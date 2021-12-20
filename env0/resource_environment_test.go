@@ -690,7 +690,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					ExpectError: regexp.MustCompile("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled"),
 				},
 				{
-					Destroy: true,
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"name":                             environment.Name,
 						"project_id":                       environment.ProjectId,
@@ -701,22 +700,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						"auto_deploy_by_custom_glob":       "/**",
 					}),
 				},
-				/*{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":                             environment.Name,
-						"project_id":                       environment.ProjectId,
-						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
-						"auto_deploy_on_path_changes_only": false,
-						"force_destroy":                    true,
-						"run_plan_on_pull_requests":        true,
-						"auto_deploy_by_custom_glob":       "/**",
-					}),
-					ExpectError: regexp.MustCompile("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled"),
-				},*/
 			},
 		}
 		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
-			//mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1)
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1)
 		})
 	})
 
