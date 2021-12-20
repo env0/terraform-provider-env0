@@ -80,7 +80,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
-				Name: updatedEnvironment.Name,
+				Name:                        updatedEnvironment.Name,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(updatedEnvironment, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			gomock.InOrder(
@@ -537,10 +539,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			},
 
 			ContinuousDeployment:        &falsey,
-			AutoDeployOnPathChangesOnly: &falsey,
+			AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 			RequiresApproval:            &truthyFruity,
 			PullRequestPlanDeployments:  &falsey,
-			AutoDeployByCustomGlob:      "",
+			AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 		}
 
 		testCase := resource.TestCase{
@@ -581,7 +583,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
 						resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ""),
 					),
 				},
@@ -594,10 +596,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name: environment.Name,
 
 				ContinuousDeployment:        &falsey,
-				AutoDeployOnPathChangesOnly: &falsey,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				RequiresApproval:            &truthyFruity,
 				PullRequestPlanDeployments:  &falsey,
-				AutoDeployByCustomGlob:      "",
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(environmentAfterUpdate, nil)
 
 			gomock.InOrder(
@@ -713,7 +715,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
-				Name: updatedEnvironment.Name,
+				Name:                        updatedEnvironment.Name,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
