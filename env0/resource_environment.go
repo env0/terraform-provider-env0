@@ -77,7 +77,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
-				Default:     false,
+				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:         schema.TypeString,
@@ -400,13 +400,9 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 		pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
-	if d.HasChange("auto_deploy_on_path_changes_only") {
-		autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	}
-	if d.HasChange("auto_deploy_by_custom_glob") {
-		payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	}
+	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
+	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 
 	return payload
 }
