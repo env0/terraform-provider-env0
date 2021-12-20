@@ -19,6 +19,7 @@ resource "env0_environment" "example" {
     name  = "environment configuration variable"
     value = "value"
   }
+  approve_plan_automatically = true
 }
 
 data "env0_environment" "test" {
