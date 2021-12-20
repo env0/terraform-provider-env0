@@ -121,6 +121,22 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			})
 	})
 
+	t.Run("ScopeEnvironment", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"environment_id": configurationVariable.Id, "name": configurationVariable.Name}),
+						Check:  checkResources,
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, configurationVariable.Id).AnyTimes().
+					Return([]client.ConfigurationVariable{configurationVariable}, nil)
+			})
+	})
+
 	t.Run("configuration variable not exists in the server", func(t *testing.T) {
 		runUnitTest(t,
 			resource.TestCase{
