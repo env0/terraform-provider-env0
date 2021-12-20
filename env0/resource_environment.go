@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"regexp"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"log"
-	"regexp"
 )
 
 func resourceEnvironment() *schema.Resource {
@@ -344,6 +345,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 	if projectId, ok := d.GetOk("project_id"); ok {
 		payload.ProjectId = projectId.(string)
+	}
+
+	if workspace, ok := d.GetOk("workspace"); ok {
+		payload.WorkspaceName = workspace.(string)
 	}
 
 	if d.HasChange("deploy_on_push") {

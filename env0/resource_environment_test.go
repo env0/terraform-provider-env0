@@ -3,12 +3,13 @@ package env0
 import (
 	"errors"
 	"fmt"
-	"github.com/env0/terraform-provider-env0/client"
-	"github.com/golang/mock/gomock"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitEnvironmentResource(t *testing.T) {
@@ -18,18 +19,20 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	templateId := "template-id"
 
 	environment := client.Environment{
-		Id:        "id0",
-		Name:      "my-environment",
-		ProjectId: "project-id",
+		Id:            "id0",
+		Name:          "my-environment",
+		ProjectId:     "project-id",
+		WorkspaceName: "workspace-name",
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
 	}
 
 	updatedEnvironment := client.Environment{
-		Id:        environment.Id,
-		Name:      "my-updated-environment-name",
-		ProjectId: "project-id",
+		Id:            environment.Id,
+		Name:          "my-updated-environment-name",
+		ProjectId:     "project-id",
+		WorkspaceName: environment.WorkspaceName,
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
@@ -40,6 +43,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"name":          environment.Name,
 			"project_id":    environment.ProjectId,
 			"template_id":   environment.LatestDeploymentLog.BlueprintId,
+			"workspace":     environment.WorkspaceName,
 			"force_destroy": true,
 		})
 	}
@@ -55,6 +59,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 					),
 				},
 				{
@@ -64,6 +69,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
 						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 					),
 				},
 			},
@@ -73,6 +79,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:                        environment.Name,
 				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
@@ -219,6 +226,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:                        environment.Name,
 				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
@@ -680,6 +688,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:                        environment.Name,
 				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
@@ -707,6 +716,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:                        environment.Name,
 				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
@@ -781,6 +791,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 				Name:                        environment.Name,
 				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 				DeployRequest: &client.DeployRequest{
