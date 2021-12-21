@@ -549,7 +549,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			ContinuousDeployment:       &falsey,
 			RequiresApproval:           &truthyFruity,
 			PullRequestPlanDeployments: &falsey,
-			//AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 		}
 
 		testCase := resource.TestCase{
