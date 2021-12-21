@@ -359,8 +359,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.WorkspaceName = workspace.(string)
 	}
 
+	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
-		continuousDeployment := d.Get("deploy_on_push").(bool)
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 
@@ -369,8 +369,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.RequiresApproval = &requiresApproval
 	}
 
+	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
-		pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
@@ -378,14 +378,9 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	if payload.AutoDeployByCustomGlob != "" {
-		if (payload.ContinuousDeployment == nil || *payload.ContinuousDeployment == false) &&
-			(payload.PullRequestPlanDeployments == nil || *payload.PullRequestPlanDeployments == false) {
-			return client.EnvironmentCreate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
-		}
-		if *payload.AutoDeployOnPathChangesOnly == false {
-			return client.EnvironmentCreate{}, diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
-		}
+	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
+	if err != nil {
+		return client.EnvironmentCreate{}, err
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
@@ -402,6 +397,19 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.DeployRequest = &deployPayload
 
 	return payload, nil
+}
+
+func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeployment bool, pullRequestPlanDeployments bool, autoDeployOnPathChangesOnly bool) diag.Diagnostics {
+	if autoDeployByCustomGlob != "" {
+		if (continuousDeployment == false) &&
+			(pullRequestPlanDeployments == false) {
+			return diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
+		}
+		if autoDeployOnPathChangesOnly == false {
+			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
+		}
+	}
+	return nil
 }
 
 func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Diagnostics) {
@@ -427,14 +435,9 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 
-	if payload.AutoDeployByCustomGlob != "" {
-		if continuousDeployment == false &&
-			pullRequestPlanDeployments == false {
-			return client.EnvironmentUpdate{}, diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
-		}
-		if *payload.AutoDeployOnPathChangesOnly == false {
-			return client.EnvironmentUpdate{}, diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
-		}
+	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
+	if err != nil {
+		return client.EnvironmentUpdate{}, err
 	}
 
 	return payload, nil
