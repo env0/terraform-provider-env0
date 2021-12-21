@@ -695,15 +695,24 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						"project_id":                       environment.ProjectId,
 						"template_id":                      environment.LatestDeploymentLog.BlueprintId,
 						"auto_deploy_on_path_changes_only": true,
-						"force_destroy":                    true,
 						"run_plan_on_pull_requests":        true,
 						"auto_deploy_by_custom_glob":       "/**",
+						"force_destroy":                    true,
 					}),
+					ExpectNonEmptyPlan: true,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+					),
 				},
 			},
 		}
 		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1)
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariables(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
 
