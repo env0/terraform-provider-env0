@@ -84,7 +84,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "redeploy on file filter pattern",
 				Optional:    true,
-				Default:     "",
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
