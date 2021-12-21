@@ -71,4 +71,11 @@ Optional:
 - **schema_type** (String) the type the variable must be of
 - **type** (String) variable type (allowed values are: terraform, environment)
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_environment.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_environment.by_name "Example Environment"
+```
