@@ -81,11 +81,9 @@ func resourceEnvironment() *schema.Resource {
 				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
-				Type:         schema.TypeString,
-				Description:  "redeploy on file filter pattern",
-				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
-				Optional:     true,
-				Default:      "",
+				Type:        schema.TypeString,
+				Description: "redeploy on file filter pattern",
+				Optional:    true,
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
@@ -220,7 +218,11 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := getCreatePayload(d, apiClient)
+	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
+
+	if createEnvPayloadErr != nil {
+		return diag.Errorf("%v", createEnvPayloadErr)
+	}
 
 	environment, err := apiClient.EnvironmentCreate(payload)
 	if err != nil {
@@ -285,7 +287,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -303,7 +305,12 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 }
 
 func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
-	payload := getUpdatePayload(d)
+	payload, updateEnvPayloadErr := getUpdatePayload(d)
+
+	if updateEnvPayloadErr != nil {
+		return diag.Errorf("%v", updateEnvPayloadErr)
+	}
+
 	_, err := apiClient.EnvironmentUpdate(d.Id(), payload)
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
@@ -337,7 +344,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) client.EnvironmentCreate {
+func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
 	payload := client.EnvironmentCreate{}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -351,8 +358,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.WorkspaceName = workspace.(string)
 	}
 
+	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
-		continuousDeployment := d.Get("deploy_on_push").(bool)
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 
@@ -361,8 +368,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.RequiresApproval = &requiresApproval
 	}
 
+	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
-		pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
@@ -370,6 +377,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
+	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
+	if err != nil {
+		return client.EnvironmentCreate{}, err
+	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
@@ -384,10 +395,23 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	payload.DeployRequest = &deployPayload
 
-	return payload
+	return payload, nil
 }
 
-func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
+func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeployment bool, pullRequestPlanDeployments bool, autoDeployOnPathChangesOnly bool) diag.Diagnostics {
+	if autoDeployByCustomGlob != "" {
+		if (continuousDeployment == false) &&
+			(pullRequestPlanDeployments == false) {
+			return diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
+		}
+		if autoDeployOnPathChangesOnly == false {
+			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
+		}
+	}
+	return nil
+}
+
+func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Diagnostics) {
 	payload := client.EnvironmentUpdate{}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -397,19 +421,25 @@ func getUpdatePayload(d *schema.ResourceData) client.EnvironmentUpdate {
 		requiresApproval := !d.Get("approve_plan_automatically").(bool)
 		payload.RequiresApproval = &requiresApproval
 	}
+
+	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
-		continuousDeployment := d.Get("deploy_on_push").(bool)
 		payload.ContinuousDeployment = &continuousDeployment
 	}
+	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
-		pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 
-	return payload
+	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
+	if err != nil {
+		return client.EnvironmentUpdate{}, err
+	}
+
+	return payload, nil
 }
 
 func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterface, isRedeploy bool) client.DeployRequest {
