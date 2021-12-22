@@ -10,6 +10,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/rodaine/hclencoder"
 )
 
 func resourceConfigurationVariable() *schema.Resource {
@@ -33,10 +34,25 @@ func resourceConfigurationVariable() *schema.Resource {
 				Optional:    true,
 			},
 			"value": {
-				Type:        schema.TypeString,
-				Description: "value for the configuration variable",
+				Type:          schema.TypeString,
+				Description:   "value for the configuration variable",
+				ConflictsWith: []string{"hcl_value"},
+				Optional:      true,
+			},
+			"hcl_value": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					//Computed: false,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+						//Computed: false,
+					},
+				},
+				Description: "HCL value for the configuration variable",
 				Required:    true,
 				Sensitive:   true,
+				//Computed: false,
 			},
 			"is_sensitive": {
 				Type:        schema.TypeBool,
@@ -111,7 +127,14 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
+
 	value := d.Get("value").(string)
+
+	if hclValue, ok := d.GetOk("hcl_value"); ok {
+		encode, _ := hclencoder.Encode(hclValue)
+		hclValue = strings.ReplaceAll(strings.ReplaceAll(string(encode), " ", ""), "\n", "")
+	}
+
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
 	var type_ client.ConfigurationVariableType
@@ -128,6 +151,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		return getEnumErr
 	}
 
+	//TODO: add hcl_value
 	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
@@ -170,7 +194,10 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 		if variable.Id == id {
 			d.Set("name", variable.Name)
 			d.Set("description", variable.Description)
+
 			d.Set("value", variable.Value)
+			//d.Set("hcl_value", variable.Value)
+
 			d.Set("is_sensitive", variable.IsSensitive)
 			if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
 				d.Set("type", "terraform")
