@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
+	"strconv"
 	"testing"
 )
 
@@ -49,6 +50,60 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("Create HCL variable", func(t *testing.T) {
+		mapVar := `{
+A = "A"
+B = "B"
+C = "C"
+}
+`
+		hcl := true
+
+		stepConfig := fmt.Sprintf(`
+	variable "map" {
+		description = "a mapped variable"
+  		type        = map(string)
+  		default = %s
+	}
+
+	resource "%s" "test" {
+		name = "%s"
+		description = "%s"
+		hcl = %v 
+		value = %s
+	}`, mapVar, resourceType, configVar.Name, configVar.Description, hcl, `<<EOT
+{
+%{ for key, value in var.map ~}
+${key} = "${value}"
+%{ endfor ~}
+}
+EOT`)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
+						resource.TestCheckResourceAttr(accessor, "hcl", strconv.FormatBool(hcl)),
+						resource.TestCheckResourceAttr(accessor, "value", mapVar),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			variable := client.ConfigurationVariable{Id: configVar.Id, Name: configVar.Name, Description: configVar.Description, Value: mapVar, Format: client.Hcl}
+			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, gomock.Any(), false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
+				nil, configVar.Description).Times(1).Return(variable, nil)
+			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{variable}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
 	t.Run("Create Enum", func(t *testing.T) {
 		schema := client.ConfigurationVariableSchema{
 			Type: "string",

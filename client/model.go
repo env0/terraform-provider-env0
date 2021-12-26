@@ -114,8 +114,16 @@ type ConfigurationVariable struct {
 	Description    string                       `json:"description,omitempty"`
 	Type           *ConfigurationVariableType   `json:"type,omitempty"`
 	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
+	Format         Format                       `json:"format,omitempty"`
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
 }
+
+type Format string
+
+const (
+	Text Format = "text"
+	Hcl  Format = "hcl"
+)
 
 type Scope string
 

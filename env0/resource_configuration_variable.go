@@ -78,6 +78,12 @@ func resourceConfigurationVariable() *schema.Resource {
 					Description: "name to give the configuration variable",
 				},
 			},
+			"hcl": {
+				Type:        schema.TypeBool,
+				Description: "variable's format type ( text or hcl )",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -107,13 +113,18 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
+
+	/*format := client.Text
+	hcl, ok := d.GetOk("hcl")
+	if ok && hcl.(bool){
+		format = client.Hcl
+	}*/
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -128,6 +139,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		return getEnumErr
 	}
 
+	//TODO: pass format to the client
 	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
