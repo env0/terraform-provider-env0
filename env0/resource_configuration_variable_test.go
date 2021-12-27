@@ -62,11 +62,10 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 	t.Run("Create Enum", func(t *testing.T) {
 		schema := client.ConfigurationVariableSchema{
-			Type:   "string",
-			Enum:   []string{"Variable", "a"},
-			Format: client.Hcl,
+			Type: "string",
+			Enum: []string{"Variable", "a"},
+			//Format: client.Hcl,
 		}
-		//TODO: move the hcl interpolation example
 		configVar := client.ConfigurationVariable{
 			Id:          "id0",
 			Name:        "name0",
@@ -80,7 +79,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		description = "%s"
 		value= "%s"
 		enum = ["%s","%s"]
-		hcl = true
 	}`, resourceType, configVar.Name, configVar.Description, configVar.Value, configVar.Schema.Enum[0], configVar.Schema.Enum[1])
 
 		createTestCase := resource.TestCase{
@@ -94,7 +92,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
 						resource.TestCheckResourceAttr(accessor, "enum.0", configVar.Schema.Enum[0]),
 						resource.TestCheckResourceAttr(accessor, "enum.1", configVar.Schema.Enum[1]),
-						resource.TestCheckResourceAttr(accessor, "hcl", "true"),
+						resource.TestCheckResourceAttr(accessor, "hcl", "false"),
 					),
 				},
 			},
@@ -111,12 +109,85 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 					Type:        client.ConfigurationVariableTypeEnvironment,
 					EnumValues:  configVar.Schema.Enum,
 					Description: configVar.Description,
+					Format:      client.Text,
+				}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Create HCL Variable", func(t *testing.T) {
+
+		expectedVariable := `{
+A = "A"
+B = "B"
+C = "C"
+}
+`
+
+		schema := client.ConfigurationVariableSchema{
+			Type:   "string",
+			Format: client.Hcl,
+		}
+		configVar := client.ConfigurationVariable{
+			Id:          "id0",
+			Name:        "name0",
+			Description: "desc0",
+			Value:       expectedVariable,
+			Schema:      &schema,
+		}
+		terraformDirective := `<<EOT
+{
+%{ for key, value in var.map ~}
+${key} = "${value}"
+%{ endfor ~}
+}
+EOT`
+		stepConfig := fmt.Sprintf(`
+				variable "map" {
+						description = "a mapped variable"
+						type        = map(string)
+						default = %s
+					}
+				
+				
+				resource "%s" "test" {
+						name = "%s"
+						description = "%s"
+						value = %s
+						hcl = true
+	}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "hcl", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(
+				client.ConfigurationVariableCreateParams{
+					Name:        configVar.Name,
+					Value:       expectedVariable,
+					IsSensitive: false,
+					Scope:       client.ScopeGlobal,
+					ScopeId:     "",
+					Type:        client.ConfigurationVariableTypeEnvironment,
+					EnumValues:  configVar.Schema.Enum,
+					Description: configVar.Description,
 					Format:      client.Hcl,
 				}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
 	t.Run("Create Enum with wrong value", func(t *testing.T) {
 		stepConfig := fmt.Sprintf(`
 	resource "%s" "test" {
