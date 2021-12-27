@@ -48,7 +48,6 @@ func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableC
 		"scope":          params.Scope,
 		"type":           params.Type,
 		"organizationId": organizationId,
-		"format":         params.Format,
 	}
 	if params.Scope != ScopeGlobal {
 		request["scopeId"] = params.ScopeId
@@ -98,18 +97,12 @@ func (self *ApiClient) ConfigurationVariableUpdate(params ConfigurationVariableU
 		"scope":          basicParams.Scope,
 		"type":           basicParams.Type,
 		"organizationId": organizationId,
-		"format":         basicParams.Format,
 	}
 	if basicParams.Scope != ScopeGlobal {
 		request["scopeId"] = basicParams.ScopeId
 	}
-	if basicParams.EnumValues != nil {
-		request["schema"] = map[string]interface{}{
-			"type":   "string",
-			"enum":   basicParams.EnumValues,
-			"format": basicParams.Format,
-		}
-	}
+
+	request["schema"] = getSchema(params.BasicParams)
 
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("/configuration", requestInArray, &result)

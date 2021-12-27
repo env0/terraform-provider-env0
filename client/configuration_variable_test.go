@@ -11,6 +11,10 @@ import (
 var _ = Describe("Configuration Variable", func() {
 	isSensitive := true
 	varType := ConfigurationVariableTypeEnvironment
+	schema := ConfigurationVariableSchema{
+		Type:   "string",
+		Format: Hcl,
+	}
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
@@ -22,7 +26,7 @@ var _ = Describe("Configuration Variable", func() {
 		Type:           &varType,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
-		Format:         Text,
+		Schema:         &schema,
 	}
 
 	Describe("ConfigurationVariableCreate", func() {
@@ -40,7 +44,10 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
-				"format":         mockConfigurationVariable.Format,
+				"schema": map[string]interface{}{
+					"type":   mockConfigurationVariable.Schema.Type,
+					"format": mockConfigurationVariable.Schema.Format,
+				},
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -59,7 +66,7 @@ var _ = Describe("Configuration Variable", func() {
 					ScopeId:     mockConfigurationVariable.ScopeId,
 					Type:        *mockConfigurationVariable.Type,
 					EnumValues:  nil,
-					Format:      mockConfigurationVariable.Format,
+					Format:      mockConfigurationVariable.Schema.Format,
 				},
 			)
 		})
@@ -108,7 +115,10 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
-				"format":         Text,
+				"schema": map[string]interface{}{
+					"type":   mockConfigurationVariable.Schema.Type,
+					"format": Text,
+				},
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -129,7 +139,6 @@ var _ = Describe("Configuration Variable", func() {
 						ScopeId:     mockConfigurationVariable.ScopeId,
 						Type:        *mockConfigurationVariable.Type,
 						EnumValues:  nil,
-						Format:      mockConfigurationVariable.Format,
 					},
 				},
 			)
