@@ -80,9 +80,8 @@ func resourceConfigurationVariable() *schema.Resource {
 			},
 			"hcl": {
 				Type:        schema.TypeBool,
-				Description: "variable's format type ( text or hcl )",
+				Description: "set to true if the value is in HCL format",
 				Optional:    true,
-				Default:     false,
 			},
 		},
 	}
@@ -120,11 +119,12 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
 
-	/*format := client.Text
+	format := client.Text
 	hcl, ok := d.GetOk("hcl")
-	if ok && hcl.(bool){
+	if ok && hcl.(bool) {
 		format = client.Hcl
-	}*/
+		println(format) //TODO: remove that
+	}
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":

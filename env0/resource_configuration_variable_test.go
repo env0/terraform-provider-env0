@@ -52,7 +52,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 	})
 
 	t.Run("Create HCL variable", func(t *testing.T) {
-		mapVar := `{
+		expectedVar := `{
 A = "A"
 B = "B"
 C = "C"
@@ -72,7 +72,7 @@ C = "C"
 		description = "%s"
 		hcl = %v 
 		value = %s
-	}`, mapVar, resourceType, configVar.Name, configVar.Description, hcl, `<<EOT
+	}`, expectedVar, resourceType, configVar.Name, configVar.Description, hcl, `<<EOT
 {
 %{ for key, value in var.map ~}
 ${key} = "${value}"
@@ -89,14 +89,14 @@ EOT`)
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "hcl", strconv.FormatBool(hcl)),
-						resource.TestCheckResourceAttr(accessor, "value", mapVar),
+						resource.TestCheckResourceAttr(accessor, "value", expectedVar),
 					),
 				},
 			},
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			variable := client.ConfigurationVariable{Id: configVar.Id, Name: configVar.Name, Description: configVar.Description, Value: mapVar, Format: client.Hcl}
+			variable := client.ConfigurationVariable{Id: configVar.Id, Name: configVar.Name, Description: configVar.Description, Value: expectedVar, Format: client.Hcl}
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, gomock.Any(), false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
 				nil, configVar.Description).Times(1).Return(variable, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{variable}, nil)
