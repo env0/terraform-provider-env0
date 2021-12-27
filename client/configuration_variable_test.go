@@ -48,14 +48,16 @@ var _ = Describe("Configuration Variable", func() {
 				})
 
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
-				mockConfigurationVariable.Name,
-				mockConfigurationVariable.Value,
-				*mockConfigurationVariable.IsSensitive,
-				mockConfigurationVariable.Scope,
-				mockConfigurationVariable.ScopeId,
-				*mockConfigurationVariable.Type,
-				nil,
-				mockConfigurationVariable.Description,
+				ConfigurationVariableCreateParams{
+					Name:        mockConfigurationVariable.Name,
+					Value:       mockConfigurationVariable.Value,
+					Description: mockConfigurationVariable.Description,
+					IsSensitive: *mockConfigurationVariable.IsSensitive,
+					Scope:       mockConfigurationVariable.Scope,
+					ScopeId:     mockConfigurationVariable.ScopeId,
+					Type:        *mockConfigurationVariable.Type,
+					EnumValues:  nil,
+				},
 			)
 		})
 
@@ -112,15 +114,18 @@ var _ = Describe("Configuration Variable", func() {
 				})
 
 			updatedConfigurationVariable, _ = apiClient.ConfigurationVariableUpdate(
-				mockConfigurationVariable.Id,
-				newName,
-				newValue,
-				*mockConfigurationVariable.IsSensitive,
-				mockConfigurationVariable.Scope,
-				mockConfigurationVariable.ScopeId,
-				*mockConfigurationVariable.Type,
-				nil,
-				newDescription,
+				ConfigurationVariableUpdateParams{
+					Id: mockConfigurationVariable.Id,
+					BasicParams: ConfigurationVariableCreateParams{
+						Name:        newName,
+						Value:       newValue,
+						Description: newDescription,
+						IsSensitive: *mockConfigurationVariable.IsSensitive,
+						Scope:       mockConfigurationVariable.Scope,
+						ScopeId:     mockConfigurationVariable.ScopeId,
+						Type:        *mockConfigurationVariable.Type,
+						EnumValues:  nil},
+				},
 			)
 		})
 

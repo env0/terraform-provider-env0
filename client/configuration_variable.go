@@ -31,8 +31,8 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string, format Format) (ConfigurationVariable, error) {
-	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
+func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
+	if params.Scope == ScopeDeploymentLog || params.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
 	organizationId, err := self.organizationId()
@@ -41,22 +41,22 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 	}
 	var result []ConfigurationVariable
 	request := map[string]interface{}{
-		"name":           name,
-		"description":    description,
-		"value":          value,
-		"isSensitive":    isSensitive,
-		"scope":          scope,
-		"type":           type_,
+		"name":           params.Name,
+		"description":    params.Description,
+		"value":          params.Value,
+		"isSensitive":    params.IsSensitive,
+		"scope":          params.Scope,
+		"type":           params.Type,
 		"organizationId": organizationId,
-		"format":         format,
+		"format":         params.Format,
 	}
-	if scope != ScopeGlobal {
-		request["scopeId"] = scopeId
+	if params.Scope != ScopeGlobal {
+		request["scopeId"] = params.ScopeId
 	}
-	if enumValues != nil {
+	if params.EnumValues != nil {
 		request["schema"] = map[string]interface{}{
 			"type": "string",
-			"enum": enumValues,
+			"enum": params.EnumValues,
 		}
 	}
 
@@ -72,8 +72,9 @@ func (self *ApiClient) ConfigurationVariableDelete(id string) error {
 	return self.http.Delete("configuration/" + id)
 }
 
-func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string, format Format) (ConfigurationVariable, error) {
-	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
+func (self *ApiClient) ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
+	basicParams := params.BasicParams
+	if basicParams.Scope == ScopeDeploymentLog || basicParams.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
 	organizationId, err := self.organizationId()
@@ -82,23 +83,23 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 	}
 	var result []ConfigurationVariable
 	request := map[string]interface{}{
-		"id":             id,
-		"name":           name,
-		"description":    description,
-		"value":          value,
-		"isSensitive":    isSensitive,
-		"scope":          scope,
-		"type":           type_,
+		"id":             params.Id,
+		"name":           basicParams.Name,
+		"description":    basicParams.Description,
+		"value":          basicParams.Value,
+		"isSensitive":    basicParams.IsSensitive,
+		"scope":          basicParams.Scope,
+		"type":           basicParams.Type,
 		"organizationId": organizationId,
-		"format":         format,
+		"format":         basicParams.Format,
 	}
-	if scope != ScopeGlobal {
-		request["scopeId"] = scopeId
+	if basicParams.Scope != ScopeGlobal {
+		request["scopeId"] = basicParams.ScopeId
 	}
-	if enumValues != nil {
+	if basicParams.EnumValues != nil {
 		request["schema"] = map[string]interface{}{
 			"type": "string",
-			"enum": enumValues,
+			"enum": basicParams.EnumValues,
 		}
 	}
 

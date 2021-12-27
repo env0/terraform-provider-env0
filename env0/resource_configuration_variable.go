@@ -138,8 +138,18 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	//TODO: refactor
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description, format)
+
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
+		Name:        name,
+		Value:       value,
+		IsSensitive: isSensitive,
+		Scope:       scope,
+		ScopeId:     scopeId,
+		Type:        type_,
+		EnumValues:  actualEnumValues,
+		Description: description,
+		Format:      format,
+	})
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -232,7 +242,17 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description, format)
+	_, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, BasicParams: client.ConfigurationVariableCreateParams{
+		Name:        name,
+		Value:       value,
+		IsSensitive: isSensitive,
+		Scope:       scope,
+		ScopeId:     scopeId,
+		Type:        type_,
+		EnumValues:  actualEnumValues,
+		Description: description,
+		Format:      format,
+	}})
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}

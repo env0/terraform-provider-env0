@@ -118,6 +118,23 @@ type ConfigurationVariable struct {
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
 }
 
+type ConfigurationVariableCreateParams struct {
+	Name        string
+	Value       string
+	IsSensitive bool
+	Scope       Scope
+	ScopeId     string
+	Type        ConfigurationVariableType
+	EnumValues  []string
+	Description string
+	Format      Format
+}
+
+type ConfigurationVariableUpdateParams struct {
+	BasicParams ConfigurationVariableCreateParams
+	Id          string
+}
+
 type Format string
 
 const (
