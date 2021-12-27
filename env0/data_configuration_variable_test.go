@@ -27,7 +27,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		IsSensitive:    &isSensitive,
 		Scope:          client.ScopeEnvironment,
 		Type:           &variableType,
-		Schema:         &client.ConfigurationVariableSchema{Type: "string"},
+		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.Hcl},
 	}
 
 	checkResources := resource.ComposeAggregateTestCheckFunc(
@@ -38,6 +38,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
 		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
+		resource.TestCheckResourceAttr(accessor, "hcl", strconv.FormatBool(configurationVariable.Schema.Format == client.Hcl)),
 	)
 
 	t.Run("ScopeGlobal", func(t *testing.T) {

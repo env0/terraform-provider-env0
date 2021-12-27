@@ -64,7 +64,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		schema := client.ConfigurationVariableSchema{
 			Type: "string",
 			Enum: []string{"Variable", "a"},
-			//Format: client.Hcl,
 		}
 		configVar := client.ConfigurationVariable{
 			Id:          "id0",
