@@ -98,8 +98,9 @@ type EnvironmentDeployResponse struct {
 }
 
 type ConfigurationVariableSchema struct {
-	Type string   `json:"type"`
-	Enum []string `json:"enum"`
+	Type   string   `json:"type"`
+	Enum   []string `json:"enum"`
+	Format Format   `json:"format,omitempty"`
 }
 
 type ConfigurationVariable struct {
@@ -138,8 +139,8 @@ type ConfigurationVariableUpdateParams struct {
 type Format string
 
 const (
-	Text Format = "text"
-	Hcl  Format = "hcl"
+	Text Format = ""
+	Hcl  Format = "HCL"
 )
 
 type Scope string

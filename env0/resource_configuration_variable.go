@@ -198,13 +198,16 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			} else {
 				d.Set("type", "environment")
 			}
-			if variable.Schema != nil && len(variable.Schema.Enum) > 0 {
-				d.Set("enum", variable.Schema.Enum)
+			if variable.Schema != nil {
+				if len(variable.Schema.Enum) > 0 {
+					d.Set("enum", variable.Schema.Enum)
+				}
+
+				if variable.Schema.Format == client.Hcl {
+					d.Set("hcl", true)
+				}
 			}
 
-			if variable.Format == client.Hcl {
-				d.Set("hcl", true)
-			}
 			return nil
 		}
 	}
