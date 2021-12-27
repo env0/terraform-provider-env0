@@ -22,6 +22,7 @@ var _ = Describe("Configuration Variable", func() {
 		Type:           &varType,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
+		Format:         Text,
 	}
 
 	Describe("ConfigurationVariableCreate", func() {
@@ -39,6 +40,7 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
+				"format":         mockConfigurationVariable.Format,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -57,6 +59,7 @@ var _ = Describe("Configuration Variable", func() {
 					ScopeId:     mockConfigurationVariable.ScopeId,
 					Type:        *mockConfigurationVariable.Type,
 					EnumValues:  nil,
+					Format:      mockConfigurationVariable.Format,
 				},
 			)
 		})
@@ -105,6 +108,7 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
+				"format":         Text,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -124,7 +128,9 @@ var _ = Describe("Configuration Variable", func() {
 						Scope:       mockConfigurationVariable.Scope,
 						ScopeId:     mockConfigurationVariable.ScopeId,
 						Type:        *mockConfigurationVariable.Type,
-						EnumValues:  nil},
+						EnumValues:  nil,
+						Format:      mockConfigurationVariable.Format,
+					},
 				},
 			)
 		})
