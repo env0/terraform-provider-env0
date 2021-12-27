@@ -131,8 +131,8 @@ type ConfigurationVariableCreateParams struct {
 }
 
 type ConfigurationVariableUpdateParams struct {
-	BasicParams ConfigurationVariableCreateParams
-	Id          string
+	CommonParams ConfigurationVariableCreateParams
+	Id           string
 }
 
 type Format string

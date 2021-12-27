@@ -245,7 +245,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, BasicParams: client.ConfigurationVariableCreateParams{
+	_, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, CommonParams: client.ConfigurationVariableCreateParams{
 		Name:        name,
 		Value:       value,
 		IsSensitive: isSensitive,

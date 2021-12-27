@@ -65,11 +65,13 @@ func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableC
 
 func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} {
 	schema := map[string]interface{}{
-		"type":   "string",
-		"format": params.Format,
+		"type": "string",
 	}
 	if params.EnumValues != nil {
 		schema["enum"] = params.EnumValues
+	}
+	if params.Format != Text {
+		schema["format"] = params.Format
 	}
 	return schema
 }
@@ -78,9 +80,9 @@ func (self *ApiClient) ConfigurationVariableDelete(id string) error {
 	return self.http.Delete("configuration/" + id)
 }
 
-func (self *ApiClient) ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
-	basicParams := params.BasicParams
-	if basicParams.Scope == ScopeDeploymentLog || basicParams.Scope == ScopeDeployment {
+func (self *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
+	commonParams := updateParams.CommonParams
+	if commonParams.Scope == ScopeDeploymentLog || commonParams.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
 	organizationId, err := self.organizationId()
@@ -89,20 +91,20 @@ func (self *ApiClient) ConfigurationVariableUpdate(params ConfigurationVariableU
 	}
 	var result []ConfigurationVariable
 	request := map[string]interface{}{
-		"id":             params.Id,
-		"name":           basicParams.Name,
-		"description":    basicParams.Description,
-		"value":          basicParams.Value,
-		"isSensitive":    basicParams.IsSensitive,
-		"scope":          basicParams.Scope,
-		"type":           basicParams.Type,
+		"id":             updateParams.Id,
+		"name":           commonParams.Name,
+		"description":    commonParams.Description,
+		"value":          commonParams.Value,
+		"isSensitive":    commonParams.IsSensitive,
+		"scope":          commonParams.Scope,
+		"type":           commonParams.Type,
 		"organizationId": organizationId,
 	}
-	if basicParams.Scope != ScopeGlobal {
-		request["scopeId"] = basicParams.ScopeId
+	if commonParams.Scope != ScopeGlobal {
+		request["scopeId"] = commonParams.ScopeId
 	}
 
-	request["schema"] = getSchema(params.BasicParams)
+	request["schema"] = getSchema(updateParams.CommonParams)
 
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("/configuration", requestInArray, &result)

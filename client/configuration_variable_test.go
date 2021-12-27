@@ -116,8 +116,7 @@ var _ = Describe("Configuration Variable", func() {
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
 				"schema": map[string]interface{}{
-					"type":   mockConfigurationVariable.Schema.Type,
-					"format": Text,
+					"type": mockConfigurationVariable.Schema.Type,
 				},
 			}}
 
@@ -130,7 +129,7 @@ var _ = Describe("Configuration Variable", func() {
 			updatedConfigurationVariable, _ = apiClient.ConfigurationVariableUpdate(
 				ConfigurationVariableUpdateParams{
 					Id: mockConfigurationVariable.Id,
-					BasicParams: ConfigurationVariableCreateParams{
+					CommonParams: ConfigurationVariableCreateParams{
 						Name:        newName,
 						Value:       newValue,
 						Description: newDescription,

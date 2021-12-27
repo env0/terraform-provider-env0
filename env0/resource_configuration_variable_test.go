@@ -330,7 +330,7 @@ EOT`
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2),
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{newConfigVar}, nil),
 			)
-			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{BasicParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
