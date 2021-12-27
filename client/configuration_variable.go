@@ -31,7 +31,7 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error) {
+func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string, format Format) (ConfigurationVariable, error) {
 	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
@@ -48,6 +48,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 		"scope":          scope,
 		"type":           type_,
 		"organizationId": organizationId,
+		"format":         format,
 	}
 	if scope != ScopeGlobal {
 		request["scopeId"] = scopeId
@@ -58,6 +59,7 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 			"enum": enumValues,
 		}
 	}
+
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("configuration", requestInArray, &result)
 	if err != nil {
@@ -70,7 +72,7 @@ func (self *ApiClient) ConfigurationVariableDelete(id string) error {
 	return self.http.Delete("configuration/" + id)
 }
 
-func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error) {
+func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string, format Format) (ConfigurationVariable, error) {
 	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
@@ -88,6 +90,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 		"scope":          scope,
 		"type":           type_,
 		"organizationId": organizationId,
+		"format":         format,
 	}
 	if scope != ScopeGlobal {
 		request["scopeId"] = scopeId
@@ -98,6 +101,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 			"enum": enumValues,
 		}
 	}
+
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("/configuration", requestInArray, &result)
 	if err != nil {

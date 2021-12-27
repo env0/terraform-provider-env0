@@ -81,6 +81,7 @@ func resourceConfigurationVariable() *schema.Resource {
 			"hcl": {
 				Type:        schema.TypeBool,
 				Description: "set to true if the value is in HCL format",
+				Default:     false,
 				Optional:    true,
 			},
 		},
@@ -123,7 +124,6 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	hcl, ok := d.GetOk("hcl")
 	if ok && hcl.(bool) {
 		format = client.Hcl
-		println(format) //TODO: remove that
 	}
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
@@ -138,9 +138,8 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-
-	//TODO: pass format to the client
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
+	//TODO: refactor
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description, format)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -192,6 +191,10 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			if variable.Schema != nil && len(variable.Schema.Enum) > 0 {
 				d.Set("enum", variable.Schema.Enum)
 			}
+
+			if variable.Format == client.Hcl {
+				d.Set("hcl", true)
+			}
 			return nil
 		}
 	}
@@ -208,6 +211,14 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
+	isHcl, ok := d.GetOk("hcl")
+	format := client.Text
+
+	if ok {
+		if isHcl.(bool) {
+			format = client.Hcl
+		}
+	}
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -221,7 +232,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
+	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description, format)
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}

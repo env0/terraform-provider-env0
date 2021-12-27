@@ -45,7 +45,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+				nil, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -98,7 +98,7 @@ EOT`)
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			variable := client.ConfigurationVariable{Id: configVar.Id, Name: configVar.Name, Description: configVar.Description, Value: expectedVar, Format: client.Hcl}
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, gomock.Any(), false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(variable, nil)
+				nil, configVar.Description, client.Hcl).Times(1).Return(variable, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{variable}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -142,7 +142,7 @@ EOT`)
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				configVar.Schema.Enum, configVar.Description).Times(1).Return(configVar, nil)
+				configVar.Schema.Enum, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -198,7 +198,7 @@ EOT`)
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+				nil, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, errors.New("error"))
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -216,7 +216,7 @@ EOT`)
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+				nil, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -234,7 +234,7 @@ EOT`)
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
+				nil, configVar.Description, client.Text).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 		})
 	})
 
@@ -266,12 +266,14 @@ EOT`)
 						"name":        newConfigVar.Name,
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
+						"hcl":         true,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
 						resource.TestCheckResourceAttr(accessor, "name", newConfigVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", newConfigVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", newConfigVar.Value),
+						resource.TestCheckResourceAttr(accessor, "hcl", "true"),
 					),
 				},
 			},
@@ -279,13 +281,13 @@ EOT`)
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+				nil, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			gomock.InOrder(
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2),
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{newConfigVar}, nil),
 			)
 			mock.EXPECT().ConfigurationVariableUpdate(newConfigVar.Id, newConfigVar.Name, newConfigVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, newConfigVar.Description).Times(1).Return(configVar, nil)
+				nil, newConfigVar.Description, client.Hcl).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -328,7 +330,7 @@ EOT`)
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+				nil, configVar.Description, client.Text).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
