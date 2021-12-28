@@ -92,6 +92,11 @@ func dataConfigurationVariable() *schema.Resource {
 					Description: "the configuration variable option",
 				},
 			},
+			"format": {
+				Type:        schema.TypeString,
+				Description: "specifies the format of the configuration value (for example: HCL)",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -127,6 +132,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
 	d.Set("enum", variable.Schema.Enum)
+	if variable.Schema.Format != client.Text {
+		d.Set("format", string(variable.Schema.Format))
+	}
 	if *variable.Type == client.ConfigurationVariableTypeEnvironment {
 		d.Set("type", "environment")
 	} else if *variable.Type == client.ConfigurationVariableTypeTerraform {

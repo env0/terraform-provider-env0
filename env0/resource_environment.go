@@ -162,6 +162,19 @@ func resourceEnvironment() *schema.Resource {
 								Description: "name to give the configuration variable",
 							},
 						},
+						"schema_format": &schema.Schema{
+							Type:        schema.TypeString,
+							Description: "the variable format:",
+							Default:     "",
+							Optional:    true,
+							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+								value := val.(string)
+								if value != string(client.HCL) && value != string(client.Text) {
+									errs = append(errs, fmt.Errorf("%q can be either \"HCL\" or empty, got: %q", key, value))
+								}
+								return
+							},
+						},
 					},
 				},
 			},
@@ -210,6 +223,7 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 		if configurationVariable.Schema != nil {
 			variable["schema_type"] = configurationVariable.Schema.Type
 			variable["schema_enum"] = configurationVariable.Schema.Enum
+			variable["schema_format"] = configurationVariable.Schema.Format
 		}
 		d.Set(fmt.Sprintf(`configuration.%d`, index), variable)
 	}
@@ -562,19 +576,23 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.Description = variable["description"].(string)
 	}
 
+	configurationSchema := client.ConfigurationVariableSchema{
+		Type:   "string",
+		Format: client.Format(variable["schema_format"].(string)),
+		Enum:   nil,
+	}
 	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
+
 		enumOfAny := variable["schema_enum"].([]interface{})
 		enum := make([]string, len(enumOfAny))
 		for i := range enum {
 			enum[i] = enumOfAny[i].(string)
 		}
-		schema := client.ConfigurationVariableSchema{
-			Type: variable["schema_type"].(string),
-			Enum: enum,
-		}
-		configurationVariable.Schema = &schema
+		configurationSchema.Type = variable["schema_type"].(string)
+		configurationSchema.Enum = enum
 	}
 
+	configurationVariable.Schema = &configurationSchema
 	return configurationVariable
 }
 

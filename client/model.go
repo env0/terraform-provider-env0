@@ -98,8 +98,9 @@ type EnvironmentDeployResponse struct {
 }
 
 type ConfigurationVariableSchema struct {
-	Type string   `json:"type"`
-	Enum []string `json:"enum"`
+	Type   string   `json:"type"`
+	Enum   []string `json:"enum"`
+	Format Format   `json:"format,omitempty"`
 }
 
 type ConfigurationVariable struct {
@@ -116,6 +117,30 @@ type ConfigurationVariable struct {
 	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
 }
+
+type ConfigurationVariableCreateParams struct {
+	Name        string
+	Value       string
+	IsSensitive bool
+	Scope       Scope
+	ScopeId     string
+	Type        ConfigurationVariableType
+	EnumValues  []string
+	Description string
+	Format      Format
+}
+
+type ConfigurationVariableUpdateParams struct {
+	CommonParams ConfigurationVariableCreateParams
+	Id           string
+}
+
+type Format string
+
+const (
+	Text Format = ""
+	HCL  Format = "HCL"
+)
 
 type Scope string
 

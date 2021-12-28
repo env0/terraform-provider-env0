@@ -13,8 +13,8 @@ type ApiClient struct {
 
 type ApiClientInterface interface {
 	ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error)
-	ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error)
-	ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error)
+	ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error)
+	ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
 	organizationId() (string, error)

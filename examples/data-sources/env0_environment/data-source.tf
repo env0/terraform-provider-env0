@@ -1,5 +1,5 @@
 data "env0_environment" "by_name" {
-  name   =  "best-env"
+  name = "best-env"
 }
 
 output "environment_project_id" {
@@ -7,7 +7,7 @@ output "environment_project_id" {
 }
 
 data "env0_environment" "by_id" {
-  id   =  "some_id"
+  id = "some_id"
 }
 
 output "environment_name" {

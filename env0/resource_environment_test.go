@@ -125,8 +125,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		varType := client.ConfigurationVariableTypeEnvironment
 		varSchema := client.ConfigurationVariableSchema{
-			Type: "string",
-			Enum: []string{"a", "b"},
+			Type:   "string",
+			Enum:   []string{"a", "b"},
+			Format: client.HCL,
 		}
 		configurationVariables := client.ConfigurationVariable{
 			Value:  varSchema.Enum[0],
@@ -135,21 +136,31 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Schema: &varSchema,
 		}
 		formatVariables := func(variables []client.ConfigurationVariable) string {
-			foramt := ""
+			format := ""
 			for _, variable := range variables {
 				schemaFormat := ""
 				if variable.Schema != nil {
-					schemaFormat = fmt.Sprintf(`
+					if variable.Schema.Enum != nil {
+						schemaFormat = fmt.Sprintf(`
 									schema_type = "%s"
 									schema_enum = ["%s"]
+									schema_format = "%s"
 									`, variable.Schema.Type,
-						strings.Join(variable.Schema.Enum, "\",\""))
+							strings.Join(variable.Schema.Enum, "\",\""), variable.Schema.Format)
+					} else {
+						schemaFormat = fmt.Sprintf(`
+									schema_type = "%s"
+									schema_format = "%s"
+									`, variable.Schema.Type,
+							variable.Schema.Format)
+					}
+
 				}
 				varType := "environment"
 				if *variable.Type == client.ConfigurationVariableTypeTerraform {
 					varType = "terraform"
 				}
-				foramt += fmt.Sprintf(`configuration{
+				format += fmt.Sprintf(`configuration{
 									name = "%s"
 									value = "%s"
 									type = "%s"
@@ -160,7 +171,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					variable.Value, varType, schemaFormat)
 			}
 
-			return foramt
+			return format
 		}
 		formatResourceWithConfiguration := func(env client.Environment, variables []client.ConfigurationVariable) string {
 			return fmt.Sprintf(`
@@ -184,6 +195,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Value: "configurationVariables.Value",
 			Name:  configurationVariables.Name,
 			Type:  &newVarType,
+			Schema: &client.ConfigurationVariableSchema{
+				Type:   "string",
+				Format: client.Text,
+			},
 		}}
 		updatedEnvironmentResource := formatResourceWithConfiguration(updatedEnvironment, redeployConfigurationVariables)
 		testCase := resource.TestCase{
@@ -199,6 +214,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Schema.Enum[0]),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(configurationVariables.Schema.Format)),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
 					),
@@ -213,6 +229,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 						resource.TestCheckResourceAttr(accessor, "configuration.0.value", "configurationVariables.Value"),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(client.Text)),
 					),
 				},
 			},
@@ -245,11 +262,14 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			)
 			redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 			redeployConfigurationVariables[0].IsSensitive = &isSensitive
-			mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
+
+			deployRequest := client.DeployRequest{
 				BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
 				BlueprintRevision:    updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
 				ConfigurationChanges: &client.ConfigurationChanges{redeployConfigurationVariables[0], configurationVariables},
-			}).Times(1).Return(client.EnvironmentDeployResponse{
+			}
+
+			mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 				Id: environment.Id,
 			}, nil)
 
@@ -286,8 +306,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		varType := client.ConfigurationVariableTypeEnvironment
 		varSchema := client.ConfigurationVariableSchema{
-			Type: "string",
-			Enum: []string{"a", "b"},
+			Type:   "string",
+			Enum:   []string{"a", "b"},
+			Format: client.Text,
 		}
 		configurationVariables := client.ConfigurationVariable{
 			Value:  "my env var value",

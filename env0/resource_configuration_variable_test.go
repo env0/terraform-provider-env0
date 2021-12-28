@@ -26,6 +26,17 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		"value":       configVar.Value,
 	})
 
+	configurationVariableCreateParams := client.ConfigurationVariableCreateParams{
+		Name:        configVar.Name,
+		Value:       configVar.Value,
+		IsSensitive: false,
+		Scope:       client.ScopeGlobal,
+		ScopeId:     "",
+		Type:        client.ConfigurationVariableTypeEnvironment,
+		EnumValues:  nil,
+		Description: configVar.Description,
+		Format:      client.Text,
+	}
 	t.Run("Create", func(t *testing.T) {
 
 		createTestCase := resource.TestCase{
@@ -43,12 +54,12 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
 	t.Run("Create Enum", func(t *testing.T) {
 		schema := client.ConfigurationVariableSchema{
 			Type: "string",
@@ -86,12 +97,95 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				configVar.Schema.Enum, configVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(
+				client.ConfigurationVariableCreateParams{
+					Name:        configVar.Name,
+					Value:       configVar.Value,
+					IsSensitive: false,
+					Scope:       client.ScopeGlobal,
+					ScopeId:     "",
+					Type:        client.ConfigurationVariableTypeEnvironment,
+					EnumValues:  configVar.Schema.Enum,
+					Description: configVar.Description,
+					Format:      client.Text,
+				}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("Create HCL Variable", func(t *testing.T) {
+
+		expectedVariable := `{
+A = "A"
+B = "B"
+C = "C"
+}
+`
+
+		schema := client.ConfigurationVariableSchema{
+			Type:   "string",
+			Format: client.HCL,
+		}
+		configVar := client.ConfigurationVariable{
+			Id:          "id0",
+			Name:        "name0",
+			Description: "desc0",
+			Value:       expectedVariable,
+			Schema:      &schema,
+		}
+		terraformDirective := `<<EOT
+{
+%{ for key, value in var.map ~}
+${key} = "${value}"
+%{ endfor ~}
+}
+EOT`
+		stepConfig := fmt.Sprintf(`
+				variable "map" {
+						description = "a mapped variable"
+						type        = map(string)
+						default = %s
+					}
+				
+				
+				resource "%s" "test" {
+						name = "%s"
+						description = "%s"
+						value = %s
+						format = "HCL"
+	}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(
+				client.ConfigurationVariableCreateParams{
+					Name:        configVar.Name,
+					Value:       expectedVariable,
+					IsSensitive: false,
+					Scope:       client.ScopeGlobal,
+					ScopeId:     "",
+					Type:        client.ConfigurationVariableTypeEnvironment,
+					EnumValues:  configVar.Schema.Enum,
+					Description: configVar.Description,
+					Format:      client.HCL,
+				}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
 	t.Run("Create Enum with wrong value", func(t *testing.T) {
 		stepConfig := fmt.Sprintf(`
 	resource "%s" "test" {
@@ -142,8 +236,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, errors.New("error"))
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -160,8 +253,8 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(
+				configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
@@ -178,8 +271,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 		})
 	})
 
@@ -211,26 +303,33 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 						"name":        newConfigVar.Name,
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
+						"format":      client.HCL,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
 						resource.TestCheckResourceAttr(accessor, "name", newConfigVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", newConfigVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", newConfigVar.Value),
+						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
 					),
 				},
 			},
 		}
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+			createParams := configurationVariableCreateParams
+			updateParams := createParams
+			updateParams.Name = newConfigVar.Name
+			updateParams.Value = newConfigVar.Value
+			updateParams.Description = newConfigVar.Description
+			updateParams.Format = client.HCL
+
+			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
 			gomock.InOrder(
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2),
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{newConfigVar}, nil),
 			)
-			mock.EXPECT().ConfigurationVariableUpdate(newConfigVar.Id, newConfigVar.Name, newConfigVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, newConfigVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -272,8 +371,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configVar.Name, configVar.Value, false, client.ScopeGlobal, "", client.ConfigurationVariableTypeEnvironment,
-				nil, configVar.Description).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})

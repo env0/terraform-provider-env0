@@ -11,6 +11,10 @@ import (
 var _ = Describe("Configuration Variable", func() {
 	isSensitive := true
 	varType := ConfigurationVariableTypeEnvironment
+	schema := ConfigurationVariableSchema{
+		Type:   "string",
+		Format: HCL,
+	}
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
@@ -22,6 +26,7 @@ var _ = Describe("Configuration Variable", func() {
 		Type:           &varType,
 		ScopeId:        "project-123",
 		UserId:         "user|123",
+		Schema:         &schema,
 	}
 
 	Describe("ConfigurationVariableCreate", func() {
@@ -39,6 +44,10 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
+				"schema": map[string]interface{}{
+					"type":   mockConfigurationVariable.Schema.Type,
+					"format": mockConfigurationVariable.Schema.Format,
+				},
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -48,14 +57,17 @@ var _ = Describe("Configuration Variable", func() {
 				})
 
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
-				mockConfigurationVariable.Name,
-				mockConfigurationVariable.Value,
-				*mockConfigurationVariable.IsSensitive,
-				mockConfigurationVariable.Scope,
-				mockConfigurationVariable.ScopeId,
-				*mockConfigurationVariable.Type,
-				nil,
-				mockConfigurationVariable.Description,
+				ConfigurationVariableCreateParams{
+					Name:        mockConfigurationVariable.Name,
+					Value:       mockConfigurationVariable.Value,
+					Description: mockConfigurationVariable.Description,
+					IsSensitive: *mockConfigurationVariable.IsSensitive,
+					Scope:       mockConfigurationVariable.Scope,
+					ScopeId:     mockConfigurationVariable.ScopeId,
+					Type:        *mockConfigurationVariable.Type,
+					EnumValues:  nil,
+					Format:      mockConfigurationVariable.Schema.Format,
+				},
 			)
 		})
 
@@ -103,6 +115,9 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
+				"schema": map[string]interface{}{
+					"type": mockConfigurationVariable.Schema.Type,
+				},
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -112,15 +127,19 @@ var _ = Describe("Configuration Variable", func() {
 				})
 
 			updatedConfigurationVariable, _ = apiClient.ConfigurationVariableUpdate(
-				mockConfigurationVariable.Id,
-				newName,
-				newValue,
-				*mockConfigurationVariable.IsSensitive,
-				mockConfigurationVariable.Scope,
-				mockConfigurationVariable.ScopeId,
-				*mockConfigurationVariable.Type,
-				nil,
-				newDescription,
+				ConfigurationVariableUpdateParams{
+					Id: mockConfigurationVariable.Id,
+					CommonParams: ConfigurationVariableCreateParams{
+						Name:        newName,
+						Value:       newValue,
+						Description: newDescription,
+						IsSensitive: *mockConfigurationVariable.IsSensitive,
+						Scope:       mockConfigurationVariable.Scope,
+						ScopeId:     mockConfigurationVariable.ScopeId,
+						Type:        *mockConfigurationVariable.Type,
+						EnumValues:  nil,
+					},
+				},
 			)
 		})
 

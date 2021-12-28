@@ -78,6 +78,19 @@ func resourceConfigurationVariable() *schema.Resource {
 					Description: "name to give the configuration variable",
 				},
 			},
+			"format": {
+				Type:        schema.TypeString,
+				Description: "specifies the format of the configuration value (for example: HCL)",
+				Default:     "",
+				Optional:    true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					value := val.(string)
+					if value != string(client.HCL) && value != string(client.Text) {
+						errs = append(errs, fmt.Errorf("%q can be either \"HCL\" or empty, got: %q", key, value))
+					}
+					return
+				},
+			},
 		},
 	}
 }
@@ -107,13 +120,13 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-
 	scope, scopeId := whichScope(d)
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
+	format := client.Format(d.Get("format").(string))
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -128,7 +141,17 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		return getEnumErr
 	}
 
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
+		Name:        name,
+		Value:       value,
+		IsSensitive: isSensitive,
+		Scope:       scope,
+		ScopeId:     scopeId,
+		Type:        type_,
+		EnumValues:  actualEnumValues,
+		Description: description,
+		Format:      format,
+	})
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -177,9 +200,16 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 			} else {
 				d.Set("type", "environment")
 			}
-			if variable.Schema != nil && len(variable.Schema.Enum) > 0 {
-				d.Set("enum", variable.Schema.Enum)
+			if variable.Schema != nil {
+				if len(variable.Schema.Enum) > 0 {
+					d.Set("enum", variable.Schema.Enum)
+				}
+
+				if variable.Schema.Format == client.HCL {
+					d.Set("format", string(client.HCL))
+				}
 			}
+
 			return nil
 		}
 	}
@@ -196,6 +226,8 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
+	format := client.Format(d.Get("format").(string))
+
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -209,7 +241,17 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	if getEnumErr != nil {
 		return getEnumErr
 	}
-	_, err := apiClient.ConfigurationVariableUpdate(id, name, value, isSensitive, scope, scopeId, type_, actualEnumValues, description)
+	_, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, CommonParams: client.ConfigurationVariableCreateParams{
+		Name:        name,
+		Value:       value,
+		IsSensitive: isSensitive,
+		Scope:       scope,
+		ScopeId:     scopeId,
+		Type:        type_,
+		EnumValues:  actualEnumValues,
+		Description: description,
+		Format:      format,
+	}})
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}

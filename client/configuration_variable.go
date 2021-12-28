@@ -31,8 +31,8 @@ func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]Co
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariableCreate(name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error) {
-	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
+func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
+	if params.Scope == ScopeDeploymentLog || params.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
 	organizationId, err := self.organizationId()
@@ -41,23 +41,20 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 	}
 	var result []ConfigurationVariable
 	request := map[string]interface{}{
-		"name":           name,
-		"description":    description,
-		"value":          value,
-		"isSensitive":    isSensitive,
-		"scope":          scope,
-		"type":           type_,
+		"name":           params.Name,
+		"description":    params.Description,
+		"value":          params.Value,
+		"isSensitive":    params.IsSensitive,
+		"scope":          params.Scope,
+		"type":           params.Type,
 		"organizationId": organizationId,
 	}
-	if scope != ScopeGlobal {
-		request["scopeId"] = scopeId
+	if params.Scope != ScopeGlobal {
+		request["scopeId"] = params.ScopeId
 	}
-	if enumValues != nil {
-		request["schema"] = map[string]interface{}{
-			"type": "string",
-			"enum": enumValues,
-		}
-	}
+
+	request["schema"] = getSchema(params)
+
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("configuration", requestInArray, &result)
 	if err != nil {
@@ -66,12 +63,26 @@ func (self *ApiClient) ConfigurationVariableCreate(name string, value string, is
 	return result[0], nil
 }
 
+func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} {
+	schema := map[string]interface{}{
+		"type": "string",
+	}
+	if params.EnumValues != nil {
+		schema["enum"] = params.EnumValues
+	}
+	if params.Format != Text {
+		schema["format"] = params.Format
+	}
+	return schema
+}
+
 func (self *ApiClient) ConfigurationVariableDelete(id string) error {
 	return self.http.Delete("configuration/" + id)
 }
 
-func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value string, isSensitive bool, scope Scope, scopeId string, type_ ConfigurationVariableType, enumValues []string, description string) (ConfigurationVariable, error) {
-	if scope == ScopeDeploymentLog || scope == ScopeDeployment {
+func (self *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
+	commonParams := updateParams.CommonParams
+	if commonParams.Scope == ScopeDeploymentLog || commonParams.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
 	}
 	organizationId, err := self.organizationId()
@@ -80,24 +91,21 @@ func (self *ApiClient) ConfigurationVariableUpdate(id string, name string, value
 	}
 	var result []ConfigurationVariable
 	request := map[string]interface{}{
-		"id":             id,
-		"name":           name,
-		"description":    description,
-		"value":          value,
-		"isSensitive":    isSensitive,
-		"scope":          scope,
-		"type":           type_,
+		"id":             updateParams.Id,
+		"name":           commonParams.Name,
+		"description":    commonParams.Description,
+		"value":          commonParams.Value,
+		"isSensitive":    commonParams.IsSensitive,
+		"scope":          commonParams.Scope,
+		"type":           commonParams.Type,
 		"organizationId": organizationId,
 	}
-	if scope != ScopeGlobal {
-		request["scopeId"] = scopeId
+	if commonParams.Scope != ScopeGlobal {
+		request["scopeId"] = commonParams.ScopeId
 	}
-	if enumValues != nil {
-		request["schema"] = map[string]interface{}{
-			"type": "string",
-			"enum": enumValues,
-		}
-	}
+
+	request["schema"] = getSchema(updateParams.CommonParams)
+
 	requestInArray := []map[string]interface{}{request}
 	err = self.http.Post("/configuration", requestInArray, &result)
 	if err != nil {
