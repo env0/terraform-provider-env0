@@ -13,7 +13,7 @@ var _ = Describe("Configuration Variable", func() {
 	varType := ConfigurationVariableTypeEnvironment
 	schema := ConfigurationVariableSchema{
 		Type:   "string",
-		Format: Hcl,
+		Format: HCL,
 	}
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",

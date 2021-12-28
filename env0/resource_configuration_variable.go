@@ -78,11 +78,18 @@ func resourceConfigurationVariable() *schema.Resource {
 					Description: "name to give the configuration variable",
 				},
 			},
-			"hcl": {
-				Type:        schema.TypeBool,
+			"format": {
+				Type:        schema.TypeString,
 				Description: "set to true if the value is in HCL format",
-				Default:     false,
+				Default:     "",
 				Optional:    true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					value := val.(string)
+					if value != string(client.HCL) && value != string(client.Text) {
+						errs = append(errs, fmt.Errorf("%q can be either \"HCL\" or empty, got: %q", key, value))
+					}
+					return
+				},
 			},
 		},
 	}
@@ -119,12 +126,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
-
-	format := client.Text
-	hcl, ok := d.GetOk("hcl")
-	if ok && hcl.(bool) {
-		format = client.Hcl
-	}
+	format := client.Format(d.Get("format").(string))
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -203,8 +205,8 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 					d.Set("enum", variable.Schema.Enum)
 				}
 
-				if variable.Schema.Format == client.Hcl {
-					d.Set("hcl", true)
+				if variable.Schema.Format == client.HCL {
+					d.Set("format", string(client.HCL))
 				}
 			}
 
@@ -224,14 +226,8 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	value := d.Get("value").(string)
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
-	isHcl, ok := d.GetOk("hcl")
-	format := client.Text
+	format := client.Format(d.Get("format").(string))
 
-	if ok {
-		if isHcl.(bool) {
-			format = client.Hcl
-		}
-	}
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":

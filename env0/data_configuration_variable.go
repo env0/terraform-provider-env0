@@ -133,7 +133,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
 	d.Set("enum", variable.Schema.Enum)
-	if variable.Schema.Format == client.Hcl {
+	if variable.Schema.Format == client.HCL {
 		d.Set("hcl", true)
 	}
 	if *variable.Type == client.ConfigurationVariableTypeEnvironment {

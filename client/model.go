@@ -139,7 +139,7 @@ type Format string
 
 const (
 	Text Format = ""
-	Hcl  Format = "HCL"
+	HCL  Format = "HCL"
 )
 
 type Scope string

@@ -91,7 +91,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
 						resource.TestCheckResourceAttr(accessor, "enum.0", configVar.Schema.Enum[0]),
 						resource.TestCheckResourceAttr(accessor, "enum.1", configVar.Schema.Enum[1]),
-						resource.TestCheckResourceAttr(accessor, "hcl", "false"),
 					),
 				},
 			},
@@ -126,7 +125,7 @@ C = "C"
 
 		schema := client.ConfigurationVariableSchema{
 			Type:   "string",
-			Format: client.Hcl,
+			Format: client.HCL,
 		}
 		configVar := client.ConfigurationVariable{
 			Id:          "id0",
@@ -154,7 +153,7 @@ EOT`
 						name = "%s"
 						description = "%s"
 						value = %s
-						hcl = true
+						format = "HCL"
 	}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective)
 
 		createTestCase := resource.TestCase{
@@ -163,7 +162,7 @@ EOT`
 					Config: stepConfig,
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "hcl", "true"),
+						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
 					),
 				},
 			},
@@ -180,7 +179,7 @@ EOT`
 					Type:        client.ConfigurationVariableTypeEnvironment,
 					EnumValues:  configVar.Schema.Enum,
 					Description: configVar.Description,
-					Format:      client.Hcl,
+					Format:      client.HCL,
 				}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
@@ -304,14 +303,14 @@ EOT`
 						"name":        newConfigVar.Name,
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
-						"hcl":         true,
+						"format":      client.HCL,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
 						resource.TestCheckResourceAttr(accessor, "name", newConfigVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", newConfigVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", newConfigVar.Value),
-						resource.TestCheckResourceAttr(accessor, "hcl", "true"),
+						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
 					),
 				},
 			},
@@ -323,7 +322,7 @@ EOT`
 			updateParams.Name = newConfigVar.Name
 			updateParams.Value = newConfigVar.Value
 			updateParams.Description = newConfigVar.Description
-			updateParams.Format = client.Hcl
+			updateParams.Format = client.HCL
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
 			gomock.InOrder(
