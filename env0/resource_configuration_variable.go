@@ -80,7 +80,7 @@ func resourceConfigurationVariable() *schema.Resource {
 			},
 			"format": {
 				Type:        schema.TypeString,
-				Description: "set to true if the value is in HCL format",
+				Description: "specifies the format of the configuration value (for example: HCL)",
 				Default:     "",
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {

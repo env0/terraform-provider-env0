@@ -92,11 +92,10 @@ func dataConfigurationVariable() *schema.Resource {
 					Description: "the configuration variable option",
 				},
 			},
-			"hcl": {
-				Type:        schema.TypeBool,
-				Description: "set to true if the value is in HCL format",
-				Default:     false,
-				Optional:    true,
+			"format": {
+				Type:        schema.TypeString,
+				Description: "specifies the format of the configuration value (for example: HCL)",
+				Computed:    true,
 			},
 		},
 	}
@@ -133,8 +132,8 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
 	d.Set("enum", variable.Schema.Enum)
-	if variable.Schema.Format == client.HCL {
-		d.Set("hcl", true)
+	if variable.Schema.Format != client.Text {
+		d.Set("format", string(variable.Schema.Format))
 	}
 	if *variable.Type == client.ConfigurationVariableTypeEnvironment {
 		d.Set("type", "environment")

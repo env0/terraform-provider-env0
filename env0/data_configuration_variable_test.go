@@ -38,7 +38,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
 		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
-		resource.TestCheckResourceAttr(accessor, "hcl", strconv.FormatBool(configurationVariable.Schema.Format == client.HCL)),
+		resource.TestCheckResourceAttr(accessor, "format", string(configurationVariable.Schema.Format)),
 	)
 
 	t.Run("ScopeGlobal", func(t *testing.T) {
