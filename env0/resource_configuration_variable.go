@@ -79,17 +79,11 @@ func resourceConfigurationVariable() *schema.Resource {
 				},
 			},
 			"format": {
-				Type:        schema.TypeString,
-				Description: "specifies the format of the configuration value (for example: HCL)",
-				Default:     "",
-				Optional:    true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					value := val.(string)
-					if value != string(client.HCL) && value != string(client.Text) {
-						errs = append(errs, fmt.Errorf("%q can be either \"HCL\" or empty, got: %q", key, value))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Description:  "specifies the format of the configuration value (HCL/JSON)",
+				Default:      "",
+				Optional:     true,
+				ValidateFunc: ValidateConfigurationPropertySchema,
 			},
 		},
 	}
@@ -205,8 +199,8 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 					d.Set("enum", variable.Schema.Enum)
 				}
 
-				if variable.Schema.Format == client.HCL {
-					d.Set("format", string(client.HCL))
+				if variable.Schema.Format != "" {
+					d.Set("format", variable.Schema.Format)
 				}
 			}
 

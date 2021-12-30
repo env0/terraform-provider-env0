@@ -94,7 +94,7 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"format": {
 				Type:        schema.TypeString,
-				Description: "specifies the format of the configuration value (for example: HCL)",
+				Description: "specifies the format of the configuration value (HCL/JSON)",
 				Computed:    true,
 			},
 		},

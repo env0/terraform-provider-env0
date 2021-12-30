@@ -163,17 +163,11 @@ func resourceEnvironment() *schema.Resource {
 							},
 						},
 						"schema_format": &schema.Schema{
-							Type:        schema.TypeString,
-							Description: "the variable format:",
-							Default:     "",
-							Optional:    true,
-							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-								value := val.(string)
-								if value != string(client.HCL) && value != string(client.Text) {
-									errs = append(errs, fmt.Errorf("%q can be either \"HCL\" or empty, got: %q", key, value))
-								}
-								return
-							},
+							Type:         schema.TypeString,
+							Description:  "the variable format:",
+							Default:      "",
+							Optional:     true,
+							ValidateFunc: ValidateConfigurationPropertySchema,
 						},
 					},
 				},
