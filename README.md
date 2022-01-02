@@ -110,6 +110,11 @@ Run from root directory:
 go test ./...
 ```
 
+#### Running a single provider test
+```shell
+export TEST_PATTERN="TestUnitConfigurationVariableResource/Create" && go test ./env0
+```
+
 #### How to use mocks
 
 1. Make sure `GOPATH` is in your `PATH`
