@@ -114,77 +114,79 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Create HCL Variable", func(t *testing.T) {
+	for _, format := range []client.Format{client.HCL, client.JSON} {
+		t.Run("Create "+string(format)+" Variable", func(t *testing.T) {
 
-		expectedVariable := `{
-A = "A"
-B = "B"
-C = "C"
-}
-`
+			expectedVariable := `{
+	A = "A"
+	B = "B"
+	C = "C"
+	}
+	`
 
-		schema := client.ConfigurationVariableSchema{
-			Type:   "string",
-			Format: client.HCL,
-		}
-		configVar := client.ConfigurationVariable{
-			Id:          "id0",
-			Name:        "name0",
-			Description: "desc0",
-			Value:       expectedVariable,
-			Schema:      &schema,
-		}
-		terraformDirective := `<<EOT
-{
-%{ for key, value in var.map ~}
-${key} = "${value}"
-%{ endfor ~}
-}
-EOT`
-		stepConfig := fmt.Sprintf(`
-				variable "map" {
-						description = "a mapped variable"
-						type        = map(string)
-						default = %s
-					}
-				
-				
-				resource "%s" "test" {
-						name = "%s"
-						description = "%s"
-						value = %s
-						format = "HCL"
-	}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective)
+			schema := client.ConfigurationVariableSchema{
+				Type:   "string",
+				Format: format,
+			}
+			configVar := client.ConfigurationVariable{
+				Id:          "id0",
+				Name:        "name0",
+				Description: "desc0",
+				Value:       expectedVariable,
+				Schema:      &schema,
+			}
+			terraformDirective := `<<EOT
+	{
+	%{ for key, value in var.map ~}
+	${key} = "${value}"
+	%{ endfor ~}
+	}
+	EOT`
+			stepConfig := fmt.Sprintf(`
+					variable "map" {
+							description = "a mapped variable"
+							type        = map(string)
+							default = %s
+						}
+					
+					
+					resource "%s" "test" {
+							name = "%s"
+							description = "%s"
+							value = %s
+							format = "%s"
+		}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective, string(format))
 
-		createTestCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: stepConfig,
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
-					),
+			createTestCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: stepConfig,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+							resource.TestCheckResourceAttr(accessor, "format", string(format)),
+						),
+					},
 				},
-			},
-		}
+			}
 
-		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(
-				client.ConfigurationVariableCreateParams{
-					Name:        configVar.Name,
-					Value:       expectedVariable,
-					IsSensitive: false,
-					Scope:       client.ScopeGlobal,
-					ScopeId:     "",
-					Type:        client.ConfigurationVariableTypeEnvironment,
-					EnumValues:  configVar.Schema.Enum,
-					Description: configVar.Description,
-					Format:      client.HCL,
-				}).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
-			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+			runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariableCreate(
+					client.ConfigurationVariableCreateParams{
+						Name:        configVar.Name,
+						Value:       expectedVariable,
+						IsSensitive: false,
+						Scope:       client.ScopeGlobal,
+						ScopeId:     "",
+						Type:        client.ConfigurationVariableTypeEnvironment,
+						EnumValues:  configVar.Schema.Enum,
+						Description: configVar.Description,
+						Format:      format,
+					}).Times(1).Return(configVar, nil)
+				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+				mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+			})
 		})
-	})
+	}
 
 	t.Run("Create Enum with wrong value", func(t *testing.T) {
 		stepConfig := fmt.Sprintf(`
