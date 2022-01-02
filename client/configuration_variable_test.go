@@ -30,15 +30,15 @@ var _ = Describe("Configuration Variable", func() {
 		Schema:         &schema,
 	}
 
-	DescribeTable("ConfigurationVariableCreate", func(schemaFormat string) {
+	DescribeTable("ConfigurationVariableCreate", func(schemaFormat Format) {
 		var createdConfigurationVariable ConfigurationVariable
-		var mockVariableToCreate ConfigurationVariable
+		var mockVariableToCreate = ConfigurationVariable{}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
 			copier.Copy(&mockVariableToCreate, &mockConfigurationVariable)
-			mockVariableToCreate.Schema.Format = Format(schemaFormat)
+			mockVariableToCreate.Schema.Format = schemaFormat
 
 			expectedCreateRequest := []map[string]interface{}{{
 				"name":           mockVariableToCreate.Name,
