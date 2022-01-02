@@ -30,50 +30,59 @@ var _ = Describe("Configuration Variable", func() {
 		Schema:         &schema,
 	}
 
-	DescribeTable("ConfigurationVariableCreate", func(schemaFormat Format) {
+	Describe("ConfigurationVariableCreate", func() {
 		var createdConfigurationVariable ConfigurationVariable
-		var mockVariableToCreate = ConfigurationVariable{}
 
-		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+		var GetExpectedRequest = func(mockConfig ConfigurationVariable) []map[string]interface{} {
+			schema := map[string]interface{}{
+				"type":   mockConfig.Schema.Type,
+				"format": mockConfig.Schema.Format,
+			}
 
-			copier.Copy(&mockVariableToCreate, &mockConfigurationVariable)
-			mockVariableToCreate.Schema.Format = schemaFormat
+			if mockConfig.Schema.Format == Text {
+				delete(schema, "format")
+			}
 
-			expectedCreateRequest := []map[string]interface{}{{
-				"name":           mockVariableToCreate.Name,
-				"description":    mockVariableToCreate.Description,
-				"isSensitive":    *mockVariableToCreate.IsSensitive,
-				"value":          mockVariableToCreate.Value,
+			request := []map[string]interface{}{{
+				"name":           mockConfig.Name,
+				"description":    mockConfig.Description,
+				"isSensitive":    *mockConfig.IsSensitive,
+				"value":          mockConfig.Value,
 				"organizationId": organizationId,
-				"scopeId":        mockVariableToCreate.ScopeId,
-				"scope":          mockVariableToCreate.Scope,
-				"type":           *mockVariableToCreate.Type,
-				"schema": map[string]interface{}{
-					"type":   mockVariableToCreate.Schema.Type,
-					"format": mockVariableToCreate.Schema.Format,
-				},
+				"scopeId":        mockConfig.ScopeId,
+				"scope":          mockConfig.Scope,
+				"type":           *mockConfig.Type,
+				"schema":         schema,
 			}}
+			return request
+		}
 
+		var DoCreateRequest = func(mockConfig ConfigurationVariable, expectedRequest []map[string]interface{}) {
 			httpCall = mockHttpClient.EXPECT().
-				Post("configuration", expectedCreateRequest, gomock.Any()).
+				Post("configuration", expectedRequest, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
-					*response = []ConfigurationVariable{mockVariableToCreate}
+					*response = []ConfigurationVariable{mockConfig}
 				})
 
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
 				ConfigurationVariableCreateParams{
-					Name:        mockVariableToCreate.Name,
-					Value:       mockVariableToCreate.Value,
-					Description: mockVariableToCreate.Description,
-					IsSensitive: *mockVariableToCreate.IsSensitive,
-					Scope:       mockVariableToCreate.Scope,
-					ScopeId:     mockVariableToCreate.ScopeId,
-					Type:        *mockVariableToCreate.Type,
+					Name:        mockConfig.Name,
+					Value:       mockConfig.Value,
+					Description: mockConfig.Description,
+					IsSensitive: *mockConfig.IsSensitive,
+					Scope:       mockConfig.Scope,
+					ScopeId:     mockConfig.ScopeId,
+					Type:        *mockConfig.Type,
 					EnumValues:  nil,
-					Format:      mockVariableToCreate.Schema.Format,
+					Format:      mockConfig.Schema.Format,
 				},
 			)
+		}
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			expectedCreateRequest := GetExpectedRequest(mockConfigurationVariable)
+			DoCreateRequest(mockConfigurationVariable, expectedCreateRequest)
 		})
 
 		It("Should get organization id", func() {
@@ -85,14 +94,25 @@ var _ = Describe("Configuration Variable", func() {
 		})
 
 		It("Should return created configuration variable", func() {
-			Expect(createdConfigurationVariable).To(Equal(mockVariableToCreate))
+			Expect(createdConfigurationVariable).To(Equal(mockConfigurationVariable))
 		})
 
-	},
-		Entry("Text Format", Text),
-		Entry("JSON Format", JSON),
-		Entry("HCL Format", HCL),
-	)
+		DescribeTable("Create with different schema format", func(schemaFormat Format) {
+			var mockWithFormat = ConfigurationVariable{}
+			copier.Copy(&mockWithFormat, &mockConfigurationVariable)
+			mockWithFormat.Schema.Format = schemaFormat
+			requestWithFormat := GetExpectedRequest(mockWithFormat)
+
+			DoCreateRequest(mockWithFormat, requestWithFormat)
+
+			httpCall.Times(1)
+			Expect(createdConfigurationVariable).To(Equal(mockWithFormat))
+		},
+			Entry("Text Format", Text),
+			Entry("JSON Format", JSON),
+			Entry("HCL Format", HCL),
+		)
+	})
 
 	Describe("ConfigurationVariableDelete", func() {
 		BeforeEach(func() {
