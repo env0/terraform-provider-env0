@@ -39,6 +39,7 @@ output "aws_default_region" {
 ### Read-Only
 
 - **enum** (List of String) possible values of this variable
+- **format** (String) specifies the format of the configuration value (HCL/JSON)
 - **is_sensitive** (Boolean) is the variable defined as sensitive
 - **scope** (String) scope of the variable
 - **value** (String, Sensitive) value stored in the variable

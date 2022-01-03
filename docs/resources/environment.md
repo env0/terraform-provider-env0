@@ -68,6 +68,7 @@ Optional:
 - **description** (String) description for the variable
 - **is_sensitive** (Boolean) should the variable value be hidden
 - **schema_enum** (List of String) a list of possible variable values
+- **schema_format** (String) the variable format:
 - **schema_type** (String) the type the variable must be of
 - **type** (String) variable type (allowed values are: terraform, environment)
 
