@@ -13,3 +13,9 @@ resource "env0_configuration_variable" "drop_down" {
   ]
 }
 
+resource "env0_configuration_variable" "json_variable" {
+  name   = "organization_tf_json_var"
+  type   = "terraform"
+  value  = "{ \"a\": 1234 }"
+  format = "JSON"
+}
