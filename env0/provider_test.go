@@ -33,7 +33,8 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
 	testPattern := os.Getenv("TEST_PATTERN")
 	if testPattern != "" && !strings.Contains(t.Name(), testPattern) {
-		t.Skip()
+		t.SkipNow()
+		return
 	}
 
 	testReporter := utils.TestReporter{T: t}
