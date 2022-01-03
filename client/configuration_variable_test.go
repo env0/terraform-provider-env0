@@ -57,13 +57,16 @@ var _ = Describe("Configuration Variable", func() {
 			return request
 		}
 
-		var DoCreateRequest = func(mockConfig ConfigurationVariable, expectedRequest []map[string]interface{}) {
+		var SetCreateRequestExpectation = func(mockConfig ConfigurationVariable) {
+			expectedCreateRequest := GetExpectedRequest(mockConfig)
 			httpCall = mockHttpClient.EXPECT().
-				Post("configuration", expectedRequest, gomock.Any()).
+				Post("configuration", expectedCreateRequest, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = []ConfigurationVariable{mockConfig}
 				})
+		}
 
+		var DoCreateRequest = func(mockConfig ConfigurationVariable) {
 			createdConfigurationVariable, _ = apiClient.ConfigurationVariableCreate(
 				ConfigurationVariableCreateParams{
 					Name:        mockConfig.Name,
@@ -81,8 +84,8 @@ var _ = Describe("Configuration Variable", func() {
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
-			expectedCreateRequest := GetExpectedRequest(mockConfigurationVariable)
-			DoCreateRequest(mockConfigurationVariable, expectedCreateRequest)
+			SetCreateRequestExpectation(mockConfigurationVariable)
+			DoCreateRequest(mockConfigurationVariable)
 		})
 
 		It("Should get organization id", func() {
@@ -101,9 +104,9 @@ var _ = Describe("Configuration Variable", func() {
 			var mockWithFormat = ConfigurationVariable{}
 			copier.Copy(&mockWithFormat, &mockConfigurationVariable)
 			mockWithFormat.Schema.Format = schemaFormat
-			requestWithFormat := GetExpectedRequest(mockWithFormat)
+			SetCreateRequestExpectation(mockWithFormat)
 
-			DoCreateRequest(mockWithFormat, requestWithFormat)
+			DoCreateRequest(mockWithFormat)
 
 			httpCall.Times(1)
 			Expect(createdConfigurationVariable).To(Equal(mockWithFormat))
