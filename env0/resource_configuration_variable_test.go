@@ -118,11 +118,11 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		t.Run("Create "+string(format)+" Variable", func(t *testing.T) {
 
 			expectedVariable := `{
-	A = "A"
-	B = "B"
-	C = "C"
-	}
-	`
+A = "A"
+B = "B"
+C = "C"
+}
+`
 
 			schema := client.ConfigurationVariableSchema{
 				Type:   "string",
@@ -136,26 +136,26 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 				Schema:      &schema,
 			}
 			terraformDirective := `<<EOT
-	{
-	%{ for key, value in var.map ~}
-	${key} = "${value}"
-	%{ endfor ~}
-	}
-	EOT`
+{
+%{ for key, value in var.map ~}
+${key} = "${value}"
+%{ endfor ~}
+}
+EOT`
 			stepConfig := fmt.Sprintf(`
-					variable "map" {
-							description = "a mapped variable"
-							type        = map(string)
-							default = %s
-						}
-					
-					
-					resource "%s" "test" {
-							name = "%s"
-							description = "%s"
-							value = %s
-							format = "%s"
-		}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective, string(format))
+variable "map" {
+		description = "a mapped variable"
+		type        = map(string)
+		default = %s
+	}
+
+
+resource "%s" "test" {
+		name = "%s"
+		description = "%s"
+		value = %s
+		format = "%s"
+}`, expectedVariable, resourceType, configVar.Name, configVar.Description, terraformDirective, string(format))
 
 			createTestCase := resource.TestCase{
 				Steps: []resource.TestStep{
