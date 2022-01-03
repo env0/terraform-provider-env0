@@ -31,6 +31,12 @@ var testUnitProviders = map[string]func() (*schema.Provider, error){
 }
 
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	testPattern := os.Getenv("TEST_PATTERN")
+	if testPattern != "" && !strings.Contains(t.Name(), testPattern) {
+		t.SkipNow()
+		return
+	}
+
 	testReporter := utils.TestReporter{T: t}
 	ctrl = gomock.NewController(&testReporter)
 	defer ctrl.Finish()
@@ -64,7 +70,7 @@ func testExpectedProviderError(t *testing.T, diags diag.Diagnostics, expectedKey
 	}
 
 	if errorDetail == "" {
-		t.Fatalf("Error wasn't recieved, expected: %s", expectedError)
+		t.Fatalf("Error wasn't received, expected: %s", expectedError)
 	}
 }
 

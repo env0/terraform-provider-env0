@@ -140,6 +140,7 @@ type Format string
 const (
 	Text Format = ""
 	HCL  Format = "HCL"
+	JSON Format = "JSON"
 )
 
 type Scope string
