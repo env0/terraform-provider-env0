@@ -97,6 +97,18 @@ func dataConfigurationVariable() *schema.Resource {
 				Description: "specifies the format of the configuration value (HCL/JSON)",
 				Computed:    true,
 			},
+			"is_read_only": {
+				Type:        schema.TypeBool,
+				Description: "specifies if the value of this variable cannot be edited by lower scopes",
+				Computed:    true,
+				Optional:    true,
+			},
+			"is_required": {
+				Type:        schema.TypeBool,
+				Description: "specifies if the value of this variable must be set by lower scopes",
+				Computed:    true,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -132,6 +144,9 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("scope", variable.Scope)
 	d.Set("enum", variable.Schema.Enum)
+	d.Set("is_read_only", variable.IsReadonly)
+	d.Set("is_required", variable.IsRequired)
+
 	if variable.Schema.Format != client.Text {
 		d.Set("format", string(variable.Schema.Format))
 	}

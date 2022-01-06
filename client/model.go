@@ -116,6 +116,8 @@ type ConfigurationVariable struct {
 	Type           *ConfigurationVariableType   `json:"type,omitempty"`
 	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
+	IsReadonly     *bool                        `json:"isReadonly,omitempty"`
+	IsRequired     *bool                        `json:"isRequired,omitempty"`
 }
 
 type ConfigurationVariableCreateParams struct {
@@ -128,6 +130,8 @@ type ConfigurationVariableCreateParams struct {
 	EnumValues  []string
 	Description string
 	Format      Format
+	IsReadonly  bool
+	IsRequired  bool
 }
 
 type ConfigurationVariableUpdateParams struct {
