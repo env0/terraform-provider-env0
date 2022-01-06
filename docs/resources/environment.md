@@ -61,16 +61,19 @@ resource "env0_environment" "example" {
 Required:
 
 - **name** (String) variable name
-- **value** (String) variable value
 
 Optional:
 
+- **value** (String) variable value (at least one of **value** and **is_required** must be set)
 - **description** (String) description for the variable
 - **is_sensitive** (Boolean) should the variable value be hidden
 - **schema_enum** (List of String) a list of possible variable values
 - **schema_format** (String) the variable format:
 - **schema_type** (String) the type the variable must be of
 - **type** (String) variable type (allowed values are: terraform, environment)
+- **is_read_only** (String) is this variable can not be modified by lower scopes.
+- **is_required** (String) is this variable value must be set by lower scopes.
+
 
 ## Import
 

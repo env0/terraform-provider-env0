@@ -43,5 +43,7 @@ output "aws_default_region" {
 - **is_sensitive** (Boolean) is the variable defined as sensitive
 - **scope** (String) scope of the variable
 - **value** (String, Sensitive) value stored in the variable
+- **is_read_only** (String) is this variable can not be modified by lower scopes.
+- **is_required** (String) is this variable value must be set by lower scopes.
 
 
