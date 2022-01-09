@@ -18,7 +18,7 @@ var _ = Describe("Configuration Variable", func() {
 	}
 	isReadonly := true
 	isRequired := true
-	
+
 	mockConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-789",
 		Name:           "configName",
@@ -85,8 +85,8 @@ var _ = Describe("Configuration Variable", func() {
 					Type:        *mockConfig.Type,
 					EnumValues:  nil,
 					Format:      mockConfig.Schema.Format,
-					IsReadonly: *mockConfig.IsReadonly,
-					IsRequired: *mockConfig.IsRequired,
+					IsReadonly:  *mockConfig.IsReadonly,
+					IsRequired:  *mockConfig.IsRequired,
 				},
 			)
 		}
@@ -160,8 +160,8 @@ var _ = Describe("Configuration Variable", func() {
 				"schema": map[string]interface{}{
 					"type": mockConfigurationVariable.Schema.Type,
 				},
-				"isReadonly":     *mockConfigurationVariable.IsReadonly,
-				"isRequired":     *mockConfigurationVariable.IsRequired,
+				"isReadonly": *mockConfigurationVariable.IsReadonly,
+				"isRequired": *mockConfigurationVariable.IsRequired,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -184,7 +184,6 @@ var _ = Describe("Configuration Variable", func() {
 						EnumValues:  nil,
 						IsReadonly:  *mockConfigurationVariable.IsReadonly,
 						IsRequired:  *mockConfigurationVariable.IsRequired,
-		
 					},
 				},
 			)
