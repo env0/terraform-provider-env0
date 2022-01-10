@@ -37,7 +37,6 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description:  "value for the configuration variable",
 				Optional:     true,
 				Sensitive:    true,
-				AtLeastOneOf: []string{"value", "is_required"},
 				Default:      "",
 			},
 			"is_sensitive": {
@@ -100,7 +99,6 @@ func resourceConfigurationVariable() *schema.Resource {
 				Optional:      true,
 				Default:       false,
 				ConflictsWith: []string{"environment_id"},
-				AtLeastOneOf:  []string{"is_required", "value"},
 			},
 		},
 	}
