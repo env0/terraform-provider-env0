@@ -31,6 +31,8 @@ output "aws_default_region" {
 - **description** (String) a description of the variable
 - **environment_id** (String) search for the variable under this environment, not globally
 - **id** (String) id of the configuration variable
+- **is_read_only** (Boolean) specifies if the value of this variable cannot be edited by lower scopes
+- **is_required** (Boolean) specifies if the value of this variable must be set by lower scopes
 - **name** (String) the name of the configuration variable
 - **project_id** (String) search for the variable under this project, not globally
 - **template_id** (String) search for the variable under this template, not globally
@@ -43,7 +45,5 @@ output "aws_default_region" {
 - **is_sensitive** (Boolean) is the variable defined as sensitive
 - **scope** (String) scope of the variable
 - **value** (String, Sensitive) value stored in the variable
-- **is_read_only** (String) is this variable can not be modified by lower scopes.
-- **is_required** (String) is this variable value must be set by lower scopes.
 
 

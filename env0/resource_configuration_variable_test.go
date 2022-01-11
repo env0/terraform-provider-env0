@@ -290,11 +290,15 @@ resource "%s" "test" {
 	})
 
 	t.Run("Update", func(t *testing.T) {
+		newIsReadonly := false;
+		newIsRequired := true;
 		newConfigVar := client.ConfigurationVariable{
 			Id:          configVar.Id,
 			Name:        configVar.Name,
 			Description: configVar.Description,
 			Value:       "I want to be the config value",
+			IsReadonly: &newIsReadonly,
+			IsRequired: &newIsRequired,
 		}
 
 		updateTestCase := resource.TestCase{
@@ -322,8 +326,8 @@ resource "%s" "test" {
 						"description":  newConfigVar.Description,
 						"value":        newConfigVar.Value,
 						"format":       client.HCL,
-						"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
-						"is_required":  strconv.FormatBool(*configVar.IsRequired),
+						"is_read_only": strconv.FormatBool(*newConfigVar.IsReadonly),
+						"is_required":  strconv.FormatBool(*newConfigVar.IsRequired),
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", newConfigVar.Id),
@@ -331,8 +335,8 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "description", newConfigVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", newConfigVar.Value),
 						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadonly)),
-						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*newConfigVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*newConfigVar.IsRequired)),
 					),
 				},
 			},
@@ -345,6 +349,8 @@ resource "%s" "test" {
 			updateParams.Value = newConfigVar.Value
 			updateParams.Description = newConfigVar.Description
 			updateParams.Format = client.HCL
+			updateParams.IsReadonly = *newConfigVar.IsReadonly
+			updateParams.IsRequired = *newConfigVar.IsRequired
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
 			gomock.InOrder(
@@ -380,6 +386,8 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
 					),
 				},
 				{
@@ -388,8 +396,6 @@ resource "%s" "test" {
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
 						"type":        newConfigVar.Type,
-						"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
-						"is_required":  strconv.FormatBool(*configVar.IsRequired),
 					}),
 					ExpectError: regexp.MustCompile(`'type' can only receive either 'environment' or 'terraform'`),
 				},

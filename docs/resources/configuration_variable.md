@@ -42,7 +42,6 @@ resource "env0_configuration_variable" "json_variable" {
 ### Required
 
 - **name** (String) name to give the configuration variable
-- **value** (String, Sensitive) value for the configuration variable
 
 ### Optional
 
@@ -51,10 +50,13 @@ resource "env0_configuration_variable" "json_variable" {
 - **environment_id** (String) create the variable under this environment, not globally
 - **format** (String) specifies the format of the configuration value (HCL/JSON)
 - **id** (String) The ID of this resource.
+- **is_read_only** (Boolean) the value of this variable cannot be edited by lower scopes
+- **is_required** (Boolean) the value of this variable must be set by lower scopes
 - **is_sensitive** (Boolean) is the variable sensitive, defaults to false
 - **project_id** (String) create the variable under this project, not globally
 - **template_id** (String) create the variable under this template, not globally
 - **type** (String) default 'environment'. set to 'terraform' to create a terraform variable
+- **value** (String, Sensitive) value for the configuration variable
 
 ## Import
 
