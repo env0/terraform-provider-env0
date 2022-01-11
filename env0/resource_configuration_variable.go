@@ -33,11 +33,11 @@ func resourceConfigurationVariable() *schema.Resource {
 				Optional:    true,
 			},
 			"value": {
-				Type:         schema.TypeString,
-				Description:  "value for the configuration variable",
-				Optional:     true,
-				Sensitive:    true,
-				Default:      "",
+				Type:        schema.TypeString,
+				Description: "value for the configuration variable",
+				Optional:    true,
+				Sensitive:   true,
+				Default:     "",
 			},
 			"is_sensitive": {
 				Type:        schema.TypeBool,

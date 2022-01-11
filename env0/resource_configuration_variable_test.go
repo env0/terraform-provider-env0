@@ -290,15 +290,15 @@ resource "%s" "test" {
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		newIsReadonly := false;
-		newIsRequired := true;
+		newIsReadonly := false
+		newIsRequired := true
 		newConfigVar := client.ConfigurationVariable{
 			Id:          configVar.Id,
 			Name:        configVar.Name,
 			Description: configVar.Description,
 			Value:       "I want to be the config value",
-			IsReadonly: &newIsReadonly,
-			IsRequired: &newIsRequired,
+			IsReadonly:  &newIsReadonly,
+			IsRequired:  &newIsRequired,
 		}
 
 		updateTestCase := resource.TestCase{
