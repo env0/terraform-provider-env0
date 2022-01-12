@@ -48,6 +48,8 @@ func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableC
 		"scope":          params.Scope,
 		"type":           params.Type,
 		"organizationId": organizationId,
+		"isRequired":     params.IsRequired,
+		"isReadonly":     params.IsReadonly,
 	}
 	if params.Scope != ScopeGlobal {
 		request["scopeId"] = params.ScopeId
@@ -99,6 +101,8 @@ func (self *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVar
 		"scope":          commonParams.Scope,
 		"type":           commonParams.Type,
 		"organizationId": organizationId,
+		"isRequired":     commonParams.IsRequired,
+		"isReadonly":     commonParams.IsReadonly,
 	}
 	if commonParams.Scope != ScopeGlobal {
 		request["scopeId"] = commonParams.ScopeId

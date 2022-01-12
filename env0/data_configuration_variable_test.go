@@ -15,6 +15,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 	isSensitive := false
+	isReadonly := true
+	isRequired := false
 	variableType := client.ConfigurationVariableTypeEnvironment
 	configurationVariable := client.ConfigurationVariable{
 		Id:             "id0",
@@ -28,6 +30,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		Scope:          client.ScopeEnvironment,
 		Type:           &variableType,
 		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL},
+		IsReadonly:     &isReadonly,
+		IsRequired:     &isRequired,
 	}
 
 	checkResources := resource.ComposeAggregateTestCheckFunc(
@@ -39,6 +43,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
 		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
 		resource.TestCheckResourceAttr(accessor, "format", string(configurationVariable.Schema.Format)),
+		resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configurationVariable.IsReadonly)),
+		resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configurationVariable.IsRequired)),
 	)
 
 	t.Run("ScopeGlobal", func(t *testing.T) {

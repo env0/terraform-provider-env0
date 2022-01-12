@@ -35,8 +35,9 @@ func resourceConfigurationVariable() *schema.Resource {
 			"value": {
 				Type:        schema.TypeString,
 				Description: "value for the configuration variable",
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
+				Default:     "",
 			},
 			"is_sensitive": {
 				Type:        schema.TypeBool,
@@ -61,7 +62,7 @@ func resourceConfigurationVariable() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "create the variable under this environment, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"template_id", "project_id"},
+				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -84,6 +85,20 @@ func resourceConfigurationVariable() *schema.Resource {
 				Default:      "",
 				Optional:     true,
 				ValidateFunc: ValidateConfigurationPropertySchema,
+			},
+			"is_read_only": {
+				Type:          schema.TypeBool,
+				Description:   "the value of this variable cannot be edited by lower scopes",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"environment_id"},
+			},
+			"is_required": {
+				Type:          schema.TypeBool,
+				Description:   "the value of this variable must be set by lower scopes",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"environment_id"},
 			},
 		},
 	}
@@ -121,6 +136,9 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
 	format := client.Format(d.Get("format").(string))
+	isReadOnly := d.Get("is_read_only").(bool)
+	isRequired := d.Get("is_required").(bool)
+
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
 	case "environment":
@@ -145,6 +163,8 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		EnumValues:  actualEnumValues,
 		Description: description,
 		Format:      format,
+		IsReadonly:  isReadOnly,
+		IsRequired:  isRequired,
 	})
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
@@ -221,6 +241,8 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	isSensitive := d.Get("is_sensitive").(bool)
 	typeAsString := d.Get("type").(string)
 	format := client.Format(d.Get("format").(string))
+	isReadOnly := d.Get("is_read_only").(bool)
+	isRequired := d.Get("is_required").(bool)
 
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
@@ -245,6 +267,8 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 		EnumValues:  actualEnumValues,
 		Description: description,
 		Format:      format,
+		IsReadonly:  isReadOnly,
+		IsRequired:  isRequired,
 	}})
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
