@@ -95,11 +95,11 @@ func runTest(testName string, destroy bool) (bool, error) {
 	for key, expectedValue := range expectedOutputs {
 		value, ok := outputs[key]
 		if !ok {
-			log.Println("Expected terraform output ", key, " but no such output was created")
+			log.Println("Error: Expected terraform output ", key, " but no such output was created")
 			return false, nil
 		}
 		if value != expectedValue {
-			log.Println("Expected output ", key, " value to be ", expectedValue, " but found ", value)
+			log.Printf("Error: Expected output of '%s' to be '%s' but found '%s'\n", key, expectedValue, value)
 			return false, nil
 		}
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
