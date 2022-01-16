@@ -14,6 +14,8 @@ import (
 
 const TESTS_FOLDER = "tests/integration"
 
+var ENV0_API_ENDPOINT = os.Getenv("ENV0_API_ENDPOINT")
+
 func main() {
 	err := compileProvider()
 	if err != nil {
@@ -67,11 +69,12 @@ func runTest(testName string, destroy bool) bool {
 	if destroy {
 		defer terraformDestory(testName)
 	}
-	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0")
+
+	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0", "-var", "ENV0_API_ENDPOINT="+ENV0_API_ENDPOINT)
 	if err != nil {
 		return false
 	}
-	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
+	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1", "-var", "ENV0_API_ENDPOINT="+ENV0_API_ENDPOINT)
 	if err != nil {
 		return false
 	}
@@ -100,7 +103,7 @@ func runTest(testName string, destroy bool) bool {
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
 	}
 	if destroy {
-		_, err = terraformCommand(testName, "destroy", "-auto-approve", "-var", "second_run=0")
+		_, err = terraformCommand(testName, "destroy", "-auto-approve", "-var", "second_run=0", "-var", "ENV0_API_ENDPOINT="+ENV0_API_ENDPOINT)
 		if err != nil {
 			return false
 		}
@@ -142,7 +145,7 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 
 func terraformDestory(testName string) {
 	log.Println("Running destroy to clean up in", testName)
-	destroy := exec.Command("terraform", "destroy", "-auto-approve", "-var", "second_run=0")
+	destroy := exec.Command("terraform", "destroy", "-auto-approve", "-var", "second_run=0", "-var", "ENV0_API_ENDPOINT="+ENV0_API_ENDPOINT)
 	destroy.Dir = TESTS_FOLDER + "/" + testName
 	destroy.CombinedOutput()
 	log.Println("Done running terraform destroy in", testName)
