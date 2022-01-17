@@ -267,6 +267,7 @@ type Template struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
+	IsDeleted            bool             `json:"isDeleted,omitempty"`
 }
 
 type Environment struct {
