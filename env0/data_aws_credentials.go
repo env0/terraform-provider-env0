@@ -82,7 +82,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 func getAwsCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.AwsCredentials(id)
-	if credentials.Type != "aws_assumed_role" {
+	if credentials.Type != "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT" {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
 	}
 	if err != nil {

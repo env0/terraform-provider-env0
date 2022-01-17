@@ -9,15 +9,17 @@ import (
 
 func TestAwsCredDataSource(t *testing.T) {
 	awsCred := client.ApiKey{
-		Id:   "11111",
-		Name: "testdata",
+		Id:             "11111",
+		Name:           "testdata",
+		OrganizationId: "id",
+		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
 	AwsCredFieldsByName := map[string]interface{}{"name": awsCred.Name}
 	AwsCredFieldsById := map[string]interface{}{"id": awsCred.Id}
 
 	resourceType := "env0_aws_credentials"
-	resourceName := "test_aws_cred"
+	resourceName := "testdata"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
 	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
@@ -34,11 +36,11 @@ func TestAwsCredDataSource(t *testing.T) {
 		}
 	}
 
-	mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
-		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
-		}
-	}
+	  mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+	  	return func(mock *client.MockApiClientInterface) {
+	  		mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
+	  	}
+	  }
 
 	mockListAwsCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
@@ -46,12 +48,12 @@ func TestAwsCredDataSource(t *testing.T) {
 		}
 	}
 
-	t.Run("By ID", func(t *testing.T) {
-		runUnitTest(t,
-			getValidTestCase(AwsCredFieldsById),
-			mockGetAwsCredCall(awsCred),
-		)
-	})
+	  t.Run("By ID", func(t *testing.T) {
+	  	runUnitTest(t,
+	 		getValidTestCase(AwsCredFieldsById),
+	  		mockGetAwsCredCall(awsCred),
+	  	)
+	  })
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
