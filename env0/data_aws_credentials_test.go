@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -12,6 +13,13 @@ func TestAwsCredDataSource(t *testing.T) {
 		Id:             "11111",
 		Name:           "testdata",
 		OrganizationId: "id",
+		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+	}
+
+	otherAwsCred := client.ApiKey{
+		Id:             "22222",
+		Name:           "notTestdata",
+		OrganizationId: "OtherId",
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
@@ -36,11 +44,22 @@ func TestAwsCredDataSource(t *testing.T) {
 		}
 	}
 
-	  mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
-	  	return func(mock *client.MockApiClientInterface) {
-	  		mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
-	  	}
-	  }
+	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+		return resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      dataSourceConfigCreate(resourceType, resourceName, input),
+					ExpectError: regexp.MustCompile(expectedError),
+				},
+			},
+		}
+	}
+
+	mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+		return func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
+		}
+	}
 
 	mockListAwsCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
@@ -48,17 +67,38 @@ func TestAwsCredDataSource(t *testing.T) {
 		}
 	}
 
-	  t.Run("By ID", func(t *testing.T) {
-	  	runUnitTest(t,
-	 		getValidTestCase(AwsCredFieldsById),
-	  		mockGetAwsCredCall(awsCred),
-	  	)
-	  })
+	t.Run("By ID", func(t *testing.T) {
+		runUnitTest(t,
+			getValidTestCase(AwsCredFieldsById),
+			mockGetAwsCredCall(awsCred),
+		)
+	})
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(AwsCredFieldsByName),
 			mockListAwsCredCall([]client.ApiKey{awsCred}),
+		)
+	})
+
+	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+			func(mock *client.MockApiClientInterface) {},
+		)
+	})
+
+	t.Run("Throw error when by name and more than one aws-credential exists", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(AwsCredFieldsByName, "Found multiple AWS Credentials for name: testdata"),
+			mockListAwsCredCall([]client.ApiKey{awsCred, awsCred, awsCred}),
+		)
+	})
+
+	t.Run("Throw error when by name and no aws-credential found with that name", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(AwsCredFieldsByName, "Could not find AWS Credentials with name: testdata"),
+			mockListAwsCredCall([]client.ApiKey{otherAwsCred}),
 		)
 	})
 
