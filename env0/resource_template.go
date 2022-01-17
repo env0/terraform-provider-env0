@@ -239,6 +239,11 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("could not get template: %v", err)
 	}
 
+	if template.IsDeleted {
+		d.SetId("")
+		return nil
+	}
+
 	d.Set("name", template.Name)
 	d.Set("description", template.Description)
 	d.Set("github_installation_id", template.GithubInstallationId)
