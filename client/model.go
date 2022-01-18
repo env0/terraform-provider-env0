@@ -389,6 +389,16 @@ type PolicyUpdatePayload struct {
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
 }
 
+type EnvironmentSchedulingUpdatePayload struct {
+	Cron    string `json:"cron"`
+	Enabled bool   `json:"enabled"`
+}
+
+type EnvironmentScheduling struct {
+	Deploy  EnvironmentSchedulingUpdatePayload `json:"deploy,omitempty"`
+	Destroy EnvironmentSchedulingUpdatePayload `json:"destroy,omitempty"`
+}
+
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 	type serial struct {
 		ProjectId                   string `json:"projectId"`
