@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -65,6 +66,15 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 		},
 	}
 
+	testCaseForError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": "id"}),
+				ExpectError: regexp.MustCompile("Missing required argument"),
+			},
+		},
+	}
+
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseforCreate, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
@@ -87,6 +97,12 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 			)
 		})
 
+	})
+
+	t.Run("throw error when missing values", func(t *testing.T) {
+		runUnitTest(t, testCaseForError, func(mock *client.MockApiClientInterface) {
+
+		})
 	})
 
 }
