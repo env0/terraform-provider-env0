@@ -256,6 +256,50 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(arg0 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), arg0)
 }
 
+// EnvironmentScheduling mocks base method.
+func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentScheduling", arg0)
+	ret0, _ := ret[0].(EnvironmentScheduling)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentScheduling indicates an expected call of EnvironmentScheduling.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentScheduling(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentScheduling", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentScheduling), arg0)
+}
+
+// EnvironmentSchedulingDelete mocks base method.
+func (m *MockApiClientInterface) EnvironmentSchedulingDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentSchedulingDelete indicates an expected call of EnvironmentSchedulingDelete.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingDelete", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingDelete), arg0)
+}
+
+// EnvironmentSchedulingUpdate mocks base method.
+func (m *MockApiClientInterface) EnvironmentSchedulingUpdate(arg0 string, arg1 EnvironmentScheduling) (EnvironmentScheduling, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingUpdate", arg0, arg1)
+	ret0, _ := ret[0].(EnvironmentScheduling)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentSchedulingUpdate indicates an expected call of EnvironmentSchedulingUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingUpdate), arg0, arg1)
+}
+
 // EnvironmentUpdate mocks base method.
 func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 EnvironmentUpdate) (Environment, error) {
 	m.ctrl.T.Helper()
