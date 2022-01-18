@@ -28,7 +28,7 @@ func (self *ApiClient) EnvironmentSchedulingUpdate(environmentId string, payload
 }
 
 func (self *ApiClient) EnvironmentSchedulingDelete(environmentId string) error {
-	err := self.http.Put("/scheduling/environments/"+environmentId, EnvironmentSchedulingUpdatePayload{}, nil)
+	err := self.http.Put("/scheduling/environments/"+environmentId, EnvironmentScheduling{}, nil)
 	if err != nil {
 		return err
 	}
