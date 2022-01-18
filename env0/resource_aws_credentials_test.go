@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -21,8 +22,14 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		"external_id": "22222",
 	}
 
+	updatedawsCredentialResoure := map[string]interface{}{
+		"name":        "update",
+		"arn":         "11111",
+		"external_id": "22222",
+	}
+
 	awsCredCreatePayload := client.AwsCredentialsCreatePayload{
-		Name: "test",
+		Name: awsCredentialResoure["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
 			RoleArn:    awsCredentialResoure["arn"].(string),
 			ExternalId: awsCredentialResoure["external_id"].(string),
@@ -30,10 +37,10 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	}
 
 	updateAwsCredCreatePayload := client.AwsCredentialsCreatePayload{
-		Name: "update",
+		Name: updatedawsCredentialResoure["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    awsCredentialResoure["arn"].(string),
-			ExternalId: awsCredentialResoure["external_id"].(string),
+			RoleArn:    updatedawsCredentialResoure["arn"].(string),
+			ExternalId: updatedawsCredentialResoure["external_id"].(string),
 		},
 	}
 
@@ -49,12 +56,6 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
-	}
-
-	updatedawsCredentialResoure := map[string]interface{}{
-		"name":        "update",
-		"arn":         "11111",
-		"external_id": "22222",
 	}
 
 	testCaseForCreate := resource.TestCase{
@@ -94,6 +95,15 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		},
 	}
 
+	testCaseForError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+				ExpectError: regexp.MustCompile("Missing required argument"),
+			},
+		},
+	}
+
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseForCreate, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().AwsCredentialsCreate(awsCredCreatePayload).Times(1).Return(returnValues, nil)
@@ -113,6 +123,12 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 				mock.EXPECT().AwsCredentials(updateReturnValues.Id).Times(1).Return(updateReturnValues, nil),
 			)
 			mock.EXPECT().AwsCredentialsDelete(updateReturnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("throw error when one of the values is missing", func(t *testing.T) {
+		runUnitTest(t, testCaseForError, func(mock *client.MockApiClientInterface) {
+			//mock.EXPECT().AwsCredentialsCreate(gomock.Any()).Return(client.ApiKey{}, "error")
 		})
 	})
 
