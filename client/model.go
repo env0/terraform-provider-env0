@@ -389,14 +389,14 @@ type PolicyUpdatePayload struct {
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
 }
 
-type EnvironmentSchedulingUpdatePayload struct {
+type EnvironmentSchedulingExpression struct {
 	Cron    string `json:"cron"`
 	Enabled bool   `json:"enabled"`
 }
 
 type EnvironmentScheduling struct {
-	Deploy  EnvironmentSchedulingUpdatePayload `json:"deploy,omitempty"`
-	Destroy EnvironmentSchedulingUpdatePayload `json:"destroy,omitempty"`
+	Deploy  EnvironmentSchedulingExpression `json:"deploy,omitempty"`
+	Destroy EnvironmentSchedulingExpression `json:"destroy,omitempty"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
