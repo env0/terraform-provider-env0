@@ -115,7 +115,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 	Describe("Delete", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
-				httpCall = mockHttpClient.EXPECT().Put("/scheduling/environments/"+mockEnvironmentId, EnvironmentScheduling{}, nil)
+				httpCall = mockHttpClient.EXPECT().Put("/scheduling/environments/"+mockEnvironmentId, EnvironmentScheduling{}, &EnvironmentScheduling{})
 				apiClient.EnvironmentSchedulingDelete(mockEnvironmentId)
 			})
 

@@ -14,8 +14,8 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 	environmentScheduling := client.EnvironmentScheduling{
-		Deploy:  client.EnvironmentSchedulingExpression{Cron: "1 * * * *", Enabled: true},
-		Destroy: client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: true},
+		Deploy:  &client.EnvironmentSchedulingExpression{Cron: "1 * * * *", Enabled: true},
+		Destroy: &client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: true},
 	}
 
 	cronExprKeys := []string{"deploy_cron", "destroy_cron"}
