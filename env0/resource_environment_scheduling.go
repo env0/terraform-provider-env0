@@ -70,8 +70,19 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("could not get environment scheduling: %v", err)
 	}
 
-	d.Set("deploy_cron", environmentScheduling.Deploy.Cron)
-	d.Set("destroy_cron", environmentScheduling.Destroy.Cron)
+	if environmentScheduling.Deploy != nil {
+		d.Set("deploy_cron", environmentScheduling.Deploy.Cron)
+	} else {
+		d.Set("deploy_cron", "")
+	}
+
+	if environmentScheduling.Destroy != nil {
+		d.Set("destroy_cron", environmentScheduling.Destroy.Cron)
+	} else {
+		d.Set("destroy_cron", "")
+
+	}
+
 	return nil
 }
 
@@ -82,9 +93,14 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 	deployCron := d.Get("deploy_cron").(string)
 	destroyCron := d.Get("destroy_cron").(string)
 
-	payload := EnvironmentScheduling{
-		Deploy:  EnvironmentSchedulingExpression{Cron: deployCron, Enabled: true},
-		Destroy: EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true},
+	payload := EnvironmentScheduling{}
+
+	if deployCron != "" {
+		payload.Deploy = &EnvironmentSchedulingExpression{Cron: deployCron, Enabled: true}
+	}
+
+	if destroyCron != "" {
+		payload.Destroy = &EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true}
 	}
 
 	_, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload)
