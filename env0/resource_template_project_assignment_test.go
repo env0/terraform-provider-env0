@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"errors"
 	"regexp"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 
 	returnValues := client.Template{
 		Id:         "tid",
-		ProjectIds: []string{"pid"},
+		ProjectIds: []string{"pid", "other-id"},
 	}
 
 	updateReturnValues := client.Template{
@@ -75,6 +76,15 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 		},
 	}
 
+	testCaseForApiclientError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, resourceTemplateAssignment),
+				ExpectError: regexp.MustCompile("could not assign template to project: error"),
+			},
+		},
+	}
+
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseforCreate, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
@@ -105,4 +115,10 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 		})
 	})
 
+	t.Run("detect error when apiclient.AssignTemplateToProject throw error", func(t *testing.T) {
+		runUnitTest(t, testCaseForApiclientError, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
+				Times(1).Return(client.Template{}, errors.New("error"))
+		})
+	})
 }
