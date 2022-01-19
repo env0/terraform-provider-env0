@@ -15,8 +15,10 @@ func (self *ApiClient) EnvironmentScheduling(environmentId string) (EnvironmentS
 func (self *ApiClient) EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error) {
 	var result EnvironmentScheduling
 
-	if payload.Deploy.Cron == payload.Destroy.Cron {
-		return EnvironmentScheduling{}, errors.New("deploy and destroy cron expressions must not be the same")
+	if payload.Deploy != nil && payload.Destroy != nil {
+		if payload.Deploy != nil && payload.Deploy.Cron == payload.Destroy.Cron {
+			return EnvironmentScheduling{}, errors.New("deploy and destroy cron expressions must not be the same")
+		}
 	}
 
 	err := self.http.Put("/scheduling/environments/"+environmentId, payload, &result)
@@ -28,7 +30,7 @@ func (self *ApiClient) EnvironmentSchedulingUpdate(environmentId string, payload
 }
 
 func (self *ApiClient) EnvironmentSchedulingDelete(environmentId string) error {
-	err := self.http.Put("/scheduling/environments/"+environmentId, EnvironmentScheduling{}, nil)
+	err := self.http.Put("/scheduling/environments/"+environmentId, EnvironmentScheduling{}, &EnvironmentScheduling{})
 	if err != nil {
 		return err
 	}
