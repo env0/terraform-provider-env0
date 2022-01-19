@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"fmt"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
@@ -16,6 +17,8 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 		Deploy:  client.EnvironmentSchedulingExpression{Cron: "1 * * * *", Enabled: true},
 		Destroy: client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: true},
 	}
+
+	cronExprKeys := []string{"deploy_cron", "destroy_cron"}
 
 	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
@@ -42,23 +45,38 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Failure due to invalid cron expression", func(t *testing.T) {
+	for _, key := range cronExprKeys {
+		t.Run(fmt.Sprintf("Failure due to invalid cron expression for %s", key), func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"environment_id": environmentId,
+							key:              "not_a_valid_cron",
+						}),
+						ExpectError: regexp.MustCompile("Invalid cron expression"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+
+		})
+	}
+
+	t.Run("Failure when both deploy_cron and destroy_cron attributes are missing", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"environment_id": environmentId,
-						"deploy_cron":    "not_a_valid_cron",
 					}),
-					ExpectError: regexp.MustCompile("Invalid cron expression"),
+					ExpectError: regexp.MustCompile("AtLeastOne"),
 				},
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().EnvironmentSchedulingUpdate(environmentId, environmentScheduling).Times(1).Return(environmentScheduling, nil)
-			mock.EXPECT().EnvironmentScheduling(environmentId).Times(1).Return(environmentScheduling, nil)
-			mock.EXPECT().EnvironmentSchedulingDelete(environmentId).Times(1).Return(nil)
-		})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+
 	})
 }
