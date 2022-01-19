@@ -9,11 +9,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const (
-	environmentId = "env-id"
-)
-
 var _ = Describe("Environment Client", func() {
+	const (
+		environmentId = "env-id"
+	)
+
 	mockEnvironment := Environment{
 		Id:   environmentId,
 		Name: "env0",
