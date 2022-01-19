@@ -395,8 +395,8 @@ type EnvironmentSchedulingExpression struct {
 }
 
 type EnvironmentScheduling struct {
-	Deploy  EnvironmentSchedulingExpression `json:"deploy,omitempty"`
-	Destroy EnvironmentSchedulingExpression `json:"destroy,omitempty"`
+	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty"`
+	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
