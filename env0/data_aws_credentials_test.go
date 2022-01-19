@@ -77,7 +77,7 @@ func TestAwsCredDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(AwsCredFieldsByName),
-			mockListAwsCredCall([]client.ApiKey{awsCred}),
+			mockListAwsCredCall([]client.ApiKey{awsCred, otherAwsCred}),
 		)
 	})
 
@@ -88,7 +88,7 @@ func TestAwsCredDataSource(t *testing.T) {
 		)
 	})
 
-	t.Run("Throw error when by name and more than one aws-credential exists", func(t *testing.T) {
+	t.Run("Throw error when by name and more than one aws-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(AwsCredFieldsByName, "Found multiple AWS Credentials for name: testdata"),
 			mockListAwsCredCall([]client.ApiKey{awsCred, awsCred, awsCred}),

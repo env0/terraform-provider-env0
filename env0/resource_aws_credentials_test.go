@@ -128,7 +128,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	t.Run("throw error when one of the values is missing", func(t *testing.T) {
 		runUnitTest(t, testCaseForError, func(mock *client.MockApiClientInterface) {
-			//mock.EXPECT().AwsCredentialsCreate(gomock.Any()).Return(client.ApiKey{}, "error")
+
 		})
 	})
 
