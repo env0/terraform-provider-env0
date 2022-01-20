@@ -407,7 +407,7 @@ type WorkflowTrigger struct {
 	LatestDeploymentLog DeploymentLog `json:"latestDeploymentLog"`
 }
 
-type WorkflowTriggerCreatePayload struct {
+type WorkflowTriggerUpsertPayload struct {
 	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
 }
 

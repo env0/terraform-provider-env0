@@ -21,7 +21,7 @@ var _ = Describe("Workflow Triggers", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Put("/environments/"+environmentId+"/downstream", WorkflowTriggerCreatePayload{
+				Put("/environments/"+environmentId+"/downstream", WorkflowTriggerUpsertPayload{
 					DownstreamEnvironmentIds: []string{mockTrigger.Id},
 				},
 					gomock.Any()).
@@ -29,7 +29,7 @@ var _ = Describe("Workflow Triggers", func() {
 					*response = mockTrigger
 				})
 
-			trigger, _ = apiClient.WorkflowTriggerCreate(environmentId, WorkflowTriggerCreatePayload{
+			trigger, _ = apiClient.WorkflowTriggerCreate(environmentId, WorkflowTriggerUpsertPayload{
 				DownstreamEnvironmentIds: []string{mockTrigger.Id},
 			})
 		})
