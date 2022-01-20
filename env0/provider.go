@@ -59,6 +59,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_team_project_assignment":              resourceTeamProjectAssignment(),
 				"env0_team":                                 resourceTeam(),
 				"env0_environment":                          resourceEnvironment(),
+				"env0_workflow_triggers":                    resourceWorkflowTriggers(),
 			},
 		}
 

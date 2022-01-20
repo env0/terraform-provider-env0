@@ -51,28 +51,28 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(ApiClientInterface)
 	environmentId := d.Get("environment_id").(string)
-	request := WorkflowTriggerCreatePayload{
-		DownstreamEnvironmentIds: d.Get("downstream_environment_ids"),
+	request := WorkflowTriggerUpsertPayload{
+		DownstreamEnvironmentIds: d.Get("downstream_environment_ids").([]string),
 	}
-	triggers, err := apiClient.WorkflowTriggerCreate(environmentId, request)
+	triggers, err := apiClient.WorkflowTriggerUpsert(environmentId, request)
 	if err != nil {
-		return diag.Errorf("could not Create or Update TeamProjectAssignment: %v", err)
+		return diag.Errorf("could not Create or Update workflow triggers: %v", err)
+	}
+
+	var downstreamIds []string
+	for _, trigger := range triggers {
+		downstreamIds = append(downstreamIds, trigger.Id)
 	}
 
 	d.SetId(environmentId)
-	var downstreamIds []string
-	for _, trigger := range triggers {
-
-	}
-
-	d.Set("downstream_environment_ids")
+	d.Set("downstream_environment_ids", downstreamIds)
 	return nil
 }
 
 func resourceWorkflowTriggersDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(ApiClientInterface)
 
-	_, err := apiClient.WorkflowTriggerCreate(d.Id(), WorkflowTriggerCreatePayload{})
+	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), WorkflowTriggerUpsertPayload{})
 	if err != nil {
 		return diag.Errorf("could not remove workflow triggers: %v", err)
 	}
