@@ -728,6 +728,36 @@ func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
 }
 
+// WorkflowTrigger mocks base method.
+func (m *MockApiClientInterface) WorkflowTrigger(arg0 string) ([]WorkflowTrigger, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WorkflowTrigger", arg0)
+	ret0, _ := ret[0].([]WorkflowTrigger)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WorkflowTrigger indicates an expected call of WorkflowTrigger.
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTrigger(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTrigger), arg0)
+}
+
+// WorkflowTriggerCreate mocks base method.
+func (m *MockApiClientInterface) WorkflowTriggerCreate(arg0 string, arg1 WorkflowTriggerCreatePayload) (WorkflowTrigger, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WorkflowTriggerCreate", arg0, arg1)
+	ret0, _ := ret[0].(WorkflowTrigger)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WorkflowTriggerCreate indicates an expected call of WorkflowTriggerCreate.
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTriggerCreate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTriggerCreate", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTriggerCreate), arg0, arg1)
+}
+
 // organizationId mocks base method.
 func (m *MockApiClientInterface) organizationId() (string, error) {
 	m.ctrl.T.Helper()
