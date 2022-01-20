@@ -7,9 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const awsCredentialsName = "credential_test"
-
 var _ = Describe("AwsCredentials", func() {
+	const awsCredentialsName = "credential_test"
 	var apiKey ApiKey
 	mockApiKey := ApiKey{
 		Id:             "id1",

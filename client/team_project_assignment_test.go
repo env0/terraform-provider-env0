@@ -8,12 +8,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const dummyProjectAssignmentId = "dummyId"
-const dummyProjectId = "dummyProjectId"
-const dummyProjectRole = "Admin"
-const dummyTeamId = "dummyTeamId"
-
 var _ = Describe("TeamProjectAssignment", func() {
+	const dummyProjectAssignmentId = "dummyId"
+	const dummyProjectId = "dummyProjectId"
+	const dummyProjectRole = "Admin"
+	const dummyTeamId = "dummyTeamId"
 
 	mockTeamProjectAssignment := TeamProjectAssignment{
 		Id:          dummyProjectAssignmentId,
