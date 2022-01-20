@@ -51,8 +51,13 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(ApiClientInterface)
 	environmentId := d.Get("environment_id").(string)
+	rawDownstreamIds := d.Get("downstream_environment_ids").([]interface{})
+	var requestDownstreamIds []string
+	for _, rawId := range rawDownstreamIds {
+		requestDownstreamIds = append(requestDownstreamIds, rawId.(string))
+	}
 	request := WorkflowTriggerUpsertPayload{
-		DownstreamEnvironmentIds: d.Get("downstream_environment_ids").([]string),
+		requestDownstreamIds,
 	}
 	triggers, err := apiClient.WorkflowTriggerUpsert(environmentId, request)
 	if err != nil {
@@ -72,7 +77,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 func resourceWorkflowTriggersDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(ApiClientInterface)
 
-	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), WorkflowTriggerUpsertPayload{})
+	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), WorkflowTriggerUpsertPayload{DownstreamEnvironmentIds: []string{}})
 	if err != nil {
 		return diag.Errorf("could not remove workflow triggers: %v", err)
 	}
