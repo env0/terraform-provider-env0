@@ -26,3 +26,9 @@ resource "env0_environment" "downstream_environment" {
   approve_plan_automatically = true
 }
 
+resource "env0_workflow_triggers" "trigger_link" {
+  environment_id = env0_environment.the_trigger.id
+  downstream_environment_ids =  [
+    env0_environment.downstream_environment.id
+  ]
+}
