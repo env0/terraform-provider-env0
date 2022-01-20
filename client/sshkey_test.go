@@ -7,10 +7,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const sshKeyName = "new_ssh_key"
-const sshKeyValue = "fake key"
-
 var _ = Describe("SshKey", func() {
+	const sshKeyName = "new_ssh_key"
+	const sshKeyValue = "fake key"
 	mockSshKey := SshKey{
 		Id:             "123",
 		Name:           sshKeyName,
