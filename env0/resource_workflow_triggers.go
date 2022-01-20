@@ -28,6 +28,7 @@ func resourceWorkflowTriggers() *schema.Resource {
 					Type:        schema.TypeString,
 					Description: "id of the downstream environments to trigger",
 				},
+				MinItems: 1,
 			},
 		},
 	}
