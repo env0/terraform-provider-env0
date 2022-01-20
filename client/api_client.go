@@ -57,6 +57,9 @@ type ApiClientInterface interface {
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
 	EnvironmentUpdateTTL(id string, payload TTL) (Environment, error)
+	EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error)
+	EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error)
+	EnvironmentSchedulingDelete(environmentId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

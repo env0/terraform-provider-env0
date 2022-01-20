@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,9 +58,16 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 
 	templateId := d.Get("template_id").(string)
 	template, err := apiClient.Template(templateId)
+
 	if err != nil {
-		return diag.Errorf("could not get template: %v", err)
+		return diag.Errorf("could not get template (%s): %v", d.Id(), err)
 	}
+
+	if template.IsDeleted {
+		d.SetId("")
+		return nil
+	}
+
 	var assignProjectId = d.Get("project_id").(string)
 	isProjectIdInTemplate := false
 	for _, projectId := range template.ProjectIds {
@@ -70,8 +76,8 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 		}
 	}
 	if !isProjectIdInTemplate {
-		return diag.Errorf("could not find projectId in template.\n projectId = %v, templateId = %v", assignProjectId, templateId)
-
+		d.SetId("")
+		return nil
 	}
 
 	return nil

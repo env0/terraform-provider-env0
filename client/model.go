@@ -267,6 +267,7 @@ type Template struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
+	IsDeleted            bool             `json:"isDeleted,omitempty"`
 }
 
 type Environment struct {
@@ -386,6 +387,16 @@ type PolicyUpdatePayload struct {
 	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
 	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
+}
+
+type EnvironmentSchedulingExpression struct {
+	Cron    string `json:"cron"`
+	Enabled bool   `json:"enabled"`
+}
+
+type EnvironmentScheduling struct {
+	Deploy  EnvironmentSchedulingExpression `json:"deploy,omitempty"`
+	Destroy EnvironmentSchedulingExpression `json:"destroy,omitempty"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
