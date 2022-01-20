@@ -10,11 +10,11 @@ func (self *ApiClient) WorkflowTrigger(environmentId string) ([]WorkflowTrigger,
 	return result, nil
 }
 
-func (self *ApiClient) WorkflowTriggerCreate(environmentId string, request WorkflowTriggerCreatePayload) (WorkflowTrigger, error) {
-	var result WorkflowTrigger
+func (self *ApiClient) WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
+	var result []WorkflowTrigger
 	err := self.http.Put("/environments/"+environmentId+"/downstream", request, &result)
 	if err != nil {
-		return WorkflowTrigger{}, err
+		return []WorkflowTrigger{}, err
 	}
 	return result, nil
 }
