@@ -34,10 +34,6 @@ var _ = Describe("Workflow Triggers", func() {
 			})
 		})
 
-		It("Should send PUT request with params", func() {
-			httpCall.Times(1)
-		})
-
 		It("Should return created trigger", func() {
 			Expect(trigger).To(Equal(mockTrigger))
 		})
@@ -52,10 +48,6 @@ var _ = Describe("Workflow Triggers", func() {
 					*response = []WorkflowTrigger{mockTrigger}
 				})
 			queriedTriggers, _ = apiClient.WorkflowTrigger(environmentId)
-		})
-
-		It("Should send GET request with project id", func() {
-			httpCall.Times(1)
 		})
 
 		It("Should return correct triggers", func() {
