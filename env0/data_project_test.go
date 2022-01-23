@@ -17,6 +17,15 @@ func TestProjectDataSource(t *testing.T) {
 		Description: "A project's description",
 	}
 
+	archivedProject := client.Project{
+		Id:          "otherId",
+		Name:        project.Name,
+		CreatedBy:   project.CreatedBy,
+		Role:        project.Role,
+		Description: project.Description,
+		IsArchived:  true,
+	}
+
 	projectDataByName := map[string]interface{}{"name": project.Name}
 	projectDataById := map[string]interface{}{"id": project.Id}
 
@@ -74,7 +83,7 @@ func TestProjectDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(projectDataByName),
-			mockListProjectsCall([]client.Project{project}),
+			mockListProjectsCall([]client.Project{project, archivedProject}),
 		)
 	})
 
