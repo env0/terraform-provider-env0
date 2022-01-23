@@ -28,7 +28,7 @@ resource "env0_environment" "downstream_environment" {
 
 resource "env0_workflow_triggers" "trigger_link" {
   environment_id = env0_environment.the_trigger.id
-  downstream_environment_ids =  [
+  downstream_environment_ids = [
     env0_environment.downstream_environment.id
   ]
 }
