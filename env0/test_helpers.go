@@ -40,13 +40,23 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 	for key, value := range fields {
 		intValue, intOk := value.(int)
 		boolValue, boolOk := value.(bool)
+		arrayValues, arrayOk := value.([]string)
 		if intOk {
 			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
 		}
 		if boolOk {
 			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
 		}
-		if !intOk && !boolOk {
+		if arrayOk {
+			arrayValueString := ""
+			for _, arrayValue := range arrayValues {
+				arrayValueString += "\"" + arrayValue + "\","
+			}
+			arrayValueString = arrayValueString[:len(arrayValueString)-1]
+
+			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
+		}
+		if !intOk && !boolOk && !arrayOk {
 			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
 		}
 	}

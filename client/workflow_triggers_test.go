@@ -11,10 +11,7 @@ var _ = Describe("Workflow Triggers", func() {
 	const environmentId = "environmentId"
 	mockTrigger := []WorkflowTrigger{
 		{
-			Id:            "id1",
-			Name:          "name",
-			WorkspaceName: "workspaceName",
-			ProjectId:     "projectId",
+			Id: "id1",
 		},
 	}
 
