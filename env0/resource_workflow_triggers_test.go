@@ -93,7 +93,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config:      createHCL,
-					ExpectError: regexp.MustCompile("could not get workflow triggers: error "),
+					ExpectError: regexp.MustCompile("could not get workflow triggers: error"),
 				},
 			},
 		}
