@@ -305,6 +305,9 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 	} else {
 		d.SetId(variable.Id)
 		scopeName := strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
+		if variable.Scope == "BLUEPRINT" {
+			scopeName = strings.ToLower(fmt.Sprintf("%s_id", "TEMPLATE"))
+		}
 
 		d.Set(scopeName, configurationParams.ScopeId)
 
