@@ -19,7 +19,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	archivedProject := client.Project{
 		Id:          "otherId",
-		Name:        project.Id,
+		Name:        project.Name,
 		CreatedBy:   project.CreatedBy,
 		Role:        project.Role,
 		Description: project.Description,
