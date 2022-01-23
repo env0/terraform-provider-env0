@@ -8,12 +8,10 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/terraform-json v0.13.0 // indirect
+	github.com/hashicorp/terraform-plugin-docs v0.5.1 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.4
-	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jarcoal/httpmock v1.0.8
 	github.com/jinzhu/copier v0.3.2
-	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.12.0
-	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 )
