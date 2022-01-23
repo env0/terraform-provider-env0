@@ -400,10 +400,7 @@ type EnvironmentScheduling struct {
 }
 
 type WorkflowTrigger struct {
-	Id            string `json:"id"`
-	Name          string `json:"name"`
-	WorkspaceName string `json:"workspaceName"`
-	ProjectId     string `json:"projectId"`
+	Id string `json:"id"`
 }
 
 type WorkflowTriggerUpsertPayload struct {
