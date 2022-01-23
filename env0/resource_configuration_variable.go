@@ -104,6 +104,8 @@ func resourceConfigurationVariable() *schema.Resource {
 	}
 }
 
+const templateScope = "TEMPLATE"
+
 func whichScope(d *schema.ResourceData) (client.Scope, string) {
 	scope := client.ScopeGlobal
 	scopeId := ""
@@ -112,10 +114,6 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 		scopeId = projectId.(string)
 	}
 	if templateId, ok := d.GetOk("template_id"); ok {
-		scope = client.ScopeTemplate
-		scopeId = templateId.(string)
-	}
-	if templateId, ok := d.GetOk("blueprint_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
@@ -304,9 +302,13 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 		return nil, errors.New(getErr[0].Summary)
 	} else {
 		d.SetId(variable.Id)
-		scopeName := strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
-		if variable.Scope == "BLUEPRINT" {
-			scopeName = strings.ToLower(fmt.Sprintf("%s_id", "TEMPLATE"))
+
+		var scopeName string
+
+		if variable.Scope == client.ScopeTemplate {
+			scopeName = strings.ToLower(fmt.Sprintf("%s_id", templateScope))
+		} else {
+			scopeName = strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
 		}
 
 		d.Set(scopeName, configurationParams.ScopeId)
