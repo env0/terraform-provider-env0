@@ -48,7 +48,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		IsReadonly:  *configVar.IsReadonly,
 	}
 	t.Run("Create", func(t *testing.T) {
-
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -67,7 +66,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -121,7 +120,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 					Description: configVar.Description,
 					Format:      client.Text,
 				}).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -194,7 +193,7 @@ resource "%s" "test" {
 						Description: configVar.Description,
 						Format:      format,
 					}).Times(1).Return(configVar, nil)
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 				mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 			})
 		})
@@ -244,24 +243,7 @@ resource "%s" "test" {
 			Steps: []resource.TestStep{
 				{
 					Config:      stepConfig,
-					ExpectError: regexp.MustCompile(`(Error: could not get configurationVariable: error)`),
-				},
-			},
-		}
-
-		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, errors.New("error"))
-			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
-		})
-	})
-
-	t.Run("Read not found", func(t *testing.T) {
-		createTestCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      stepConfig,
-					ExpectError: regexp.MustCompile(`(Error: variable .+ not found)`),
+					ExpectError: regexp.MustCompile("could not get configurationVariable: error"),
 				},
 			},
 		}
@@ -269,7 +251,7 @@ resource "%s" "test" {
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(
 				configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -354,8 +336,8 @@ resource "%s" "test" {
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
 			gomock.InOrder(
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2),
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{newConfigVar}, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(2).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Return(newConfigVar, nil),
 			)
 			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
@@ -404,7 +386,7 @@ resource "%s" "test" {
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(2).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
