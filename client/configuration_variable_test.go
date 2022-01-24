@@ -35,6 +35,24 @@ var _ = Describe("Configuration Variable", func() {
 		IsRequired:     &isRequired,
 	}
 
+	Describe("ConfigurationVariablesById", func() {
+		id := "configurationId"
+		var found ConfigurationVariable
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Get("/configuration/"+id, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *ConfigurationVariable) {
+					*response = mockConfigurationVariable
+				})
+
+			found, _ = apiClient.ConfigurationVariablesById(id)
+		})
+
+		It("Should return created triggers", func() {
+			Expect(found).To(Equal(mockConfigurationVariable))
+		})
+	})
+
 	Describe("ConfigurationVariableCreate", func() {
 		var createdConfigurationVariable ConfigurationVariable
 

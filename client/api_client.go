@@ -13,6 +13,7 @@ type ApiClient struct {
 
 type ApiClientInterface interface {
 	ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error)
+	ConfigurationVariablesById(id string) (ConfigurationVariable, error)
 	ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error)
 	ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error

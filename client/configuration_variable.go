@@ -4,6 +4,17 @@ import (
 	"errors"
 )
 
+func (self *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
+	var result ConfigurationVariable
+
+	err := self.http.Get("/configuration/"+id, nil, &result)
+
+	if err != nil {
+		return ConfigurationVariable{}, err
+	}
+	return result, nil
+}
+
 func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
