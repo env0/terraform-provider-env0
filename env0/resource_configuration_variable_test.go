@@ -1,11 +1,13 @@
 package env0
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
+	"text/template"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
@@ -68,6 +70,107 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Create Two with readonly", func(t *testing.T) {
+		// https://github.com/env0/terraform-provider-env0/issues/215
+		// we want to create two variables, one org level with read only and another in lower level and see we can still manage both - double apply and destroy
+		orgResourceName := "org"
+		projResourceName := "project"
+		orgAccessor := resourceAccessor(resourceType, orgResourceName)
+		projAccessor := resourceAccessor(resourceType, projResourceName)
+
+		orgVar := client.ConfigurationVariable{
+			Id:         "orgVariableId",
+			Name:       "variable",
+			Value:      "orgVariable",
+			IsReadonly: &isReadonly,
+		}
+
+		orgConfigVariableCreateParams := client.ConfigurationVariableCreateParams{
+			Name:        orgVar.Name,
+			Value:       orgVar.Value,
+			IsSensitive: false,
+			Scope:       client.ScopeGlobal,
+			ScopeId:     "",
+			Type:        client.ConfigurationVariableTypeEnvironment,
+			EnumValues:  nil,
+			Format:      client.Text,
+			IsReadonly:  *orgVar.IsReadonly,
+		}
+
+		projVar := client.ConfigurationVariable{
+			Id:      "projectVariableId",
+			Name:    orgVar.Name,
+			Value:   "projVariable",
+			Scope:   client.ScopeProject,
+			ScopeId: "projectId",
+		}
+
+		projectConfigVariableCreateParams := client.ConfigurationVariableCreateParams{
+			Name:        projVar.Name,
+			Value:       projVar.Value,
+			IsSensitive: false,
+			Scope:       client.ScopeProject,
+			ScopeId:     projVar.ScopeId,
+			Type:        client.ConfigurationVariableTypeEnvironment,
+			EnumValues:  nil,
+			Format:      client.Text,
+		}
+
+		data := map[string]interface{}{"projectId": projVar.ScopeId, "orgResourceName": orgResourceName, "projResourceName": projResourceName, "resourceType": resourceType, "variableName": orgVar.Name, "orgValue": orgVar.Value, "projValue": projVar.Value}
+
+		tmpl, err := template.New("").Parse(`
+resource "{{.resourceType}}" "{{.orgResourceName}}" {
+  name = "{{.variableName}}"
+  value = "{{.orgValue}}"
+  is_read_only = true
+}
+
+resource "{{.resourceType}}" "{{.projResourceName}}" {
+  name = {{.resourceType}}.{{.orgResourceName}}.name
+  value = "{{.projValue}}"
+  project_id = "{{.projectId}}"
+}
+`)
+		if err != nil {
+			panic(err)
+		}
+		var tpl bytes.Buffer
+
+		err = tmpl.Execute(&tpl, data)
+		if err != nil {
+			panic(err)
+		}
+		stepConfig := tpl.String()
+
+		testStep := resource.TestStep{
+			Config: stepConfig,
+			Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr(orgAccessor, "id", orgVar.Id),
+				resource.TestCheckResourceAttr(orgAccessor, "name", orgVar.Name),
+				resource.TestCheckResourceAttr(orgAccessor, "value", orgVar.Value),
+				resource.TestCheckResourceAttr(orgAccessor, "is_read_only", strconv.FormatBool(*orgVar.IsReadonly)),
+				resource.TestCheckResourceAttr(projAccessor, "id", projVar.Id),
+				resource.TestCheckResourceAttr(projAccessor, "name", projVar.Name),
+				resource.TestCheckResourceAttr(projAccessor, "value", projVar.Value),
+			),
+		}
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				testStep,
+				testStep,
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(projectConfigVariableCreateParams).Times(1).Return(projVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(orgConfigVariableCreateParams).Times(1).Return(orgVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(orgVar.Id).AnyTimes().Return(orgVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(projVar.Id).AnyTimes().Return(projVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(orgVar.Id).Times(1).Return(nil)
+			mock.EXPECT().ConfigurationVariableDelete(projVar.Id).Times(1).Return(nil)
 		})
 	})
 
