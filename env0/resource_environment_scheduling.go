@@ -37,20 +37,20 @@ func resourceEnvironmentScheduling() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"environment_id": {
 				Type:        schema.TypeString,
-				Description: "the environment's id",
+				Description: "The environment's id",
 				Required:    true,
 				ForceNew:    true,
 			},
 			"destroy_cron": {
 				Type:             schema.TypeString,
-				Description:      "Cron expression for scheduled destroy of the environment",
+				Description:      "Cron expression for scheduled destroy of the environment. Destroy and Deploy cron expressions must not be the same.",
 				AtLeastOneOf:     []string{"destroy_cron", "deploy_cron"},
 				Optional:         true,
 				ValidateDiagFunc: validateCronExpression,
 			},
 			"deploy_cron": {
 				Type:             schema.TypeString,
-				Description:      "Cron expression for scheduled deploy of the environment",
+				Description:      "Cron expression for scheduled deploy of the environment. Destroy and Deploy cron expressions must not be the same.",
 				AtLeastOneOf:     []string{"destroy_cron", "deploy_cron"},
 				Optional:         true,
 				ValidateDiagFunc: validateCronExpression,
