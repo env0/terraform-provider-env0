@@ -62,6 +62,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).AnyTimes().
+					Return(configurationVariable, nil)
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
@@ -107,6 +109,8 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).AnyTimes().
+					Return(configurationVariable, nil)
 				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
@@ -117,7 +121,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id, "template_id": "template_id"}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": "template_id", "name": configurationVariable.Name}),
 						Check:  checkResources,
 					},
 				},

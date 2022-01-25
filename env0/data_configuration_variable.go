@@ -185,13 +185,22 @@ func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 
 func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+	id, idOk := params.Id, params.Id != ""
 
-	variables, err := apiClient.ConfigurationVariables(params.Scope, params.ScopeId)
+	if idOk {
+		variable, err := apiClient.ConfigurationVariablesById(id)
+		if err != nil {
+			return client.ConfigurationVariable{}, diag.Errorf("Could not query variable: %v", err)
+		}
+		return variable, nil
+	}
+
+	variables, err := apiClient.ConfigurationVariablesByScope(params.Scope, params.ScopeId)
+
 	if err != nil {
 		return client.ConfigurationVariable{}, diag.Errorf("Could not query variables: %v", err)
 	}
 
-	id, idOk := params.Id, params.Id != ""
 	name, nameOk := params.Name, params.Name != ""
 	typeString, ok := params.configurationType, params.configurationType != ""
 	type_ := -1

@@ -254,7 +254,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("could not get environment: %v", err)
 	}
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -491,7 +491,7 @@ func getTTl(date string) client.TTL {
 }
 
 func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
-	existVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environmentId)
+	existVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
 	if err != nil {
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -640,7 +640,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariables(client.ScopeEnvironment, environment.Id)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("could not get environment configuration variables: %v", err))
 	}

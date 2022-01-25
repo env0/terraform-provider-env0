@@ -182,9 +182,9 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0 i
 }
 
 // ConfigurationVariables mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariables(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariablesByScope(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariables", arg0, arg1)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", arg0, arg1)
 	ret0, _ := ret[0].([]ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -193,7 +193,22 @@ func (m *MockApiClientInterface) ConfigurationVariables(arg0 Scope, arg1 string)
 // ConfigurationVariables indicates an expected call of ConfigurationVariables.
 func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariables", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariables), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
+}
+
+// ConfigurationVariablesById mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (ConfigurationVariable, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfigurationVariablesById", arg0)
+	ret0, _ := ret[0].(ConfigurationVariable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesById", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesById), arg0)
 }
 
 // Environment mocks base method.
