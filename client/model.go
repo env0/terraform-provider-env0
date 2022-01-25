@@ -399,6 +399,14 @@ type EnvironmentScheduling struct {
 	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty"`
 }
 
+type WorkflowTrigger struct {
+	Id string `json:"id"`
+}
+
+type WorkflowTriggerUpsertPayload struct {
+	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
+}
+
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 	type serial struct {
 		ProjectId                   string `json:"projectId"`
