@@ -48,7 +48,7 @@ var _ = Describe("Configuration Variable", func() {
 			found, _ = apiClient.ConfigurationVariablesById(id)
 		})
 
-		It("Should return created triggers", func() {
+		It("Should return variable", func() {
 			Expect(found).To(Equal(mockConfigurationVariable))
 		})
 	})
