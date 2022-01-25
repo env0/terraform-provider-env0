@@ -16,7 +16,7 @@ func (self *ApiClient) EnvironmentSchedulingUpdate(environmentId string, payload
 	var result EnvironmentScheduling
 
 	if payload.Deploy != nil && payload.Destroy != nil {
-		if payload.Deploy != nil && payload.Deploy.Cron == payload.Destroy.Cron {
+		if payload.Deploy.Cron == payload.Destroy.Cron {
 			return EnvironmentScheduling{}, errors.New("deploy and destroy cron expressions must not be the same")
 		}
 	}
