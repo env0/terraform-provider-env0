@@ -195,7 +195,7 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 		return variable, nil
 	}
 
-	variables, err := apiClient.ConfigurationVariables(params.Scope, params.ScopeId)
+	variables, err := apiClient.ConfigurationVariablesByScope(params.Scope, params.ScopeId)
 
 	if err != nil {
 		return client.ConfigurationVariable{}, diag.Errorf("Could not query variables: %v", err)

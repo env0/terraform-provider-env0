@@ -15,7 +15,7 @@ func (self *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVaria
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
+func (self *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return nil, err
