@@ -5,6 +5,7 @@ go 1.16 // please change also in `ci.yml` and `release.yml`
 require (
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/golang/mock v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/terraform-json v0.13.0 // indirect

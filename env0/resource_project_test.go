@@ -69,6 +69,9 @@ func TestUnitProjectResource(t *testing.T) {
 
 		mock.EXPECT().ProjectDelete(project.Id).Times(1)
 	})
+
+
+	
 }
 
 func TestUnitProjectInvalidParams(t *testing.T) {
