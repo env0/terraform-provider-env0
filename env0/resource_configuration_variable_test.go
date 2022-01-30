@@ -493,7 +493,9 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
-	
+
+	importStateId_id := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1", "name": "name0"}`
+	importStateId_name := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0",  "name": "name0"}`
 	ResourceNameImport := "env0_configuration_variable.test"
 	configVarImport := client.ConfigurationVariable{
 		Id:          "id1",
@@ -537,7 +539,7 @@ resource "%s" "test" {
 				{
 					ResourceName:            ResourceNameImport,
 					ImportState:             true,
-					ImportStateId:           `{  "Scope": "BLUEPRINT",  "ScopeId": "id0",  "name": "name0"}`,
+					ImportStateId:           importStateId_name,
 					ImportStateVerify:       true,
 					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
 				},
@@ -562,7 +564,7 @@ resource "%s" "test" {
 				{
 					ResourceName:            ResourceNameImport,
 					ImportState:             true,
-					ImportStateId:           `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1", "name": "name0"}`,
+					ImportStateId:           importStateId_id,
 					ImportStateVerify:       true,
 					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
 				},
