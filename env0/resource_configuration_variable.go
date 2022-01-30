@@ -196,36 +196,34 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	scope, scopeId := whichScope(d)
-	variables, err := apiClient.ConfigurationVariables(scope, scopeId)
+	variable, err := apiClient.ConfigurationVariablesById(id)
+
 	if err != nil {
 		return diag.Errorf("could not get configurationVariable: %v", err)
 	}
-	for _, variable := range variables {
-		if variable.Id == id {
-			d.Set("name", variable.Name)
-			d.Set("description", variable.Description)
-			d.Set("value", variable.Value)
-			d.Set("is_sensitive", variable.IsSensitive)
-			if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
-				d.Set("type", "terraform")
-			} else {
-				d.Set("type", "environment")
-			}
-			if variable.Schema != nil {
-				if len(variable.Schema.Enum) > 0 {
-					d.Set("enum", variable.Schema.Enum)
-				}
 
-				if variable.Schema.Format != "" {
-					d.Set("format", variable.Schema.Format)
-				}
-			}
+	d.Set("name", variable.Name)
+	d.Set("description", variable.Description)
+	d.Set("value", variable.Value)
+	d.Set("is_sensitive", variable.IsSensitive)
+	d.Set("is_read_only", variable.IsReadonly)
+	d.Set("is_required", variable.IsRequired)
+	if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
+		d.Set("type", "terraform")
+	} else {
+		d.Set("type", "environment")
+	}
+	if variable.Schema != nil {
+		if len(variable.Schema.Enum) > 0 {
+			d.Set("enum", variable.Schema.Enum)
+		}
 
-			return nil
+		if variable.Schema.Format != "" {
+			d.Set("format", variable.Schema.Format)
 		}
 	}
-	return diag.Errorf("variable %s not found (under this scope): %v", id, err)
+
+	return nil
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

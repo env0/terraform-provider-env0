@@ -16,8 +16,8 @@ var _ = Describe("EnvironmentScheduling", func() {
 	mockDestroyCronPayload := EnvironmentSchedulingExpression{Cron: "0 * * * *", Enabled: true}
 
 	mockEnvironmentSchedulingPayload := EnvironmentScheduling{
-		Deploy:  mockDeployCronPayload,
-		Destroy: mockDestroyCronPayload,
+		Deploy:  &mockDeployCronPayload,
+		Destroy: &mockDestroyCronPayload,
 	}
 
 	var environmentSchedulingResponse EnvironmentScheduling
@@ -46,8 +46,8 @@ var _ = Describe("EnvironmentScheduling", func() {
 		Describe("Failure", func() {
 			It("Should fail if cron expressions are the same", func() {
 				mockFailedEnvironmentSchedulingPayload := EnvironmentScheduling{
-					Deploy:  mockDeployCronPayload,
-					Destroy: mockDeployCronPayload,
+					Deploy:  &mockDeployCronPayload,
+					Destroy: &mockDeployCronPayload,
 				}
 				_, err := apiClient.EnvironmentSchedulingUpdate(mockEnvironmentId, mockFailedEnvironmentSchedulingPayload)
 				Expect(err).To(BeEquivalentTo(errors.New("deploy and destroy cron expressions must not be the same")))
@@ -115,7 +115,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 	Describe("Delete", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
-				httpCall = mockHttpClient.EXPECT().Put("/scheduling/environments/"+mockEnvironmentId, EnvironmentScheduling{}, nil)
+				httpCall = mockHttpClient.EXPECT().Put("/scheduling/environments/"+mockEnvironmentId, EnvironmentScheduling{}, &EnvironmentScheduling{})
 				apiClient.EnvironmentSchedulingDelete(mockEnvironmentId)
 			})
 

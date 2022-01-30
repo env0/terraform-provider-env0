@@ -35,6 +35,24 @@ var _ = Describe("Configuration Variable", func() {
 		IsRequired:     &isRequired,
 	}
 
+	Describe("ConfigurationVariablesById", func() {
+		id := "configurationId"
+		var found ConfigurationVariable
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Get("/configuration/"+id, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *ConfigurationVariable) {
+					*response = mockConfigurationVariable
+				})
+
+			found, _ = apiClient.ConfigurationVariablesById(id)
+		})
+
+		It("Should return variable", func() {
+			Expect(found).To(Equal(mockConfigurationVariable))
+		})
+	})
+
 	Describe("ConfigurationVariableCreate", func() {
 		var createdConfigurationVariable ConfigurationVariable
 
@@ -198,7 +216,7 @@ var _ = Describe("Configuration Variable", func() {
 		})
 	})
 
-	Describe("ConfigurationVariables", func() {
+	Describe("ConfigurationVariablesByScope", func() {
 		var returnedVariables []ConfigurationVariable
 		mockVariables := []ConfigurationVariable{mockConfigurationVariable}
 		expectedParams := map[string]string{"organizationId": organizationId}
@@ -211,7 +229,7 @@ var _ = Describe("Configuration Variable", func() {
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = mockVariables
 				})
-			returnedVariables, _ = apiClient.ConfigurationVariables(ScopeGlobal, "")
+			returnedVariables, _ = apiClient.ConfigurationVariablesByScope(ScopeGlobal, "")
 		})
 
 		It("Should send GET request with expected params", func() {
@@ -239,7 +257,7 @@ var _ = Describe("Configuration Variable", func() {
 					Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 						*response = mockVariables
 					})
-				returnedVariables, _ = apiClient.ConfigurationVariables(Scope(scope), scopeId)
+				returnedVariables, _ = apiClient.ConfigurationVariablesByScope(Scope(scope), scopeId)
 				httpCall.Times(1)
 			},
 			Entry("Template Scope", string(ScopeTemplate), "blueprintId"),
