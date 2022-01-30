@@ -495,15 +495,6 @@ resource "%s" "test" {
 	})
 
 	t.Run("import", func(t *testing.T) {
-		stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-			"name":         configVar.Name,
-			"description":  configVar.Description,
-			"value":        configVar.Value,
-			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
-			"is_required":  strconv.FormatBool(*configVar.IsRequired),
-			"template_id":  configVar.Id,
-		})
-
 		configVarImport := client.ConfigurationVariable{
 			Id:          "id0",
 			Name:        "name0",
@@ -513,18 +504,20 @@ resource "%s" "test" {
 			IsRequired:  &isRequired,
 			Scope:       "BLUEPRINT",
 		}
+		stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+
+			"name":         configVarImport.Name,
+			"description":  configVarImport.Description,
+			"value":        configVarImport.Value,
+			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+			"is_required":  strconv.FormatBool(*configVar.IsRequired),
+			"template_id":  configVarImport.Id,
+		})
+
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: stepConfirImport,
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", configVarImport.Id),
-						resource.TestCheckResourceAttr(accessor, "name", configVarImport.Name),
-						resource.TestCheckResourceAttr(accessor, "description", configVarImport.Description),
-						resource.TestCheckResourceAttr(accessor, "value", configVarImport.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVarImport.IsReadonly)),
-						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVarImport.IsRequired)),
-					),
 				},
 				{
 					ResourceName:            "env0_configuration_variable.test",
@@ -551,6 +544,7 @@ resource "%s" "test" {
 		}
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams1).Times(1).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(2).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeTemplate, configVarImport.Id).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
 		})
