@@ -496,7 +496,7 @@ resource "%s" "test" {
 
 	t.Run("import", func(t *testing.T) {
 		configVarImport := client.ConfigurationVariable{
-			Id:          "id0",
+			Id:          "id1",
 			Name:        "name0",
 			Description: "desc0",
 			Value:       "Variable",
@@ -511,7 +511,7 @@ resource "%s" "test" {
 			"value":        configVarImport.Value,
 			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
 			"is_required":  strconv.FormatBool(*configVar.IsRequired),
-			"template_id":  configVarImport.Id,
+			"template_id":  "id0",
 		})
 
 		createTestCaseForImport := resource.TestCase{
@@ -545,7 +545,7 @@ resource "%s" "test" {
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(2).Return(configVarImport, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeTemplate, configVarImport.Id).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeTemplate, configurationVariableCreateParamsImport.ScopeId).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
 		})
 	})
