@@ -493,26 +493,41 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+	
+	ResourceNameImport := "env0_configuration_variable.test"
+	configVarImport := client.ConfigurationVariable{
+		Id:          "id1",
+		Name:        "name0",
+		Description: "desc0",
+		Value:       "Variable",
+		IsReadonly:  &isReadonly,
+		IsRequired:  &isRequired,
+		Scope:       "BLUEPRINT",
+	}
+	stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 
-	t.Run("import", func(t *testing.T) {
-		configVarImport := client.ConfigurationVariable{
-			Id:          "id1",
-			Name:        "name0",
-			Description: "desc0",
-			Value:       "Variable",
-			IsReadonly:  &isReadonly,
-			IsRequired:  &isRequired,
-			Scope:       "BLUEPRINT",
-		}
-		stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		"name":         configVarImport.Name,
+		"description":  configVarImport.Description,
+		"value":        configVarImport.Value,
+		"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+		"is_required":  strconv.FormatBool(*configVar.IsRequired),
+		"template_id":  "id0",
+	})
 
-			"name":         configVarImport.Name,
-			"description":  configVarImport.Description,
-			"value":        configVarImport.Value,
-			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
-			"is_required":  strconv.FormatBool(*configVar.IsRequired),
-			"template_id":  "id0",
-		})
+	configurationVariableCreateParamsImport := client.ConfigurationVariableCreateParams{
+		Name:        configVarImport.Name,
+		Value:       configVarImport.Value,
+		IsSensitive: false,
+		Scope:       client.ScopeTemplate,
+		ScopeId:     "id0",
+		Type:        client.ConfigurationVariableTypeEnvironment,
+		EnumValues:  nil,
+		Description: configVarImport.Description,
+		Format:      client.Text,
+		IsRequired:  *configVarImport.IsRequired,
+		IsReadonly:  *configVarImport.IsReadonly,
+	}
+	t.Run("import by name", func(t *testing.T) {
 
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -520,7 +535,7 @@ resource "%s" "test" {
 					Config: stepConfirImport,
 				},
 				{
-					ResourceName:            "env0_configuration_variable.test",
+					ResourceName:            ResourceNameImport,
 					ImportState:             true,
 					ImportStateId:           `{  "Scope": "BLUEPRINT",  "ScopeId": "id0",  "name": "name0"}`,
 					ImportStateVerify:       true,
@@ -529,23 +544,34 @@ resource "%s" "test" {
 			},
 		}
 
-		configurationVariableCreateParamsImport := client.ConfigurationVariableCreateParams{
-			Name:        configVarImport.Name,
-			Value:       configVarImport.Value,
-			IsSensitive: false,
-			Scope:       client.ScopeTemplate,
-			ScopeId:     "id0",
-			Type:        client.ConfigurationVariableTypeEnvironment,
-			EnumValues:  nil,
-			Description: configVarImport.Description,
-			Format:      client.Text,
-			IsRequired:  *configVarImport.IsRequired,
-			IsReadonly:  *configVarImport.IsReadonly,
-		}
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(2).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeTemplate, configurationVariableCreateParamsImport.ScopeId).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id", func(t *testing.T) {
+
+		createTestCaseForImport := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfirImport,
+				},
+				{
+					ResourceName:            ResourceNameImport,
+					ImportState:             true,
+					ImportStateId:           `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1", "name": "name0"}`,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(3).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
 		})
 	})
