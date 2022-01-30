@@ -529,7 +529,7 @@ resource "%s" "test" {
 			},
 		}
 
-		configurationVariableCreateParams1 := client.ConfigurationVariableCreateParams{
+		configurationVariableCreateParamsImport := client.ConfigurationVariableCreateParams{
 			Name:        configVarImport.Name,
 			Value:       configVarImport.Value,
 			IsSensitive: false,
@@ -543,7 +543,7 @@ resource "%s" "test" {
 			IsReadonly:  *configVarImport.IsReadonly,
 		}
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams1).Times(1).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(2).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariables(client.ScopeTemplate, configVarImport.Id).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
