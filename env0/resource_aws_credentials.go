@@ -3,8 +3,9 @@ package env0
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -68,6 +69,10 @@ func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 	id := d.Id()
 	_, err := apiClient.AwsCredentials(id)
 	if err != nil {
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get credentials: %v", err)
 	}
 	return nil
