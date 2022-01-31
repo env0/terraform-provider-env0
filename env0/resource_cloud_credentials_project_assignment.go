@@ -46,11 +46,15 @@ func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *sch
 
 func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-
+	isNewResource := d.IsNewResource()
 	credentialId := d.Get("credential_id").(string)
 	projectId := d.Get("project_id").(string)
 	credentialsList, err := apiClient.CloudCredentialIdsInProject(projectId)
 	if err != nil {
+		if !isNewResource {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get cloud_credentials: %v", err)
 	}
 	found := false
@@ -60,6 +64,10 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 		}
 	}
 	if !found {
+		if !isNewResource {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not find cloud credential project assignment.\n project id = %v, cloud credentials id = %v", projectId, credentialId)
 	}
 
