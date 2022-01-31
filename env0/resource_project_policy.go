@@ -134,6 +134,10 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	policy, err := apiClient.Policy(projectId)
 	if err != nil {
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get policy: %v", err)
 	}
 
