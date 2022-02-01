@@ -181,11 +181,11 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), arg0)
 }
 
-// ConfigurationVariables mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariablesByScope(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
+// ConfigurationVariablesById mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", arg0, arg1)
-	ret0, _ := ret[0].([]ConfigurationVariable)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesById", arg0)
+	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -196,19 +196,25 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
 }
 
-// ConfigurationVariablesById mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (ConfigurationVariable, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariablesById", arg0)
-	ret0, _ := ret[0].(ConfigurationVariable)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
 // ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
 func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesById", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesById), arg0)
+}
+
+// ConfigurationVariablesByScope mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariablesByScope(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", arg0, arg1)
+	ret0, _ := ret[0].([]ConfigurationVariable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConfigurationVariablesByScope indicates an expected call of ConfigurationVariablesByScope.
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesByScope(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
 }
 
 // Environment mocks base method.
