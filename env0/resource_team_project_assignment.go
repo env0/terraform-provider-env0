@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 	"fmt"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,12 +51,16 @@ func resourceTeamProjectAssignment() *schema.Resource {
 
 func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(ApiClientInterface)
-
+	found := false
 	id := d.Id()
 	projectId := d.Get("project_id").(string)
 	assignments, err := apiClient.TeamProjectAssignments(projectId)
 
 	if err != nil {
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get TeamProjectAssignment: %v", err)
 	}
 
@@ -64,9 +69,14 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 			d.Set("project_id", assignment.ProjectId)
 			d.Set("team_id", assignment.TeamId)
 			d.Set("role", assignment.ProjectRole)
+			found = true
 			break
 		}
 	}
+	if !found {
+		d.SetId("")
+	}
+
 	return nil
 }
 
