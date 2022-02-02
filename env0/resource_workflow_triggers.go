@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -42,6 +43,10 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 	triggers, err := apiClient.WorkflowTrigger(environmentId)
 
 	if err != nil {
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get workflow triggers: %v", err)
 	}
 
