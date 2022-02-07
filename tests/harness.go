@@ -210,7 +210,7 @@ func buildFakeTerraformRegistry() {
 	if err != nil {
 		log.Fatalln("Unable to create registry folder ", registry_dir, " error: ", err)
 	}
-	data, err := ioutil.ReadFile("terraform-provider-env0")
+	data, err := ioutil.ReadFile("terraform-provider-env0.exe")
 	if err != nil {
 		log.Fatalln("Unable to read provider binary: did you build it?", err)
 	}

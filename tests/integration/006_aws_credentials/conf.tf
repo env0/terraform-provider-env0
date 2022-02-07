@@ -8,7 +8,10 @@ terraform {
   }
 }
 
-provider "env0" {}
+provider "env0" {
+  api_key = "tabarvanrk3p0xgd"
+  api_secret = "jDYuSMFQIVrbYjw7nx9Gh9-1WkGSDaQt"
+}
 
 variable "second_run" {
   default = false

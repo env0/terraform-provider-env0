@@ -199,6 +199,10 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	variable, err := apiClient.ConfigurationVariablesById(id)
 
 	if err != nil {
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get configurationVariable: %v", err)
 	}
 
