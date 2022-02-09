@@ -57,10 +57,6 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	_, err := getSshKeyById(d.Id(), meta)
 	if err != nil {
-		if !d.IsNewResource() {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 	return nil

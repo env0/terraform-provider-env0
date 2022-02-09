@@ -75,10 +75,6 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	project, err := apiClient.Project(d.Id())
 	if err != nil {
-		if !d.IsNewResource() {
-			d.SetId("")
-			return nil
-		}
 		return diag.Errorf("could not get project: %v", err)
 	}
 

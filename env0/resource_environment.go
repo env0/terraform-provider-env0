@@ -252,10 +252,6 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	environment, err := apiClient.Environment(d.Id())
 	if err != nil {
-		if !d.IsNewResource() {
-			d.SetId("")
-			return nil
-		}
 		return diag.Errorf("could not get environment: %v", err)
 	}
 

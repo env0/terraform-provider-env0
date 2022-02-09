@@ -57,10 +57,6 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	assignments, err := apiClient.TeamProjectAssignments(projectId)
 
 	if err != nil {
-		if !d.IsNewResource() {
-			d.SetId("")
-			return nil
-		}
 		return diag.Errorf("could not get TeamProjectAssignment: %v", err)
 	}
 

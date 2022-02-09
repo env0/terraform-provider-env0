@@ -51,10 +51,6 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 	projectId := d.Get("project_id").(string)
 	credentialsList, err := apiClient.CloudCredentialIdsInProject(projectId)
 	if err != nil {
-		if !isNewResource {
-			d.SetId("")
-			return nil
-		}
 		return diag.Errorf("could not get cloud_credentials: %v", err)
 	}
 	found := false
