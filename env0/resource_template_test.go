@@ -505,22 +505,34 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 	})
 
-	t.Run("Mixed Gitlab and Github template", func(t *testing.T) {
-		var testCases []resource.TestCase
+	var mixedUsecases = []struct {
+		firstVcs  string
+		secondVcs string
+		tfObject  map[string]interface{}
+		exception string
+	}{
+		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
+		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
+		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with github_installation_id"},
+	}
+	for _, useCase := range mixedUsecases {
+		t.Run("Mixed "+useCase.firstVcs+" and "+useCase.secondVcs+" template", func(t *testing.T) {
+			var testCases []resource.TestCase
 
-		testCases = append(testCases, resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}),
-					ExpectError: regexp.MustCompile("\"github_installation_id\": conflicts with token_id"),
+			testCases = append(testCases, resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      resourceConfigCreate(resourceType, resourceName, useCase.tfObject),
+						ExpectError: regexp.MustCompile(useCase.exception),
+					},
 				},
-			},
-		})
+			})
 
-		for _, testCase := range testCases {
-			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
-		}
-	})
+			for _, testCase := range testCases {
+				runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+			}
+		})
+	}
 
 	t.Run("Should not trigger terraform changes when gitlab_project_id is provided", func(t *testing.T) {
 		template := client.Template{
