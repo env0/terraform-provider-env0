@@ -95,25 +95,36 @@ func resourceTemplate() *schema.Resource {
 				RequiredWith: []string{"retries_on_destroy"},
 			},
 			"github_installation_id": {
-				Type:        schema.TypeInt,
-				Description: "The env0 application installation id on the relevant github repository",
-				Optional:    true,
+				Type:          schema.TypeInt,
+				Description:   "The env0 application installation id on the relevant github repository",
+				Optional:      true,
+				ConflictsWith: []string{"token_id"},
 			},
 			"token_id": {
-				Type:        schema.TypeString,
-				Description: "The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
-				Optional:    true,
+				Type:          schema.TypeString,
+				Description:   "The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
+				Optional:      true,
+				RequiredWith:  []string{"gitlab_project_id"},
+				ConflictsWith: []string{"github_installation_id"},
 			},
 			"gitlab_project_id": {
-				Type:        schema.TypeInt,
-				Description: "The project id of the relevant repository",
-				Optional:    true,
+				Type:         schema.TypeInt,
+				Description:  "The project id of the relevant repository",
+				Optional:     true,
+				RequiredWith: []string{"token_id"},
 			},
 			"terraform_version": {
 				Type:        schema.TypeString,
 				Description: "Terraform version to use",
 				Optional:    true,
 				Default:     "0.15.1",
+			},
+			"is_gitlab_enterprise": {
+				Type:          schema.TypeBool,
+				Description:   "Using GitLab Enterprise repository?",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id"},
 			},
 		},
 	}
@@ -132,18 +143,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	}
 	if tokenId, ok := d.GetOk("token_id"); ok {
 		result.TokenId = tokenId.(string)
-	}
-	if gitlabProjectId, ok := d.GetOk("gitlab_project_id"); ok {
-		result.GitlabProjectId = gitlabProjectId.(int)
-	}
-
-	if result.GitlabProjectId != 0 && result.TokenId == "" {
-		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set gitlab_project_id without token_id")
-	}
-
-	if result.GithubInstallationId != 0 && result.TokenId != "" {
-		return client.TemplateCreatePayload{}, diag.Errorf("Cannot set token_id and github_installation_id for the same template")
-	} else {
+		result.GitlabProjectId = d.Get("gitlab_project_id").(int)
 		result.IsGitLab = result.TokenId != ""
 	}
 

@@ -512,7 +512,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}),
-					ExpectError: regexp.MustCompile("Cannot set token_id and github_installation_id for the same template"),
+					ExpectError: regexp.MustCompile("\"github_installation_id\": conflicts with token_id"),
 				},
 			},
 		})
