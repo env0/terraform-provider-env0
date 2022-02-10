@@ -219,7 +219,7 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
-	IsGitlabEnterprise   bool             `json:"isGitlabEnterprise"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -264,7 +264,7 @@ type Template struct {
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId"`
-	IsGitlabEnterprise   bool             `json:"isGitlabEnterprise"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
