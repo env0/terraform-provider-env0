@@ -94,6 +94,12 @@ func dataTemplate() *schema.Resource {
 				Description: "terraform version to use",
 				Computed:    true,
 			},
+			"is_gitlab_enterprise": {
+				Type:        schema.TypeBool,
+				Description: "Does this template use gitlab enterprise repository?",
+				Optional:    true,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -146,6 +152,10 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	}
 	if template.GitlabProjectId != 0 {
 		d.Set("gitlab_project_id", template.GitlabProjectId)
+	}
+
+	if template.IsGitlabEnterprise == true {
+		d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
 	}
 
 	return nil

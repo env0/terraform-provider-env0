@@ -49,6 +49,7 @@ resource "env0_template_project_assignment" "assignment" {
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
 - **gitlab_project_id** (Number) The project id of the relevant repository
 - **id** (String) The ID of this resource.
+- **is_gitlab_enterprise** (Boolean) Does this template use gitlab enterprise repository?
 - **path** (String) terraform / terragrunt file folder inside source code
 - **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
 - **retries_on_destroy** (Number) number of times to retry when destroying an environment based on this template

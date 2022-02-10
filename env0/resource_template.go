@@ -121,7 +121,7 @@ func resourceTemplate() *schema.Resource {
 			},
 			"is_gitlab_enterprise": {
 				Type:          schema.TypeBool,
-				Description:   "Using GitLab Enterprise repository?",
+				Description:   "Does this template use gitlab enterprise repository?",
 				Optional:      true,
 				Default:       "false",
 				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id"},
