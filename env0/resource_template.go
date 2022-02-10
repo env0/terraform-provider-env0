@@ -146,6 +146,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 		result.GitlabProjectId = d.Get("gitlab_project_id").(int)
 		result.IsGitLab = result.TokenId != ""
 	}
+	if isGitlabEnterprise, ok := d.GetOk("is_gitlab_enterprise"); ok {
+		result.IsGitlabEnterprise = isGitlabEnterprise.(bool)
+	}
 
 	if path, ok := d.GetOk("path"); ok {
 		result.Path = path.(string)
