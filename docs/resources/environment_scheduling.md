@@ -19,8 +19,8 @@ data "env0_environment" "example" {
 
 resource "env0_environment_schedling" "example" {
   environment_id = data.env0_environment.example.id
-  deploy_cron = "5 * * * *"
-  destroy_cron = "10 * * * *"
+  deploy_cron    = "5 * * * *"
+  destroy_cron   = "10 * * * *"
 }
 ```
 
