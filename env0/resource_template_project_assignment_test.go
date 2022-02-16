@@ -40,7 +40,10 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 		Id:         "tid",
 		ProjectIds: []string{"pid", "other-id"},
 	}
-
+	driftReturnValues := client.Template{
+		Id:         "tid",
+		ProjectIds: []string{"other-id"},
+	}
 	updateReturnValues := client.Template{
 		Id:         "updatetid",
 		ProjectIds: []string{"updatepid"},
@@ -119,6 +122,28 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 		runUnitTest(t, testCaseForApiclientError, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
 				Times(1).Return(client.Template{}, errors.New("error"))
+		})
+	})
+
+	t.Run("detect drift", func(t *testing.T) {
+		runUnitTest(t, testCaseforCreate, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
+				Times(1).Return(returnValues, nil)
+
+			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignmentUpdate["template_id"].(string), updatePayload).
+				Times(1).Return(updateReturnValues, nil)
+
+			mock.EXPECT().RemoveTemplateFromProject(resourceTemplateAssignmentUpdate["template_id"].(string),
+				resourceTemplateAssignmentUpdate["project_id"].(string)).Times(1).Return(nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Template(resourceTemplateAssignment["template_id"].(string)).Times(1).
+					Return(returnValues, nil),
+				mock.EXPECT().Template(resourceTemplateAssignment["template_id"].(string)).Times(1).
+					Return(driftReturnValues, nil),
+				mock.EXPECT().Template(resourceTemplateAssignmentUpdate["template_id"].(string)).Times(1).
+					Return(updateReturnValues, nil),
+			)
 		})
 	})
 }

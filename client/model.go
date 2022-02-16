@@ -286,6 +286,7 @@ type Environment struct {
 	LifespanEndAt               string        `json:"lifespanEndAt"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
+	IsArchived                  bool          `json:"isArchived"`
 }
 
 type DeploymentLog struct {

@@ -60,6 +60,11 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 		}
 	}
 	if !found {
+
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not find cloud credential project assignment.\n project id = %v, cloud credentials id = %v", projectId, credentialId)
 	}
 

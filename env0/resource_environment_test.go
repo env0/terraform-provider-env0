@@ -28,6 +28,17 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 	}
 
+	driftEnvironment := client.Environment{
+		IsArchived:    true,
+		Id:            "id0",
+		Name:          "my-environment",
+		ProjectId:     "project-id",
+		WorkspaceName: "workspace-name",
+		LatestDeploymentLog: client.DeploymentLog{
+			BlueprintId: templateId,
+		},
+	}
+
 	updatedEnvironment := client.Environment{
 		Id:            environment.Id,
 		Name:          "my-updated-environment-name",
@@ -883,5 +894,63 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(0).Return(client.ConfigurationChanges{}, nil)
 		})
 
+	})
+	t.Run("detect drift", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+					),
+				},
+				{
+					Config: createEnvironmentResourceConfig(updatedEnvironment),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+					),
+				},
+			},
+		}
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: templateId,
+				},
+			}).Times(1).Return(environment, nil)
+
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:                        updatedEnvironment.Name,
+				ProjectId:                   updatedEnvironment.ProjectId,
+				WorkspaceName:               updatedEnvironment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: templateId,
+				},
+			}).Times(1).Return(updatedEnvironment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().Return([]client.ConfigurationVariable{}, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil),
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(driftEnvironment, nil),   // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+			)
+
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
 	})
 }

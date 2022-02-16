@@ -254,6 +254,12 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("could not get environment: %v", err)
 	}
+
+	if environment.IsArchived {
+		d.SetId("")
+		return nil
+	}
+
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
