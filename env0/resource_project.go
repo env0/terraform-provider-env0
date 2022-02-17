@@ -77,10 +77,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.Errorf("could not get project: %v", err)
 	}
-	if project.IsArchived {
-		d.SetId("")
-		return nil
-	}
+	
 
 	setProjectSchema(d, project)
 
