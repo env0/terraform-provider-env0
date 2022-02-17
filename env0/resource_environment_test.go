@@ -28,8 +28,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 	}
 
-	
-
 	updatedEnvironment := client.Environment{
 		Id:            environment.Id,
 		Name:          "my-updated-environment-name",
@@ -886,5 +884,5 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 
 	})
-	
+
 }

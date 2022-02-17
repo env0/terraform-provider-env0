@@ -77,7 +77,6 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.Errorf("could not get project: %v", err)
 	}
-	
 
 	setProjectSchema(d, project)
 
