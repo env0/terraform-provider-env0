@@ -72,7 +72,7 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	}
 	if !found {
 		d.SetId("")
-		return nil
+
 	}
 	return nil
 }
