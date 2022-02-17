@@ -2,12 +2,13 @@ package env0
 
 import (
 	"fmt"
-	"github.com/env0/terraform-provider-env0/client"
-	"github.com/golang/mock/gomock"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"strconv"
 	"testing"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitTemplateResource(t *testing.T) {
@@ -579,6 +580,100 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().Template(template.Id).Times(3).Return(template, nil) // 1 after create, 1 before update, 1 after update
 			mock.EXPECT().TemplateCreate(gomock.Any()).Times(1).Return(template, nil)
 			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("detect drift", func(t *testing.T) {
+		template := client.Template{
+			Id:         "id0",
+			Name:       "template0",
+			Repository: "env0/repo",
+		}
+
+		updateTemplate := client.Template{
+			Id:         "id0-update",
+			Name:       "template0-update",
+			Repository: "env0/repo-update",
+		}
+
+		templateWithDefaults := client.Template{
+			Id:               template.Id,
+			Name:             template.Name,
+			Repository:       template.Repository,
+			TerraformVersion: defaultVersion,
+			Type:             string(defaultType),
+		}
+		templateWithDefaultsUpdate := client.Template{
+			Id:               updateTemplate.Id,
+			Name:             updateTemplate.Name,
+			Repository:       updateTemplate.Repository,
+			TerraformVersion: defaultVersion,
+			Type:             string(defaultType),
+		}
+
+		templateWithDrift := client.Template{
+			IsDeleted:        true,
+			Id:               template.Id,
+			Name:             template.Name,
+			Repository:       template.Repository,
+			TerraformVersion: defaultVersion,
+			Type:             string(defaultType),
+		}
+
+		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
+			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				"name":       template.Name,
+				"repository": template.Repository,
+			})
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: basicTemplateResourceConfig(resourceType, resourceName, template),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
+						resource.TestCheckResourceAttr(resourceFullName, "type", string(defaultType)),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", defaultVersion),
+					),
+				},
+				{
+					Config: basicTemplateResourceConfig(resourceType, resourceName, updateTemplate),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", updateTemplate.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", updateTemplate.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", updateTemplate.Repository),
+						resource.TestCheckResourceAttr(resourceFullName, "type", string(defaultType)),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", defaultVersion),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             template.Name,
+				Repository:       template.Repository,
+				Type:             defaultType,
+				TerraformVersion: defaultVersion,
+			}).Times(1).Return(template, nil)
+
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             updateTemplate.Name,
+				Repository:       updateTemplate.Repository,
+				Type:             defaultType,
+				TerraformVersion: defaultVersion,
+			}).Times(1).Return(updateTemplate, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Template(template.Id).Times(1).Return(templateWithDefaults, nil),
+				mock.EXPECT().Template(template.Id).Times(1).Return(templateWithDrift, nil),
+				mock.EXPECT().Template(updateTemplate.Id).Times(1).Return(templateWithDefaultsUpdate, nil),
+			)
+			mock.EXPECT().TemplateDelete(updateTemplate.Id).Times(1).Return(nil)
 		})
 	})
 }
