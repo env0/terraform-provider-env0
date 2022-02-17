@@ -126,6 +126,7 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 	})
 
 	t.Run("detect drift", func(t *testing.T) {
+
 		runUnitTest(t, testCaseforCreate, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().AssignTemplateToProject(resourceTemplateAssignment["template_id"].(string), payLoad).
 				Times(1).Return(returnValues, nil)
