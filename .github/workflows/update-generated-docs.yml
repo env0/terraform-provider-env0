@@ -5,6 +5,7 @@ on:
     branches:
       - chore-make-the-release-process-simply
 
+
 jobs:
   release:
     runs-on: ubuntu-latest
