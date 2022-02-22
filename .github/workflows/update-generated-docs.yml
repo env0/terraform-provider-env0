@@ -2,9 +2,6 @@ name: Update generated docs
 
 on: 
   push:
-    branches:
-      - chore-make-the-release-process-simply
-
 
 jobs:
   release:

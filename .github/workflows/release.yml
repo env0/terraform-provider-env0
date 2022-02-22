@@ -21,6 +21,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+        id: checkout
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       -
         name: Unshallow
         run: git fetch --prune --unshallow
@@ -44,8 +46,21 @@ jobs:
           args: release --rm-dist
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
+        name: Get release by tag
+        id: getReleaseByTag
+        uses: cardinalby/git-get-release-action@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ steps.checkout.outputs.tag }}
+
+      -
         name: Publish release
-        uses:
+        uses: StuYarrow/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          id: ${{ steps.getReleaseByTag.outputs.id }}
+
