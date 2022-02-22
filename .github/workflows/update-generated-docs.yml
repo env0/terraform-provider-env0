@@ -1,0 +1,34 @@
+name: Update generated docs
+
+on: 
+  push:
+    branches:
+      - chore-make-the-release-process-simply
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+      -
+        name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16 # please change also in `ci.yml`,`release.yml` and `go.mod`
+      -
+        name: Update generated docs
+        run: ./generate-docs.sh
+      -
+        name: Commit changes
+        uses: EndBug/add-and-commit@v8
+        with:
+          author_name: update generated docs action
+          author_email: mail@example.com
+          message: 'Update docs'
+          add: 'docs/*'
+
