@@ -1,25 +1,19 @@
-data "env0_project" "default" {
-  name = "Default Organization Project"
-}
-
 resource "env0_project" "test_project" {
   name        = "Test-Project"
   description = "Test Description ${var.second_run ? "after update" : ""}"
 }
-
-data "env0_project" "default2" {
-  depends_on = [data.env0_project.default]
-  id         = data.env0_project.default.id
+data "env0_project" "data_by_name" {
+  name = env0_project.test_project.name
 }
 
-output "default_project_id" {
-  value = data.env0_project.default.id
+data "env0_project" "data_by_id" {
+  id = env0_project.test_project.id
 }
 
-output "default_project_name" {
-  value = data.env0_project.default2.name
+output "test_project_name" {
+  value = env0_project.test_project.name
 }
 
-output "default_description" {
+output "test_project_description" {
   value = env0_project.test_project.description
 }
