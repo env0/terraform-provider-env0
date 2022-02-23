@@ -1,13 +1,14 @@
-data "env0_project" "default_project" {
-  name = "Default Organization Project"
+# Github Integration must be done manually - so we expect an existing Github Template with this name -
+data "env0_template" "github_template" {
+  name = "Github Integrated Template"
 }
 
 resource "env0_template" "tested1" {
   name                                    = "tested1"
   description                             = "Tested 1 description"
   type                                    = "terraform"
-  repository                              = "https://github.com/env0/templates"
-  github_installation_id                  = 11551359
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
   path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
