@@ -106,7 +106,8 @@ Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` 
 #### Integration Test Prerequisites
 - An env0 organization
 - An API Key 
-- A Github.com integrated template name `Github Integrated Template` for suite 004_template
+- A Github.com integrated template name `Github Integrated Template` for https://github.com/env0/templates
+- A Gitlab.com integrated template name `Gitlab Integrated Template` for https://gitlab.com/env0/gitlab-vcs-integration-tests
 
 ### Unit Testing
 #### How to run tests
