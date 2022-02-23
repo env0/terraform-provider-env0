@@ -103,6 +103,11 @@ Each test perform the following steps:
 The harness has two modes to help while developing: If an environment variable `DESTROY_MODE` exists and it's value is `NO_DESTROY`, the harness will avoid calling `terraform destroy`, allowing the developer to inspect the resources created, through the dashboard, for example.
 Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` and _only_ `terraform destroy` will run.
 
+#### Integration Test Prerequisites
+- An env0 organization
+- An API Key 
+- A Github.com integrated template name `Github Integrated Template` for suite 004_template
+
 ### Unit Testing
 #### How to run tests
 Run from root directory:
