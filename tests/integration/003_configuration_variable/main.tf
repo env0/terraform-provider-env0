@@ -1,21 +1,17 @@
-data "env0_configuration_variable" "region" {
-  name = "AWS_DEFAULT_REGION"
-}
-output "region_value" {
-  value     = data.env0_configuration_variable.region.value
-  sensitive = true
-}
-output "region_id" {
-  value = data.env0_configuration_variable.region.id
+resource "env0_project" "test_project" {
+  name = "Project-for-003-configuration-variable"
 }
 
-
-data "env0_project" "default" {
-  name = "Default Organization Project"
+resource "env0_configuration_variable" "region_in_project_resource" {
+  name       = "AWS_DEFAULT_REGION"
+  project_id = env0_project.test_project.id
+  value      = "il-tnuvot-1"
 }
+
 data "env0_configuration_variable" "region_in_project" {
   name       = "AWS_DEFAULT_REGION"
-  project_id = data.env0_project.default.id
+  project_id = env0_project.test_project.id
+  depends_on = [env0_configuration_variable.region_in_project_resource]
 }
 output "region_in_project_value" {
   value     = data.env0_configuration_variable.region_in_project.value
