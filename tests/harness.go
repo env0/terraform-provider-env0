@@ -158,7 +158,7 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	if err != nil {
 		log.Println("error running terraform ", arg, " in ", testName, " error: ", err, " output: ", output)
 	} else {
-		log.Println("Completed successfully terraform ", arg, " in ", testName)
+		log.Println("Completed successfully terraform", arg, "in", testName)
 	}
 	return outputBytes, err
 }

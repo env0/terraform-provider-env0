@@ -1,5 +1,6 @@
-data "env0_project" "default" {
-  name = "Default Organization Project"
+resource "env0_project" "test_project" {
+  name        = "Test-Project"
+  description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 
 resource "env0_template" "template" {
@@ -13,7 +14,7 @@ resource "env0_template" "template" {
 resource "env0_environment" "the_trigger" {
   force_destroy              = true
   name                       = "the_trigger"
-  project_id                 = data.env0_project.default.id
+  project_id                 = env0_project.test_project.id
   template_id                = env0_template.template.id
   approve_plan_automatically = true
 }
@@ -21,7 +22,7 @@ resource "env0_environment" "the_trigger" {
 resource "env0_environment" "downstream_environment" {
   force_destroy              = true
   name                       = "downstream_environment"
-  project_id                 = data.env0_project.default.id
+  project_id                 = env0_project.test_project.id
   template_id                = env0_template.template.id
   approve_plan_automatically = true
 }

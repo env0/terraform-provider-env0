@@ -1,9 +1,8 @@
-data "env0_project" "default" {
-  name = "Default Organization Project"
+resource "env0_project" "test_project" {
+  name = "Test-Project-For_policy"
 }
-
 resource "env0_project_policy" "test_policy" {
-  project_id                    = data.env0_project.default.id
+  project_id                    = env0_project.test_project.id
   number_of_environments        = 1
   number_of_environments_total  = 1
   requires_approval_default     = true
@@ -14,7 +13,7 @@ resource "env0_project_policy" "test_policy" {
 }
 
 resource "env0_project_policy" "test_policy_2" {
-  project_id                    = data.env0_project.default.id
+  project_id                    = env0_project.test_project.id
   number_of_environments        = 1
   number_of_environments_total  = 1
   requires_approval_default     = true
