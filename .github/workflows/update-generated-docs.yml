@@ -1,8 +1,7 @@
 name: Update generated docs
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  push:
 
 jobs:
   Update-generated-docs:
