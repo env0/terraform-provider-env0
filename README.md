@@ -146,4 +146,4 @@ go generate ./...
 To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true) -
 1. Create and push a tag **locally**, in semver format - `git tag v0.0.9 && git push origin --tags`
 2. New release with binaries **will be automatically generated** by the GitHub action defined in `.github/workflows/release.yml`.
-2. The Registry will automatically pick up on the new version. If the registry says the release doesn't have any binaries, check the result of the `release` Github action. You might need to [Resync](https://registry.terraform.io/providers/env0/env0/latest/settings?pollNotifications=true) the registry after the action finishes.
+3. The Registry will automatically pick up on the new version.
