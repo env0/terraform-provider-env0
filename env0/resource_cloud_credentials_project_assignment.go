@@ -60,9 +60,10 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 		}
 	}
 	if !found {
-		d.SetId("")
-		return nil
-
+		if !d.IsNewResource() {
+			d.SetId("")
+			return nil
+		}
 	}
 
 	d.SetId(getResourceId(credentialId, projectId))

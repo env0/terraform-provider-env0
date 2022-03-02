@@ -71,8 +71,9 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 	if !found {
-		d.SetId("")
-
+		if !d.IsNewResource() {
+			d.SetId("")
+		}
 	}
 	return nil
 }
