@@ -1,4 +1,4 @@
 {
-  "default_project_name": "Default Organization Project",
-  "default_description": "Test Description after update"
+  "test_project_name": "Test-Project",
+  "test_project_description": "Test Description after update"
 }

@@ -1,13 +1,21 @@
-data "env0_project" "default_project" {
-  name = "Default Organization Project"
+# Github Integration must be done manually - so we expect an existing Github Template with this name -
+# It must be for https://github.com/env0/templates - We validate that in the outputs
+data "env0_template" "github_template" {
+  name = "Github Integrated Template"
+}
+
+# Gitlab Integration must be done manually - so we expect an existing Gitlab Template with this name
+# It must be for https://gitlab.com/env0/gitlab-vcs-integration-tests - the gitlab_project_id is still static
+data "env0_template" "gitlab_template" {
+  name = "Gitlab Integrated Template"
 }
 
 resource "env0_template" "tested1" {
   name                                    = "tested1"
   description                             = "Tested 1 description"
   type                                    = "terraform"
-  repository                              = "https://github.com/env0/templates"
-  github_installation_id                  = 11551359
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
   path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
@@ -19,9 +27,9 @@ resource "env0_template" "tested2" {
   name                                    = "GitLab Test"
   description                             = "Tested 2 description - Gitlab"
   type                                    = "terraform"
-  repository                              = "https://gitlab.com/eran.elbaz/templates.git"
-  token_id                                = "6be35256-b685-4e92-8f6b-a332f5832c06"
-  gitlab_project_id                       = 28713760
+  repository                              = data.env0_template.gitlab_template.repository
+  token_id                                = data.env0_template.gitlab_template.token_id
+  gitlab_project_id                       = 32315446
   path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
@@ -74,3 +82,4 @@ output "tested2_template_path" {
 data "env0_template" "tested3" {
   id = env0_template.tested1.id
 }
+

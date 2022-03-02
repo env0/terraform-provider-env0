@@ -1,5 +1,5 @@
-data "env0_project" "default" {
-  name = "Default Organization Project"
+resource "env0_project" "test_project" {
+  name = "Test-Project-for-environment"
 }
 
 resource "env0_template" "template" {
@@ -13,7 +13,7 @@ resource "env0_template" "template" {
 resource "env0_environment" "example" {
   force_destroy = true
   name          = "environment"
-  project_id    = data.env0_project.default.id
+  project_id    = env0_project.test_project.id
   template_id   = env0_template.template.id
   configuration {
     name  = "environment configuration variable"
