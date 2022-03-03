@@ -295,6 +295,7 @@ type DeploymentLog struct {
 	BlueprintId         string `json:"blueprintId"`
 	BlueprintRepository string `json:"blueprintRepository"`
 	BlueprintRevision   string `json:"blueprintRevision"`
+	Status              string `json:"status"`
 }
 
 type SshKey struct {
