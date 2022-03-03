@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -108,6 +109,12 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "destroy safegurad",
 				Optional:    true,
+			},
+			"wait": {
+				Type:        schema.TypeBool,
+				Description: "wait for deployment to complete",
+				Optional:    true,
+				Default:     false,
 			},
 			"configuration": {
 				Type:        schema.TypeList,
@@ -244,6 +251,13 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
+	if d.Get("wait").(bool) {
+		err := waitForDeployment(d, apiClient)
+		if err != nil {
+			return diag.Errorf("failed deploying environment: %v", err)
+		}
+	}
+
 	return nil
 }
 
@@ -309,6 +323,14 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		return diag.Errorf("failed deploying environment: %v", err)
 	}
 	d.Set("deployment_id", deployResponse.Id)
+
+	if d.Get("wait").(bool) {
+		err := waitForDeployment(d, apiClient)
+		if err != nil {
+			return diag.Errorf("failed deploying environment: %v", err)
+		}
+	}
+
 	return nil
 }
 
@@ -349,6 +371,13 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("could not delete environment: %v", err)
 	}
+	if d.Get("wait").(bool) {
+		err := waitForDeployment(d, apiClient)
+		if err != nil {
+			return diag.Errorf("failed to delete environment: %v", err)
+		}
+	}
+
 	return nil
 }
 
@@ -651,5 +680,30 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 		return nil, errors.New(getErr[0].Summary)
 	} else {
 		return []*schema.ResourceData{d}, nil
+	}
+}
+
+func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	for {
+		env, err := apiClient.Environment(d.Id())
+		if err != nil {
+			return err
+		}
+		switch env.LatestDeploymentLog.Status {
+		case "IN_PROGRESS",
+			"QUEUED",
+			"WAITING_FOR_USER":
+			// Deployment still in progress - wait 1 second then check again
+			time.Sleep(1 * time.Second)
+
+			// Deployment succeeded
+		case "SUCCESS",
+			"SKIPPED":
+			return nil
+		default:
+			// All other statuses must be failures
+			return fmt.Errorf("failed deploying environment: %v",
+				env.LatestDeploymentLog.Status)
+		}
 	}
 }
