@@ -20,24 +20,15 @@ resource "env0_environment" "example" {
     value = "value"
   }
   approve_plan_automatically = true
+  revision                   = "master"
 }
 
 data "env0_environment" "test" {
   id = env0_environment.example.id
 }
 
-
-data "env0_configuration_variable" "env_config_variable" {
-  depends_on        = [data.env0_environment.test]
-  deployment_log_id = data.env0_environment.test.deployment_id
-  name              = "deployment configuration variable"
+output "revision" {
+  value = data.env0_environment.test.revision
 }
 
-output "name" {
-  value = data.env0_environment.test.name
-}
-
-output "configurationVariable" {
-  value = data.env0_configuration_variable.env_config_variable.name
-}
 
