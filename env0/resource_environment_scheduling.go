@@ -2,32 +2,12 @@ package env0
 
 import (
 	"context"
-	"github.com/adhocore/gronx"
 	. "github.com/env0/terraform-provider-env0/client"
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceEnvironmentScheduling() *schema.Resource {
-
-	validateCronExpression := func(i interface{}, path cty.Path) diag.Diagnostics {
-		expr := i.(string)
-		parser := gronx.New()
-		isValid := parser.IsValid(expr)
-
-		if isValid != true {
-			return diag.Diagnostics{
-				diag.Diagnostic{
-					Severity:      diag.Error,
-					Summary:       "Invalid cron expression",
-					AttributePath: path,
-				}}
-		}
-
-		return nil
-	}
-
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentSchedulingCreateOrUpdate,
 		ReadContext:   resourceEnvironmentSchedulingRead,
@@ -46,14 +26,14 @@ func resourceEnvironmentScheduling() *schema.Resource {
 				Description:      "Cron expression for scheduled destroy of the environment. Destroy and Deploy cron expressions must not be the same.",
 				AtLeastOneOf:     []string{"destroy_cron", "deploy_cron"},
 				Optional:         true,
-				ValidateDiagFunc: validateCronExpression,
+				ValidateDiagFunc: ValidateCronExpression,
 			},
 			"deploy_cron": {
 				Type:             schema.TypeString,
 				Description:      "Cron expression for scheduled deploy of the environment. Destroy and Deploy cron expressions must not be the same.",
 				AtLeastOneOf:     []string{"destroy_cron", "deploy_cron"},
 				Optional:         true,
-				ValidateDiagFunc: validateCronExpression,
+				ValidateDiagFunc: ValidateCronExpression,
 			},
 		},
 	}
