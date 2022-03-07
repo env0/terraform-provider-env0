@@ -16,6 +16,8 @@ jobs:
           go-version: ${{ secrets.GO_VERSION }}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Generate mocks
+        uses: go generate client/api_client.go
       - name: Go fmt
         run: |
             ! go fmt ./... | read
