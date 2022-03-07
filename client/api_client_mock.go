@@ -190,12 +190,6 @@ func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (Config
 	return ret0, ret1
 }
 
-// ConfigurationVariables indicates an expected call of ConfigurationVariables.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
-}
-
 // ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
 func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
@@ -277,6 +271,21 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(arg0 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), arg0)
 }
 
+// EnvironmentDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentDriftDetection(arg0 string) (EnvironmentSchedulingExpression, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentDriftDetection", arg0)
+	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentDriftDetection indicates an expected call of EnvironmentDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDriftDetection(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDriftDetection), arg0)
+}
+
 // EnvironmentScheduling mocks base method.
 func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
 	m.ctrl.T.Helper()
@@ -321,6 +330,20 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingUpdate(arg0, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingUpdate), arg0, arg1)
 }
 
+// EnvironmentStopDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentStopDriftDetection(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentStopDriftDetection", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentStopDriftDetection indicates an expected call of EnvironmentStopDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentStopDriftDetection(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentStopDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentStopDriftDetection), arg0)
+}
+
 // EnvironmentUpdate mocks base method.
 func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 EnvironmentUpdate) (Environment, error) {
 	m.ctrl.T.Helper()
@@ -334,6 +357,21 @@ func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 Environment
 func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), arg0, arg1)
+}
+
+// EnvironmentUpdateDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentUpdateDriftDetection(arg0 string, arg1 EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentUpdateDriftDetection", arg0, arg1)
+	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentUpdateDriftDetection indicates an expected call of EnvironmentUpdateDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateDriftDetection(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateDriftDetection), arg0, arg1)
 }
 
 // EnvironmentUpdateTTL mocks base method.

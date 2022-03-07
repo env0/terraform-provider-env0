@@ -63,6 +63,9 @@ type ApiClientInterface interface {
 	EnvironmentSchedulingDelete(environmentId string) error
 	WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error)
 	WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error)
+	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)
+	EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error)
+	EnvironmentStopDriftDetection(environmentId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
