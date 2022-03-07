@@ -22,7 +22,7 @@ func (self *ApiClient) EnvironmentUpdateDriftDetection(environmentId string, pay
 }
 
 func (self *ApiClient) EnvironmentStopDriftDetection(environmentId string) error {
-	err := self.http.Patch("/scheduling/drift-detection/environments/"+environmentId, EnvironmentSchedulingExpression{Enabled: false, Cron: ""}, &EnvironmentScheduling{})
+	err := self.http.Patch("/scheduling/drift-detection/environments/"+environmentId, EnvironmentSchedulingExpression{Enabled: false}, &EnvironmentScheduling{})
 	if err != nil {
 		return err
 	}

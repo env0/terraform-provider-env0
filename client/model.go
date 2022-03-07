@@ -393,7 +393,7 @@ type PolicyUpdatePayload struct {
 
 type EnvironmentSchedulingExpression struct {
 	Cron    string `json:"cron"`
-	Enabled bool   `json:"enabled"`
+	Enabled bool   `json:"enabled,omitempty"`
 }
 
 type EnvironmentScheduling struct {
