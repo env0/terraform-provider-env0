@@ -65,7 +65,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).AnyTimes().
 					Return(configurationVariable, nil)
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeGlobal, "").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})
@@ -112,7 +112,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).AnyTimes().
 					Return(configurationVariable, nil)
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeGlobal, "").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})
@@ -128,7 +128,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationVariables(client.ScopeTemplate, "template_id").AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeTemplate, "template_id").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})
@@ -144,7 +144,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, configurationVariable.Id).AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, configurationVariable.Id).AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})
@@ -160,7 +160,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeGlobal, "").AnyTimes().
 					Return(nil, errors.New("not found"))
 			})
 	})
@@ -176,7 +176,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").AnyTimes().
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeGlobal, "").AnyTimes().
 					Return([]client.ConfigurationVariable{configurationVariable}, nil)
 			})
 	})

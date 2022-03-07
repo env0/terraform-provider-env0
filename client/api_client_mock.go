@@ -190,12 +190,6 @@ func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (Config
 	return ret0, ret1
 }
 
-// ConfigurationVariables indicates an expected call of ConfigurationVariables.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
-}
-
 // ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
 func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
