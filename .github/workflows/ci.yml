@@ -17,7 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Generate mocks
-        run: go generate client/api_client.go
+        run: |
+          go install github.com/golang/mock/mockgen@v1.6.0
+          go generate client/api_client.go
       - name: Go fmt
         run: |
             ! go fmt ./... | read
