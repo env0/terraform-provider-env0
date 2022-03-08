@@ -1,0 +1,7 @@
+provider: ["env0/**/*"]
+api-client: ["client/**/*"]
+integration-tests: ["tests/**/*"]
+examples: ["examples/**/*"]
+docs: ["docs/**/*"]
+dependency-change: ["go.mod", "go.sum"]
+github-actions: [".github/**/*"]

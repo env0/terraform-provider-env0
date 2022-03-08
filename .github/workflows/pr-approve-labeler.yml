@@ -1,0 +1,15 @@
+name: Label approved pull requests
+on: pull_request_review
+jobs:
+  labelWhenApproved:
+    name: Label when approved
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+    steps:
+      - name: Label when approved
+        uses: pullreminders/label-when-approved-action@master
+        env:
+          APPROVALS: "1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADD_LABEL: "ready to merge"
+          REMOVE_LABEL: "pending%20final%20review"
