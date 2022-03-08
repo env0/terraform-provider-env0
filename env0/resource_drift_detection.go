@@ -44,8 +44,9 @@ func resourceEnvironmentDriftRead(_ context.Context, d *schema.ResourceData, met
 
 	if drift.Enabled {
 		d.Set("cron", drift.Cron)
+	} else {
+		d.SetId("")
 	}
-
 	return nil
 }
 
