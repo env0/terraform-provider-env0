@@ -239,6 +239,12 @@ type CloudCredentialsProjectAssignmentPatchPayload struct {
 	CredentialIds []string `json:"credentialIds"`
 }
 
+type CostCredentialProjectAssignment struct {
+	ProjectId       string `json:"projectId"`
+	CredentialsId   string `json:"credentialsId"`
+	CredentialsType string `json:"credentialsType"`
+}
+
 type CloudCredentialsProjectAssignment struct {
 	Id           string `json:"id"`
 	CredentialId string `json:"credentialId"`
