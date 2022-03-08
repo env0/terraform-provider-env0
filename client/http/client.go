@@ -3,8 +3,6 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
-	"errors"
-
 	"github.com/go-resty/resty/v2"
 )
 
@@ -48,7 +46,7 @@ func (self *HttpClient) httpResult(response *resty.Response, err error) error {
 		return err
 	}
 	if !response.IsSuccess() {
-		return errors.New(response.Status() + ": " + string(response.Body()))
+		return &FailedResponseError{res: response}
 	}
 	return nil
 }
