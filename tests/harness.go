@@ -30,9 +30,9 @@ func main() {
 		if destroyMode == "DESTROY_ONLY" {
 			terraformDestory(testName)
 		} else {
-			success := runTest(testName, destroyMode != "NO_DESTROY")
+			success, err := runTest(testName, destroyMode != "NO_DESTROY")
 			if !success {
-				log.Fatalln("Halting due to test failure")
+				log.Fatalln("Halting due to test failure:", err)
 			}
 		}
 	}
@@ -45,7 +45,7 @@ func compileProvider() error {
 	}
 	return nil
 }
-func runTest(testName string, destroy bool) bool {
+func runTest(testName string, destroy bool) (bool, error) {
 	testDir := TESTS_FOLDER + "/" + testName
 	toDelete := []string{
 		".terraform",
@@ -61,52 +61,53 @@ func runTest(testName string, destroy bool) bool {
 	log.Println("Running test ", testName)
 	_, err := terraformCommand(testName, "init")
 	if err != nil {
-		return false
+		return false, err
 	}
 	terraformCommand(testName, "fmt")
 	if destroy {
 		defer terraformDestory(testName)
 	}
+
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0")
 	if err != nil {
-		return false
+		return false, err
 	}
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
 	if err != nil {
-		return false
+		return false, err
 	}
 	expectedOutputs, err := readExpectedOutputs(testName)
 	if err != nil {
-		return false
+		return false, err
 	}
 	outputsBytes, err := terraformCommand(testName, "output", "-json")
 	if err != nil {
-		return false
+		return false, err
 	}
 	outputs, err := bytesOfJsonToStringMap(outputsBytes)
 	if err != nil {
-		return false
+		return false, err
 	}
 	for key, expectedValue := range expectedOutputs {
 		value, ok := outputs[key]
 		if !ok {
-			log.Println("Expected terraform output ", key, " but no such output was created")
-			return false
+			log.Println("Error: Expected terraform output ", key, " but no such output was created")
+			return false, nil
 		}
 		if value != expectedValue {
-			log.Println("Expected output ", key, " value to be ", expectedValue, " but found ", value)
-			return false
+			log.Printf("Error: Expected output of '%s' to be '%s' but found '%s'\n", key, expectedValue, value)
+			return false, nil
 		}
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
 	}
 	if destroy {
 		_, err = terraformCommand(testName, "destroy", "-auto-approve", "-var", "second_run=0")
 		if err != nil {
-			return false
+			return false, err
 		}
 	}
 	log.Println("Successfully finished running test ", testName)
-	return true
+	return true, nil
 }
 
 func readExpectedOutputs(testName string) (map[string]string, error) {
@@ -157,7 +158,7 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	if err != nil {
 		log.Println("error running terraform ", arg, " in ", testName, " error: ", err, " output: ", output)
 	} else {
-		log.Println("Completed successfully terraform ", arg, " in ", testName)
+		log.Println("Completed successfully terraform", arg, "in", testName)
 	}
 	return outputBytes, err
 }

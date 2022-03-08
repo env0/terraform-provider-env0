@@ -13,11 +13,15 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16 # please change also in `release.yml` and `go.mod`
+          go-version: ${{ secrets.GO_VERSION }}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Generate mocks
+        run: |
+          go install github.com/golang/mock/mockgen@v1.6.0
+          go generate client/api_client.go
       - name: Go fmt
         run: |
-            ! go fmt ./... | read
+          ! go fmt ./... | read
       - name: Go Test
         run: go test -v ./...

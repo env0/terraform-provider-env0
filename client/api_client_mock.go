@@ -181,19 +181,34 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), arg0)
 }
 
-// ConfigurationVariables mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariables(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
+// ConfigurationVariablesById mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariables", arg0, arg1)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesById", arg0)
+	ret0, _ := ret[0].(ConfigurationVariable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesById", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesById), arg0)
+}
+
+// ConfigurationVariablesByScope mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariablesByScope(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", arg0, arg1)
 	ret0, _ := ret[0].([]ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ConfigurationVariables indicates an expected call of ConfigurationVariables.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariables(arg0, arg1 interface{}) *gomock.Call {
+// ConfigurationVariablesByScope indicates an expected call of ConfigurationVariablesByScope.
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesByScope(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariables", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariables), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
 }
 
 // Environment mocks base method.
@@ -256,6 +271,79 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(arg0 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), arg0)
 }
 
+// EnvironmentDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentDriftDetection(arg0 string) (EnvironmentSchedulingExpression, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentDriftDetection", arg0)
+	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentDriftDetection indicates an expected call of EnvironmentDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDriftDetection(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDriftDetection), arg0)
+}
+
+// EnvironmentScheduling mocks base method.
+func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentScheduling", arg0)
+	ret0, _ := ret[0].(EnvironmentScheduling)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentScheduling indicates an expected call of EnvironmentScheduling.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentScheduling(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentScheduling", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentScheduling), arg0)
+}
+
+// EnvironmentSchedulingDelete mocks base method.
+func (m *MockApiClientInterface) EnvironmentSchedulingDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentSchedulingDelete indicates an expected call of EnvironmentSchedulingDelete.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingDelete", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingDelete), arg0)
+}
+
+// EnvironmentSchedulingUpdate mocks base method.
+func (m *MockApiClientInterface) EnvironmentSchedulingUpdate(arg0 string, arg1 EnvironmentScheduling) (EnvironmentScheduling, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingUpdate", arg0, arg1)
+	ret0, _ := ret[0].(EnvironmentScheduling)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentSchedulingUpdate indicates an expected call of EnvironmentSchedulingUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingUpdate), arg0, arg1)
+}
+
+// EnvironmentStopDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentStopDriftDetection(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentStopDriftDetection", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentStopDriftDetection indicates an expected call of EnvironmentStopDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentStopDriftDetection(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentStopDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentStopDriftDetection), arg0)
+}
+
 // EnvironmentUpdate mocks base method.
 func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 EnvironmentUpdate) (Environment, error) {
 	m.ctrl.T.Helper()
@@ -269,6 +357,21 @@ func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 Environment
 func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), arg0, arg1)
+}
+
+// EnvironmentUpdateDriftDetection mocks base method.
+func (m *MockApiClientInterface) EnvironmentUpdateDriftDetection(arg0 string, arg1 EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentUpdateDriftDetection", arg0, arg1)
+	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentUpdateDriftDetection indicates an expected call of EnvironmentUpdateDriftDetection.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateDriftDetection(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateDriftDetection), arg0, arg1)
 }
 
 // EnvironmentUpdateTTL mocks base method.
@@ -682,6 +785,36 @@ func (m *MockApiClientInterface) Templates() ([]Template, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
+}
+
+// WorkflowTrigger mocks base method.
+func (m *MockApiClientInterface) WorkflowTrigger(arg0 string) ([]WorkflowTrigger, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WorkflowTrigger", arg0)
+	ret0, _ := ret[0].([]WorkflowTrigger)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WorkflowTrigger indicates an expected call of WorkflowTrigger.
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTrigger(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTrigger), arg0)
+}
+
+// WorkflowTriggerUpsert mocks base method.
+func (m *MockApiClientInterface) WorkflowTriggerUpsert(arg0 string, arg1 WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WorkflowTriggerUpsert", arg0, arg1)
+	ret0, _ := ret[0].([]WorkflowTrigger)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WorkflowTriggerUpsert indicates an expected call of WorkflowTriggerUpsert.
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTriggerUpsert(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTriggerUpsert", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTriggerUpsert), arg0, arg1)
 }
 
 // organizationId mocks base method.

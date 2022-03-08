@@ -91,7 +91,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 			}).Times(1).Return(updatedEnvironment, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
@@ -257,8 +257,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			varTrue := true
 			configurationVariables.ToDelete = &varTrue
 			gomock.InOrder(
-				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{configurationVariables}, nil), // read after create -> on update
-				mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(redeployConfigurationVariables, nil),                      // read after create -> on update -> read after update
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{configurationVariables}, nil), // read after create -> on update
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(redeployConfigurationVariables, nil),                      // read after create -> on update -> read after update
 			)
 			redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 			redeployConfigurationVariables[0].IsSensitive = &isSensitive
@@ -389,7 +389,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
 				Id: "deployment-id",
 			}, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(4).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(4).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
@@ -461,7 +461,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Type:  client.TTLTypeDate,
 				Value: updatedEnvironment.LifespanEndAt,
 			}).Times(1).Return(environment, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
 
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
@@ -531,7 +531,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Type:  client.TTlTypeInfinite,
 				Value: "",
 			}).Times(1).Return(environment, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 
 			gomock.InOrder(
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
@@ -634,7 +634,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),            // 1 after create, 1 before update
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environmentAfterUpdate, nil), // 1 after update
 			)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
@@ -687,7 +687,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
 			mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1).Return(environment, nil)
 
@@ -731,7 +731,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
-			mock.EXPECT().ConfigurationVariables(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
@@ -803,7 +803,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId: templateId,
 				},
 			}).Times(1).Return(environment, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 				Name:                        updatedEnvironment.Name,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
@@ -852,7 +852,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}).Times(1).Return(client.EnvironmentDeployResponse{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 		})
 
 	})
@@ -880,7 +880,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
-			mock.EXPECT().ConfigurationVariables(client.ScopeEnvironment, environment.Id).Times(0).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(0).Return(client.ConfigurationChanges{}, nil)
 		})
 
 	})

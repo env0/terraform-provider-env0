@@ -12,7 +12,8 @@ type ApiClient struct {
 }
 
 type ApiClientInterface interface {
-	ConfigurationVariables(scope Scope, scopeId string) ([]ConfigurationVariable, error)
+	ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error)
+	ConfigurationVariablesById(id string) (ConfigurationVariable, error)
 	ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error)
 	ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error
@@ -60,6 +61,14 @@ type ApiClientInterface interface {
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
 	EnvironmentUpdateTTL(id string, payload TTL) (Environment, error)
+	EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error)
+	EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error)
+	EnvironmentSchedulingDelete(environmentId string) error
+	WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error)
+	WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error)
+	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)
+	EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error)
+	EnvironmentStopDriftDetection(environmentId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

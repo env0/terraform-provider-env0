@@ -46,6 +46,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_aws_credentials":        dataAwsCredentials(),
 				"env0_team":                   dataTeam(),
 				"env0_environment":            dataEnvironment(),
+				"env0_workflow_triggers":      dataWorkflowTriggers(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -60,6 +61,8 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_team_project_assignment":              resourceTeamProjectAssignment(),
 				"env0_team":                                 resourceTeam(),
 				"env0_environment":                          resourceEnvironment(),
+				"env0_workflow_triggers":                    resourceWorkflowTriggers(),
+				"env0_environment_scheduling":               resourceEnvironmentScheduling(),
 			},
 		}
 

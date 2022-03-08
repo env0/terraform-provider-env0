@@ -83,7 +83,7 @@ func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.
 
 	projectsByName := make([]client.Project, 0)
 	for _, candidate := range projects {
-		if candidate.Name == name.(string) {
+		if candidate.Name == name.(string) && !candidate.IsArchived {
 			projectsByName = append(projectsByName, candidate)
 		}
 	}

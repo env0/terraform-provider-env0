@@ -1,11 +1,13 @@
 package env0
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
+	"text/template"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
@@ -48,7 +50,6 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		IsReadonly:  *configVar.IsReadonly,
 	}
 	t.Run("Create", func(t *testing.T) {
-
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -67,8 +68,109 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Create Two with readonly", func(t *testing.T) {
+		// https://github.com/env0/terraform-provider-env0/issues/215
+		// we want to create two variables, one org level with read only and another in lower level and see we can still manage both - double apply and destroy
+		orgResourceName := "org"
+		projResourceName := "project"
+		orgAccessor := resourceAccessor(resourceType, orgResourceName)
+		projAccessor := resourceAccessor(resourceType, projResourceName)
+
+		orgVar := client.ConfigurationVariable{
+			Id:         "orgVariableId",
+			Name:       "variable",
+			Value:      "orgVariable",
+			IsReadonly: &isReadonly,
+		}
+
+		orgConfigVariableCreateParams := client.ConfigurationVariableCreateParams{
+			Name:        orgVar.Name,
+			Value:       orgVar.Value,
+			IsSensitive: false,
+			Scope:       client.ScopeGlobal,
+			ScopeId:     "",
+			Type:        client.ConfigurationVariableTypeEnvironment,
+			EnumValues:  nil,
+			Format:      client.Text,
+			IsReadonly:  *orgVar.IsReadonly,
+		}
+
+		projVar := client.ConfigurationVariable{
+			Id:      "projectVariableId",
+			Name:    orgVar.Name,
+			Value:   "projVariable",
+			Scope:   client.ScopeProject,
+			ScopeId: "projectId",
+		}
+
+		projectConfigVariableCreateParams := client.ConfigurationVariableCreateParams{
+			Name:        projVar.Name,
+			Value:       projVar.Value,
+			IsSensitive: false,
+			Scope:       client.ScopeProject,
+			ScopeId:     projVar.ScopeId,
+			Type:        client.ConfigurationVariableTypeEnvironment,
+			EnumValues:  nil,
+			Format:      client.Text,
+		}
+
+		data := map[string]interface{}{"projectId": projVar.ScopeId, "orgResourceName": orgResourceName, "projResourceName": projResourceName, "resourceType": resourceType, "variableName": orgVar.Name, "orgValue": orgVar.Value, "projValue": projVar.Value}
+
+		tmpl, err := template.New("").Parse(`
+resource "{{.resourceType}}" "{{.orgResourceName}}" {
+  name = "{{.variableName}}"
+  value = "{{.orgValue}}"
+  is_read_only = true
+}
+
+resource "{{.resourceType}}" "{{.projResourceName}}" {
+  name = {{.resourceType}}.{{.orgResourceName}}.name
+  value = "{{.projValue}}"
+  project_id = "{{.projectId}}"
+}
+`)
+		if err != nil {
+			panic(err)
+		}
+		var tpl bytes.Buffer
+
+		err = tmpl.Execute(&tpl, data)
+		if err != nil {
+			panic(err)
+		}
+		stepConfig := tpl.String()
+
+		testStep := resource.TestStep{
+			Config: stepConfig,
+			Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr(orgAccessor, "id", orgVar.Id),
+				resource.TestCheckResourceAttr(orgAccessor, "name", orgVar.Name),
+				resource.TestCheckResourceAttr(orgAccessor, "value", orgVar.Value),
+				resource.TestCheckResourceAttr(orgAccessor, "is_read_only", strconv.FormatBool(*orgVar.IsReadonly)),
+				resource.TestCheckResourceAttr(projAccessor, "id", projVar.Id),
+				resource.TestCheckResourceAttr(projAccessor, "name", projVar.Name),
+				resource.TestCheckResourceAttr(projAccessor, "value", projVar.Value),
+			),
+		}
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				testStep,
+				testStep,
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(projectConfigVariableCreateParams).Times(1).Return(projVar, nil)
+			mock.EXPECT().ConfigurationVariableCreate(orgConfigVariableCreateParams).Times(1).Return(orgVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(orgVar.Id).AnyTimes().Return(orgVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(projVar.Id).AnyTimes().Return(projVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(orgVar.Id).Times(1).Return(nil)
+			mock.EXPECT().ConfigurationVariableDelete(projVar.Id).Times(1).Return(nil)
 		})
 	})
 
@@ -121,7 +223,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 					Description: configVar.Description,
 					Format:      client.Text,
 				}).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -194,7 +296,7 @@ resource "%s" "test" {
 						Description: configVar.Description,
 						Format:      format,
 					}).Times(1).Return(configVar, nil)
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{configVar}, nil)
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 				mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 			})
 		})
@@ -244,24 +346,7 @@ resource "%s" "test" {
 			Steps: []resource.TestStep{
 				{
 					Config:      stepConfig,
-					ExpectError: regexp.MustCompile(`(Error: could not get configurationVariable: error)`),
-				},
-			},
-		}
-
-		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, errors.New("error"))
-			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
-		})
-	})
-
-	t.Run("Read not found", func(t *testing.T) {
-		createTestCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      stepConfig,
-					ExpectError: regexp.MustCompile(`(Error: variable .+ not found)`),
+					ExpectError: regexp.MustCompile("could not get configurationVariable: error"),
 				},
 			},
 		}
@@ -269,7 +354,7 @@ resource "%s" "test" {
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(
 				configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Times(1).Return([]client.ConfigurationVariable{}, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
@@ -354,8 +439,8 @@ resource "%s" "test" {
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
 			gomock.InOrder(
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2),
-				mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{newConfigVar}, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(2).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Return(newConfigVar, nil),
 			)
 			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
@@ -404,8 +489,92 @@ resource "%s" "test" {
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
-			mock.EXPECT().ConfigurationVariables(client.ScopeGlobal, "").Return([]client.ConfigurationVariable{configVar}, nil).Times(2)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(2).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	importStateId_id := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1", "name": "name0"}`
+	importStateId_name := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0",  "name": "name0"}`
+	ResourceNameImport := "env0_configuration_variable.test"
+	configVarImport := client.ConfigurationVariable{
+		Id:          "id1",
+		Name:        "name0",
+		Description: "desc0",
+		Value:       "Variable",
+		IsReadonly:  &isReadonly,
+		IsRequired:  &isRequired,
+		Scope:       "BLUEPRINT",
+	}
+	stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+
+		"name":         configVarImport.Name,
+		"description":  configVarImport.Description,
+		"value":        configVarImport.Value,
+		"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+		"is_required":  strconv.FormatBool(*configVar.IsRequired),
+		"template_id":  "id0",
+	})
+
+	configurationVariableCreateParamsImport := client.ConfigurationVariableCreateParams{
+		Name:        configVarImport.Name,
+		Value:       configVarImport.Value,
+		IsSensitive: false,
+		Scope:       client.ScopeTemplate,
+		ScopeId:     "id0",
+		Type:        client.ConfigurationVariableTypeEnvironment,
+		EnumValues:  nil,
+		Description: configVarImport.Description,
+		Format:      client.Text,
+		IsRequired:  *configVarImport.IsRequired,
+		IsReadonly:  *configVarImport.IsReadonly,
+	}
+	t.Run("import by name", func(t *testing.T) {
+
+		createTestCaseForImport := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfirImport,
+				},
+				{
+					ResourceName:            ResourceNameImport,
+					ImportState:             true,
+					ImportStateId:           importStateId_name,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(2).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeTemplate, configurationVariableCreateParamsImport.ScopeId).AnyTimes().Return([]client.ConfigurationVariable{configVarImport}, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id", func(t *testing.T) {
+
+		createTestCaseForImport := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfirImport,
+				},
+				{
+					ResourceName:            ResourceNameImport,
+					ImportState:             true,
+					ImportStateId:           importStateId_id,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(3).Return(configVarImport, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
 		})
 	})
 }

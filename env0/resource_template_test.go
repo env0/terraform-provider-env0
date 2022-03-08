@@ -17,6 +17,134 @@ func TestUnitTemplateResource(t *testing.T) {
 	const defaultType = client.TemplateTypeTerraform
 
 	var resourceFullName = resourceAccessor(resourceType, resourceName)
+	gleeTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:               "terraform",
+		IsGitlabEnterprise: true,
+		TerraformVersion:   "0.12.24",
+	}
+	gleeUpdatedTemplate := client.Template{
+		Id:          gleeTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:               "terragrunt",
+		IsGitlabEnterprise: true,
+		TerraformVersion:   "0.15.1",
+	}
+	gitlabTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:             "terraform",
+		TokenId:          "1",
+		GitlabProjectId:  10,
+		TerraformVersion: "0.12.24",
+	}
+	gitlabUpdatedTemplate := client.Template{
+		Id:          gitlabTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:             "terragrunt",
+		TokenId:          "2",
+		GitlabProjectId:  2,
+		TerraformVersion: "0.15.1",
+	}
+	githubTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:                 "terraform",
+		GithubInstallationId: 1,
+		TerraformVersion:     "0.12.24",
+	}
+	githubUpdatedTemplate := client.Template{
+		Id:          githubTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:                 "terragrunt",
+		GithubInstallationId: 2,
+		TerraformVersion:     "0.15.1",
+	}
 
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
@@ -60,231 +188,113 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.GithubInstallationId != 0 {
 			templateAsDictionary["github_installation_id"] = template.GithubInstallationId
 		}
+		if template.IsGitlabEnterprise != false {
+			templateAsDictionary["is_gitlab_enterprise"] = template.IsGitlabEnterprise
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
-
-	t.Run("Full Github template (without SSH keys)", func(t *testing.T) {
-		template := client.Template{
-			Id:          "id0",
-			Name:        "template0",
-			Description: "description0",
-			Repository:  "env0/repo",
-			Path:        "path/zero",
-			Revision:    "branch-zero",
-			Retry: client.TemplateRetry{
-				OnDeploy: &client.TemplateRetryOn{
-					Times:      2,
-					ErrorRegex: "RetryMeForDeploy.*",
-				},
-				OnDestroy: &client.TemplateRetryOn{
-					Times:      1,
-					ErrorRegex: "RetryMeForDestroy.*",
-				},
-			},
-			Type:                 "terraform",
-			GithubInstallationId: 1,
-			TerraformVersion:     "0.12.24",
+	fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
+		gitlabProjectIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId))
+		if template.GitlabProjectId == 0 {
+			gitlabProjectIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "gitlab_project_id")
 		}
 
-		updatedTemplate := client.Template{
-			Id:          template.Id,
-			Name:        "new-name",
-			Description: "new-description",
-			Repository:  "env0/repo-new",
-			Path:        "path/zero/new",
-			Revision:    "branch-zero-new",
-			Retry: client.TemplateRetry{
-				OnDeploy: &client.TemplateRetryOn{
-					Times:      1,
-					ErrorRegex: "NewForDeploy.*",
-				},
-				OnDestroy: &client.TemplateRetryOn{
-					Times:      2,
-					ErrorRegex: "NewForDestroy.*",
-				},
-			},
-			Type:                 "terragrunt",
-			GithubInstallationId: 2,
-			TerraformVersion:     "0.15.1",
+		tokenIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId)
+		if template.TokenId == "" {
+			tokenIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_id")
 		}
 
-		fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
-			return resource.ComposeAggregateTestCheckFunc(
-				resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
-				resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
-				resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
-				resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-				resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
-				resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
-				resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
-				resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
-				resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
-				resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
-				resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
-				resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
-			)
+		githubInstallationIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId))
+		if template.GithubInstallationId == 0 {
+			githubInstallationIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id")
 		}
 
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: fullTemplateResourceConfig(resourceType, resourceName, template),
-					Check:  fullTemplateResourceCheck(resourceFullName, template),
-				},
-				{
-					Config: fullTemplateResourceConfig(resourceType, resourceName, updatedTemplate),
-					Check:  fullTemplateResourceCheck(resourceFullName, updatedTemplate),
-				},
-			},
-		}
+		return resource.ComposeAggregateTestCheckFunc(
+			resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
+			resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
+			resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
+			resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
+			resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
+			resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
+			resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
+			resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
+			resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
+			resource.TestCheckResourceAttr(resourceFullName, "is_gitlab_enterprise", strconv.FormatBool(template.IsGitlabEnterprise)),
+			tokenIdAssertion,
+			gitlabProjectIdAssertion,
+			githubInstallationIdAssertion,
+			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+		)
+	}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
-				mock.EXPECT().Template(template.Id).Times(2).Return(template, nil),        // 1 after create, 1 before update
-				mock.EXPECT().Template(template.Id).Times(1).Return(updatedTemplate, nil), // 1 after update
-			)
-			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
-				Name:                 template.Name,
-				Repository:           template.Repository,
-				Description:          template.Description,
-				GithubInstallationId: template.GithubInstallationId,
-				IsGitLab:             false,
-				Path:                 template.Path,
-				Revision:             template.Revision,
+	var templateUseCases = []struct {
+		vcs             string
+		template        client.Template
+		updatedTemplate client.Template
+	}{
+		{"GitLab EE", gleeTemplate, gleeUpdatedTemplate},
+		{"GitLab", gitlabTemplate, gitlabUpdatedTemplate},
+		{"GitHub", githubTemplate, githubUpdatedTemplate},
+	}
+	for _, templateUseCase := range templateUseCases {
+		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
+			templateCreatePayload := client.TemplateCreatePayload{
+				Name:                 templateUseCase.template.Name,
+				Repository:           templateUseCase.template.Repository,
+				Description:          templateUseCase.template.Description,
+				GithubInstallationId: templateUseCase.template.GithubInstallationId,
+				IsGitlabEnterprise:   templateUseCase.template.IsGitlabEnterprise,
+				IsGitLab:             templateUseCase.template.TokenId != "",
+				GitlabProjectId:      templateUseCase.template.GitlabProjectId,
+				TokenId:              templateUseCase.template.TokenId,
+				Path:                 templateUseCase.template.Path,
+				Revision:             templateUseCase.template.Revision,
 				Type:                 client.TemplateTypeTerraform,
-				Retry:                template.Retry,
-				TerraformVersion:     template.TerraformVersion,
-			}).Times(1).Return(template, nil)
-			mock.EXPECT().TemplateUpdate(template.Id, client.TemplateCreatePayload{
-				Name:                 updatedTemplate.Name,
-				Repository:           updatedTemplate.Repository,
-				Description:          updatedTemplate.Description,
-				GithubInstallationId: updatedTemplate.GithubInstallationId,
-				IsGitLab:             false,
-				Path:                 updatedTemplate.Path,
-				Revision:             updatedTemplate.Revision,
+				Retry:                templateUseCase.template.Retry,
+				TerraformVersion:     templateUseCase.template.TerraformVersion,
+			}
+			updateTemplateCreateTemplate := client.TemplateCreatePayload{
+				Name:                 templateUseCase.updatedTemplate.Name,
+				Repository:           templateUseCase.updatedTemplate.Repository,
+				Description:          templateUseCase.updatedTemplate.Description,
+				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
+				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
+				IsGitLab:             templateUseCase.updatedTemplate.TokenId != "",
+				GitlabProjectId:      templateUseCase.updatedTemplate.GitlabProjectId,
+				TokenId:              templateUseCase.updatedTemplate.TokenId,
+				Path:                 templateUseCase.updatedTemplate.Path,
+				Revision:             templateUseCase.updatedTemplate.Revision,
 				Type:                 client.TemplateTypeTerragrunt,
-				Retry:                updatedTemplate.Retry,
-				TerraformVersion:     updatedTemplate.TerraformVersion,
-			}).Times(1).Return(updatedTemplate, nil)
-			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+				Retry:                templateUseCase.updatedTemplate.Retry,
+				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: fullTemplateResourceConfig(resourceType, resourceName, templateUseCase.template),
+						Check:  fullTemplateResourceCheck(resourceFullName, templateUseCase.template),
+					},
+					{
+						Config: fullTemplateResourceConfig(resourceType, resourceName, templateUseCase.updatedTemplate),
+						Check:  fullTemplateResourceCheck(resourceFullName, templateUseCase.updatedTemplate),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				gomock.InOrder(
+					mock.EXPECT().Template(templateUseCase.template.Id).Times(2).Return(templateUseCase.template, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Template(templateUseCase.template.Id).Times(1).Return(templateUseCase.updatedTemplate, nil), // 1 after update
+				)
+				mock.EXPECT().TemplateCreate(templateCreatePayload).Times(1).Return(templateUseCase.template, nil)
+				mock.EXPECT().TemplateUpdate(templateUseCase.updatedTemplate.Id, updateTemplateCreateTemplate).Times(1).Return(templateUseCase.updatedTemplate, nil)
+				mock.EXPECT().TemplateDelete(templateUseCase.updatedTemplate.Id).Times(1).Return(nil)
+			})
 		})
-	})
-
-	t.Run("Full Gitlab template (without SSH keys)", func(t *testing.T) {
-		template := client.Template{
-			Id:          "id0",
-			Name:        "template0",
-			Description: "description0",
-			Repository:  "env0/repo",
-			Path:        "path/zero",
-			Revision:    "branch-zero",
-			Retry: client.TemplateRetry{
-				OnDeploy: &client.TemplateRetryOn{
-					Times:      2,
-					ErrorRegex: "RetryMeForDeploy.*",
-				},
-				OnDestroy: &client.TemplateRetryOn{
-					Times:      1,
-					ErrorRegex: "RetryMeForDestroy.*",
-				},
-			},
-			Type:             "terraform",
-			TokenId:          "1",
-			GitlabProjectId:  10,
-			TerraformVersion: "0.12.24",
-		}
-
-		updatedTemplate := client.Template{
-			Id:          template.Id,
-			Name:        "new-name",
-			Description: "new-description",
-			Repository:  "env0/repo-new",
-			Path:        "path/zero/new",
-			Revision:    "branch-zero-new",
-			Retry: client.TemplateRetry{
-				OnDeploy: &client.TemplateRetryOn{
-					Times:      1,
-					ErrorRegex: "NewForDeploy.*",
-				},
-				OnDestroy: &client.TemplateRetryOn{
-					Times:      2,
-					ErrorRegex: "NewForDestroy.*",
-				},
-			},
-			Type:             "terragrunt",
-			TokenId:          "2",
-			GitlabProjectId:  2,
-			TerraformVersion: "0.15.1",
-		}
-
-		fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
-			return resource.ComposeAggregateTestCheckFunc(
-				resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
-				resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
-				resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
-				resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-				resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
-				resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
-				resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
-				resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
-				resource.TestCheckResourceAttr(resourceFullName, "retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
-				resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
-				resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId),
-				resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId)),
-				resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
-			)
-		}
-
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: fullTemplateResourceConfig(resourceType, resourceName, template),
-					Check:  fullTemplateResourceCheck(resourceFullName, template),
-				},
-				{
-					Config: fullTemplateResourceConfig(resourceType, resourceName, updatedTemplate),
-					Check:  fullTemplateResourceCheck(resourceFullName, updatedTemplate),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
-				mock.EXPECT().Template(template.Id).Times(2).Return(template, nil),        // 1 after create, 1 before update
-				mock.EXPECT().Template(template.Id).Times(1).Return(updatedTemplate, nil), // 1 after update
-			)
-			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
-				Name:             template.Name,
-				Repository:       template.Repository,
-				Description:      template.Description,
-				TokenId:          template.TokenId,
-				GitlabProjectId:  template.GitlabProjectId,
-				IsGitLab:         true,
-				Path:             template.Path,
-				Revision:         template.Revision,
-				Type:             client.TemplateTypeTerraform,
-				Retry:            template.Retry,
-				TerraformVersion: template.TerraformVersion,
-			}).Times(1).Return(template, nil)
-			mock.EXPECT().TemplateUpdate(template.Id, client.TemplateCreatePayload{
-				Name:             updatedTemplate.Name,
-				Repository:       updatedTemplate.Repository,
-				Description:      updatedTemplate.Description,
-				TokenId:          updatedTemplate.TokenId,
-				GitlabProjectId:  updatedTemplate.GitlabProjectId,
-				IsGitLab:         true,
-				Path:             updatedTemplate.Path,
-				Revision:         updatedTemplate.Revision,
-				Type:             client.TemplateTypeTerragrunt,
-				Retry:            updatedTemplate.Retry,
-				TerraformVersion: updatedTemplate.TerraformVersion,
-			}).Times(1).Return(updatedTemplate, nil)
-			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
-		})
-	})
-
+	}
 	t.Run("Basic template", func(t *testing.T) {
 		template := client.Template{
 			Id:         "id0",
@@ -505,22 +515,34 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 	})
 
-	t.Run("Mixed Gitlab and Github template", func(t *testing.T) {
-		var testCases []resource.TestCase
+	var mixedUsecases = []struct {
+		firstVcs  string
+		secondVcs string
+		tfObject  map[string]interface{}
+		exception string
+	}{
+		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
+		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
+		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with github_installation_id"},
+	}
+	for _, mixUseCase := range mixedUsecases {
+		t.Run("Mixed "+mixUseCase.firstVcs+" and "+mixUseCase.secondVcs+" template", func(t *testing.T) {
+			var testCases []resource.TestCase
 
-		testCases = append(testCases, resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}),
-					ExpectError: regexp.MustCompile("Cannot set token_id and github_installation_id for the same template"),
+			testCases = append(testCases, resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      resourceConfigCreate(resourceType, resourceName, mixUseCase.tfObject),
+						ExpectError: regexp.MustCompile(mixUseCase.exception),
+					},
 				},
-			},
-		})
+			})
 
-		for _, testCase := range testCases {
-			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
-		}
-	})
+			for _, testCase := range testCases {
+				runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+			}
+		})
+	}
 
 	t.Run("Should not trigger terraform changes when gitlab_project_id is provided", func(t *testing.T) {
 		template := client.Template{

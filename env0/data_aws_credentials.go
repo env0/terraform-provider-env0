@@ -29,6 +29,8 @@ func dataAwsCredentials() *schema.Resource {
 	}
 }
 
+const credentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
+
 func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
 	var credentials client.ApiKey
@@ -65,7 +67,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
 	for _, candidate := range credentialsList {
-		if candidate.Name == name.(string) && candidate.Type == "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT" {
+		if candidate.Name == name.(string) && candidate.Type == credentialsType {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
 		}
 	}
@@ -82,7 +84,7 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 func getAwsCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.AwsCredentials(id)
-	if credentials.Type != "aws_assumed_role" {
+	if credentials.Type != credentialsType {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
 	}
 	if err != nil {

@@ -79,7 +79,6 @@ type TTLType string
 
 const (
 	TTLTypeDate     TTLType = "DATE"
-	TTLTypeHours    TTLType = "HOURS"
 	TTlTypeInfinite TTLType = "INFINITE"
 )
 
@@ -219,6 +218,7 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -269,10 +269,12 @@ type Template struct {
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
+	IsDeleted            bool             `json:"isDeleted,omitempty"`
 }
 
 type Environment struct {
@@ -392,6 +394,24 @@ type PolicyUpdatePayload struct {
 	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
 	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
+}
+
+type EnvironmentSchedulingExpression struct {
+	Cron    string `json:"cron,omitempty"`
+	Enabled bool   `json:"enabled"`
+}
+
+type EnvironmentScheduling struct {
+	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty"`
+	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty"`
+}
+
+type WorkflowTrigger struct {
+	Id string `json:"id"`
+}
+
+type WorkflowTriggerUpsertPayload struct {
+	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
