@@ -52,7 +52,7 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Put(path, schedulingExpression, gomock.Any()).
+					Patch(path, schedulingExpression, gomock.Any()).
 					Do(func(path string, request interface{}, response *EnvironmentSchedulingExpression) {
 						*response = schedulingExpression
 					})
@@ -69,7 +69,7 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Put(path, schedulingExpression, gomock.Any()).
+					Patch(path, schedulingExpression, gomock.Any()).
 					Return(mockError)
 
 				_, err = apiClient.EnvironmentUpdateDriftDetection(environmentId, schedulingExpression)
@@ -85,7 +85,7 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Put(path, EnvironmentSchedulingExpression{Enabled: false, Cron: ""}, gomock.Any()).
+					Patch(path, EnvironmentSchedulingExpression{Enabled: false}, gomock.Any()).
 					Do(func(path string, request interface{}, response *EnvironmentSchedulingExpression) {
 						*response = schedulingExpression
 					})
@@ -98,7 +98,7 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Put(path, EnvironmentSchedulingExpression{Enabled: false, Cron: ""}, gomock.Any()).
+					Patch(path, EnvironmentSchedulingExpression{Enabled: false}, gomock.Any()).
 					Return(mockError)
 
 				err = apiClient.EnvironmentStopDriftDetection(environmentId)

@@ -79,7 +79,6 @@ type TTLType string
 
 const (
 	TTLTypeDate     TTLType = "DATE"
-	TTLTypeHours    TTLType = "HOURS"
 	TTlTypeInfinite TTLType = "INFINITE"
 )
 
@@ -392,7 +391,7 @@ type PolicyUpdatePayload struct {
 }
 
 type EnvironmentSchedulingExpression struct {
-	Cron    string `json:"cron"`
+	Cron    string `json:"cron,omitempty"`
 	Enabled bool   `json:"enabled"`
 }
 
