@@ -70,10 +70,8 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 			break
 		}
 	}
-	if !found {
-		if !d.IsNewResource() {
-			d.SetId("")
-		}
+	if !found && !d.IsNewResource() {
+		d.SetId("")
 	}
 	return nil
 }
