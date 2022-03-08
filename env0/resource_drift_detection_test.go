@@ -73,26 +73,4 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 			mock.EXPECT().EnvironmentStopDriftDetection(environmentId).Return(nil)
 		})
 	})
-	t.Run("When received Enabled = false from BE (drift)", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"environment_id": environmentId,
-						"cron":           drift.Cron,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", environmentId),
-					),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().EnvironmentUpdateDriftDetection(environmentId, drift).Times(1).Return(drift, nil)
-			mock.EXPECT().EnvironmentDriftDetection(environmentId).Times(1).Return(client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: false}, nil)
-			mock.EXPECT().EnvironmentStopDriftDetection(environmentId).Times(1).Return(nil)
-		})
-	})
-
 }
