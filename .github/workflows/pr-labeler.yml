@@ -1,0 +1,18 @@
+name: PR Labeler
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-labeler:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 2
+    steps:
+      - name: Semantic
+        uses: TimonVS/pr-labeler-action@v3 # Reads from .github/pr-labeler.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Updated Paths
+        uses: actions/labeler@main # Reads from .github/labeler.yml
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

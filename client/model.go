@@ -79,7 +79,6 @@ type TTLType string
 
 const (
 	TTLTypeDate     TTLType = "DATE"
-	TTLTypeHours    TTLType = "HOURS"
 	TTlTypeInfinite TTLType = "INFINITE"
 )
 
