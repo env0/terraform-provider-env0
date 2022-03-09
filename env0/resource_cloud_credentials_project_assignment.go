@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -60,6 +61,7 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 		}
 	}
 	if !found && !d.IsNewResource() {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
 		d.SetId("")
 		return nil
 	}

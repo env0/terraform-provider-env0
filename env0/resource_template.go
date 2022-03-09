@@ -242,7 +242,8 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("could not get template: %v", err)
 	}
 
-	if template.IsDeleted {
+	if template.IsDeleted && !d.IsNewResource() {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
 		d.SetId("")
 		return nil
 	}
