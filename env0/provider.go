@@ -62,6 +62,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_environment":                          resourceEnvironment(),
 				"env0_workflow_triggers":                    resourceWorkflowTriggers(),
 				"env0_environment_scheduling":               resourceEnvironmentScheduling(),
+				"env0_environment_drift_detection":          resourceDriftDetection(),
 			},
 		}
 
