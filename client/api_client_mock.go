@@ -404,6 +404,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
 }
 
+// GcpCredentialsCreate mocks base method.
+func (m *MockApiClientInterface) GcpCredentialsCreate(arg0 GcpCredentialsCreatePayload) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GcpCredentialsCreate", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GcpCredentialsCreate indicates an expected call of GcpCredentialsCreate.
+func (mr *MockApiClientInterfaceMockRecorder) GcpCredentialsCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GcpCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GcpCredentialsCreate), arg0)
+}
+
 // Organization mocks base method.
 func (m *MockApiClientInterface) Organization() (Organization, error) {
 	m.ctrl.T.Helper()

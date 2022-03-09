@@ -314,10 +314,12 @@ type SshKeyCreatePayload struct {
 }
 
 type AwsCredentialsType string
+type GcpCredentialsType string
 
 const (
-	AwsAssumedRoleCredentialsType AwsCredentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
-	AwsAccessKeysCredentialsType  AwsCredentialsType = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
+	AwsAssumedRoleCredentialsType    AwsCredentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
+	AwsAccessKeysCredentialsType     AwsCredentialsType = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
+	GcpServiceAccountCredentialsType GcpCredentialsType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
 )
 
 type AwsCredentialsCreatePayload struct {
@@ -327,11 +329,23 @@ type AwsCredentialsCreatePayload struct {
 	Value          AwsCredentialsValuePayload `json:"value"`
 }
 
+type GcpCredentialsCreatePayload struct {
+	Name           string                     `json:"name"`
+	OrganizationId string                     `json:"organizationId"`
+	Type           GcpCredentialsType         `json:"type"`
+	Value          GcpCredentialsValuePayload `json:"value"`
+}
+
 type AwsCredentialsValuePayload struct {
 	RoleArn         string `json:"roleArn"`
 	ExternalId      string `json:"externalId"`
 	AccessKeyId     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
+}
+
+type GcpCredentialsValuePayload struct {
+	ProjectId         string `json:"projectId"`
+	ServiceAccountKey string `json:"serviceAccountKey"`
 }
 
 type ApiKey struct {
