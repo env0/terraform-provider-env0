@@ -3,6 +3,8 @@ package env0
 import (
 	"context"
 	"fmt"
+	"log"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,13 +61,19 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("could not get TeamProjectAssignment: %v", err)
 	}
 
+	found := false
 	for _, assignment := range assignments {
 		if assignment.Id == id {
 			d.Set("project_id", assignment.ProjectId)
 			d.Set("team_id", assignment.TeamId)
 			d.Set("role", assignment.ProjectRole)
+			found = true
 			break
 		}
+	}
+	if !found && !d.IsNewResource() {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		d.SetId("")
 	}
 	return nil
 }

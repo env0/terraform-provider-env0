@@ -3,12 +3,13 @@ package env0
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"log"
 )
 
 func resourceProject() *schema.Resource {
