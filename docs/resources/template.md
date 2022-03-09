@@ -45,6 +45,7 @@ resource "env0_template_project_assignment" "assignment" {
 
 ### Optional
 
+- **bitbucket_client_key** (String) The bitbucket client key used for integration
 - **description** (String) description for the template
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
 - **gitlab_project_id** (Number) The project id of the relevant repository
