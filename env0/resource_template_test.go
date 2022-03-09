@@ -146,7 +146,48 @@ func TestUnitTemplateResource(t *testing.T) {
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.15.1",
 	}
-
+	bitbucketTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:               "terraform",
+		TerraformVersion:   "0.12.24",
+		BitbucketClientKey: "clientkey",
+	}
+	bitbucketUpdatedTemplate := client.Template{
+		Id:          bitbucketTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:               "terragrunt",
+		BitbucketClientKey: "clientkey2",
+		TerraformVersion:   "0.15.1",
+	}
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -191,6 +232,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 		if template.IsGitlabEnterprise != false {
 			templateAsDictionary["is_gitlab_enterprise"] = template.IsGitlabEnterprise
+		}
+		if template.BitbucketClientKey != "" {
+			templateAsDictionary["bitbucket_client_key"] = template.BitbucketClientKey
 		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
@@ -238,6 +282,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitLab EE", gleeTemplate, gleeUpdatedTemplate},
 		{"GitLab", gitlabTemplate, gitlabUpdatedTemplate},
 		{"GitHub", githubTemplate, githubUpdatedTemplate},
+		{"Bitbucket", bitbucketTemplate, bitbucketUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -255,6 +300,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Type:                 client.TemplateTypeTerraform,
 				Retry:                templateUseCase.template.Retry,
 				TerraformVersion:     templateUseCase.template.TerraformVersion,
+				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -270,6 +316,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Type:                 client.TemplateTypeTerragrunt,
 				Retry:                templateUseCase.updatedTemplate.Retry,
 				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
+				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
 			}
 
 			testCase := resource.TestCase{

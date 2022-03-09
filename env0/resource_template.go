@@ -126,6 +126,11 @@ func resourceTemplate() *schema.Resource {
 				Default:       "false",
 				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id"},
 			},
+			"bitbucket_client_key": {
+				Type:        schema.TypeString,
+				Description: "The bitbucket client key used for integration",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -214,6 +219,11 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
 		result.TerraformVersion = terraformVersion.(string)
 	}
+
+	if bitbucketClientKey, ok := d.GetOk("bitbucket_client_key"); ok {
+		result.BitbucketClientKey = bitbucketClientKey.(string)
+	}
+
 	return result, nil
 }
 
@@ -282,6 +292,10 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	} else {
 		d.Set("retries_on_destroy", 0)
 		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	}
+
+	if template.BitbucketClientKey != "" {
+		d.Set("bitbucket_client_key", template.BitbucketClientKey)
 	}
 
 	return nil
