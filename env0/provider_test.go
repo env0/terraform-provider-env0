@@ -3,6 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/utils"
 	"github.com/golang/mock/gomock"
@@ -10,9 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"os"
-	"strings"
-	"testing"
 )
 
 var (

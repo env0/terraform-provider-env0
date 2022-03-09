@@ -3,8 +3,9 @@ package env0
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -90,12 +91,12 @@ func resourceAwsCostCredentialsImport(ctx context.Context, d *schema.ResourceDat
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
 		log.Println("[INFO] Resolving AWS Credentials by id: ", id)
-		_, getErr = getAwsCredentialsById(id, meta)
+		_, getErr = getAwsCostCredentialsById(id, meta)
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving AWS Credentials by name: ", id)
 		var awsCredential client.ApiKey
-		awsCredential, getErr = getAwsCredentialsByName(id, meta)
+		awsCredential, getErr = getAwsCostCredentialsByName(id, meta)
 		d.SetId(awsCredential.Id)
 	}
 	if getErr != nil {
