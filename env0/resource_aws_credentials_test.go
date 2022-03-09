@@ -16,32 +16,34 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	awsCredentialResoure := map[string]interface{}{
+	awsArnCredentialResource := map[string]interface{}{
 		"name":        "test",
 		"arn":         "11111",
 		"external_id": "22222",
 	}
 
-	updatedawsCredentialResoure := map[string]interface{}{
-		"name":        "update",
-		"arn":         "11111",
-		"external_id": "22222",
+	updatedAwsAccessKeyCredentialResource := map[string]interface{}{
+		"name":              "update",
+		"access_key_id":     "33333",
+		"secret_access_key": "44444",
 	}
 
-	awsCredCreatePayload := client.AwsCredentialsCreatePayload{
-		Name: awsCredentialResoure["name"].(string),
+	awsArnCredCreatePayload := client.AwsCredentialsCreatePayload{
+		Name: awsArnCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    awsCredentialResoure["arn"].(string),
-			ExternalId: awsCredentialResoure["external_id"].(string),
+			RoleArn:    awsArnCredentialResource["arn"].(string),
+			ExternalId: awsArnCredentialResource["external_id"].(string),
 		},
+		Type: client.AwsAssumedRoleCredentialsType,
 	}
 
-	updateAwsCredCreatePayload := client.AwsCredentialsCreatePayload{
-		Name: updatedawsCredentialResoure["name"].(string),
+	updateAwsAccessKeyCredCreatePayload := client.AwsCredentialsCreatePayload{
+		Name: updatedAwsAccessKeyCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    updatedawsCredentialResoure["arn"].(string),
-			ExternalId: updatedawsCredentialResoure["external_id"].(string),
+			AccessKeyId:     updatedAwsAccessKeyCredentialResource["access_key_id"].(string),
+			SecretAccessKey: updatedAwsAccessKeyCredentialResource["secret_access_key"].(string),
 		},
+		Type: client.AwsAccessKeysCredentialsType,
 	}
 
 	returnValues := client.ApiKey{
@@ -61,11 +63,11 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	testCaseForCreate := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, awsCredentialResoure),
+				Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResoure["name"].(string)),
-					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResoure["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsCredentialResoure["external_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
+					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
+					resource.TestCheckResourceAttr(accessor, "external_id", awsArnCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", "id"),
 				),
 			},
@@ -75,49 +77,68 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	testCaseForUpdate := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, awsCredentialResoure),
+				Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResoure["name"].(string)),
-					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResoure["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsCredentialResoure["external_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
+					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
+					resource.TestCheckResourceAttr(accessor, "external_id", awsArnCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
 			{
-				Config: resourceConfigCreate(resourceType, resourceName, updatedawsCredentialResoure),
+				Config: resourceConfigCreate(resourceType, resourceName, updatedAwsAccessKeyCredentialResource),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(accessor, "name", updatedawsCredentialResoure["name"].(string)),
-					resource.TestCheckResourceAttr(accessor, "arn", updatedawsCredentialResoure["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", updatedawsCredentialResoure["external_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "name", updatedAwsAccessKeyCredentialResource["name"].(string)),
+					resource.TestCheckResourceAttr(accessor, "access_key_id", updatedAwsAccessKeyCredentialResource["access_key_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "secret_access_key", updatedAwsAccessKeyCredentialResource["secret_access_key"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
 				),
 			},
 		},
 	}
 
-	testCaseForError := resource.TestCase{
+	mutuallyExclusiveErrorResource := map[string]interface{}{
+		"name":          "update",
+		"arn":           "11111",
+		"external_id":   "22222",
+		"access_key_id": "some-key",
+	}
+	testCaseFormMutuallyExclusiveError := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
-				ExpectError: regexp.MustCompile("Missing required argument"),
+				Config:      resourceConfigCreate(resourceType, resourceName, mutuallyExclusiveErrorResource),
+				ExpectError: regexp.MustCompile("only one of `access_key_id,arn` can be specified"),
+			},
+		},
+	}
+
+	missingValidInputErrorResource := map[string]interface{}{
+		"name": "update",
+	}
+	testCaseFormMissingValidInputError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, missingValidInputErrorResource),
+				ExpectError: regexp.MustCompile("one of `access_key_id,arn` must be specified"),
 			},
 		},
 	}
 
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseForCreate, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().AwsCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().AwsCredentialsDelete(returnValues.Id).Times(1).Return(nil)
 		})
 	})
 
-	t.Run("destroy when one of the values changed", func(t *testing.T) {
+	t.Run("any update cause a destroy before a new create", func(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsCredCreatePayload).Times(1).Return(returnValues, nil)
-			mock.EXPECT().AwsCredentialsDelete(returnValues.Id).Times(1).Return(nil)
-			mock.EXPECT().AwsCredentialsCreate(updateAwsCredCreatePayload).Times(1).Return(updateReturnValues, nil)
-
+			gomock.InOrder(
+				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().AwsCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+				mock.EXPECT().AwsCredentialsCreate(updateAwsAccessKeyCredCreatePayload).Times(1).Return(updateReturnValues, nil),
+			)
 			gomock.InOrder(
 				mock.EXPECT().AwsCredentials(returnValues.Id).Times(2).Return(returnValues, nil),
 				mock.EXPECT().AwsCredentials(updateReturnValues.Id).Times(1).Return(updateReturnValues, nil),
@@ -126,9 +147,13 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		})
 	})
 
-	t.Run("throw error when one of the values is missing", func(t *testing.T) {
-		runUnitTest(t, testCaseForError, func(mock *client.MockApiClientInterface) {
+	t.Run("throw error when enter mutually exclusive values", func(t *testing.T) {
+		runUnitTest(t, testCaseFormMutuallyExclusiveError, func(mock *client.MockApiClientInterface) {
+		})
+	})
 
+	t.Run("throw error when don't enter any valid options", func(t *testing.T) {
+		runUnitTest(t, testCaseFormMissingValidInputError, func(mock *client.MockApiClientInterface) {
 		})
 	})
 

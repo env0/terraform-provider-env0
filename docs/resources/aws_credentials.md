@@ -25,13 +25,15 @@ resource "env0_aws_credentials" "credentials" {
 
 ### Required
 
-- **arn** (String) the aws role arn
-- **external_id** (String, Sensitive) the aws role external id
 - **name** (String) name for the credentials
 
 ### Optional
 
+- **access_key_id** (String, Sensitive) the aws access key id
+- **arn** (String) the aws role arn
+- **external_id** (String, Sensitive) the aws role external id
 - **id** (String) The ID of this resource.
+- **secret_access_key** (String, Sensitive) the aws access key secret
 
 ## Import
 

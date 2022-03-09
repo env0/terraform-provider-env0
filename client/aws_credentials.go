@@ -40,7 +40,6 @@ func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload)
 		return ApiKey{}, err
 	}
 
-	request.Type = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	request.OrganizationId = organizationId
 
 	var result ApiKey
