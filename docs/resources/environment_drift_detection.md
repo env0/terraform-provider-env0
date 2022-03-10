@@ -29,7 +29,7 @@ resource "env0_environment" "env" {
 
 resource "env0_environment_drift_detection" "drift" {
   environment_id = env0_environment.env.id
-  cron = "0 4 * * *"
+  cron           = "0 4 * * *"
 }
 ```
 
