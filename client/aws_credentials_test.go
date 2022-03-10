@@ -30,15 +30,17 @@ var _ = Describe("AwsCredentials", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
+			payloadValue := AwsCredentialsValuePayload{
+				RoleArn:    "role",
+				ExternalId: "external",
+			}
+
 			httpCall = mockHttpClient.EXPECT().
 				Post("/credentials", AwsCredentialsCreatePayload{
 					Name:           awsCredentialsName,
 					OrganizationId: organizationId,
 					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
-					Value: AwsCredentialsValuePayload{
-						RoleArn:    "role",
-						ExternalId: "external",
-					},
+					Value:          payloadValue,
 				},
 					gomock.Any()).
 				Do(func(path string, request interface{}, response *ApiKey) {
@@ -46,11 +48,9 @@ var _ = Describe("AwsCredentials", func() {
 				})
 
 			apiKey, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
-				Name: awsCredentialsName,
-				Value: AwsCredentialsValuePayload{
-					RoleArn:    "role",
-					ExternalId: "external",
-				},
+				Name:  awsCredentialsName,
+				Value: payloadValue,
+				Type:  "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 			})
 		})
 
