@@ -95,13 +95,13 @@ func resourceGcpCredentialsImport(ctx context.Context, d *schema.ResourceData, m
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
 		log.Println("[INFO] Resolving GCP Credentials by id: ", id)
-		_, getErr = getAwsCredentialsById(id, meta)
+		_, getErr = getGcpCredentialsById(id, meta)
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving GCP Credentials by name: ", id)
-		var awsCredential client.ApiKey
-		awsCredential, getErr = getGcpCredentialsByName(id, meta)
-		d.SetId(awsCredential.Id)
+		var gcpCredential client.ApiKey
+		gcpCredential, getErr = getGcpCredentialsByName(id, meta)
+		d.SetId(gcpCredential.Id)
 	}
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
