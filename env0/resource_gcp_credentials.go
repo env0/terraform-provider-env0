@@ -72,7 +72,7 @@ func resourceGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	_, err := apiClient.AwsCredentials(id)
+	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
 		return diag.Errorf("could not get credentials: %v", err)
 	}
@@ -83,7 +83,7 @@ func resourceGcpCredentialsDelete(ctx context.Context, d *schema.ResourceData, m
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	err := apiClient.AwsCredentialsDelete(id)
+	err := apiClient.CloudCredentialsDelete(id)
 	if err != nil {
 		return diag.Errorf("could not delete credentials: %v", err)
 	}

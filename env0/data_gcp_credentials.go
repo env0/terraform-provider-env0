@@ -58,7 +58,7 @@ func dataGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 
 func getGcpCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentialsList, err := apiClient.AwsCredentialsList()
+	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
 		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
 	}
@@ -81,7 +81,7 @@ func getGcpCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 
 func getGcpCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentials, err := apiClient.AwsCredentials(id)
+	credentials, err := apiClient.CloudCredentials(id)
 	if !isValidGcpCredentialsType(credentials.Type) {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not GCP Credentials: %v", credentials)
 	}
