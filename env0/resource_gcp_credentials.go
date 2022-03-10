@@ -33,12 +33,11 @@ func resourceGcpCredentials() *schema.Resource {
 				ForceNew:    true,
 			},
 			"service_account_key": {
-				Type:         schema.TypeString,
-				Description:  "the gcp service account key",
-				Required:     true,
-				Sensitive:    true,
-				ForceNew:     true,
-				RequiredWith: []string{"secret_access_key"},
+				Type:        schema.TypeString,
+				Description: "the gcp service account key",
+				Required:    true,
+				Sensitive:   true,
+				ForceNew:    true,
 			},
 		},
 	}

@@ -2,6 +2,8 @@ package env0
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"regexp"
 )
 
 // TFSource Enum
@@ -64,4 +66,16 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 		hclFields += "\n"
 	}
 	return fmt.Sprintf(`%s "%s" "%s" {%s}`, source, resourceType, resourceName, hclFields)
+}
+
+func missingArgumentTestCase(resourceType string, resourceName string, errorResource map[string]interface{}, missingArgumentKey string) resource.TestCase {
+	testCaseFormMissingValidInputError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, errorResource),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`The argument \"%s\" is required, but no definition was found`, missingArgumentKey)),
+			},
+		},
+	}
+	return testCaseFormMissingValidInputError
 }

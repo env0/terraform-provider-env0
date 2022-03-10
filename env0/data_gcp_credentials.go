@@ -60,7 +60,7 @@ func getGcpCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 	apiClient := meta.(client.ApiClientInterface)
 	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
-		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
+		return client.ApiKey{}, diag.Errorf("Could not query GCP Credentials by name: %v", err)
 	}
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
