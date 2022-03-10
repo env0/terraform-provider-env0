@@ -13,7 +13,6 @@ env:
   
 jobs:
   tf-provider-integration-test:
-    needs: [gate]
     name: TF Provider Test
     runs-on: ubuntu-20.04
     container: hashicorp/terraform:1.1.6
