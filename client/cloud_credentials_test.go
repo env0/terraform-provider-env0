@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("AwsCredentials", func() {
-	const awsCredentialsName = "credential_test"
+var _ = Describe("CloudCredentials", func() {
+	const credentialsName = "credential_test"
 	var apiKey ApiKey
 	mockApiKey := ApiKey{
 		Id:             "id1",
@@ -37,7 +37,7 @@ var _ = Describe("AwsCredentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/credentials", AwsCredentialsCreatePayload{
-					Name:           awsCredentialsName,
+					Name:           credentialsName,
 					OrganizationId: organizationId,
 					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 					Value:          payloadValue,
@@ -48,7 +48,7 @@ var _ = Describe("AwsCredentials", func() {
 				})
 
 			apiKey, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
-				Name:  awsCredentialsName,
+				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 			})
@@ -67,10 +67,54 @@ var _ = Describe("AwsCredentials", func() {
 		})
 	})
 
-	Describe("AwsCredentialsDelete", func() {
+	Describe("GcpCredentialsCreate", func() {
+		const gcpRequestType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+		mockGcpApiKey := mockApiKey
+		mockGcpApiKey.Type = gcpRequestType
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
+			payloadValue := GcpCredentialsValuePayload{
+				ProjectId:         "projectId",
+				ServiceAccountKey: "serviceAccountKey",
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/credentials", GcpCredentialsCreatePayload{
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           gcpRequestType,
+					Value:          payloadValue,
+				},
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *ApiKey) {
+					*response = mockGcpApiKey
+				})
+
+			apiKey, _ = apiClient.GcpCredentialsCreate(GcpCredentialsCreatePayload{
+				Name:  credentialsName,
+				Value: payloadValue,
+				Type:  gcpRequestType,
+			})
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send POST request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(apiKey).To(Equal(mockGcpApiKey))
+		})
+	})
+
+	Describe("CloudCredentialsDelete", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/credentials/" + mockApiKey.Id)
-			apiClient.AwsCredentialsDelete(mockApiKey.Id)
+			apiClient.CloudCredentialsDelete(mockApiKey.Id)
 		})
 
 		It("Should send DELETE request with project id", func() {
@@ -78,7 +122,7 @@ var _ = Describe("AwsCredentials", func() {
 		})
 	})
 
-	Describe("AwsCredentials", func() {
+	Describe("CloudCredentials", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
@@ -87,7 +131,7 @@ var _ = Describe("AwsCredentials", func() {
 				Do(func(path string, request interface{}, response *[]ApiKey) {
 					*response = keys
 				})
-			apiKey, _ = apiClient.AwsCredentials(mockApiKey.Id)
+			apiKey, _ = apiClient.CloudCredentials(mockApiKey.Id)
 		})
 
 		It("Should send GET request with project id", func() {
@@ -99,7 +143,7 @@ var _ = Describe("AwsCredentials", func() {
 		})
 	})
 
-	Describe("AwsCredentialsList", func() {
+	Describe("CloudCredentialsList", func() {
 		var credentials []ApiKey
 
 		BeforeEach(func() {
@@ -110,7 +154,7 @@ var _ = Describe("AwsCredentials", func() {
 				Do(func(path string, request interface{}, response *[]ApiKey) {
 					*response = keys
 				})
-			credentials, _ = apiClient.AwsCredentialsList()
+			credentials, _ = apiClient.CloudCredentialsList()
 		})
 
 		It("Should send GET request with organization id param", func() {

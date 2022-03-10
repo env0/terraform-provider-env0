@@ -36,10 +36,11 @@ type ApiClientInterface interface {
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	SshKeyDelete(id string) error
-	AwsCredentials(id string) (ApiKey, error)
-	AwsCredentialsList() ([]ApiKey, error)
+	CloudCredentials(id string) (ApiKey, error)
+	CloudCredentialsList() ([]ApiKey, error)
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
-	AwsCredentialsDelete(id string) error
+	CloudCredentialsDelete(id string) error
+	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error)
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
