@@ -64,13 +64,13 @@ func TestAwsCredDataSource(t *testing.T) {
 
 	mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().CloudCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
 	mockListAwsCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsList().AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().CloudCredentialsList().AnyTimes().Return(returnValue, nil)
 		}
 	}
 
