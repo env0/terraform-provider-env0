@@ -40,11 +40,8 @@ func dataGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 			return err
 		}
 	} else {
-		name, ok := d.GetOk("name")
-		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
-		}
-		credentials, err = getGcpCredentialsByName(name.(string), meta)
+		name, _ := d.Get("name").(string) // name must be specified here
+		credentials, err = getGcpCredentialsByName(name, meta)
 		if err != nil {
 			return err
 		}
