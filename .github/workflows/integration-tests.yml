@@ -18,10 +18,12 @@ jobs:
     container: hashicorp/terraform:1.1.6
     timeout-minutes: 20
     steps:
-      - name: Checkout code
+      -
+        name: Checkout code
         uses: actions/checkout@v2
-      - name: Install Go
+      -
+        name: Install Go
         run: apk add go
-      - name: Run Provider Test Harness
-        working-directory: terraform-provider-env0
+      -
+        name: Run Provider Test Harness
         run: go run tests/harness.go
