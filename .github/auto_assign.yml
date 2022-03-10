@@ -1,0 +1,3 @@
+# used by ./workflows/pr-auto-assign.yml
+addAssignees: author
+runOnDraft: true
