@@ -135,18 +135,11 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 
 	t.Run("validate missing arguments", func(t *testing.T) {
 		missingArgumentsTestCases := []resource.TestCase{
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
-				"name": "update",
-			}, "client_id"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
-				"name": "update",
-			}, "client_secret"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
-				"name": "update",
-			}, "subscription_id"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
-				"name": "update",
-			}, "tenant_id"),
+			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "client_id"),
+			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "client_secret"),
+			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "subscription_id"),
+			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "tenant_id"),
+			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "name"),
 		}
 		for _, testCase := range missingArgumentsTestCases {
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
