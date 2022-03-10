@@ -313,16 +313,25 @@ type SshKeyCreatePayload struct {
 	Value          string `json:"value"`
 }
 
+type AwsCredentialsType string
+
+const (
+	AwsAssumedRoleCredentialsType AwsCredentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
+	AwsAccessKeysCredentialsType  AwsCredentialsType = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
+)
+
 type AwsCredentialsCreatePayload struct {
 	Name           string                     `json:"name"`
 	OrganizationId string                     `json:"organizationId"`
-	Type           string                     `json:"type"`
+	Type           AwsCredentialsType         `json:"type"`
 	Value          AwsCredentialsValuePayload `json:"value"`
 }
 
 type AwsCredentialsValuePayload struct {
-	RoleArn    string `json:"roleArn"`
-	ExternalId string `json:"externalId"`
+	RoleArn         string `json:"roleArn"`
+	ExternalId      string `json:"externalId"`
+	AccessKeyId     string `json:"accessKeyId"`
+	SecretAccessKey string `json:"secretAccessKey"`
 }
 
 type ApiKey struct {
