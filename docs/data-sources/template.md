@@ -41,6 +41,7 @@ data "env0_template" "example" {
 - **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
 - **revision** (String) source code revision (branch / tag) to use
 - **terraform_version** (String) terraform version to use
+- **terragrunt_version** (String) terragrunt version to use
 - **type** (String) 'terraform' or 'terragrunt'
 
 
