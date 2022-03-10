@@ -26,6 +26,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
+		TerragruntWorkingDirectory: "/terragrunt/directory/",
 	}
 
 	updatedEnvironment := client.Environment{
@@ -36,15 +37,17 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: templateId,
 		},
+		TerragruntWorkingDirectory: "/terragrunt/directory2/",
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
 		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-			"name":          environment.Name,
-			"project_id":    environment.ProjectId,
-			"template_id":   environment.LatestDeploymentLog.BlueprintId,
-			"workspace":     environment.WorkspaceName,
-			"force_destroy": true,
+			"name":                         environment.Name,
+			"project_id":                   environment.ProjectId,
+			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
+			"workspace":                    environment.WorkspaceName,
+			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
+			"force_destroy":                true,
 		})
 	}
 	autoDeployOnPathChangesOnlyDefault := true
@@ -60,6 +63,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
 						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 					),
 				},
 				{
@@ -70,6 +74,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
 						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
 					),
 				},
 			},
@@ -82,6 +87,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				WorkspaceName:               environment.WorkspaceName,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
@@ -90,6 +96,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:                        updatedEnvironment.Name,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
 			}).Times(1).Return(updatedEnvironment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			gomock.InOrder(
@@ -640,6 +647,16 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	})
 
 	t.Run("should only allow destroy when force destroy is enabled", func(t *testing.T) {
+		environment := client.Environment{
+			Id:            "id0",
+			Name:          "my-environment",
+			ProjectId:     "project-id",
+			WorkspaceName: "workspace-name",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: templateId,
+			},
+		}
+
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -774,6 +791,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 			}).Times(1).Return(client.Environment{}, errors.New("error"))
 		})
 
@@ -802,12 +820,14 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 				Name:                        updatedEnvironment.Name,
 				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
 			}).Times(1).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -833,11 +853,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":          updatedEnvironment.Name,
-						"project_id":    updatedEnvironment.ProjectId,
-						"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
-						"revision":      updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
-						"force_destroy": true,
+						"name":                         updatedEnvironment.Name,
+						"project_id":                   updatedEnvironment.ProjectId,
+						"template_id":                  updatedEnvironment.LatestDeploymentLog.BlueprintId,
+						"revision":                     updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+						"force_destroy":                true,
+						"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 					}),
 					ExpectError: regexp.MustCompile("failed deploying environment: error"),
 				},
@@ -877,6 +898,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				DeployRequest: &client.DeployRequest{
 					BlueprintId: templateId,
 				},
+				TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 			}).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)

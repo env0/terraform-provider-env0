@@ -52,6 +52,7 @@ type EnvironmentCreate struct {
 	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
 	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
 	TTL                         *TTL                  `json:"ttl,omitempty"`
+	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 }
 
 type DeployRequest struct {
@@ -90,6 +91,7 @@ type EnvironmentUpdate struct {
 	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
+	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 }
 
 type EnvironmentDeployResponse struct {
@@ -290,6 +292,7 @@ type Environment struct {
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	IsArchived                  bool          `json:"isArchived"`
+	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 }
 
 type DeploymentLog struct {
