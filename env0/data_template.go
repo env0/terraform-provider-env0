@@ -98,6 +98,7 @@ func dataTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "terragrunt version to use",
 				Computed:    true,
+				Optional:    true,
 			},
 			"is_gitlab_enterprise": {
 				Type:        schema.TypeBool,

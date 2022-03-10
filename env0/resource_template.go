@@ -123,7 +123,6 @@ func resourceTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Terragrunt version to use",
 				Optional:    true,
-				Default:     "0.35.0",
 			},
 			"is_gitlab_enterprise": {
 				Type:          schema.TypeBool,
