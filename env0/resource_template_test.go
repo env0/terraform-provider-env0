@@ -572,6 +572,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
 		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
 		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with github_installation_id"},
+		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"github_installation_id\": conflicts with bitbucket_client_key"},
+		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"token_id\": conflicts with bitbucket_client_key"},
 	}
 	for _, mixUseCase := range mixedUsecases {
 		t.Run("Mixed "+mixUseCase.firstVcs+" and "+mixUseCase.secondVcs+" template", func(t *testing.T) {

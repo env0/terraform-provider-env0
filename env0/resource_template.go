@@ -99,13 +99,13 @@ func resourceTemplate() *schema.Resource {
 				Type:          schema.TypeInt,
 				Description:   "The env0 application installation id on the relevant github repository",
 				Optional:      true,
-				ConflictsWith: []string{"token_id"},
+				ConflictsWith: []string{"token_id", "bitbucket_client_key"},
 			},
 			"token_id": {
 				Type:          schema.TypeString,
 				Description:   "The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
 				Optional:      true,
-				ConflictsWith: []string{"github_installation_id"},
+				ConflictsWith: []string{"github_installation_id", "bitbucket_client_key"},
 			},
 			"gitlab_project_id": {
 				Type:         schema.TypeInt,
@@ -124,12 +124,13 @@ func resourceTemplate() *schema.Resource {
 				Description:   "Does this template use gitlab enterprise repository?",
 				Optional:      true,
 				Default:       "false",
-				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id"},
+				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id", "bitbucket_client_key"},
 			},
 			"bitbucket_client_key": {
-				Type:        schema.TypeString,
-				Description: "The bitbucket client key used for integration",
-				Optional:    true,
+				Type:          schema.TypeString,
+				Description:   "The bitbucket client key used for integration",
+				Optional:      true,
+				ConflictsWith: []string{"token_id", "github_installation_id"},
 			},
 		},
 	}
