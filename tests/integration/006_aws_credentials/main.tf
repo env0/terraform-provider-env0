@@ -5,7 +5,7 @@ resource "env0_aws_credentials" "my_role_by_arn" {
 }
 
 data "env0_aws_credentials" "my_role_by_arn" {
-  name       = "Test Role"
+  name       = "Test Role arn"
   depends_on = [env0_aws_credentials.my_role_by_arn]
 }
 
