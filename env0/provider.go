@@ -58,6 +58,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ssh_key":                              resourceSshKey(),
 				"env0_aws_credentials":                      resourceAwsCredentials(),
 				"env0_gcp_credentials":                      resourceGcpCredentials(),
+				"env0_azure_credentials":                    resourceAzureCredentials(),
 				"env0_template_project_assignment":          resourceTemplateProjectAssignment(),
 				"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
 				"env0_team_project_assignment":              resourceTeamProjectAssignment(),
