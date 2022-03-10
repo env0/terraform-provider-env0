@@ -63,21 +63,6 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), arg0, arg1)
 }
 
-// AwsCredentials mocks base method.
-func (m *MockApiClientInterface) AwsCredentials(arg0 string) (ApiKey, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AwsCredentials", arg0)
-	ret0, _ := ret[0].(ApiKey)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AwsCredentials indicates an expected call of AwsCredentials.
-func (mr *MockApiClientInterfaceMockRecorder) AwsCredentials(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentials", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentials), arg0)
-}
-
 // AwsCredentialsCreate mocks base method.
 func (m *MockApiClientInterface) AwsCredentialsCreate(arg0 AwsCredentialsCreatePayload) (ApiKey, error) {
 	m.ctrl.T.Helper()
@@ -93,35 +78,6 @@ func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsCreate(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsCreate), arg0)
 }
 
-// AwsCredentialsDelete mocks base method.
-func (m *MockApiClientInterface) AwsCredentialsDelete(arg0 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AwsCredentialsDelete", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AwsCredentialsDelete indicates an expected call of AwsCredentialsDelete.
-func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsDelete(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsDelete", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsDelete), arg0)
-}
-
-// AwsCredentialsList mocks base method.
-func (m *MockApiClientInterface) AwsCredentialsList() ([]ApiKey, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AwsCredentialsList")
-	ret0, _ := ret[0].([]ApiKey)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AwsCredentialsList indicates an expected call of AwsCredentialsList.
-func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsList() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsList", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsList))
-}
-
 // CloudCredentialIdsInProject mocks base method.
 func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]string, error) {
 	m.ctrl.T.Helper()
@@ -135,6 +91,50 @@ func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]str
 func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialIdsInProject(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialIdsInProject), arg0)
+}
+
+// CloudCredentials mocks base method.
+func (m *MockApiClientInterface) CloudCredentials(arg0 string) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudCredentials", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudCredentials indicates an expected call of CloudCredentials.
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentials(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentials", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentials), arg0)
+}
+
+// CloudCredentialsDelete mocks base method.
+func (m *MockApiClientInterface) CloudCredentialsDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudCredentialsDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CloudCredentialsDelete indicates an expected call of CloudCredentialsDelete.
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialsDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialsDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialsDelete), arg0)
+}
+
+// CloudCredentialsList mocks base method.
+func (m *MockApiClientInterface) CloudCredentialsList() ([]ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudCredentialsList")
+	ret0, _ := ret[0].([]ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudCredentialsList indicates an expected call of CloudCredentialsList.
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialsList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialsList", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialsList))
 }
 
 // ConfigurationVariableCreate mocks base method.
@@ -402,6 +402,21 @@ func (m *MockApiClientInterface) Environments() ([]Environment, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
+}
+
+// GcpCredentialsCreate mocks base method.
+func (m *MockApiClientInterface) GcpCredentialsCreate(arg0 GcpCredentialsCreatePayload) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GcpCredentialsCreate", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GcpCredentialsCreate indicates an expected call of GcpCredentialsCreate.
+func (mr *MockApiClientInterfaceMockRecorder) GcpCredentialsCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GcpCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GcpCredentialsCreate), arg0)
 }
 
 // Organization mocks base method.

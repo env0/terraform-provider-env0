@@ -1,0 +1,4 @@
+{
+  "gcp_cred_name": "test gcp credentials 1",
+  "gcp_cred_name_with_project_id": "Test GCP credentials with project_id 2"
+}
