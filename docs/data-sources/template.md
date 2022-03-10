@@ -28,6 +28,7 @@ data "env0_template" "example" {
 - **id** (String) id of the template
 - **is_gitlab_enterprise** (Boolean) Does this template use gitlab enterprise repository?
 - **name** (String) the name of the template
+- **terragrunt_version** (String) terragrunt version to use
 - **token_id** (String) The token id used for private git repos or for integration with GitLab
 
 ### Read-Only
@@ -41,7 +42,6 @@ data "env0_template" "example" {
 - **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
 - **revision** (String) source code revision (branch / tag) to use
 - **terraform_version** (String) terraform version to use
-- **terragrunt_version** (String) terragrunt version to use
 - **type** (String) 'terraform' or 'terragrunt'
 
 
