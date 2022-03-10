@@ -119,6 +119,12 @@ func resourceTemplate() *schema.Resource {
 				Optional:    true,
 				Default:     "0.15.1",
 			},
+			"terragrunt_version": {
+				Type:        schema.TypeString,
+				Description: "Terragrunt version to use",
+				Optional:    true,
+				Default:     "0.35.0",
+			},
 			"is_gitlab_enterprise": {
 				Type:          schema.TypeBool,
 				Description:   "Does this template use gitlab enterprise repository?",
