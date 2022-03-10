@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -101,6 +102,11 @@ func getProjectById(id string, meta interface{}) (client.Project, diag.Diagnosti
 	apiClient := meta.(client.ApiClientInterface)
 	project, err := apiClient.Project(id)
 	if err != nil {
+		if frerr, ok := err.(*http.FailedResponseError); ok {
+			if frerr.NotFound() {
+				return client.Project{}, diag.Errorf("Could not find a project with id: %s", id)
+			}
+		}
 		return client.Project{}, diag.Errorf("Could not query template: %v", err)
 	}
 	return project, nil

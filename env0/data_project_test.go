@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -67,6 +68,12 @@ func TestProjectDataSource(t *testing.T) {
 		}
 	}
 
+	mockGetProjectCallFailed := func(statusCode int) func(mockFunc *client.MockApiClientInterface) {
+		return func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Project("id0").AnyTimes().Return(client.Project{}, http.NewMockFailedResponseError(statusCode))
+		}
+	}
+
 	mockListProjectsCall := func(returnValue []client.Project) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().Projects().AnyTimes().Return(returnValue, nil)
@@ -113,6 +120,13 @@ func TestProjectDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(projectWithOtherName, "Could not find a project with name"),
 			mockListProjectsCall([]client.Project{project, project}),
+		)
+	})
+
+	t.Run("Throw error when by id not found", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(projectDataById, "Could not find a project with id: id0"),
+			mockGetProjectCallFailed(404),
 		)
 	})
 }
