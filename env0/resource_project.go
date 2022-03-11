@@ -47,7 +47,7 @@ func resourceProject() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "A boolean that indicates if the project should be deleted if enviornments exist",
+				Description: "Destroy the project even when environments exist",
 				Optional:    true,
 				Default:     false,
 			},
