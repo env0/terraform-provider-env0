@@ -130,6 +130,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 			}
 
 			// Filter out archived (destroyed) environments.
+
 			hasActiveEnvs := false
 
 			for _, env := range envs {
