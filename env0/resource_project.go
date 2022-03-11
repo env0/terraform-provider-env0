@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -115,12 +116,39 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 	id := d.Id()
 
 	forceDestroy := d.Get("force_destroy").(bool)
-	envs, err := apiClient.ProjectEnvironments(id)
-	if err != nil {
-		return diag.Errorf("could not get project environments: %v", err)
-	}
-	if len(envs) > 0 && !forceDestroy {
-		return diag.Errorf("unable to remove a project with environments (remove the environments or use the force_destroy flag)")
+
+	if !forceDestroy {
+		// Wait up to a minute before returning an error.
+
+		ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
+		defer cancel()
+
+		for {
+			envs, err := apiClient.ProjectEnvironments(id)
+			if err != nil {
+				return diag.Errorf("could not get project environments: %v", err)
+			}
+
+			// Filter out archived (destroyed) environments.
+			hasActiveEnvs := false
+
+			for _, env := range envs {
+				if !env.IsArchived {
+					hasActiveEnvs = true
+					break
+				}
+			}
+
+			if !hasActiveEnvs {
+				break
+			}
+
+			select {
+			case <-ctx.Done():
+				return diag.Errorf("unable to remove a project with environments (remove the environments or use the force_destroy flag)")
+			case <-time.After(time.Second * 3):
+			}
+		}
 	}
 
 	if err := apiClient.ProjectDelete(id); err != nil {

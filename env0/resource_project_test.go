@@ -126,14 +126,13 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 
 			gomock.InOrder(
 				mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil),
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),
 			)
 
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
 		})
 	})
 
-	t.Run("Failure Without Force Destory", func(t *testing.T) {
+	t.Run("Success Without Force Destory", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -148,14 +147,6 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
 					),
 				},
-				{
-					// This will cause terraform to try and destroy the resource (expected to fail).
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name": project.Name,
-					}),
-					Destroy:     true,
-					ExpectError: regexp.MustCompile(`.*Error running destroy.*`),
-				},
 			},
 		}
 
@@ -166,9 +157,8 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 			}).Times(1).Return(project, nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
+				mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil),
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),
-				// Simulating that the environment was somehow deleted. This is required. Otherwise the test will error during clean-up.
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
 			)
 
