@@ -323,6 +323,7 @@ type AwsCredentialsType string
 type GcpCredentialsType string
 
 const (
+	AwsCostCredentialsType           AwsCredentialsType = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType    AwsCredentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	AwsAccessKeysCredentialsType     AwsCredentialsType = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
 	GcpServiceAccountCredentialsType GcpCredentialsType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"

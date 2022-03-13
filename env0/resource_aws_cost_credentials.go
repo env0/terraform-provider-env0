@@ -52,8 +52,9 @@ func resourceAwsCostCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 			RoleArn:    d.Get("arn").(string),
 			ExternalId: d.Get("external_id").(string),
 		},
+		Type: client.AwsCostCredentialsType,
 	}
-	credentials, err := apiClient.AwsCostCredentialsCreate(request)
+	credentials, err := apiClient.AwsCredentialsCreate(request)
 	if err != nil {
 		return diag.Errorf("could not create credentials key: %v", err)
 	}
@@ -67,7 +68,7 @@ func resourceAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData,
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	_, err := apiClient.AwsCostCredentials(id)
+	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
 		return diag.Errorf("could not get credentials: %v", err)
 	}
@@ -78,7 +79,7 @@ func resourceAwsCostCredentialsDelete(ctx context.Context, d *schema.ResourceDat
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	err := apiClient.AwsCostCredentialsDelete(id)
+	err := apiClient.CloudCredentialsDelete(id)
 	if err != nil {
 		return diag.Errorf("could not delete credentials: %v", err)
 	}

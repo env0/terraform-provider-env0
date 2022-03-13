@@ -29,8 +29,6 @@ func dataAwsCostCredentials() *schema.Resource {
 	}
 }
 
-const costCredentialsType = "AWS_ASSUMED_ROLE"
-
 func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
 	var credentials client.ApiKey
@@ -67,7 +65,7 @@ func getAwsCostCredentialsByName(name interface{}, meta interface{}) (client.Api
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
 	for _, candidate := range credentialsList {
-		if candidate.Name == name.(string) && candidate.Type == costCredentialsType {
+		if candidate.Name == name.(string) && candidate.Type == string(client.AwsCostCredentialsType) {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
 		}
 	}
@@ -84,7 +82,7 @@ func getAwsCostCredentialsByName(name interface{}, meta interface{}) (client.Api
 func getAwsCostCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.CloudCredentials(id)
-	if credentials.Type != costCredentialsType {
+	if credentials.Type != string(client.AwsCostCredentialsType) {
 		return client.ApiKey{}, diag.Errorf("Found  credentials which are not AWS Cost Credentials: %v", credentials)
 	}
 	if err != nil {
