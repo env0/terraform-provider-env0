@@ -83,7 +83,7 @@ func getAwsCostCredentialsByName(name interface{}, meta interface{}) (client.Api
 
 func getAwsCostCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentials, err := apiClient.AwsCredentials(id)
+	credentials, err := apiClient.CloudCredentials(id)
 	if credentials.Type != costCredentialsType {
 		return client.ApiKey{}, diag.Errorf("Found  credentials which are not AWS Cost Credentials: %v", credentials)
 	}
