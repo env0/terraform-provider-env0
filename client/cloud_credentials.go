@@ -50,6 +50,22 @@ func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload)
 	return result, nil
 }
 
+func (self *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayload) (ApiKey, error) {
+	organizationId, err := self.organizationId()
+	if err != nil {
+		return ApiKey{}, err
+	}
+
+	request.OrganizationId = organizationId
+
+	var result ApiKey
+	err = self.http.Post("/credentials", request, &result)
+	if err != nil {
+		return ApiKey{}, err
+	}
+	return result, nil
+}
+
 func (self *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
