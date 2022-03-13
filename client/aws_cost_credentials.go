@@ -5,7 +5,7 @@ import (
 )
 
 func (self *ApiClient) AwsCostCredentials(id string) (ApiKey, error) {
-	var credentials, err = self.AwsCredentialsList()
+	var credentials, err = self.CloudCredentialsList()
 	if err != nil {
 		return ApiKey{}, err
 	}

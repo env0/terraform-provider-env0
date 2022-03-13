@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func (self *ApiClient) AwsCredentials(id string) (ApiKey, error) {
-	var credentials, err = self.AwsCredentialsList()
+func (self *ApiClient) CloudCredentials(id string) (ApiKey, error) {
+	var credentials, err = self.CloudCredentialsList()
 	if err != nil {
 		return ApiKey{}, err
 	}
@@ -16,10 +16,10 @@ func (self *ApiClient) AwsCredentials(id string) (ApiKey, error) {
 		}
 	}
 
-	return ApiKey{}, fmt.Errorf("AwsCredentials: [%s] not found ", id)
+	return ApiKey{}, fmt.Errorf("CloudCredentials: [%s] not found ", id)
 }
 
-func (self *ApiClient) AwsCredentialsList() ([]ApiKey, error) {
+func (self *ApiClient) CloudCredentialsList() ([]ApiKey, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return []ApiKey{}, err
@@ -40,7 +40,6 @@ func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload)
 		return ApiKey{}, err
 	}
 
-	request.Type = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	request.OrganizationId = organizationId
 
 	var result ApiKey
@@ -51,6 +50,22 @@ func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload)
 	return result, nil
 }
 
-func (self *ApiClient) AwsCredentialsDelete(id string) error {
+func (self *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error) {
+	organizationId, err := self.organizationId()
+	if err != nil {
+		return ApiKey{}, err
+	}
+
+	request.OrganizationId = organizationId
+
+	var result ApiKey
+	err = self.http.Post("/credentials", request, &result)
+	if err != nil {
+		return ApiKey{}, err
+	}
+	return result, nil
+}
+
+func (self *ApiClient) CloudCredentialsDelete(id string) error {
 	return self.http.Delete("/credentials/" + id)
 }

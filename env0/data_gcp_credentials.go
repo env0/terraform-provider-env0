@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataAwsCostCredentials() *schema.Resource {
+func dataGcpCredentials() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataAwsCredentialsRead,
+		ReadContext: dataGcpCredentialsRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -29,24 +29,19 @@ func dataAwsCostCredentials() *schema.Resource {
 	}
 }
 
-const costCredentialsType = "AWS_ASSUMED_ROLE"
-
-func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
 	var credentials client.ApiKey
 
 	id, ok := d.GetOk("id")
 	if ok {
-		credentials, err = getAwsCredentialsById(id.(string), meta)
+		credentials, err = getGcpCredentialsById(id.(string), meta)
 		if err != nil {
 			return err
 		}
 	} else {
-		name, ok := d.GetOk("name")
-		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
-		}
-		credentials, err = getAwsCredentialsByName(name.(string), meta)
+		name, _ := d.Get("name").(string) // name must be specified here
+		credentials, err = getGcpCredentialsByName(name, meta)
 		if err != nil {
 			return err
 		}
@@ -58,37 +53,41 @@ func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func getAwsCostCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
+func getGcpCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
-		return client.ApiKey{}, diag.Errorf("Could not query AWS Cost Credentials by name: %v", err)
+		return client.ApiKey{}, diag.Errorf("Could not query GCP Credentials by name: %v", err)
 	}
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
 	for _, candidate := range credentialsList {
-		if candidate.Name == name.(string) && candidate.Type == costCredentialsType {
+		if candidate.Name == name.(string) && isValidGcpCredentialsType(candidate.Type) {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
 		}
 	}
 
 	if len(credentialsByNameAndType) > 1 {
-		return client.ApiKey{}, diag.Errorf("Found multiple AWS Cost Credentials for name: %s", name)
+		return client.ApiKey{}, diag.Errorf("Found multiple GCP Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
-		return client.ApiKey{}, diag.Errorf("Could not find AWS Cost Credentials with name: %s", name)
+		return client.ApiKey{}, diag.Errorf("Could not find GCP Credentials with name: %s", name)
 	}
 	return credentialsByNameAndType[0], nil
 }
 
-func getAwsCostCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
+func getGcpCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentials, err := apiClient.AwsCredentials(id)
-	if credentials.Type != costCredentialsType {
-		return client.ApiKey{}, diag.Errorf("Found  credentials which are not AWS Cost Credentials: %v", credentials)
+	credentials, err := apiClient.CloudCredentials(id)
+	if !isValidGcpCredentialsType(credentials.Type) {
+		return client.ApiKey{}, diag.Errorf("Found credentials which are not GCP Credentials: %v", credentials)
 	}
 	if err != nil {
-		return client.ApiKey{}, diag.Errorf("Could not query AWS Cost Credentials: %v", err)
+		return client.ApiKey{}, diag.Errorf("Could not query GCP Credentials: %v", err)
 	}
 	return credentials, nil
+}
+
+func isValidGcpCredentialsType(credentialsType string) bool {
+	return client.GcpCredentialsType(credentialsType) == client.GcpServiceAccountCredentialsType
 }

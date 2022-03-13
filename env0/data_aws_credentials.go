@@ -29,8 +29,6 @@ func dataAwsCredentials() *schema.Resource {
 	}
 }
 
-const credentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
-
 func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
 	var credentials client.ApiKey
@@ -60,14 +58,14 @@ func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 
 func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentialsList, err := apiClient.AwsCredentialsList()
+	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
 		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
 	}
 
 	credentialsByNameAndType := make([]client.ApiKey, 0)
 	for _, candidate := range credentialsList {
-		if candidate.Name == name.(string) && candidate.Type == credentialsType {
+		if candidate.Name == name.(string) && isValidAwsCredentialsType(candidate.Type) {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
 		}
 	}
@@ -83,12 +81,17 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 
 func getAwsCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	credentials, err := apiClient.AwsCredentials(id)
-	if credentials.Type != credentialsType {
+	credentials, err := apiClient.CloudCredentials(id)
+	if !isValidAwsCredentialsType(credentials.Type) {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
 	}
 	if err != nil {
 		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials: %v", err)
 	}
 	return credentials, nil
+}
+
+func isValidAwsCredentialsType(credentialsType string) bool {
+	return client.AwsCredentialsType(credentialsType) == client.AwsAccessKeysCredentialsType ||
+		client.AwsCredentialsType(credentialsType) == client.AwsAssumedRoleCredentialsType
 }

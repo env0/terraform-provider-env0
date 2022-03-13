@@ -45,9 +45,11 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ssh_key":                dataSshKey(),
 				"env0_aws_credentials":        dataAwsCredentials(),
 				"env0_aws_cost_credentials":   dataAwsCostCredentials(),
-				"env0_team":                   dataTeam(),
-				"env0_environment":            dataEnvironment(),
-				"env0_workflow_triggers":      dataWorkflowTriggers(),
+
+				"env0_gcp_credentials":   dataGcpCredentials(),
+				"env0_team":              dataTeam(),
+				"env0_environment":       dataEnvironment(),
+				"env0_workflow_triggers": dataWorkflowTriggers(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -57,6 +59,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ssh_key":                              resourceSshKey(),
 				"env0_aws_credentials":                      resourceAwsCredentials(),
 				"env0_aws_cost_credentials":                 resourceAwsCostCredentials(),
+				"env0_gcp_credentials":                      resourceGcpCredentials(),
 				"env0_template_project_assignment":          resourceTemplateProjectAssignment(),
 				"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
 				"env0_cost_credentials_project_assignment":  resourceCostCredentialsProjectAssignment(),

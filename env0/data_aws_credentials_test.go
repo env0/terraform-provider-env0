@@ -16,11 +16,18 @@ func TestAwsCredDataSource(t *testing.T) {
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
+	credWithInvalidType := client.ApiKey{
+		Id:             awsCred.Id,
+		Name:           awsCred.Name,
+		OrganizationId: awsCred.OrganizationId,
+		Type:           "Invalid-type",
+	}
+
 	otherAwsCred := client.ApiKey{
 		Id:             "22222",
 		Name:           "notTestdata",
 		OrganizationId: "OtherId",
-		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+		Type:           "AWS_ACCESS_KEYS_FOR_DEPLOYMENT",
 	}
 
 	AwsCredFieldsByName := map[string]interface{}{"name": awsCred.Name}
@@ -57,13 +64,13 @@ func TestAwsCredDataSource(t *testing.T) {
 
 	mockGetAwsCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().CloudCredentials(awsCred.Id).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
 	mockListAwsCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsList().AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().CloudCredentialsList().AnyTimes().Return(returnValue, nil)
 		}
 	}
 
@@ -77,7 +84,7 @@ func TestAwsCredDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(AwsCredFieldsByName),
-			mockListAwsCredCall([]client.ApiKey{awsCred, otherAwsCred}),
+			mockListAwsCredCall([]client.ApiKey{awsCred, otherAwsCred, credWithInvalidType}),
 		)
 	})
 
@@ -98,7 +105,7 @@ func TestAwsCredDataSource(t *testing.T) {
 	t.Run("Throw error when by name and no aws-credential found with that name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(AwsCredFieldsByName, "Could not find AWS Credentials with name: testdata"),
-			mockListAwsCredCall([]client.ApiKey{otherAwsCred}),
+			mockListAwsCredCall([]client.ApiKey{otherAwsCred, credWithInvalidType}),
 		)
 	})
 
