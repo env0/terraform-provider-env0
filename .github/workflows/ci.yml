@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Install Go
-        run: apk add go=$GO_VERSION
+        run: apk add go
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Harness tests
