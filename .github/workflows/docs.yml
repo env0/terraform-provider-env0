@@ -1,8 +1,7 @@
 name: Docs
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  push:
 
 env:
   GO_VERSION: 1.16
