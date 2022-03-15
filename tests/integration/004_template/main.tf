@@ -61,12 +61,12 @@ resource "env0_configuration_variable" "in_a_template2" {
 data "env0_template" "tested2" {
   depends_on = [
   env0_template.tested1]
-  name = "tested1"
+  name = "tested1-${random_string.random.result}"
 }
 data "env0_template" "tested1" {
   depends_on = [
   env0_template.tested2]
-  name = "GitLab Test"
+  name = "GitLab Test-${random_string.random.result}"
 }
 output "tested2_template_id" {
   value = data.env0_template.tested2.id
@@ -75,7 +75,7 @@ output "tested2_template_type" {
   value = data.env0_template.tested2.type
 }
 output "tested2_template_name" {
-  value = data.env0_template.tested2.name
+  value = replace(data.env0_template.tested2.name, random_string.random.result, "")
 }
 output "tested2_template_repository" {
   value = data.env0_template.tested2.repository
