@@ -218,7 +218,7 @@ type TemplateCreatePayload struct {
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
-	TerragruntVersion    string           `json:"terragruntVersion"`
+	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 }
 
@@ -269,7 +269,7 @@ type Template struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
-	TerragruntVersion    string           `json:"terragruntVersion"`
+	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 }
 

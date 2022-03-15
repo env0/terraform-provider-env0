@@ -219,6 +219,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
 		result.TerraformVersion = terraformVersion.(string)
 	}
+	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+		result.TerragruntVersion = terragruntVersion.(string)
+	}
 	return result, nil
 }
 
