@@ -220,6 +220,7 @@ type TemplateCreatePayload struct {
 	TerraformVersion     string           `json:"terraformVersion"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -271,6 +272,7 @@ type Template struct {
 	TerraformVersion     string           `json:"terraformVersion"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey"`
 }
 
 type Environment struct {
