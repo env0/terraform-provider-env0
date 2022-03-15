@@ -695,7 +695,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func shouldWaitForDeployment(d *schema.ResourceData) bool {
-	return d.Get("wait_for").(string) == "ACK"
+	return d.Get("wait_for").(string) == "FULLY_DEPLOYED"
 }
 
 func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
