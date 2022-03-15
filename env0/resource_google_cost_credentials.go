@@ -17,7 +17,7 @@ func resourceGoogleCostCredentials() *schema.Resource {
 		ReadContext:   resourceGoogleCostCredentialsRead,
 		DeleteContext: resourceGoogleCostCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceGcpCredentialsImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceGoogleCostCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {

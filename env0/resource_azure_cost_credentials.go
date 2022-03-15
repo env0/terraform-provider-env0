@@ -17,7 +17,7 @@ func resourceAzureCostCredentials() *schema.Resource {
 		ReadContext:   resourceAzureCostCredentialsRead,
 		DeleteContext: resourceAzureCostCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceAwsCredentialsImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceAzureCostCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {

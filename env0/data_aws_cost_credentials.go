@@ -35,7 +35,7 @@ func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 
 	id, ok := d.GetOk("id")
 	if ok {
-		credentials, err = getAwsCredentialsById(id.(string), meta)
+		credentials, err = getAwsCostCredentialsById(id.(string), meta)
 		if err != nil {
 			return err
 		}
@@ -44,7 +44,7 @@ func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 		if !ok {
 			return diag.Errorf("Either 'name' or 'id' must be specified")
 		}
-		credentials, err = getAwsCredentialsByName(name.(string), meta)
+		credentials, err = getAwsCostCredentialsByName(name.(string), meta)
 		if err != nil {
 			return err
 		}

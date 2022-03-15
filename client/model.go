@@ -326,14 +326,13 @@ type GcpCredentialsType string
 type AzureCredentialsType string
 
 const (
-	GoogleCostCredentiassType        GcpCredentialsType   = "GCP_CREDENTIALS"
-	AzureCostCredentialsType         AzureCredentialsType = "AZURE_CREDENTIALS"
-	AwsCostCredentialsType           AwsCredentialsType   = "AWS_ASSUMED_ROLE"
+	GoogleCostCredentiassType            GcpCredentialsType   = "GCP_CREDENTIALS"
+	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
+	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	AwsAccessKeysCredentialsType         AwsCredentialsType   = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
 	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
- 
 )
 
 type AzureCredentialsCreatePayload struct {
@@ -367,21 +366,6 @@ type GcpCredentialsCreatePayload struct {
 	OrganizationId string                     `json:"organizationId"`
 	Type           GcpCredentialsType         `json:"type"`
 	Value          GcpCredentialsValuePayload `json:"value"`
-}
-
-<<<<<<< HEAD
-type AzureCredentialsValuePayload struct {
-	ClientId       string `json:"ClientId"`
-	ClientSecret   string `json:"clientSecret"`
-	TenantId       string `json:"tenantId"`
-	SubscriptionId string `json:"subscriptionId"`
-=======
-type AzureCredentialsCreatePayload struct {
-	Name           string                       `json:"name"`
-	OrganizationId string                       `json:"organizationId"`
-	Type           AzureCredentialsType         `json:"type"`
-	Value          AzureCredentialsValuePayload `json:"value"`
->>>>>>> dd8a54dac318c5510ffbdae320dd776c01b64002
 }
 
 type AwsCredentialsValuePayload struct {
