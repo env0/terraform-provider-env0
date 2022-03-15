@@ -1,10 +1,12 @@
-name: Update generated docs
+name: Docs
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
-  Update-generated-docs:
+  generate-docs:
+    name: Generate Docs
     runs-on: ubuntu-latest
     steps:
       -
