@@ -30,3 +30,4 @@ data "env0_environment" "test" {
 output "revision" {
   value = data.env0_environment.test.revision
 }
+
