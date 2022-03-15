@@ -232,6 +232,9 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 		result.BitbucketClientKey = bitbucketClientKey.(string)
 	}
 
+	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+		result.TerragruntVersion = terragruntVersion.(string)
+	}
 	return result, nil
 }
 

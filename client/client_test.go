@@ -37,7 +37,7 @@ var _ = AfterSuite(func() {
 	ctrl.Finish()
 })
 
-func mockOrganizationIdCall(organizationId string) {
+func mockOrganizationIdCall(organizationId string) *gomock.Call {
 	organizations := []Organization{{
 		Id: organizationId,
 	}}
@@ -45,6 +45,8 @@ func mockOrganizationIdCall(organizationId string) {
 	organizationIdCall = mockHttpClient.EXPECT().Get("/organizations", nil, gomock.Any()).Do(func(path string, params interface{}, response *[]Organization) {
 		*response = organizations
 	})
+
+	return organizationIdCall
 }
 
 func TestApiClient(t *testing.T) {

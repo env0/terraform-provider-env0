@@ -179,7 +179,7 @@ func getTemplateByName(name interface{}, meta interface{}) (client.Template, dia
 
 	var templatesByName []client.Template
 	for _, candidate := range templates {
-		if candidate.Name == name {
+		if candidate.Name == name && !candidate.IsDeleted {
 			templatesByName = append(templatesByName, candidate)
 		}
 	}

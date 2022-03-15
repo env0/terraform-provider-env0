@@ -48,7 +48,7 @@ resource "env0_environment" "example" {
 - **id** (String) the environment's id
 - **revision** (String) the revision the environment is to be run against
 - **run_plan_on_pull_requests** (Boolean) should run terraform plan on pull requests creations
-- **ttl** (String) the date the environment should be destroyed at (iso format)
+- **ttl** (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - **workspace** (String) the terraform workspace of the environment
 
 ### Read-Only
