@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const deploymentStatusWaitPollInterval = 10 // In seconds
+
 func resourceEnvironment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentCreate,
@@ -110,11 +112,18 @@ func resourceEnvironment() *schema.Resource {
 				Description: "destroy safegurad",
 				Optional:    true,
 			},
-			"wait": {
-				Type:        schema.TypeBool,
+			"wait_for": {
+				Type:        schema.TypeString,
 				Description: "wait for deployment to complete",
 				Optional:    true,
-				Default:     false,
+				Default:     "ACK",
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					value := val.(string)
+					if value != "ACK" && value != "FULLY_DEPLOYED" {
+						errs = append(errs, fmt.Errorf("%q can be either \"ACK\", \"FULLY_DEPLOYED\" or empty, got: %q", key, value))
+					}
+					return
+				},
 			},
 			"configuration": {
 				Type:        schema.TypeList,
@@ -190,7 +199,8 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("workspace", environment.WorkspaceName)
 	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	d.Set("ttl", environment.LifespanEndAt)
-	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+	// AREL TODO Also test imports for both configurations
+	if environment.LatestDeploymentLog != (client.DeploymentLog{}) { // AREL TODO check for issues in state management
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	}
@@ -251,7 +261,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
-	if d.Get("wait").(bool) {
+	if shouldWaitForDeployment(d) {
 		err := waitForDeployment(d, apiClient)
 		if err != nil {
 			return diag.Errorf("failed deploying environment: %v", err)
@@ -325,7 +335,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	}
 	d.Set("deployment_id", deployResponse.Id)
 
-	if d.Get("wait").(bool) {
+	if shouldWaitForDeployment(d) {
 		err := waitForDeployment(d, apiClient)
 		if err != nil {
 			return diag.Errorf("failed deploying environment: %v", err)
@@ -372,7 +382,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("could not delete environment: %v", err)
 	}
-	if d.Get("wait").(bool) {
+	if shouldWaitForDeployment(d) {
 		err := waitForDeployment(d, apiClient)
 		if err != nil {
 			return diag.Errorf("failed to delete environment: %v", err)
@@ -684,6 +694,10 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 }
 
+func shouldWaitForDeployment(d *schema.ResourceData) bool {
+	return d.Get("wait_for").(string) == "ACK"
+}
+
 func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
 	for {
 		env, err := apiClient.Environment(d.Id())
@@ -694,17 +708,12 @@ func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterfa
 		case "IN_PROGRESS",
 			"QUEUED",
 			"WAITING_FOR_USER":
-			// Deployment still in progress - wait 1 second then check again
-			time.Sleep(1 * time.Second)
-
-			// Deployment succeeded
+			time.Sleep(deploymentStatusWaitPollInterval * time.Second)
 		case "SUCCESS",
 			"SKIPPED":
 			return nil
 		default:
-			// All other statuses must be failures
-			return fmt.Errorf("failed deploying environment: %v",
-				env.LatestDeploymentLog.Status)
+			return fmt.Errorf("environment deployment reached failure status: %v", env.LatestDeploymentLog.Status)
 		}
 	}
 }

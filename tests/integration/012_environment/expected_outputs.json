@@ -1,3 +1,4 @@
 {
-  "revision": "master"
+  "name": "environment",
+  "configurationVariable": "environment configuration variable"
 }

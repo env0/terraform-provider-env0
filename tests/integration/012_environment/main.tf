@@ -15,20 +15,29 @@ resource "env0_environment" "example" {
   name          = "environment"
   project_id    = env0_project.test_project.id
   template_id   = env0_template.template.id
+  wait_for      = "FULLY_DEPLOYED"
   configuration {
     name  = "environment configuration variable"
     value = "value"
   }
   approve_plan_automatically = true
-  revision                   = "master"
+}
+
+data "env0_configuration_variable" "env_config_variable" {
+  environment_id = env0_environment.example.id
+  name           = "environment configuration variable"
 }
 
 data "env0_environment" "test" {
   id = env0_environment.example.id
 }
 
-output "revision" {
-  value = data.env0_environment.test.revision
+output "name" {
+  value = data.env0_environment.test.name
+}
+
+output "configurationVariable" {
+  value = data.env0_configuration_variable.env_config_variable.name
 }
 
 
