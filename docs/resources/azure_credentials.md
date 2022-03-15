@@ -27,11 +27,11 @@ resource "env0_azure_credentials" "credentials" {
 
 ### Required
 
-- **client_id** (String, Sensitive) the azure client id
+- **client_id** (String) the azure client id
 - **client_secret** (String, Sensitive) the azure client secret
 - **name** (String) name for the credentials
-- **subscription_id** (String, Sensitive) the azure subscription id
-- **tenant_id** (String, Sensitive) the azure tenant id
+- **subscription_id** (String) the azure subscription id
+- **tenant_id** (String) the azure tenant id
 
 ### Optional
 
