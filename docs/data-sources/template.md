@@ -28,7 +28,7 @@ data "env0_template" "example" {
 - **id** (String) id of the template
 - **is_gitlab_enterprise** (Boolean) Does this template use gitlab enterprise repository?
 - **name** (String) the name of the template
-- **terragrunt_version** (String) terragrunt version to use. Supply only when type is Terragrunt.
+- **terragrunt_version** (String) terragrunt version to use
 - **token_id** (String) The token id used for private git repos or for integration with GitLab
 
 ### Read-Only
@@ -43,3 +43,5 @@ data "env0_template" "example" {
 - **revision** (String) source code revision (branch / tag) to use
 - **terraform_version** (String) terraform version to use
 - **type** (String) 'terraform' or 'terragrunt'
+
+
