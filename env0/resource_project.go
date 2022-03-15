@@ -146,7 +146,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 			select {
 			case <-ctx.Done():
-				return diag.Errorf("unable to remove a project with environments (remove the environments or use the force_destroy flag)")
+				return diag.Errorf("unable to remove a project with active environments (remove the environments or use the force_destroy flag)")
 			case <-time.After(time.Second * 3):
 			}
 		}
