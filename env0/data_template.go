@@ -134,7 +134,9 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
-	d.Set("terragrunt_version", template.TerragruntVersion)
+	if template.TerragruntVersion != "" {
+		d.Set("terragrunt_version", template.TerragruntVersion)
+	}
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
