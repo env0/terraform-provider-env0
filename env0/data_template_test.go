@@ -78,7 +78,7 @@ func TestUnitTemplateData(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(map[string]interface{}{"name": template.Name}),
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template}, nil)
+				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template, deletedTemplate}, nil)
 			})
 	})
 }
