@@ -1,10 +1,14 @@
-name: Update generated docs
+name: Docs
 
 on:
   push:
 
+env:
+  GO_VERSION: 1.16
+
 jobs:
-  Update-generated-docs:
+  generate-docs:
+    name: Generate Docs
     runs-on: ubuntu-latest
     steps:
       -
@@ -17,7 +21,7 @@ jobs:
         name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ secrets.GO_VERSION }}
+          go-version: ${{ env.GO_VERSION }}
       -
         name: Update generated docs
         run: ./generate-docs.sh
