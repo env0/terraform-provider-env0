@@ -219,6 +219,7 @@ type TemplateCreatePayload struct {
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -269,6 +270,7 @@ type Template struct {
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey"`
 }
 
 type Environment struct {
@@ -315,11 +317,13 @@ type SshKeyCreatePayload struct {
 
 type AwsCredentialsType string
 type GcpCredentialsType string
+type AzureCredentialsType string
 
 const (
-	AwsAssumedRoleCredentialsType    AwsCredentialsType = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
-	AwsAccessKeysCredentialsType     AwsCredentialsType = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
-	GcpServiceAccountCredentialsType GcpCredentialsType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
+	AwsAccessKeysCredentialsType         AwsCredentialsType   = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
+	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 )
 
 type AwsCredentialsCreatePayload struct {
@@ -336,6 +340,13 @@ type GcpCredentialsCreatePayload struct {
 	Value          GcpCredentialsValuePayload `json:"value"`
 }
 
+type AzureCredentialsCreatePayload struct {
+	Name           string                       `json:"name"`
+	OrganizationId string                       `json:"organizationId"`
+	Type           AzureCredentialsType         `json:"type"`
+	Value          AzureCredentialsValuePayload `json:"value"`
+}
+
 type AwsCredentialsValuePayload struct {
 	RoleArn         string `json:"roleArn"`
 	ExternalId      string `json:"externalId"`
@@ -346,6 +357,13 @@ type AwsCredentialsValuePayload struct {
 type GcpCredentialsValuePayload struct {
 	ProjectId         string `json:"projectId"`
 	ServiceAccountKey string `json:"serviceAccountKey"`
+}
+
+type AzureCredentialsValuePayload struct {
+	ClientId       string `json:"clientId"`
+	ClientSecret   string `json:"clientSecret"`
+	SubscriptionId string `json:"subscriptionId"`
+	TenantId       string `json:"tenantId"`
 }
 
 type ApiKey struct {

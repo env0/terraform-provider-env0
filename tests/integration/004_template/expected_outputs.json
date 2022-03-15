@@ -1,6 +1,6 @@
 {
     "tested2_template_type": "terraform",
-    "tested2_template_name": "tested1",
+    "tested2_template_name": "tested1-",
     "tested2_template_repository": "https://github.com/env0/templates",
     "tested1_template_repository": "https://gitlab.com/env0/gitlab-vcs-integration-tests.git",
     "tested2_template_path": "second"

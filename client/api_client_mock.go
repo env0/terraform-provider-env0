@@ -78,6 +78,21 @@ func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsCreate(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsCreate), arg0)
 }
 
+// AzureCredentialsCreate mocks base method.
+func (m *MockApiClientInterface) AzureCredentialsCreate(arg0 AzureCredentialsCreatePayload) (ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AzureCredentialsCreate", arg0)
+	ret0, _ := ret[0].(ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AzureCredentialsCreate indicates an expected call of AzureCredentialsCreate.
+func (mr *MockApiClientInterfaceMockRecorder) AzureCredentialsCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AzureCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AzureCredentialsCreate), arg0)
+}
+
 // CloudCredentialIdsInProject mocks base method.
 func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]string, error) {
 	m.ctrl.T.Helper()
