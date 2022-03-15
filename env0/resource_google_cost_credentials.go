@@ -2,11 +2,8 @@ package env0
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -16,8 +13,6 @@ func resourceGoogleCostCredentials() *schema.Resource {
 		CreateContext: resourceGoogleCostCredentialsCreate,
 		ReadContext:   resourceGoogleCostCredentialsRead,
 		DeleteContext: resourceGoogleCostCredentialsDelete,
-
-		Importer: &schema.ResourceImporter{StateContext: resourceGoogleCostCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -83,25 +78,4 @@ func resourceGoogleCostCredentialsDelete(ctx context.Context, d *schema.Resource
 		return diag.Errorf("could not delete credentials: %v", err)
 	}
 	return nil
-}
-
-func resourceGoogleCostCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id := d.Id()
-	var getErr diag.Diagnostics
-	_, uuidErr := uuid.Parse(id)
-	if uuidErr == nil {
-		log.Println("[INFO] Resolving GCP Credentials by id: ", id)
-		_, getErr = getGoogleCostCredentialsById(id, meta)
-	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving GCP Credentials by name: ", id)
-		var gcpCredential client.ApiKey
-		gcpCredential, getErr = getGoogleCostCredentialsByName(id, meta)
-		d.SetId(gcpCredential.Id)
-	}
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
-	}
 }

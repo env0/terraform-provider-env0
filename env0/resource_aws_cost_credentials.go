@@ -2,10 +2,6 @@ package env0
 
 import (
 	"context"
-	"errors"
-	"log"
-
-	"github.com/google/uuid"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,8 +13,6 @@ func resourceAwsCostCredentials() *schema.Resource {
 		CreateContext: resourceAwsCredentialsCreate,
 		ReadContext:   resourceAwsCredentialsRead,
 		DeleteContext: resourceAwsCredentialsDelete,
-
-		Importer: &schema.ResourceImporter{StateContext: resourceAwsCostCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -84,25 +78,4 @@ func resourceAwsCostCredentialsDelete(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("could not delete credentials: %v", err)
 	}
 	return nil
-}
-
-func resourceAwsCostCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id := d.Id()
-	var getErr diag.Diagnostics
-	_, uuidErr := uuid.Parse(id)
-	if uuidErr == nil {
-		log.Println("[INFO] Resolving AWS Credentials by id: ", id)
-		_, getErr = getAwsCostCredentialsById(id, meta)
-	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving AWS Credentials by name: ", id)
-		var awsCredential client.ApiKey
-		awsCredential, getErr = getAwsCostCredentialsByName(id, meta)
-		d.SetId(awsCredential.Id)
-	}
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
-	}
 }
