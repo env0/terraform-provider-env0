@@ -24,7 +24,6 @@ func resourceAzureCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the azure client id",
 				Required:    true,
-				Sensitive:   true,
 				ForceNew:    true,
 			},
 			"client_secret": {
@@ -38,14 +37,12 @@ func resourceAzureCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the azure subscription id",
 				Required:    true,
-				Sensitive:   true,
 				ForceNew:    true,
 			},
 			"tenant_id": {
 				Type:        schema.TypeString,
 				Description: "the azure tenant id",
 				Required:    true,
-				Sensitive:   true,
 				ForceNew:    true,
 			},
 		},
