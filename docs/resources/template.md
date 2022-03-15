@@ -26,7 +26,7 @@ resource "env0_template" "example" {
   description = "Example template"
   repository  = "https://github.com/env0/templates"
   path        = "aws/hello-world"
-  ssh_keys    = [data.ssh_keys.my_key]
+  ssh_keys    = [data.env0_ssh_key.my_key]
 }
 
 resource "env0_template_project_assignment" "assignment" {
@@ -45,6 +45,7 @@ resource "env0_template_project_assignment" "assignment" {
 
 ### Optional
 
+- **bitbucket_client_key** (String) The bitbucket client key used for integration
 - **description** (String) description for the template
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
 - **gitlab_project_id** (Number) The project id of the relevant repository
