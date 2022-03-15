@@ -111,6 +111,45 @@ var _ = Describe("CloudCredentials", func() {
 		})
 	})
 
+	Describe("AzureCredentialsCreate", func() {
+		const azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+		mockAzureApiKey := mockApiKey
+		mockAzureApiKey.Type = azureRequestType
+		BeforeEach(func() {
+
+			mockOrganizationIdCall(organizationId).Times(1)
+
+			payloadValue := AzureCredentialsValuePayload{
+				ClientId:       "fakeClientId",
+				ClientSecret:   "fakeClientSecret",
+				SubscriptionId: "fakeSubscriptionId",
+				TenantId:       "fakeTenantId",
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/credentials", AzureCredentialsCreatePayload{
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           azureRequestType,
+					Value:          payloadValue,
+				},
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *ApiKey) {
+					*response = mockAzureApiKey
+				}).Times(1)
+
+			apiKey, _ = apiClient.AzureCredentialsCreate(AzureCredentialsCreatePayload{
+				Name:  credentialsName,
+				Value: payloadValue,
+				Type:  azureRequestType,
+			})
+		})
+
+		It("Should return key", func() {
+			Expect(apiKey).To(Equal(mockAzureApiKey))
+		})
+	})
+
 	Describe("CloudCredentialsDelete", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/credentials/" + mockApiKey.Id)
