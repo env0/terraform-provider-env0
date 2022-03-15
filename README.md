@@ -1,4 +1,8 @@
-# terraform-provider-env0
+<a href="https://env0.com">
+    <img src=".github/env0_logo.svg" alt="env0 logo" title="env0" align="right" height="40" />
+</a>
+
+# Terraform Provider for env0
 
 Terraform provider to interact with env0
 
