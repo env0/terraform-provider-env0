@@ -1,9 +1,9 @@
 provider "random" {}
 
 resource "random_string" "random" {
-  length = 16
+  length = 5
   special = false
-  min_lower = 16
+  min_lower = 5
 }
 
 resource "env0_project" "test_project" {
@@ -19,7 +19,7 @@ data "env0_project" "data_by_id" {
 }
 
 output "test_project_name" {
-  value = env0_project.test_project.name
+  value = replace(env0_project.test_project.name, random_string.random.result, "")
 }
 
 output "test_project_description" {
