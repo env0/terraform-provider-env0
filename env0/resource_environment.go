@@ -92,7 +92,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"ttl": {
 				Type:        schema.TypeString,
-				Description: "the date the environment should be destroyed at (iso format)",
+				Description: "the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.",
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					utcPattern := `\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d`
