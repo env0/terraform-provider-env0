@@ -9,6 +9,7 @@ env:
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
   GO_VERSION: 1.16
+  TERRAFORM_VERSION: 1.1.7
 
 jobs:
   unit-tests:
@@ -36,11 +37,16 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-20.04
-    container: hashicorp/terraform:1.1.6
     timeout-minutes: 20
     steps:
       - name: Install Go
-        run: apk add go@$GO_VERSION
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Harness tests
