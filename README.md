@@ -4,20 +4,18 @@
 
 # Terraform Provider for env0
 
-Terraform provider to interact with env0
+[![Go Report Card](https://goreportcard.com/badge/github.com/env0/terraform-provider-env0)](https://goreportcard.com/report/github.com/env0/terraform-provider-env0)
 
-Available in the [Terraform Registry](https://registry.terraform.io/providers/env0/env0/latest)
+- [Documentation](https://registry.terraform.io/providers/env0/env0/latest/docs)
+- [Usage Examples](https://github.com/env0/terraform-provider-env0/tree/main/examples)
 
-The full list of supported resources is available [here](https://registry.terraform.io/providers/env0/env0/latest/docs).
-
-## Example usage
+## Quick Start
 
 ```terraform
 terraform {
   required_providers {
     env0 = {
       source = "env0/env0"
-      version = "~> 0.0.13"
     }
   }
 }
@@ -25,7 +23,7 @@ terraform {
 provider "env0" {}
 
 data "env0_project" "default_project" {
-  name = "Default Organization Project"
+  name = "My First Project"
 }
 
 resource "env0_template" "example" {
@@ -44,31 +42,34 @@ resource "env0_configuration_variable" "in_a_template" {
 
 ## Authentication
 
-First, generate an `api_key` and `api_secret` from the organization settings page.
+1. Generate an `api_key` and `api_secret` from the Organization Settings page.
 See [here](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key).
 
-These can be provided by one of two methods. First method consists of setting `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables, and just declaring the provider with no parameters:
+2. These can be provided by one of two methods:
 
-```terraform
-provider "env0" {}
-```
+   1. Set `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables, and just declaring the provider with no parameters:
 
-The second method would be to specify these fields as parameters to the provider:
+    ```terraform
+       provider "env0" {}
+    ```
 
-```terraform
-variable "env0_api_key" {}
-variable "env0_api_secret" {}
+   2. Specify these fields as parameters to the provider:
 
-provider "env0" {
-  api_key = var.env0_api_key
-  api_secret = var.env0_api_secret
-}
-```
+    ```terraform
+    variable "env0_api_key" {}
+    variable "env0_api_secret" {}
+    
+    provider "env0" {
+      api_key = var.env0_api_key
+      api_secret = var.env0_api_secret
+    }
+    ```
 
-## Dev setup
+## Development Setup
 
-**make sure you run with go version 1.16**
-### Build 
+> **Supported Go Version: 1.16**
+
+### Build
 - Use the `./build.sh` script.
 - The output binary is called `terraform-provider-env0`
 
@@ -153,7 +154,7 @@ go generate ./...
 - Please add an example to `examples/<resources or data-sources>/env0_<name>` dir and make sure it is added to the docs.
 
 ## Release
-To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true) -
+To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true):
 1. Create and push a tag **locally**, in semver format - `git tag v0.0.9 && git push origin --tags`
 2. New release with binaries **will be automatically generated** by the GitHub action defined in `.github/workflows/release.yml`.
 3. The Registry will automatically pick up on the new version.
