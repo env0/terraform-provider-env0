@@ -1,5 +1,13 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length = 16
+  special = false
+  min_lower = 16
+}
+
 resource "env0_project" "test_project" {
-  name        = "Test-Project"
+  name        = "Test-Project-${random_string.random.result}"
   description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 data "env0_project" "data_by_name" {
