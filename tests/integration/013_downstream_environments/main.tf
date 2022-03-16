@@ -1,6 +1,7 @@
 resource "env0_project" "test_project" {
-  name        = "Test-Project"
-  description = "Test Description ${var.second_run ? "after update" : ""}"
+  name          = "Test-Project"
+  description   = "Test Description ${var.second_run ? "after update" : ""}"
+  force_destroy = true
 }
 
 resource "env0_template" "template" {
