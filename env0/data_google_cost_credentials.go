@@ -68,7 +68,7 @@ func getGoogleCostCredentialsByName(name interface{}, meta interface{}) (client.
 	}
 
 	if len(credentialsByNameAndType) > 1 {
-		return client.ApiKey{}, diag.Errorf("Found multiple GCP Credentials for name: %s", name)
+		return client.ApiKey{}, diag.Errorf("Found multiple Google cost Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
 		return client.ApiKey{}, diag.Errorf("Could not find GCP Credentials with name: %s", name)

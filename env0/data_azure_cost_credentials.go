@@ -68,10 +68,10 @@ func getAzureCostCredentialsByName(name interface{}, meta interface{}) (client.A
 	}
 
 	if len(credentialsByNameAndType) > 1 {
-		return client.ApiKey{}, diag.Errorf("Found multiple Azure Credentials for name: %s", name)
+		return client.ApiKey{}, diag.Errorf("Found multiple Azure cost Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
-		return client.ApiKey{}, diag.Errorf("Could not find Azure Credentials with name: %s", name)
+		return client.ApiKey{}, diag.Errorf("Could not find Azure cost Credentials with name: %s", name)
 	}
 	return credentialsByNameAndType[0], nil
 }
