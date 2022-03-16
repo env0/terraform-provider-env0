@@ -24,11 +24,12 @@ resource "env0_environment" "example" {
 }
 
 resource "env0_template" "terragrunt_template" {
-  name              = "Terragrunt template for environment resource"
-  type              = "terragrunt"
-  repository        = "https://github.com/env0/templates"
-  path              = "misc/null-resource"
-  terraform_version = "0.15.1"
+  name               = "Terragrunt template for environment resource"
+  type               = "terragrunt"
+  repository         = "https://github.com/env0/templates"
+  path               = "misc/null-resource"
+  terraform_version  = "0.15.1"
+  terragrunt_version = "0.35.0"
 }
 
 resource "env0_environment" "terragrunt_environment" {
