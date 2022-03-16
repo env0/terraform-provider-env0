@@ -119,6 +119,11 @@ func resourceTemplate() *schema.Resource {
 				Optional:    true,
 				Default:     "0.15.1",
 			},
+			"terragrunt_version": {
+				Type:        schema.TypeString,
+				Description: "Terragrunt version to use",
+				Optional:    true,
+			},
 			"is_gitlab_enterprise": {
 				Type:          schema.TypeBool,
 				Description:   "Does this template use gitlab enterprise repository?",
@@ -220,11 +225,16 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	if terraformVersion, ok := d.GetOk("terraform_version"); ok {
 		result.TerraformVersion = terraformVersion.(string)
 	}
-
+	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+		result.TerragruntVersion = terragruntVersion.(string)
+	}
 	if bitbucketClientKey, ok := d.GetOk("bitbucket_client_key"); ok {
 		result.BitbucketClientKey = bitbucketClientKey.(string)
 	}
 
+	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+		result.TerragruntVersion = terragruntVersion.(string)
+	}
 	return result, nil
 }
 
