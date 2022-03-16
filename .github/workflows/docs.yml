@@ -2,6 +2,8 @@ name: Docs
 
 on:
   push:
+    branches:
+      - main
 
 env:
   GO_VERSION: 1.16
