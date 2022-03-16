@@ -45,6 +45,15 @@ resource "env0_template" "tested2" {
   terraform_version                       = "0.15.1"
 }
 
+resource "env0_template" "template_tg" {
+  name               = "Template for environment resource - tg"
+  type               = "terragrunt"
+  repository         = "https://github.com/env0/templates"
+  path               = "terragrunt/misc/null-resource"
+  terraform_version  = "0.15.1"
+  terragrunt_version = "0.35.0"
+}
+
 resource "env0_configuration_variable" "in_a_template" {
   name        = "fake_key"
   value       = "fake value"
@@ -68,6 +77,12 @@ data "env0_template" "tested1" {
   env0_template.tested2]
   name = "GitLab Test-${random_string.random.result}"
 }
+data "env0_template" "template_tg" {
+  depends_on = [
+  env0_template.template_tg]
+  name = "Template for environment resource - tg"
+}
+
 output "tested2_template_id" {
   value = data.env0_template.tested2.id
 }
@@ -85,6 +100,9 @@ output "tested1_template_repository" {
 }
 output "tested2_template_path" {
   value = data.env0_template.tested2.path
+}
+output "tg_tg_version" {
+  value = data.env0_template.template_tg.terragrunt_version
 }
 
 data "env0_template" "tested3" {
