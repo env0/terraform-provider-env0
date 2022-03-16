@@ -55,7 +55,7 @@ func resourceAzureCostCredentialsCreate(ctx context.Context, d *schema.ResourceD
 
 	value := client.AzureCredentialsValuePayload{
 		ClientId:       d.Get("client_id").(string),
-		ClientSecret:   d.Get("client_Secret").(string),
+		ClientSecret:   d.Get("client_secret").(string),
 		TenantId:       d.Get("tenant_id").(string),
 		SubscriptionId: d.Get("subscription_id").(string),
 	}

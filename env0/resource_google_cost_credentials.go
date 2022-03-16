@@ -42,7 +42,7 @@ func resourceGoogleCostCredentialsCreate(ctx context.Context, d *schema.Resource
 	apiClient := meta.(client.ApiClientInterface)
 
 	value := client.GoogleCostCredentialsValeuPayload{
-		TableId: d.Get("table_Id").(string),
+		TableId: d.Get("table_id").(string),
 		Secret:  d.Get("secret").(string),
 	}
 
