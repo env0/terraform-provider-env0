@@ -19,17 +19,20 @@ func resourceGoogleCostCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "name for the credentials",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"table_Id": {
 				Type:        schema.TypeString,
 				Description: "the table id of this credentials ",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"secret": {
 				Type:        schema.TypeString,
 				Description: "the secret of this credentials",
 				Required:    true,
 				Sensitive:   true,
+				ForceNew:    true,
 			},
 		},
 	}

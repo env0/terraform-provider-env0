@@ -25,22 +25,26 @@ func resourceAzureCostCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the azure client id",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"client_Secret": {
 				Type:        schema.TypeString,
 				Description: "azure client secret",
 				Required:    true,
 				Sensitive:   true,
+				ForceNew:    true,
 			},
 			"tenant_Id": {
 				Type:        schema.TypeString,
 				Description: "azure tenant id",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"subscription_Id": {
 				Type:        schema.TypeString,
 				Description: "azure subscription id",
 				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}
