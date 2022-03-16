@@ -10,7 +10,7 @@ import (
 
 func dataAwsCostCredentials() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataAwsCredentialsRead,
+		ReadContext: dataAwsCostCredentialsRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {

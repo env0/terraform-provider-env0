@@ -10,7 +10,7 @@ import (
 
 func dataAzureCostCredentials() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataGcpCredentialsRead,
+		ReadContext: dataAzureCostCredentialsRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -79,7 +79,7 @@ func getAzureCostCredentialsByName(name interface{}, meta interface{}) (client.A
 func getAzureCostCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.CloudCredentials(id)
-	if !isValidGcpCredentialsType(credentials.Type) {
+	if !isValidAzureCostCredentialsType(credentials.Type) {
 		return client.ApiKey{}, diag.Errorf("Found credentials which are not Azure Credentials: %v", credentials)
 	}
 	if err != nil {

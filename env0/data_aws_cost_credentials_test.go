@@ -97,7 +97,7 @@ func TestUnitAwsCostCredentialsData(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one aws-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AwsCredFieldsByName, "Found multiple AWS cost Credentials for name: testdata"),
+			getErrorTestCase(AwsCredFieldsByName, "Found multiple AWS Cost Credentials for name: testdata"),
 			mockListAwsCredCall([]client.ApiKey{awsCred, awsCred, awsCred}),
 		)
 	})

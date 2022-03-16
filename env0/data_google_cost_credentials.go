@@ -10,7 +10,7 @@ import (
 
 func dataGoogleCostCredentials() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataGcpCredentialsRead,
+		ReadContext: dataGoogleCostCredentialsRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
