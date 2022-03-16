@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -110,46 +109,37 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
+func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+	forceDestroy := d.Get("force_destroy").(bool)
+	if forceDestroy {
+		return nil
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	id := d.Id()
+
+	envs, err := apiClient.ProjectEnvironments(id)
+	if err != nil {
+		return err
+	}
+
+	for _, env := range envs {
+		if !env.IsArchived {
+			return errors.New("has active environments (remove the environments or use the force_destroy flag)")
+		}
+	}
+
+	return nil
+}
+
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 
-	forceDestroy := d.Get("force_destroy").(bool)
-
-	if !forceDestroy {
-		// Wait up to a minute before returning an error.
-
-		ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
-		defer cancel()
-
-		for {
-			envs, err := apiClient.ProjectEnvironments(id)
-			if err != nil {
-				return diag.Errorf("could not get project environments: %v", err)
-			}
-
-			// Filter out archived (destroyed) environments.
-
-			hasActiveEnvs := false
-
-			for _, env := range envs {
-				if !env.IsArchived {
-					hasActiveEnvs = true
-					break
-				}
-			}
-
-			if !hasActiveEnvs {
-				break
-			}
-
-			select {
-			case <-ctx.Done():
-				return diag.Errorf("unable to remove a project with active environments (remove the environments or use the force_destroy flag)")
-			case <-time.After(time.Second * 3):
-			}
-		}
+	if err := resourceProjectAssertCanDelete(ctx, d, meta); err != nil {
+		return diag.Errorf("could not delete project: %v", err)
 	}
 
 	if err := apiClient.ProjectDelete(id); err != nil {

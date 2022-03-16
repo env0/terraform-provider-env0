@@ -123,16 +123,12 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 				Name:        project.Name,
 				Description: project.Description,
 			}).Times(1).Return(project, nil)
-
-			gomock.InOrder(
-				mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil),
-			)
-
+			mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil)
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
 		})
 	})
 
-	t.Run("Success Without Force Destory", func(t *testing.T) {
+	t.Run("Failure Without Force Destory", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -147,6 +143,13 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
 					),
 				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name": project.Name,
+					}),
+					Destroy:     true,
+					ExpectError: regexp.MustCompile("could not delete project: has active environments"),
+				},
 			},
 		}
 
@@ -157,7 +160,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 			}).Times(1).Return(project, nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil),
+				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
 			)
