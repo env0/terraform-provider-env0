@@ -1,5 +1,6 @@
 resource "env0_project" "test_project" {
-  name = "Test-Project-for-environment-scheduling"
+  name          = "Test-Project-for-environment-scheduling"
+  force_destroy = true
 }
 
 resource "env0_template" "template" {

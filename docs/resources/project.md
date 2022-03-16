@@ -29,6 +29,7 @@ resource "env0_project" "example" {
 ### Optional
 
 - **description** (String) description of the project
+- **force_destroy** (Boolean) Destroy the project even when environments exist
 
 ### Read-Only
 

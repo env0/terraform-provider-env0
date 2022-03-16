@@ -523,6 +523,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectDelete(arg0 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectDelete), arg0)
 }
 
+// ProjectEnvironments mocks base method.
+func (m *MockApiClientInterface) ProjectEnvironments(arg0 string) ([]Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectEnvironments", arg0)
+	ret0, _ := ret[0].([]Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProjectEnvironments indicates an expected call of ProjectEnvironments.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectEnvironments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectEnvironments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectEnvironments), arg0)
+}
+
 // ProjectUpdate mocks base method.
 func (m *MockApiClientInterface) ProjectUpdate(arg0 string, arg1 ProjectCreatePayload) (Project, error) {
 	m.ctrl.T.Helper()
