@@ -19,7 +19,7 @@ description: |-
 
 - **name** (String) name for the credentials
 - **secret** (String, Sensitive) the secret of this credentials
-- **table_Id** (String) the table id of this credentials
+- **table_id** (String) the table id of this credentials
 
 ### Optional
 

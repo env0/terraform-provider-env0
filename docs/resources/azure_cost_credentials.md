@@ -17,11 +17,11 @@ description: |-
 
 ### Required
 
-- **client_Id** (String) the azure client id
-- **client_Secret** (String, Sensitive) azure client secret
+- **client_id** (String) the azure client id
+- **client_secret** (String, Sensitive) azure client secret
 - **name** (String) name for the credentials
-- **subscription_Id** (String) azure subscription id
-- **tenant_Id** (String) azure tenant id
+- **subscription_id** (String) azure subscription id
+- **tenant_id** (String) azure tenant id
 
 ### Optional
 
