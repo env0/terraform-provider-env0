@@ -199,4 +199,57 @@ var _ = Describe("Templates Client", func() {
 			httpCall.Times(1)
 		})
 	})
+
+	Describe("Terragrunt version errors", func() {
+		var err error
+
+		Describe("type is tg and no tg version supplied", func() {
+			It("Should fail on create", func() {
+				createTemplatePayload := TemplateCreatePayload{}
+				copier.Copy(&createTemplatePayload, &mockTemplate)
+
+				createTemplatePayload.Type = "terragrunt"
+
+				_, err = apiClient.TemplateCreate(createTemplatePayload)
+
+				Expect(err).To(Not(BeNil()))
+			})
+
+			It("Should fail on update", func() {
+				createTemplatePayload := TemplateCreatePayload{}
+				copier.Copy(&createTemplatePayload, &mockTemplate)
+
+				createTemplatePayload.Type = "terragrunt"
+
+				_, err = apiClient.TemplateUpdate(mockTemplate.Id, createTemplatePayload)
+
+				Expect(err).To(Not(BeNil()))
+			})
+		})
+
+		Describe("type is NOT tg and tg version IS supplied", func() {
+			It("Should fail on create", func() {
+				createTemplatePayload := TemplateCreatePayload{}
+				copier.Copy(&createTemplatePayload, &mockTemplate)
+
+				createTemplatePayload.Type = "terraform"
+				createTemplatePayload.TerragruntVersion = "0.29.0"
+
+				_, err = apiClient.TemplateCreate(createTemplatePayload)
+
+				Expect(err).To(Not(BeNil()))
+			})
+
+			It("Should fail on update", func() {
+				createTemplatePayload := TemplateCreatePayload{}
+				copier.Copy(&createTemplatePayload, &mockTemplate)
+
+				createTemplatePayload.Type = "terragrunt"
+
+				_, err = apiClient.TemplateUpdate(mockTemplate.Id, createTemplatePayload)
+
+				Expect(err).To(Not(BeNil()))
+			})
+		})
+	})
 })

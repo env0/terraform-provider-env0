@@ -94,6 +94,12 @@ func dataTemplate() *schema.Resource {
 				Description: "terraform version to use",
 				Computed:    true,
 			},
+			"terragrunt_version": {
+				Type:        schema.TypeString,
+				Description: "terragrunt version to use",
+				Computed:    true,
+				Optional:    true,
+			},
 			"is_gitlab_enterprise": {
 				Type:        schema.TypeBool,
 				Description: "Does this template use gitlab enterprise repository?",
@@ -128,6 +134,9 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("type", template.Type)
 	d.Set("project_ids", template.ProjectIds)
 	d.Set("terraform_version", template.TerraformVersion)
+	if template.TerragruntVersion != "" {
+		d.Set("terragrunt_version", template.TerragruntVersion)
+	}
 	if template.Retry.OnDeploy != nil {
 		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
 		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
@@ -170,7 +179,7 @@ func getTemplateByName(name interface{}, meta interface{}) (client.Template, dia
 
 	var templatesByName []client.Template
 	for _, candidate := range templates {
-		if candidate.Name == name {
+		if candidate.Name == name && !candidate.IsDeleted {
 			templatesByName = append(templatesByName, candidate)
 		}
 	}

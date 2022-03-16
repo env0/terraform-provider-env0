@@ -29,6 +29,16 @@ resource "env0_template" "example" {
   ssh_keys    = [data.env0_ssh_key.my_key]
 }
 
+resource "env0_template" "example_terragrunt" {
+  name               = "example - Terragrunt"
+  description        = "Example template with Terragrunt version"
+  repository         = "https://github.com/env0/templates"
+  path               = "terragrunt/misc/null-resource"
+  ssh_keys           = [data.env0_ssh_key.my_key]
+  type               = "terragrunt"
+  terragrunt_version = "0.35.0"
+}
+
 resource "env0_template_project_assignment" "assignment" {
   template_id = env0_template.example.id
   project_id  = data.env0_project.default_project.id
@@ -59,6 +69,7 @@ resource "env0_template_project_assignment" "assignment" {
 - **revision** (String) source code revision (branch / tag) to use
 - **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - **terraform_version** (String) Terraform version to use
+- **terragrunt_version** (String) Terragrunt version to use
 - **token_id** (String) The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - **type** (String) 'terraform' or 'terragrunt'
 

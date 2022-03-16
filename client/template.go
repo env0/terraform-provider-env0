@@ -15,6 +15,12 @@ func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, 
 	if payload.OrganizationId != "" {
 		return Template{}, errors.New("Must not specify organizationId")
 	}
+	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
+		return Template{}, errors.New("Can't define terragrunt version for non-terragrunt blueprint")
+	}
+	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
+		return Template{}, errors.New("Must supply Terragrunt version")
+	}
 	organizationId, err := self.organizationId()
 	if err != nil {
 		return Template{}, nil
@@ -48,6 +54,12 @@ func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) 
 	}
 	if payload.OrganizationId != "" {
 		return Template{}, errors.New("Must not specify organizationId")
+	}
+	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
+		return Template{}, errors.New("Can't define terragrunt version for non-terragrunt blueprint")
+	}
+	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
+		return Template{}, errors.New("Must supply Terragrunt version")
 	}
 	organizationId, err := self.organizationId()
 	if err != nil {

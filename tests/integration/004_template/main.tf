@@ -1,3 +1,11 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length = 8
+  special = false
+  min_lower = 8
+}
+
 # Github Integration must be done manually - so we expect an existing Github Template with this name -
 # It must be for https://github.com/env0/templates - We validate that in the outputs
 data "env0_template" "github_template" {
@@ -11,7 +19,7 @@ data "env0_template" "gitlab_template" {
 }
 
 resource "env0_template" "tested1" {
-  name                                    = "tested1"
+  name                                    = "tested1-${random_string.random.result}"
   description                             = "Tested 1 description"
   type                                    = "terraform"
   repository                              = data.env0_template.github_template.repository
@@ -24,7 +32,7 @@ resource "env0_template" "tested1" {
 }
 
 resource "env0_template" "tested2" {
-  name                                    = "GitLab Test"
+  name                                    = "GitLab Test-${random_string.random.result}"
   description                             = "Tested 2 description - Gitlab"
   type                                    = "terraform"
   repository                              = data.env0_template.gitlab_template.repository
@@ -35,6 +43,15 @@ resource "env0_template" "tested2" {
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
   terraform_version                       = "0.15.1"
+}
+
+resource "env0_template" "template_tg" {
+  name               = "Template for environment resource - tg"
+  type               = "terragrunt"
+  repository         = "https://github.com/env0/templates"
+  path               = "terragrunt/misc/null-resource"
+  terraform_version  = "0.15.1"
+  terragrunt_version = "0.35.0"
 }
 
 resource "env0_configuration_variable" "in_a_template" {
@@ -53,13 +70,19 @@ resource "env0_configuration_variable" "in_a_template2" {
 data "env0_template" "tested2" {
   depends_on = [
   env0_template.tested1]
-  name = "tested1"
+  name = "tested1-${random_string.random.result}"
 }
 data "env0_template" "tested1" {
   depends_on = [
   env0_template.tested2]
-  name = "GitLab Test"
+  name = "GitLab Test-${random_string.random.result}"
 }
+data "env0_template" "template_tg" {
+  depends_on = [
+  env0_template.template_tg]
+  name = "Template for environment resource - tg"
+}
+
 output "tested2_template_id" {
   value = data.env0_template.tested2.id
 }
@@ -67,7 +90,7 @@ output "tested2_template_type" {
   value = data.env0_template.tested2.type
 }
 output "tested2_template_name" {
-  value = data.env0_template.tested2.name
+  value = replace(data.env0_template.tested2.name, random_string.random.result, "")
 }
 output "tested2_template_repository" {
   value = data.env0_template.tested2.repository
@@ -77,6 +100,9 @@ output "tested1_template_repository" {
 }
 output "tested2_template_path" {
   value = data.env0_template.tested2.path
+}
+output "tg_tg_version" {
+  value = data.env0_template.template_tg.terragrunt_version
 }
 
 data "env0_template" "tested3" {

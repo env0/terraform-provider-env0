@@ -31,4 +31,3 @@ output "revision" {
   value = data.env0_environment.test.revision
 }
 
-
