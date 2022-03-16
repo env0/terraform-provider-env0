@@ -16,6 +16,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.ENV0_BOT_PAT }}
 
       - name: Unshallow
         run: git fetch --prune --unshallow
