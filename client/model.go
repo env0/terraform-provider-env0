@@ -455,6 +455,40 @@ type WorkflowTriggerUpsertPayload struct {
 	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
 }
 
+type NotificationType string
+
+const (
+	NotificationTypeSlack NotificationType = "Slack"
+	NotificationTypeTeams NotificationType = "Teams"
+)
+
+type Notification struct {
+	Id             string           `json:"id"`
+	CreatedBy      string           `json:"createdBy"`
+	CreatedByUser  User             `json:"createdByUser"`
+	OrganizationId string           `json:"organizationId"`
+	Name           string           `json:"name"`
+	Type           NotificationType `json:"type"`
+	Value          string           `json:"value"`
+}
+
+type NotificationCreate struct {
+	Name  string           `json:"name"`
+	Type  NotificationType `json:"type"`
+	Value string           `json:"value"`
+}
+
+type NotificationCreateWithOrganizationId struct {
+	NotificationCreate
+	OrganizationId string `json:"organizationId"`
+}
+
+type NotificationUpdate struct {
+	Name  string           `json:"name,omitempty"`
+	Type  NotificationType `json:"type,omitempty"`
+	Value string           `json:"value,omitempty"`
+}
+
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 	type serial struct {
 		ProjectId                   string `json:"projectId"`
