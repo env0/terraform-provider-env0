@@ -150,6 +150,8 @@ go generate ./...
 
 ## Release
 To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true) -
-1. Create and push a tag **locally**, in semver format - `git tag v0.0.9 && git push origin --tags`
-2. New release with binaries **will be automatically generated** by the GitHub action defined in `.github/workflows/release.yml`.
-3. The Registry will automatically pick up on the new version.
+1. Validate that all status checks are ✅ on `main` branch (specifically that docs generation is complete)
+2. Pull from remote first - `git pull origin main`
+3. Create and push a tag **locally**, in semver format - `git tag v0.0.9 && git push origin --tags`
+4. New release with binaries **will be automatically generated** by the GitHub action defined in `.github/workflows/release.yml`.
+5. The Registry will automatically pick up on the new version.
