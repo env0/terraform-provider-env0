@@ -1,3 +1,4 @@
 {
-  "revision": "master"
+  "revision": "master",
+  "terragrunt_working_directory": "/second-dir" 
 }
