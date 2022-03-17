@@ -27,7 +27,7 @@ func dataNotification() *schema.Resource {
 			},
 			"type": {
 				Type:        schema.TypeString,
-				Description: "the type the notification",
+				Description: "the type of the notification",
 				Computed:    true,
 			},
 			"value": {

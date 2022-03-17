@@ -39,7 +39,7 @@ var _ = Describe("Notification Client", func() {
 			httpCall.Times(1)
 		})
 
-		It("Should return teams", func() {
+		It("Should return notifications", func() {
 			Expect(returnedNotifications).To(Equal(mockNotifications))
 		})
 	})
