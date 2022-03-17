@@ -25,7 +25,7 @@ var _ = Describe("Notification Client", func() {
 			mockOrganizationIdCall(organizationId)
 			httpCall = mockHttpClient.EXPECT().
 				Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Team) {
+				Do(func(path string, request interface{}, response *[]Notification) {
 					*response = mockNotifications
 				})
 			returnedNotifications, _ = apiClient.Notifications()
