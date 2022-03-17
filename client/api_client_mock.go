@@ -434,21 +434,6 @@ func (mr *MockApiClientInterfaceMockRecorder) GcpCredentialsCreate(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GcpCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GcpCredentialsCreate), arg0)
 }
 
-// Notification mocks base method.
-func (m *MockApiClientInterface) Notification(arg0 string) (*Notification, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Notification", arg0)
-	ret0, _ := ret[0].(*Notification)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Notification indicates an expected call of Notification.
-func (mr *MockApiClientInterfaceMockRecorder) Notification(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notification", reflect.TypeOf((*MockApiClientInterface)(nil).Notification), arg0)
-}
-
 // NotificationCreate mocks base method.
 func (m *MockApiClientInterface) NotificationCreate(arg0 NotificationCreate) (*Notification, error) {
 	m.ctrl.T.Helper()

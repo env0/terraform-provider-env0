@@ -17,6 +17,33 @@ var _ = Describe("Notification Client", func() {
 		OrganizationId: "organization-id",
 	}
 
+	Describe("Notifications", func() {
+		var returnedNotifications []Notification
+		mockNotifications := []Notification{mockNotification}
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			httpCall = mockHttpClient.EXPECT().
+				Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]Team) {
+					*response = mockNotifications
+				})
+			returnedNotifications, _ = apiClient.Notifications()
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send GET request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return teams", func() {
+			Expect(returnedNotifications).To(Equal(mockNotifications))
+		})
+	})
+
 	Describe("NotificationCreate", func() {
 		Describe("Success", func() {
 			var createdNotification *Notification
