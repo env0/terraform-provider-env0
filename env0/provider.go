@@ -49,6 +49,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_team":                   dataTeam(),
 				"env0_environment":            dataEnvironment(),
 				"env0_workflow_triggers":      dataWorkflowTriggers(),
+				"env0_notification":           dataNotification(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -67,6 +68,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_workflow_triggers":                    resourceWorkflowTriggers(),
 				"env0_environment_scheduling":               resourceEnvironmentScheduling(),
 				"env0_environment_drift_detection":          resourceDriftDetection(),
+				"env0_notification":                         resourceNotification(),
 			},
 		}
 

@@ -70,7 +70,6 @@ type ApiClientInterface interface {
 	EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error)
 	EnvironmentStopDriftDetection(environmentId string) error
 	Notifications() ([]Notification, error)
-	Notification(id string) (*Notification, error)
 	NotificationCreate(payload NotificationCreate) (*Notification, error)
 	NotificationDelete(id string) error
 	NotificationUpdate(id string, payload NotificationUpdate) (*Notification, error)

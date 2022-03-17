@@ -1,7 +1,5 @@
 package client
 
-import "errors"
-
 func (ac *ApiClient) Notifications() ([]Notification, error) {
 	var result []Notification
 	err := ac.http.Get("/notifications/endpoints", nil, &result)
@@ -9,19 +7,6 @@ func (ac *ApiClient) Notifications() ([]Notification, error) {
 		return nil, err
 	}
 	return result, nil
-}
-
-func (ac *ApiClient) Notification(id string) (*Notification, error) {
-	notifications, err := ac.Notifications()
-	if err != nil {
-		return nil, err
-	}
-	for _, notification := range notifications {
-		if notification.Id == id {
-			return &notification, nil
-		}
-	}
-	return nil, errors.New("not found")
 }
 
 func (ac *ApiClient) NotificationCreate(payload NotificationCreate) (*Notification, error) {
