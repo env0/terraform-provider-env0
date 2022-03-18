@@ -522,7 +522,22 @@ type ModuleCreatePayload struct {
 	ModuleProvider       string         `json:"moduleProvider"`
 	Repository           string         `json:"repository"`
 	Description          string         `json:"description,omitempty"`
-	LogoUrl              string         `json:"logoUrl,omitEmpty"`
+	LogoUrl              string         `json:"logoUrl,omitempty"`
+	TokenId              string         `json:"tokenId,omitempty"`
+	TokenName            string         `json:"tokenName,omitempty"`
+	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`
+	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
+	IsGitLab             *bool          `json:"isGitLab,omitempty"`
+	GitlabProjectId      *int           `json:"gitlabProjectId,omitempty"`
+	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
+}
+
+type ModuleUpdatePayload struct {
+	ModuleName           string         `json:"moduleName,omitempty"`
+	ModuleProvider       string         `json:"moduleProvider,omitempty"`
+	Repository           string         `json:"repository,omitempty"`
+	Description          string         `json:"description,omitempty"`
+	LogoUrl              string         `json:"logoUrl,omitempty"`
 	TokenId              string         `json:"tokenId,omitempty"`
 	TokenName            string         `json:"tokenName,omitempty"`
 	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`

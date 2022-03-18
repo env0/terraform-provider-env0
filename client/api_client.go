@@ -73,6 +73,11 @@ type ApiClientInterface interface {
 	NotificationCreate(payload NotificationCreate) (*Notification, error)
 	NotificationDelete(id string) error
 	NotificationUpdate(id string, payload NotificationUpdate) (*Notification, error)
+	ModuleCreate(payload ModuleCreatePayload) (*Module, error)
+	Module(id string) (*Module, error)
+	ModuleDelete(id string) error
+	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
+	Modules() ([]Module, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
