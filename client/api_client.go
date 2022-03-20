@@ -58,6 +58,7 @@ type ApiClientInterface interface {
 	TeamProjectAssignmentDelete(assignmentId string) error
 	TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error)
 	Environments() ([]Environment, error)
+	ProjectEnvironments(projectId string) ([]Environment, error)
 	Environment(id string) (Environment, error)
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)
 	EnvironmentDestroy(id string) (Environment, error)

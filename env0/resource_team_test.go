@@ -2,11 +2,12 @@ package env0
 
 import (
 	"errors"
+	"regexp"
+	"testing"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"regexp"
-	"testing"
 )
 
 func TestUnitTeamResource(t *testing.T) {

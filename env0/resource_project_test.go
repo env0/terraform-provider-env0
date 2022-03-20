@@ -66,6 +66,7 @@ func TestUnitProjectResource(t *testing.T) {
 		gomock.InOrder(
 			mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),        // 1 after create, 1 before update
 			mock.EXPECT().Project(gomock.Any()).Times(1).Return(updatedProject, nil), // 1 after update
+			mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
 		)
 
 		mock.EXPECT().ProjectDelete(project.Id).Times(1)
@@ -83,4 +84,88 @@ func TestUnitProjectInvalidParams(t *testing.T) {
 	}
 
 	runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+}
+
+func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
+	resourceType := "env0_project"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+
+	project := client.Project{
+		Id:          "id0",
+		Name:        "name0",
+		Description: "description0",
+	}
+
+	environment := client.Environment{}
+
+	t.Run("Success With Force Destory", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":          project.Name,
+						"description":   project.Description,
+						"force_destroy": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", project.Id),
+						resource.TestCheckResourceAttr(accessor, "name", project.Name),
+						resource.TestCheckResourceAttr(accessor, "description", project.Description),
+						resource.TestCheckResourceAttr(accessor, "force_destroy", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+			mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil)
+			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
+
+	t.Run("Failure Without Force Destory", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        project.Name,
+						"description": project.Description,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", project.Id),
+						resource.TestCheckResourceAttr(accessor, "name", project.Name),
+						resource.TestCheckResourceAttr(accessor, "description", project.Description),
+						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name": project.Name,
+					}),
+					Destroy:     true,
+					ExpectError: regexp.MustCompile("could not delete project: has active environments"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
+			)
+
+			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
 }
