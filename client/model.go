@@ -502,10 +502,9 @@ type Module struct {
 	LogoUrl              string         `json:"logoUrl"`
 	TokenId              string         `json:"tokenId"`
 	TokenName            string         `json:"tokenName"`
-	GithubInstallationId int            `json:"githubInstallationId"`
-	BitbucketClientKey   string         `json:"bitbucketClientKey"`
-	IsGitLab             bool           `json:"isGitLab"`
-	GitlabProjectId      int            `json:"gitlabProjectId"`
+	GithubInstallationId *int           `json:"githubInstallationId"`
+	BitbucketClientKey   *string        `json:"bitbucketClientKey"`
+	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
 	Type                 string         `json:"type"`
 	Id                   string         `json:"id"`
@@ -527,8 +526,7 @@ type ModuleCreatePayload struct {
 	TokenName            string         `json:"tokenName,omitempty"`
 	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`
 	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
-	IsGitLab             *bool          `json:"isGitLab,omitempty"`
-	GitlabProjectId      *int           `json:"gitlabProjectId,omitempty"`
+	IsGitlab             *bool          `json:"isGitLab,omitempty"`
 	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
 }
 
@@ -538,13 +536,12 @@ type ModuleUpdatePayload struct {
 	Repository           string         `json:"repository,omitempty"`
 	Description          string         `json:"description,omitempty"`
 	LogoUrl              string         `json:"logoUrl,omitempty"`
-	TokenId              string         `json:"tokenId,omitempty"`
-	TokenName            string         `json:"tokenName,omitempty"`
-	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`
-	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
-	IsGitLab             *bool          `json:"isGitLab,omitempty"`
-	GitlabProjectId      *int           `json:"gitlabProjectId,omitempty"`
-	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
+	TokenId              string         `json:"tokenId"`
+	TokenName            string         `json:"tokenName"`
+	GithubInstallationId *int           `json:"githubInstallationId"`
+	BitbucketClientKey   string         `json:"bitbucketClientKey"`
+	IsGitlab             bool           `json:"isGitLab"`
+	SshKeys              []ModuleSshKey `json:"sshkeys"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
