@@ -10,9 +10,9 @@ import (
 
 func resourceAwsCostCredentials() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAwsCredentialsCreate,
-		ReadContext:   resourceAwsCredentialsRead,
-		DeleteContext: resourceAwsCredentialsDelete,
+		CreateContext: resourceAwsCostCredentialsCreate,
+		ReadContext:   resourceAwsCostCredentialsRead,
+		DeleteContext: resourceAwsCostCredentialsDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
