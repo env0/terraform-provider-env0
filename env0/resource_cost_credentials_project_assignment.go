@@ -10,9 +10,9 @@ import (
 
 func resourceCostCredentialsProjectAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCloudCredentialsProjectAssignmentCreate,
-		ReadContext:   resourceCloudCredentialsProjectAssignmentRead,
-		DeleteContext: resourceCloudCredentialsProjectAssignmentDelete,
+		CreateContext: resourceCostCredentialsProjectAssignmentCreate,
+		ReadContext:   resourceCostdCredentialsProjectAssignmentRead,
+		DeleteContext: resourceCostCredentialsProjectAssignmentDelete,
 
 		Schema: map[string]*schema.Schema{
 			"credential_id": {
@@ -51,7 +51,7 @@ func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 	projectId := d.Get("project_id").(string)
 	credentialsList, err := apiClient.CostCredentialIdsInProject(projectId)
 	if err != nil {
-		return diag.Errorf("could not get cost_credentials: %v", err)
+		return diag.Errorf("could not get cost credentials: %v", err)
 	}
 	found := false
 	for _, candidate := range credentialsList {
