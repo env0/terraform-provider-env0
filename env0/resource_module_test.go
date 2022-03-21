@@ -1,17 +1,20 @@
 package env0
 
 import (
+	"errors"
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitModulenResource(t *testing.T) {
 	resourceType := "env0_module"
 	resourceName := "test"
-	//resourceNameImport := resourceType + "." + resourceName
+	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	author := client.User{
@@ -29,7 +32,7 @@ func TestUnitModulenResource(t *testing.T) {
 		OrganizationId: "org1",
 		Author:         author,
 		AuthorId:       "author1",
-		Id:             "id1",
+		Id:             uuid.NewString(),
 	}
 
 	updatedModule := client.Module{
@@ -41,7 +44,7 @@ func TestUnitModulenResource(t *testing.T) {
 		OrganizationId:     "org1",
 		Author:             author,
 		AuthorId:           "author1",
-		Id:                 "id1",
+		Id:                 module.Id,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -120,178 +123,163 @@ func TestUnitModulenResource(t *testing.T) {
 		})
 	})
 
-	/*
-		t.Run("Create Failure - Invalid Type", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  notification.Name,
-							"value": notification.Value,
-							"type":  "bad-type",
-						}),
-						ExpectError: regexp.MustCompile("Invalid notification type"),
-					},
+	t.Run("Create Failure", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     module.ModuleName,
+						"module_provider": module.ModuleProvider,
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
+					ExpectError: regexp.MustCompile("could not create module: error"),
 				},
-			}
+			},
+		}
 
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:     module.ModuleName,
+				ModuleProvider: module.ModuleProvider,
+				Repository:     module.Repository,
+				Description:    module.Description,
+				TokenId:        module.TokenId,
+				TokenName:      module.TokenName,
+				IsGitlab:       boolPtr(true),
+			}).Times(1).Return(nil, errors.New("error"))
 		})
+	})
 
-		t.Run("Create Failure - Name Empty", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  "",
-							"value": notification.Value,
-							"type":  notification.Type,
-						}),
-						ExpectError: regexp.MustCompile("may not be empty"),
-					},
+	t.Run("Update Failure", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     module.ModuleName,
+						"module_provider": module.ModuleProvider,
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
 				},
-			}
-
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-		})
-
-		t.Run("Create Failure - Value Empty", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  notification.Name,
-							"value": "",
-							"type":  notification.Type,
-						}),
-						ExpectError: regexp.MustCompile("may not be empty"),
-					},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":          updatedModule.ModuleName,
+						"module_provider":      updatedModule.ModuleProvider,
+						"repository":           updatedModule.Repository,
+						"description":          updatedModule.Description,
+						"bitbucket_client_key": *updatedModule.BitbucketClientKey,
+					}),
+					ExpectError: regexp.MustCompile("could not update module: error"),
 				},
-			}
+			},
+		}
 
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:     module.ModuleName,
+				ModuleProvider: module.ModuleProvider,
+				Repository:     module.Repository,
+				Description:    module.Description,
+				TokenId:        module.TokenId,
+				TokenName:      module.TokenName,
+				IsGitlab:       boolPtr(true),
+			}).Times(1).Return(&module, nil)
+
+			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
+				ModuleName:           updatedModule.ModuleName,
+				ModuleProvider:       updatedModule.ModuleProvider,
+				Repository:           updatedModule.Repository,
+				Description:          updatedModule.Description,
+				TokenId:              "",
+				TokenName:            "",
+				IsGitlab:             false,
+				GithubInstallationId: nil,
+				BitbucketClientKey:   *updatedModule.BitbucketClientKey,
+			}).Times(1).Return(nil, errors.New("error"))
+
+			mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
 		})
+	})
 
-		t.Run("Create Failure", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  notification.Name,
-							"value": notification.Value,
-							"type":  notification.Type,
-						}),
-						ExpectError: regexp.MustCompile("could not create notification: error"),
-					},
+	t.Run("Import By Name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     module.ModuleName,
+						"module_provider": module.ModuleProvider,
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
 				},
-			}
-
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().NotificationCreate(client.NotificationCreate{
-					Name:  notification.Name,
-					Type:  notification.Type,
-					Value: notification.Value,
-				}).Times(1).Return(nil, errors.New("error"))
-			})
-		})
-
-		t.Run("Update Failure", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  notification.Name,
-							"type":  notification.Type,
-							"value": notification.Value,
-						}),
-					},
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":  updatedNotification.Name,
-							"type":  updatedNotification.Type,
-							"value": updatedNotification.Value,
-						}),
-						ExpectError: regexp.MustCompile("could not update notification: error"),
-					},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     module.ModuleName,
+					ImportStateVerify: true,
 				},
-			}
+			},
+		}
 
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().NotificationCreate(client.NotificationCreate{
-					Name:  notification.Name,
-					Type:  notification.Type,
-					Value: notification.Value,
-				}).Times(1).Return(&notification, nil)
-
-				mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdate{
-					Name:  updatedNotification.Name,
-					Type:  updatedNotification.Type,
-					Value: updatedNotification.Value,
-				}).Times(1).Return(nil, errors.New("error"))
-
-				mock.EXPECT().Notifications().Times(2).Return([]client.Notification{notification}, nil)
-				mock.EXPECT().NotificationDelete(notification.Id).Times(1)
-			})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:     module.ModuleName,
+				ModuleProvider: module.ModuleProvider,
+				Repository:     module.Repository,
+				Description:    module.Description,
+				TokenId:        module.TokenId,
+				TokenName:      module.TokenName,
+				IsGitlab:       boolPtr(true),
+			}).Times(1).Return(&module, nil)
+			mock.EXPECT().Modules().Times(1).Return([]client.Module{module}, nil)
+			mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
 		})
-		/*
-			t.Run("Import By Name", func(t *testing.T) {
-				testCase := resource.TestCase{
-					Steps: []resource.TestStep{
-						{
-							Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-								"name":  notification.Name,
-								"type":  notification.Type,
-								"value": notification.Value,
-							}),
-						},
-						{
-							ResourceName:      resourceNameImport,
-							ImportState:       true,
-							ImportStateId:     notification.Name,
-							ImportStateVerify: true,
-						},
-					},
-				}
+	})
 
-				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-					mock.EXPECT().NotificationCreate(client.NotificationCreate{
-						Name:  notification.Name,
-						Type:  notification.Type,
-						Value: notification.Value,
-					}).Times(1).Return(&notification, nil)
-					mock.EXPECT().Notifications().Times(3).Return([]client.Notification{notification}, nil)
-					mock.EXPECT().NotificationDelete(notification.Id).Times(1)
-				})
-			})
+	t.Run("Import By Id", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     module.ModuleName,
+						"module_provider": module.ModuleProvider,
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     module.Id,
+					ImportStateVerify: true,
+				},
+			},
+		}
 
-			t.Run("Import By Id", func(t *testing.T) {
-				testCase := resource.TestCase{
-					Steps: []resource.TestStep{
-						{
-							Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-								"name":  notificationById.Name,
-								"type":  notificationById.Type,
-								"value": notificationById.Value,
-							}),
-						},
-						{
-							ResourceName:      resourceNameImport,
-							ImportState:       true,
-							ImportStateId:     notificationById.Id,
-							ImportStateVerify: true,
-						},
-					},
-				}
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:     module.ModuleName,
+				ModuleProvider: module.ModuleProvider,
+				Repository:     module.Repository,
+				Description:    module.Description,
+				TokenId:        module.TokenId,
+				TokenName:      module.TokenName,
+				IsGitlab:       boolPtr(true),
+			}).Times(1).Return(&module, nil)
+			mock.EXPECT().Module(module.Id).Times(3).Return(&module, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+		})
+	})
 
-				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-					mock.EXPECT().NotificationCreate(client.NotificationCreate{
-						Name:  notificationById.Name,
-						Type:  notificationById.Type,
-						Value: notificationById.Value,
-					}).Times(1).Return(&notificationById, nil)
-					mock.EXPECT().Notifications().Times(3).Return([]client.Notification{notificationById}, nil)
-					mock.EXPECT().NotificationDelete(notificationById.Id).Times(1)
-				})
-			})
-	*/
 }

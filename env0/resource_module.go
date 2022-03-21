@@ -2,8 +2,11 @@ package env0
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -143,6 +146,52 @@ func resourceModuleDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
+func getModuleByName(name string, meta interface{}) (*client.Module, error) {
+	apiClient := meta.(client.ApiClientInterface)
+
+	modules, err := apiClient.Modules()
+	if err != nil {
+		return nil, err
+	}
+
+	var foundModules []client.Module
+	for _, module := range modules {
+		if module.ModuleName == name {
+			foundModules = append(foundModules, module)
+		}
+	}
+
+	if len(foundModules) == 0 {
+		return nil, fmt.Errorf("module with name %v not found", name)
+	}
+
+	if len(foundModules) > 1 {
+		return nil, fmt.Errorf("found multiple modules with name: %s. Use id instead or make sure module names are unique %v", name, foundModules)
+	}
+
+	return &foundModules[0], nil
+}
+
+func getModule(id string, meta interface{}) (*client.Module, error) {
+	_, err := uuid.Parse(id)
+	if err == nil {
+		log.Println("[INFO] Resolving notification by id: ", id)
+		return meta.(client.ApiClientInterface).Module(id)
+	} else {
+		log.Println("[INFO] Resolving notification by name: ", id)
+		return getModuleByName(id, meta)
+	}
+}
+
 func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return nil, nil
+	module, err := getModule(d.Id(), meta)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := serializeResourceData(module, d); err != nil {
+		diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
