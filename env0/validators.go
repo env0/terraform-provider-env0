@@ -2,6 +2,7 @@ package env0
 
 import (
 	"fmt"
+
 	"github.com/adhocore/gronx"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/go-cty/cty"
@@ -21,13 +22,22 @@ func ValidateCronExpression(i interface{}, path cty.Path) diag.Diagnostics {
 	parser := gronx.New()
 	isValid := parser.IsValid(expr)
 
-	if isValid != true {
+	if !isValid {
 		return diag.Diagnostics{
 			diag.Diagnostic{
 				Severity:      diag.Error,
 				Summary:       "Invalid cron expression",
 				AttributePath: path,
 			}}
+	}
+
+	return nil
+}
+
+func ValidateNotEmptyString(i interface{}, path cty.Path) diag.Diagnostics {
+	s := i.(string)
+	if len(s) == 0 {
+		return diag.Errorf("may not be empty")
 	}
 
 	return nil
