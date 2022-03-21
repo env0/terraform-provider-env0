@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeserializeResourceData(t *testing.T) {
+func TestReadResourceData(t *testing.T) {
 	t.Run("match", func(t *testing.T) {
 		d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{
 			"module_name":            "module_name",
@@ -35,12 +35,12 @@ func TestDeserializeResourceData(t *testing.T) {
 
 		var payload client.ModuleCreatePayload
 
-		assert.Nil(t, deserializeResourceData(&payload, d))
+		assert.Nil(t, readResourceData(&payload, d))
 		assert.Equal(t, expectedPayload, payload)
 	})
 }
 
-func TestSerializeResourceData(t *testing.T) {
+func TestWriteResourceData(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{})
 
 	m := client.Module{
@@ -59,7 +59,7 @@ func TestSerializeResourceData(t *testing.T) {
 		},
 	}
 
-	assert.Nil(t, serializeResourceData(&m, d))
+	assert.Nil(t, writeResourceData(&m, d))
 
 	assert.Equal(t, "id", d.Id())
 	assert.Equal(t, "module_name", d.Get("module_name"))

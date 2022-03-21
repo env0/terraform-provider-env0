@@ -41,7 +41,7 @@ func (ac *ApiClient) ModuleDelete(id string) error {
 
 func (ac *ApiClient) ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error) {
 	var result Module
-	if err := ac.http.Put("/modules/"+id, payload, &result); err != nil {
+	if err := ac.http.Patch("/modules/"+id, payload, &result); err != nil {
 		return nil, err
 	}
 

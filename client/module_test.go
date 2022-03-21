@@ -128,7 +128,7 @@ var _ = Describe("Module Client", func() {
 			updateModulePayload := ModuleUpdatePayload{ModuleName: updatedMockModule.ModuleName}
 
 			httpCall = mockHttpClient.EXPECT().
-				Put("/modules/"+mockModule.Id, updateModulePayload, gomock.Any()).
+				Patch("/modules/"+mockModule.Id, updateModulePayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *Module) {
 					*response = updatedMockModule
 				})

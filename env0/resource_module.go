@@ -28,14 +28,16 @@ func resourceModule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"module_name": {
-				Type:        schema.TypeString,
-				Description: "name of the module",
-				Required:    true,
+				Type:             schema.TypeString,
+				Description:      "name of the module",
+				Required:         true,
+				ValidateDiagFunc: NewRegexValidator(`^[0-9A-Za-z](?:[0-9A-Za-z-_]{0,62}[0-9A-Za-z])?$`),
 			},
 			"module_provider": {
-				Type:        schema.TypeString,
-				Description: "the provider name in the module source",
-				Optional:    true,
+				Type:             schema.TypeString,
+				Description:      "the provider name in the module source",
+				Optional:         true,
+				ValidateDiagFunc: NewRegexValidator(`^[0-9a-z]{0,64}$`),
 			},
 			"repository": {
 				Type:        schema.TypeString,
@@ -88,7 +90,7 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ModuleCreatePayload
-	if err := deserializeResourceData(&payload, d); err != nil {
+	if err := readResourceData(&payload, d); err != nil {
 		diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
@@ -114,7 +116,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get module: %v", err)
 	}
 
-	if err := serializeResourceData(module, d); err != nil {
+	if err := writeResourceData(module, d); err != nil {
 		diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -125,7 +127,7 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ModuleUpdatePayload
-	if err := deserializeResourceData(&payload, d); err != nil {
+	if err := readResourceData(&payload, d); err != nil {
 		diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
@@ -189,7 +191,7 @@ func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil, err
 	}
 
-	if err := serializeResourceData(module, d); err != nil {
+	if err := writeResourceData(module, d); err != nil {
 		diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 

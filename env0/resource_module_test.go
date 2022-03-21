@@ -153,6 +153,46 @@ func TestUnitModulenResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Create Failure - Invalid ModuleName", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     "bad!!name^",
+						"module_provider": module.ModuleProvider,
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
+					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Create Failure - Invalid ModuleProvider", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":     module.ModuleName,
+						"module_provider": "ab_c",
+						"repository":      module.Repository,
+						"description":     module.Description,
+						"token_id":        module.TokenId,
+						"token_name":      module.TokenName,
+					}),
+					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("Update Failure", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

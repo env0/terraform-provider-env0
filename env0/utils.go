@@ -33,7 +33,7 @@ func intPtr(i int) *int {
 }
 
 // Extracts values from the resourcedata, and writes it to the interface.
-func deserializeResourceData(i interface{}, d *schema.ResourceData) error {
+func readResourceData(i interface{}, d *schema.ResourceData) error {
 	val := reflect.ValueOf(i).Elem()
 	for i := 0; i < val.NumField(); i++ {
 		fieldName := val.Type().Field(i).Name
@@ -77,7 +77,7 @@ func deserializeResourceData(i interface{}, d *schema.ResourceData) error {
 }
 
 // Extracts values from the interface, and writes it to resourcedata.
-func serializeResourceData(i interface{}, d *schema.ResourceData) error {
+func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	val := reflect.ValueOf(i).Elem()
 
 	for i := 0; i < val.NumField(); i++ {
