@@ -35,6 +35,9 @@ func intPtr(i int) *int {
 
 // Extracts values from the resourcedata, and writes it to the interface.
 func readResourceData(i interface{}, d *schema.ResourceData) error {
+	// TODO: add a mechanism that returns an error if fields were set in the resourceData but not in the struct.
+	// Blocked by: https://github.com/hashicorp/terraform-plugin-sdk/issues/910
+
 	val := reflect.ValueOf(i).Elem()
 	for i := 0; i < val.NumField(); i++ {
 		fieldName := val.Type().Field(i).Name
