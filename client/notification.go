@@ -1,6 +1,6 @@
 package client
 
-type NotificationCreateWith struct {
+type NotificationCreatePayloadWith struct {
 	NotificationCreatePayload
 	OrganizationId string `json:"organizationId"`
 }
@@ -26,7 +26,7 @@ func (ac *ApiClient) NotificationCreate(payload NotificationCreatePayload) (*Not
 		return nil, err
 	}
 
-	payloadWithOrganizationId := NotificationCreateWith{
+	payloadWithOrganizationId := NotificationCreatePayloadWith{
 		NotificationCreatePayload: payload,
 		OrganizationId:            organizationId,
 	}

@@ -55,7 +55,7 @@ var _ = Describe("Notification Client", func() {
 				createNotificationPayload := NotificationCreatePayload{}
 				copier.Copy(&createNotificationPayload, &mockNotification)
 
-				expectedCreateRequest := NotificationCreateWith{
+				expectedCreateRequest := NotificationCreatePayloadWith{
 					NotificationCreatePayload: createNotificationPayload,
 					OrganizationId:            organizationId,
 				}
