@@ -509,7 +509,7 @@ func (mr *MockApiClientInterfaceMockRecorder) Modules() *gomock.Call {
 }
 
 // NotificationCreate mocks base method.
-func (m *MockApiClientInterface) NotificationCreate(arg0 NotificationCreate) (*Notification, error) {
+func (m *MockApiClientInterface) NotificationCreate(arg0 NotificationCreatePayload) (*Notification, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NotificationCreate", arg0)
 	ret0, _ := ret[0].(*Notification)
@@ -538,7 +538,7 @@ func (mr *MockApiClientInterfaceMockRecorder) NotificationDelete(arg0 interface{
 }
 
 // NotificationUpdate mocks base method.
-func (m *MockApiClientInterface) NotificationUpdate(arg0 string, arg1 NotificationUpdate) (*Notification, error) {
+func (m *MockApiClientInterface) NotificationUpdate(arg0 string, arg1 NotificationUpdatePayload) (*Notification, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NotificationUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Notification)

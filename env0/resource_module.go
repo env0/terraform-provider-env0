@@ -92,7 +92,7 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	var payload client.ModuleCreatePayload
 	if err := readResourceData(&payload, d); err != nil {
-		diag.Errorf("schema resource data deserialization failed: %v", err)
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	if len(payload.TokenId) > 0 {
@@ -136,7 +136,7 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	var payload client.ModuleUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
-		diag.Errorf("schema resource data deserialization failed: %v", err)
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	if _, err := apiClient.ModuleUpdate(d.Id(), payload); err != nil {

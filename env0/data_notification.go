@@ -60,8 +60,9 @@ func dataNotificationRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("could not read notification: %v", err)
 	}
 
-	d.SetId(notification.Id)
-	setNotificationSchema(d, notification)
+	if err := writeResourceData(notification, d); err != nil {
+		diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }

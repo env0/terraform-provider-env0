@@ -52,12 +52,12 @@ var _ = Describe("Notification Client", func() {
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId)
 
-				createNotificationPayload := NotificationCreate{}
+				createNotificationPayload := NotificationCreatePayload{}
 				copier.Copy(&createNotificationPayload, &mockNotification)
 
-				expectedCreateRequest := NotificationCreateWithOrganizationId{
-					NotificationCreate: createNotificationPayload,
-					OrganizationId:     organizationId,
+				expectedCreateRequest := NotificationCreateWith{
+					NotificationCreatePayload: createNotificationPayload,
+					OrganizationId:            organizationId,
 				}
 
 				httpCall = mockHttpClient.EXPECT().
@@ -106,7 +106,7 @@ var _ = Describe("Notification Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				updateNotificationPayload := NotificationUpdate{Name: "updated-name"}
+				updateNotificationPayload := NotificationUpdatePayload{Name: "updated-name"}
 
 				httpCall = mockHttpClient.EXPECT().
 					Patch("/notifications/endpoints/"+mockNotification.Id, updateNotificationPayload, gomock.Any()).
