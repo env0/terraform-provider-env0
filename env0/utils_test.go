@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadResourceData(t *testing.T) {
+func TestReadResourceDataModule(t *testing.T) {
 	t.Run("match", func(t *testing.T) {
 		d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{
 			"module_name":            "module_name",
@@ -40,7 +40,7 @@ func TestReadResourceData(t *testing.T) {
 	})
 }
 
-func TestWriteResourceData(t *testing.T) {
+func TestWriteResourceDataModule(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{})
 
 	m := client.Module{

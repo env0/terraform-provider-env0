@@ -47,7 +47,7 @@ func dataModule() *schema.Resource {
 			},
 			"github_installation_id": {
 				Type:        schema.TypeInt,
-				Description: "The env0 application installation id on the relevant github repository",
+				Description: "the env0 application installation id on the relevant github repository",
 				Optional:    true,
 			},
 			"bitbucket_client_key": {

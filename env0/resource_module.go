@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -29,13 +30,13 @@ func resourceModule() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"module_name": {
 				Type:             schema.TypeString,
-				Description:      "name of the module",
+				Description:      "name of the module (Match pattern: ^[0-9A-Za-z](?:[0-9A-Za-z-_]{0,62}[0-9A-Za-z])?$)",
 				Required:         true,
 				ValidateDiagFunc: NewRegexValidator(`^[0-9A-Za-z](?:[0-9A-Za-z-_]{0,62}[0-9A-Za-z])?$`),
 			},
 			"module_provider": {
 				Type:             schema.TypeString,
-				Description:      "the provider name in the module source",
+				Description:      "the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)",
 				Optional:         true,
 				ValidateDiagFunc: NewRegexValidator(`^[0-9a-z]{0,64}$`),
 			},
@@ -63,13 +64,13 @@ func resourceModule() *schema.Resource {
 			},
 			"github_installation_id": {
 				Type:         schema.TypeInt,
-				Description:  "The env0 application installation id on the relevant Github repository",
+				Description:  "the env0 application installation id on the relevant Github repository",
 				Optional:     true,
 				ExactlyOneOf: vcsExcatlyOneOf,
 			},
 			"bitbucket_client_key": {
 				Type:         schema.TypeString,
-				Description:  "The client key used for integration with Bitbucket",
+				Description:  "the client key used for integration with Bitbucket",
 				Optional:     true,
 				ExactlyOneOf: vcsExcatlyOneOf,
 			},
@@ -113,6 +114,13 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	module, err := apiClient.Module(d.Id())
 	if err != nil {
+		if frerr, ok := err.(*http.FailedResponseError); ok {
+			if frerr.NotFound() {
+				log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+				d.SetId("")
+				return nil
+			}
+		}
 		return diag.Errorf("could not get module: %v", err)
 	}
 
@@ -177,10 +185,10 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 func getModule(id string, meta interface{}) (*client.Module, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving notification by id: ", id)
+		log.Println("[INFO] Resolving module by id: ", id)
 		return meta.(client.ApiClientInterface).Module(id)
 	} else {
-		log.Println("[INFO] Resolving notification by name: ", id)
+		log.Println("[INFO] Resolving module by name: ", id)
 		return getModuleByName(id, meta)
 	}
 }

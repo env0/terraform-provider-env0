@@ -2,6 +2,7 @@ package env0
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
@@ -49,16 +50,18 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 
 		switch fieldType.Kind() {
 		case reflect.Ptr:
-			switch field.Type().Elem().Kind() {
+			switch fieldType.Elem().Kind() {
 			case reflect.Int:
 				i := dval.(int)
 				field.Set(reflect.ValueOf(&i))
 			case reflect.Bool:
 				b := dval.(bool)
 				field.Set(reflect.ValueOf(&b))
+			default:
+				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
 		case reflect.Slice:
-			switch field.Type() {
+			switch fieldType {
 			case reflect.TypeOf([]client.ModuleSshKey{}):
 				sshKeys := []client.ModuleSshKey{}
 				for _, sshKey := range dval.([]interface{}) {
@@ -68,8 +71,10 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 				}
 				field.Set(reflect.ValueOf(sshKeys))
 			}
-		default:
+		case reflect.String, reflect.Bool, reflect.Int:
 			field.Set(reflect.ValueOf(dval))
+		default:
+			return fmt.Errorf("internal error - unhandled field kind %v", fieldType.Kind())
 		}
 	}
 
@@ -133,7 +138,11 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 				if err := d.Set(fieldNameSC, rawSshKeys); err != nil {
 					return err
 				}
+			default:
+				return fmt.Errorf("internal error - unhandled slice type %v", field.Type())
 			}
+		default:
+			return fmt.Errorf("internal error - unhandled field kind %v", field.Kind())
 		}
 	}
 

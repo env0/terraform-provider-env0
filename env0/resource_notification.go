@@ -68,7 +68,7 @@ func getNotificationById(id string, meta interface{}) (*client.Notification, err
 			return &notification, nil
 		}
 	}
-	return nil, fmt.Errorf("notification with id %v not found", id)
+	return nil, nil
 }
 
 func getNotificationByName(name string, meta interface{}) (*client.Notification, error) {
@@ -119,6 +119,11 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 	notification, err := getNotificationById(d.Id(), meta)
 	if err != nil {
 		return diag.Errorf("could not get notification: %v", err)
+	}
+	if notification == nil {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	setNotificationSchema(d, notification)

@@ -96,7 +96,7 @@ func TestModuleDataSource(t *testing.T) {
 		)
 	})
 
-	t.Run("Throw error when by name and more than one notification exists", func(t *testing.T) {
+	t.Run("Throw error when by name and more than one module exists", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(moduleFieldsByName, "found multiple modules"),
 			mockListModulesCall([]client.Module{module, otherModule, module}),
