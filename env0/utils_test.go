@@ -9,35 +9,33 @@ import (
 )
 
 func TestReadResourceDataModule(t *testing.T) {
-	t.Run("match", func(t *testing.T) {
-		d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{
-			"module_name":            "module_name",
-			"module_provider":        "module_provider",
-			"github_installation_id": 1000,
-			"ssh_keys": []interface{}{
-				map[string]interface{}{"id": "id1", "name": "name1"},
-			},
-		})
-
-		githubInstallationId := 1000
-
-		expectedPayload := client.ModuleCreatePayload{
-			ModuleName:           "module_name",
-			ModuleProvider:       "module_provider",
-			GithubInstallationId: &githubInstallationId,
-			SshKeys: []client.ModuleSshKey{
-				{
-					Id:   "id1",
-					Name: "name1",
-				},
-			},
-		}
-
-		var payload client.ModuleCreatePayload
-
-		assert.Nil(t, readResourceData(&payload, d))
-		assert.Equal(t, expectedPayload, payload)
+	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{
+		"module_name":            "module_name",
+		"module_provider":        "module_provider",
+		"github_installation_id": 1000,
+		"ssh_keys": []interface{}{
+			map[string]interface{}{"id": "id1", "name": "name1"},
+		},
 	})
+
+	githubInstallationId := 1000
+
+	expectedPayload := client.ModuleCreatePayload{
+		ModuleName:           "module_name",
+		ModuleProvider:       "module_provider",
+		GithubInstallationId: &githubInstallationId,
+		SshKeys: []client.ModuleSshKey{
+			{
+				Id:   "id1",
+				Name: "name1",
+			},
+		},
+	}
+
+	var payload client.ModuleCreatePayload
+
+	assert.Nil(t, readResourceData(&payload, d))
+	assert.Equal(t, expectedPayload, payload)
 }
 
 func TestWriteResourceDataModule(t *testing.T) {
@@ -72,4 +70,41 @@ func TestWriteResourceDataModule(t *testing.T) {
 	var rawSshKeys []interface{}
 	rawSshKeys = append(rawSshKeys, map[string]interface{}{"id": "id1", "name": "name1"})
 	assert.Equal(t, rawSshKeys, d.Get("ssh_keys"))
+}
+
+func TestReadResourceDataNotification(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{
+		"name":  "name",
+		"type":  "Slack",
+		"value": "value",
+	})
+
+	expectedPayload := client.NotificationCreatePayload{
+		Name:  "name",
+		Type:  "Slack",
+		Value: "value",
+	}
+
+	var payload client.NotificationCreatePayload
+
+	assert.Nil(t, readResourceData(&payload, d))
+	assert.Equal(t, expectedPayload, payload)
+}
+
+func TestWriteResourceDataNotification(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{})
+
+	n := client.Notification{
+		Id:    "id",
+		Name:  "name",
+		Type:  "Teams",
+		Value: "value",
+	}
+
+	assert.Nil(t, writeResourceData(&n, d))
+
+	assert.Equal(t, "id", d.Id())
+	assert.Equal(t, "name", d.Get("name"))
+	assert.Equal(t, "Teams", d.Get("type"))
+	assert.Equal(t, "value", d.Get("value"))
 }
