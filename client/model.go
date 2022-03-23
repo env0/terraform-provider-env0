@@ -484,6 +484,18 @@ type NotificationUpdatePayload struct {
 	Value string           `json:"value,omitempty"`
 }
 
+type NotificationProjectAssignment struct {
+	Id                     string   `json:"id"`
+	NotificationEndpointId string   `json:"notificationEndpointId"`
+	EventNames             []string `json:"eventNames"`
+	CreatedBy              string   `json:"createdBy"`
+	CreatedByUser          User     `json:"createdByUser"`
+}
+
+type NotificationProjectAssignmentUpdatePayload struct {
+	EventNames []string `json:"eventNames"`
+}
+
 type ModuleSshKey struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`

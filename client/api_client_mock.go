@@ -537,6 +537,36 @@ func (mr *MockApiClientInterfaceMockRecorder) NotificationDelete(arg0 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationDelete), arg0)
 }
 
+// NotificationProjectAssignmentUpdate mocks base method.
+func (m *MockApiClientInterface) NotificationProjectAssignmentUpdate(arg0, arg1 string, arg2 NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationProjectAssignmentUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*NotificationProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationProjectAssignmentUpdate indicates an expected call of NotificationProjectAssignmentUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignmentUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignmentUpdate), arg0, arg1, arg2)
+}
+
+// NotificationProjectAssignments mocks base method.
+func (m *MockApiClientInterface) NotificationProjectAssignments(arg0 string) ([]NotificationProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationProjectAssignments", arg0)
+	ret0, _ := ret[0].([]NotificationProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationProjectAssignments indicates an expected call of NotificationProjectAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignments), arg0)
+}
+
 // NotificationUpdate mocks base method.
 func (m *MockApiClientInterface) NotificationUpdate(arg0 string, arg1 NotificationUpdatePayload) (*Notification, error) {
 	m.ctrl.T.Helper()
