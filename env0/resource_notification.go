@@ -50,12 +50,6 @@ func resourceNotification() *schema.Resource {
 	}
 }
 
-func setNotificationSchema(d *schema.ResourceData, notification *client.Notification) {
-	d.Set("name", notification.Name)
-	d.Set("type", notification.Type)
-	d.Set("value", notification.Value)
-}
-
 func getNotificationById(id string, meta interface{}) (*client.Notification, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -99,10 +93,10 @@ func getNotificationByName(name string, meta interface{}) (*client.Notification,
 
 func resourceNotificationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	payload := client.NotificationCreate{
-		Name:  d.Get("name").(string),
-		Type:  client.NotificationType(d.Get("type").(string)),
-		Value: d.Get("value").(string),
+
+	var payload client.NotificationCreatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	notification, err := apiClient.NotificationCreate(payload)
@@ -126,7 +120,9 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 		return nil
 	}
 
-	setNotificationSchema(d, notification)
+	if err := writeResourceData(notification, d); err != nil {
+		diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -134,18 +130,10 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := client.NotificationUpdate{}
+	payload := client.NotificationUpdatePayload{}
 
-	if name, ok := d.GetOk("name"); ok {
-		payload.Name = name.(string)
-	}
-
-	if notificationType, ok := d.GetOk("type"); ok {
-		payload.Type = client.NotificationType(notificationType.(string))
-	}
-
-	if value, ok := d.GetOk("value"); ok {
-		payload.Value = value.(string)
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	_, err := apiClient.NotificationUpdate(d.Id(), payload)
@@ -183,8 +171,9 @@ func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, met
 		return nil, err
 	}
 
-	d.SetId(notification.Id)
-	setNotificationSchema(d, notification)
+	if err := writeResourceData(notification, d); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

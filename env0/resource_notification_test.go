@@ -84,13 +84,13 @@ func TestUnitNotificationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().NotificationCreate(client.NotificationCreate{
+			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
 				Name:  notification.Name,
 				Type:  notification.Type,
 				Value: notification.Value,
 			}).Times(1).Return(&notification, nil)
 
-			mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdate{
+			mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdatePayload{
 				Name:  updatedNotification.Name,
 				Type:  updatedNotification.Type,
 				Value: updatedNotification.Value,
@@ -171,7 +171,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().NotificationCreate(client.NotificationCreate{
+			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
 				Name:  notification.Name,
 				Type:  notification.Type,
 				Value: notification.Value,
@@ -201,13 +201,13 @@ func TestUnitNotificationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().NotificationCreate(client.NotificationCreate{
+			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
 				Name:  notification.Name,
 				Type:  notification.Type,
 				Value: notification.Value,
 			}).Times(1).Return(&notification, nil)
 
-			mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdate{
+			mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdatePayload{
 				Name:  updatedNotification.Name,
 				Type:  updatedNotification.Type,
 				Value: updatedNotification.Value,
@@ -238,7 +238,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().NotificationCreate(client.NotificationCreate{
+			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
 				Name:  notification.Name,
 				Type:  notification.Type,
 				Value: notification.Value,
@@ -268,7 +268,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().NotificationCreate(client.NotificationCreate{
+			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
 				Name:  notificationById.Name,
 				Type:  notificationById.Type,
 				Value: notificationById.Value,

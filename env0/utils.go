@@ -75,7 +75,7 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 				field.Set(reflect.ValueOf(sshKeys))
 			}
 		case reflect.String, reflect.Bool, reflect.Int:
-			field.Set(reflect.ValueOf(dval))
+			field.Set(reflect.ValueOf(dval).Convert(fieldType))
 		default:
 			return fmt.Errorf("internal error - unhandled field kind %v", fieldType.Kind())
 		}

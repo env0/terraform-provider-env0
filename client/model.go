@@ -493,18 +493,13 @@ type Notification struct {
 	Value          string           `json:"value"`
 }
 
-type NotificationCreate struct {
+type NotificationCreatePayload struct {
 	Name  string           `json:"name"`
 	Type  NotificationType `json:"type"`
 	Value string           `json:"value"`
 }
 
-type NotificationCreateWithOrganizationId struct {
-	NotificationCreate
-	OrganizationId string `json:"organizationId"`
-}
-
-type NotificationUpdate struct {
+type NotificationUpdatePayload struct {
 	Name  string           `json:"name,omitempty"`
 	Type  NotificationType `json:"type,omitempty"`
 	Value string           `json:"value,omitempty"`
