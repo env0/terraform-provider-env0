@@ -90,3 +90,21 @@ func TestReadResourceDataNotification(t *testing.T) {
 	assert.Nil(t, readResourceData(&payload, d))
 	assert.Equal(t, expectedPayload, payload)
 }
+
+func TestWriteResourceDataNotification(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{})
+
+	n := client.Notification{
+		Id:    "id",
+		Name:  "name",
+		Type:  "Teams",
+		Value: "value",
+	}
+
+	assert.Nil(t, writeResourceData(&n, d))
+
+	assert.Equal(t, "id", d.Id())
+	assert.Equal(t, "name", d.Get("name"))
+	assert.Equal(t, "Teams", d.Get("type"))
+	assert.Equal(t, "value", d.Get("value"))
+}
