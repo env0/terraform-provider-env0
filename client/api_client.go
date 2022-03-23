@@ -77,6 +77,8 @@ type ApiClientInterface interface {
 	NotificationCreate(payload NotificationCreatePayload) (*Notification, error)
 	NotificationDelete(id string) error
 	NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error)
+	NotificationProjectAssignments(projectId string) ([]NotificationProjectAssignment, error)
+	NotificationProjectAssignmentUpdate(projectId string, endpointId string, payload NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error)
 	ModuleCreate(payload ModuleCreatePayload) (*Module, error)
 	Module(id string) (*Module, error)
 	ModuleDelete(id string) error
