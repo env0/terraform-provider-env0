@@ -249,6 +249,12 @@ type CloudCredentialsProjectAssignment struct {
 	ProjectId    string `json:"projectId"`
 }
 
+type CostCredentialProjectAssignment struct {
+	ProjectId       string `json:"projectId"`
+	CredentialsId   string `json:"credentialsId"`
+	CredentialsType string `json:"credentialsType"`
+}
+
 type Template struct {
 	Author               User             `json:"author"`
 	AuthorId             string           `json:"authorId"`
@@ -325,6 +331,9 @@ type GcpCredentialsType string
 type AzureCredentialsType string
 
 const (
+	GoogleCostCredentiassType            GcpCredentialsType   = "GCP_CREDENTIALS"
+	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
+	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	AwsAccessKeysCredentialsType         AwsCredentialsType   = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
 	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
@@ -362,6 +371,18 @@ type AwsCredentialsValuePayload struct {
 type GcpCredentialsValuePayload struct {
 	ProjectId         string `json:"projectId"`
 	ServiceAccountKey string `json:"serviceAccountKey"`
+}
+
+type GoogleCostCredentialsValeuPayload struct {
+	TableId string `json:"tableid"`
+	Secret  string `json:"secret"`
+}
+
+type GoogleCostCredentialsCreatePayload struct {
+	Name           string                            `json:"name"`
+	OrganizationId string                            `json:"organizationId"`
+	Type           GcpCredentialsType                `json:"type"`
+	Value          GoogleCostCredentialsValeuPayload `json:"value"`
 }
 
 type AzureCredentialsValuePayload struct {

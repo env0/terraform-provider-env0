@@ -85,3 +85,18 @@ func (self *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayl
 func (self *ApiClient) CloudCredentialsDelete(id string) error {
 	return self.http.Delete("/credentials/" + id)
 }
+
+func (self *ApiClient) GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (ApiKey, error) {
+	organizationId, err := self.organizationId()
+	if err != nil {
+		return ApiKey{}, err
+	}
+
+	request.OrganizationId = organizationId
+	var result ApiKey
+	err = self.http.Post("/credentials", request, &result)
+	if err != nil {
+		return ApiKey{}, err
+	}
+	return result, nil
+}
