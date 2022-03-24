@@ -255,6 +255,12 @@ type CloudCredentialsProjectAssignment struct {
 	ProjectId    string `json:"projectId"`
 }
 
+type CostCredentialProjectAssignment struct {
+	ProjectId       string `json:"projectId"`
+	CredentialsId   string `json:"credentialsId"`
+	CredentialsType string `json:"credentialsType"`
+}
+
 type Template struct {
 	Author               User             `json:"author"`
 	AuthorId             string           `json:"authorId"`
@@ -385,6 +391,18 @@ type GcpCredentialsValuePayload struct {
 	ServiceAccountKey string `json:"serviceAccountKey"`
 }
 
+type GoogleCostCredentialsValeuPayload struct {
+	TableId string `json:"tableid"`
+	Secret  string `json:"secret"`
+}
+
+type GoogleCostCredentialsCreatePayload struct {
+	Name           string                            `json:"name"`
+	OrganizationId string                            `json:"organizationId"`
+	Type           GcpCredentialsType                `json:"type"`
+	Value          GoogleCostCredentialsValeuPayload `json:"value"`
+}
+
 type AzureCredentialsValuePayload struct {
 	ClientId       string `json:"clientId"`
 	ClientSecret   string `json:"clientSecret"`
@@ -474,6 +492,102 @@ type WorkflowTrigger struct {
 
 type WorkflowTriggerUpsertPayload struct {
 	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
+}
+
+type NotificationType string
+
+const (
+	NotificationTypeSlack NotificationType = "Slack"
+	NotificationTypeTeams NotificationType = "Teams"
+)
+
+type Notification struct {
+	Id             string           `json:"id"`
+	CreatedBy      string           `json:"createdBy"`
+	CreatedByUser  User             `json:"createdByUser"`
+	OrganizationId string           `json:"organizationId"`
+	Name           string           `json:"name"`
+	Type           NotificationType `json:"type"`
+	Value          string           `json:"value"`
+}
+
+type NotificationCreatePayload struct {
+	Name  string           `json:"name"`
+	Type  NotificationType `json:"type"`
+	Value string           `json:"value"`
+}
+
+type NotificationUpdatePayload struct {
+	Name  string           `json:"name,omitempty"`
+	Type  NotificationType `json:"type,omitempty"`
+	Value string           `json:"value,omitempty"`
+}
+
+type NotificationProjectAssignment struct {
+	Id                     string   `json:"id"`
+	NotificationEndpointId string   `json:"notificationEndpointId"`
+	EventNames             []string `json:"eventNames"`
+	CreatedBy              string   `json:"createdBy"`
+	CreatedByUser          User     `json:"createdByUser"`
+}
+
+type NotificationProjectAssignmentUpdatePayload struct {
+	EventNames []string `json:"eventNames"`
+}
+
+type ModuleSshKey struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type Module struct {
+	ModuleName           string         `json:"moduleName"`
+	ModuleProvider       string         `json:"moduleProvider"`
+	Repository           string         `json:"repository"`
+	Description          string         `json:"description"`
+	LogoUrl              string         `json:"logoUrl"`
+	TokenId              string         `json:"tokenId"`
+	TokenName            string         `json:"tokenName"`
+	GithubInstallationId *int           `json:"githubInstallationId"`
+	BitbucketClientKey   *string        `json:"bitbucketClientKey"`
+	IsGitlab             bool           `json:"isGitLab"`
+	SshKeys              []ModuleSshKey `json:"sshkeys"`
+	Type                 string         `json:"type"`
+	Id                   string         `json:"id"`
+	OrganizationId       string         `json:"organizationId"`
+	Author               User           `json:"author"`
+	AuthorId             string         `json:"authorId"`
+	CreatedAt            string         `json:"createdAt"`
+	UpdatedAt            string         `json:"updatedAt"`
+	IsDeleted            bool           `json:"isDeleted"`
+}
+
+type ModuleCreatePayload struct {
+	ModuleName           string         `json:"moduleName"`
+	ModuleProvider       string         `json:"moduleProvider"`
+	Repository           string         `json:"repository"`
+	Description          string         `json:"description,omitempty"`
+	LogoUrl              string         `json:"logoUrl,omitempty"`
+	TokenId              string         `json:"tokenId,omitempty"`
+	TokenName            string         `json:"tokenName,omitempty"`
+	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`
+	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
+	IsGitlab             *bool          `json:"isGitLab,omitempty"`
+	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
+}
+
+type ModuleUpdatePayload struct {
+	ModuleName           string         `json:"moduleName,omitempty"`
+	ModuleProvider       string         `json:"moduleProvider,omitempty"`
+	Repository           string         `json:"repository,omitempty"`
+	Description          string         `json:"description,omitempty"`
+	LogoUrl              string         `json:"logoUrl,omitempty"`
+	TokenId              string         `json:"tokenId"`
+	TokenName            string         `json:"tokenName"`
+	GithubInstallationId *int           `json:"githubInstallationId"`
+	BitbucketClientKey   string         `json:"bitbucketClientKey"`
+	IsGitlab             bool           `json:"isGitLab"`
+	SshKeys              []ModuleSshKey `json:"sshkeys"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {

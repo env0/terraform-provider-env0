@@ -10,6 +10,14 @@ import (
 var _ = Describe("CloudCredentials", func() {
 	const credentialsName = "credential_test"
 	var apiKey ApiKey
+
+	mockApiKeyForGoogleCostCred := ApiKey{
+		Id:             "id1",
+		Name:           "key1",
+		OrganizationId: organizationId,
+		Type:           "GCP_CREDENTIALS",
+	}
+
 	mockApiKey := ApiKey{
 		Id:             "id1",
 		Name:           "key1",
@@ -25,6 +33,47 @@ var _ = Describe("CloudCredentials", func() {
 	}
 
 	keys := []ApiKey{mockApiKey, mockApiKeySecond}
+
+	Describe("GoogleCostCredentialsCreate", func() {
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
+			payloadValue := GoogleCostCredentialsValeuPayload{
+				TableId: "table",
+				Secret:  "secret",
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/credentials", GoogleCostCredentialsCreatePayload{
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           "GCP_CREDENTIALS",
+					Value:          payloadValue,
+				},
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *ApiKey) {
+					*response = mockApiKeyForGoogleCostCred
+				})
+
+			apiKey, _ = apiClient.GoogleCostCredentialsCreate(GoogleCostCredentialsCreatePayload{
+				Name:  credentialsName,
+				Value: payloadValue,
+				Type:  "GCP_CREDENTIALS",
+			})
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send POST request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(apiKey).To(Equal(mockApiKeyForGoogleCostCred))
+		})
+	})
 
 	Describe("AwsCredentialsCreate", func() {
 		BeforeEach(func() {

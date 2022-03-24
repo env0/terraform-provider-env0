@@ -479,6 +479,169 @@ func (mr *MockApiClientInterfaceMockRecorder) GoogleCostCredentialsCreate(arg0 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GoogleCostCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GoogleCostCredentialsCreate), arg0)
 }
 
+// Module mocks base method.
+func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Module", arg0)
+	ret0, _ := ret[0].(*Module)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Module indicates an expected call of Module.
+func (mr *MockApiClientInterfaceMockRecorder) Module(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Module", reflect.TypeOf((*MockApiClientInterface)(nil).Module), arg0)
+}
+
+// ModuleCreate mocks base method.
+func (m *MockApiClientInterface) ModuleCreate(arg0 ModuleCreatePayload) (*Module, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModuleCreate", arg0)
+	ret0, _ := ret[0].(*Module)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ModuleCreate indicates an expected call of ModuleCreate.
+func (mr *MockApiClientInterfaceMockRecorder) ModuleCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleCreate), arg0)
+}
+
+// ModuleDelete mocks base method.
+func (m *MockApiClientInterface) ModuleDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModuleDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ModuleDelete indicates an expected call of ModuleDelete.
+func (mr *MockApiClientInterfaceMockRecorder) ModuleDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleDelete), arg0)
+}
+
+// ModuleUpdate mocks base method.
+func (m *MockApiClientInterface) ModuleUpdate(arg0 string, arg1 ModuleUpdatePayload) (*Module, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModuleUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*Module)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ModuleUpdate indicates an expected call of ModuleUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) ModuleUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleUpdate), arg0, arg1)
+}
+
+// Modules mocks base method.
+func (m *MockApiClientInterface) Modules() ([]Module, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Modules")
+	ret0, _ := ret[0].([]Module)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Modules indicates an expected call of Modules.
+func (mr *MockApiClientInterfaceMockRecorder) Modules() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Modules", reflect.TypeOf((*MockApiClientInterface)(nil).Modules))
+}
+
+// NotificationCreate mocks base method.
+func (m *MockApiClientInterface) NotificationCreate(arg0 NotificationCreatePayload) (*Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationCreate", arg0)
+	ret0, _ := ret[0].(*Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationCreate indicates an expected call of NotificationCreate.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationCreate), arg0)
+}
+
+// NotificationDelete mocks base method.
+func (m *MockApiClientInterface) NotificationDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NotificationDelete indicates an expected call of NotificationDelete.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationDelete), arg0)
+}
+
+// NotificationProjectAssignmentUpdate mocks base method.
+func (m *MockApiClientInterface) NotificationProjectAssignmentUpdate(arg0, arg1 string, arg2 NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationProjectAssignmentUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*NotificationProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationProjectAssignmentUpdate indicates an expected call of NotificationProjectAssignmentUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignmentUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignmentUpdate), arg0, arg1, arg2)
+}
+
+// NotificationProjectAssignments mocks base method.
+func (m *MockApiClientInterface) NotificationProjectAssignments(arg0 string) ([]NotificationProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationProjectAssignments", arg0)
+	ret0, _ := ret[0].([]NotificationProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationProjectAssignments indicates an expected call of NotificationProjectAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignments), arg0)
+}
+
+// NotificationUpdate mocks base method.
+func (m *MockApiClientInterface) NotificationUpdate(arg0 string, arg1 NotificationUpdatePayload) (*Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotificationUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NotificationUpdate indicates an expected call of NotificationUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) NotificationUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationUpdate), arg0, arg1)
+}
+
+// Notifications mocks base method.
+func (m *MockApiClientInterface) Notifications() ([]Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Notifications")
+	ret0, _ := ret[0].([]Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Notifications indicates an expected call of Notifications.
+func (mr *MockApiClientInterfaceMockRecorder) Notifications() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notifications", reflect.TypeOf((*MockApiClientInterface)(nil).Notifications))
+}
+
 // Organization mocks base method.
 func (m *MockApiClientInterface) Organization() (Organization, error) {
 	m.ctrl.T.Helper()

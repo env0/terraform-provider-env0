@@ -73,6 +73,17 @@ type ApiClientInterface interface {
 	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)
 	EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error)
 	EnvironmentStopDriftDetection(environmentId string) error
+	Notifications() ([]Notification, error)
+	NotificationCreate(payload NotificationCreatePayload) (*Notification, error)
+	NotificationDelete(id string) error
+	NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error)
+	NotificationProjectAssignments(projectId string) ([]NotificationProjectAssignment, error)
+	NotificationProjectAssignmentUpdate(projectId string, endpointId string, payload NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error)
+	ModuleCreate(payload ModuleCreatePayload) (*Module, error)
+	Module(id string) (*Module, error)
+	ModuleDelete(id string) error
+	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
+	Modules() ([]Module, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
