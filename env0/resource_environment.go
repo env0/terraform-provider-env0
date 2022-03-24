@@ -120,17 +120,17 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:        schema.TypeString,
 							Description: "variable name",
 							Required:    true,
 						},
-						"value": &schema.Schema{
+						"value": {
 							Type:        schema.TypeString,
 							Description: "variable value",
 							Required:    true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:        schema.TypeString,
 							Description: "variable type (allowed values are: terraform, environment)",
 							Default:     "environment",
@@ -143,22 +143,22 @@ func resourceEnvironment() *schema.Resource {
 								return
 							},
 						},
-						"description": &schema.Schema{
+						"description": {
 							Type:        schema.TypeString,
 							Description: "description for the variable",
 							Optional:    true,
 						},
-						"is_sensitive": &schema.Schema{
+						"is_sensitive": {
 							Type:        schema.TypeBool,
 							Description: "should the variable value be hidden",
 							Optional:    true,
 						},
-						"schema_type": &schema.Schema{
+						"schema_type": {
 							Type:        schema.TypeString,
 							Description: "the type the variable must be of",
 							Optional:    true,
 						},
-						"schema_enum": &schema.Schema{
+						"schema_enum": {
 							Type:        schema.TypeList,
 							Description: "a list of possible variable values",
 							Optional:    true,
@@ -167,7 +167,7 @@ func resourceEnvironment() *schema.Resource {
 								Description: "name to give the configuration variable",
 							},
 						},
-						"schema_format": &schema.Schema{
+						"schema_format": {
 							Type:         schema.TypeString,
 							Description:  "the variable format:",
 							Default:      "",

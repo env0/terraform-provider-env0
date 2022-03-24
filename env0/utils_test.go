@@ -108,3 +108,41 @@ func TestWriteResourceDataNotification(t *testing.T) {
 	assert.Equal(t, "Teams", d.Get("type"))
 	assert.Equal(t, "value", d.Get("value"))
 }
+
+func TestReadResourceDataNotificationProjectAssignment(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]interface{}{
+		"event_names": []interface{}{
+			"driftUndetected",
+			"destroySucceeded",
+		},
+	})
+
+	expectedPayload := client.NotificationProjectAssignmentUpdatePayload{
+		EventNames: []string{
+			"driftUndetected",
+			"destroySucceeded",
+		},
+	}
+
+	var payload client.NotificationProjectAssignmentUpdatePayload
+	assert.Nil(t, readResourceData(&payload, d))
+	assert.Equal(t, expectedPayload, payload)
+}
+
+func TestWriteResourceDataNotificationProjectAssignment(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]interface{}{})
+
+	a := client.NotificationProjectAssignment{
+		Id:                     "id",
+		NotificationEndpointId: "nid",
+		EventNames: []string{
+			"driftUndetected",
+		},
+	}
+
+	assert.Nil(t, writeResourceData(&a, d))
+
+	assert.Equal(t, "id", d.Id())
+	assert.Equal(t, "nid", d.Get("notification_endpoint_id"))
+	assert.Equal(t, []interface{}{"driftUndetected"}, d.Get("event_names"))
+}
