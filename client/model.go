@@ -243,12 +243,6 @@ type CloudCredentialsProjectAssignmentPatchPayload struct {
 	CredentialIds []string `json:"credentialIds"`
 }
 
-type CostCredentialProjectAssignment struct {
-	ProjectId       string `json:"projectId"`
-	CredentialsId   string `json:"credentialsId"`
-	CredentialsType string `json:"credentialsType"`
-}
-
 type CloudCredentialsProjectAssignment struct {
 	Id           string `json:"id"`
 	CredentialId string `json:"credentialId"`
@@ -346,13 +340,6 @@ const (
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 )
 
-type AzureCredentialsCreatePayload struct {
-	Name           string                       `json:"name"`
-	OrganizationId string                       `json:"organizationId"`
-	Type           AzureCredentialsType         `json:"type"`
-	Value          AzureCredentialsValuePayload `json:"value"`
-}
-
 type AwsCredentialsCreatePayload struct {
 	Name           string                     `json:"name"`
 	OrganizationId string                     `json:"organizationId"`
@@ -360,23 +347,18 @@ type AwsCredentialsCreatePayload struct {
 	Value          AwsCredentialsValuePayload `json:"value"`
 }
 
-type GoogleCostCredentialsValeuPayload struct {
-	TableId string `json:"tableid"`
-	Secret  string `json:"secret"`
-}
-
-type GoogleCostCredentialsCreatePayload struct {
-	Name           string                            `json:"name"`
-	OrganizationId string                            `json:"organizationId"`
-	Type           GcpCredentialsType                `json:"type"`
-	Value          GoogleCostCredentialsValeuPayload `json:"value"`
-}
-
 type GcpCredentialsCreatePayload struct {
 	Name           string                     `json:"name"`
 	OrganizationId string                     `json:"organizationId"`
 	Type           GcpCredentialsType         `json:"type"`
 	Value          GcpCredentialsValuePayload `json:"value"`
+}
+
+type AzureCredentialsCreatePayload struct {
+	Name           string                       `json:"name"`
+	OrganizationId string                       `json:"organizationId"`
+	Type           AzureCredentialsType         `json:"type"`
+	Value          AzureCredentialsValuePayload `json:"value"`
 }
 
 type AwsCredentialsValuePayload struct {
