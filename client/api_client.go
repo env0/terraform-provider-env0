@@ -39,10 +39,10 @@ type ApiClientInterface interface {
 	CloudCredentials(id string) (ApiKey, error)
 	CloudCredentialsList() ([]ApiKey, error)
 	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
-	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (ApiKey, error)
 	CloudCredentialsDelete(id string) error
-	GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (ApiKey, error)
 	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error)
+	GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (ApiKey, error)
+	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (ApiKey, error)
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
