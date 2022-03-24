@@ -73,7 +73,14 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 						Id:   sshKey.(map[string]interface{})["id"].(string)})
 				}
 				field.Set(reflect.ValueOf(sshKeys))
+			case reflect.TypeOf([]string{}):
+				strs := []string{}
+				for _, str := range dval.([]interface{}) {
+					strs = append(strs, str.(string))
+				}
+				field.Set(reflect.ValueOf(strs))
 			}
+
 		case reflect.String, reflect.Bool, reflect.Int:
 			field.Set(reflect.ValueOf(dval).Convert(fieldType))
 		default:
@@ -139,6 +146,15 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 					rawSshKeys = append(rawSshKeys, map[string]string{"id": sshKey.Id, "name": sshKey.Name})
 				}
 				if err := d.Set(fieldNameSC, rawSshKeys); err != nil {
+					return err
+				}
+			case reflect.TypeOf([]string{}):
+				var strs []interface{}
+				for i := 0; i < field.Len(); i++ {
+					str := field.Index(i).Interface().(string)
+					strs = append(strs, str)
+				}
+				if err := d.Set(fieldNameSC, strs); err != nil {
 					return err
 				}
 			default:

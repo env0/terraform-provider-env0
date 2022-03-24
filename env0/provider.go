@@ -70,6 +70,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_environment_scheduling":               resourceEnvironmentScheduling(),
 				"env0_environment_drift_detection":          resourceDriftDetection(),
 				"env0_notification":                         resourceNotification(),
+				"env0_notification_project_assignment":      resourceNotificationProjectAssignment(),
 				"env0_module":                               resourceModule(),
 			},
 		}
