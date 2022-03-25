@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -371,6 +372,30 @@ resource "%s" "test" {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(client.ConfigurationVariable{}, errors.New("error"))
+		})
+	})
+
+	t.Run("Configuration Removed in UI", func(t *testing.T) {
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(client.ConfigurationVariable{}, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil),
+				mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil),
+			)
 		})
 	})
 
