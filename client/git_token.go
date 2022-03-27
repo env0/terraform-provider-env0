@@ -3,6 +3,7 @@ package client
 type GitTokenCreatePayloadWith struct {
 	GitTokenCreatePayload
 	OrganizationId string `json:"organizationId"`
+	Type           string `json:"type"`
 }
 
 func (ac *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error) {
@@ -14,6 +15,7 @@ func (ac *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, e
 	payloadWith := GitTokenCreatePayloadWith{
 		GitTokenCreatePayload: payload,
 		OrganizationId:        organizationId,
+		Type:                  "GIT",
 	}
 
 	var result GitToken
@@ -37,14 +39,14 @@ func (ac *ApiClient) GitTokenDelete(id string) error {
 	return ac.http.Delete("/tokens/" + id)
 }
 
-func (ac *ApiClient) GitTokens(gtType GitTokenType) ([]GitToken, error) {
+func (ac *ApiClient) GitTokens() ([]GitToken, error) {
 	organizationId, err := ac.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []GitToken
-	if err := ac.http.Get("/tokens", map[string]string{"organizationId": organizationId, "type": string(gtType)}, &result); err != nil {
+	if err := ac.http.Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, &result); err != nil {
 		return nil, err
 	}
 

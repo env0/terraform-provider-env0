@@ -509,18 +509,18 @@ func (mr *MockApiClientInterfaceMockRecorder) GitTokenDelete(arg0 interface{}) *
 }
 
 // GitTokens mocks base method.
-func (m *MockApiClientInterface) GitTokens(arg0 GitTokenType) ([]GitToken, error) {
+func (m *MockApiClientInterface) GitTokens() ([]GitToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GitTokens", arg0)
+	ret := m.ctrl.Call(m, "GitTokens")
 	ret0, _ := ret[0].([]GitToken)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GitTokens indicates an expected call of GitTokens.
-func (mr *MockApiClientInterfaceMockRecorder) GitTokens(arg0 interface{}) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GitTokens() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokens", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokens), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokens", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokens))
 }
 
 // GoogleCostCredentialsCreate mocks base method.

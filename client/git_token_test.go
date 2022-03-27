@@ -14,7 +14,6 @@ var _ = Describe("GitToken Client", func() {
 		Name:           "name",
 		Value:          "value",
 		OrganizationId: organizationId,
-		Type:           GitTokenTypeGit,
 	}
 
 	Describe("Get Single GitToken", func() {
@@ -45,11 +44,11 @@ var _ = Describe("GitToken Client", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 			httpCall = mockHttpClient.EXPECT().
-				Get("/tokens", map[string]string{"organizationId": organizationId, "type": string(GitTokenTypeGit)}, gomock.Any()).
+				Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]GitToken) {
 					*response = mockGitTokens
 				})
-			returnedGitTokens, _ = apiClient.GitTokens(GitTokenTypeGit)
+			returnedGitTokens, _ = apiClient.GitTokens()
 		})
 
 		It("Should get organization id", func() {

@@ -85,7 +85,7 @@ type ApiClientInterface interface {
 	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
 	Modules() ([]Module, error)
 	GitToken(id string) (*GitToken, error)
-	GitTokens(gtType GitTokenType) ([]GitToken, error)
+	GitTokens() ([]GitToken, error)
 	GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error)
 	GitTokenDelete(id string) error
 }
