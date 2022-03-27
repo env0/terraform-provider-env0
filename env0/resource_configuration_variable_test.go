@@ -577,4 +577,34 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("cant be empty value when isRequired and isReadOnly are true", func(t *testing.T) {
+		trueVariable := true
+		configVar := client.ConfigurationVariable{
+			Id:          "id0",
+			Name:        "name0",
+			Description: "desc0",
+			Value:       "",
+			IsReadonly:  &trueVariable,
+			IsRequired:  &trueVariable,
+		}
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"name":         configVar.Name,
+			"description":  configVar.Description,
+			"value":        configVar.Value,
+			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+			"is_required":  strconv.FormatBool(*configVar.IsRequired),
+		})
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      stepConfig,
+					ExpectError: regexp.MustCompile("'value' cannot be empty when 'is_read_only' and 'is_required' are true "),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {})
+	})
 }
