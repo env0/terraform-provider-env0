@@ -632,4 +632,71 @@ resource "%s" "test" {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {})
 	})
+
+	t.Run("cant be empty value when isRequired and isReadOnly are true - Update", func(t *testing.T) {
+		newIsReadonly := true
+		newIsRequired := true
+		newConfigVar := client.ConfigurationVariable{
+			Id:          configVar.Id,
+			Name:        configVar.Name,
+			Description: configVar.Description,
+			Value:       configVar.Value,
+			IsReadonly:  &newIsReadonly,
+			IsRequired:  &newIsRequired,
+		}
+
+		updateTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":         configVar.Name,
+						"description":  configVar.Description,
+						"value":        configVar.Value,
+						"is_read_only": strconv.FormatBool(newIsReadonly),
+						"is_required":  strconv.FormatBool(newIsRequired),
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
+						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(newIsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(newIsRequired)),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":         newConfigVar.Name,
+						"description":  newConfigVar.Description,
+						"value":        "",
+						"format":       client.HCL,
+						"is_read_only": strconv.FormatBool(newIsReadonly),
+						"is_required":  strconv.FormatBool(newIsRequired),
+					}),
+					ExpectError: regexp.MustCompile("'value' cannot be empty when 'is_read_only' and 'is_required' are true "),
+				},
+			},
+		}
+
+		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
+			createParams := configurationVariableCreateParams
+			createParams.IsReadonly = true
+			createParams.IsRequired = true
+			updateParams := createParams
+			updateParams.Name = newConfigVar.Name
+			updateParams.Value = ""
+			updateParams.Description = newConfigVar.Description
+			updateParams.Format = client.HCL
+			updateParams.IsReadonly = *newConfigVar.IsReadonly
+			updateParams.IsRequired = *newConfigVar.IsRequired
+
+			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(newConfigVar, nil)
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationVariablesById(newConfigVar.Id).Times(2).Return(newConfigVar, nil),
+				//mock.EXPECT().ConfigurationVariablesById(newConfigVar.Id).Return(newConfigVar, nil),
+			)
+			//	mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
 }
