@@ -77,6 +77,7 @@ var _ = Describe("GitToken Client", func() {
 			expectedCreateRequest := GitTokenCreatePayloadWith{
 				GitTokenCreatePayload: createGitTokenPayload,
 				OrganizationId:        organizationId,
+				Type:                  "GIT",
 			}
 
 			httpCall = mockHttpClient.EXPECT().
