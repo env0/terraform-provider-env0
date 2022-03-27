@@ -88,6 +88,9 @@ type ApiClientInterface interface {
 	GitTokens() ([]GitToken, error)
 	GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error)
 	GitTokenDelete(id string) error
+	APIKeyCreate(payload APIKeyCreatePayload) (*APIKey, error)
+	APIKeyDelete(id string) error
+	APIKeys() ([]APIKey, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

@@ -33,6 +33,50 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 	return m.recorder
 }
 
+// APIKeyCreate mocks base method.
+func (m *MockApiClientInterface) APIKeyCreate(arg0 APIKeyCreatePayload) (*APIKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "APIKeyCreate", arg0)
+	ret0, _ := ret[0].(*APIKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// APIKeyCreate indicates an expected call of APIKeyCreate.
+func (mr *MockApiClientInterfaceMockRecorder) APIKeyCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "APIKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).APIKeyCreate), arg0)
+}
+
+// APIKeyDelete mocks base method.
+func (m *MockApiClientInterface) APIKeyDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "APIKeyDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// APIKeyDelete indicates an expected call of APIKeyDelete.
+func (mr *MockApiClientInterfaceMockRecorder) APIKeyDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "APIKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).APIKeyDelete), arg0)
+}
+
+// APIKeys mocks base method.
+func (m *MockApiClientInterface) APIKeys() ([]APIKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "APIKeys")
+	ret0, _ := ret[0].([]APIKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// APIKeys indicates an expected call of APIKeys.
+func (mr *MockApiClientInterfaceMockRecorder) APIKeys() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "APIKeys", reflect.TypeOf((*MockApiClientInterface)(nil).APIKeys))
+}
+
 // AssignCloudCredentialsToProject mocks base method.
 func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0, arg1 string) (CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()

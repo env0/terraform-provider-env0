@@ -584,6 +584,21 @@ type GitTokenCreatePayload struct {
 	Value string `json:"value"`
 }
 
+type APIKey struct {
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	APIKeyId      string `json:"apiKeyId"`
+	APIKeySecret  string `json:"apiKeySecret"`
+	LastUsedAt    string `json:"lastUsedAt"`
+	CreatedAt     string `json:"createdAt"`
+	CreatedBy     string `json:"createdBy"`
+	CreatedByUser User   `json:"createdByUser"`
+}
+
+type APIKeyCreatePayload struct {
+	Name string `json:"name"`
+}
+
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 	type serial struct {
 		ProjectId                   string `json:"projectId"`
