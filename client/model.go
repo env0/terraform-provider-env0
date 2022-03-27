@@ -572,6 +572,27 @@ type ModuleUpdatePayload struct {
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
 }
 
+type GitTokenType string
+
+const (
+	GitTokenTypeGit    GitTokenType = "GIT"
+	GitTokenTypeGitLab GitTokenType = "GitLab"
+)
+
+type GitToken struct {
+	Id             string       `json:"id"`
+	Name           string       `json:"name"`
+	Value          string       `json:"value"`
+	OrganizationId string       `json:"organizationId"`
+	Type           GitTokenType `json:"type"`
+}
+
+type GitTokenCreatePayload struct {
+	Name  string       `json:"name"`
+	Value string       `json:"value"`
+	Type  GitTokenType `json:"type"`
+}
+
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
 	type serial struct {
 		ProjectId                   string `json:"projectId"`

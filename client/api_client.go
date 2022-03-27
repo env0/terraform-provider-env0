@@ -84,6 +84,10 @@ type ApiClientInterface interface {
 	ModuleDelete(id string) error
 	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
 	Modules() ([]Module, error)
+	GitToken(id string) (*GitToken, error)
+	GitTokens(gtType GitTokenType) ([]GitToken, error)
+	GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error)
+	GitTokenDelete(id string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
