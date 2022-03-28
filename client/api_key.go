@@ -1,22 +1,22 @@
 package client
 
-type APIKeyCreatePayloadWith struct {
-	APIKeyCreatePayload
+type ApiKeyCreatePayloadWith struct {
+	ApiKeyCreatePayload
 	OrganizationId string `json:"organizationId"`
 }
 
-func (ac *ApiClient) APIKeyCreate(payload APIKeyCreatePayload) (*APIKey, error) {
+func (ac *ApiClient) ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error) {
 	organizationId, err := ac.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
-	payloadWith := APIKeyCreatePayloadWith{
-		APIKeyCreatePayload: payload,
+	payloadWith := ApiKeyCreatePayloadWith{
+		ApiKeyCreatePayload: payload,
 		OrganizationId:      organizationId,
 	}
 
-	var result APIKey
+	var result ApiKey
 	if err := ac.http.Post("/api-keys", payloadWith, &result); err != nil {
 		return nil, err
 	}
@@ -24,17 +24,17 @@ func (ac *ApiClient) APIKeyCreate(payload APIKeyCreatePayload) (*APIKey, error) 
 	return &result, nil
 }
 
-func (ac *ApiClient) APIKeyDelete(id string) error {
+func (ac *ApiClient) ApiKeyDelete(id string) error {
 	return ac.http.Delete("/api-keys/" + id)
 }
 
-func (ac *ApiClient) APIKeys() ([]APIKey, error) {
+func (ac *ApiClient) ApiKeys() ([]ApiKey, error) {
 	organizationId, err := ac.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
-	var result []APIKey
+	var result []ApiKey
 	if err := ac.http.Get("/api-keys", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return nil, err
 	}

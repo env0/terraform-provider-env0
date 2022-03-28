@@ -392,7 +392,7 @@ type AzureCredentialsValuePayload struct {
 	TenantId       string `json:"tenantId"`
 }
 
-type ApiKey struct {
+type Credentials struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
@@ -584,18 +584,18 @@ type GitTokenCreatePayload struct {
 	Value string `json:"value"`
 }
 
-type APIKey struct {
+type ApiKey struct {
 	Id            string `json:"id"`
 	Name          string `json:"name"`
-	APIKeyId      string `json:"apiKeyId"`
-	APIKeySecret  string `json:"apiKeySecret"`
+	ApiKeyId      string `json:"apiKeyId"`
+	ApiKeySecret  string `json:"apiKeySecret"`
 	LastUsedAt    string `json:"lastUsedAt"`
 	CreatedAt     string `json:"createdAt"`
 	CreatedBy     string `json:"createdBy"`
 	CreatedByUser User   `json:"createdByUser"`
 }
 
-type APIKeyCreatePayload struct {
+type ApiKeyCreatePayload struct {
 	Name string `json:"name"`
 }
 

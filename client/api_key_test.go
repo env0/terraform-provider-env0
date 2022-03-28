@@ -8,26 +8,26 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("APIKey Client", func() {
-	mockAPIKey := APIKey{
+var _ = Describe("ApiKey Client", func() {
+	mockApiKey := ApiKey{
 		Id:           "id",
 		Name:         "name",
-		APIKeyId:     "keyid",
-		APIKeySecret: "keysecret",
+		ApiKeyId:     "keyid",
+		ApiKeySecret: "keysecret",
 	}
 
-	Describe("Get All APIKeys", func() {
-		var returnedAPIKeys []APIKey
-		mockAPIKeys := []APIKey{mockAPIKey}
+	Describe("Get All ApiKeys", func() {
+		var returnedApiKeys []ApiKey
+		mockApiKeys := []ApiKey{mockApiKey}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]APIKey) {
-					*response = mockAPIKeys
+				Do(func(path string, request interface{}, response *[]ApiKey) {
+					*response = mockApiKeys
 				})
-			returnedAPIKeys, _ = apiClient.APIKeys()
+			returnedApiKeys, _ = apiClient.ApiKeys()
 		})
 
 		It("Should get organization id", func() {
@@ -38,33 +38,33 @@ var _ = Describe("APIKey Client", func() {
 			httpCall.Times(1)
 		})
 
-		It("Should return APIKeys", func() {
-			Expect(returnedAPIKeys).To(Equal(mockAPIKeys))
+		It("Should return ApiKeys", func() {
+			Expect(returnedApiKeys).To(Equal(mockApiKeys))
 		})
 	})
 
-	Describe("Create APIKeys", func() {
-		var createdAPIKey *APIKey
+	Describe("Create ApiKeys", func() {
+		var createdApiKey *ApiKey
 		var err error
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
-			createAPIKeyPayload := APIKeyCreatePayload{}
-			copier.Copy(&createAPIKeyPayload, &mockAPIKey)
+			createApiKeyPayload := ApiKeyCreatePayload{}
+			copier.Copy(&createApiKeyPayload, &mockApiKey)
 
-			expectedCreateRequest := APIKeyCreatePayloadWith{
-				APIKeyCreatePayload: createAPIKeyPayload,
+			expectedCreateRequest := ApiKeyCreatePayloadWith{
+				ApiKeyCreatePayload: createApiKeyPayload,
 				OrganizationId:      organizationId,
 			}
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/api-keys", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *APIKey) {
-					*response = mockAPIKey
+				Do(func(path string, request interface{}, response *ApiKey) {
+					*response = mockApiKey
 				})
 
-			createdAPIKey, err = apiClient.APIKeyCreate(createAPIKeyPayload)
+			createdApiKey, err = apiClient.ApiKeyCreate(createApiKeyPayload)
 		})
 
 		It("Should get organization id", func() {
@@ -79,18 +79,18 @@ var _ = Describe("APIKey Client", func() {
 			Expect(err).To(BeNil())
 		})
 
-		It("Should return created APIKey", func() {
-			Expect(*createdAPIKey).To(Equal(mockAPIKey))
+		It("Should return created ApiKey", func() {
+			Expect(*createdApiKey).To(Equal(mockApiKey))
 		})
 	})
 
-	Describe("Delete APIKey", func() {
+	Describe("Delete ApiKey", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/api-keys/" + mockAPIKey.Id)
-			apiClient.APIKeyDelete(mockAPIKey.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/api-keys/" + mockApiKey.Id)
+			apiClient.ApiKeyDelete(mockApiKey.Id)
 		})
 
-		It("Should send DELETE request with APIKey id", func() {
+		It("Should send DELETE request with ApiKey id", func() {
 			httpCall.Times(1)
 		})
 	})

@@ -31,7 +31,7 @@ func dataAwsCredentials() *schema.Resource {
 
 func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
-	var credentials client.ApiKey
+	var credentials client.Credentials
 
 	id, ok := d.GetOk("id")
 	if ok {
@@ -56,14 +56,14 @@ func dataAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey, diag.Diagnostics) {
+func getAwsCredentialsByName(name interface{}, meta interface{}) (client.Credentials, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
-		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
+		return client.Credentials{}, diag.Errorf("Could not query AWS Credentials by name: %v", err)
 	}
 
-	credentialsByNameAndType := make([]client.ApiKey, 0)
+	credentialsByNameAndType := make([]client.Credentials, 0)
 	for _, candidate := range credentialsList {
 		if candidate.Name == name.(string) && isValidAwsCredentialsType(candidate.Type) {
 			credentialsByNameAndType = append(credentialsByNameAndType, candidate)
@@ -71,22 +71,22 @@ func getAwsCredentialsByName(name interface{}, meta interface{}) (client.ApiKey,
 	}
 
 	if len(credentialsByNameAndType) > 1 {
-		return client.ApiKey{}, diag.Errorf("Found multiple AWS Credentials for name: %s", name)
+		return client.Credentials{}, diag.Errorf("Found multiple AWS Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
-		return client.ApiKey{}, diag.Errorf("Could not find AWS Credentials with name: %s", name)
+		return client.Credentials{}, diag.Errorf("Could not find AWS Credentials with name: %s", name)
 	}
 	return credentialsByNameAndType[0], nil
 }
 
-func getAwsCredentialsById(id string, meta interface{}) (client.ApiKey, diag.Diagnostics) {
+func getAwsCredentialsById(id string, meta interface{}) (client.Credentials, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.CloudCredentials(id)
 	if !isValidAwsCredentialsType(credentials.Type) {
-		return client.ApiKey{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
+		return client.Credentials{}, diag.Errorf("Found credentials which are not AWS Credentials: %v", credentials)
 	}
 	if err != nil {
-		return client.ApiKey{}, diag.Errorf("Could not query AWS Credentials: %v", err)
+		return client.Credentials{}, diag.Errorf("Could not query AWS Credentials: %v", err)
 	}
 	return credentials, nil
 }
