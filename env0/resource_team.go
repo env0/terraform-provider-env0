@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,6 +65,11 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	team, err := apiClient.Team(d.Id())
 	if err != nil {
+		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
+			log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("could not get team: %v", err)
 	}
 
