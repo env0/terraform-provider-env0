@@ -693,9 +693,7 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(newConfigVar, nil)
 			gomock.InOrder(
 				mock.EXPECT().ConfigurationVariablesById(newConfigVar.Id).Times(2).Return(newConfigVar, nil),
-				//mock.EXPECT().ConfigurationVariablesById(newConfigVar.Id).Return(newConfigVar, nil),
 			)
-			//	mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: newConfigVar.Id}).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
