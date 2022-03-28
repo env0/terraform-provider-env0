@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -154,6 +155,32 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	t.Run("throw error when don't enter any valid options", func(t *testing.T) {
 		runUnitTest(t, testCaseFormMissingValidInputError, func(mock *client.MockApiClientInterface) {
+		})
+	})
+
+	t.Run("AWS credentials removed in UI", func(t *testing.T) {
+		stepConfig := resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+			)
 		})
 	})
 
