@@ -20,7 +20,7 @@ func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) 
 
 func DataGetFailure(dataName string, id interface{}, err error) diag.Diagnostics {
 	if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-		return diag.Errorf("could not find %s with id %v", dataName, id)
+		return diag.Errorf("could not read %s: id %v not found", dataName, id)
 	}
 
 	return diag.Errorf("could not read %s: %v", dataName, err)

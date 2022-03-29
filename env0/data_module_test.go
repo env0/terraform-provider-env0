@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -113,7 +114,7 @@ func TestModuleDataSource(t *testing.T) {
 
 	t.Run("Throw error when by id and no module found with that id", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(moduleFieldsById, "could not find module with id "+module.Id),
+			getErrorTestCase(moduleFieldsById, fmt.Sprintf("id %s not found", module.Id)),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Module(module.Id).Times(1).Return(nil, http.NewMockFailedResponseError(404))
 			},
