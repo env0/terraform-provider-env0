@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -212,14 +210,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	variable, err := apiClient.ConfigurationVariablesById(id)
 
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok {
-			if frerr.NotFound() {
-				log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
-				d.SetId("")
-				return nil
-			}
-		}
-		return diag.Errorf("could not get configurationVariable: %v", err)
+		return ResourceGetFailure("configuration variable", d, err)
 	}
 
 	d.Set("name", variable.Name)

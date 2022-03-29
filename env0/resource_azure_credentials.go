@@ -2,10 +2,8 @@ package env0
 
 import (
 	"context"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -84,12 +82,7 @@ func resourceAzureCredentialsRead(ctx context.Context, d *schema.ResourceData, m
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-			log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
-			d.SetId("")
-			return nil
-		}
-		return diag.Errorf("could not get credentials: %v", err)
+		return ResourceGetFailure("azure credentials", d, err)
 	}
 	return nil
 }
