@@ -2,8 +2,9 @@ package env0
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 // TFSource Enum
@@ -74,6 +75,18 @@ func missingArgumentTestCase(resourceType string, resourceName string, errorReso
 			{
 				Config:      resourceConfigCreate(resourceType, resourceName, errorResource),
 				ExpectError: regexp.MustCompile(fmt.Sprintf(`The argument \"%s\" is required, but no definition was found`, missingArgumentKey)),
+			},
+		},
+	}
+	return testCaseFormMissingValidInputError
+}
+
+func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]interface{}, missingArgumentKey string) resource.TestCase {
+	testCaseFormMissingValidInputError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, errorResource),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("Error: Missing required argument")),
 			},
 		},
 	}
