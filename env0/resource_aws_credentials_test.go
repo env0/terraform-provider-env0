@@ -47,14 +47,14 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		Type: client.AwsAccessKeysCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",

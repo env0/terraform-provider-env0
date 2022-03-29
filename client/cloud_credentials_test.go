@@ -9,30 +9,30 @@ import (
 
 var _ = Describe("CloudCredentials", func() {
 	const credentialsName = "credential_test"
-	var apiKey ApiKey
+	var credentials Credentials
 
-	mockApiKeyForGoogleCostCred := ApiKey{
+	mockCredentialsForGoogleCostCred := Credentials{
 		Id:             "id1",
 		Name:           "key1",
 		OrganizationId: organizationId,
 		Type:           "GCP_CREDENTIALS",
 	}
 
-	mockApiKey := ApiKey{
+	mockCredentials := Credentials{
 		Id:             "id1",
 		Name:           "key1",
 		OrganizationId: organizationId,
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
-	mockApiKeySecond := ApiKey{
+	mockCredentialsSecond := Credentials{
 		Id:             "id2",
 		Name:           "key2",
 		OrganizationId: organizationId,
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
-	keys := []ApiKey{mockApiKey, mockApiKeySecond}
+	keys := []Credentials{mockCredentials, mockCredentialsSecond}
 
 	Describe("GoogleCostCredentialsCreate", func() {
 		BeforeEach(func() {
@@ -51,11 +51,11 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *ApiKey) {
-					*response = mockApiKeyForGoogleCostCred
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockCredentialsForGoogleCostCred
 				})
 
-			apiKey, _ = apiClient.GoogleCostCredentialsCreate(GoogleCostCredentialsCreatePayload{
+			credentials, _ = apiClient.GoogleCostCredentialsCreate(GoogleCostCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  "GCP_CREDENTIALS",
@@ -71,7 +71,7 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should return key", func() {
-			Expect(apiKey).To(Equal(mockApiKeyForGoogleCostCred))
+			Expect(credentials).To(Equal(mockCredentialsForGoogleCostCred))
 		})
 	})
 
@@ -92,11 +92,11 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *ApiKey) {
-					*response = mockApiKey
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockCredentials
 				})
 
-			apiKey, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
+			credentials, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
@@ -112,14 +112,14 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should return key", func() {
-			Expect(apiKey).To(Equal(mockApiKey))
+			Expect(credentials).To(Equal(mockCredentials))
 		})
 	})
 
 	Describe("GcpCredentialsCreate", func() {
 		const gcpRequestType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
-		mockGcpApiKey := mockApiKey
-		mockGcpApiKey.Type = gcpRequestType
+		mockGcpCredentials := mockCredentials
+		mockGcpCredentials.Type = gcpRequestType
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
@@ -136,11 +136,11 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *ApiKey) {
-					*response = mockGcpApiKey
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockGcpCredentials
 				})
 
-			apiKey, _ = apiClient.GcpCredentialsCreate(GcpCredentialsCreatePayload{
+			credentials, _ = apiClient.GcpCredentialsCreate(GcpCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  gcpRequestType,
@@ -156,14 +156,14 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should return key", func() {
-			Expect(apiKey).To(Equal(mockGcpApiKey))
+			Expect(credentials).To(Equal(mockGcpCredentials))
 		})
 	})
 
 	Describe("AzureCredentialsCreate", func() {
 		const azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
-		mockAzureApiKey := mockApiKey
-		mockAzureApiKey.Type = azureRequestType
+		mockAzureCredentials := mockCredentials
+		mockAzureCredentials.Type = azureRequestType
 		BeforeEach(func() {
 
 			mockOrganizationIdCall(organizationId).Times(1)
@@ -183,11 +183,11 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *ApiKey) {
-					*response = mockAzureApiKey
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockAzureCredentials
 				}).Times(1)
 
-			apiKey, _ = apiClient.AzureCredentialsCreate(AzureCredentialsCreatePayload{
+			credentials, _ = apiClient.AzureCredentialsCreate(AzureCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  azureRequestType,
@@ -195,14 +195,14 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should return key", func() {
-			Expect(apiKey).To(Equal(mockAzureApiKey))
+			Expect(credentials).To(Equal(mockAzureCredentials))
 		})
 	})
 
 	Describe("CloudCredentialsDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/credentials/" + mockApiKey.Id)
-			apiClient.CloudCredentialsDelete(mockApiKey.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/credentials/" + mockCredentials.Id)
+			apiClient.CloudCredentialsDelete(mockCredentials.Id)
 		})
 
 		It("Should send DELETE request with project id", func() {
@@ -216,10 +216,10 @@ var _ = Describe("CloudCredentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ApiKey) {
+				Do(func(path string, request interface{}, response *[]Credentials) {
 					*response = keys
 				})
-			apiKey, _ = apiClient.CloudCredentials(mockApiKey.Id)
+			credentials, _ = apiClient.CloudCredentials(mockCredentials.Id)
 		})
 
 		It("Should send GET request with project id", func() {
@@ -227,19 +227,19 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should return correct key", func() {
-			Expect(apiKey).To(Equal(mockApiKey))
+			Expect(credentials).To(Equal(mockCredentials))
 		})
 	})
 
 	Describe("CloudCredentialsList", func() {
-		var credentials []ApiKey
+		var credentials []Credentials
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ApiKey) {
+				Do(func(path string, request interface{}, response *[]Credentials) {
 					*response = keys
 				})
 			credentials, _ = apiClient.CloudCredentialsList()
