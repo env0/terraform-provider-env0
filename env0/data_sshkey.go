@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -31,23 +32,20 @@ func dataSshKey() *schema.Resource {
 
 func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name, nameSpecified := d.GetOk("name")
-	var sshKey client.SshKey
-	var err diag.Diagnostics
+	var sshKey *client.SshKey
+	var err error
 	if nameSpecified {
 		sshKey, err = getSshKeyByName(name, meta)
-		if err != nil {
-			return err
-		}
 	} else {
 		id, idSpecified := d.GetOk("id")
 		if !idSpecified {
 			return diag.Errorf("At lease one of 'id', 'name' must be specified")
 		}
 		sshKey, err = getSshKeyById(id, meta)
-		if err != nil {
-			return err
-		}
+	}
 
+	if err != nil {
+		return diag.Errorf("could not read ssh key: %v", err)
 	}
 
 	d.SetId(sshKey.Id)
@@ -56,12 +54,12 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
+func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	sshKeys, err := apiClient.SshKeys()
 	if err != nil {
-		return client.SshKey{}, diag.Errorf("Could not query ssh keys: %v", err)
+		return nil, err
 	}
 
 	var sshKeysByName []client.SshKey
@@ -72,31 +70,29 @@ func getSshKeyByName(name interface{}, meta interface{}) (client.SshKey, diag.Di
 	}
 
 	if len(sshKeysByName) > 1 {
-		return client.SshKey{}, diag.Errorf("Found multiple SSH Keys for name: %s. Use ID instead or make sure SSH Keys names are unique %v", name, sshKeysByName)
+		return nil, fmt.Errorf("found multiple ssh keys with name: %s. Use id instead or make sure ssh key names are unique %v", name, sshKeysByName)
 	}
 	if len(sshKeysByName) == 0 {
-		return client.SshKey{}, diag.Errorf("Could not find an env0 ssh key with name %s", name)
+		return nil, fmt.Errorf("ssh key with name %v not found", name)
 	}
 
-	return sshKeysByName[0], nil
+	return &sshKeysByName[0], nil
 }
 
-func getSshKeyById(id interface{}, meta interface{}) (client.SshKey, diag.Diagnostics) {
+func getSshKeyById(id interface{}, meta interface{}) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	sshKeys, err := apiClient.SshKeys()
-	var sshKey client.SshKey
 	if err != nil {
-		return client.SshKey{}, diag.Errorf("Could not query ssh keys: %v", err)
+		return nil, err
 	}
 
+	var sshKey *client.SshKey
 	for _, candidate := range sshKeys {
 		if candidate.Id == id.(string) {
-			sshKey = candidate
+			sshKey = &candidate
 		}
 	}
-	if sshKey.Name == "" {
-		return client.SshKey{}, diag.Errorf("Could not find an env0 ssh key with id %s", id)
-	}
+
 	return sshKey, nil
 }
