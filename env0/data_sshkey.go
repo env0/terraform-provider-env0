@@ -42,6 +42,9 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 			return diag.Errorf("At lease one of 'id', 'name' must be specified")
 		}
 		sshKey, err = getSshKeyById(id, meta)
+		if err == nil && sshKey == nil {
+			err = fmt.Errorf("id %s not found", id)
+		}
 	}
 
 	if err != nil {

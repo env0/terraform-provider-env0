@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -107,6 +108,15 @@ func TestModuleDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(moduleFieldsByName, "not found"),
 			mockListModulesCall([]client.Module{otherModule}),
+		)
+	})
+
+	t.Run("Throw error when by id and no module found with that id", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(moduleFieldsById, "could not find module with id "+module.Id),
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Module(module.Id).Times(1).Return(nil, http.NewMockFailedResponseError(404))
+			},
 		)
 	})
 }

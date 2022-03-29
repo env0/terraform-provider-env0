@@ -72,7 +72,7 @@ func dataModuleRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	}
 
 	if err != nil {
-		return diag.Errorf("could not read module: %v", err)
+		return DataGetFailure("module", id, err)
 	}
 
 	if err := writeResourceData(module, d); err != nil {
