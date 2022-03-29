@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -105,15 +104,7 @@ func getNotificationProjectAssignment(d *schema.ResourceData, meta interface{}) 
 func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	assignment, err := getNotificationProjectAssignment(d, meta)
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok {
-			if frerr.NotFound() {
-				// Project not found.
-				log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
-				d.SetId("")
-				return nil
-			}
-		}
-		return diag.Errorf("could not get notification project assignment: %v", err)
+		return ResourceGetFailure("notification project assignment", d, err)
 	}
 	if assignment == nil {
 		// Notification endpoint not found.

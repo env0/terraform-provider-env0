@@ -80,6 +80,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_notification":                         resourceNotification(),
 				"env0_notification_project_assignment":      resourceNotificationProjectAssignment(),
 				"env0_module":                               resourceModule(),
+				"env0_git_token":                            resourceGitToken(),
 			},
 		}
 

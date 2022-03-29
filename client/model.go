@@ -223,6 +223,8 @@ type TemplateCreatePayload struct {
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -281,6 +283,8 @@ type Template struct {
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 }
 
 type Environment struct {
@@ -392,7 +396,7 @@ type AzureCredentialsValuePayload struct {
 	TenantId       string `json:"tenantId"`
 }
 
-type ApiKey struct {
+type Credentials struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
@@ -570,6 +574,33 @@ type ModuleUpdatePayload struct {
 	BitbucketClientKey   string         `json:"bitbucketClientKey"`
 	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
+}
+
+type GitToken struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	Value          string `json:"value"`
+	OrganizationId string `json:"organizationId"`
+}
+
+type GitTokenCreatePayload struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type ApiKey struct {
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	ApiKeyId      string `json:"apiKeyId"`
+	ApiKeySecret  string `json:"apiKeySecret"`
+	LastUsedAt    string `json:"lastUsedAt"`
+	CreatedAt     string `json:"createdAt"`
+	CreatedBy     string `json:"createdBy"`
+	CreatedByUser User   `json:"createdByUser"`
+}
+
+type ApiKeyCreatePayload struct {
+	Name string `json:"name"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {

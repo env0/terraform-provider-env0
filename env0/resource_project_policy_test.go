@@ -140,6 +140,80 @@ func TestUnitPolicyResource(t *testing.T) {
 			SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
 		}).Times(1).Return(resetPolicy, nil)
 	})
+
+	t.Run("requires_approval_default default is true", func(t *testing.T) {
+
+		expectedPolicy := client.Policy{
+			Id:                         "id0",
+			ProjectId:                  "project0",
+			NumberOfEnvironments:       1,
+			NumberOfEnvironmentsTotal:  1,
+			RequiresApprovalDefault:    true,
+			IncludeCostEstimation:      true,
+			SkipApplyWhenPlanIsEmpty:   true,
+			DisableDestroyEnvironments: true,
+			SkipRedundantDeployments:   true,
+			UpdatedBy:                  "updater0",
+		}
+
+		testCaseForDefault := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id":                    policy.ProjectId,
+						"number_of_environments":        policy.NumberOfEnvironments,
+						"number_of_environments_total":  policy.NumberOfEnvironmentsTotal,
+						"include_cost_estimation":       policy.IncludeCostEstimation,
+						"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
+						"disable_destroy_environments":  policy.DisableDestroyEnvironments,
+						"skip_redundant_deployments":    policy.SkipRedundantDeployments,
+						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
+						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(policy.NumberOfEnvironments)),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(policy.NumberOfEnvironmentsTotal)),
+						resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(true)),
+						resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
+						resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
+						resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(policy.DisableDestroyEnvironments)),
+						resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(policy.SkipRedundantDeployments)),
+						resource.TestCheckResourceAttr(accessor, "run_pull_request_plan_default", strconv.FormatBool(policy.RunPullRequestPlanDefault)),
+						resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCaseForDefault, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+				ProjectId:                  policy.ProjectId,
+				NumberOfEnvironments:       policy.NumberOfEnvironments,
+				NumberOfEnvironmentsTotal:  policy.NumberOfEnvironmentsTotal,
+				RequiresApprovalDefault:    true,
+				IncludeCostEstimation:      policy.IncludeCostEstimation,
+				SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
+				DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
+				SkipRedundantDeployments:   policy.SkipRedundantDeployments,
+			}).Times(1).Return(policy, nil)
+
+			mock.EXPECT().Policy(gomock.Any()).Times(1).Return(expectedPolicy, nil)
+
+			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+				ProjectId:                  resetPolicy.ProjectId,
+				NumberOfEnvironments:       resetPolicy.NumberOfEnvironments,
+				NumberOfEnvironmentsTotal:  resetPolicy.NumberOfEnvironmentsTotal,
+				RequiresApprovalDefault:    resetPolicy.RequiresApprovalDefault,
+				IncludeCostEstimation:      resetPolicy.IncludeCostEstimation,
+				SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
+				DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
+				SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
+			}).Times(1).Return(resetPolicy, nil)
+
+		})
+
+	})
 }
 
 func TestUnitPolicyInvalidParams(t *testing.T) {
