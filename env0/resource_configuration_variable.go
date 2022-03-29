@@ -210,7 +210,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	variable, err := apiClient.ConfigurationVariablesById(id)
 
 	if err != nil {
-		return ResourceGetFailure("configuation variable", d, err)
+		return ResourceGetFailure("configuration variable", d, err)
 	}
 
 	d.Set("name", variable.Name)
