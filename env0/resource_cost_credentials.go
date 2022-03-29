@@ -98,7 +98,7 @@ func resourceCostCredentials() *schema.Resource {
 func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	apiClient := meta.(ApiClientInterface)
-	var apikey client.ApiKey
+	var apikey client.Credentials
 
 	var err error
 	payLoad, err := setPayload(d)

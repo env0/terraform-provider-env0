@@ -9,21 +9,21 @@ import (
 )
 
 func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
-	azureCred := client.ApiKey{
+	azureCred := client.Credentials{
 		Id:             "11111",
 		Name:           "testdata",
 		OrganizationId: "id",
 		Type:           "AZURE_CREDENTIALS",
 	}
 
-	credWithInvalidType := client.ApiKey{
+	credWithInvalidType := client.Credentials{
 		Id:             azureCred.Id,
 		Name:           azureCred.Name,
 		OrganizationId: azureCred.OrganizationId,
 		Type:           "Invalid-type",
 	}
 
-	credWithDiffName := client.ApiKey{
+	credWithDiffName := client.Credentials{
 		Id:             "22222",
 		Name:           "diff name",
 		OrganizationId: azureCred.OrganizationId,
@@ -62,13 +62,13 @@ func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
 		}
 	}
 
-	mockGetAzureCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+	mockGetAzureCredCall := func(returnValue client.Credentials) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().CloudCredentials(azureCred.Id).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
-	mockListAzureCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+	mockListAzureCredCall := func(returnValue []client.Credentials) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().CloudCredentialsList().AnyTimes().Return(returnValue, nil)
 		}
@@ -84,7 +84,7 @@ func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(AzureCredFieldsByName),
-			mockListAzureCredCall([]client.ApiKey{azureCred, credWithInvalidType}),
+			mockListAzureCredCall([]client.Credentials{azureCred, credWithInvalidType}),
 		)
 	})
 
@@ -98,14 +98,14 @@ func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
 	t.Run("Throw error when by name and more than one azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(AzureCredFieldsByName, "Found multiple Azure cost Credentials for name: testdata"),
-			mockListAzureCredCall([]client.ApiKey{azureCred, azureCred, azureCred}),
+			mockListAzureCredCall([]client.Credentials{azureCred, azureCred, azureCred}),
 		)
 	})
 
 	t.Run("Throw error when by name and no azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(AzureCredFieldsByName, "Could not find Azure cost Credentials with name: testdata"),
-			mockListAzureCredCall([]client.ApiKey{credWithDiffName, credWithDiffName}),
+			mockListAzureCredCall([]client.Credentials{credWithDiffName, credWithDiffName}),
 		)
 	})
 

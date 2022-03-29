@@ -46,14 +46,14 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 		Type: client.AwsCostCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE",
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
@@ -183,14 +183,14 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 		Type: client.AzureCostCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.AzureCostCredentialsType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
@@ -315,14 +315,14 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 		Type: client.GoogleCostCredentiassType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.GoogleCostCredentiassType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",

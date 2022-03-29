@@ -9,14 +9,14 @@ import (
 )
 
 func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
-	gcpCred := client.ApiKey{
+	gcpCred := client.Credentials{
 		Id:             "11111",
 		Name:           "testdata",
 		OrganizationId: "id",
 		Type:           "GCP_CREDENTIALS",
 	}
 
-	credWithInvalidType := client.ApiKey{
+	credWithInvalidType := client.Credentials{
 		Id:             gcpCred.Id,
 		Name:           gcpCred.Name,
 		OrganizationId: gcpCred.OrganizationId,
@@ -55,13 +55,13 @@ func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
 		}
 	}
 
-	mockGetGcpCredCall := func(returnValue client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+	mockGetGcpCredCall := func(returnValue client.Credentials) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().CloudCredentials(gcpCred.Id).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
-	mockListGcpCredCall := func(returnValue []client.ApiKey) func(mockFunc *client.MockApiClientInterface) {
+	mockListGcpCredCall := func(returnValue []client.Credentials) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().CloudCredentialsList().AnyTimes().Return(returnValue, nil)
 		}
@@ -77,7 +77,7 @@ func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(GcpCredFieldsByName),
-			mockListGcpCredCall([]client.ApiKey{gcpCred, credWithInvalidType}),
+			mockListGcpCredCall([]client.Credentials{gcpCred, credWithInvalidType}),
 		)
 	})
 
@@ -91,7 +91,7 @@ func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
 	t.Run("Throw error when by name and more than one gcp-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(GcpCredFieldsByName, "Found multiple Google cost Credentials for name: testdata"),
-			mockListGcpCredCall([]client.ApiKey{gcpCred, gcpCred, gcpCred}),
+			mockListGcpCredCall([]client.Credentials{gcpCred, gcpCred, gcpCred}),
 		)
 	})
 
