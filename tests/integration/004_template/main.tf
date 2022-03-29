@@ -46,7 +46,7 @@ resource "env0_template" "tested2" {
 }
 
 resource "env0_template" "template_tg" {
-  name               = "Template for environment resource - tg"
+  name               = "Template for environment resource - tg-${random_string.random.result}"
   type               = "terragrunt"
   repository         = "https://github.com/env0/templates"
   path               = "terragrunt/misc/null-resource"
@@ -80,7 +80,7 @@ data "env0_template" "tested1" {
 data "env0_template" "template_tg" {
   depends_on = [
   env0_template.template_tg]
-  name = "Template for environment resource - tg"
+  name = "Template for environment resource - tg-${random_string.random.result}"
 }
 
 output "tested2_template_id" {
