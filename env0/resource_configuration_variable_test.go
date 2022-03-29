@@ -347,7 +347,7 @@ resource "%s" "test" {
 			Steps: []resource.TestStep{
 				{
 					Config:      stepConfig,
-					ExpectError: regexp.MustCompile("could not get configurationVariable: error"),
+					ExpectError: regexp.MustCompile("could not get configuration variable: error"),
 				},
 			},
 		}

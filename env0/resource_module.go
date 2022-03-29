@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -114,14 +113,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	module, err := apiClient.Module(d.Id())
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok {
-			if frerr.NotFound() {
-				log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
-				d.SetId("")
-				return nil
-			}
-		}
-		return diag.Errorf("could not get module: %v", err)
+		return ResourceGetFailure("module", d, err)
 	}
 
 	if err := writeResourceData(module, d); err != nil {
