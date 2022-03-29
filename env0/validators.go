@@ -3,6 +3,7 @@ package env0
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/adhocore/gronx"
 	"github.com/env0/terraform-provider-env0/client"
@@ -53,5 +54,18 @@ func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 			return diag.Errorf("must match pattern %v", r)
 		}
 		return nil
+	}
+}
+
+func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc {
+	return func(i interface{}, p cty.Path) diag.Diagnostics {
+		value := i.(string)
+		for _, allowedValue := range allowedValues {
+			if value == allowedValue {
+				return nil
+			}
+		}
+
+		return diag.Errorf("'%s' must be one of: %s", value, strings.Join(allowedValues, ", "))
 	}
 }
