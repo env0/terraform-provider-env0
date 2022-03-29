@@ -101,7 +101,7 @@ func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		return diag.Errorf("could not get credentials: %v", err)
+		return ResourceGetFailure("aws credentials", d, err)
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -81,7 +82,7 @@ func resourceAzureCredentialsRead(ctx context.Context, d *schema.ResourceData, m
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		return diag.Errorf("could not get credentials: %v", err)
+		return ResourceGetFailure("azure credentials", d, err)
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -53,14 +54,14 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		Type: client.AzureServicePrincipalCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.AzureServicePrincipalCredentialsType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
@@ -147,4 +148,29 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		}
 	})
 
+	t.Run("Azure credentials removed in UI", func(t *testing.T) {
+		stepConfig := resourceConfigCreate(resourceType, resourceName, azureCredentialResource)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().AzureCredentialsCreate(azureCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().AzureCredentialsCreate(azureCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+			)
+		})
+	})
 }

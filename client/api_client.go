@@ -36,13 +36,13 @@ type ApiClientInterface interface {
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
 	SshKeyDelete(id string) error
-	CloudCredentials(id string) (ApiKey, error)
-	CloudCredentialsList() ([]ApiKey, error)
-	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
+	CloudCredentials(id string) (Credentials, error)
+	CloudCredentialsList() ([]Credentials, error)
+	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (Credentials, error)
 	CloudCredentialsDelete(id string) error
-	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error)
-	GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (ApiKey, error)
-	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (ApiKey, error)
+	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (Credentials, error)
+	GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (Credentials, error)
+	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (Credentials, error)
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
@@ -84,6 +84,13 @@ type ApiClientInterface interface {
 	ModuleDelete(id string) error
 	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
 	Modules() ([]Module, error)
+	GitToken(id string) (*GitToken, error)
+	GitTokens() ([]GitToken, error)
+	GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error)
+	GitTokenDelete(id string) error
+	ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error)
+	ApiKeyDelete(id string) error
+	ApiKeys() ([]ApiKey, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
