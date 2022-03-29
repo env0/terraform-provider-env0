@@ -392,7 +392,7 @@ type AzureCredentialsValuePayload struct {
 	TenantId       string `json:"tenantId"`
 }
 
-type ApiKey struct {
+type Credentials struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
@@ -582,6 +582,21 @@ type GitToken struct {
 type GitTokenCreatePayload struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type ApiKey struct {
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	ApiKeyId      string `json:"apiKeyId"`
+	ApiKeySecret  string `json:"apiKeySecret"`
+	LastUsedAt    string `json:"lastUsedAt"`
+	CreatedAt     string `json:"createdAt"`
+	CreatedBy     string `json:"createdBy"`
+	CreatedByUser User   `json:"createdByUser"`
+}
+
+type ApiKeyCreatePayload struct {
+	Name string `json:"name"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {

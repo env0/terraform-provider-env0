@@ -54,14 +54,14 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		Type: client.AzureServicePrincipalCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.AzureServicePrincipalCredentialsType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
