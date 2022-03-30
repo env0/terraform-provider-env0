@@ -822,4 +822,25 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().TemplateDelete(updateTemplate.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("Invalid Terraform Version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"id":                "id0",
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"gitlab_project_id": 123456,
+						"token_id":          "abcdefg",
+						"terraform_version": "v0.15.1",
+					}),
+					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }
