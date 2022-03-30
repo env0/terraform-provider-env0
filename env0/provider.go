@@ -51,6 +51,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_workflow_triggers":      dataWorkflowTriggers(),
 				"env0_notification":           dataNotification(),
 				"env0_module":                 dataModule(),
+				"env0_git_token":              dataGitToken(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
