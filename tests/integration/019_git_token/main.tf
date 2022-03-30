@@ -11,11 +11,3 @@ data "env0_git_token" "test_git_token1" {
 data "env0_git_token" "test_git_token2" {
   id = env0_git_token.test_git_token.id
 }
-
-output "value1" {
-  value = data.env0_git_token.test_git_token1.value
-}
-
-output "value2" {
-  value = data.env0_git_token.test_git_token2.value
-}
