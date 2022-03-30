@@ -31,24 +31,23 @@ func dataSshKey() *schema.Resource {
 }
 
 func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	name, nameSpecified := d.GetOk("name")
 	var sshKey *client.SshKey
 	var err error
-	if nameSpecified {
-		sshKey, err = getSshKeyByName(name, meta)
-	} else {
-		id, idSpecified := d.GetOk("id")
-		if !idSpecified {
-			return diag.Errorf("At lease one of 'id', 'name' must be specified")
-		}
-		sshKey, err = getSshKeyById(id, meta)
-		if err == nil && sshKey == nil {
-			err = fmt.Errorf("id %s not found", id)
-		}
-	}
 
-	if err != nil {
-		return diag.Errorf("could not read ssh key: %v", err)
+	if name, ok := d.GetOk("name"); ok {
+		sshKey, err = getSshKeyByName(name, meta)
+		if err != nil {
+			return diag.Errorf("could not read ssh key: %v", err)
+		}
+	} else {
+		id := d.Get("id")
+		sshKey, err = getSshKeyById(id, meta)
+		if err != nil {
+			return diag.Errorf("could not read ssh key: %v", err)
+		}
+		if sshKey == nil {
+			return diag.Errorf("could not read ssh key: id %s not found", id)
+		}
 	}
 
 	d.SetId(sshKey.Id)
