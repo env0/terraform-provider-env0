@@ -70,8 +70,8 @@ resource "env0_template_project_assignment" "assignment" {
 - **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
 - **revision** (String) source code revision (branch / tag) to use
 - **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
-- **terraform_version** (String) the Terraform version to use
-- **terragrunt_version** (String) the Terragrunt version to use
+- **terraform_version** (String) the Terraform version to use (example: 0.15.1)
+- **terragrunt_version** (String) the Terragrunt version to use (example: 0.36.5)
 - **token_id** (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - **type** (String) 'terraform' or 'terragrunt'
 
