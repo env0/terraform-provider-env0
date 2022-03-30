@@ -3,10 +3,10 @@ resource "env0_git_token" "git_token_sample" {
   value = "value"
 }
 
-data "env0_git_token" "git_token_sample" {
+data "env0_git_token" "git_token_sample_by_id" {
   id = env0_git_token.git_token_sample.id
 }
 
-output "value" {
-  value = data.env0_git_token.git_token_sample.value
+data "env0_git_token" "git_token_sample_by_name" {
+  name = env0_git_token.git_token_sample.name
 }

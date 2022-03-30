@@ -12,15 +12,13 @@ import (
 
 func TestGitTokenDataSource(t *testing.T) {
 	gitToken := client.GitToken{
-		Id:    "id0",
-		Name:  "name0",
-		Value: "value0",
+		Id:   "id0",
+		Name: "name0",
 	}
 
 	otherGitToken := client.GitToken{
-		Id:    "id1",
-		Name:  "name1",
-		Value: "value1",
+		Id:   "id1",
+		Name: "name1",
 	}
 
 	gitTokenFieldsByName := map[string]interface{}{"name": gitToken.Name}
@@ -38,7 +36,6 @@ func TestGitTokenDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", gitToken.Id),
 						resource.TestCheckResourceAttr(accessor, "name", gitToken.Name),
-						resource.TestCheckResourceAttr(accessor, "value", gitToken.Value),
 					),
 				},
 			},
