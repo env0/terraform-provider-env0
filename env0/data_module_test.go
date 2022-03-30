@@ -1,10 +1,12 @@
 package env0
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -107,6 +109,15 @@ func TestModuleDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(moduleFieldsByName, "not found"),
 			mockListModulesCall([]client.Module{otherModule}),
+		)
+	})
+
+	t.Run("Throw error when by id and no module found with that id", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(moduleFieldsById, fmt.Sprintf("id %s not found", module.Id)),
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Module(module.Id).Times(1).Return(nil, http.NewMockFailedResponseError(404))
+			},
 		)
 	})
 }

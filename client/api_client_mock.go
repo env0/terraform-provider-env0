@@ -922,10 +922,10 @@ func (mr *MockApiClientInterfaceMockRecorder) RemoveTemplateFromProject(arg0, ar
 }
 
 // SshKeyCreate mocks base method.
-func (m *MockApiClientInterface) SshKeyCreate(arg0 SshKeyCreatePayload) (SshKey, error) {
+func (m *MockApiClientInterface) SshKeyCreate(arg0 SshKeyCreatePayload) (*SshKey, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SshKeyCreate", arg0)
-	ret0, _ := ret[0].(SshKey)
+	ret0, _ := ret[0].(*SshKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
