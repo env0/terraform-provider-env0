@@ -70,6 +70,10 @@ resource "env0_configuration_variable" "in_a_template2" {
 # Temporary - Sleep to avoid eventual consistency issues with the data sources
 resource "time_sleep" "wait_for_all_templates" {
   depends_on      = [env0_template.tested1, env0_template.tested2, env0_template.template_tg]
+  triggers = {
+      # Only using depends_on doesn't work on re-apply. This makes sure the sleep happens on re-apply
+      second_run = var.second_run
+    }
   create_duration = "2s"
 }
 
