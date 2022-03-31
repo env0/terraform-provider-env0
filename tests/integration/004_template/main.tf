@@ -67,19 +67,30 @@ resource "env0_configuration_variable" "in_a_template2" {
   type        = "terraform"
 }
 
+# Temporary - Sleep to avoid eventual consistency issues with the data sources
+resource "time_sleep" "wait_for_tested1" {
+  depends_on = [env0_template.tested1]
+  create_duration = "2s"
+}
+resource "time_sleep" "wait_for_tested2" {
+  depends_on = [env0_template.tested2]
+  create_duration = "2s"
+}
+resource "time_sleep" "wait_for_template_tg" {
+  depends_on = [env0_template.template_tg]
+  create_duration = "2s"
+}
+
 data "env0_template" "tested2" {
-  depends_on = [
-  env0_template.tested1]
+  depends_on = [time_sleep.wait_for_tested2]
   name = "tested1-${random_string.random.result}"
 }
 data "env0_template" "tested1" {
-  depends_on = [
-  env0_template.tested2]
+  depends_on = [time_sleep.wait_for_tested1]
   name = "GitLab Test-${random_string.random.result}"
 }
 data "env0_template" "template_tg" {
-  depends_on = [
-  env0_template.template_tg]
+  depends_on = [time_sleep.wait_for_template_tg]
   name = "Template for environment resource - tg-${random_string.random.result}"
 }
 
