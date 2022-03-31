@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,7 +65,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 		requestDownstreamIds = append(requestDownstreamIds, rawId.(string))
 	}
 	request := WorkflowTriggerUpsertPayload{
-		requestDownstreamIds,
+		DownstreamEnvironmentIds: requestDownstreamIds,
 	}
 	triggers, err := apiClient.WorkflowTriggerUpsert(environmentId, request)
 	if err != nil {

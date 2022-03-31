@@ -49,6 +49,9 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_team":                   dataTeam(),
 				"env0_environment":            dataEnvironment(),
 				"env0_workflow_triggers":      dataWorkflowTriggers(),
+				"env0_notification":           dataNotification(),
+				"env0_module":                 dataModule(),
+				"env0_git_token":              dataGitToken(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -60,6 +63,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_gcp_credentials":                      resourceGcpCredentials(),
 				"env0_azure_credentials":                    resourceAzureCredentials(),
 				"env0_template_project_assignment":          resourceTemplateProjectAssignment(),
+				"env0_cost_credentials_project_assignment":  resourceCostCredentialsProjectAssignment(),
 				"env0_cloud_credentials_project_assignment": resourceCloudCredentialsProjectAssignment(),
 				"env0_team_project_assignment":              resourceTeamProjectAssignment(),
 				"env0_team":                                 resourceTeam(),
@@ -67,6 +71,11 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_workflow_triggers":                    resourceWorkflowTriggers(),
 				"env0_environment_scheduling":               resourceEnvironmentScheduling(),
 				"env0_environment_drift_detection":          resourceDriftDetection(),
+				"env0_notification":                         resourceNotification(),
+				"env0_notification_project_assignment":      resourceNotificationProjectAssignment(),
+				"env0_module":                               resourceModule(),
+				"env0_git_token":                            resourceGitToken(),
+				"env0_api_key":                              resourceApiKey(),
 			},
 		}
 

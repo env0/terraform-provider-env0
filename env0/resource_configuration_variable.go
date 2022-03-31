@@ -106,6 +106,13 @@ func resourceConfigurationVariable() *schema.Resource {
 
 const templateScope = "TEMPLATE"
 
+func validateNilValue(isReadOnly bool, isRequired bool, value string) error {
+	if isReadOnly && isRequired && value == "" {
+		return errors.New("'value' cannot be empty when 'is_read_only' and 'is_required' are true ")
+	}
+	return nil
+}
+
 func whichScope(d *schema.ResourceData) (client.Scope, string) {
 	scope := client.ScopeGlobal
 	scopeId := ""
@@ -136,6 +143,10 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	format := client.Format(d.Get("format").(string))
 	isReadOnly := d.Get("is_read_only").(bool)
 	isRequired := d.Get("is_required").(bool)
+
+	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
+		return diag.Errorf(err.Error())
+	}
 
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {
@@ -199,7 +210,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	variable, err := apiClient.ConfigurationVariablesById(id)
 
 	if err != nil {
-		return diag.Errorf("could not get configurationVariable: %v", err)
+		return ResourceGetFailure("configuration variable", d, err)
 	}
 
 	d.Set("name", variable.Name)
@@ -239,6 +250,10 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	format := client.Format(d.Get("format").(string))
 	isReadOnly := d.Get("is_read_only").(bool)
 	isRequired := d.Get("is_required").(bool)
+
+	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
+		return diag.Errorf(err.Error())
+	}
 
 	var type_ client.ConfigurationVariableType
 	switch typeAsString {

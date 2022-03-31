@@ -34,17 +34,21 @@ type ApiClientInterface interface {
 	AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error)
 	RemoveTemplateFromProject(templateId string, projectId string) error
 	SshKeys() ([]SshKey, error)
-	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
+	SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error)
 	SshKeyDelete(id string) error
-	CloudCredentials(id string) (ApiKey, error)
-	CloudCredentialsList() ([]ApiKey, error)
-	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (ApiKey, error)
+	CloudCredentials(id string) (Credentials, error)
+	CloudCredentialsList() ([]Credentials, error)
+	AwsCredentialsCreate(request AwsCredentialsCreatePayload) (Credentials, error)
 	CloudCredentialsDelete(id string) error
-	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (ApiKey, error)
-	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (ApiKey, error)
+	GcpCredentialsCreate(request GcpCredentialsCreatePayload) (Credentials, error)
+	GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (Credentials, error)
+	AzureCredentialsCreate(request AzureCredentialsCreatePayload) (Credentials, error)
 	AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error)
 	RemoveCloudCredentialsFromProject(projectId string, credentialId string) error
 	CloudCredentialIdsInProject(projectId string) ([]string, error)
+	AssignCostCredentialsToProject(projectId string, credentialId string) (CostCredentialProjectAssignment, error)
+	CostCredentialIdsInProject(projectId string) ([]CostCredentialProjectAssignment, error)
+	RemoveCostCredentialsFromProject(projectId string, credentialId string) error
 	Team(id string) (Team, error)
 	Teams() ([]Team, error)
 	TeamCreate(payload TeamCreatePayload) (Team, error)
@@ -54,6 +58,7 @@ type ApiClientInterface interface {
 	TeamProjectAssignmentDelete(assignmentId string) error
 	TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error)
 	Environments() ([]Environment, error)
+	ProjectEnvironments(projectId string) ([]Environment, error)
 	Environment(id string) (Environment, error)
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)
 	EnvironmentDestroy(id string) (Environment, error)
@@ -68,6 +73,24 @@ type ApiClientInterface interface {
 	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)
 	EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error)
 	EnvironmentStopDriftDetection(environmentId string) error
+	Notifications() ([]Notification, error)
+	NotificationCreate(payload NotificationCreatePayload) (*Notification, error)
+	NotificationDelete(id string) error
+	NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error)
+	NotificationProjectAssignments(projectId string) ([]NotificationProjectAssignment, error)
+	NotificationProjectAssignmentUpdate(projectId string, endpointId string, payload NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error)
+	ModuleCreate(payload ModuleCreatePayload) (*Module, error)
+	Module(id string) (*Module, error)
+	ModuleDelete(id string) error
+	ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error)
+	Modules() ([]Module, error)
+	GitToken(id string) (*GitToken, error)
+	GitTokens() ([]GitToken, error)
+	GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error)
+	GitTokenDelete(id string) error
+	ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error)
+	ApiKeyDelete(id string) error
+	ApiKeys() ([]ApiKey, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

@@ -44,6 +44,12 @@ func resourceProject() *schema.Resource {
 				Description: "description of the project",
 				Optional:    true,
 			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Description: "Destroy the project even when environments exist",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -65,6 +71,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(project.Id)
+
 	setProjectSchema(d, project)
 
 	return nil
@@ -102,12 +109,40 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
+func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+	forceDestroy := d.Get("force_destroy").(bool)
+	if forceDestroy {
+		return nil
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	id := d.Id()
+
+	envs, err := apiClient.ProjectEnvironments(id)
+	if err != nil {
+		return err
+	}
+
+	for _, env := range envs {
+		if !env.IsArchived {
+			return errors.New("has active environments (remove the environments or use the force_destroy flag)")
+		}
+	}
+
+	return nil
+}
+
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	err := apiClient.ProjectDelete(id)
-	if err != nil {
+
+	if err := resourceProjectAssertCanDelete(ctx, d, meta); err != nil {
+		return diag.Errorf("could not delete project: %v", err)
+	}
+
+	if err := apiClient.ProjectDelete(id); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
 	}
 	return nil

@@ -9,6 +9,17 @@ func (self *ApiClient) Environments() ([]Environment, error) {
 	return result, nil
 }
 
+func (self *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
+
+	var result []Environment
+	err := self.http.Get("/environments", map[string]string{"projectId": projectId}, &result)
+
+	if err != nil {
+		return []Environment{}, err
+	}
+	return result, nil
+}
+
 func (self *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
 	err := self.http.Get("/environments/"+id, nil, &result)

@@ -1,31 +1,17 @@
 package client
 
-import (
-	"errors"
-)
-
-func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error) {
-	if payload.Name == "" {
-		return SshKey{}, errors.New("Must specify ssh key name on creation")
-	}
-	if payload.Value == "" {
-		return SshKey{}, errors.New("Must specify ssh key value (private key in PEM format) on creation")
-	}
-	if payload.OrganizationId != "" {
-		return SshKey{}, errors.New("Must not specify organizationId")
-	}
+func (self *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {
-		return SshKey{}, nil
+		return nil, err
 	}
 	payload.OrganizationId = organizationId
 
 	var result SshKey
-	err = self.http.Post("/ssh-keys", payload, &result)
-	if err != nil {
-		return SshKey{}, err
+	if err := self.http.Post("/ssh-keys", payload, &result); err != nil {
+		return nil, err
 	}
-	return result, nil
+	return &result, nil
 }
 
 func (self *ApiClient) SshKeyDelete(id string) error {

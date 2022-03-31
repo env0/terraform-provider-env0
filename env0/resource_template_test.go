@@ -188,6 +188,90 @@ func TestUnitTemplateResource(t *testing.T) {
 		BitbucketClientKey: "clientkey2",
 		TerraformVersion:   "0.15.1",
 	}
+	gheeTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:               "terraform",
+		TerraformVersion:   "0.12.24",
+		IsGitHubEnterprise: true,
+	}
+	gheeUpdatedTemplate := client.Template{
+		Id:          gheeTemplate.Id,
+		Name:        "template1",
+		Description: "description1",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:               "terraform",
+		TerraformVersion:   "0.12.24",
+		IsGitHubEnterprise: true,
+	}
+	bitbucketServerTemplate := client.Template{
+		Id:          "id011",
+		Name:        "template011",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:              "terraform",
+		TerraformVersion:  "0.12.24",
+		IsBitbucketServer: true,
+	}
+	bitbucketServerUpdatedTemplate := client.Template{
+		Id:          bitbucketServerTemplate.Id,
+		Name:        "template222",
+		Description: "description1",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:              "terraform",
+		TerraformVersion:  "0.12.24",
+		IsBitbucketServer: true,
+	}
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -236,6 +320,12 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.BitbucketClientKey != "" {
 			templateAsDictionary["bitbucket_client_key"] = template.BitbucketClientKey
 		}
+		if template.IsGitHubEnterprise != false {
+			templateAsDictionary["is_github_enterprise"] = template.IsGitHubEnterprise
+		}
+		if template.IsBitbucketServer != false {
+			templateAsDictionary["is_bitbucket_server"] = template.IsBitbucketServer
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -283,6 +373,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitLab", gitlabTemplate, gitlabUpdatedTemplate},
 		{"GitHub", githubTemplate, githubUpdatedTemplate},
 		{"Bitbucket", bitbucketTemplate, bitbucketUpdatedTemplate},
+		{"GitHub EE", gheeTemplate, gheeUpdatedTemplate},
+		{"Bitbucket Server", bitbucketServerTemplate, bitbucketServerUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -301,6 +393,8 @@ func TestUnitTemplateResource(t *testing.T) {
 				Retry:                templateUseCase.template.Retry,
 				TerraformVersion:     templateUseCase.template.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
+				IsGitHubEnterprise:   templateUseCase.template.IsGitHubEnterprise,
+				IsBitbucketServer:    templateUseCase.template.IsBitbucketServer,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -313,10 +407,12 @@ func TestUnitTemplateResource(t *testing.T) {
 				TokenId:              templateUseCase.updatedTemplate.TokenId,
 				Path:                 templateUseCase.updatedTemplate.Path,
 				Revision:             templateUseCase.updatedTemplate.Revision,
-				Type:                 client.TemplateTypeTerragrunt,
+				Type:                 client.TemplateType(templateUseCase.updatedTemplate.Type),
 				Retry:                templateUseCase.updatedTemplate.Retry,
 				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
+				IsGitHubEnterprise:   templateUseCase.updatedTemplate.IsGitHubEnterprise,
+				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
 			}
 
 			testCase := resource.TestCase{
@@ -571,9 +667,10 @@ func TestUnitTemplateResource(t *testing.T) {
 	}{
 		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
 		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
-		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with github_installation_id"},
-		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"github_installation_id\": conflicts with bitbucket_client_key"},
-		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"token_id\": conflicts with bitbucket_client_key"},
+		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"github_installation_id\": conflicts with is_gitlab_enterprise"},
+		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
+		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
+		{"GitLab EE", "GitHub EE", map[string]interface{}{"name": "test", "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
 	}
 	for _, mixUseCase := range mixedUsecases {
 		t.Run("Mixed "+mixUseCase.firstVcs+" and "+mixUseCase.secondVcs+" template", func(t *testing.T) {
@@ -724,5 +821,26 @@ func TestUnitTemplateResource(t *testing.T) {
 			)
 			mock.EXPECT().TemplateDelete(updateTemplate.Id).Times(1).Return(nil)
 		})
+	})
+
+	t.Run("Invalid Terraform Version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"id":                "id0",
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"gitlab_project_id": 123456,
+						"token_id":          "abcdefg",
+						"terraform_version": "v0.15.1",
+					}),
+					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 }

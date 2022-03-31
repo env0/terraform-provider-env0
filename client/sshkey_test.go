@@ -18,7 +18,8 @@ var _ = Describe("SshKey", func() {
 	}
 
 	Describe("SshKeyCreate", func() {
-		var sshKey SshKey
+		var sshKey *SshKey
+
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 			expectedPayload := SshKeyCreatePayload{Name: sshKeyName, Value: sshKeyValue, OrganizationId: organizationId}
@@ -40,7 +41,7 @@ var _ = Describe("SshKey", func() {
 		})
 
 		It("Should return project", func() {
-			Expect(sshKey).To(Equal(mockSshKey))
+			Expect(*sshKey).To(Equal(mockSshKey))
 		})
 	})
 

@@ -2,11 +2,13 @@ package env0
 
 import (
 	"errors"
-	"github.com/env0/terraform-provider-env0/client"
-	"github.com/golang/mock/gomock"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitTeamResource(t *testing.T) {
@@ -150,6 +152,39 @@ func TestUnitTeamResource(t *testing.T) {
 			mock.EXPECT().Team(gomock.Any()).Return(client.Team{}, errors.New("error"))
 			mock.EXPECT().TeamDelete(team.Id).Times(1)
 		})
+	})
 
+	t.Run("Team removed in UI", func(t *testing.T) {
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"name":        team.Name,
+			"description": team.Description,
+		})
+
+		createTeamParams := client.TeamCreatePayload{
+			Name:        team.Name,
+			Description: team.Description,
+		}
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().TeamCreate(createTeamParams).Times(1).Return(team, nil),
+				mock.EXPECT().Team(team.Id).Times(1).Return(team, nil),
+				mock.EXPECT().Team(team.Id).Times(1).Return(client.Team{}, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().TeamCreate(createTeamParams).Times(1).Return(team, nil),
+				mock.EXPECT().Team(team.Id).Times(1).Return(team, nil),
+				mock.EXPECT().TeamDelete(team.Id).Times(1).Return(nil),
+			)
+		})
 	})
 }
