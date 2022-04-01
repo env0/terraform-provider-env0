@@ -167,3 +167,10 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 
 	return nil
 }
+
+func safeSet(d *schema.ResourceData, k string, v interface{}) {
+	// Checks that the key exist in the schema before setting the value.
+	if test := d.Get(k); test != nil {
+		d.Set(k, v)
+	}
+}

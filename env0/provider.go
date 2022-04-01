@@ -13,6 +13,14 @@ import (
 
 func Provider(version string) plugin.ProviderFunc {
 	return func() *schema.Provider {
+		apiKeyEnv := "ENV0_API_KEY"
+		apiSecretEnv := "ENV0_API_SECRET"
+		if version == "TEST" {
+			version = ""
+			apiKeyEnv = "ENV0_API_KEY_TEST"
+			apiSecretEnv = "ENV0_API_SECRET_TEST"
+		}
+
 		provider := &schema.Provider{
 			Schema: map[string]*schema.Schema{
 				"api_endpoint": {
@@ -24,14 +32,14 @@ func Provider(version string) plugin.ProviderFunc {
 				"api_key": {
 					Type:        schema.TypeString,
 					Description: "env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)",
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
+					DefaultFunc: schema.EnvDefaultFunc(apiKeyEnv, nil),
 					Required:    true,
 					Sensitive:   true,
 				},
 				"api_secret": {
 					Type:        schema.TypeString,
 					Description: "env0 api key secret",
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_SECRET", nil),
+					DefaultFunc: schema.EnvDefaultFunc(apiSecretEnv, nil),
 					Required:    true,
 					Sensitive:   true,
 				},
