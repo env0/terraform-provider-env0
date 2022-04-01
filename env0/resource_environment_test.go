@@ -52,64 +52,63 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 	autoDeployOnPathChangesOnlyDefault := true
 	autoDeployByCustomGlobDefault := ""
-	/*
-		t.Run("Success in create", func(t *testing.T) {
-			testCase := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: createEnvironmentResourceConfig(environment),
-						Check: resource.ComposeAggregateTestCheckFunc(
-							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
-							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
-							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
-							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
-							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
-							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
-						),
-					},
-					{
-						Config: createEnvironmentResourceConfig(updatedEnvironment),
-						Check: resource.ComposeAggregateTestCheckFunc(
-							resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
-							resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
-							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
-							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
-							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
-							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
-						),
-					},
+
+	t.Run("Success in create", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+					),
 				},
-			}
+				{
+					Config: createEnvironmentResourceConfig(updatedEnvironment),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
+					),
+				},
+			},
+		}
 
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
-					Name:                        environment.Name,
-					ProjectId:                   environment.ProjectId,
-					WorkspaceName:               environment.WorkspaceName,
-					AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
-					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
-					TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
-					DeployRequest: &client.DeployRequest{
-						BlueprintId: templateId,
-					},
-				}).Times(1).Return(environment, nil)
-				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
-					Name:                        updatedEnvironment.Name,
-					AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
-					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
-					TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
-				}).Times(1).Return(updatedEnvironment, nil)
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
-				gomock.InOrder(
-					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
-					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
-				)
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:                        environment.Name,
+				ProjectId:                   environment.ProjectId,
+				WorkspaceName:               environment.WorkspaceName,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: templateId,
+				},
+			}).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
+				Name:                        updatedEnvironment.Name,
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+				TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
+			}).Times(1).Return(updatedEnvironment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+			gomock.InOrder(
+				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+			)
 
-				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
-			})
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
 
-
-		})	*/
+	})
 
 	t.Run("Success in create and deploy with variables update", func(t *testing.T) {
 		environment := client.Environment{
