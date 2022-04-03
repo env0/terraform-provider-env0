@@ -1132,7 +1132,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							BlueprintRevision: initialRevision,
 						},
 					}).Times(1).Return(environment, nil)
-					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 					gomock.InOrder(
 						mock.EXPECT().Deployment(gomock.Any()).Times(1).Return(failedDeploymentLog, nil), // 1 to failing environment creation
 						mock.EXPECT().Deployment(gomock.Any()).Times(1).Return(doneDeploymentLog, nil),   // 1 for destroy, return finished deployment to finish the test
