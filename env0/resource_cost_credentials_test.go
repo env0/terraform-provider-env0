@@ -272,8 +272,11 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "name"),
 		}
 		for _, testCase := range missingArgumentsTestCases {
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			tc := testCase
+			t.Run("validate specific argument", func(t *testing.T) {
+				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})
+
 		}
 	})
 
