@@ -3,6 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/utils"
 	"github.com/golang/mock/gomock"
@@ -10,27 +14,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"os"
-	"strings"
-	"testing"
 )
-
-var (
-	apiClientMock *client.MockApiClientInterface
-	ctrl          *gomock.Controller
-)
-
-var testUnitProviders = map[string]func() (*schema.Provider, error){
-	"env0": func() (*schema.Provider, error) {
-		provider := Provider("")()
-		provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-			return apiClientMock, nil
-		}
-		return provider, nil
-	},
-}
 
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	os.Setenv("TF_ACC", "1")
+	os.Setenv("ENV0_API_KEY", "value")
+	os.Setenv("ENV0_API_SECRET", "value")
+
 	testPattern := os.Getenv("TEST_PATTERN")
 	if testPattern != "" && !strings.Contains(t.Name(), testPattern) {
 		t.SkipNow()
@@ -38,20 +28,23 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 	}
 
 	testReporter := utils.TestReporter{T: t}
-	ctrl = gomock.NewController(&testReporter)
+	ctrl := gomock.NewController(&testReporter)
 	defer ctrl.Finish()
 
-	os.Setenv("ENV0_API_KEY", "value")
-	os.Setenv("ENV0_API_SECRET", "value")
-	defer os.Setenv("ENV0_API_KEY", "")
-	defer os.Setenv("ENV0_API_SECRET", "")
-
-	apiClientMock = client.NewMockApiClientInterface(ctrl)
+	apiClientMock := client.NewMockApiClientInterface(ctrl)
 	mockFunc(apiClientMock)
 
-	testCase.ProviderFactories = testUnitProviders
+	testCase.ProviderFactories = map[string]func() (*schema.Provider, error){
+		"env0": func() (*schema.Provider, error) {
+			provider := Provider("")()
+			provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+				return apiClientMock, nil
+			}
+			return provider, nil
+		},
+	}
 	testCase.PreventPostDestroyRefresh = true
-	resource.UnitTest(&testReporter, testCase)
+	resource.ParallelTest(&testReporter, testCase)
 }
 
 func TestProvider(t *testing.T) {
@@ -80,12 +73,12 @@ func testMissingEnvVar(t *testing.T, envVars map[string]string, expectedKey stri
 		defer os.Setenv(key, "")
 	}
 
-	diags := Provider("")().Validate(&terraform.ResourceConfig{})
+	diags := Provider("TEST")().Validate(&terraform.ResourceConfig{})
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
 func testMissingConfig(t *testing.T, config map[string]interface{}, expectedKey string) {
-	diags := Provider("")().Validate(terraform.NewResourceConfigRaw(config))
+	diags := Provider("TEST")().Validate(terraform.NewResourceConfigRaw(config))
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
@@ -108,10 +101,10 @@ func TestMissingConfigurations(t *testing.T) {
 
 	envVarsTestCases := map[string]map[string]string{
 		expectedApiKeyConfig: {
-			"ENV0_API_SECRET": "value",
+			"ENV0_API_SECRET_TEST": "value",
 		},
 		expectedApiSecretConfig: {
-			"ENV0_API_KEY": "value",
+			"ENV0_API_KEY_TEST": "value",
 		},
 	}
 

@@ -21,7 +21,7 @@ func dataGitToken() *schema.Resource {
 			},
 			"id": {
 				Type:         schema.TypeString,
-				Description:  "id of the git token",
+				Description:  "the id of the git token",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
