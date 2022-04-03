@@ -32,7 +32,7 @@ data "env0_git_token" "git_token_sample_by_name" {
 
 ### Optional
 
-- **id** (String) id of the git token
+- **id** (String) the id of the git token
 - **name** (String) the name of the git token
 
 

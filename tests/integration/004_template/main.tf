@@ -74,7 +74,7 @@ resource "time_sleep" "wait_for_all_templates" {
       # Only using depends_on doesn't work on re-apply. This makes sure the sleep happens on re-apply
       second_run = var.second_run
     }
-  create_duration = "2s"
+  create_duration = "5s"
 }
 
 data "env0_template" "tested2" {
