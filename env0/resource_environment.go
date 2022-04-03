@@ -114,7 +114,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"wait_for": {
 				Type:        schema.TypeString,
-				Description: "wait for deployment to complete",
+				Description: "whether or not to wait for environment to fully deploy",
 				Optional:    true,
 				Default:     "ACK",
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
