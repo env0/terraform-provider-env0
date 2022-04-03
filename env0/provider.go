@@ -65,6 +65,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_module":                 dataModule(),
 				"env0_git_token":              dataGitToken(),
 				"env0_api_key":                dataApiKey(),
+>>>>>>> dfcdb70cb84f59caa2fa40cc77ad922226ea8a8e
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
