@@ -706,7 +706,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
-			mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1)
 
 		})
 	})
