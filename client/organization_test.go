@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"errors"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -61,7 +62,48 @@ var _ = Describe("Organization", func() {
 
 				_, err = apiClient.Organization()
 				Expect(err).ShouldNot(BeNil())
-				Expect(err.Error()).Should(Equal("Server responded with too many organizations"))
+				Expect(err.Error()).Should(Equal("server responded with too many organizations"))
+			})
+		})
+	})
+
+	Describe("OrganizationPolicyUpdate", func() {
+		hour12 := "12-h"
+		t := true
+		updatedMockOrganization := mockOrganization
+		updatedMockOrganization.DoNotConsiderMergeCommitsForPrPlans = true
+		updatedMockOrganization.DefaultTtl = &hour12
+
+		var updatedOrganization *Organization
+		var err error
+
+		Describe("Success", func() {
+			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+				updateOrganizationPolicyPayload := OrganizationPolicyUpdatePayload{
+					DefaultTtl:                          &hour12,
+					DoNotConsiderMergeCommitsForPrPlans: &t,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Post("/organizations/"+organizationId+"/policies", updateOrganizationPolicyPayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *Organization) {
+						*response = updatedMockOrganization
+					})
+
+				updatedOrganization, err = apiClient.OrganizationPolicyUpdate(updateOrganizationPolicyPayload)
+			})
+
+			It("Should send Post request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return organization received from API", func() {
+				Expect(*updatedOrganization).To(Equal(updatedMockOrganization))
 			})
 		})
 	})
