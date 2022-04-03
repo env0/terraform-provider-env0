@@ -268,7 +268,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(d, apiClient)
+		err := waitForDeployment(environment.LatestDeploymentLogId, apiClient)
 		if err != nil {
 			return diag.Errorf("failed deploying environment: %v", err)
 		}
@@ -342,7 +342,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	d.Set("deployment_id", deployResponse.Id)
 
 	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(d, apiClient)
+		err := waitForDeployment(deployResponse.Id, apiClient)
 		if err != nil {
 			return diag.Errorf("failed deploying environment: %v", err)
 		}
@@ -384,12 +384,12 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	apiClient := meta.(client.ApiClientInterface)
 
-	_, err := apiClient.EnvironmentDestroy(d.Id())
+	destroyResponse, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		return diag.Errorf("could not delete environment: %v", err)
 	}
 	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(d, apiClient)
+		err := waitForDeployment(destroyResponse.Id, apiClient)
 		if err != nil {
 			return diag.Errorf("failed to delete environment: %v", err)
 		}
@@ -709,13 +709,13 @@ func shouldWaitForDeployment(d *schema.ResourceData) bool {
 	return d.Get("wait_for").(string) == "FULLY_DEPLOYED"
 }
 
-func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterface) error {
 	for {
-		env, err := apiClient.Environment(d.Id())
+		deployment, err := apiClient.Deployment(deploymentLogId)
 		if err != nil {
 			return err
 		}
-		switch env.LatestDeploymentLog.Status {
+		switch deployment.Status {
 		case "IN_PROGRESS",
 			"QUEUED",
 			"WAITING_FOR_USER":
@@ -724,7 +724,7 @@ func waitForDeployment(d *schema.ResourceData, apiClient client.ApiClientInterfa
 			"SKIPPED":
 			return nil
 		default:
-			return fmt.Errorf("environment deployment reached failure status: %v", env.LatestDeploymentLog.Status)
+			return fmt.Errorf("environment deployment reached failure status: %v", deployment.Status)
 		}
 	}
 }
