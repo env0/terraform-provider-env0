@@ -2,12 +2,12 @@ package env0
 
 import (
 	"context"
-	"errors"
+	"log"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"log"
 )
 
 func resourceSshKey() *schema.Resource {
@@ -54,9 +54,13 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	_, err := getSshKeyById(d.Id(), meta)
+	sshKey, err := getSshKeyById(d.Id(), meta)
 	if err != nil {
-		return err
+		return diag.Errorf("could not get ssh key: %v", err)
+	}
+	if sshKey == nil {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		d.SetId("")
 	}
 	return nil
 }
@@ -74,7 +78,7 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
-	var getErr diag.Diagnostics
+	var getErr error
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
 		log.Println("[INFO] Resolving SSH Key by id: ", id)
@@ -82,12 +86,12 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	} else {
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving SSH Key by name: ", id)
-		var sshKey client.SshKey
+		var sshKey *client.SshKey
 		sshKey, getErr = getSshKeyByName(id, meta)
 		d.SetId(sshKey.Id)
 	}
 	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
+		return nil, getErr
 	} else {
 		return []*schema.ResourceData{d}, nil
 	}

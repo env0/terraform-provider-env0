@@ -760,6 +760,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
+// OrganizationPolicyUpdate mocks base method.
+func (m *MockApiClientInterface) OrganizationPolicyUpdate(arg0 OrganizationPolicyUpdatePayload) (*Organization, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationPolicyUpdate", arg0)
+	ret0, _ := ret[0].(*Organization)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrganizationPolicyUpdate indicates an expected call of OrganizationPolicyUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationPolicyUpdate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationPolicyUpdate), arg0)
+}
+
 // Policy mocks base method.
 func (m *MockApiClientInterface) Policy(arg0 string) (Policy, error) {
 	m.ctrl.T.Helper()
@@ -922,10 +937,10 @@ func (mr *MockApiClientInterfaceMockRecorder) RemoveTemplateFromProject(arg0, ar
 }
 
 // SshKeyCreate mocks base method.
-func (m *MockApiClientInterface) SshKeyCreate(arg0 SshKeyCreatePayload) (SshKey, error) {
+func (m *MockApiClientInterface) SshKeyCreate(arg0 SshKeyCreatePayload) (*SshKey, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SshKeyCreate", arg0)
-	ret0, _ := ret[0].(SshKey)
+	ret0, _ := ret[0].(*SshKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

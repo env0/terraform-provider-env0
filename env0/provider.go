@@ -13,6 +13,18 @@ import (
 
 func Provider(version string) plugin.ProviderFunc {
 	return func() *schema.Provider {
+		apiKeyEnv := "ENV0_API_KEY"
+		apiSecretEnv := "ENV0_API_SECRET"
+
+		// version "TEST" is used for acceptance testing.
+		// Due to race conditions related to env variables:
+		// Using different env variables during testing prevetns the race conditions.
+		if version == "TEST" {
+			version = ""
+			apiKeyEnv = "ENV0_API_KEY_TEST"
+			apiSecretEnv = "ENV0_API_SECRET_TEST"
+		}
+
 		provider := &schema.Provider{
 			Schema: map[string]*schema.Schema{
 				"api_endpoint": {
@@ -24,19 +36,20 @@ func Provider(version string) plugin.ProviderFunc {
 				"api_key": {
 					Type:        schema.TypeString,
 					Description: "env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)",
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_KEY", nil),
+					DefaultFunc: schema.EnvDefaultFunc(apiKeyEnv, nil),
 					Required:    true,
 					Sensitive:   true,
 				},
 				"api_secret": {
 					Type:        schema.TypeString,
 					Description: "env0 api key secret",
-					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_SECRET", nil),
+					DefaultFunc: schema.EnvDefaultFunc(apiSecretEnv, nil),
 					Required:    true,
 					Sensitive:   true,
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
+<<<<<<< HEAD
 				"env0_organization":            dataOrganization(),
 				"env0_project":                 dataProject(),
 				"env0_project_policy":          dataPolicy(),
@@ -54,6 +67,24 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_workflow_triggers":       dataWorkflowTriggers(),
 				"env0_notification":            dataNotification(),
 				"env0_module":                  dataModule(),
+=======
+				"env0_organization":           dataOrganization(),
+				"env0_project":                dataProject(),
+				"env0_project_policy":         dataPolicy(),
+				"env0_configuration_variable": dataConfigurationVariable(),
+				"env0_template":               dataTemplate(),
+				"env0_ssh_key":                dataSshKey(),
+				"env0_aws_credentials":        dataAwsCredentials(),
+				"env0_gcp_credentials":        dataGcpCredentials(),
+				"env0_azure_credentials":      dataAzureCredentials(),
+				"env0_team":                   dataTeam(),
+				"env0_environment":            dataEnvironment(),
+				"env0_workflow_triggers":      dataWorkflowTriggers(),
+				"env0_notification":           dataNotification(),
+				"env0_module":                 dataModule(),
+				"env0_git_token":              dataGitToken(),
+				"env0_api_key":                dataApiKey(),
+>>>>>>> 3a532b76d558e0936d68ea9717e210e9ba6fe4bd
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -80,6 +111,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_notification_project_assignment":      resourceNotificationProjectAssignment(),
 				"env0_module":                               resourceModule(),
 				"env0_git_token":                            resourceGitToken(),
+				"env0_api_key":                              resourceApiKey(),
 			},
 		}
 

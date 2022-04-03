@@ -19,6 +19,7 @@ type ApiClientInterface interface {
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
 	organizationId() (string, error)
+	OrganizationPolicyUpdate(OrganizationPolicyUpdatePayload) (*Organization, error)
 	Policy(projectId string) (Policy, error)
 	PolicyUpdate(payload PolicyUpdatePayload) (Policy, error)
 	Projects() ([]Project, error)
@@ -34,7 +35,7 @@ type ApiClientInterface interface {
 	AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error)
 	RemoveTemplateFromProject(templateId string, projectId string) error
 	SshKeys() ([]SshKey, error)
-	SshKeyCreate(payload SshKeyCreatePayload) (SshKey, error)
+	SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error)
 	SshKeyDelete(id string) error
 	CloudCredentials(id string) (Credentials, error)
 	CloudCredentialsList() ([]Credentials, error)
