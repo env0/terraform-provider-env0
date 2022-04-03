@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -53,14 +54,14 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		Type: client.AzureServicePrincipalCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.AzureServicePrincipalCredentialsType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
@@ -134,17 +135,45 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 	})
 
 	t.Run("validate missing arguments", func(t *testing.T) {
-		missingArgumentsTestCases := []resource.TestCase{
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "client_id"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "client_secret"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "subscription_id"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "tenant_id"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, "name"),
+		arguments := []string{
+			"client_id",
+			"client_secret",
+			"subscription_id",
+			"tenant_id",
+			"name",
 		}
-		for _, testCase := range missingArgumentsTestCases {
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+
+		for _, argument := range arguments {
+			tc := missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, argument)
+			t.Run("validate missing arrguments "+argument, func(t *testing.T) {
+				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})
 		}
 	})
 
+	t.Run("Azure credentials removed in UI", func(t *testing.T) {
+		stepConfig := resourceConfigCreate(resourceType, resourceName, azureCredentialResource)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().AzureCredentialsCreate(azureCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().AzureCredentialsCreate(azureCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+			)
+		})
+	})
 }

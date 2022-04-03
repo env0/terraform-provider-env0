@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestUnitModulenResource(t *testing.T) {
+func TestUnitModuleResource(t *testing.T) {
 	resourceType := "env0_module"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

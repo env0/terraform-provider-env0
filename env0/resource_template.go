@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sort"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -20,6 +21,40 @@ func resourceTemplate() *schema.Resource {
 		}
 
 		return nil
+	}
+
+	/*
+	 *	VCS Constraints:
+	 *		GitHub - githubInstallationId
+	 *		GitLab -  gitlabProjectId and tokenId
+	 *		Bitbucket - bitbucketClientKey
+	 *		GH Enterprise - isGitHubEnterprise
+	 *		GL Enterprise - isGitLabEnterprise
+	 *		BB Server - isBitbucketServer
+	 *		Other - tokenId (optional field)
+	 */
+
+	allVCSAttributes := []string{
+		"token_id",
+		"gitlab_project_id",
+		"github_installation_id",
+		"bitbucket_client_key",
+		"is_gitlab_enterprise",
+		"is_bitbucket_server",
+		"is_github_enterprise",
+	}
+
+	allVCSAttributesBut := func(strs ...string) []string {
+		sort.Strings(strs)
+		ret := []string{}
+
+		for _, attr := range allVCSAttributes {
+			if sort.SearchStrings(strs, attr) >= len(strs) {
+				ret = append(ret, attr)
+			}
+		}
+
+		return ret
 	}
 
 	return &schema.Resource{
@@ -97,45 +132,62 @@ func resourceTemplate() *schema.Resource {
 			},
 			"github_installation_id": {
 				Type:          schema.TypeInt,
-				Description:   "The env0 application installation id on the relevant github repository",
+				Description:   "the env0 application installation id on the relevant github repository",
 				Optional:      true,
-				ConflictsWith: []string{"token_id", "bitbucket_client_key"},
+				ConflictsWith: allVCSAttributesBut("github_installation_id"),
 			},
 			"token_id": {
 				Type:          schema.TypeString,
-				Description:   "The token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
+				Description:   "the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
 				Optional:      true,
-				ConflictsWith: []string{"github_installation_id", "bitbucket_client_key"},
+				ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
 			},
 			"gitlab_project_id": {
-				Type:         schema.TypeInt,
-				Description:  "The project id of the relevant repository",
-				Optional:     true,
-				RequiredWith: []string{"token_id"},
+				Type:          schema.TypeInt,
+				Description:   "the project id of the relevant repository",
+				Optional:      true,
+				ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
+				RequiredWith:  []string{"token_id"},
 			},
 			"terraform_version": {
-				Type:        schema.TypeString,
-				Description: "Terraform version to use",
-				Optional:    true,
-				Default:     "0.15.1",
+				Type:             schema.TypeString,
+				Description:      "the Terraform version to use (example: 0.15.1)",
+				Optional:         true,
+				ValidateDiagFunc: NewRegexValidator(`^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}$`),
+				Default:          "0.15.1",
 			},
 			"terragrunt_version": {
-				Type:        schema.TypeString,
-				Description: "Terragrunt version to use",
-				Optional:    true,
+				Type:             schema.TypeString,
+				Description:      "the Terragrunt version to use (example: 0.36.5)",
+				ValidateDiagFunc: NewRegexValidator(`^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}$`),
+				Optional:         true,
 			},
 			"is_gitlab_enterprise": {
 				Type:          schema.TypeBool,
-				Description:   "Does this template use gitlab enterprise repository?",
+				Description:   "true if this template uses gitlab enterprise repository",
 				Optional:      true,
 				Default:       "false",
-				ConflictsWith: []string{"gitlab_project_id", "token_id", "github_installation_id", "bitbucket_client_key"},
+				ConflictsWith: allVCSAttributesBut("is_gitlab_enterprise"),
 			},
 			"bitbucket_client_key": {
 				Type:          schema.TypeString,
-				Description:   "The bitbucket client key used for integration",
+				Description:   "the bitbucket client key used for integration",
 				Optional:      true,
-				ConflictsWith: []string{"token_id", "github_installation_id"},
+				ConflictsWith: allVCSAttributesBut("bitbucket_client_key"),
+			},
+			"is_bitbucket_server": {
+				Type:          schema.TypeBool,
+				Description:   "true if this template uses bitbucket server repository",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: allVCSAttributesBut("is_bitbucket_server"),
+			},
+			"is_github_enterprise": {
+				Type:          schema.TypeBool,
+				Description:   "true if this template uses github enterprise repository",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: allVCSAttributesBut("is_github_enterprise"),
 			},
 		},
 	}
@@ -159,6 +211,12 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	}
 	if isGitlabEnterprise, ok := d.GetOk("is_gitlab_enterprise"); ok {
 		result.IsGitlabEnterprise = isGitlabEnterprise.(bool)
+	}
+	if isBitbucketServer, ok := d.GetOk("is_bitbucket_server"); ok {
+		result.IsBitbucketServer = isBitbucketServer.(bool)
+	}
+	if isGitHubEnterprise, ok := d.GetOk("is_github_enterprise"); ok {
+		result.IsGitHubEnterprise = isGitHubEnterprise.(bool)
 	}
 
 	if path, ok := d.GetOk("path"); ok {
@@ -308,6 +366,10 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	if template.BitbucketClientKey != "" {
 		d.Set("bitbucket_client_key", template.BitbucketClientKey)
 	}
+
+	d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
+	d.Set("is_bitbucket_server", template.IsBitbucketServer)
+	d.Set("is_github_enterprise", template.IsGitHubEnterprise)
 
 	return nil
 }

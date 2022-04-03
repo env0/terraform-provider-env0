@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,7 +69,7 @@ func resourceGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		return diag.Errorf("could not get credentials: %v", err)
+		return ResourceGetFailure("gcp credentials", d, err)
 	}
 	return nil
 }

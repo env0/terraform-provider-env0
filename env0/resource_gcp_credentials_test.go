@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -45,14 +46,14 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 		Type: client.GcpServiceAccountCredentialsType,
 	}
 
-	returnValues := client.ApiKey{
+	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.GcpServiceAccountCredentialsType),
 	}
 
-	updateReturnValues := client.ApiKey{
+	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
@@ -120,6 +121,7 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 	})
 
 	t.Run("validate missing arguments", func(t *testing.T) {
+
 		missingArgumentsTestCases := []resource.TestCase{
 			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
 				"name": "update",
@@ -129,9 +131,38 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 			}, "name"),
 		}
 		for _, testCase := range missingArgumentsTestCases {
-			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			tc := testCase
+
+			t.Run("validate missing arguments", func(t *testing.T) {
+				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})
+
 		}
 	})
 
+	t.Run("GCP credentials removed in UI", func(t *testing.T) {
+		stepConfig := resourceConfigCreate(resourceType, resourceName, gcpCredentialResource)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+				},
+				{
+					Config: stepConfig,
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+			)
+		})
+	})
 }

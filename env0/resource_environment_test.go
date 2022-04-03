@@ -52,6 +52,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 	autoDeployOnPathChangesOnlyDefault := true
 	autoDeployByCustomGlobDefault := ""
+
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -106,6 +107,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
+
 	})
 
 	t.Run("Success in create and deploy with variables update", func(t *testing.T) {

@@ -3,11 +3,27 @@ package client
 import "encoding/json"
 
 type Organization struct {
-	Id           string `json:"id"`
-	Name         string `json:"name"`
-	CreatedBy    string `json:"createdBy"`
-	Role         string `json:"role"`
-	IsSelfHosted bool   `json:"isSelfHosted"`
+	Id                                  string  `json:"id"`
+	Name                                string  `json:"name"`
+	MaxTtl                              *string `json:"maxTtl"`
+	DefaultTtl                          *string `json:"defaultTtl"`
+	DoNotReportSkippedStatusChecks      bool    `json:"doNotReportSkippedStatusChecks"`
+	DoNotConsiderMergeCommitsForPrPlans bool    `json:"doNotConsiderMergeCommitsForPrPlans"`
+	Description                         string  `json:"description"`
+	PhotoUrl                            string  `json:"photoUrl"`
+	CreatedBy                           string  `json:"createdBy"`
+	CreatedAt                           string  `json:"createdAt"`
+	UpdatedAt                           string  `json:"updatedAt"`
+	Role                                string  `json:"role"`
+	IsSelfHosted                        bool    `json:"isSelfHosted"`
+	IsSelfHostedK8s                     bool    `json:"isSelfHostedK8s"`
+}
+
+type OrganizationPolicyUpdatePayload struct {
+	MaxTtl                              *string `json:"maxTtl"`
+	DefaultTtl                          *string `json:"defaultTtl"`
+	DoNotReportSkippedStatusChecks      *bool   `json:"doNotReportSkippedStatusChecks,omitempty"`
+	DoNotConsiderMergeCommitsForPrPlans *bool   `json:"doNotConsiderMergeCommitsForPrPlans,omitempty"`
 }
 
 type User struct {
@@ -223,6 +239,8 @@ type TemplateCreatePayload struct {
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -281,6 +299,8 @@ type Template struct {
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 }
 
 type Environment struct {
@@ -392,7 +412,7 @@ type AzureCredentialsValuePayload struct {
 	TenantId       string `json:"tenantId"`
 }
 
-type ApiKey struct {
+type Credentials struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
@@ -570,6 +590,34 @@ type ModuleUpdatePayload struct {
 	BitbucketClientKey   string         `json:"bitbucketClientKey"`
 	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
+}
+
+type GitToken struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	Value          string `json:"value"`
+	OrganizationId string `json:"organizationId"`
+}
+
+type GitTokenCreatePayload struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type ApiKey struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	ApiKeyId       string `json:"apiKeyId"`
+	ApiKeySecret   string `json:"apiKeySecret"`
+	LastUsedAt     string `json:"lastUsedAt"`
+	OrganizationId string `json:"organizationId"`
+	CreatedAt      string `json:"createdAt"`
+	CreatedBy      string `json:"createdBy"`
+	CreatedByUser  User   `json:"createdByUser"`
+}
+
+type ApiKeyCreatePayload struct {
+	Name string `json:"name"`
 }
 
 func (p PolicyUpdatePayload) MarshalJSON() ([]byte, error) {

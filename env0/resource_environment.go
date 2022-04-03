@@ -185,10 +185,10 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
-	d.Set("workspace", environment.WorkspaceName)
-	d.Set("auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
-	d.Set("ttl", environment.LifespanEndAt)
-	d.Set("terragrunt_working_directory", environment.TerragruntWorkingDirectory)
+	safeSet(d, "workspace", environment.WorkspaceName)
+	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
+	safeSet(d, "ttl", environment.LifespanEndAt)
+	safeSet(d, "terragrunt_working_directory", environment.TerragruntWorkingDirectory)
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
@@ -209,11 +209,17 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 }
 
 func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
-	for index, configurationVariable := range configurationVariables {
+	var variables []interface{}
+
+	for _, configurationVariable := range configurationVariables {
 		variable := make(map[string]interface{})
 		variable["name"] = configurationVariable.Name
 		variable["value"] = configurationVariable.Value
-		variable["type"] = configurationVariable.Type
+		if configurationVariable.Type == nil || *configurationVariable.Type == 0 {
+			variable["type"] = "environment"
+		} else {
+			variable["type"] = "terraform"
+		}
 		if configurationVariable.Description != "" {
 			variable["description"] = configurationVariable.Description
 		}
@@ -225,7 +231,11 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 			variable["schema_enum"] = configurationVariable.Schema.Enum
 			variable["schema_format"] = configurationVariable.Schema.Format
 		}
-		d.Set(fmt.Sprintf(`configuration.%d`, index), variable)
+		variables = append(variables, variable)
+	}
+
+	if variables != nil {
+		d.Set("configuration", variables)
 	}
 }
 

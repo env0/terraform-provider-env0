@@ -102,12 +102,10 @@ func getProjectById(id string, meta interface{}) (client.Project, diag.Diagnosti
 	apiClient := meta.(client.ApiClientInterface)
 	project, err := apiClient.Project(id)
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok {
-			if frerr.NotFound() {
-				return client.Project{}, diag.Errorf("Could not find a project with id: %s", id)
-			}
+		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
+			return client.Project{}, diag.Errorf("Could not find a project with id: %s", id)
 		}
-		return client.Project{}, diag.Errorf("Could not query template: %v", err)
+		return client.Project{}, diag.Errorf("Could not query project: %v", err)
 	}
 	return project, nil
 }

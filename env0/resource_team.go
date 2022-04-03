@@ -64,7 +64,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	team, err := apiClient.Team(d.Id())
 	if err != nil {
-		return diag.Errorf("could not get team: %v", err)
+		return ResourceGetFailure("team", d, err)
 	}
 
 	setTeamSchema(d, team)

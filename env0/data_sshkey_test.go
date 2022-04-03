@@ -2,9 +2,11 @@ package env0
 
 import (
 	"encoding/json"
+	"regexp"
+	"testing"
+
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"testing"
 )
 
 func TestUnitSshKeyDataSourceById(t *testing.T) {
@@ -13,6 +15,26 @@ func TestUnitSshKeyDataSourceById(t *testing.T) {
 
 func TestUnitSshKeyDataSourceByName(t *testing.T) {
 	testUnitSshKeyDataSource(t, "name")
+}
+
+func TestUnitSshKeyDataSourceByIdNotFound(t *testing.T) {
+	resourceType := "env0_ssh_key"
+	resourceName := "test"
+
+	testCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					"id": "id123",
+				}),
+				ExpectError: regexp.MustCompile("could not read ssh key: id id123 not found"),
+			},
+		},
+	}
+
+	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().SshKeys().Times(1).Return(nil, nil)
+	})
 }
 
 func testUnitSshKeyDataSource(t *testing.T, byKey string) {
