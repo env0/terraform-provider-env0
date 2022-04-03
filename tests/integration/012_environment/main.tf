@@ -22,6 +22,7 @@ resource "env0_environment" "example" {
     value = "value"
   }
   approve_plan_automatically = true
+  revision                   = "master"
 }
 
 data "env0_configuration_variable" "env_config_variable" {
@@ -53,8 +54,8 @@ data "env0_environment" "test" {
   id = env0_environment.example.id
 }
 
-output "name" {
-  value = data.env0_environment.test.name
+output "revision" {
+  value = data.env0_environment.test.revision
 }
 
 output "configurationVariable" {

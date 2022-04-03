@@ -1,5 +1,5 @@
 {
-  "name": "environment",
+  "revision": "master",
   "configurationVariable": "environment configuration variable",
   "terragrunt_working_directory": "/second-dir"
 }
