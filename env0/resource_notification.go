@@ -170,6 +170,9 @@ func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return nil, err
 	}
+	if notification == nil {
+		return nil, fmt.Errorf("notification with id %v not found", d.Id())
+	}
 
 	if err := writeResourceData(notification, d); err != nil {
 		return nil, err

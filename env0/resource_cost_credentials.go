@@ -22,7 +22,6 @@ func resourceCostCredentials() *schema.Resource {
 				Description: "name for the credentials",
 				Required:    true,
 				ForceNew:    true,
-				//ExactlyOneOf: []string{"arn", "client_id", "table_id"},
 			},
 			"arn": {
 				Type:          schema.TypeString,
@@ -99,14 +98,8 @@ func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, 
 
 	apiClient := meta.(ApiClientInterface)
 	var apikey client.Credentials
-
 	var err error
-	payLoad, err := setPayload(d)
-	if err != nil {
-		return diag.Errorf("ERROR: %v", err)
-	}
-
-	credType, err := getCredType(d)
+	payLoad, credType, err := setPayload(d)
 	if err != nil {
 		return diag.Errorf("ERROR: %v", err)
 	}
@@ -174,10 +167,10 @@ func getCredType(d *schema.ResourceData) (string, error) {
 
 }
 
-func setPayload(d *schema.ResourceData) (interface{}, error) {
+func setPayload(d *schema.ResourceData) (interface{}, string, error) {
 	credType, err := getCredType(d)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	switch credType {
 	case string(client.AwsCostCredentialsType):
@@ -188,7 +181,7 @@ func setPayload(d *schema.ResourceData) (interface{}, error) {
 				RoleArn:    d.Get("arn").(string),
 				ExternalId: d.Get("external_id").(string),
 			},
-		}, nil
+		}, credType, nil
 	case string(client.AzureCostCredentialsType):
 		return client.AzureCredentialsCreatePayload{
 			Type: client.AzureCostCredentialsType,
@@ -198,7 +191,7 @@ func setPayload(d *schema.ResourceData) (interface{}, error) {
 				TenantId:       d.Get("tenant_id").(string),
 				SubscriptionId: d.Get("subscription_id").(string),
 			},
-		}, nil
+		}, credType, nil
 	case string(client.GoogleCostCredentiassType):
 		return client.GoogleCostCredentialsCreatePayload{
 			Type: client.GoogleCostCredentiassType,
@@ -206,10 +199,10 @@ func setPayload(d *schema.ResourceData) (interface{}, error) {
 				TableId: d.Get("table_id").(string),
 				Secret:  d.Get("secret").(string),
 			},
-		}, nil
+		}, credType, nil
 
 	default:
-		return "", errors.New("cant create payload")
+		return "", "", errors.New("cant create payload")
 	}
 
 }
