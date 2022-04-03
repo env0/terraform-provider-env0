@@ -632,7 +632,10 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		for _, testCase := range testCases {
-			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+			tc := testCase
+			t.Run("Invalid retry times field", func(t *testing.T) {
+				runUnitTest(t, tc, func(mockFunc *client.MockApiClientInterface) {})
+			})
 		}
 	})
 
@@ -655,7 +658,10 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		for _, testCase := range testCases {
-			runUnitTest(t, testCase, func(mockFunc *client.MockApiClientInterface) {})
+			tc := testCase
+			t.Run("Invalid retry regex field", func(t *testing.T) {
+				runUnitTest(t, tc, func(mockFunc *client.MockApiClientInterface) {})
+			})
 		}
 	})
 
