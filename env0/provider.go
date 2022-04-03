@@ -15,6 +15,10 @@ func Provider(version string) plugin.ProviderFunc {
 	return func() *schema.Provider {
 		apiKeyEnv := "ENV0_API_KEY"
 		apiSecretEnv := "ENV0_API_SECRET"
+
+		// version "TEST" is used for acceptance testing.
+		// Due to race conditions related to env variables:
+		// Using different env variables during testing prevetns the race conditions.
 		if version == "TEST" {
 			version = ""
 			apiKeyEnv = "ENV0_API_KEY_TEST"
