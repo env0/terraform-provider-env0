@@ -4,26 +4,40 @@ import (
 	"errors"
 )
 
-func (self *ApiClient) Organization() (Organization, error) {
+func (ac *ApiClient) Organization() (Organization, error) {
 	var result []Organization
-	err := self.http.Get("/organizations", nil, &result)
+	err := ac.http.Get("/organizations", nil, &result)
 	if err != nil {
 		return Organization{}, err
 	}
 	if len(result) != 1 {
-		return Organization{}, errors.New("Server responded with too many organizations")
+		return Organization{}, errors.New("server responded with too many organizations")
 	}
 	return result[0], nil
 }
 
-func (self *ApiClient) organizationId() (string, error) {
-	if self.cachedOrganizationId != "" {
-		return self.cachedOrganizationId, nil
+func (ac *ApiClient) organizationId() (string, error) {
+	if ac.cachedOrganizationId != "" {
+		return ac.cachedOrganizationId, nil
 	}
-	organization, err := self.Organization()
+	organization, err := ac.Organization()
 	if err != nil {
 		return "", nil
 	}
-	self.cachedOrganizationId = organization.Id
-	return self.cachedOrganizationId, nil
+	ac.cachedOrganizationId = organization.Id
+	return ac.cachedOrganizationId, nil
+}
+
+func (ac *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpdatePayload) (*Organization, error) {
+	id, err := ac.organizationId()
+	if err != nil {
+		return nil, err
+	}
+
+	var result Organization
+	if err := ac.http.Post("/organizations/"+id+"/policies", payload, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
