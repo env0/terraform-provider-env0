@@ -1,5 +1,21 @@
 package client
 
+type ApiKey struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	ApiKeyId       string `json:"apiKeyId"`
+	ApiKeySecret   string `json:"apiKeySecret"`
+	LastUsedAt     string `json:"lastUsedAt"`
+	OrganizationId string `json:"organizationId"`
+	CreatedAt      string `json:"createdAt"`
+	CreatedBy      string `json:"createdBy"`
+	CreatedByUser  User   `json:"createdByUser"`
+}
+
+type ApiKeyCreatePayload struct {
+	Name string `json:"name"`
+}
+
 type ApiKeyCreatePayloadWith struct {
 	ApiKeyCreatePayload
 	OrganizationId string `json:"organizationId"`

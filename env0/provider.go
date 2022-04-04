@@ -16,9 +16,8 @@ func Provider(version string) plugin.ProviderFunc {
 		apiKeyEnv := "ENV0_API_KEY"
 		apiSecretEnv := "ENV0_API_SECRET"
 
-		// version "TEST" is used for acceptance testing.
-		// Due to race conditions related to env variables:
-		// Using different env variables during testing prevetns the race conditions.
+		// version "TEST" is used for acceptance testing the provider with env variables.
+		// must use different env variables to prevent race conditions with other acceptance tests that run in parallel.
 		if version == "TEST" {
 			version = ""
 			apiKeyEnv = "ENV0_API_KEY_TEST"
@@ -92,6 +91,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_module":                               resourceModule(),
 				"env0_git_token":                            resourceGitToken(),
 				"env0_api_key":                              resourceApiKey(),
+				"env0_organization_policy":                  resourceOrganizationPolicy(),
 			},
 		}
 

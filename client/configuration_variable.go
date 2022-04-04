@@ -4,6 +4,67 @@ import (
 	"errors"
 )
 
+type Scope string
+
+const (
+	ScopeGlobal        Scope = "GLOBAL"
+	ScopeTemplate      Scope = "BLUEPRINT"
+	ScopeProject       Scope = "PROJECT"
+	ScopeEnvironment   Scope = "ENVIRONMENT"
+	ScopeDeployment    Scope = "DEPLOYMENT"
+	ScopeDeploymentLog Scope = "DEPLOYMENT_LOG"
+)
+
+type Format string
+
+const (
+	Text Format = ""
+	HCL  Format = "HCL"
+	JSON Format = "JSON"
+)
+
+type ConfigurationVariableSchema struct {
+	Type   string   `json:"type"`
+	Enum   []string `json:"enum"`
+	Format Format   `json:"format,omitempty"`
+}
+
+type ConfigurationVariable struct {
+	ScopeId        string                       `json:"scopeId,omitempty"`
+	Value          string                       `json:"value"`
+	OrganizationId string                       `json:"organizationId,omitempty"`
+	UserId         string                       `json:"userId,omitempty"`
+	IsSensitive    *bool                        `json:"isSensitive,omitempty"`
+	Scope          Scope                        `json:"scope,omitempty"`
+	Id             string                       `json:"id,omitempty"`
+	Name           string                       `json:"name"`
+	Description    string                       `json:"description,omitempty"`
+	Type           *ConfigurationVariableType   `json:"type,omitempty"`
+	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
+	ToDelete       *bool                        `json:"toDelete,omitempty"`
+	IsReadonly     *bool                        `json:"isReadonly,omitempty"`
+	IsRequired     *bool                        `json:"isRequired,omitempty"`
+}
+
+type ConfigurationVariableCreateParams struct {
+	Name        string
+	Value       string
+	IsSensitive bool
+	Scope       Scope
+	ScopeId     string
+	Type        ConfigurationVariableType
+	EnumValues  []string
+	Description string
+	Format      Format
+	IsReadonly  bool
+	IsRequired  bool
+}
+
+type ConfigurationVariableUpdateParams struct {
+	CommonParams ConfigurationVariableCreateParams
+	Id           string
+}
+
 func (self *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
 	var result ConfigurationVariable
 
