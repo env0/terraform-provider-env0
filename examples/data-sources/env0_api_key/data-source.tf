@@ -1,5 +1,5 @@
 resource "env0_api_key" "api_key_sample" {
-  name  = "name"
+  name = "name"
 }
 
 data "env0_api_key" "api_key_sample_by_id" {
