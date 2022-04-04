@@ -4,6 +4,28 @@ import (
 	"errors"
 )
 
+type Role string
+
+const (
+	Admin    Role = "Admin"
+	Deployer Role = "Deployer"
+	Planner  Role = "Planner"
+	Viewer   Role = "Viewer"
+)
+
+type TeamProjectAssignmentPayload struct {
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole Role   `json:"projectRole"`
+}
+
+type TeamProjectAssignment struct {
+	Id          string `json:"id"`
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole Role   `json:"projectRole"`
+}
+
 func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
 	if payload.ProjectId == "" {
 		return TeamProjectAssignment{}, errors.New("must specify project_id")

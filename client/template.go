@@ -8,6 +8,91 @@ import (
 	"errors"
 )
 
+type TemplateRetryOn struct {
+	Times      int    `json:"times,omitempty"`
+	ErrorRegex string `json:"errorRegex"`
+}
+
+type TemplateRetry struct {
+	OnDeploy  *TemplateRetryOn `json:"onDeploy"`
+	OnDestroy *TemplateRetryOn `json:"onDestroy"`
+}
+
+type TemplateType string
+
+const (
+	TemplateTypeTerraform  TemplateType = "terraform"
+	TemplateTypeTerragrunt TemplateType = "terragrunt"
+)
+
+type TemplateSshKey struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type Template struct {
+	Author               User             `json:"author"`
+	AuthorId             string           `json:"authorId"`
+	CreatedAt            string           `json:"createdAt"`
+	Href                 string           `json:"href"`
+	Id                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	Description          string           `json:"description"`
+	OrganizationId       string           `json:"organizationId"`
+	Path                 string           `json:"path"`
+	Revision             string           `json:"revision"`
+	ProjectId            string           `json:"projectId"`
+	ProjectIds           []string         `json:"projectIds"`
+	Repository           string           `json:"repository"`
+	Retry                TemplateRetry    `json:"retry"`
+	SshKeys              []TemplateSshKey `json:"sshKeys"`
+	Type                 string           `json:"type"`
+	GithubInstallationId int              `json:"githubInstallationId"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
+	TokenId              string           `json:"tokenId,omitempty"`
+	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
+	UpdatedAt            string           `json:"updatedAt"`
+	TerraformVersion     string           `json:"terraformVersion"`
+	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
+	IsDeleted            bool             `json:"isDeleted,omitempty"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
+}
+
+type TemplateCreatePayload struct {
+	Retry                TemplateRetry    `json:"retry"`
+	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
+	Type                 TemplateType     `json:"type"`
+	Description          string           `json:"description"`
+	Name                 string           `json:"name"`
+	Repository           string           `json:"repository"`
+	Path                 string           `json:"path"`
+	IsGitLab             bool             `json:"isGitLab"`
+	TokenName            string           `json:"tokenName"`
+	TokenId              string           `json:"tokenId,omitempty"`
+	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
+	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
+	Revision             string           `json:"revision"`
+	OrganizationId       string           `json:"organizationId"`
+	TerraformVersion     string           `json:"terraformVersion"`
+	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
+	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
+	IsGitHubEnterprise   bool             `json:"isGitHubEnterprise"`
+	IsBitbucketServer    bool             `json:"isBitbucketServer"`
+}
+
+type TemplateAssignmentToProjectPayload struct {
+	ProjectId string `json:"projectId"`
+}
+
+type TemplateAssignmentToProject struct {
+	Id         string `json:"id"`
+	TemplateId string `json:"templateId"`
+	ProjectId  string `json:"projectId"`
+}
+
 func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
 	if payload.Name == "" {
 		return Template{}, errors.New("Must specify template name on creation")
