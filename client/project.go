@@ -1,5 +1,23 @@
 package client
 
+type Project struct {
+	IsArchived     bool   `json:"isArchived"`
+	OrganizationId string `json:"organizationId"`
+	UpdatedAt      string `json:"updatedAt"`
+	CreatedAt      string `json:"createdAt"`
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	CreatedBy      string `json:"createdBy"`
+	Role           string `json:"role"`
+	CreatedByUser  User   `json:"createdByUser"`
+	Description    string `json:"description"`
+}
+
+type ProjectCreatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func (self *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := self.organizationId()
 	if err != nil {

@@ -1,8 +1,37 @@
 package client
 
+type NotificationType string
+
+const (
+	NotificationTypeSlack NotificationType = "Slack"
+	NotificationTypeTeams NotificationType = "Teams"
+)
+
+type Notification struct {
+	Id             string           `json:"id"`
+	CreatedBy      string           `json:"createdBy"`
+	CreatedByUser  User             `json:"createdByUser"`
+	OrganizationId string           `json:"organizationId"`
+	Name           string           `json:"name"`
+	Type           NotificationType `json:"type"`
+	Value          string           `json:"value"`
+}
+
+type NotificationCreatePayload struct {
+	Name  string           `json:"name"`
+	Type  NotificationType `json:"type"`
+	Value string           `json:"value"`
+}
+
 type NotificationCreatePayloadWith struct {
 	NotificationCreatePayload
 	OrganizationId string `json:"organizationId"`
+}
+
+type NotificationUpdatePayload struct {
+	Name  string           `json:"name,omitempty"`
+	Type  NotificationType `json:"type,omitempty"`
+	Value string           `json:"value,omitempty"`
 }
 
 func (ac *ApiClient) Notifications() ([]Notification, error) {

@@ -1,5 +1,11 @@
 package client
 
+type CostCredentialProjectAssignment struct {
+	ProjectId       string `json:"projectId"`
+	CredentialsId   string `json:"credentialsId"`
+	CredentialsType string `json:"credentialsType"`
+}
+
 func (self *ApiClient) AssignCostCredentialsToProject(projectId string, credentialId string) (CostCredentialProjectAssignment, error) {
 	var result CostCredentialProjectAssignment
 

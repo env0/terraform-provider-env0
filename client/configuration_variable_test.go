@@ -1,6 +1,8 @@
 package client_test
 
 import (
+	"encoding/json"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -34,6 +36,33 @@ var _ = Describe("Configuration Variable", func() {
 		IsReadonly:     &isReadonly,
 		IsRequired:     &isRequired,
 	}
+
+	Describe("ConfigurationVariable", func() {
+		Describe("Schema", func() {
+			It("On schema type is free text, enum should be nil", func() {
+				var parsedPayload ConfigurationVariable
+				json.Unmarshal([]byte(`{"schema": {"type": "string"}}`), &parsedPayload)
+				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
+				Expect(parsedPayload.Schema.Enum).Should(BeNil())
+			})
+
+			It("On schema type is dropdown, enum should be present", func() {
+				var parsedPayload ConfigurationVariable
+				json.Unmarshal([]byte(`{"schema": {"type": "string", "enum": ["hello"]}}`), &parsedPayload)
+				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
+				Expect(parsedPayload.Schema.Enum).Should(BeEquivalentTo([]string{"hello"}))
+			})
+		})
+
+		Describe("Enums", func() {
+			It("Should convert enums correctly", func() {
+				var parsedPayload ConfigurationVariable
+				json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
+				Expect(parsedPayload.Scope).Should(Equal(ScopeProject))
+				Expect(*parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
+			})
+		})
+	})
 
 	Describe("ConfigurationVariablesById", func() {
 		id := "configurationId"
