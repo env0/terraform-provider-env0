@@ -47,8 +47,10 @@ func dataGoogleCostCredentialsRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	d.SetId(credentials.Id)
-	d.Set("name", credentials.Name)
+	errorWhenWriteData := writeResourceData(credentials, d)
+	if errorWhenWriteData != nil {
+		return diag.Errorf("Error:", errorWhenWriteData)
+	}
 
 	return nil
 }
@@ -57,7 +59,7 @@ func getGoogleCostCredentialsByName(name interface{}, meta interface{}) (client.
 	apiClient := meta.(client.ApiClientInterface)
 	credentialsList, err := apiClient.CloudCredentialsList()
 	if err != nil {
-		return client.Credentials{}, diag.Errorf("Could not query GCP Credentials by name: %v", err)
+		return client.Credentials{}, diag.Errorf("Could not query Google Credentials by name: %v", err)
 	}
 
 	credentialsByNameAndType := make([]client.Credentials, 0)
@@ -71,7 +73,7 @@ func getGoogleCostCredentialsByName(name interface{}, meta interface{}) (client.
 		return client.Credentials{}, diag.Errorf("Found multiple Google cost Credentials for name: %s", name)
 	}
 	if len(credentialsByNameAndType) == 0 {
-		return client.Credentials{}, diag.Errorf("Could not find GCP Credentials with name: %s", name)
+		return client.Credentials{}, diag.Errorf("Could not find Google Credentials with name: %s", name)
 	}
 	return credentialsByNameAndType[0], nil
 }
@@ -80,10 +82,10 @@ func getGoogleCostCredentialsById(id string, meta interface{}) (client.Credentia
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.CloudCredentials(id)
 	if !isValidGoogleCostCredentialsType(credentials.Type) {
-		return client.Credentials{}, diag.Errorf("Found credentials which are not GCP Credentials: %v", credentials)
+		return client.Credentials{}, diag.Errorf("Found credentials which are not Google Credentials: %v", credentials)
 	}
 	if err != nil {
-		return client.Credentials{}, diag.Errorf("Could not query GCP Credentials: %v", err)
+		return client.Credentials{}, diag.Errorf("Could not query Google Credentials: %v", err)
 	}
 	return credentials, nil
 }

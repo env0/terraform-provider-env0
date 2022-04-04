@@ -47,8 +47,10 @@ func dataAzureCostCredentialsRead(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	d.SetId(credentials.Id)
-	d.Set("name", credentials.Name)
+	errorWhenWriteData := writeResourceData(credentials, d)
+	if errorWhenWriteData != nil {
+		return diag.Errorf("Error:", errorWhenWriteData)
+	}
 
 	return nil
 }
