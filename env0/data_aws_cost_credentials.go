@@ -84,7 +84,6 @@ func getAwsCostCredentialsById(id string, meta interface{}) (client.Credentials,
 	credentials, err := apiClient.CloudCredentials(id)
 	if credentials.Type != string(client.AwsCostCredentialsType) {
 		return client.Credentials{}, diag.Errorf("Found credentials which are not AWS Cost Credentials: %v", credentials)
-Write
 	}
 	if err != nil {
 		return client.Credentials{}, diag.Errorf("Could not query AWS Cost Credentials: %v", err)
