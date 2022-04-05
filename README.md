@@ -89,6 +89,17 @@ terraform {
 }
 ```
 
+### Installing pre-commit hooks
+For consistent coding style, it's recommended to install [pre-commit](https://pre-commit.com/#install) hooks.
+
+```
+go install golang.org/x/tools/...@latest
+go install honnef.co/go/tools/cmd/staticcheck@latest
+pre-commit install
+pre-commit install --hook-type pre-push
+```
+
+
 ## Testing
 
 ### Integration tests
