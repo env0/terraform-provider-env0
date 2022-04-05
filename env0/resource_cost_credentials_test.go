@@ -306,7 +306,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 			TableId: googleCostCredentialResource["table_id"].(string),
 			Secret:  googleCostCredentialResource["secret"].(string),
 		},
-		Type: client.GoogleCostCredentiassType,
+		Type: client.GoogleCostCredentialsType,
 	}
 
 	updateGoogleCostCredCreatePayload := client.GoogleCostCredentialsCreatePayload{
@@ -315,21 +315,21 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 			TableId: updateGoogleCostCredentialResource["table_id"].(string),
 			Secret:  updateGoogleCostCredentialResource["secret"].(string),
 		},
-		Type: client.GoogleCostCredentiassType,
+		Type: client.GoogleCostCredentialsType,
 	}
 
 	returnValues := client.Credentials{
 		Id:             "id",
 		Name:           "test",
 		OrganizationId: "id",
-		Type:           string(client.GoogleCostCredentiassType),
+		Type:           string(client.GoogleCostCredentialsType),
 	}
 
 	updateReturnValues := client.Credentials{
 		Id:             "id2",
 		Name:           "update",
 		OrganizationId: "id",
-		Type:           string(client.GoogleCostCredentiassType),
+		Type:           string(client.GoogleCostCredentialsType),
 	}
 
 	testCaseForCreate := resource.TestCase{

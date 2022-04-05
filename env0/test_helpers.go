@@ -3,7 +3,6 @@ package env0
 import (
 	"fmt"
 	"regexp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 

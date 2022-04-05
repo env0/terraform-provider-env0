@@ -99,28 +99,25 @@ func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, 
 	apiClient := meta.(ApiClientInterface)
 	var apikey client.Credentials
 	var err error
-	payLoad, credType, err := setPayload(d)
+	payLoad, credType, err := getCredentailsPayload(d)
 	if err != nil {
 		return diag.Errorf("ERROR: %v", err)
 	}
 
 	switch credType {
 	case string(client.AwsCostCredentialsType):
-		payLoadToSent := payLoad.(client.AwsCredentialsCreatePayload)
-		payLoadToSent.Name = d.Get("name").(string)
-		apikey, err = apiClient.AwsCredentialsCreate(payLoadToSent)
+		payLoadToSend := payLoad.(client.AwsCredentialsCreatePayload)
+		apikey, err = apiClient.AwsCredentialsCreate(payLoadToSend)
 	case string(client.AzureCostCredentialsType):
-		payLoadToSent := payLoad.(client.AzureCredentialsCreatePayload)
-		payLoadToSent.Name = d.Get("name").(string)
-		apikey, err = apiClient.AzureCredentialsCreate(payLoadToSent)
-	case string(client.GoogleCostCredentiassType):
-		payLoadToSent := payLoad.(client.GoogleCostCredentialsCreatePayload)
-		payLoadToSent.Name = d.Get("name").(string)
-		apikey, err = apiClient.GoogleCostCredentialsCreate(payLoadToSent)
+		payLoadToSend := payLoad.(client.AzureCredentialsCreatePayload)
+		apikey, err = apiClient.AzureCredentialsCreate(payLoadToSend)
+	case string(client.GoogleCostCredentialsType):
+		payLoadToSend := payLoad.(client.GoogleCostCredentialsCreatePayload)
+		apikey, err = apiClient.GoogleCostCredentialsCreate(payLoadToSend)
 	}
 
 	if err != nil {
-		return diag.Errorf("cost credential fialed: %v", err)
+		return diag.Errorf("Cost credential failed: %v", err)
 	}
 	d.SetId(apikey.Id)
 	return nil
@@ -132,7 +129,7 @@ func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, me
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		return diag.Errorf("could not get credentials: %v", err)
+		return ResourceGetFailure("cost credentials", d, err)
 	}
 	return nil
 
@@ -160,14 +157,14 @@ func getCredType(d *schema.ResourceData) (string, error) {
 	case azureOk:
 		return string(client.AzureCostCredentialsType), nil
 	case googleOk:
-		return string(client.GoogleCostCredentiassType), nil
+		return string(client.GoogleCostCredentialsType), nil
 	default:
-		return "error", errors.New("error in schema, no required value  defined")
+		return "error", errors.New("error in schema, no required value defined")
 	}
 
 }
 
-func setPayload(d *schema.ResourceData) (interface{}, string, error) {
+func getCredentailsPayload(d *schema.ResourceData) (interface{}, string, error) {
 	credType, err := getCredType(d)
 	if err != nil {
 		return nil, "", err
@@ -176,6 +173,7 @@ func setPayload(d *schema.ResourceData) (interface{}, string, error) {
 	case string(client.AwsCostCredentialsType):
 
 		return client.AwsCredentialsCreatePayload{
+			Name: d.Get("name").(string),
 			Type: client.AwsCostCredentialsType,
 			Value: client.AwsCredentialsValuePayload{
 				RoleArn:    d.Get("arn").(string),
@@ -184,6 +182,7 @@ func setPayload(d *schema.ResourceData) (interface{}, string, error) {
 		}, credType, nil
 	case string(client.AzureCostCredentialsType):
 		return client.AzureCredentialsCreatePayload{
+			Name: d.Get("name").(string),
 			Type: client.AzureCostCredentialsType,
 			Value: client.AzureCredentialsValuePayload{
 				ClientId:       d.Get("client_id").(string),
@@ -192,9 +191,10 @@ func setPayload(d *schema.ResourceData) (interface{}, string, error) {
 				SubscriptionId: d.Get("subscription_id").(string),
 			},
 		}, credType, nil
-	case string(client.GoogleCostCredentiassType):
+	case string(client.GoogleCostCredentialsType):
 		return client.GoogleCostCredentialsCreatePayload{
-			Type: client.GoogleCostCredentiassType,
+			Name: d.Get("name").(string),
+			Type: client.GoogleCostCredentialsType,
 			Value: client.GoogleCostCredentialsValeuPayload{
 				TableId: d.Get("table_id").(string),
 				Secret:  d.Get("secret").(string),
@@ -202,7 +202,7 @@ func setPayload(d *schema.ResourceData) (interface{}, string, error) {
 		}, credType, nil
 
 	default:
-		return "", "", errors.New("cant create payload")
+		return "", "", errors.New("Failed to build credentials payload, please contact env0")
 	}
 
 }
