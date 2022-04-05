@@ -2,6 +2,24 @@ package client
 
 import "errors"
 
+type TeamCreatePayload struct {
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	OrganizationId string `json:"organizationId"`
+}
+
+type TeamUpdatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type Team struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	OrganizationId string `json:"organizationId"`
+}
+
 func (self *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
 	if payload.Name == "" {
 		return Team{}, errors.New("Must specify team name on creation")
