@@ -90,7 +90,7 @@ func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one gcp-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(GcpCredFieldsByName, "Found multiple Google cost Credentials for name: testdata"),
+			getErrorTestCase(GcpCredFieldsByName, "Error: Found multiple Cost Credentials for name: testdata"),
 			mockListGcpCredCall([]client.Credentials{gcpCred, gcpCred, gcpCred}),
 		)
 	})

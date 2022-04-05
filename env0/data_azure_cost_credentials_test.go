@@ -97,14 +97,14 @@ func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AzureCredFieldsByName, "Found multiple Azure cost Credentials for name: testdata"),
+			getErrorTestCase(AzureCredFieldsByName, "Error: Found multiple Cost Credentials for name: testdata"),
 			mockListAzureCredCall([]client.Credentials{azureCred, azureCred, azureCred}),
 		)
 	})
 
 	t.Run("Throw error when by name and no azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AzureCredFieldsByName, "Could not find Azure cost Credentials with name: testdata"),
+			getErrorTestCase(AzureCredFieldsByName, "Error: Could not find Cost Credentials with name: testdata"),
 			mockListAzureCredCall([]client.Credentials{credWithDiffName, credWithDiffName}),
 		)
 	})
