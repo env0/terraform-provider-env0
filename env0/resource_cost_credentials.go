@@ -97,7 +97,7 @@ func resourceCostCredentials() *schema.Resource {
 func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	apiClient := meta.(ApiClientInterface)
-	var apikey client.Credentials
+	var apiKey client.Credentials
 	var err error
 	payLoad, credType, err := getCredentailsPayload(d)
 	if err != nil {
@@ -107,19 +107,19 @@ func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, 
 	switch credType {
 	case string(client.AwsCostCredentialsType):
 		payLoadToSend := payLoad.(client.AwsCredentialsCreatePayload)
-		apikey, err = apiClient.AwsCredentialsCreate(payLoadToSend)
+		apiKey, err = apiClient.AwsCredentialsCreate(payLoadToSend)
 	case string(client.AzureCostCredentialsType):
 		payLoadToSend := payLoad.(client.AzureCredentialsCreatePayload)
-		apikey, err = apiClient.AzureCredentialsCreate(payLoadToSend)
+		apiKey, err = apiClient.AzureCredentialsCreate(payLoadToSend)
 	case string(client.GoogleCostCredentialsType):
 		payLoadToSend := payLoad.(client.GoogleCostCredentialsCreatePayload)
-		apikey, err = apiClient.GoogleCostCredentialsCreate(payLoadToSend)
+		apiKey, err = apiClient.GoogleCostCredentialsCreate(payLoadToSend)
 	}
 
 	if err != nil {
 		return diag.Errorf("Cost credential failed: %v", err)
 	}
-	d.SetId(apikey.Id)
+	d.SetId(apiKey.Id)
 	return nil
 }
 
