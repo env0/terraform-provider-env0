@@ -1,5 +1,15 @@
 package client
 
+type CloudCredentialIdsInProjectResponse struct {
+	CredentialIds []string `json:"credentialIds"`
+}
+
+type CloudCredentialsProjectAssignment struct {
+	Id           string `json:"id"`
+	CredentialId string `json:"credentialId"`
+	ProjectId    string `json:"projectId"`
+}
+
 func (self *ApiClient) AssignCloudCredentialsToProject(projectId string, credentialId string) (CloudCredentialsProjectAssignment, error) {
 	var result CloudCredentialsProjectAssignment
 

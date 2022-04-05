@@ -2,6 +2,16 @@ package client
 
 import "errors"
 
+type EnvironmentSchedulingExpression struct {
+	Cron    string `json:"cron,omitempty"`
+	Enabled bool   `json:"enabled"`
+}
+
+type EnvironmentScheduling struct {
+	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty"`
+	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty"`
+}
+
 func (self *ApiClient) EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error) {
 	var result EnvironmentScheduling
 

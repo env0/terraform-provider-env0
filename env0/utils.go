@@ -60,6 +60,9 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 			case reflect.Bool:
 				b := dval.(bool)
 				field.Set(reflect.ValueOf(&b))
+			case reflect.String:
+				s := dval.(string)
+				field.Set(reflect.ValueOf(&s))
 			default:
 				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
