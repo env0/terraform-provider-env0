@@ -720,6 +720,7 @@ func shouldWaitForDeployment(d *schema.ResourceData) bool {
 }
 
 func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterface) error {
+	log.Println("[INFO] Waiting for deployment to finish")
 	for {
 		deployment, err := apiClient.Deployment(deploymentLogId)
 		if err != nil {
@@ -729,9 +730,11 @@ func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterfa
 		case "IN_PROGRESS",
 			"QUEUED",
 			"WAITING_FOR_USER":
+			log.Println("[INFO] Deployment not yet done deploying. Got status ", deployment.Status)
 			time.Sleep(deploymentStatusWaitPollInterval * time.Second)
 		case "SUCCESS",
 			"SKIPPED":
+			log.Println("[INFO] Deployment done deploying! Got status ", deployment.Status)
 			return nil
 		default:
 			return fmt.Errorf("environment deployment reached failure status: %v", deployment.Status)
