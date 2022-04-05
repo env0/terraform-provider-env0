@@ -8,9 +8,9 @@ type WorkflowTriggerUpsertPayload struct {
 	DownstreamEnvironmentIds []string `json:"downstreamEnvironmentIds"`
 }
 
-func (self *ApiClient) WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error) {
+func (client *ApiClient) WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error) {
 	var result []WorkflowTrigger
-	err := self.http.Get("environments/"+environmentId+"/downstream", nil, &result)
+	err := client.http.Get("environments/"+environmentId+"/downstream", nil, &result)
 	if err != nil {
 		return []WorkflowTrigger{}, err
 	}
@@ -18,10 +18,10 @@ func (self *ApiClient) WorkflowTrigger(environmentId string) ([]WorkflowTrigger,
 	return result, nil
 }
 
-func (self *ApiClient) WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
+func (client *ApiClient) WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
 	var result []WorkflowTrigger
 
-	err := self.http.Put("/environments/"+environmentId+"/downstream", request, &result)
+	err := client.http.Put("/environments/"+environmentId+"/downstream", request, &result)
 	if err != nil {
 		return []WorkflowTrigger{}, err
 	}

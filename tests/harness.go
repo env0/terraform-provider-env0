@@ -184,9 +184,7 @@ func testNamesFromCommandLineArguments() []string {
 			if strings.HasPrefix(testName, TESTS_FOLDER+"/") {
 				testName = testName[len(TESTS_FOLDER+"/"):]
 			}
-			if strings.HasSuffix(testName, "/") {
-				testName = testName[:len(testName)-1]
-			}
+			testName = strings.TrimSuffix(testName, "/")
 			testNames = append(testNames, testName)
 		}
 	} else {

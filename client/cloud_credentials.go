@@ -77,8 +77,8 @@ const (
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 )
 
-func (self *ApiClient) CloudCredentials(id string) (Credentials, error) {
-	var credentials, err = self.CloudCredentialsList()
+func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {
+	var credentials, err = client.CloudCredentialsList()
 	if err != nil {
 		return Credentials{}, err
 	}
@@ -92,14 +92,14 @@ func (self *ApiClient) CloudCredentials(id string) (Credentials, error) {
 	return Credentials{}, fmt.Errorf("CloudCredentials: [%s] not found ", id)
 }
 
-func (self *ApiClient) CloudCredentialsList() ([]Credentials, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return []Credentials{}, err
 	}
 
 	var credentials []Credentials
-	err = self.http.Get("/credentials", map[string]string{"organizationId": organizationId}, &credentials)
+	err = client.http.Get("/credentials", map[string]string{"organizationId": organizationId}, &credentials)
 	if err != nil {
 		return []Credentials{}, err
 	}
@@ -107,8 +107,8 @@ func (self *ApiClient) CloudCredentialsList() ([]Credentials, error) {
 	return credentials, nil
 }
 
-func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload) (Credentials, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
@@ -116,15 +116,15 @@ func (self *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload)
 	request.OrganizationId = organizationId
 
 	var result Credentials
-	err = self.http.Post("/credentials", request, &result)
+	err = client.http.Post("/credentials", request, &result)
 	if err != nil {
 		return Credentials{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload) (Credentials, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
@@ -132,15 +132,15 @@ func (self *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload)
 	request.OrganizationId = organizationId
 
 	var result Credentials
-	err = self.http.Post("/credentials", request, &result)
+	err = client.http.Post("/credentials", request, &result)
 	if err != nil {
 		return Credentials{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayload) (Credentials, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
@@ -148,26 +148,26 @@ func (self *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayl
 	request.OrganizationId = organizationId
 
 	var result Credentials
-	err = self.http.Post("/credentials", request, &result)
+	err = client.http.Post("/credentials", request, &result)
 	if err != nil {
 		return Credentials{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) CloudCredentialsDelete(id string) error {
-	return self.http.Delete("/credentials/" + id)
+func (client *ApiClient) CloudCredentialsDelete(id string) error {
+	return client.http.Delete("/credentials/" + id)
 }
 
-func (self *ApiClient) GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (Credentials, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
 
 	request.OrganizationId = organizationId
 	var result Credentials
-	err = self.http.Post("/credentials", request, &result)
+	err = client.http.Post("/credentials", request, &result)
 	if err != nil {
 		return Credentials{}, err
 	}

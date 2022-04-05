@@ -58,7 +58,7 @@ See [here](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an
     ```terraform
     variable "env0_api_key" {}
     variable "env0_api_secret" {}
-    
+
     provider "env0" {
       api_key = var.env0_api_key
       api_secret = var.env0_api_secret
@@ -77,7 +77,7 @@ See [here](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an
 - Build - `./build.sh`
 - Create the plugins folder - `mkdir -p ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64`
 - Copy the built binary - `cp ./terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (Replace `darwin` with `linux` on Linux)
-- Require the local provider in your `main.tf` - 
+- Require the local provider in your `main.tf` -
 ```
 terraform {
   required_providers {
@@ -92,7 +92,7 @@ terraform {
 ## Testing
 
 ### Integration tests
-- The integration tests run against the real env0 API 
+- The integration tests run against the real env0 API
 - Have `ENV0_API_KEY` and `ENV0_API_SECRET` environment variables defined.
 - Also set `ENV0_API_ENDPOINT` if you want to run against a non-prod environment.
 - Run `go run tests/harness.go` (from the project root folder) to run all the tests.
@@ -110,7 +110,7 @@ Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` 
 
 #### Integration Test Prerequisites
 - An env0 organization
-- An API Key 
+- An API Key
 - A Github.com integrated template name `Github Integrated Template` for https://github.com/env0/templates
 - A Gitlab.com integrated template name `Gitlab Integrated Template` for https://gitlab.com/env0/gitlab-vcs-integration-tests
 

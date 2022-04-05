@@ -3,7 +3,7 @@ package env0
 import (
 	"context"
 
-	. "github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -36,7 +36,7 @@ func resourceWorkflowTriggers() *schema.Resource {
 }
 
 func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
 
@@ -56,7 +56,7 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 	environmentId := d.Get("environment_id").(string)
 	rawDownstreamIds := d.Get("downstream_environment_ids").([]interface{})
 	var requestDownstreamIds []string
@@ -64,7 +64,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 	for _, rawId := range rawDownstreamIds {
 		requestDownstreamIds = append(requestDownstreamIds, rawId.(string))
 	}
-	request := WorkflowTriggerUpsertPayload{
+	request := client.WorkflowTriggerUpsertPayload{
 		DownstreamEnvironmentIds: requestDownstreamIds,
 	}
 	triggers, err := apiClient.WorkflowTriggerUpsert(environmentId, request)
@@ -83,9 +83,9 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 }
 
 func resourceWorkflowTriggersDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
-	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), WorkflowTriggerUpsertPayload{DownstreamEnvironmentIds: []string{}})
+	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), client.WorkflowTriggerUpsertPayload{DownstreamEnvironmentIds: []string{}})
 	if err != nil {
 		return diag.Errorf("could not remove workflow triggers: %v", err)
 	}

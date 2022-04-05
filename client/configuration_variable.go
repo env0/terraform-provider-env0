@@ -65,10 +65,10 @@ type ConfigurationVariableUpdateParams struct {
 	Id           string
 }
 
-func (self *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
+func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
 	var result ConfigurationVariable
 
-	err := self.http.Get("/configuration/"+id, nil, &result)
+	err := client.http.Get("/configuration/"+id, nil, &result)
 
 	if err != nil {
 		return ConfigurationVariable{}, err
@@ -76,8 +76,8 @@ func (self *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVaria
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -92,22 +92,22 @@ func (self *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string
 	case scope == ScopeEnvironment:
 		params["environmentId"] = scopeId
 	case scope == ScopeDeployment:
-		return nil, errors.New("No api to fetch configuration variables by deployment")
+		return nil, errors.New("no api to fetch configuration variables by deployment")
 	case scope == ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
 	}
-	err = self.http.Get("/configuration", params, &result)
+	err = client.http.Get("/configuration", params, &result)
 	if err != nil {
 		return []ConfigurationVariable{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
+func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
 	if params.Scope == ScopeDeploymentLog || params.Scope == ScopeDeployment {
-		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
+		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -130,7 +130,7 @@ func (self *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableC
 	request["schema"] = getSchema(params)
 
 	requestInArray := []map[string]interface{}{request}
-	err = self.http.Post("configuration", requestInArray, &result)
+	err = client.http.Post("configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -150,16 +150,16 @@ func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} 
 	return schema
 }
 
-func (self *ApiClient) ConfigurationVariableDelete(id string) error {
-	return self.http.Delete("configuration/" + id)
+func (client *ApiClient) ConfigurationVariableDelete(id string) error {
+	return client.http.Delete("configuration/" + id)
 }
 
-func (self *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
+func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
 	commonParams := updateParams.CommonParams
 	if commonParams.Scope == ScopeDeploymentLog || commonParams.Scope == ScopeDeployment {
-		return ConfigurationVariable{}, errors.New("Must not create variable on scope deployment / deploymentLog")
+		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -183,7 +183,7 @@ func (self *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVar
 	request["schema"] = getSchema(updateParams.CommonParams)
 
 	requestInArray := []map[string]interface{}{request}
-	err = self.http.Post("/configuration", requestInArray, &result)
+	err = client.http.Post("/configuration", requestInArray, &result)
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
