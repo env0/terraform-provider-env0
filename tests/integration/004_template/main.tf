@@ -67,52 +67,28 @@ resource "env0_configuration_variable" "in_a_template2" {
   type        = "terraform"
 }
 
-# Temporary - Sleep to avoid eventual consistency issues with the data sources
-resource "time_sleep" "wait_for_all_templates" {
-  depends_on      = [env0_template.tested1, env0_template.tested2, env0_template.template_tg]
-  triggers = {
-      # Only using depends_on doesn't work on re-apply. This makes sure the sleep happens on re-apply
-      second_run = var.second_run
-    }
-  create_duration = "5s"
-}
-
-data "env0_template" "tested2" {
-  depends_on = [time_sleep.wait_for_all_templates]
-  name       = "tested1-${random_string.random.result}"
-}
-data "env0_template" "tested1" {
-  depends_on = [time_sleep.wait_for_all_templates]
-  name       = "GitLab Test-${random_string.random.result}"
-}
-data "env0_template" "template_tg" {
-  depends_on = [time_sleep.wait_for_all_templates]
-  name       = "Template for environment resource - tg-${random_string.random.result}"
-}
-
 output "tested2_template_id" {
-  value = data.env0_template.tested2.id
+  value = env0_template.tested2.id
 }
 output "tested2_template_type" {
-  value = data.env0_template.tested2.type
+  value = env0_template.tested2.type
 }
 output "tested2_template_name" {
-  value = replace(data.env0_template.tested2.name, random_string.random.result, "")
+  value = replace(env0_template.tested2.name, random_string.random.result, "")
 }
 output "tested2_template_repository" {
-  value = data.env0_template.tested2.repository
+  value = env0_template.tested2.repository
 }
 output "tested1_template_repository" {
-  value = data.env0_template.tested1.repository
+  value = env0_template.tested1.repository
 }
 output "tested2_template_path" {
-  value = data.env0_template.tested2.path
+  value = env0_template.tested2.path
 }
 output "tg_tg_version" {
-  value = data.env0_template.template_tg.terragrunt_version
+  value = env0_template.template_tg.terragrunt_version
 }
 
-data "env0_template" "tested3" {
-  id = env0_template.tested1.id
+output "github_template_type" {
+  value = env0_template.github_template.type
 }
-

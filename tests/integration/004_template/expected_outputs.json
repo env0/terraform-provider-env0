@@ -4,5 +4,6 @@
     "tested2_template_repository": "https://github.com/env0/templates",
     "tested1_template_repository": "https://gitlab.com/env0/gitlab-vcs-integration-tests.git",
     "tested2_template_path": "second",
-    "tg_tg_version" : "0.35.0"
+    "tg_tg_version" : "0.35.0",
+    "github_template_type": "terraform"
 }
