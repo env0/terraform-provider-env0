@@ -222,4 +222,3 @@ func getCredentailsPayload(d *schema.ResourceData) (interface{}, string, error) 
 	}
 
 }
-
