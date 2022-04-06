@@ -67,23 +67,23 @@ resource "env0_configuration_variable" "in_a_template2" {
   type        = "terraform"
 }
 
-output "tested2_template_id" {
-  value = env0_template.tested2.id
+output "tested1_template_id" {
+  value = env0_template.tested1.id
 }
-output "tested2_template_type" {
-  value = env0_template.tested2.type
+output "tested1_template_type" {
+  value = env0_template.tested1.type
 }
-output "tested2_template_name" {
-  value = replace(env0_template.tested2.name, random_string.random.result, "")
-}
-output "tested2_template_repository" {
-  value = env0_template.tested2.repository
+output "tested1_template_name" {
+  value = replace(env0_template.tested1.name, random_string.random.result, "")
 }
 output "tested1_template_repository" {
   value = env0_template.tested1.repository
 }
-output "tested2_template_path" {
-  value = env0_template.tested2.path
+output "tested2_template_repository" {
+  value = env0_template.tested2.repository
+}
+output "tested1_template_path" {
+  value = env0_template.tested1.path
 }
 output "tg_tg_version" {
   value = env0_template.template_tg.terragrunt_version
