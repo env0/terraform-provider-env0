@@ -10,88 +10,105 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCostCredentials() *schema.Resource {
+const AWS = "aws"
+const AZURE = "azure"
+const GOOGLE = "google"
+
+func resourceCostCredentials(providerName string) *schema.Resource {
+
+	awsSchema := map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Description: "name for the credentials",
+			Required:    true,
+			ForceNew:    true,
+		},
+		"arn": {
+			Type:        schema.TypeString,
+			Description: "the aws role arn",
+			ForceNew:    true,
+			Required:    true,
+		},
+		"external_id": {
+			Type:        schema.TypeString,
+			Description: "the aws role external id",
+			Optional:    true,
+			Sensitive:   true,
+			ForceNew:    true,
+			Required:    true,
+		},
+	}
+
+	azureSchema := map[string]*schema.Schema{
+		"client_id": {
+			Type:        schema.TypeString,
+			Description: "the azure client id",
+			ForceNew:    true,
+			Required:    true,
+		},
+		"client_secret": {
+			Type:        schema.TypeString,
+			Description: "azure client secret",
+			Sensitive:   true,
+			ForceNew:    true,
+			Required:    true,
+		},
+		"tenant_id": {
+			Type:        schema.TypeString,
+			Description: "azure tenant id",
+			ForceNew:    true,
+			Required:    true,
+		},
+		"subscription_id": {
+			Type:        schema.TypeString,
+			Description: "azure subscription id",
+			ForceNew:    true,
+			Required:    true,
+		},
+	}
+
+	googleSchema := map[string]*schema.Schema{
+		"table_id": {
+			Type:        schema.TypeString,
+			Description: "the table id of this credentials ",
+			ForceNew:    true,
+			Required:    true,
+		},
+		"secret": {
+			Type:        schema.TypeString,
+			Description: "the secret of this credentials",
+			Sensitive:   true,
+			ForceNew:    true,
+			Required:    true,
+		},
+	}
+
+	schemaMap := map[string]map[string]*schema.Schema{AWS: awsSchema, AZURE: azureSchema, GOOGLE: googleSchema}
+
 	return &schema.Resource{
 		CreateContext: resourceCostCredentialsCreate,
 		ReadContext:   resourceCostCredentialsRead,
 		DeleteContext: resourceCostCredentialsDelete,
+		Schema:        expendSchema(schemaMap[providerName]),
+	}
+}
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Description: "name for the credentials",
-				Required:    true,
-				ForceNew:    true,
-			},
-			"arn": {
-				Type:          schema.TypeString,
-				Description:   "the aws role arn",
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "table_id", "secret"},
-				ExactlyOneOf:  []string{"client_id", "table_id"},
-			},
-			"external_id": {
-				Type:          schema.TypeString,
-				Description:   "the aws role external id",
-				Optional:      true,
-				Sensitive:     true,
-				ForceNew:      true,
-				RequiredWith:  []string{"arn"},
-				ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "table_id", "secret"},
-			},
-			"client_id": {
-				Type:          schema.TypeString,
-				Description:   "the azure client id",
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
-				ExactlyOneOf:  []string{"arn", "table_id"},
-			},
-			"client_secret": {
-				Type:          schema.TypeString,
-				Description:   "azure client secret",
-				Optional:      true,
-				Sensitive:     true,
-				ForceNew:      true,
-				RequiredWith:  []string{"client_id"},
-				ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
-			},
-			"tenant_id": {
-				Type:          schema.TypeString,
-				Description:   "azure tenant id",
-				Optional:      true,
-				ForceNew:      true,
-				RequiredWith:  []string{"client_id"},
-				ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
-			},
-			"subscription_id": {
-				Type:          schema.TypeString,
-				Description:   "azure subscription id",
-				Optional:      true,
-				ForceNew:      true,
-				RequiredWith:  []string{"client_id"},
-				ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
-			},
-			"table_id": {
-				Type:          schema.TypeString,
-				Description:   "the table id of this credentials ",
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "arn", "external_id"},
-				ExactlyOneOf:  []string{"arn", "client_id"},
-			},
-			"secret": {
-				Type:          schema.TypeString,
-				Description:   "the secret of this credentials",
-				Optional:      true,
-				Sensitive:     true,
-				ForceNew:      true,
-				RequiredWith:  []string{"table_id"},
-				ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "arn", "external_id"},
-			},
+func expendSchema(schemaToReadFrom map[string]*schema.Schema) map[string]*schema.Schema {
+
+	resultsSchema := map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Description: "name for the credentials",
+			Required:    true,
+			ForceNew:    true,
 		},
 	}
+
+	for index, element := range schemaToReadFrom {
+		resultsSchema[index] = element
+	}
+
+	return resultsSchema
 }
 
 func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -206,3 +223,79 @@ func getCredentailsPayload(d *schema.ResourceData) (interface{}, string, error) 
 	}
 
 }
+
+// map[string]*schema.Schema{
+// 	"name": {
+// 		Type:        schema.TypeString,
+// 		Description: "name for the credentials",
+// 		Required:    true,
+// 		ForceNew:    true,
+// 	},
+// 	"arn": {
+// 		Type:          schema.TypeString,
+// 		Description:   "the aws role arn",
+// 		Optional:      true,
+// 		ForceNew:      true,
+// 		ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "table_id", "secret"},
+// 		ExactlyOneOf:  []string{"client_id", "table_id"},
+// 	},
+// 	"external_id": {
+// 		Type:          schema.TypeString,
+// 		Description:   "the aws role external id",
+// 		Optional:      true,
+// 		Sensitive:     true,
+// 		ForceNew:      true,
+// 		RequiredWith:  []string{"arn"},
+// 		ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "table_id", "secret"},
+// 	},
+// 	"client_id": {
+// 		Type:          schema.TypeString,
+// 		Description:   "the azure client id",
+// 		Optional:      true,
+// 		ForceNew:      true,
+// 		ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
+// 		ExactlyOneOf:  []string{"arn", "table_id"},
+// 	},
+// 	"client_secret": {
+// 		Type:          schema.TypeString,
+// 		Description:   "azure client secret",
+// 		Optional:      true,
+// 		Sensitive:     true,
+// 		ForceNew:      true,
+// 		RequiredWith:  []string{"client_id"},
+// 		ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
+// 	},
+// 	"tenant_id": {
+// 		Type:          schema.TypeString,
+// 		Description:   "azure tenant id",
+// 		Optional:      true,
+// 		ForceNew:      true,
+// 		RequiredWith:  []string{"client_id"},
+// 		ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
+// 	},
+// 	"subscription_id": {
+// 		Type:          schema.TypeString,
+// 		Description:   "azure subscription id",
+// 		Optional:      true,
+// 		ForceNew:      true,
+// 		RequiredWith:  []string{"client_id"},
+// 		ConflictsWith: []string{"external_id", "arn", "table_id", "secret"},
+// 	},
+// 	"table_id": {
+// 		Type:          schema.TypeString,
+// 		Description:   "the table id of this credentials ",
+// 		Optional:      true,
+// 		ForceNew:      true,
+// 		ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "arn", "external_id"},
+// 		ExactlyOneOf:  []string{"arn", "client_id"},
+// 	},
+// 	"secret": {
+// 		Type:          schema.TypeString,
+// 		Description:   "the secret of this credentials",
+// 		Optional:      true,
+// 		Sensitive:     true,
+// 		ForceNew:      true,
+// 		RequiredWith:  []string{"table_id"},
+// 		ConflictsWith: []string{"client_id", "client_secret", "tenant_id", "subscription_id", "arn", "external_id"},
+// 	},
+// },
