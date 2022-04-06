@@ -112,26 +112,7 @@ func expendSchema(schemaToReadFrom map[string]*schema.Schema) map[string]*schema
 
 func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	apiClient := meta.(ApiClientInterface)
-	var apiKey client.Credentials
-	var err error
-	payLoad, credType, err := getCredentailsPayload(d)
-	if err != nil {
-		return diag.Errorf("ERROR: %v", err)
-	}
-
-	switch credType {
-	case string(client.AwsCostCredentialsType):
-		payLoadToSend := payLoad.(client.AwsCredentialsCreatePayload)
-		apiKey, err = apiClient.AwsCredentialsCreate(payLoadToSend)
-	case string(client.AzureCostCredentialsType):
-		payLoadToSend := payLoad.(client.AzureCredentialsCreatePayload)
-		apiKey, err = apiClient.AzureCredentialsCreate(payLoadToSend)
-	case string(client.GoogleCostCredentialsType):
-		payLoadToSend := payLoad.(client.GoogleCostCredentialsCreatePayload)
-		apiKey, err = apiClient.GoogleCostCredentialsCreate(payLoadToSend)
-	}
-
+	apiKey, err := sendApiCallToCreateCred(d, meta)
 	if err != nil {
 		return diag.Errorf("Cost credential failed: %v", err)
 	}
@@ -163,41 +144,22 @@ func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, 
 
 }
 
-func getCredType(d *schema.ResourceData) (string, error) {
+func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.Credentials, error) {
+	apiClient := meta.(ApiClientInterface)
 	_, awsOk := d.GetOk("arn")
 	_, azureOk := d.GetOk("client_id")
 	_, googleOk := d.GetOk("table_id")
 	switch {
 	case awsOk:
-		return string(client.AwsCostCredentialsType), nil
-	case azureOk:
-		return string(client.AzureCostCredentialsType), nil
-	case googleOk:
-		return string(client.GoogleCostCredentialsType), nil
-	default:
-		return "error", errors.New("error in schema, no required value defined")
-	}
-
-}
-
-func getCredentailsPayload(d *schema.ResourceData) (interface{}, string, error) {
-	credType, err := getCredType(d)
-	if err != nil {
-		return nil, "", err
-	}
-	switch credType {
-	case string(client.AwsCostCredentialsType):
-
-		return client.AwsCredentialsCreatePayload{
+		return apiClient.AwsCredentialsCreate(client.AwsCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.AwsCostCredentialsType,
 			Value: client.AwsCredentialsValuePayload{
 				RoleArn:    d.Get("arn").(string),
 				ExternalId: d.Get("external_id").(string),
-			},
-		}, credType, nil
-	case string(client.AzureCostCredentialsType):
-		return client.AzureCredentialsCreatePayload{
+			}})
+	case azureOk:
+		return apiClient.AzureCredentialsCreate(client.AzureCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.AzureCostCredentialsType,
 			Value: client.AzureCredentialsValuePayload{
@@ -206,19 +168,17 @@ func getCredentailsPayload(d *schema.ResourceData) (interface{}, string, error) 
 				TenantId:       d.Get("tenant_id").(string),
 				SubscriptionId: d.Get("subscription_id").(string),
 			},
-		}, credType, nil
-	case string(client.GoogleCostCredentialsType):
-		return client.GoogleCostCredentialsCreatePayload{
+		})
+	case googleOk:
+		return apiClient.GoogleCostCredentialsCreate(client.GoogleCostCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.GoogleCostCredentialsType,
 			Value: client.GoogleCostCredentialsValeuPayload{
 				TableId: d.Get("table_id").(string),
 				Secret:  d.Get("secret").(string),
 			},
-		}, credType, nil
-
+		})
 	default:
-		return "", "", errors.New("Failed to build credentials payload, please contact env0")
+		return client.Credentials{}, errors.New("error in schema, no required value defined")
 	}
-
 }
