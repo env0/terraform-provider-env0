@@ -90,5 +90,5 @@ output "tg_tg_version" {
 }
 
 output "github_template_type" {
-  value = env0_template.github_template.type
+  value = data.env0_template.github_template.type
 }
