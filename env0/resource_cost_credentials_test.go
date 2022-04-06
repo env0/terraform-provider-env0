@@ -104,7 +104,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate(resourceType, resourceName, missingValidInputErrorResource),
-				ExpectError: regexp.MustCompile("Error: ExactlyOne"),
+				ExpectError: regexp.MustCompile("Error: Missing required argument"),
 			},
 		},
 	}
