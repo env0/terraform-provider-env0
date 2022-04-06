@@ -50,6 +50,7 @@ resource "env0_environment" "example" {
 - **run_plan_on_pull_requests** (Boolean) should run terraform plan on pull requests creations
 - **terragrunt_working_directory** (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
 - **ttl** (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
+- **wait_for** (String) whether or not to wait for environment to fully deploy
 - **workspace** (String) the terraform workspace of the environment
 
 ### Read-Only

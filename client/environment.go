@@ -41,6 +41,7 @@ type DeploymentLog struct {
 	BlueprintId         string `json:"blueprintId"`
 	BlueprintRepository string `json:"blueprintRepository"`
 	BlueprintRevision   string `json:"blueprintRevision"`
+	Status              string `json:"status"`
 }
 
 type Environment struct {
@@ -130,11 +131,11 @@ func (self *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environment
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentDestroy(id string) (Environment, error) {
-	var result Environment
+func (self *ApiClient) EnvironmentDestroy(id string) (EnvironmentDeployResponse, error) {
+	var result EnvironmentDeployResponse
 	err := self.http.Post("/environments/"+id+"/destroy", nil, &result)
 	if err != nil {
-		return Environment{}, err
+		return EnvironmentDeployResponse{}, err
 	}
 	return result, nil
 }
@@ -165,6 +166,16 @@ func (self *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (Envi
 
 	if err != nil {
 		return EnvironmentDeployResponse{}, err
+	}
+	return result, nil
+}
+
+func (self *ApiClient) Deployment(id string) (DeploymentLog, error) {
+	var result DeploymentLog
+	err := self.http.Get("/environments/deployments/"+id, nil, &result)
+
+	if err != nil {
+		return DeploymentLog{}, err
 	}
 	return result, nil
 }
