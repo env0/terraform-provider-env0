@@ -18,9 +18,9 @@ data "env0_template" "gitlab_template" {
   name = "Gitlab Integrated Template"
 }
 
-resource "env0_template" "tested1" {
-  name                                    = "tested1-${random_string.random.result}"
-  description                             = "Tested 1 description"
+resource "env0_template" "github_template" {
+  name                                    = "Github Test-${random_string.random.result}"
+  description                             = "Template description - GitHub"
   type                                    = "terraform"
   repository                              = data.env0_template.github_template.repository
   github_installation_id                  = data.env0_template.github_template.github_installation_id
@@ -31,9 +31,9 @@ resource "env0_template" "tested1" {
   terraform_version                       = "0.15.1"
 }
 
-resource "env0_template" "tested2" {
+resource "env0_template" "gitlab_template" {
   name                                    = "GitLab Test-${random_string.random.result}"
-  description                             = "Tested 2 description - Gitlab"
+  description                             = "Template description - Gitlab"
   type                                    = "terraform"
   repository                              = data.env0_template.gitlab_template.repository
   token_id                                = data.env0_template.gitlab_template.token_id
@@ -57,38 +57,38 @@ resource "env0_template" "template_tg" {
 resource "env0_configuration_variable" "in_a_template" {
   name        = "fake_key"
   value       = "fake value"
-  template_id = env0_template.tested1.id
+  template_id = env0_template.github_template.id
 }
 
 resource "env0_configuration_variable" "in_a_template2" {
   name        = "fake_key_2"
   value       = "fake value 2"
-  template_id = env0_template.tested1.id
+  template_id = env0_template.github_template.id
   type        = "terraform"
 }
 
-output "tested1_template_id" {
-  value = env0_template.tested1.id
+output "github_template_id" {
+  value = env0_template.github_template.id
 }
-output "tested1_template_type" {
-  value = env0_template.tested1.type
+output "github_template_type" {
+  value = env0_template.github_template.type
 }
-output "tested1_template_name" {
-  value = replace(env0_template.tested1.name, random_string.random.result, "")
+output "github_template_name" {
+  value = replace(env0_template.github_template.name, random_string.random.result, "")
 }
-output "tested1_template_repository" {
-  value = env0_template.tested1.repository
+output "github_template_repository" {
+  value = env0_template.github_template.repository
 }
-output "tested2_template_repository" {
-  value = env0_template.tested2.repository
+output "gitlab_template_repository" {
+  value = env0_template.gitlab_template.repository
 }
-output "tested1_template_path" {
-  value = env0_template.tested1.path
+output "github_template_path" {
+  value = env0_template.github_template.path
 }
 output "tg_tg_version" {
   value = env0_template.template_tg.terragrunt_version
 }
 
-output "github_template_type" {
+output "data_github_template_type" {
   value = data.env0_template.github_template.type
 }
