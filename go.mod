@@ -5,7 +5,7 @@ go 1.16 // please change also in repo secrets
 require (
 	github.com/adhocore/gronx v0.2.6
 	github.com/go-resty/resty/v2 v2.6.0
-	github.com/golang/mock v1.4.3
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/terraform-plugin-docs v0.5.1
