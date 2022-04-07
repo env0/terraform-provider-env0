@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
+
 	"github.com/env0/terraform-provider-env0/env0"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"log"
 )
 
 //go:generate terraform fmt -recursive ./examples/

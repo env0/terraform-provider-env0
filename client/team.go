@@ -20,60 +20,60 @@ type Team struct {
 	OrganizationId string `json:"organizationId"`
 }
 
-func (self *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
+func (client *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
 	if payload.Name == "" {
-		return Team{}, errors.New("Must specify team name on creation")
+		return Team{}, errors.New("must specify team name on creation")
 	}
 	if payload.OrganizationId != "" {
-		return Team{}, errors.New("Must not specify organizationId")
+		return Team{}, errors.New("must not specify organizationId")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Team{}, err
 	}
 	payload.OrganizationId = organizationId
 
 	var result Team
-	err = self.http.Post("/teams", payload, &result)
+	err = client.http.Post("/teams", payload, &result)
 	if err != nil {
 		return Team{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) Team(id string) (Team, error) {
+func (client *ApiClient) Team(id string) (Team, error) {
 	var result Team
-	err := self.http.Get("/teams/"+id, nil, &result)
+	err := client.http.Get("/teams/"+id, nil, &result)
 	if err != nil {
 		return Team{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) TeamDelete(id string) error {
-	return self.http.Delete("/teams/" + id)
+func (client *ApiClient) TeamDelete(id string) error {
+	return client.http.Delete("/teams/" + id)
 }
 
-func (self *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team, error) {
+func (client *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team, error) {
 	if payload.Name == "" {
-		return Team{}, errors.New("Must specify team name on update")
+		return Team{}, errors.New("must specify team name on update")
 	}
 
 	var result Team
-	err := self.http.Put("/teams/"+id, payload, &result)
+	err := client.http.Put("/teams/"+id, payload, &result)
 	if err != nil {
 		return Team{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) Teams() ([]Team, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) Teams() ([]Team, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
 	var result []Team
-	err = self.http.Get("/teams/organizations/"+organizationId, nil, &result)
+	err = client.http.Get("/teams/organizations/"+organizationId, nil, &result)
 	if err != nil {
 		return nil, err
 	}

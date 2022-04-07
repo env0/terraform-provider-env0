@@ -178,7 +178,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									type = "%s"
 									%s
 									}
-	
+
 							`, variable.Name,
 						variable.Value, varType, schemaFormat)
 				}
@@ -194,7 +194,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					revision = "%s"
 					force_destroy = true
 					%s
-	
+
 				}`,
 					resourceType, resourceName, env.Name,
 					env.ProjectId, env.LatestDeploymentLog.BlueprintId,

@@ -34,23 +34,23 @@ type NotificationUpdatePayload struct {
 	Value string           `json:"value,omitempty"`
 }
 
-func (ac *ApiClient) Notifications() ([]Notification, error) {
-	organizationId, err := ac.organizationId()
+func (client *ApiClient) Notifications() ([]Notification, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []Notification
-	if err := ac.http.Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, &result); err != nil {
+	if err := client.http.Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (ac *ApiClient) NotificationCreate(payload NotificationCreatePayload) (*Notification, error) {
+func (client *ApiClient) NotificationCreate(payload NotificationCreatePayload) (*Notification, error) {
 	var result Notification
 
-	organizationId, err := ac.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -60,23 +60,23 @@ func (ac *ApiClient) NotificationCreate(payload NotificationCreatePayload) (*Not
 		OrganizationId:            organizationId,
 	}
 
-	if err = ac.http.Post("/notifications/endpoints", payloadWithOrganizationId, &result); err != nil {
+	if err = client.http.Post("/notifications/endpoints", payloadWithOrganizationId, &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (ac *ApiClient) NotificationDelete(id string) error {
-	if err := ac.http.Delete("/notifications/endpoints/" + id); err != nil {
+func (client *ApiClient) NotificationDelete(id string) error {
+	if err := client.http.Delete("/notifications/endpoints/" + id); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ac *ApiClient) NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error) {
+func (client *ApiClient) NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error) {
 	var result Notification
 
-	if err := ac.http.Patch("/notifications/endpoints/"+id, payload, &result); err != nil {
+	if err := client.http.Patch("/notifications/endpoints/"+id, payload, &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
