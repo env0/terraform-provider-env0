@@ -93,98 +93,98 @@ type TemplateAssignmentToProject struct {
 	ProjectId  string `json:"projectId"`
 }
 
-func (self *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
+func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
 	if payload.Name == "" {
-		return Template{}, errors.New("Must specify template name on creation")
+		return Template{}, errors.New("must specify template name on creation")
 	}
 	if payload.OrganizationId != "" {
-		return Template{}, errors.New("Must not specify organizationId")
+		return Template{}, errors.New("must not specify organizationId")
 	}
 	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
-		return Template{}, errors.New("Can't define terragrunt version for non-terragrunt blueprint")
+		return Template{}, errors.New("can't define terragrunt version for non-terragrunt blueprint")
 	}
 	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
-		return Template{}, errors.New("Must supply Terragrunt version")
+		return Template{}, errors.New("must supply Terragrunt version")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Template{}, nil
 	}
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.http.Post("/blueprints", payload, &result)
+	err = client.http.Post("/blueprints", payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) Template(id string) (Template, error) {
+func (client *ApiClient) Template(id string) (Template, error) {
 	var result Template
-	err := self.http.Get("/blueprints/"+id, nil, &result)
+	err := client.http.Get("/blueprints/"+id, nil, &result)
 	if err != nil {
 		return Template{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) TemplateDelete(id string) error {
-	return self.http.Delete("/blueprints/" + id)
+func (client *ApiClient) TemplateDelete(id string) error {
+	return client.http.Delete("/blueprints/" + id)
 }
 
-func (self *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
+func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
 	if payload.Name == "" {
-		return Template{}, errors.New("Must specify template name on creation")
+		return Template{}, errors.New("must specify template name on creation")
 	}
 	if payload.OrganizationId != "" {
-		return Template{}, errors.New("Must not specify organizationId")
+		return Template{}, errors.New("must not specify organizationId")
 	}
 	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
-		return Template{}, errors.New("Can't define terragrunt version for non-terragrunt blueprint")
+		return Template{}, errors.New("can't define terragrunt version for non-terragrunt blueprint")
 	}
 	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
-		return Template{}, errors.New("Must supply Terragrunt version")
+		return Template{}, errors.New("must supply Terragrunt version")
 	}
-	organizationId, err := self.organizationId()
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return Template{}, err
 	}
 	payload.OrganizationId = organizationId
 
 	var result Template
-	err = self.http.Put("/blueprints/"+id, payload, &result)
+	err = client.http.Put("/blueprints/"+id, payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) Templates() ([]Template, error) {
-	organizationId, err := self.organizationId()
+func (client *ApiClient) Templates() ([]Template, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
 	var result []Template
-	err = self.http.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
+	err = client.http.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}
 	return result, err
 }
 
-func (self *ApiClient) AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error) {
+func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error) {
 	var result Template
 	if payload.ProjectId == "" {
-		return result, errors.New("Must specify projectId on assignment to a template")
+		return result, errors.New("must specify projectId on assignment to a template")
 	}
-	err := self.http.Patch("/blueprints/"+id+"/projects", payload, &result)
+	err := client.http.Patch("/blueprints/"+id+"/projects", payload, &result)
 	if err != nil {
 		return result, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) RemoveTemplateFromProject(templateId string, projectId string) error {
-	return self.http.Delete("/blueprints/" + templateId + "/projects/" + projectId)
+func (client *ApiClient) RemoveTemplateFromProject(templateId string, projectId string) error {
+	return client.http.Delete("/blueprints/" + templateId + "/projects/" + projectId)
 }

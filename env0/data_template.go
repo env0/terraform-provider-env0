@@ -163,7 +163,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		d.Set("gitlab_project_id", template.GitlabProjectId)
 	}
 
-	if template.IsGitlabEnterprise == true {
+	if template.IsGitlabEnterprise {
 		d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
 	}
 

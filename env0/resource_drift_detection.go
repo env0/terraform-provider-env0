@@ -2,7 +2,8 @@ package env0
 
 import (
 	"context"
-	. "github.com/env0/terraform-provider-env0/client"
+
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -32,7 +33,7 @@ func resourceDriftDetection() *schema.Resource {
 }
 
 func resourceEnvironmentDriftRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
 
@@ -51,12 +52,12 @@ func resourceEnvironmentDriftRead(_ context.Context, d *schema.ResourceData, met
 }
 
 func resourceEnvironmentDriftCreateOrUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
 	cron := d.Get("cron").(string)
 
-	payload := EnvironmentSchedulingExpression{Cron: cron, Enabled: true}
+	payload := client.EnvironmentSchedulingExpression{Cron: cron, Enabled: true}
 
 	_, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload)
 
@@ -69,7 +70,7 @@ func resourceEnvironmentDriftCreateOrUpdate(_ context.Context, d *schema.Resourc
 }
 
 func resourceEnvironmentDriftDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
 

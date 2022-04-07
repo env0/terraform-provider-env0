@@ -2,17 +2,18 @@ package http_test
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
+	"testing"
+
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"io"
-	"net/http"
-	"strconv"
-	"strings"
-	"testing"
 )
 
 // The JSON here returns camelCase keys
