@@ -51,6 +51,12 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "agent_id", agentId),
 					),
 				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id": projectId,
+						"agent_id":   agentId,
+					}),
+				},
 			},
 		}
 
@@ -63,7 +69,7 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 					projectId,
 					agentId,
 				)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(GenerateProjectsAgentsAssignments("p111", "a222", projectId, agentId), nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(4).Return(GenerateProjectsAgentsAssignments("p111", "a222", projectId, agentId), nil),
 				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
 					"p111",
 					"a222",
