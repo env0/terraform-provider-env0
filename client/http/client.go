@@ -37,11 +37,11 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	}, nil
 }
 
-func (self *HttpClient) request() *resty.Request {
-	return self.client.R().SetBasicAuth(self.ApiKey, self.ApiSecret)
+func (client *HttpClient) request() *resty.Request {
+	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 
-func (self *HttpClient) httpResult(response *resty.Response, err error) error {
+func (client *HttpClient) httpResult(response *resty.Response, err error) error {
 	if err != nil {
 		return err
 	}
@@ -51,39 +51,39 @@ func (self *HttpClient) httpResult(response *resty.Response, err error) error {
 	return nil
 }
 
-func (self *HttpClient) Post(path string, request interface{}, response interface{}) error {
-	result, err := self.request().
+func (client *HttpClient) Post(path string, request interface{}, response interface{}) error {
+	result, err := client.request().
 		SetBody(request).
 		SetResult(response).
 		Post(path)
-	return self.httpResult(result, err)
+	return client.httpResult(result, err)
 }
 
-func (self *HttpClient) Put(path string, request interface{}, response interface{}) error {
-	result, err := self.request().
+func (client *HttpClient) Put(path string, request interface{}, response interface{}) error {
+	result, err := client.request().
 		SetBody(request).
 		SetResult(response).
 		Put(path)
-	return self.httpResult(result, err)
+	return client.httpResult(result, err)
 }
 
-func (self *HttpClient) Get(path string, params map[string]string, response interface{}) error {
-	result, err := self.request().
+func (client *HttpClient) Get(path string, params map[string]string, response interface{}) error {
+	result, err := client.request().
 		SetQueryParams(params).
 		SetResult(response).
 		Get(path)
-	return self.httpResult(result, err)
+	return client.httpResult(result, err)
 }
 
-func (self *HttpClient) Delete(path string) error {
-	result, err := self.request().Delete(path)
-	return self.httpResult(result, err)
+func (client *HttpClient) Delete(path string) error {
+	result, err := client.request().Delete(path)
+	return client.httpResult(result, err)
 }
 
-func (self *HttpClient) Patch(path string, request interface{}, response interface{}) error {
-	result, err := self.request().
+func (client *HttpClient) Patch(path string, request interface{}, response interface{}) error {
+	result, err := client.request().
 		SetBody(request).
 		SetResult(response).
 		Patch(path)
-	return self.httpResult(result, err)
+	return client.httpResult(result, err)
 }

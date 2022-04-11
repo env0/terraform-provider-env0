@@ -28,9 +28,9 @@ type OrganizationPolicyUpdatePayload struct {
 	DoNotConsiderMergeCommitsForPrPlans *bool   `json:"doNotConsiderMergeCommitsForPrPlans,omitempty"`
 }
 
-func (ac *ApiClient) Organization() (Organization, error) {
+func (client *ApiClient) Organization() (Organization, error) {
 	var result []Organization
-	err := ac.http.Get("/organizations", nil, &result)
+	err := client.http.Get("/organizations", nil, &result)
 	if err != nil {
 		return Organization{}, err
 	}
@@ -40,26 +40,26 @@ func (ac *ApiClient) Organization() (Organization, error) {
 	return result[0], nil
 }
 
-func (ac *ApiClient) organizationId() (string, error) {
-	if ac.cachedOrganizationId != "" {
-		return ac.cachedOrganizationId, nil
+func (client *ApiClient) organizationId() (string, error) {
+	if client.cachedOrganizationId != "" {
+		return client.cachedOrganizationId, nil
 	}
-	organization, err := ac.Organization()
+	organization, err := client.Organization()
 	if err != nil {
 		return "", nil
 	}
-	ac.cachedOrganizationId = organization.Id
-	return ac.cachedOrganizationId, nil
+	client.cachedOrganizationId = organization.Id
+	return client.cachedOrganizationId, nil
 }
 
-func (ac *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpdatePayload) (*Organization, error) {
-	id, err := ac.organizationId()
+func (client *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpdatePayload) (*Organization, error) {
+	id, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
 	var result Organization
-	if err := ac.http.Post("/organizations/"+id+"/policies", payload, &result); err != nil {
+	if err := client.http.Post("/organizations/"+id+"/policies", payload, &result); err != nil {
 		return nil, err
 	}
 

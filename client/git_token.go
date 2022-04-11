@@ -18,8 +18,8 @@ type GitTokenCreatePayloadWith struct {
 	Type           string `json:"type"`
 }
 
-func (ac *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error) {
-	organizationId, err := ac.organizationId()
+func (client *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -31,34 +31,34 @@ func (ac *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, e
 	}
 
 	var result GitToken
-	if err := ac.http.Post("/tokens", payloadWith, &result); err != nil {
+	if err := client.http.Post("/tokens", payloadWith, &result); err != nil {
 		return nil, err
 	}
 
 	return &result, nil
 }
 
-func (ac *ApiClient) GitToken(id string) (*GitToken, error) {
+func (client *ApiClient) GitToken(id string) (*GitToken, error) {
 	var result GitToken
-	if err := ac.http.Get("/tokens/"+id, nil, &result); err != nil {
+	if err := client.http.Get("/tokens/"+id, nil, &result); err != nil {
 		return nil, err
 	}
 
 	return &result, nil
 }
 
-func (ac *ApiClient) GitTokenDelete(id string) error {
-	return ac.http.Delete("/tokens/" + id)
+func (client *ApiClient) GitTokenDelete(id string) error {
+	return client.http.Delete("/tokens/" + id)
 }
 
-func (ac *ApiClient) GitTokens() ([]GitToken, error) {
-	organizationId, err := ac.organizationId()
+func (client *ApiClient) GitTokens() ([]GitToken, error) {
+	organizationId, err := client.organizationId()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []GitToken
-	if err := ac.http.Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, &result); err != nil {
+	if err := client.http.Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, &result); err != nil {
 		return nil, err
 	}
 

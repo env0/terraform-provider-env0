@@ -3,7 +3,7 @@ package env0
 import (
 	"context"
 
-	. "github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -41,7 +41,7 @@ func resourceEnvironmentScheduling() *schema.Resource {
 }
 
 func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
 
@@ -68,20 +68,20 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
 	deployCron := d.Get("deploy_cron").(string)
 	destroyCron := d.Get("destroy_cron").(string)
 
-	payload := EnvironmentScheduling{}
+	payload := client.EnvironmentScheduling{}
 
 	if deployCron != "" {
-		payload.Deploy = &EnvironmentSchedulingExpression{Cron: deployCron, Enabled: true}
+		payload.Deploy = &client.EnvironmentSchedulingExpression{Cron: deployCron, Enabled: true}
 	}
 
 	if destroyCron != "" {
-		payload.Destroy = &EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true}
+		payload.Destroy = &client.EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true}
 	}
 
 	_, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload)
@@ -95,7 +95,7 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 }
 
 func resourceEnvironmentSchedulingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
 

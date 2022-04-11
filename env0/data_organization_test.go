@@ -1,10 +1,11 @@
 package env0
 
 import (
-	"github.com/env0/terraform-provider-env0/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"strconv"
 	"testing"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitOrganizationData(t *testing.T) {
