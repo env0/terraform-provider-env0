@@ -86,7 +86,7 @@ func missingArgumentTestCaseForCostCred(resourceType string, resourceName string
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate(resourceType, resourceName, errorResource),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("Error: Missing required argument")),
+				ExpectError: regexp.MustCompile("Error: Missing required argument"),
 			},
 		},
 	}
