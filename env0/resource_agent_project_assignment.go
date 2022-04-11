@@ -155,13 +155,13 @@ func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.Resourc
 }
 
 func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	ss := strings.Split(d.Id(), "_")
-	if len(ss) != 2 {
+	splitAgentProject := strings.Split(d.Id(), "_")
+	if len(splitAgentProject) != 2 {
 		return nil, fmt.Errorf("the id %v is invalid must be <agent_id>_<project_id>", d.Id())
 	}
 
-	agentId := ss[0]
-	projectId := ss[1]
+	agentId := splitAgentProject[0]
+	projectId := splitAgentProject[1]
 
 	apaLock.Lock()
 	defer apaLock.Unlock()

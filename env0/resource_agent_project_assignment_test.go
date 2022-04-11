@@ -72,6 +72,41 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Create assignment with Drift", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id": projectId,
+						"agent_id":   agentId,
+					}),
+					ExpectNonEmptyPlan: true,
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id": projectId,
+						"agent_id":   agentId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", agentId+"_"+projectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "agent_id", agentId),
+					),
+					PlanOnly:           true,
+					ExpectNonEmptyPlan: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
+				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(projectId, agentId)),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
+			)
+		})
+	})
+
 	t.Run("Assignment already exist", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
