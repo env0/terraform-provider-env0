@@ -37,6 +37,22 @@ var _ = Describe("Configuration Variable", func() {
 		IsRequired:     &isRequired,
 	}
 
+	mockGlobalConfigurationVariable := ConfigurationVariable{
+		Id:             "config-var-id-789",
+		Name:           "configName",
+		Description:    "configDescription",
+		Value:          "configValue",
+		OrganizationId: organizationId,
+		IsSensitive:    &isSensitive,
+		Scope:          ScopeGlobal,
+		Type:           &varType,
+		ScopeId:        "project-123",
+		UserId:         "user|123",
+		Schema:         &schema,
+		IsReadonly:     &isReadonly,
+		IsRequired:     &isRequired,
+	}
+
 	Describe("ConfigurationVariable", func() {
 		Describe("Schema", func() {
 			It("On schema type is free text, enum should be nil", func() {
@@ -247,7 +263,7 @@ var _ = Describe("Configuration Variable", func() {
 
 	Describe("ConfigurationVariablesByScope", func() {
 		var returnedVariables []ConfigurationVariable
-		mockVariables := []ConfigurationVariable{mockConfigurationVariable}
+		mockVariables := []ConfigurationVariable{mockConfigurationVariable, mockGlobalConfigurationVariable}
 		expectedParams := map[string]string{"organizationId": organizationId}
 
 		BeforeEach(func() {
@@ -287,6 +303,7 @@ var _ = Describe("Configuration Variable", func() {
 						*response = mockVariables
 					})
 				returnedVariables, _ = apiClient.ConfigurationVariablesByScope(Scope(scope), scopeId)
+				Expect(returnedVariables).To((Equal([]ConfigurationVariable{mockConfigurationVariable})))
 				httpCall.Times(1)
 			},
 			Entry("Template Scope", string(ScopeTemplate), "blueprintId"),

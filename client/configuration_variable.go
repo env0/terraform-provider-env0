@@ -100,6 +100,18 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 	if err != nil {
 		return []ConfigurationVariable{}, err
 	}
+
+	if scope != ScopeGlobal {
+		// Filter out global scopes. If a non global scope is requested.
+		filteredResult := []ConfigurationVariable{}
+		for _, variable := range result {
+			if variable.Scope != ScopeGlobal {
+				filteredResult = append(filteredResult, variable)
+			}
+		}
+		return filteredResult, nil
+	}
+
 	return result, nil
 }
 
