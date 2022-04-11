@@ -77,6 +77,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ApiKeys() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeys", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeys))
 }
 
+// AssignAgentsToProjects mocks base method.
+func (m *MockApiClientInterface) AssignAgentsToProjects(arg0 AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignAgentsToProjects", arg0)
+	ret0, _ := ret[0].(*ProjectsAgentsAssignments)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssignAgentsToProjects indicates an expected call of AssignAgentsToProjects.
+func (mr *MockApiClientInterfaceMockRecorder) AssignAgentsToProjects(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignAgentsToProjects", reflect.TypeOf((*MockApiClientInterface)(nil).AssignAgentsToProjects), arg0)
+}
+
 // AssignCloudCredentialsToProject mocks base method.
 func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0, arg1 string) (CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()
@@ -907,6 +922,21 @@ func (m *MockApiClientInterface) Projects() ([]Project, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Projects() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Projects", reflect.TypeOf((*MockApiClientInterface)(nil).Projects))
+}
+
+// ProjectsAgentsAssignments mocks base method.
+func (m *MockApiClientInterface) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectsAgentsAssignments")
+	ret0, _ := ret[0].(*ProjectsAgentsAssignments)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProjectsAgentsAssignments indicates an expected call of ProjectsAgentsAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectsAgentsAssignments() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectsAgentsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectsAgentsAssignments))
 }
 
 // RemoveCloudCredentialsFromProject mocks base method.
