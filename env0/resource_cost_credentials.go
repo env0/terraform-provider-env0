@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/env0/terraform-provider-env0/client"
-	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -145,7 +144,7 @@ func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, 
 }
 
 func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.Credentials, error) {
-	apiClient := meta.(ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 	_, awsOk := d.GetOk("arn")
 	_, azureOk := d.GetOk("client_id")
 	_, googleOk := d.GetOk("table_id")
