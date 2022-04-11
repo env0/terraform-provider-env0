@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
@@ -730,7 +731,10 @@ func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterfa
 			"QUEUED",
 			"WAITING_FOR_USER":
 			log.Println("[INFO] Deployment not yet done deploying. Got status ", deployment.Status)
-			time.Sleep(deploymentStatusWaitPollInterval * time.Second)
+			// TF_ACC is set during acceptance tests. Don't pause during accpetance tests.
+			if value, present := os.LookupEnv("TF_ACC"); !present || value != "1" {
+				time.Sleep(deploymentStatusWaitPollInterval * time.Second)
+			}
 		case "SUCCESS",
 			"SKIPPED":
 			log.Println("[INFO] Deployment done deploying! Got status ", deployment.Status)
