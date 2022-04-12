@@ -302,7 +302,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 
 	googleCostCredCreatePayload := client.GoogleCostCredentialsCreatePayload{
 		Name: googleCostCredentialResource["name"].(string),
-		Value: client.GoogleCostCredentialsValeuPayload{
+		Value: client.GoogleCostCredentialsValuePayload{
 			TableId: googleCostCredentialResource["table_id"].(string),
 			Secret:  googleCostCredentialResource["secret"].(string),
 		},
@@ -311,7 +311,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 
 	updateGoogleCostCredCreatePayload := client.GoogleCostCredentialsCreatePayload{
 		Name: updateGoogleCostCredentialResource["name"].(string),
-		Value: client.GoogleCostCredentialsValeuPayload{
+		Value: client.GoogleCostCredentialsValuePayload{
 			TableId: updateGoogleCostCredentialResource["table_id"].(string),
 			Secret:  updateGoogleCostCredentialResource["secret"].(string),
 		},

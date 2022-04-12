@@ -172,7 +172,7 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 		return apiClient.GoogleCostCredentialsCreate(client.GoogleCostCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.GoogleCostCredentialsType,
-			Value: client.GoogleCostCredentialsValeuPayload{
+			Value: client.GoogleCostCredentialsValuePayload{
 				TableId: d.Get("table_id").(string),
 				Secret:  d.Get("secret").(string),
 			},

@@ -47,10 +47,10 @@ type GoogleCostCredentialsCreatePayload struct {
 	Name           string                            `json:"name"`
 	OrganizationId string                            `json:"organizationId"`
 	Type           GcpCredentialsType                `json:"type"`
-	Value          GoogleCostCredentialsValeuPayload `json:"value"`
+	Value          GoogleCostCredentialsValuePayload `json:"value"`
 }
 
-type GoogleCostCredentialsValeuPayload struct {
+type GoogleCostCredentialsValuePayload struct {
 	TableId string `json:"tableid"`
 	Secret  string `json:"secret"`
 }
