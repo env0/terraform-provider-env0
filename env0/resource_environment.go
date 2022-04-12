@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
@@ -468,11 +469,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeployment bool, pullRequestPlanDeployments bool, autoDeployOnPathChangesOnly bool) diag.Diagnostics {
 	if autoDeployByCustomGlob != "" {
-		if (continuousDeployment == false) &&
-			(pullRequestPlanDeployments == false) {
+		if !continuousDeployment && !pullRequestPlanDeployments {
 			return diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
 		}
-		if autoDeployOnPathChangesOnly == false {
+		if !autoDeployOnPathChangesOnly {
 			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
 	}
@@ -530,7 +530,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
-	if userRequiresApproval, ok := d.GetOkExists("requires_approval"); ok {
+	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
 		userRequiresApproval := userRequiresApproval.(bool)
 		payload.UserRequiresApproval = &userRequiresApproval
 	}
@@ -573,7 +573,7 @@ func getConfigurationVariables(configuration []interface{}) client.Configuration
 
 func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) client.ConfigurationChanges {
 	for _, existVariable := range existVariables {
-		if isExist, _ := isVariableExist(configurationChanges, existVariable); isExist != true {
+		if isExist, _ := isVariableExist(configurationChanges, existVariable); !isExist {
 			toDelete := true
 			existVariable.ToDelete = &toDelete
 			configurationChanges = append(configurationChanges, existVariable)
@@ -703,7 +703,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(environment.Id)
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get environment configuration variables: %v", err))
+		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
@@ -731,7 +731,10 @@ func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterfa
 			"QUEUED",
 			"WAITING_FOR_USER":
 			log.Println("[INFO] Deployment not yet done deploying. Got status ", deployment.Status)
-			time.Sleep(deploymentStatusWaitPollInterval * time.Second)
+			// TF_ACC is set during acceptance tests. Don't pause during accpetance tests.
+			if value, present := os.LookupEnv("TF_ACC"); !present || value != "1" {
+				time.Sleep(deploymentStatusWaitPollInterval * time.Second)
+			}
 		case "SUCCESS",
 			"SKIPPED":
 			log.Println("[INFO] Deployment done deploying! Got status ", deployment.Status)

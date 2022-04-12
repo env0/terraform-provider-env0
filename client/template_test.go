@@ -203,7 +203,7 @@ var _ = Describe("Templates Client", func() {
 		})
 		It("should return an error on empty projectId", func() {
 			assignedTemplate, err = apiClient.AssignTemplateToProject(mockTemplate.Id, TemplateAssignmentToProjectPayload{})
-			Expect(err).To(BeEquivalentTo(errors.New("Must specify projectId on assignment to a template")))
+			Expect(err).To(BeEquivalentTo(errors.New("must specify projectId on assignment to a template")))
 		})
 	})
 

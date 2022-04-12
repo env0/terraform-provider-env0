@@ -92,19 +92,19 @@ type EnvironmentDeployResponse struct {
 	Id string `json:"id"`
 }
 
-func (self *ApiClient) Environments() ([]Environment, error) {
+func (client *ApiClient) Environments() ([]Environment, error) {
 	var result []Environment
-	err := self.http.Get("/environments", nil, &result)
+	err := client.http.Get("/environments", nil, &result)
 	if err != nil {
 		return []Environment{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
+func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
 
 	var result []Environment
-	err := self.http.Get("/environments", map[string]string{"projectId": projectId}, &result)
+	err := client.http.Get("/environments", map[string]string{"projectId": projectId}, &result)
 
 	if err != nil {
 		return []Environment{}, err
@@ -112,37 +112,37 @@ func (self *ApiClient) ProjectEnvironments(projectId string) ([]Environment, err
 	return result, nil
 }
 
-func (self *ApiClient) Environment(id string) (Environment, error) {
+func (client *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
-	err := self.http.Get("/environments/"+id, nil, &result)
+	err := client.http.Get("/environments/"+id, nil, &result)
 	if err != nil {
 		return Environment{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environment, error) {
+func (client *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environment, error) {
 	var result Environment
 
-	err := self.http.Post("/environments", payload, &result)
+	err := client.http.Post("/environments", payload, &result)
 	if err != nil {
 		return Environment{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentDestroy(id string) (EnvironmentDeployResponse, error) {
+func (client *ApiClient) EnvironmentDestroy(id string) (EnvironmentDeployResponse, error) {
 	var result EnvironmentDeployResponse
-	err := self.http.Post("/environments/"+id+"/destroy", nil, &result)
+	err := client.http.Post("/environments/"+id+"/destroy", nil, &result)
 	if err != nil {
 		return EnvironmentDeployResponse{}, err
 	}
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {
+func (client *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {
 	var result Environment
-	err := self.http.Put("/environments/"+id, payload, &result)
+	err := client.http.Put("/environments/"+id, payload, &result)
 
 	if err != nil {
 		return Environment{}, err
@@ -150,9 +150,9 @@ func (self *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
+func (client *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
 	var result Environment
-	err := self.http.Put("/environments/"+id+"/ttl", payload, &result)
+	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)
 
 	if err != nil {
 		return Environment{}, err
@@ -160,9 +160,9 @@ func (self *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment
 	return result, nil
 }
 
-func (self *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
+func (client *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
 	var result EnvironmentDeployResponse
-	err := self.http.Post("/environments/"+id+"/deployments", payload, &result)
+	err := client.http.Post("/environments/"+id+"/deployments", payload, &result)
 
 	if err != nil {
 		return EnvironmentDeployResponse{}, err
@@ -170,9 +170,9 @@ func (self *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (Envi
 	return result, nil
 }
 
-func (self *ApiClient) Deployment(id string) (DeploymentLog, error) {
+func (client *ApiClient) Deployment(id string) (DeploymentLog, error) {
 	var result DeploymentLog
-	err := self.http.Get("/environments/deployments/"+id, nil, &result)
+	err := client.http.Get("/environments/deployments/"+id, nil, &result)
 
 	if err != nil {
 		return DeploymentLog{}, err

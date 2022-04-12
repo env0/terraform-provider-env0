@@ -26,7 +26,7 @@ type TeamProjectAssignment struct {
 	ProjectRole Role   `json:"projectRole"`
 }
 
-func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
+func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
 	if payload.ProjectId == "" {
 		return TeamProjectAssignment{}, errors.New("must specify project_id")
 	}
@@ -42,7 +42,7 @@ func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAs
 	}
 	var result TeamProjectAssignment
 
-	var err = self.http.Post("/teams/assignments", payload, &result)
+	var err = client.http.Post("/teams/assignments", payload, &result)
 
 	if err != nil {
 		return TeamProjectAssignment{}, err
@@ -50,17 +50,17 @@ func (self *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAs
 	return result, nil
 }
 
-func (self *ApiClient) TeamProjectAssignmentDelete(assignmentId string) error {
+func (client *ApiClient) TeamProjectAssignmentDelete(assignmentId string) error {
 	if assignmentId == "" {
 		return errors.New("empty assignmentId")
 	}
-	return self.http.Delete("/teams/assignments/" + assignmentId)
+	return client.http.Delete("/teams/assignments/" + assignmentId)
 }
 
-func (self *ApiClient) TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error) {
+func (client *ApiClient) TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error) {
 
 	var result []TeamProjectAssignment
-	err := self.http.Get("/teams/assignments", map[string]string{"projectId": projectId}, &result)
+	err := client.http.Get("/teams/assignments", map[string]string{"projectId": projectId}, &result)
 
 	if err != nil {
 		return []TeamProjectAssignment{}, err
