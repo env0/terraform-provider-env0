@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataAwsCostCredentials() *schema.Resource {
+func dataCostCredentials(credType string) *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataAwsCostCredentialsRead,
+		ReadContext: dataCostCredentialsRead(credType),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -29,33 +29,35 @@ func dataAwsCostCredentials() *schema.Resource {
 	}
 }
 
-func dataAwsCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var err diag.Diagnostics
-	var credentials *client.Credentials
+func dataCostCredentialsRead(credType string) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+		var err diag.Diagnostics
+		var credentials *client.Credentials
 
-	id, ok := d.GetOk("id")
-	if ok {
-		credentials, err = getCostCredentialsById(id.(string), string(client.AwsCostCredentialsType), meta)
-		if err != nil {
-			return err
+		id, ok := d.GetOk("id")
+		if ok {
+			credentials, err = getCostCredentialsById(id.(string), credType, meta)
+			if err != nil {
+				return err
+			}
+		} else {
+			name, ok := d.GetOk("name")
+			if !ok {
+				return diag.Errorf("Either 'name' or 'id' must be specified")
+			}
+			credentials, err = getCostCredentialsByName(name.(string), credType, meta)
+			if err != nil {
+				return err
+			}
 		}
-	} else {
-		name, ok := d.GetOk("name")
-		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
+
+		errorWhenWriteData := writeResourceData(credentials, d)
+		if errorWhenWriteData != nil {
+			return diag.Errorf("Error: %v", errorWhenWriteData)
 		}
-		credentials, err = getCostCredentialsByName(name.(string), string(client.AwsCostCredentialsType), meta)
-		if err != nil {
-			return err
-		}
+
+		return nil
 	}
-
-	errorWhenWriteData := writeResourceData(credentials, d)
-	if errorWhenWriteData != nil {
-		return diag.Errorf("Error: %v", errorWhenWriteData)
-	}
-
-	return nil
 }
 
 func getCostCredentialsByName(name interface{}, credType string, meta interface{}) (*client.Credentials, diag.Diagnostics) {

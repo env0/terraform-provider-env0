@@ -68,7 +68,7 @@ type GcpCredentialsValuePayload struct {
 }
 
 const (
-	GoogleCostCredentiassType            GcpCredentialsType   = "GCP_CREDENTIALS"
+	GoogleCostCredentialsType            GcpCredentialsType   = "GCP_CREDENTIALS"
 	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
