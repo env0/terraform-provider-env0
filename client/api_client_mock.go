@@ -33,6 +33,21 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 	return m.recorder
 }
 
+// Agents mocks base method.
+func (m *MockApiClientInterface) Agents() ([]Agent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Agents")
+	ret0, _ := ret[0].([]Agent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Agents indicates an expected call of Agents.
+func (mr *MockApiClientInterfaceMockRecorder) Agents() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Agents", reflect.TypeOf((*MockApiClientInterface)(nil).Agents))
+}
+
 // ApiKeyCreate mocks base method.
 func (m *MockApiClientInterface) ApiKeyCreate(arg0 ApiKeyCreatePayload) (*ApiKey, error) {
 	m.ctrl.T.Helper()

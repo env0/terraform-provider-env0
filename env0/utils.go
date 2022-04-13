@@ -151,6 +151,15 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 				if err := d.Set(fieldNameSC, rawSshKeys); err != nil {
 					return err
 				}
+			case reflect.TypeOf([]client.Agent{}):
+				var agents []map[string]string
+				for i := 0; i < field.Len(); i++ {
+					agent := field.Index(i).Interface().(client.Agent)
+					agents = append(agents, map[string]string{"agent_key": agent.AgentKey})
+				}
+				if err := d.Set(fieldNameSC, agents); err != nil {
+					return err
+				}
 			case reflect.TypeOf([]string{}):
 				var strs []interface{}
 				for i := 0; i < field.Len(); i++ {
