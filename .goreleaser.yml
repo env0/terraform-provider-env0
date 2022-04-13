@@ -38,7 +38,7 @@ checksum:
 signs:
   - artifacts: checksum
     args:
-      # if you are using this in a GitHub action or some other automated pipeline, you 
+      # if you are using this in a GitHub action or some other automated pipeline, you
       # need to pass the batch flag to indicate its not interactive.
       - "--batch"
       - "--local-user"
@@ -47,8 +47,21 @@ signs:
       - "${signature}"
       - "--detach-sign"
       - "${artifact}"
+changelog:
+  skip: false
+  use: github
+  groups:
+    - title: Features
+      order: 0
+      regexp: "^.*[Ff]eat.*$"
+    - title: Bug Fixes
+      order: 1
+      regexp: "^.*[Ff]ix.*$"
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^.*Update docs.*$"
 release:
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
-changelog:
-  skip: true
