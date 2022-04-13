@@ -9,8 +9,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// mockOrganizationIdCall(organizationId)
-
 var _ = Describe("Agent Project Assignment", func() {
 	psas := map[string]interface{}{
 		"pid1": "aid1",
@@ -127,6 +125,69 @@ var _ = Describe("Agent Project Assignment", func() {
 					Return(errorMock)
 
 				actualResult, err = apiClient.ProjectsAgentsAssignments()
+			})
+
+			It("Should fail if API call fails", func() {
+				Expect(err).To(Equal(errorMock))
+			})
+
+			It("Should not return results", func() {
+				Expect(actualResult).To(BeNil())
+			})
+		})
+	})
+
+	Describe("Agents", func() {
+		mockAgent := Agent{
+			AgentKey: "key",
+		}
+
+		expectedResponse := []Agent{mockAgent}
+
+		Describe("Successful", func() {
+			var actualResult []Agent
+			var err error
+
+			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
+				httpCall = mockHttpClient.EXPECT().
+					Get("/agents", gomock.Any(), gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Agent) {
+						*response = expectedResponse
+					})
+				actualResult, err = apiClient.Agents()
+			})
+
+			It("Should get organization id", func() {
+				organizationIdCall.Times(1)
+			})
+
+			It("Should send GET request with params", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should return the GET result", func() {
+				Expect(actualResult).To(Equal(expectedResponse))
+			})
+
+			It("Should not return error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Describe("Failure", func() {
+			var actualResult []Agent
+			var err error
+
+			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
+				httpCall = mockHttpClient.EXPECT().
+					Get("/agents", gomock.Any(), gomock.Any()).
+					Return(errorMock)
+
+				actualResult, err = apiClient.Agents()
 			})
 
 			It("Should fail if API call fails", func() {
