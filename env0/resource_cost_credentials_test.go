@@ -144,7 +144,6 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 	resourceType := "env0_azure_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
-
 	azureCredentialResource := map[string]interface{}{
 		"name":            "test",
 		"client_id":       "11111",
