@@ -53,15 +53,15 @@ changelog:
   groups:
     - title: Features
       order: 0
-      regexp: "^[Ff]eat[: ].*$"
+      regexp: "^.*[Ff]eat.*$"
     - title: Bug Fixes
       order: 1
-      regexp: "^[Ff]ix[: ].*$"
+      regexp: "^.*[Ff]ix.*$"
     - title: Others
       order: 999
   filters:
     exclude:
-      - "^Update docs$"
+      - "^.*Update docs.*$"
 release:
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
