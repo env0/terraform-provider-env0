@@ -1,0 +1,1 @@
+terraform import env0_agent_project_assigment.example agent-id_project-id
