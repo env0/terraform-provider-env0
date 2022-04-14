@@ -8,7 +8,7 @@ env:
   ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
-  GO_VERSION: 1.16
+  GO_VERSION: 1.18
   TERRAFORM_VERSION: 1.1.7
 
 jobs:
