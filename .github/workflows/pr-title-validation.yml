@@ -1,4 +1,4 @@
-name: 'Commit Message Check'
+name: 'Title Validation'
 on:
   pull_request:
     types:
@@ -7,7 +7,7 @@ on:
       - "reopened"
 jobs:
   check-commit-message:
-    name: Check Commit Message
+    name: ${{ github.event.pull_request.title }}
     runs-on: ubuntu-20.04
     timeout-minutes: 1
     steps:
