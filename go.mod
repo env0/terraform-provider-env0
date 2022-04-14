@@ -1,6 +1,6 @@
 module github.com/env0/terraform-provider-env0
 
-go 1.18 // please change also in repo secrets
+go 1.18
 
 require (
 	github.com/adhocore/gronx v0.2.6
