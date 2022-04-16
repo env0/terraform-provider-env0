@@ -1,8 +1,8 @@
 provider "random" {}
 
 resource "random_string" "random" {
-  length = 5
-  special = false
+  length    = 5
+  special   = false
   min_lower = 5
 }
 
