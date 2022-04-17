@@ -283,7 +283,7 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 
 func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 
-	resourceType := "env0_google_cost_credentials"
+	resourceType := "env0_gcp_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 
