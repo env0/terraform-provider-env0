@@ -51,24 +51,28 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description:   "create the variable under this project, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"template_id", "environment_id"},
+				ForceNew:      true,
 			},
 			"template_id": {
 				Type:          schema.TypeString,
 				Description:   "create the variable under this template, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"project_id", "environment_id"},
+				ForceNew:      true,
 			},
 			"environment_id": {
 				Type:          schema.TypeString,
 				Description:   "create the variable under this environment, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
+				ForceNew:      true,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "default 'environment'. set to 'terraform' to create a terraform variable",
 				Optional:    true,
 				Default:     "environment",
+				ForceNew:    true,
 			},
 			"enum": {
 				Type:        schema.TypeList,
