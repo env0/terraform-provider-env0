@@ -38,7 +38,7 @@ var _ = Describe("CloudCredentials", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
-			payloadValue := GoogleCostCredentialsValeuPayload{
+			payloadValue := GoogleCostCredentialsValuePayload{
 				TableId: "table",
 				Secret:  "secret",
 			}
