@@ -80,3 +80,15 @@ func missingArgumentTestCase(resourceType string, resourceName string, errorReso
 	}
 	return testCaseFormMissingValidInputError
 }
+
+func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]interface{}, missingArgumentKey string) resource.TestCase {
+	testCaseFormMissingValidInputError := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate(resourceType, resourceName, errorResource),
+				ExpectError: regexp.MustCompile("Error: Missing required argument"),
+			},
+		},
+	}
+	return testCaseFormMissingValidInputError
+}
