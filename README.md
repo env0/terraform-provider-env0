@@ -67,7 +67,7 @@ See [here](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an
 
 ## Development Setup
 
-> **Supported Go Version: 1.16**
+> **Supported Go Version: 1.18**
 
 ### Build
 - Use the `./build.sh` script.

@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  GO_VERSION: 1.16
+  GO_VERSION: 1.18
 
 jobs:
   generate-docs:
@@ -37,4 +37,3 @@ jobs:
           author_email: mail@example.com
           message: 'Update docs'
           add: 'docs/*'
-
