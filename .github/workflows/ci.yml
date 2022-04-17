@@ -8,7 +8,7 @@ env:
   ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
-  GO_VERSION: 1.16
+  GO_VERSION: 1.18
   TERRAFORM_VERSION: 1.1.7
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
       - name: Go staticcheck
         uses: dominikh/staticcheck-action@v1.2.0
         with:
-          version: "2021.1.2"
+          version: "2022.1"
           install-go: false
       - name: Go Test
         run: go test -v ./...
