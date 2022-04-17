@@ -16,12 +16,6 @@ const GOOGLE = "google"
 func resourceCostCredentials(providerName string) *schema.Resource {
 
 	awsSchema := map[string]*schema.Schema{
-		"name": {
-			Type:        schema.TypeString,
-			Description: "name for the credentials",
-			Required:    true,
-			ForceNew:    true,
-		},
 		"arn": {
 			Type:        schema.TypeString,
 			Description: "the aws role arn",
@@ -46,20 +40,20 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 		},
 		"client_secret": {
 			Type:        schema.TypeString,
-			Description: "azure client secret",
+			Description: "the azure client secret",
 			Sensitive:   true,
 			ForceNew:    true,
 			Required:    true,
 		},
 		"tenant_id": {
 			Type:        schema.TypeString,
-			Description: "azure tenant id",
+			Description: "the azure tenant id",
 			ForceNew:    true,
 			Required:    true,
 		},
 		"subscription_id": {
 			Type:        schema.TypeString,
-			Description: "azure subscription id",
+			Description: "the azure subscription id",
 			ForceNew:    true,
 			Required:    true,
 		},
@@ -68,13 +62,13 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 	googleSchema := map[string]*schema.Schema{
 		"table_id": {
 			Type:        schema.TypeString,
-			Description: "the table id of this credentials ",
+			Description: "the full BigQuery table id of the exported billing data",
 			ForceNew:    true,
 			Required:    true,
 		},
 		"secret": {
 			Type:        schema.TypeString,
-			Description: "the secret of this credentials",
+			Description: "the GCP service account key",
 			Sensitive:   true,
 			ForceNew:    true,
 			Required:    true,
@@ -87,16 +81,16 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 		CreateContext: resourceCostCredentialsCreate,
 		ReadContext:   resourceCostCredentialsRead,
 		DeleteContext: resourceCostCredentialsDelete,
-		Schema:        expendSchema(schemaMap[providerName]),
+		Schema:        extendSchema(schemaMap[providerName]),
 	}
 }
 
-func expendSchema(schemaToReadFrom map[string]*schema.Schema) map[string]*schema.Schema {
+func extendSchema(schemaToReadFrom map[string]*schema.Schema) map[string]*schema.Schema {
 
 	resultsSchema := map[string]*schema.Schema{
 		"name": {
 			Type:        schema.TypeString,
-			Description: "name for the credentials",
+			Description: "the name for the credentials",
 			Required:    true,
 			ForceNew:    true,
 		},
