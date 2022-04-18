@@ -1,4 +1,4 @@
-name: 'Title Validation'
+name: "Validation"
 on:
   pull_request:
     types:
@@ -7,7 +7,7 @@ on:
       - "reopened"
 jobs:
   check-commit-message:
-    name: ${{ github.event.pull_request.title }}
+    name: "PR Title"
     runs-on: ubuntu-20.04
     timeout-minutes: 1
     steps:
