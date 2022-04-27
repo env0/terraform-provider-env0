@@ -1,9 +1,17 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 data "env0_template" "github_template" {
   name = "Github Integrated Template"
 }
 
 resource "env0_template" "github_template1" {
-  name                                    = "Github Test-111"
+  name                                    = "Github Test ${random_string.random.result}-1"
   description                             = "Template description - GitHub"
   type                                    = "terraform"
   repository                              = data.env0_template.github_template.repository
@@ -16,7 +24,7 @@ resource "env0_template" "github_template1" {
 }
 
 resource "env0_template" "github_template2" {
-  name                                    = "Github Test-222"
+  name                                    = "Github Test ${random_string.random.result}-2"
   description                             = "Template description - GitHub"
   type                                    = "terraform"
   repository                              = data.env0_template.github_template.repository
@@ -33,12 +41,4 @@ data "env0_templates" "all_templates" {}
 data "env0_template" "templates" {
   for_each = toset(data.env0_templates.all_templates.names)
   name     = each.value
-}
-
-output "template1_name" {
-  value = var.second_run ? data.env0_template.templates["Github Test-111"].name : ""
-}
-
-output "template2_name" {
-  value = var.second_run ? data.env0_template.templates["Github Test-222"].name : ""
 }
