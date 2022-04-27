@@ -42,7 +42,7 @@ func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta interface{}
 	d.Set("names", data)
 
 	// Not really needed. But required by Terraform SDK - https://github.com/hashicorp/terraform-plugin-sdk/issues/541
-	d.SetId("1")
+	d.SetId("all_teams_names")
 
 	return nil
 }
