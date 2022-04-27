@@ -61,6 +61,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_gcp_credentials":         dataGcpCredentials(),
 				"env0_azure_credentials":       dataAzureCredentials(),
 				"env0_team":                    dataTeam(),
+				"env0_teams":                   dataTeams(),
 				"env0_environment":             dataEnvironment(),
 				"env0_workflow_triggers":       dataWorkflowTriggers(),
 				"env0_notification":            dataNotification(),
