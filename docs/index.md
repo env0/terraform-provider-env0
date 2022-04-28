@@ -8,14 +8,27 @@ description: |-
 
 # env0 Provider
 
+The [env0][https://www.env0.com] provider is used to interact with the resources supported by env0. The provider needs to be configured with proper credentials before it can be used. Please refer tho [this guide](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key) on how to generate those credentials.
 
+Use the navigation to the left to read about the available resources.
 
 ## Example Usage
 
 ```terraform
+# Terraform 0.13+ uses the Terraform Registry:
+
+terraform {
+  required_providers {
+    env0 = {
+      source = "env0/env0"
+    }
+  }
+}
+
+# Configure the env0 provider
 provider "env0" {
-  api_key    = var.env0_api_key    # or use ENV0_API_KEY
-  api_secret = var.env0_api_secret # or use ENV0_API_SECRET
+  api_key    = var.env0_api_key    
+  api_secret = var.env0_api_secret
 }
 ```
 
