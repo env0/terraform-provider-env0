@@ -53,6 +53,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_project_policy":          dataPolicy(),
 				"env0_configuration_variable":  dataConfigurationVariable(),
 				"env0_template":                dataTemplate(),
+				"env0_templates":               dataTemplates(),
 				"env0_ssh_key":                 dataSshKey(),
 				"env0_aws_cost_credentials":    dataCostCredentials(string(client.AwsCostCredentialsType)),
 				"env0_azure_cost_credentials":  dataCostCredentials(string(client.AzureCostCredentialsType)),
