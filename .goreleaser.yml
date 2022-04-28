@@ -64,11 +64,6 @@ changelog:
       - "^.*Update docs.*$"
 release:
   prerelease: auto
-  mode: prepend
-
-  header: |
-    ## Release Notes {{ .Tag }} ({{ .Date }})
-
   footer: |
     ## Thanks! the env0 team.
 
