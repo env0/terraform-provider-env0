@@ -64,8 +64,6 @@ changelog:
       - "^.*Update docs.*$"
 release:
   prerelease: auto
-  footer: |
-    ## Thanks! the env0 team.
 
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
