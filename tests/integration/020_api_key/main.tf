@@ -1,5 +1,13 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length    = 5
+  special   = false
+  min_lower = 5
+}
+
 resource "env0_api_key" "test_api_key" {
-  name = "name"
+  name = "my-little-api-key-${random_string.random.result}"
 }
 
 data "env0_api_key" "test_api_key1" {
