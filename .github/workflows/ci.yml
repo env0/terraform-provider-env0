@@ -45,11 +45,11 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-20.04
-    container: hashicorp/terraform:1.1.6
+    container: hashicorp/terraform:1.1.9
     timeout-minutes: 20
     steps:
       - name: Install Go
-        run: apk add go
+        run: apk update && apk add go
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Harness tests

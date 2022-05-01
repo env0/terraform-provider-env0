@@ -92,24 +92,16 @@ type EnvironmentDeployResponse struct {
 	Id string `json:"id"`
 }
 
+func (Environment) getEndpoint() string {
+	return "/environments"
+}
+
 func (client *ApiClient) Environments() ([]Environment, error) {
-	var result []Environment
-	err := client.http.Get("/environments", nil, &result)
-	if err != nil {
-		return []Environment{}, err
-	}
-	return result, nil
+	return getAll(client, nil)
 }
 
 func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
-
-	var result []Environment
-	err := client.http.Get("/environments", map[string]string{"projectId": projectId}, &result)
-
-	if err != nil {
-		return []Environment{}, err
-	}
-	return result, nil
+	return getAll(client, map[string]string{"projectId": projectId})
 }
 
 func (client *ApiClient) Environment(id string) (Environment, error) {
