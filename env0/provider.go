@@ -28,20 +28,20 @@ func Provider(version string) plugin.ProviderFunc {
 			Schema: map[string]*schema.Schema{
 				"api_endpoint": {
 					Type:        schema.TypeString,
-					Description: "override api endpoint (used for testing)",
+					Description: "env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.",
 					DefaultFunc: schema.EnvDefaultFunc("ENV0_API_ENDPOINT", "https://api.env0.com/"),
 					Optional:    true,
 				},
 				"api_key": {
 					Type:        schema.TypeString,
-					Description: "env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)",
+					Description: "env0 API key. This can also be set via the ENV0_API_KEY environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiKeyEnv, nil),
 					Required:    true,
 					Sensitive:   true,
 				},
 				"api_secret": {
 					Type:        schema.TypeString,
-					Description: "env0 api key secret",
+					Description: "env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiSecretEnv, nil),
 					Required:    true,
 					Sensitive:   true,

@@ -24,9 +24,9 @@ provider "env0" {
 
 ### Required
 
-- **api_key** (String, Sensitive) env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)
-- **api_secret** (String, Sensitive) env0 api key secret
+- **api_key** (String, Sensitive) env0 API key. This can also be set via the ENV0_API_KEY environment variable.
+- **api_secret** (String, Sensitive) env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.
 
 ### Optional
 
-- **api_endpoint** (String) override api endpoint (used for testing)
+- **api_endpoint** (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.
