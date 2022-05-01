@@ -8,27 +8,14 @@ description: |-
 
 # env0 Provider
 
-The [env0][https://www.env0.com] provider is used to interact with the resources supported by env0. The provider needs to be configured with proper credentials before it can be used. Please refer tho [this guide](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key) on how to generate those credentials.
 
-Use the navigation to the left to read about the available resources.
 
 ## Example Usage
 
 ```terraform
-# Terraform 0.13+ uses the Terraform Registry:
-
-terraform {
-  required_providers {
-    env0 = {
-      source = "env0/env0"
-    }
-  }
-}
-
-# Configure the env0 provider
 provider "env0" {
-  api_key    = var.env0_api_key    
-  api_secret = var.env0_api_secret
+  api_key    = var.env0_api_key    # or use ENV0_API_KEY
+  api_secret = var.env0_api_secret # or use ENV0_API_SECRET
 }
 ```
 
@@ -37,9 +24,9 @@ provider "env0" {
 
 ### Required
 
-- **api_key** (String, Sensitive) env0 api key (https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key)
-- **api_secret** (String, Sensitive) env0 api key secret
+- **api_key** (String, Sensitive) env0 API key. This can also be set via the ENV0_API_KEY environment variable.
+- **api_secret** (String, Sensitive) env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.
 
 ### Optional
 
-- **api_endpoint** (String) override api endpoint (used for testing)
+- **api_endpoint** (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.
