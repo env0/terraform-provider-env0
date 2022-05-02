@@ -10,6 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const full_page = 100
+const partial_page = 33
+
 var _ = Describe("Environment Client", func() {
 	const (
 		environmentId = "env-id"
@@ -47,11 +50,11 @@ var _ = Describe("Environment Client", func() {
 
 		Describe("SuccessMultiPages", func() {
 			var environmentsP1, environmentsP2 []Environment
-			for i := 0; i < 100; i++ {
+			for i := 0; i < full_page; i++ {
 				environmentsP1 = append(environmentsP1, mockEnvironment)
 			}
 
-			for i := 0; i < 33; i++ {
+			for i := 0; i < partial_page; i++ {
 				environmentsP2 = append(environmentsP2, mockEnvironment)
 			}
 
@@ -85,11 +88,11 @@ var _ = Describe("Environment Client", func() {
 		Describe("SuccessMultiPagesWithProject", func() {
 			projectId := "proj123"
 			var environmentsP1, environmentsP2 []Environment
-			for i := 0; i < 100; i++ {
+			for i := 0; i < full_page; i++ {
 				environmentsP1 = append(environmentsP1, mockEnvironment)
 			}
 
-			for i := 0; i < 33; i++ {
+			for i := 0; i < partial_page; i++ {
 				environmentsP2 = append(environmentsP2, mockEnvironment)
 			}
 
