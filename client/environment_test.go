@@ -10,6 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const full_page = 100
+const partial_page = 33
+
 var _ = Describe("Environment Client", func() {
 	const (
 		environmentId = "env-id"
@@ -28,7 +31,7 @@ var _ = Describe("Environment Client", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments", nil, gomock.Any()).
+					Get("/environments", gomock.Any(), gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = mockEnvironments
 					})
@@ -45,11 +48,88 @@ var _ = Describe("Environment Client", func() {
 			})
 		})
 
+		Describe("SuccessMultiPages", func() {
+			var environmentsP1, environmentsP2 []Environment
+			for i := 0; i < full_page; i++ {
+				environmentsP1 = append(environmentsP1, mockEnvironment)
+			}
+
+			for i := 0; i < partial_page; i++ {
+				environmentsP2 = append(environmentsP2, mockEnvironment)
+			}
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Get("/environments", map[string]string{
+						"offset": "0",
+						"limit":  "100",
+					}, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Environment) {
+						*response = environmentsP1
+					}).Times(1)
+
+				httpCall2 = mockHttpClient.EXPECT().
+					Get("/environments", map[string]string{
+						"offset": "100",
+						"limit":  "100",
+					}, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Environment) {
+						*response = environmentsP2
+					}).Times(1)
+
+				environments, err = apiClient.Environments()
+			})
+
+			It("Should return the environments", func() {
+				Expect(environments).To(Equal(append(environmentsP1, environmentsP2...)))
+			})
+		})
+
+		Describe("SuccessMultiPagesWithProject", func() {
+			projectId := "proj123"
+			var environmentsP1, environmentsP2 []Environment
+			for i := 0; i < full_page; i++ {
+				environmentsP1 = append(environmentsP1, mockEnvironment)
+			}
+
+			for i := 0; i < partial_page; i++ {
+				environmentsP2 = append(environmentsP2, mockEnvironment)
+			}
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Get("/environments", map[string]string{
+						"offset":    "0",
+						"limit":     "100",
+						"projectId": projectId,
+					}, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Environment) {
+						*response = environmentsP1
+					}).Times(1)
+
+				httpCall2 = mockHttpClient.EXPECT().
+					Get("/environments", map[string]string{
+						"offset":    "100",
+						"limit":     "100",
+						"projectId": projectId,
+					}, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Environment) {
+						*response = environmentsP2
+					}).Times(1)
+
+				environments, err = apiClient.ProjectEnvironments(projectId)
+			})
+
+			It("Should return the environments", func() {
+				Expect(environments).To(Equal(append(environmentsP1, environmentsP2...)))
+			})
+		})
+
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments", nil, gomock.Any()).
+					Get("/environments", gomock.Any(), gomock.Any()).
 					Return(expectedErr)
 
 				_, err = apiClient.Environments()

@@ -21,6 +21,7 @@ var (
 	mockHttpClient     *http.MockHttpClientInterface
 	apiClient          ApiClientInterface
 	httpCall           *gomock.Call
+	httpCall2          *gomock.Call
 	organizationIdCall *gomock.Call
 )
 
