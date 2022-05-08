@@ -47,7 +47,7 @@ resource "env0_configuration_variable" "json_variable" {
 
 - **description** (String) a description of the variables
 - **enum** (List of String) limit possible values to values from this list
-- **environment_id** (String) create the variable under this environment, not globally
+- **environment_id** (String, Deprecated) create the variable under this environment, not globally
 - **format** (String) specifies the format of the configuration value (HCL/JSON)
 - **id** (String) The ID of this resource.
 - **is_read_only** (Boolean) the value of this variable cannot be edited by lower scopes

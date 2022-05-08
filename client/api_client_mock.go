@@ -1232,6 +1232,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
 }
 
+// Users mocks base method.
+func (m *MockApiClientInterface) Users() ([]OrganizationUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Users")
+	ret0, _ := ret[0].([]OrganizationUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Users indicates an expected call of Users.
+func (mr *MockApiClientInterfaceMockRecorder) Users() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Users", reflect.TypeOf((*MockApiClientInterface)(nil).Users))
+}
+
 // WorkflowTrigger mocks base method.
 func (m *MockApiClientInterface) WorkflowTrigger(arg0 string) ([]WorkflowTrigger, error) {
 	m.ctrl.T.Helper()
