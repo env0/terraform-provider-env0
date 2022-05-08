@@ -40,7 +40,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:        schema.TypeInt,
-				Description: "Max number of environments a single user can have in this project, 0 indicates no limit",
+				Description: "Max number of environments a single user can have in this project, `null` indicates no limit",
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
@@ -52,7 +52,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments_total": {
 				Type:        schema.TypeInt,
-				Description: "Max number of environments in this project, 0 indicates no limit",
+				Description: "Max number of environments in this project, `null` indicates no limit",
 				Optional:    true,
 				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
 					n := i.(int)
