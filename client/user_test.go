@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Module Client", func() {
+var _ = Describe("User Client", func() {
 	mockUser := OrganizationUser{
 		User: User{
 			Email:  "a@b.com",
