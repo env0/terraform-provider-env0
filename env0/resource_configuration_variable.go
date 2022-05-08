@@ -195,7 +195,10 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagn
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
 		valueExists := false
-		for _, enumValue := range enumValues {
+		for i, enumValue := range enumValues {
+			if enumValue == nil {
+				return nil, diag.Errorf("an empty enum value is not allowed (at index %d)", i)
+			}
 			actualEnumValues = append(actualEnumValues, enumValue.(string))
 			if enumValue == selectedValue {
 				valueExists = true

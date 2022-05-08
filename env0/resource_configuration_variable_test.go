@@ -323,6 +323,27 @@ resource "%s" "test" {
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {})
 	})
 
+	t.Run("Create Enum with empty value", func(t *testing.T) {
+		stepConfig := fmt.Sprintf(`
+		resource "%s" "test" {
+			name = "%s"
+			description = "%s"
+			value= "%s"
+			enum = ["a",""]
+		}`, resourceType, configVar.Name, configVar.Description, configVar.Value)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      stepConfig,
+					ExpectError: regexp.MustCompile(`an empty enum value is not allowed \(at index 1\)`),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("Create with wrong type", func(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
