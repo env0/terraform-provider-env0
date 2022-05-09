@@ -31,7 +31,6 @@ var _ = Describe("Environment Client", func() {
 		Describe("Success", func() {
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId)
-
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", gomock.Any(), gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
@@ -62,7 +61,6 @@ var _ = Describe("Environment Client", func() {
 
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId)
-
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"offset":         "0",
@@ -107,8 +105,6 @@ var _ = Describe("Environment Client", func() {
 			}
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
-
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"offset":    "0",
@@ -144,9 +140,7 @@ var _ = Describe("Environment Client", func() {
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
-
 				mockOrganizationIdCall(organizationId)
-
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", gomock.Any(), gomock.Any()).
 					Return(expectedErr)
