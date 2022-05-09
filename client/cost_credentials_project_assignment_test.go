@@ -24,7 +24,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			BeforeEach(func() {
 
 				httpCall = mockHttpClient.EXPECT().
-					Put("/costs/project/"+projectId+"/credentials", credentialId, gomock.Any()).
+					Put("/costs/project/"+projectId+"/credentials", map[string]string{"credentialsId": credentialId}, gomock.Any()).
 					Do(func(path string, request interface{}, response *CostCredentialProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
@@ -41,7 +41,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			var actualError error
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Put("/costs/project/"+projectId+"/credentials", credentialId, gomock.Any()).
+					Put("/costs/project/"+projectId+"/credentials", map[string]string{"credentialsId": credentialId}, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
 				_, actualError = apiClient.AssignCostCredentialsToProject(projectId, credentialId)
@@ -93,7 +93,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			expectedResponse := []CostCredentialProjectAssignment{firstResulteResponse, secondResulteResponse}
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Get("/costs/project/"+projectId, nil, gomock.Any()).
+					Get("/costs/project/"+projectId+"/credentials", nil, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]CostCredentialProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
@@ -110,7 +110,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			var actualError error
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Get("/costs/project/"+projectId, nil, gomock.Any()).
+					Get("/costs/project/"+projectId+"/credentials", nil, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
 				_, actualError = apiClient.CostCredentialIdsInProject(projectId)
