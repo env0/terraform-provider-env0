@@ -109,6 +109,12 @@ func dataConfigurationVariable() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+			"regex": {
+				Type:        schema.TypeString,
+				Description: "specifies a regular expression to validate variable value (enforced only in env0 UI)",
+				Computed:    true,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -146,6 +152,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("enum", variable.Schema.Enum)
 	d.Set("is_read_only", variable.IsReadonly)
 	d.Set("is_required", variable.IsRequired)
+	d.Set("regex", variable.Regex)
 
 	if variable.Schema.Format != client.Text {
 		d.Set("format", string(variable.Schema.Format))

@@ -58,3 +58,19 @@ output "tested3_enum_2" {
   value     = data.env0_configuration_variable.tested3.enum[1]
   sensitive = true
 }
+
+resource "env0_configuration_variable" "regex_var" {
+  project_id = env0_project.test_project.id
+  name       = "regex_var"
+  regex      = "^test-\\d+$"
+}
+
+data "env0_configuration_variable" "regex_var" {
+  project_id = env0_project.test_project.id
+  name       = "regex_var"
+  depends_on = [env0_configuration_variable.regex_var]
+}
+
+output "regex" {
+  value = data.env0_configuration_variable.regex_var.regex
+}
