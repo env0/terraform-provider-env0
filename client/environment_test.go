@@ -30,6 +30,8 @@ var _ = Describe("Environment Client", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", gomock.Any(), gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
@@ -59,10 +61,15 @@ var _ = Describe("Environment Client", func() {
 			}
 
 			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
-						"offset": "0",
-						"limit":  "100",
+						"offset":         "0",
+						"limit":          "100",
+						"onlyMy":         "false",
+						"isActive":       "true",
+						"organizationId": organizationId,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP1
@@ -70,8 +77,11 @@ var _ = Describe("Environment Client", func() {
 
 				httpCall2 = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
-						"offset": "100",
-						"limit":  "100",
+						"offset":         "100",
+						"limit":          "100",
+						"onlyMy":         "false",
+						"isActive":       "true",
+						"organizationId": organizationId,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP2
@@ -97,11 +107,15 @@ var _ = Describe("Environment Client", func() {
 			}
 
 			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"offset":    "0",
 						"limit":     "100",
 						"projectId": projectId,
+						"onlyMy":    "false",
+						"isActive":  "true",
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP1
@@ -112,6 +126,8 @@ var _ = Describe("Environment Client", func() {
 						"offset":    "100",
 						"limit":     "100",
 						"projectId": projectId,
+						"onlyMy":    "false",
+						"isActive":  "true",
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP2
@@ -128,6 +144,9 @@ var _ = Describe("Environment Client", func() {
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
+
+				mockOrganizationIdCall(organizationId)
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", gomock.Any(), gomock.Any()).
 					Return(expectedErr)
