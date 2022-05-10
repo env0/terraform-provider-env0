@@ -54,7 +54,7 @@ resource "env0_configuration_variable" "json_variable" {
 - **is_required** (Boolean) the value of this variable must be set by lower scopes
 - **is_sensitive** (Boolean) is the variable sensitive, defaults to false
 - **project_id** (String) create the variable under this project, not globally
-- **regex** (String) the value of this variable must match provided regular expression
+- **regex** (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - **template_id** (String) create the variable under this template, not globally
 - **type** (String) default 'environment'. set to 'terraform' to create a terraform variable
 - **value** (String, Sensitive) value for the configuration variable
