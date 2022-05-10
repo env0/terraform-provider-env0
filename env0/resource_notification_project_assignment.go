@@ -114,7 +114,7 @@ func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.Re
 	}
 
 	if err := writeResourceData(assignment, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil

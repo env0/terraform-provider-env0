@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -13,6 +14,8 @@ func resourceAwsCredentials() *schema.Resource {
 		CreateContext: resourceAwsCredentialsCreate,
 		ReadContext:   resourceAwsCredentialsRead,
 		DeleteContext: resourceAwsCredentialsDelete,
+
+		Importer: &schema.ResourceImporter{StateContext: resourceAwsCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -27,7 +30,6 @@ func resourceAwsCredentials() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"access_key_id"},
-				ExactlyOneOf:  []string{"access_key_id"},
 			},
 			"external_id": {
 				Type:          schema.TypeString,
@@ -46,7 +48,6 @@ func resourceAwsCredentials() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"arn", "external_id"},
 				RequiredWith:  []string{"secret_access_key"},
-				ExactlyOneOf:  []string{"arn"},
 			},
 			"secret_access_key": {
 				Type:          schema.TypeString,
@@ -62,29 +63,32 @@ func resourceAwsCredentials() *schema.Resource {
 }
 
 func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	_, accessKeyExist := d.GetOk("access_key_id")
+	_, arnExist := d.GetOk("arn")
+	if !accessKeyExist && !arnExist {
+		// Due to "import" must be inforced here and not in the schema level.
+		// This fields are only available during creation (will not be returned in read or import).
+		return diag.Errorf("one of `access_key_id,arn` must be specified")
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
 	value := client.AwsCredentialsValuePayload{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
 	requestType := client.AwsAssumedRoleCredentialsType
-	if arn, ok := d.GetOk("arn"); ok {
-		value.RoleArn = arn.(string)
-		requestType = client.AwsAssumedRoleCredentialsType
-	}
-	if externalId, ok := d.GetOk("external_id"); ok {
-		value.ExternalId = externalId.(string)
-	}
-	if accessKeyId, ok := d.GetOk("access_key_id"); ok {
-		value.AccessKeyId = accessKeyId.(string)
+	if _, ok := d.GetOk("access_key_id"); ok {
 		requestType = client.AwsAccessKeysCredentialsType
 	}
-	if secretAccessKey, ok := d.GetOk("secret_access_key"); ok {
-		value.SecretAccessKey = secretAccessKey.(string)
-	}
+
 	request := client.AwsCredentialsCreatePayload{
 		Name:  d.Get("name").(string),
 		Value: value,
 		Type:  requestType,
 	}
+
 	credentials, err := apiClient.AwsCredentialsCreate(request)
 	if err != nil {
 		return diag.Errorf("could not create credentials key: %v", err)
@@ -98,11 +102,14 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	id := d.Id()
-	_, err := apiClient.CloudCredentials(id)
+	credentials, err := apiClient.CloudCredentials(d.Id())
 	if err != nil {
 		return ResourceGetFailure("aws credentials", d, err)
 	}
+
+	d.Set("name", credentials.Name)
+	d.SetId(credentials.Id)
+
 	return nil
 }
 
@@ -115,4 +122,19 @@ func resourceAwsCredentialsDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("could not delete credentials: %v", err)
 	}
 	return nil
+}
+
+func resourceAwsCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	credentials, err := getCredentials(d.Id(), "AWS_", meta)
+	if err != nil {
+		if _, ok := err.(*client.NotFoundError); ok {
+			return nil, fmt.Errorf("aws credentials resource with id %v not found", d.Id())
+		}
+		return nil, err
+	}
+
+	d.Set("name", credentials.Name)
+	d.SetId(credentials.Id)
+
+	return []*schema.ResourceData{d}, nil
 }
