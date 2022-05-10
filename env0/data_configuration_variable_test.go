@@ -33,6 +33,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL},
 		IsReadonly:     &isReadonly,
 		IsRequired:     &isRequired,
+		Regex:          "regex",
 	}
 
 	checkResources := resource.ComposeAggregateTestCheckFunc(
@@ -46,6 +47,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "format", string(configurationVariable.Schema.Format)),
 		resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configurationVariable.IsReadonly)),
 		resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configurationVariable.IsRequired)),
+		resource.TestCheckResourceAttr(accessor, "regex", "regex"),
 	)
 
 	t.Run("ScopeGlobal", func(t *testing.T) {

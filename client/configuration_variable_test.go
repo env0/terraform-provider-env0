@@ -35,6 +35,7 @@ var _ = Describe("Configuration Variable", func() {
 		Schema:         &schema,
 		IsReadonly:     &isReadonly,
 		IsRequired:     &isRequired,
+		Regex:          "regex",
 	}
 
 	mockGlobalConfigurationVariable := ConfigurationVariable{
@@ -51,6 +52,7 @@ var _ = Describe("Configuration Variable", func() {
 		Schema:         &schema,
 		IsReadonly:     &isReadonly,
 		IsRequired:     &isRequired,
+		Regex:          "regex",
 	}
 
 	Describe("ConfigurationVariable", func() {
@@ -123,6 +125,7 @@ var _ = Describe("Configuration Variable", func() {
 				"schema":         schema,
 				"isReadonly":     *mockConfig.IsReadonly,
 				"isRequired":     *mockConfig.IsRequired,
+				"regex":          mockConfig.Regex,
 			}}
 			return request
 		}
@@ -150,6 +153,7 @@ var _ = Describe("Configuration Variable", func() {
 					Format:      mockConfig.Schema.Format,
 					IsReadonly:  *mockConfig.IsReadonly,
 					IsRequired:  *mockConfig.IsRequired,
+					Regex:       mockConfig.Regex,
 				},
 			)
 		}
@@ -225,6 +229,7 @@ var _ = Describe("Configuration Variable", func() {
 				},
 				"isReadonly": *mockConfigurationVariable.IsReadonly,
 				"isRequired": *mockConfigurationVariable.IsRequired,
+				"regex":      mockConfigurationVariable.Regex,
 			}}
 
 			httpCall = mockHttpClient.EXPECT().
@@ -247,6 +252,7 @@ var _ = Describe("Configuration Variable", func() {
 						EnumValues:  nil,
 						IsReadonly:  *mockConfigurationVariable.IsReadonly,
 						IsRequired:  *mockConfigurationVariable.IsRequired,
+						Regex:       mockConfigurationVariable.Regex,
 					},
 				},
 			)

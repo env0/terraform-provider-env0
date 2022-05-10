@@ -35,6 +35,7 @@ output "aws_default_region" {
 - **is_required** (Boolean) specifies if the value of this variable must be set by lower scopes
 - **name** (String) the name of the configuration variable
 - **project_id** (String) search for the variable under this project, not globally
+- **regex** (String) specifies a regular expression to validate variable value in UI
 - **template_id** (String) search for the variable under this template, not globally
 - **type** (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
 
