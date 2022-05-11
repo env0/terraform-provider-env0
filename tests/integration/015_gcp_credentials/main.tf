@@ -1,5 +1,13 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 resource "env0_gcp_credentials" "gcp_cred" {
-  name                = "test gcp credentials 1"
+  name                = "test gcp credentials 1-${random_string.random.result}"
   service_account_key = "service account key example"
 }
 
@@ -8,7 +16,7 @@ data "env0_gcp_credentials" "gcp_cred" {
 }
 
 resource "env0_gcp_credentials" "gcp_cred_with_project_id" {
-  name                = "Test GCP credentials with project_id 2"
+  name                = "Test GCP credentials with project_id 2-${random_string.random.result}"
   service_account_key = "example service_account_key"
   project_id          = "example project id"
 }
