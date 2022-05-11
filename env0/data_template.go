@@ -106,6 +106,44 @@ func dataTemplate() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"bitbucket_client_key": {
+				Type:        schema.TypeString,
+				Description: "the bitbucket client key used for integration",
+				Optional:    true,
+				Computed:    true,
+			},
+			"is_bitbucket_server": {
+				Type:        schema.TypeBool,
+				Description: "true if this template uses bitbucket server repository",
+				Optional:    true,
+				Computed:    true,
+			},
+			"is_github_enterprise": {
+				Type:        schema.TypeBool,
+				Description: "true if this template uses github enterprise repository",
+				Optional:    true,
+				Computed:    true,
+			},
+			"ssh_keys": {
+				Type:        schema.TypeList,
+				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "ssh key id",
+							Required:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "ssh key name",
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -159,12 +197,38 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	if template.TokenId != "" {
 		d.Set("token_id", template.TokenId)
 	}
+
+	if template.BitbucketClientKey != "" {
+		d.Set("bitbucket_client_key", template.BitbucketClientKey)
+	}
+
 	if template.GitlabProjectId != 0 {
 		d.Set("gitlab_project_id", template.GitlabProjectId)
 	}
 
 	if template.IsGitlabEnterprise {
 		d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
+	}
+
+	if template.IsBitbucketServer {
+		d.Set("is_bitbucket_server", template.IsBitbucketServer)
+	}
+
+	if template.IsGitHubEnterprise {
+		d.Set("is_github_enterprise", template.IsGitHubEnterprise)
+	}
+
+	var sshKeys []interface{}
+
+	for _, sshKey := range template.SshKeys {
+		newSshKey := make(map[string]interface{})
+		newSshKey["id"] = sshKey.Id
+		newSshKey["name"] = sshKey.Name
+		sshKeys = append(sshKeys, newSshKey)
+	}
+
+	if sshKeys != nil {
+		d.Set("ssh_keys", sshKeys)
 	}
 
 	return nil
