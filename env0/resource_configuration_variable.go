@@ -105,6 +105,11 @@ func resourceConfigurationVariable() *schema.Resource {
 				Default:       false,
 				ConflictsWith: []string{"environment_id"},
 			},
+			"regex": {
+				Type:        schema.TypeString,
+				Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -148,6 +153,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	format := client.Format(d.Get("format").(string))
 	isReadOnly := d.Get("is_read_only").(bool)
 	isRequired := d.Get("is_required").(bool)
+	regex := d.Get("regex").(string)
 
 	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
 		return diag.Errorf(err.Error())
@@ -179,6 +185,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		Format:      format,
 		IsReadonly:  isReadOnly,
 		IsRequired:  isRequired,
+		Regex:       regex,
 	})
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
@@ -227,6 +234,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("is_sensitive", variable.IsSensitive)
 	d.Set("is_read_only", variable.IsReadonly)
 	d.Set("is_required", variable.IsRequired)
+	d.Set("regex", variable.Regex)
 	if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
 		d.Set("type", "terraform")
 	} else {
@@ -258,6 +266,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	format := client.Format(d.Get("format").(string))
 	isReadOnly := d.Get("is_read_only").(bool)
 	isRequired := d.Get("is_required").(bool)
+	regex := d.Get("regex").(string)
 
 	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
 		return diag.Errorf(err.Error())
@@ -288,6 +297,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 		Format:      format,
 		IsReadonly:  isReadOnly,
 		IsRequired:  isRequired,
+		Regex:       regex,
 	}})
 	if err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)

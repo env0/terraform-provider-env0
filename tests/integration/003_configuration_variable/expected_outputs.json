@@ -1,5 +1,6 @@
 {
   "tested1_value": "fake value 1 after update",
   "tested3_enum_1": "First",
-  "tested3_enum_2": "Second"
+  "tested3_enum_2": "Second",
+  "regex" : "^test-\\d+$"
 }

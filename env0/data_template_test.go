@@ -36,6 +36,11 @@ func TestUnitTemplateData(t *testing.T) {
 		Retry:                templateRetry,
 		ProjectIds:           []string{"pId1", "pId2"},
 		GithubInstallationId: 123,
+		BitbucketClientKey:   "12345",
+		SshKeys: []client.TemplateSshKey{
+			{Id: "id", Name: "name"},
+		},
+		IsBitbucketServer: true,
 	}
 
 	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
@@ -58,6 +63,10 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
 						resource.TestCheckResourceAttr(resourceFullName, "project_ids.0", template.ProjectIds[0]),
 						resource.TestCheckResourceAttr(resourceFullName, "project_ids.1", template.ProjectIds[1]),
+						resource.TestCheckResourceAttr(resourceFullName, "bitbucket_client_key", template.BitbucketClientKey),
+						resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.id", template.SshKeys[0].Id),
+						resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.name", template.SshKeys[0].Name),
+						resource.TestCheckResourceAttr(resourceFullName, "is_bitbucket_server", "true"),
 					),
 				},
 			},

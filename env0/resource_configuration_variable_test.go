@@ -175,6 +175,61 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 		})
 	})
 
+	t.Run("Create and update with regex", func(t *testing.T) {
+		initialVar := client.ConfigurationVariable{
+			Id:    "regex-var-id",
+			Name:  "regex-var-name",
+			Regex: "initial-regex",
+		}
+		initialResource := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"name":  initialVar.Name,
+			"regex": initialVar.Regex,
+		})
+		createParams := client.ConfigurationVariableCreateParams{
+			Name:  initialVar.Name,
+			Regex: initialVar.Regex,
+			Scope: client.ScopeGlobal,
+		}
+
+		updatedVar := initialVar
+		updatedVar.Regex = "updated-regex"
+		updatedResource := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"name":  updatedVar.Name,
+			"regex": updatedVar.Regex,
+		})
+		updateParams := createParams
+		updateParams.Regex = updatedVar.Regex
+
+		steps := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: initialResource,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "name", initialVar.Name),
+						resource.TestCheckResourceAttr(accessor, "regex", initialVar.Regex),
+					),
+				},
+				{
+					Config: updatedResource,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "name", updatedVar.Name),
+						resource.TestCheckResourceAttr(accessor, "regex", updatedVar.Regex),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, steps, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(initialVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(initialVar.Id).Times(2).Return(initialVar, nil),
+				mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: updateParams, Id: updatedVar.Id}).Times(1).Return(updatedVar, nil),
+				mock.EXPECT().ConfigurationVariablesById(initialVar.Id).Times(1).Return(updatedVar, nil),
+				mock.EXPECT().ConfigurationVariableDelete(initialVar.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
 	t.Run("Create Enum", func(t *testing.T) {
 		schema := client.ConfigurationVariableSchema{
 			Type: "string",

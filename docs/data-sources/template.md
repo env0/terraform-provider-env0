@@ -23,11 +23,15 @@ data "env0_template" "example" {
 
 ### Optional
 
+- **bitbucket_client_key** (String) the bitbucket client key used for integration
 - **github_installation_id** (Number) The env0 application installation id on the relevant github repository
 - **gitlab_project_id** (Number) The project id of the relevant repository
 - **id** (String) id of the template
+- **is_bitbucket_server** (Boolean) true if this template uses bitbucket server repository
+- **is_github_enterprise** (Boolean) true if this template uses github enterprise repository
 - **is_gitlab_enterprise** (Boolean) Does this template use gitlab enterprise repository?
 - **name** (String) the name of the template
+- **ssh_keys** (Block List) an array of references to 'data_ssh_key' to use when accessing git over ssh (see [below for nested schema](#nestedblock--ssh_keys))
 - **terragrunt_version** (String) terragrunt version to use
 - **token_id** (String) The token id used for private git repos or for integration with GitLab
 
@@ -43,5 +47,13 @@ data "env0_template" "example" {
 - **revision** (String) source code revision (branch / tag) to use
 - **terraform_version** (String) terraform version to use
 - **type** (String) 'terraform' or 'terragrunt'
+
+<a id="nestedblock--ssh_keys"></a>
+### Nested Schema for `ssh_keys`
+
+Required:
+
+- **id** (String) ssh key id
+- **name** (String) ssh key name
 
 
