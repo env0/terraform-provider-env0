@@ -35,4 +35,11 @@ resource "env0_aws_credentials" "credentials" {
 - **id** (String) The ID of this resource.
 - **secret_access_key** (String, Sensitive) the aws access key secret
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_aws_credentials.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_aws_credentials.by_name "credentials name"
+```
