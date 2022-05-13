@@ -33,7 +33,7 @@ type AwsCredentialsCreatePayload struct {
 }
 
 type AwsCredentialsValuePayload struct {
-	RoleArn         string `json:"roleArn" resource:"arn"`
+	RoleArn         string `json:"roleArn" tfschema:"arn"`
 	ExternalId      string `json:"externalId"`
 	AccessKeyId     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`

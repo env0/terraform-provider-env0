@@ -107,8 +107,9 @@ func resourceAwsCredentialsRead(ctx context.Context, d *schema.ResourceData, met
 		return ResourceGetFailure("aws credentials", d, err)
 	}
 
-	d.Set("name", credentials.Name)
-	d.SetId(credentials.Id)
+	if err := writeResourceData(&credentials, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -133,8 +134,9 @@ func resourceAwsCredentialsImport(ctx context.Context, d *schema.ResourceData, m
 		return nil, err
 	}
 
-	d.Set("name", credentials.Name)
-	d.SetId(credentials.Id)
+	if err := writeResourceData(&credentials, d); err != nil {
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

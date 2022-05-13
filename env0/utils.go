@@ -42,9 +42,9 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 	for i := 0; i < val.NumField(); i++ {
 		fieldName := val.Type().Field(i).Name
 		// Assumes golang is CamalCase and Terraform is snake_case.
-		// This behavior can be overrided be used in the 'resource' tag.
+		// This behavior can be overrided be used in the 'tfschema' tag.
 		fieldNameSC := toSnakeCase(fieldName)
-		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("resource"); ok {
+		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
 			// 'resource' tag found. Override to tag value.
 			fieldNameSC = resFieldName
 		}
@@ -107,9 +107,9 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	for i := 0; i < val.NumField(); i++ {
 		fieldName := val.Type().Field(i).Name
 		// Assumes golang is CamalCase and Terraform is snake_case.
-		// This behavior can be overrided be used in the 'resource' tag.
+		// This behavior can be overrided be used in the 'tfschema' tag.
 		fieldNameSC := toSnakeCase(fieldName)
-		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("resource"); ok {
+		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
 			// 'resource' tag found. Override to tag value.
 			fieldNameSC = resFieldName
 		}
