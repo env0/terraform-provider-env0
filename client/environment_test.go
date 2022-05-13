@@ -65,8 +65,6 @@ var _ = Describe("Environment Client", func() {
 					Get("/environments", map[string]string{
 						"offset":         "0",
 						"limit":          "100",
-						"onlyMy":         "false",
-						"isActive":       "true",
 						"organizationId": organizationId,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
@@ -77,8 +75,6 @@ var _ = Describe("Environment Client", func() {
 					Get("/environments", map[string]string{
 						"offset":         "100",
 						"limit":          "100",
-						"onlyMy":         "false",
-						"isActive":       "true",
 						"organizationId": organizationId,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
@@ -110,8 +106,6 @@ var _ = Describe("Environment Client", func() {
 						"offset":    "0",
 						"limit":     "100",
 						"projectId": projectId,
-						"onlyMy":    "false",
-						"isActive":  "true",
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP1
@@ -122,8 +116,6 @@ var _ = Describe("Environment Client", func() {
 						"offset":    "100",
 						"limit":     "100",
 						"projectId": projectId,
-						"onlyMy":    "false",
-						"isActive":  "true",
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP2

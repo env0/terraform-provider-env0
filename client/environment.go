@@ -104,16 +104,12 @@ func (client *ApiClient) Environments() ([]Environment, error) {
 
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
-		"isActive":       "true",
-		"onlyMy":         "false",
 	})
 }
 
 func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
 	return getAll(client, map[string]string{
 		"projectId": projectId,
-		"isActive":  "true",
-		"onlyMy":    "false",
 	})
 }
 
