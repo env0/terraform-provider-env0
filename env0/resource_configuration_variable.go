@@ -50,14 +50,14 @@ func resourceConfigurationVariable() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "create the variable under this project, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"template_id", "environment_id"},
+				ConflictsWith: []string{"template_id"},
 				ForceNew:      true,
 			},
 			"template_id": {
 				Type:          schema.TypeString,
 				Description:   "create the variable under this template, not globally",
 				Optional:      true,
-				ConflictsWith: []string{"project_id", "environment_id"},
+				ConflictsWith: []string{"project_id"},
 				ForceNew:      true,
 			},
 			"type": {
@@ -84,18 +84,16 @@ func resourceConfigurationVariable() *schema.Resource {
 				ValidateFunc: ValidateConfigurationPropertySchema,
 			},
 			"is_read_only": {
-				Type:          schema.TypeBool,
-				Description:   "the value of this variable cannot be edited by lower scopes",
-				Optional:      true,
-				Default:       false,
-				ConflictsWith: []string{"environment_id"},
+				Type:        schema.TypeBool,
+				Description: "the value of this variable cannot be edited by lower scopes",
+				Optional:    true,
+				Default:     false,
 			},
 			"is_required": {
-				Type:          schema.TypeBool,
-				Description:   "the value of this variable must be set by lower scopes",
-				Optional:      true,
-				Default:       false,
-				ConflictsWith: []string{"environment_id"},
+				Type:        schema.TypeBool,
+				Description: "the value of this variable must be set by lower scopes",
+				Optional:    true,
+				Default:     false,
 			},
 			"regex": {
 				Type:        schema.TypeString,
@@ -125,10 +123,6 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 	if templateId, ok := d.GetOk("template_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
-	}
-	if environmentId, ok := d.GetOk("environment_id"); ok {
-		scope = client.ScopeEnvironment
-		scopeId = environmentId.(string)
 	}
 
 	return scope, scopeId
