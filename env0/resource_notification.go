@@ -121,7 +121,7 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if err := writeResourceData(notification, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -175,7 +175,7 @@ func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if err := writeResourceData(notification, d); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

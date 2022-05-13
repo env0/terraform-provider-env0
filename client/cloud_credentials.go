@@ -1,9 +1,5 @@
 package client
 
-import (
-	"fmt"
-)
-
 type AwsCredentialsType string
 type GcpCredentialsType string
 type AzureCredentialsType string
@@ -37,7 +33,7 @@ type AwsCredentialsCreatePayload struct {
 }
 
 type AwsCredentialsValuePayload struct {
-	RoleArn         string `json:"roleArn"`
+	RoleArn         string `json:"roleArn" tfschema:"arn"`
 	ExternalId      string `json:"externalId"`
 	AccessKeyId     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
@@ -89,7 +85,7 @@ func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {
 		}
 	}
 
-	return Credentials{}, fmt.Errorf("CloudCredentials: [%s] not found ", id)
+	return Credentials{}, &NotFoundError{}
 }
 
 func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {

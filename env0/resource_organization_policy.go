@@ -59,7 +59,7 @@ func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if err := writeResourceData(&organization, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil

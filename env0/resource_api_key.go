@@ -60,7 +60,7 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	if err := writeResourceData(apiKey, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -138,7 +138,7 @@ func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(apiKey, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

@@ -91,6 +91,24 @@ func TestReadResourceDataNotification(t *testing.T) {
 	assert.Equal(t, expectedPayload, payload)
 }
 
+func TestReadResourceDataWithTag(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceAwsCredentials().Schema, map[string]interface{}{
+		"name":        "name",
+		"arn":         "tagged_arn",
+		"external_id": "external_id",
+	})
+
+	expectedPayload := client.AwsCredentialsValuePayload{
+		RoleArn:    "tagged_arn",
+		ExternalId: "external_id",
+	}
+
+	var payload client.AwsCredentialsValuePayload
+
+	assert.Nil(t, readResourceData(&payload, d))
+	assert.Equal(t, expectedPayload, payload)
+}
+
 func TestWriteResourceDataNotification(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{})
 
