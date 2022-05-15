@@ -97,11 +97,20 @@ func (Environment) getEndpoint() string {
 }
 
 func (client *ApiClient) Environments() ([]Environment, error) {
-	return getAll(client, nil)
+	organizationId, err := client.organizationId()
+	if err != nil {
+		return nil, err
+	}
+
+	return getAll(client, map[string]string{
+		"organizationId": organizationId,
+	})
 }
 
 func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
-	return getAll(client, map[string]string{"projectId": projectId})
+	return getAll(client, map[string]string{
+		"projectId": projectId,
+	})
 }
 
 func (client *ApiClient) Environment(id string) (Environment, error) {
