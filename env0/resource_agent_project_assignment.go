@@ -118,7 +118,7 @@ func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceD
 	}
 
 	if err := writeResourceData(assignment, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -189,7 +189,7 @@ func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.Resourc
 	}
 
 	if err := writeResourceData(assignment, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

@@ -3,13 +3,26 @@ package env0
 import (
 	"log"
 
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
+func driftDetected(d *schema.ResourceData, err error) bool {
 	if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
+		return true
+	}
+
+	if _, ok := err.(*client.NotFoundError); ok {
+		return true
+	}
+
+	return false
+}
+
+func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
+	if driftDetected(d, err) {
 		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
 		d.SetId("")
 		return nil

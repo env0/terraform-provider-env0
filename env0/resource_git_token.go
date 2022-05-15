@@ -64,7 +64,7 @@ func resourceGitTokenRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(gitToken, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -124,7 +124,7 @@ func resourceGitTokenImport(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if err := writeResourceData(gitToken, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return []*schema.ResourceData{d}, nil
