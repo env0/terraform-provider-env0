@@ -45,6 +45,10 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 		// This behavior can be overrided be used in the 'tfschema' tag.
 		fieldNameSC := toSnakeCase(fieldName)
 		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
+			if resFieldName == "-" {
+				continue
+			}
+
 			// 'resource' tag found. Override to tag value.
 			fieldNameSC = resFieldName
 		}
@@ -110,6 +114,10 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 		// This behavior can be overrided be used in the 'tfschema' tag.
 		fieldNameSC := toSnakeCase(fieldName)
 		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
+			if resFieldName == "-" {
+				continue
+			}
+
 			// 'resource' tag found. Override to tag value.
 			fieldNameSC = resFieldName
 		}

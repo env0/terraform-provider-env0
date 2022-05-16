@@ -9,11 +9,11 @@ import (
 )
 
 type ConfigurationVariableParams struct {
-	Scope             client.Scope
-	ScopeId           string
+	Scope             client.Scope `tfschema:"-"`
+	ScopeId           string       `tfschema:"-"`
 	Id                string
 	Name              string
-	configurationType string
+	ConfigurationType string `json:"-" tfschema:"type"`
 }
 
 func dataConfigurationVariable() *schema.Resource {
@@ -121,22 +121,11 @@ func dataConfigurationVariable() *schema.Resource {
 
 func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scope, scopeId := getScopeAndId(d)
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
-	configurationType, configurationOk := d.GetOk("type")
-	parsedId, parsedName, parsedConfigurationType := "", "", ""
 
-	if idOk {
-		parsedId = id.(string)
+	params := ConfigurationVariableParams{Scope: scope, ScopeId: scopeId}
+	if err := readResourceData(&params, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
-	if nameOk {
-		parsedName = name.(string)
-	}
-	if configurationOk {
-		parsedConfigurationType = configurationType.(string)
-	}
-
-	params := ConfigurationVariableParams{scope, scopeId, parsedId, parsedName, parsedConfigurationType}
 
 	variable, err := getConfigurationVariable(params, meta)
 	if err != nil {
@@ -209,7 +198,7 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 	}
 
 	name, nameOk := params.Name, params.Name != ""
-	typeString, ok := params.configurationType, params.configurationType != ""
+	typeString, ok := params.ConfigurationType, params.ConfigurationType != ""
 	type_ := -1
 	if ok {
 		if !nameOk {
