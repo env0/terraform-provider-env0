@@ -1,6 +1,8 @@
 package env0
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -14,6 +16,7 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 
 	resourceType := "env0_gcp_credentials"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	gcpCredentialResource := map[string]interface{}{
@@ -23,7 +26,7 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 	}
 
 	updateGcpCredentialResource := map[string]interface{}{
-		"name":                "testUpdate",
+		"name":                "update",
 		"project_id":          "333_update",
 		"service_account_key": "444_update",
 	}
@@ -47,14 +50,21 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 	}
 
 	returnValues := client.Credentials{
-		Id:             "id",
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de300",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           string(client.GcpServiceAccountCredentialsType),
 	}
 
+	otherTypeReturnValues := client.Credentials{
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de30a",
+		Name:           "test",
+		OrganizationId: "id",
+		Type:           "AZURE_....",
+	}
+
 	updateReturnValues := client.Credentials{
-		Id:             "id2",
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de311",
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           string(client.GcpServiceAccountCredentialsType),
@@ -163,6 +173,99 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
 			)
+		})
+	})
+
+	t.Run("import by name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, gcpCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     gcpCredentialResource["name"].(string),
+					ImportStateVerify: false,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues, returnValues}, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, gcpCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     returnValues.Id,
+					ImportStateVerify: false,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(3).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, gcpCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     otherTypeReturnValues.Id,
+					ImportStateVerify: true,
+					ExpectError:       regexp.MustCompile(fmt.Sprintf("gcp credentials resource with id %v not found", otherTypeReturnValues.Id)),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(otherTypeReturnValues.Id).Times(1).Return(client.Credentials{}, &client.NotFoundError{})
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by name not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, gcpCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     gcpCredentialResource["name"].(string),
+					ImportStateVerify: true,
+					ExpectError:       regexp.MustCompile(fmt.Sprintf("credentials with name %v not found", gcpCredentialResource["name"].(string))),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().GcpCredentialsCreate(gcpCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues}, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
 		})
 	})
 }
