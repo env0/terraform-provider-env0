@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -13,6 +14,8 @@ func resourceAzureCredentials() *schema.Resource {
 		CreateContext: resourceAzureCredentialsCreate,
 		ReadContext:   resourceAzureCredentialsRead,
 		DeleteContext: resourceAzureCredentialsDelete,
+
+		Importer: &schema.ResourceImporter{StateContext: resourceAzureCredentialsImport},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -51,14 +54,13 @@ func resourceAzureCredentials() *schema.Resource {
 }
 
 func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AzureCredentialsValuePayload{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
-	value := client.AzureCredentialsValuePayload{
-		ClientId:       d.Get("client_id").(string),
-		ClientSecret:   d.Get("client_secret").(string),
-		SubscriptionId: d.Get("subscription_id").(string),
-		TenantId:       d.Get("tenant_id").(string),
-	}
 	requestType := client.AzureServicePrincipalCredentialsType
 
 	request := client.AzureCredentialsCreatePayload{
@@ -66,6 +68,7 @@ func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData,
 		Value: value,
 		Type:  requestType,
 	}
+
 	credentials, err := apiClient.AzureCredentialsCreate(request)
 	if err != nil {
 		return diag.Errorf("could not create credentials key: %v", err)
@@ -80,10 +83,16 @@ func resourceAzureCredentialsRead(ctx context.Context, d *schema.ResourceData, m
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	_, err := apiClient.CloudCredentials(id)
+
+	credentials, err := apiClient.CloudCredentials(id)
 	if err != nil {
 		return ResourceGetFailure("azure credentials", d, err)
 	}
+
+	if err := writeResourceData(&credentials, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
 	return nil
 }
 
@@ -96,4 +105,20 @@ func resourceAzureCredentialsDelete(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("could not delete credentials: %v", err)
 	}
 	return nil
+}
+
+func resourceAzureCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	credentials, err := getCredentials(d.Id(), "AZURE_", meta)
+	if err != nil {
+		if _, ok := err.(*client.NotFoundError); ok {
+			return nil, fmt.Errorf("azure credentials resource with id %v not found", d.Id())
+		}
+		return nil, err
+	}
+
+	if err := writeResourceData(&credentials, d); err != nil {
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
