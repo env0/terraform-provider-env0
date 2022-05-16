@@ -101,6 +101,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_api_key":                              resourceApiKey(),
 				"env0_organization_policy":                  resourceOrganizationPolicy(),
 				"env0_agent_project_assignment":             resourceAgentProjectAssignment(),
+				"env0_user_team_assignment":                 resourceUserTeamAssignment(),
 			},
 		}
 

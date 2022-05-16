@@ -117,7 +117,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	if err := writeResourceData(module, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -192,7 +192,7 @@ func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(module, d); err != nil {
-		diag.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

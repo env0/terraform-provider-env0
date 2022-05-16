@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -12,9 +13,9 @@ import (
 )
 
 func TestUnitAwsCredentialsResource(t *testing.T) {
-
 	resourceType := "env0_aws_credentials"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	awsArnCredentialResource := map[string]interface{}{
@@ -48,14 +49,21 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	}
 
 	returnValues := client.Credentials{
-		Id:             "id",
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de30f",
 		Name:           "test",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
 	}
 
+	otherTypeReturnValues := client.Credentials{
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de30a",
+		Name:           "test",
+		OrganizationId: "id",
+		Type:           "GCP_....",
+	}
+
 	updateReturnValues := client.Credentials{
-		Id:             "id2",
+		Id:             "f595c4b6-0a24-4c22-89f7-7030045de30c",
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
@@ -69,7 +77,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "external_id", awsArnCredentialResource["external_id"].(string)),
-					resource.TestCheckResourceAttr(accessor, "id", "id"),
+					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
 		},
@@ -108,7 +116,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate(resourceType, resourceName, mutuallyExclusiveErrorResource),
-				ExpectError: regexp.MustCompile("only one of `access_key_id,arn` can be specified"),
+				ExpectError: regexp.MustCompile(`"external_id": conflicts with access_key_id`),
 			},
 		},
 	}
@@ -184,4 +192,96 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		})
 	})
 
+	t.Run("import by name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     awsArnCredentialResource["name"].(string),
+					ImportStateVerify: false,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues, returnValues}, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     returnValues.Id,
+					ImportStateVerify: false,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(3).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by id not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     otherTypeReturnValues.Id,
+					ImportStateVerify: true,
+					ExpectError:       regexp.MustCompile(fmt.Sprintf("aws credentials resource with id %v not found", otherTypeReturnValues.Id)),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(otherTypeReturnValues.Id).Times(1).Return(client.Credentials{}, &client.NotFoundError{})
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import by name not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, awsArnCredentialResource),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     awsArnCredentialResource["name"].(string),
+					ImportStateVerify: true,
+					ExpectError:       regexp.MustCompile(fmt.Sprintf("credentials with name %v not found", awsArnCredentialResource["name"].(string))),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues}, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
+	})
 }

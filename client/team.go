@@ -9,8 +9,9 @@ type TeamCreatePayload struct {
 }
 
 type TeamUpdatePayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	UserIds     []string `json:"userIds,omitempty"`
 }
 
 type Team struct {
@@ -18,6 +19,7 @@ type Team struct {
 	Name           string `json:"name"`
 	Description    string `json:"description"`
 	OrganizationId string `json:"organizationId"`
+	Users          []User `json:"users"`
 }
 
 func (client *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
