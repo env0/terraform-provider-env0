@@ -33,4 +33,11 @@ resource "env0_gcp_credentials" "credentials" {
 - **id** (String) The ID of this resource.
 - **project_id** (String, Sensitive) the gcp project id
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_gcp_credentials.by_id d31a6b30-5f69-4d24-937c-22322754934e
+terraform import env0_gcp_credentials.by_name "credentials name"
+```
