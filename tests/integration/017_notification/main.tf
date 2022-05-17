@@ -1,5 +1,5 @@
 resource "random_string" "random_name" {
-  length = 20
+  length = 15
 }
 
 resource "env0_notification" "test_notification" {
