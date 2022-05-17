@@ -26,14 +26,14 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		Name:        "name0",
 		Description: "desc0",
 		Value:       "Variable",
-		IsReadonly:  &isReadonly,
+		IsReadOnly:  &isReadonly,
 		IsRequired:  &isRequired,
 	}
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 		"name":         configVar.Name,
 		"description":  configVar.Description,
 		"value":        configVar.Value,
-		"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+		"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
 		"is_required":  strconv.FormatBool(*configVar.IsRequired),
 	})
 
@@ -48,7 +48,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		Description: configVar.Description,
 		Format:      client.Text,
 		IsRequired:  *configVar.IsRequired,
-		IsReadonly:  *configVar.IsReadonly,
+		IsReadOnly:  *configVar.IsReadOnly,
 	}
 	t.Run("Create", func(t *testing.T) {
 		createTestCase := resource.TestCase{
@@ -60,7 +60,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadOnly)),
 						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
 					),
 				},
@@ -86,7 +86,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Id:         "orgVariableId",
 			Name:       "variable",
 			Value:      "orgVariable",
-			IsReadonly: &isReadonly,
+			IsReadOnly: &isReadonly,
 		}
 
 		orgConfigVariableCreateParams := client.ConfigurationVariableCreateParams{
@@ -98,7 +98,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Type:        client.ConfigurationVariableTypeEnvironment,
 			EnumValues:  nil,
 			Format:      client.Text,
-			IsReadonly:  *orgVar.IsReadonly,
+			IsReadOnly:  *orgVar.IsReadOnly,
 		}
 
 		projVar := client.ConfigurationVariable{
@@ -152,7 +152,7 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 				resource.TestCheckResourceAttr(orgAccessor, "id", orgVar.Id),
 				resource.TestCheckResourceAttr(orgAccessor, "name", orgVar.Name),
 				resource.TestCheckResourceAttr(orgAccessor, "value", orgVar.Value),
-				resource.TestCheckResourceAttr(orgAccessor, "is_read_only", strconv.FormatBool(*orgVar.IsReadonly)),
+				resource.TestCheckResourceAttr(orgAccessor, "is_read_only", strconv.FormatBool(*orgVar.IsReadOnly)),
 				resource.TestCheckResourceAttr(projAccessor, "id", projVar.Id),
 				resource.TestCheckResourceAttr(projAccessor, "name", projVar.Name),
 				resource.TestCheckResourceAttr(projAccessor, "value", projVar.Value),
@@ -476,14 +476,14 @@ resource "%s" "test" {
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		newIsReadonly := false
+		newIsReadOnly := false
 		newIsRequired := true
 		newConfigVar := client.ConfigurationVariable{
 			Id:          configVar.Id,
 			Name:        configVar.Name,
 			Description: configVar.Description,
 			Value:       "I want to be the config value",
-			IsReadonly:  &newIsReadonly,
+			IsReadOnly:  &newIsReadOnly,
 			IsRequired:  &newIsRequired,
 		}
 
@@ -494,7 +494,7 @@ resource "%s" "test" {
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
-						"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+						"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
 						"is_required":  strconv.FormatBool(*configVar.IsRequired),
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -502,7 +502,7 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadOnly)),
 						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
 					),
 				},
@@ -512,7 +512,7 @@ resource "%s" "test" {
 						"description":  newConfigVar.Description,
 						"value":        newConfigVar.Value,
 						"format":       client.HCL,
-						"is_read_only": strconv.FormatBool(*newConfigVar.IsReadonly),
+						"is_read_only": strconv.FormatBool(*newConfigVar.IsReadOnly),
 						"is_required":  strconv.FormatBool(*newConfigVar.IsRequired),
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -521,7 +521,7 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "description", newConfigVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", newConfigVar.Value),
 						resource.TestCheckResourceAttr(accessor, "format", string(client.HCL)),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*newConfigVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*newConfigVar.IsReadOnly)),
 						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*newConfigVar.IsRequired)),
 					),
 				},
@@ -535,7 +535,7 @@ resource "%s" "test" {
 			updateParams.Value = newConfigVar.Value
 			updateParams.Description = newConfigVar.Description
 			updateParams.Format = client.HCL
-			updateParams.IsReadonly = *newConfigVar.IsReadonly
+			updateParams.IsReadOnly = *newConfigVar.IsReadOnly
 			updateParams.IsRequired = *newConfigVar.IsRequired
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(configVar, nil)
@@ -564,7 +564,7 @@ resource "%s" "test" {
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
-						"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+						"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
 						"is_required":  strconv.FormatBool(*configVar.IsRequired),
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -572,7 +572,7 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadOnly)),
 						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
 					),
 				},
@@ -603,7 +603,7 @@ resource "%s" "test" {
 		Name:        "name0",
 		Description: "desc0",
 		Value:       "Variable",
-		IsReadonly:  &isReadonly,
+		IsReadOnly:  &isReadonly,
 		IsRequired:  &isRequired,
 		Scope:       "BLUEPRINT",
 	}
@@ -612,7 +612,7 @@ resource "%s" "test" {
 		"name":         configVarImport.Name,
 		"description":  configVarImport.Description,
 		"value":        configVarImport.Value,
-		"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+		"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
 		"is_required":  strconv.FormatBool(*configVar.IsRequired),
 		"template_id":  "id0",
 	})
@@ -628,7 +628,7 @@ resource "%s" "test" {
 		Description: configVarImport.Description,
 		Format:      client.Text,
 		IsRequired:  *configVarImport.IsRequired,
-		IsReadonly:  *configVarImport.IsReadonly,
+		IsReadOnly:  *configVarImport.IsReadOnly,
 	}
 	t.Run("import by name", func(t *testing.T) {
 
@@ -686,14 +686,14 @@ resource "%s" "test" {
 			Name:        "name0",
 			Description: "desc0",
 			Value:       "",
-			IsReadonly:  &trueVariable,
+			IsReadOnly:  &trueVariable,
 			IsRequired:  &trueVariable,
 		}
 		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 			"name":         configVar.Name,
 			"description":  configVar.Description,
 			"value":        configVar.Value,
-			"is_read_only": strconv.FormatBool(*configVar.IsReadonly),
+			"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
 			"is_required":  strconv.FormatBool(*configVar.IsRequired),
 		})
 
@@ -710,14 +710,14 @@ resource "%s" "test" {
 	})
 
 	t.Run("cant be empty value when isRequired and isReadOnly are true - Update", func(t *testing.T) {
-		newIsReadonly := true
+		newIsReadOnly := true
 		newIsRequired := true
 		newConfigVar := client.ConfigurationVariable{
 			Id:          configVar.Id,
 			Name:        configVar.Name,
 			Description: configVar.Description,
 			Value:       configVar.Value,
-			IsReadonly:  &newIsReadonly,
+			IsReadOnly:  &newIsReadOnly,
 			IsRequired:  &newIsRequired,
 		}
 
@@ -728,7 +728,7 @@ resource "%s" "test" {
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
-						"is_read_only": strconv.FormatBool(newIsReadonly),
+						"is_read_only": strconv.FormatBool(newIsReadOnly),
 						"is_required":  strconv.FormatBool(newIsRequired),
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -736,7 +736,7 @@ resource "%s" "test" {
 						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
 						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
 						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(newIsReadonly)),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(newIsReadOnly)),
 						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(newIsRequired)),
 					),
 				},
@@ -746,7 +746,7 @@ resource "%s" "test" {
 						"description":  newConfigVar.Description,
 						"value":        "",
 						"format":       client.HCL,
-						"is_read_only": strconv.FormatBool(newIsReadonly),
+						"is_read_only": strconv.FormatBool(newIsReadOnly),
 						"is_required":  strconv.FormatBool(newIsRequired),
 					}),
 					ExpectError: regexp.MustCompile("'value' cannot be empty when 'is_read_only' and 'is_required' are true "),
@@ -756,14 +756,14 @@ resource "%s" "test" {
 
 		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
 			createParams := configurationVariableCreateParams
-			createParams.IsReadonly = true
+			createParams.IsReadOnly = true
 			createParams.IsRequired = true
 			updateParams := createParams
 			updateParams.Name = newConfigVar.Name
 			updateParams.Value = ""
 			updateParams.Description = newConfigVar.Description
 			updateParams.Format = client.HCL
-			updateParams.IsReadonly = *newConfigVar.IsReadonly
+			updateParams.IsReadOnly = *newConfigVar.IsReadOnly
 			updateParams.IsRequired = *newConfigVar.IsRequired
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(newConfigVar, nil)

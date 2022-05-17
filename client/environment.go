@@ -1,6 +1,37 @@
 package client
 
+import (
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
 type ConfigurationVariableType int
+
+func (c *ConfigurationVariableType) ReadResourceData(fieldName string, d *schema.ResourceData) error {
+	val := d.Get(fieldName).(string)
+	intVal, ok := VariableTypes[val]
+	if !ok {
+		return fmt.Errorf("unknown configuration variable type %s", val)
+	}
+	*c = intVal
+
+	return nil
+}
+
+func (c *ConfigurationVariableType) WriteResourceData(fieldName string, d *schema.ResourceData) error {
+	val := *c
+	valStr := ""
+	if val == 0 {
+		valStr = "environment"
+	} else if val == 1 {
+		valStr = "terraform"
+	} else {
+		return fmt.Errorf("unknown configuration variable type %d", val)
+	}
+
+	return d.Set(fieldName, valStr)
+}
 
 const (
 	ConfigurationVariableTypeEnvironment ConfigurationVariableType = 0
