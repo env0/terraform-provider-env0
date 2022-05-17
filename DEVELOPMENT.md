@@ -60,7 +60,7 @@ Check [resource_module.go](./env0/resource_module.go) that uses the utilities vs
 
 Pay attention to the following caveats:
 * The utilities leverage golang reflection. And work well for most simple types. Complex types may need additional code to be implemented.
-* The golang fields are in CamalCase, while the terraform fields are in snake_case. They must match. E.g., ProjectName (golang) == project_name (Terraform). To override the default CamalCase to snake_case conversion you may use the tag `tfschema`.
+* The golang fields are in CamalCase, while the terraform fields are in snake_case. They must match. E.g., ProjectName (golang) == project_name (Terraform). To override the default CamalCase to snake_case conversion you may use the tag `tfschema`. To ignore a field set the `tfschema` tag value to `-`.
 
 ### Handling drifts
 

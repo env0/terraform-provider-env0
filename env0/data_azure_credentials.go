@@ -47,8 +47,9 @@ func dataAzureCredentialsRead(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	d.SetId(credentials.Id)
-	d.Set("name", credentials.Name)
+	if err := writeResourceData(&credentials, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
