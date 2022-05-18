@@ -31,7 +31,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		Scope:          client.ScopeEnvironment,
 		Type:           &variableType,
 		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL},
-		IsReadonly:     &isReadonly,
+		IsReadOnly:     &isReadonly,
 		IsRequired:     &isRequired,
 		Regex:          "regex",
 	}
@@ -45,7 +45,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 		resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
 		resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
 		resource.TestCheckResourceAttr(accessor, "format", string(configurationVariable.Schema.Format)),
-		resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configurationVariable.IsReadonly)),
+		resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configurationVariable.IsReadOnly)),
 		resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configurationVariable.IsRequired)),
 		resource.TestCheckResourceAttr(accessor, "regex", "regex"),
 	)

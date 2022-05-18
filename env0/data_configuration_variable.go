@@ -132,26 +132,13 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		return err
 	}
 
-	d.SetId(variable.Id)
-	d.Set("name", variable.Name)
-	d.Set("description", variable.Description)
-	d.Set("value", variable.Value)
-	d.Set("is_sensitive", variable.IsSensitive)
-	d.Set("scope", variable.Scope)
-	d.Set("enum", variable.Schema.Enum)
-	d.Set("is_read_only", variable.IsReadonly)
-	d.Set("is_required", variable.IsRequired)
-	d.Set("regex", variable.Regex)
+	if err := writeResourceData(&variable, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
+	d.Set("enum", variable.Schema.Enum)
 	if variable.Schema.Format != client.Text {
 		d.Set("format", string(variable.Schema.Format))
-	}
-	if *variable.Type == client.ConfigurationVariableTypeEnvironment {
-		d.Set("type", "environment")
-	} else if *variable.Type == client.ConfigurationVariableTypeTerraform {
-		d.Set("type", "terraform")
-	} else {
-		return diag.Errorf("Unknown variable type: %d", int(*variable.Type))
 	}
 
 	return nil
