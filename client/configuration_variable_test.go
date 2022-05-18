@@ -18,7 +18,7 @@ var _ = Describe("Configuration Variable", func() {
 		Type:   "string",
 		Format: HCL,
 	}
-	isReadonly := true
+	isReadOnly := true
 	isRequired := true
 
 	mockConfigurationVariable := ConfigurationVariable{
@@ -33,7 +33,7 @@ var _ = Describe("Configuration Variable", func() {
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 		Schema:         &schema,
-		IsReadonly:     &isReadonly,
+		IsReadOnly:     &isReadOnly,
 		IsRequired:     &isRequired,
 		Regex:          "regex",
 	}
@@ -50,7 +50,7 @@ var _ = Describe("Configuration Variable", func() {
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 		Schema:         &schema,
-		IsReadonly:     &isReadonly,
+		IsReadOnly:     &isReadOnly,
 		IsRequired:     &isRequired,
 		Regex:          "regex",
 	}
@@ -123,7 +123,7 @@ var _ = Describe("Configuration Variable", func() {
 				"scope":          mockConfig.Scope,
 				"type":           *mockConfig.Type,
 				"schema":         schema,
-				"isReadonly":     *mockConfig.IsReadonly,
+				"isReadonly":     *mockConfig.IsReadOnly,
 				"isRequired":     *mockConfig.IsRequired,
 				"regex":          mockConfig.Regex,
 			}}
@@ -151,7 +151,7 @@ var _ = Describe("Configuration Variable", func() {
 					Type:        *mockConfig.Type,
 					EnumValues:  nil,
 					Format:      mockConfig.Schema.Format,
-					IsReadonly:  *mockConfig.IsReadonly,
+					IsReadOnly:  *mockConfig.IsReadOnly,
 					IsRequired:  *mockConfig.IsRequired,
 					Regex:       mockConfig.Regex,
 				},
@@ -227,7 +227,7 @@ var _ = Describe("Configuration Variable", func() {
 				"schema": map[string]interface{}{
 					"type": mockConfigurationVariable.Schema.Type,
 				},
-				"isReadonly": *mockConfigurationVariable.IsReadonly,
+				"isReadonly": *mockConfigurationVariable.IsReadOnly,
 				"isRequired": *mockConfigurationVariable.IsRequired,
 				"regex":      mockConfigurationVariable.Regex,
 			}}
@@ -250,7 +250,7 @@ var _ = Describe("Configuration Variable", func() {
 						ScopeId:     mockConfigurationVariable.ScopeId,
 						Type:        *mockConfigurationVariable.Type,
 						EnumValues:  nil,
-						IsReadonly:  *mockConfigurationVariable.IsReadonly,
+						IsReadOnly:  *mockConfigurationVariable.IsReadOnly,
 						IsRequired:  *mockConfigurationVariable.IsRequired,
 						Regex:       mockConfigurationVariable.Regex,
 					},

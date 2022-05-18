@@ -42,7 +42,7 @@ type ConfigurationVariable struct {
 	Type           *ConfigurationVariableType   `json:"type,omitempty"`
 	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
-	IsReadonly     *bool                        `json:"isReadonly,omitempty"`
+	IsReadOnly     *bool                        `json:"isReadonly,omitempty"`
 	IsRequired     *bool                        `json:"isRequired,omitempty"`
 	Regex          string                       `json:"regex,omitempty"`
 }
@@ -57,7 +57,7 @@ type ConfigurationVariableCreateParams struct {
 	EnumValues  []string
 	Description string
 	Format      Format
-	IsReadonly  bool
+	IsReadOnly  bool
 	IsRequired  bool
 	Regex       string
 }
@@ -135,7 +135,7 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 		"type":           params.Type,
 		"organizationId": organizationId,
 		"isRequired":     params.IsRequired,
-		"isReadonly":     params.IsReadonly,
+		"isReadonly":     params.IsReadOnly,
 		"regex":          params.Regex,
 	}
 	if params.Scope != ScopeGlobal {
@@ -189,7 +189,7 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 		"type":           commonParams.Type,
 		"organizationId": organizationId,
 		"isRequired":     commonParams.IsRequired,
-		"isReadonly":     commonParams.IsReadonly,
+		"isReadonly":     commonParams.IsReadOnly,
 		"regex":          commonParams.Regex,
 	}
 	if commonParams.Scope != ScopeGlobal {

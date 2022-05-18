@@ -14,6 +14,11 @@ import (
 var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
 var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 
+type CustomResourceDataField interface {
+	ReadResourceData(fieldName string, d *schema.ResourceData) error
+	WriteResourceData(fieldName string, d *schema.ResourceData) error
+}
+
 // https://stackoverflow.com/questions/56616196/how-to-convert-camel-case-string-to-snake-case
 func toSnakeCase(str string) string {
 	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
@@ -54,10 +59,18 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 		}
 
 		field := val.Field(i)
+
 		fieldType := field.Type()
 
 		dval, ok := d.GetOk(fieldNameSC)
 		if !ok {
+			continue
+		}
+
+		if customField, ok := field.Interface().(CustomResourceDataField); ok {
+			if err := customField.ReadResourceData(fieldNameSC, d); err != nil {
+				return err
+			}
 			continue
 		}
 
@@ -123,6 +136,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 		}
 
 		field := val.Field(i)
+
 		fieldType := field.Type()
 
 		if fieldName == "Id" {
@@ -135,6 +149,13 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 		}
 
 		if d.Get(fieldNameSC) == nil {
+			continue
+		}
+
+		if customField, ok := field.Interface().(CustomResourceDataField); ok {
+			if err := customField.WriteResourceData(fieldNameSC, d); err != nil {
+				return err
+			}
 			continue
 		}
 

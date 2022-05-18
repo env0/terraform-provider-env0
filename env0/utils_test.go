@@ -164,3 +164,37 @@ func TestWriteResourceDataNotificationProjectAssignment(t *testing.T) {
 	assert.Equal(t, "nid", d.Get("notification_endpoint_id"))
 	assert.Equal(t, []interface{}{"driftUndetected"}, d.Get("event_names"))
 }
+
+func TestWriteCustomResourceData(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{})
+
+	configurationVariable := client.ConfigurationVariable{
+		Id:             "id0",
+		Name:           "name0",
+		Description:    "desc0",
+		ScopeId:        "scope0",
+		Value:          "value0",
+		OrganizationId: "organization0",
+		UserId:         "user0",
+		IsSensitive:    boolPtr(true),
+		Scope:          client.ScopeEnvironment,
+		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL, Enum: []string{"s1", "s2"}},
+		IsReadOnly:     boolPtr(true),
+		IsRequired:     boolPtr(true),
+		ToDelete:       boolPtr(false),
+		Regex:          "regex",
+	}
+
+	assert.Nil(t, writeResourceData(&configurationVariable, d))
+
+	assert.Equal(t, configurationVariable.Id, d.Id())
+	assert.Equal(t, configurationVariable.Name, d.Get("name"))
+	assert.Equal(t, configurationVariable.Description, d.Get("description"))
+	assert.Equal(t, "terraform", d.Get("type"))
+	assert.Equal(t, configurationVariable.Value, d.Get("value"))
+	assert.Equal(t, string(configurationVariable.Scope), d.Get("scope"))
+	assert.Equal(t, *configurationVariable.IsReadOnly, d.Get("is_read_only"))
+	assert.Equal(t, *configurationVariable.IsRequired, d.Get("is_required"))
+	assert.Equal(t, configurationVariable.Regex, d.Get("regex"))
+}

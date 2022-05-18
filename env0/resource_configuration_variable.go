@@ -183,7 +183,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 		EnumValues:  actualEnumValues,
 		Description: description,
 		Format:      format,
-		IsReadonly:  isReadOnly,
+		IsReadOnly:  isReadOnly,
 		IsRequired:  isRequired,
 		Regex:       regex,
 	})
@@ -232,7 +232,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("description", variable.Description)
 	d.Set("value", variable.Value)
 	d.Set("is_sensitive", variable.IsSensitive)
-	d.Set("is_read_only", variable.IsReadonly)
+	d.Set("is_read_only", variable.IsReadOnly)
 	d.Set("is_required", variable.IsRequired)
 	d.Set("regex", variable.Regex)
 	if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
@@ -295,7 +295,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 		EnumValues:  actualEnumValues,
 		Description: description,
 		Format:      format,
-		IsReadonly:  isReadOnly,
+		IsReadOnly:  isReadOnly,
 		IsRequired:  isRequired,
 		Regex:       regex,
 	}})
