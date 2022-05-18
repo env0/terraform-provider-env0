@@ -18,7 +18,7 @@ var _ = Describe("Configuration Variable", func() {
 		Type:   "string",
 		Format: HCL,
 	}
-	isReadonly := true
+	isReadOnly := true
 	isRequired := true
 
 	mockConfigurationVariable := ConfigurationVariable{
@@ -33,7 +33,7 @@ var _ = Describe("Configuration Variable", func() {
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 		Schema:         &schema,
-		IsReadOnly:     &isReadonly,
+		IsReadOnly:     &isReadOnly,
 		IsRequired:     &isRequired,
 		Regex:          "regex",
 	}
@@ -50,7 +50,7 @@ var _ = Describe("Configuration Variable", func() {
 		ScopeId:        "project-123",
 		UserId:         "user|123",
 		Schema:         &schema,
-		IsReadOnly:     &isReadonly,
+		IsReadOnly:     &isReadOnly,
 		IsRequired:     &isRequired,
 		Regex:          "regex",
 	}
