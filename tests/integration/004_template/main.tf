@@ -31,6 +31,19 @@ resource "env0_template" "github_template" {
   terraform_version                       = "0.15.1"
 }
 
+resource "env0_template" "github_template_resolve" {
+  name                                    = "Github Test Resolve-${random_string.random.result}"
+  description                             = "Template description - GitHub"
+  type                                    = "terraform"
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
+  path                                    = "misc/null-resource"
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
+  terraform_version                       = "RESOLVE_FROM_TERRAFORM_CODE"
+}
+
 #resource "env0_template" "gitlab_template" {
 #  name                                    = "gitlab test-${random_string.random.result}"
 #  description                             = "template description - gitlab"
