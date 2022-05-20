@@ -20,6 +20,12 @@ func TestTemplatesDataSource(t *testing.T) {
 		Name: "name1",
 	}
 
+	template3 := client.Template{
+		Id:        "id2",
+		Name:      "name2",
+		IsDeleted: true,
+	}
+
 	resourceType := "env0_templates"
 	resourceName := "test_templates"
 	accessor := dataSourceAccessor(resourceType, resourceName)
@@ -32,6 +38,7 @@ func TestTemplatesDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "names.0", template1.Name),
 						resource.TestCheckResourceAttr(accessor, "names.1", template2.Name),
+						resource.TestCheckNoResourceAttr(accessor, "names.2"),
 					),
 				},
 			},
@@ -47,7 +54,7 @@ func TestTemplatesDataSource(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		runUnitTest(t,
 			getTestCase(),
-			mockTemplates([]client.Template{template1, template2}),
+			mockTemplates([]client.Template{template1, template2, template3}),
 		)
 	})
 

@@ -38,8 +38,7 @@ resource "env0_template" "github_template2" {
 
 data "env0_templates" "all_templates" {}
 
-# This is removed temporarily until https://github.com/env0/terraform-provider-env0/issues/350 is fixed
-#data "env0_template" "templates" {
-#  for_each = toset(data.env0_templates.all_templates.names)
-#  name     = each.value
-#}
+data "env0_template" "templates" {
+  for_each = toset(data.env0_templates.all_templates.names)
+  name     = each.value
+}
