@@ -38,7 +38,7 @@ func ValidateCronExpression(i interface{}, path cty.Path) diag.Diagnostics {
 }
 
 func ValidateNotEmptyString(i interface{}, path cty.Path) diag.Diagnostics {
-	s := i.(string)
+	s := strings.TrimSpace(i.(string))
 	if len(s) == 0 {
 		return diag.Errorf("may not be empty")
 	}
@@ -67,5 +67,16 @@ func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc 
 		}
 
 		return diag.Errorf("'%s' must be one of: %s", value, strings.Join(allowedValues, ", "))
+	}
+}
+
+func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
+	return func(i interface{}, p cty.Path) diag.Diagnostics {
+		value := i.(int)
+		if value <= greaterThan {
+			return diag.Errorf("%d must be greater than %d", value, greaterThan)
+		}
+
+		return nil
 	}
 }

@@ -84,24 +84,19 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 		payload.Destroy = &client.EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true}
 	}
 
-	_, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload)
-
-	if err != nil {
+	if _, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload); err != nil {
 		return diag.Errorf("could not create or update environment scheduling: %v", err)
 	}
 
 	d.SetId(environmentId)
+
 	return nil
 }
 
 func resourceEnvironmentSchedulingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	environmentId := d.Id()
-
-	err := apiClient.EnvironmentSchedulingDelete(environmentId)
-
-	if err != nil {
+	if err := apiClient.EnvironmentSchedulingDelete(d.Id()); err != nil {
 		return diag.Errorf("could not delete environment scheduling: %v", err)
 	}
 

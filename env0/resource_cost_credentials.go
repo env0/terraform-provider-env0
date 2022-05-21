@@ -128,13 +128,11 @@ func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, me
 func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	id := d.Id()
-	err := apiClient.CloudCredentialsDelete(id)
-	if err != nil {
+	if err := apiClient.CloudCredentialsDelete(d.Id()); err != nil {
 		return diag.Errorf("could not delete credentials: %v", err)
 	}
-	return nil
 
+	return nil
 }
 
 func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.Credentials, error) {
