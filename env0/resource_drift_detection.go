@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -32,7 +33,7 @@ func resourceDriftDetection() *schema.Resource {
 	}
 }
 
-func resourceEnvironmentDriftRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
@@ -43,15 +44,20 @@ func resourceEnvironmentDriftRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("could not get environment drift detection: %v", err)
 	}
 
-	if drift.Enabled {
-		d.Set("cron", drift.Cron)
-	} else {
+	if !drift.Enabled {
+		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", environmentId)
 		d.SetId("")
+		return nil
 	}
+
+	if err := writeResourceData(&drift, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
 	return nil
 }
 
-func resourceEnvironmentDriftCreateOrUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -59,24 +65,19 @@ func resourceEnvironmentDriftCreateOrUpdate(_ context.Context, d *schema.Resourc
 
 	payload := client.EnvironmentSchedulingExpression{Cron: cron, Enabled: true}
 
-	_, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload)
-
-	if err != nil {
+	if _, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload); err != nil {
 		return diag.Errorf("could not create or update environment drift detection: %v", err)
 	}
 
 	d.SetId(environmentId)
+
 	return nil
 }
 
-func resourceEnvironmentDriftDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	environmentId := d.Id()
-
-	err := apiClient.EnvironmentStopDriftDetection(environmentId)
-
-	if err != nil {
+	if err := apiClient.EnvironmentStopDriftDetection(d.Id()); err != nil {
 		return diag.Errorf("could not stop environment drift detection: %v", err)
 	}
 
