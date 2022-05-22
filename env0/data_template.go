@@ -164,6 +164,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		}
 	}
 
+	// TODO: use writeResourceData instead.
 	d.SetId(template.Id)
 	d.Set("name", template.Name)
 	d.Set("repository", template.Repository)
