@@ -34,7 +34,7 @@ resource "env0_project_policy" "example" {
 
 ### Required
 
-- **project_id** (String) id  of the project
+- **project_id** (String) id of the project
 
 ### Optional
 
