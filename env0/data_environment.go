@@ -91,6 +91,8 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 			return err
 		}
 	}
+
+	// TODO: use writeResourceData instead.
 	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment, client.ConfigurationChanges{})
 	d.Set("status", environment.Status)

@@ -66,11 +66,9 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 		}
 	}
 
-	d.SetId(project.Id)
-	d.Set("name", project.Name)
-	d.Set("created_by", project.CreatedBy)
-	d.Set("role", project.Role)
-	d.Set("description", project.Description)
+	if err := writeResourceData(&project, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }

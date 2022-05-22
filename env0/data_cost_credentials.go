@@ -50,10 +50,8 @@ func dataCostCredentialsRead(credType string) func(ctx context.Context, d *schem
 				return err
 			}
 		}
-
-		errorWhenWriteData := writeResourceData(credentials, d)
-		if errorWhenWriteData != nil {
-			return diag.Errorf("Error: %v", errorWhenWriteData)
+		if err := writeResourceData(credentials, d); err != nil {
+			return diag.Errorf("schema resource data serialization failed: %v", err)
 		}
 
 		return nil

@@ -45,11 +45,9 @@ func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("Could not query organization: %v", err)
 	}
 
-	d.SetId(organization.Id)
-	d.Set("name", organization.Name)
-	d.Set("created_by", organization.CreatedBy)
-	d.Set("role", organization.Role)
-	d.Set("is_self_hosted", organization.IsSelfHosted)
+	if err := writeResourceData(&organization, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }

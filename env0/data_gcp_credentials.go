@@ -47,8 +47,9 @@ func dataGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
-	d.SetId(credentials.Id)
-	d.Set("name", credentials.Name)
+	if err := writeResourceData(&credentials, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }

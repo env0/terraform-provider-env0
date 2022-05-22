@@ -88,8 +88,11 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 			return err
 		}
 	}
-	d.SetId(policy.Id)
-	setPolicySchema(d, policy)
+
+	if err := writeResourceData(&policy, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
 	return nil
 }
 

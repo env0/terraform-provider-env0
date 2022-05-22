@@ -55,8 +55,9 @@ func dataTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	d.SetId(team.Id)
-	setTeamSchema(d, team)
+	if err := writeResourceData(&team, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }

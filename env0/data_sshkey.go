@@ -50,8 +50,9 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.SetId(sshKey.Id)
-	d.Set("name", sshKey.Name)
+	if err := writeResourceData(sshKey, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
