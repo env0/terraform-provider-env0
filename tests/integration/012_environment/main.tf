@@ -1,10 +1,18 @@
+provider "random" {}
+
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 resource "env0_project" "test_project" {
-  name          = "Test-Project-for-environment"
+  name          = "Test-Project-for-environment-${random_string.random.result}"
   force_destroy = true
 }
 
 resource "env0_template" "template" {
-  name              = "Template for environment resource"
+  name              = "Template for environment resource-${random_string.random.result}"
   type              = "terraform"
   repository        = "https://github.com/env0/templates"
   path              = "misc/null-resource"
@@ -13,7 +21,7 @@ resource "env0_template" "template" {
 
 resource "env0_environment" "example" {
   force_destroy = true
-  name          = "environment"
+  name          = "environment-${random_string.random.result}"
   project_id    = env0_project.test_project.id
   template_id   = env0_template.template.id
   wait_for      = "FULLY_DEPLOYED"
@@ -32,7 +40,7 @@ data "env0_configuration_variable" "env_config_variable" {
 }
 
 resource "env0_template" "terragrunt_template" {
-  name               = "Terragrunt template for environment resource"
+  name               = "Terragrunt template for environment resource-${random_string.random.result}"
   type               = "terragrunt"
   repository         = "https://github.com/env0/templates"
   path               = "misc/null-resource"
@@ -42,7 +50,7 @@ resource "env0_template" "terragrunt_template" {
 
 resource "env0_environment" "terragrunt_environment" {
   force_destroy                    = true
-  name                             = "environment"
+  name                             = "environment-${random_string.random.result}"
   project_id                       = env0_project.test_project.id
   template_id                      = env0_template.terragrunt_template.id
   approve_plan_automatically       = true
