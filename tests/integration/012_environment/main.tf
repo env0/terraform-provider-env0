@@ -31,6 +31,7 @@ resource "env0_environment" "example" {
   }
   approve_plan_automatically = true
   revision                   = "master"
+  vcs_commands_alias         = "alias"
 }
 
 data "env0_configuration_variable" "env_config_variable" {

@@ -91,6 +91,7 @@ type Environment struct {
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	IsArchived                  bool          `json:"isArchived"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
 }
 
 type EnvironmentCreate struct {
@@ -106,6 +107,7 @@ type EnvironmentCreate struct {
 	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
 	TTL                         *TTL                  `json:"ttl,omitempty"`
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
 }
 
 type EnvironmentUpdate struct {
@@ -117,6 +119,7 @@ type EnvironmentUpdate struct {
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
 }
 
 type EnvironmentDeployResponse struct {

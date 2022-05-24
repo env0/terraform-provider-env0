@@ -131,6 +131,11 @@ func resourceEnvironment() *schema.Resource {
 				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used.",
 				Optional:    true,
 			},
+			"vcs_commands_alias": {
+				Type:        schema.TypeString,
+				Description: "set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments",
+				Optional:    true,
+			},
 			"configuration": {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
@@ -206,6 +211,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	safeSet(d, "ttl", environment.LifespanEndAt)
 	safeSet(d, "terragrunt_working_directory", environment.TerragruntWorkingDirectory)
+	safeSet(d, "vcs_commands_alias", environment.VcsCommandsAlias)
 
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
@@ -337,7 +343,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -427,6 +433,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.TerragruntWorkingDirectory = terragruntWorkingDirectory.(string)
 	}
 
+	if vcsCommandsAlias, ok := d.GetOk("vcs_commands_alias"); ok {
+		payload.VcsCommandsAlias = vcsCommandsAlias.(string)
+	}
+
 	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
 		payload.ContinuousDeployment = &continuousDeployment
@@ -502,6 +512,7 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 	payload.TerragruntWorkingDirectory = d.Get("terragrunt_working_directory").(string)
+	payload.VcsCommandsAlias = d.Get("vcs_commands_alias").(string)
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {

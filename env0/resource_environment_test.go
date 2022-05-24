@@ -29,6 +29,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			BlueprintId: templateId,
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
+		VcsCommandsAlias:           "alias",
 	}
 
 	updatedEnvironment := client.Environment{
@@ -41,6 +42,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			BlueprintId: templateId,
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory2/",
+		VcsCommandsAlias:           "alias2",
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
@@ -51,6 +53,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"workspace":                    environment.WorkspaceName,
 			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 			"force_destroy":                true,
+			"vcs_commands_alias":           environment.VcsCommandsAlias,
 		})
 	}
 	autoDeployOnPathChangesOnlyDefault := true
@@ -69,6 +72,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
 							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 						),
 					},
 					{
@@ -80,6 +84,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
 							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
 						),
 					},
 				},
@@ -93,6 +98,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:            environment.VcsCommandsAlias,
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -102,6 +108,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:            updatedEnvironment.VcsCommandsAlias,
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				gomock.InOrder(
@@ -809,6 +816,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintId: templateId,
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 			})
 
@@ -838,6 +846,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintId: templateId,
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
@@ -845,6 +854,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
 					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:            updatedEnvironment.VcsCommandsAlias,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -876,6 +886,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"revision":                     updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
 							"force_destroy":                true,
 							"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
+							"vcs_commands_alias":           environment.VcsCommandsAlias,
 						}),
 						ExpectError: regexp.MustCompile("failed deploying environment: error"),
 					},
@@ -916,6 +927,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintId: templateId,
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
