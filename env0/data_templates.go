@@ -36,7 +36,9 @@ func dataTemplatesRead(ctx context.Context, d *schema.ResourceData, meta interfa
 	data := []string{}
 
 	for _, template := range templates {
-		data = append(data, template.Name)
+		if !template.IsDeleted {
+			data = append(data, template.Name)
+		}
 	}
 
 	d.Set("names", data)
