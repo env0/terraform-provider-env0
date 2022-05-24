@@ -3,6 +3,7 @@ package client_test
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
@@ -269,6 +270,43 @@ var _ = Describe("Templates Client", func() {
 
 				Expect(err).To(Not(BeNil()))
 			})
+		})
+	})
+
+	Describe("VariablesFromRepository", func() {
+		var returnedVariables []ConfigurationVariable
+		var err error
+
+		payload := &VariablesFromRepositoryPayload{
+			GithubInstallationId: 1111,
+			Path:                 "path",
+			Revision:             "1",
+			Repository:           "main",
+			SshKeyIds: []string{
+				"1", "2",
+			},
+		}
+
+		expectedParams := map[string]string{
+			"githubInstallationId": strconv.Itoa(payload.GithubInstallationId),
+			"path":                 payload.Path,
+			"revision":             payload.Revision,
+			"repository":           payload.Repository,
+			"sshKeyIds":            `["1","2"]`,
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Get("/blueprints/variables-from-repository", expectedParams, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+					*response = []ConfigurationVariable{}
+				})
+			returnedVariables, err = apiClient.VariablesFromRepository(payload)
+		})
+
+		It("Should return variables", func() {
+			Expect(err).To(BeNil())
+			Expect(returnedVariables).To(Equal([]ConfigurationVariable{}))
 		})
 	})
 })

@@ -1247,6 +1247,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Users() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Users", reflect.TypeOf((*MockApiClientInterface)(nil).Users))
 }
 
+// VariablesFromRepository mocks base method.
+func (m *MockApiClientInterface) VariablesFromRepository(arg0 *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VariablesFromRepository", arg0)
+	ret0, _ := ret[0].([]ConfigurationVariable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VariablesFromRepository indicates an expected call of VariablesFromRepository.
+func (mr *MockApiClientInterfaceMockRecorder) VariablesFromRepository(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VariablesFromRepository", reflect.TypeOf((*MockApiClientInterface)(nil).VariablesFromRepository), arg0)
+}
+
 // WorkflowTrigger mocks base method.
 func (m *MockApiClientInterface) WorkflowTrigger(arg0 string) ([]WorkflowTrigger, error) {
 	m.ctrl.T.Helper()

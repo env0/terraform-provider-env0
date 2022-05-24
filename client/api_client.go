@@ -34,6 +34,7 @@ type ApiClientInterface interface {
 	TemplateDelete(id string) error
 	AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error)
 	RemoveTemplateFromProject(templateId string, projectId string) error
+	VariablesFromRepository(payload *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error)
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error)
 	SshKeyDelete(id string) error

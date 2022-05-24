@@ -31,6 +31,10 @@ resource "env0_template" "github_template" {
   terraform_version                       = "0.15.1"
 }
 
+data "env0_source_code_variables" "variables" {
+  template_id = data.env0_template.github_template.id
+}
+
 resource "env0_template" "gitlab_template" {
   name                                    = "GitLab Test-${random_string.random.result}"
   description                             = "Template description - Gitlab"

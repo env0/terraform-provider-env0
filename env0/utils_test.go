@@ -199,7 +199,7 @@ func TestWriteCustomResourceData(t *testing.T) {
 	assert.Equal(t, configurationVariable.Regex, d.Get("regex"))
 }
 
-func TestWriteResourceDataSliceVariables(t *testing.T) {
+func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]interface{}{})
 
 	agent1 := client.Agent{
@@ -215,4 +215,45 @@ func TestWriteResourceDataSliceVariables(t *testing.T) {
 	assert.Nil(t, writeResourceDataSlice(vars, "agents", d))
 	assert.Equal(t, agent1.AgentKey, d.Get("agents.0.agent_key"))
 	assert.Equal(t, agent2.AgentKey, d.Get("agents.1.agent_key"))
+}
+
+func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, dataSourceCodeVariables().Schema, map[string]interface{}{})
+
+	schema1 := client.ConfigurationVariableSchema{
+		Type:   "string",
+		Format: "HCL",
+		Enum:   []string{"Variable", "a"},
+	}
+
+	schema2 := client.ConfigurationVariableSchema{
+		Type:   "string",
+		Format: "JSON",
+	}
+
+	var1 := client.ConfigurationVariable{
+		Id:          "id0",
+		Name:        "name0",
+		Description: "desc0",
+		Value:       "v1",
+		Schema:      &schema1,
+	}
+
+	var2 := client.ConfigurationVariable{
+		Id:          "id1",
+		Name:        "name1",
+		Description: "desc1",
+		Value:       "v2",
+		Schema:      &schema2,
+	}
+
+	vars := []client.ConfigurationVariable{var1, var2}
+
+	assert.Nil(t, writeResourceDataSlice(vars, "variables", d))
+	assert.Equal(t, var1.Name, d.Get("variables.0.name"))
+	assert.Equal(t, var2.Name, d.Get("variables.1.name"))
+	assert.Equal(t, var1.Value, d.Get("variables.0.value"))
+	assert.Equal(t, var2.Value, d.Get("variables.1.value"))
+	assert.Equal(t, string(var1.Schema.Format), d.Get("variables.0.format"))
+	assert.Equal(t, string(var2.Schema.Format), d.Get("variables.1.format"))
 }
