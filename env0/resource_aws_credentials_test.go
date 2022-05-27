@@ -248,7 +248,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 					ImportState:       true,
 					ImportStateId:     otherTypeReturnValues.Id,
 					ImportStateVerify: true,
-					ExpectError:       regexp.MustCompile(fmt.Sprintf("aws credentials resource with id %v not found", otherTypeReturnValues.Id)),
+					ExpectError:       regexp.MustCompile("credentials not found"),
 				},
 			},
 		}
