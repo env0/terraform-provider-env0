@@ -14,9 +14,9 @@ data "env0_template" "github_template" {
 
 # Gitlab Integration must be done manually - so we expect an existing Gitlab Template with this name
 # It must be for https://gitlab.com/env0/gitlab-vcs-integration-tests - the gitlab_project_id is still static
-#data "env0_template" "gitlab_template" {
-#  name = "Gitlab Integrated Template"
-#}
+data "env0_template" "gitlab_template" {
+  name = "Gitlab Integrated Template"
+}
 
 resource "env0_template" "github_template" {
   name                                    = "Github Test-${random_string.random.result}"
@@ -31,32 +31,19 @@ resource "env0_template" "github_template" {
   terraform_version                       = "0.15.1"
 }
 
-resource "env0_template" "github_template_resolve" {
-  name                                    = "Github Test Resolve-${random_string.random.result}"
-  description                             = "Template description - GitHub"
+resource "env0_template" "gitlab_template" {
+  name                                    = "GitLab Test-${random_string.random.result}"
+  description                             = "Template description - Gitlab"
   type                                    = "terraform"
-  repository                              = data.env0_template.github_template.repository
-  github_installation_id                  = data.env0_template.github_template.github_installation_id
-  path                                    = "misc/null-resource"
+  repository                              = data.env0_template.gitlab_template.repository
+  token_id                                = data.env0_template.gitlab_template.token_id
+  gitlab_project_id                       = 32315446
+  path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
-  terraform_version                       = "RESOLVE_FROM_TERRAFORM_CODE"
+  terraform_version                       = "0.15.1"
 }
-
-#resource "env0_template" "gitlab_template" {
-#  name                                    = "gitlab test-${random_string.random.result}"
-#  description                             = "template description - gitlab"
-#  type                                    = "terraform"
-#  repository                              = data.env0_template.gitlab_template.repository
-#  token_id                                = data.env0_template.gitlab_template.token_id
-#  gitlab_project_id                       = 32315446
-#  path                                    = var.second_run ? "second" : "misc/null-resource"
-#  retries_on_deploy                       = 3
-#  retry_on_deploy_only_when_matches_regex = "abc"
-#  retries_on_destroy                      = 1
-#  terraform_version                       = "0.15.1"
-#}
 
 resource "env0_template" "template_tg" {
   name               = "Template for environment resource - tg-${random_string.random.result}"
@@ -92,9 +79,9 @@ output "github_template_name" {
 output "github_template_repository" {
   value = env0_template.github_template.repository
 }
-#output "gitlab_template_repository" {
-#  value = env0_template.gitlab_template.repository
-#}
+output "gitlab_template_repository" {
+  value = env0_template.gitlab_template.repository
+}
 output "github_template_path" {
   value = env0_template.github_template.path
 }
