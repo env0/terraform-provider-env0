@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -35,11 +36,28 @@ func getCredentialsByName(name string, prefix string, meta interface{}) (client.
 	return foundCredentials[0], nil
 }
 
+func getCredentialsById(id string, prefix string, meta interface{}) (client.Credentials, error) {
+	apiClient := meta.(client.ApiClientInterface)
+	credentials, err := apiClient.CloudCredentials(id)
+	if err != nil {
+		if _, ok := err.(*client.NotFoundError); ok {
+			return client.Credentials{}, errors.New("credentials not found")
+		}
+		return client.Credentials{}, err
+	}
+
+	if !strings.HasPrefix(credentials.Type, prefix) {
+		return client.Credentials{}, fmt.Errorf("credentials type mistmatch %s", credentials.Type)
+	}
+
+	return credentials, nil
+}
+
 func getCredentials(id string, prefix string, meta interface{}) (client.Credentials, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
 		log.Println("[INFO] Resolving credentials by id: ", id)
-		return meta.(client.ApiClientInterface).CloudCredentials(id)
+		return getCredentialsById(id, prefix, meta)
 	} else {
 		log.Println("[INFO] Resolving credentials by name: ", id)
 		return getCredentialsByName(id, prefix, meta)
