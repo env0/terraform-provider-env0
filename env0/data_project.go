@@ -19,12 +19,14 @@ func dataProject() *schema.Resource {
 				Description:  "the name of the project",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the project",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"created_by": {
 				Type:        schema.TypeString,
