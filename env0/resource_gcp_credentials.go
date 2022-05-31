@@ -96,7 +96,7 @@ func resourceGcpCredentialsDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceGcpCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), "GCP_", meta)
+	credentials, err := getCredentials(d.Id(), []string{"GCP_"}, meta)
 	if err != nil {
 		if _, ok := err.(*client.NotFoundError); ok {
 			return nil, fmt.Errorf("gcp credentials resource with id %v not found", d.Id())

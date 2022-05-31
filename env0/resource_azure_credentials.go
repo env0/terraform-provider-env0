@@ -108,7 +108,7 @@ func resourceAzureCredentialsDelete(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceAzureCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), "AZURE_", meta)
+	credentials, err := getCredentials(d.Id(), []string{"AZURE_"}, meta)
 	if err != nil {
 		if _, ok := err.(*client.NotFoundError); ok {
 			return nil, fmt.Errorf("azure credentials resource with id %v not found", d.Id())

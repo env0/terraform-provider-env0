@@ -97,14 +97,14 @@ func TestUnitAzureCostCredentialsDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AzureCredFieldsByName, "Error: Found multiple Cost Credentials for name: testdata"),
+			getErrorTestCase(AzureCredFieldsByName, "found multiple credentials with name: testdata"),
 			mockListAzureCredCall([]client.Credentials{azureCred, azureCred, azureCred}),
 		)
 	})
 
 	t.Run("Throw error when by name and no azure-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AzureCredFieldsByName, "Error: Could not find Cost Credentials with name: testdata"),
+			getErrorTestCase(AzureCredFieldsByName, "credentials with name testdata not found"),
 			mockListAzureCredCall([]client.Credentials{credWithDiffName, credWithDiffName}),
 		)
 	})
@@ -193,7 +193,7 @@ func TestUnitGoogleCostCredentialsDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one gcp-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(GcpCredFieldsByName, "Error: Found multiple Cost Credentials for name: testdata"),
+			getErrorTestCase(GcpCredFieldsByName, "found multiple credentials with name: testdata"),
 			mockListGcpCredCall([]client.Credentials{gcpCred, gcpCred, gcpCred}),
 		)
 	})
@@ -289,14 +289,14 @@ func TestUnitAwsCostCredentialsData(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one aws-credential exists with the relevant name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AwsCredFieldsByName, "Found multiple Cost Credentials for name: testdata"),
+			getErrorTestCase(AwsCredFieldsByName, "found multiple credentials with name: testdata"),
 			mockListAwsCredCall([]client.Credentials{awsCred, awsCred, awsCred}),
 		)
 	})
 
 	t.Run("Throw error when by name and no aws-credential found with that name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(AwsCredFieldsByName, "Could not find Cost Credentials with name: testdata"),
+			getErrorTestCase(AwsCredFieldsByName, "credentials with name testdata not found"),
 			mockListAwsCredCall([]client.Credentials{otherAwsCred, credWithInvalidType}),
 		)
 	})
