@@ -66,6 +66,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_environment":             dataEnvironment(),
 				"env0_workflow_triggers":       dataWorkflowTriggers(),
 				"env0_notification":            dataNotification(),
+				"env0_notifications":           dataNotifications(),
 				"env0_module":                  dataModule(),
 				"env0_git_token":               dataGitToken(),
 				"env0_api_key":                 dataApiKey(),
