@@ -13,9 +13,9 @@ resource "env0_environment" "example" {
 }
 
 resource "env0_environment" "example_with_hcl_configuration" {
-  name                             = "environment with hcl"
-  project_id                       = data.env0_project.default_project.id
-  template_id                      = data.env0_template.example.id
+  name        = "environment with hcl"
+  project_id  = data.env0_project.default_project.id
+  template_id = data.env0_template.example.id
 
   configuration {
     name          = "TEST1234"
