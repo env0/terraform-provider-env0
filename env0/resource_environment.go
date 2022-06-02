@@ -94,6 +94,12 @@ func resourceEnvironment() *schema.Resource {
 				Description: "id of the last deployment",
 				Computed:    true,
 			},
+			"status": {
+				Type:        schema.TypeString,
+				Description: "status of the environment",
+				Optional:    true,
+				Computed:    true,
+			},
 			"ttl": {
 				Type:        schema.TypeString,
 				Description: "the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.",
@@ -207,6 +213,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	d.Set("id", environment.Id)
 	d.Set("name", environment.Name)
 	d.Set("project_id", environment.ProjectId)
+	d.Set("status", environment.Status)
 	safeSet(d, "workspace", environment.WorkspaceName)
 	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	safeSet(d, "ttl", environment.LifespanEndAt)
@@ -287,6 +294,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	if shouldWaitForDeployment(d) {
 		err := waitForDeployment(environment.LatestDeploymentLogId, apiClient)
 		if err != nil {
+			d.Set("status", "FAILED")
 			return diag.Errorf("failed deploying environment: %v", err)
 		}
 	}
@@ -339,7 +347,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
-	return d.HasChanges("revision", "configuration")
+	return d.HasChanges("revision", "configuration", "status")
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
@@ -361,6 +369,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	if shouldWaitForDeployment(d) {
 		err := waitForDeployment(deployResponse.Id, apiClient)
 		if err != nil {
+			d.Set("status", "FAILED")
 			return diag.Errorf("failed deploying environment: %v", err)
 		}
 	}
