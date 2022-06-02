@@ -78,7 +78,7 @@ func resourceTemplate() *schema.Resource {
 			},
 			"repository": {
 				Type:        schema.TypeString,
-				Description: "git repository for the template source code",
+				Description: "git repository url for the template source code",
 				Required:    true,
 			},
 			"path": {

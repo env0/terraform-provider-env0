@@ -14,6 +14,14 @@ resource "env0_template" "example" {
   ssh_keys    = [data.env0_ssh_key.my_key]
 }
 
+resource "env0_template" "example_github_installation_id" {
+  name                   = "example"
+  description            = "Example template"
+  repository             = "https://github.com/env0/templates"
+  terraform_version      = "1.1.9"
+  github_installation_id = 12223344
+}
+
 resource "env0_template" "example_terragrunt" {
   name               = "example - Terragrunt"
   description        = "Example template with Terragrunt version"
