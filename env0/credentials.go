@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 )
 
-func getCredentialsByName(name string, prefix string, meta interface{}) (client.Credentials, error) {
+func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialsList, err := apiClient.CloudCredentialsList()
@@ -20,7 +19,7 @@ func getCredentialsByName(name string, prefix string, meta interface{}) (client.
 
 	var foundCredentials []client.Credentials
 	for _, credentials := range credentialsList {
-		if credentials.Name == name && strings.HasPrefix(credentials.Type, prefix) {
+		if credentials.Name == name && credentials.HasPrefix(prefixList) {
 			foundCredentials = append(foundCredentials, credentials)
 		}
 	}
@@ -36,7 +35,7 @@ func getCredentialsByName(name string, prefix string, meta interface{}) (client.
 	return foundCredentials[0], nil
 }
 
-func getCredentialsById(id string, prefix string, meta interface{}) (client.Credentials, error) {
+func getCredentialsById(id string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	credentials, err := apiClient.CloudCredentials(id)
 	if err != nil {
@@ -46,20 +45,20 @@ func getCredentialsById(id string, prefix string, meta interface{}) (client.Cred
 		return client.Credentials{}, err
 	}
 
-	if !strings.HasPrefix(credentials.Type, prefix) {
+	if !credentials.HasPrefix(prefixList) {
 		return client.Credentials{}, fmt.Errorf("credentials type mistmatch %s", credentials.Type)
 	}
 
 	return credentials, nil
 }
 
-func getCredentials(id string, prefix string, meta interface{}) (client.Credentials, error) {
+func getCredentials(id string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
 		log.Println("[INFO] Resolving credentials by id: ", id)
-		return getCredentialsById(id, prefix, meta)
+		return getCredentialsById(id, prefixList, meta)
 	} else {
 		log.Println("[INFO] Resolving credentials by name: ", id)
-		return getCredentialsByName(id, prefix, meta)
+		return getCredentialsByName(id, prefixList, meta)
 	}
 }

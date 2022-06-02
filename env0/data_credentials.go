@@ -2,12 +2,20 @@ package env0
 
 import (
 	"context"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+var credentialsTypeToPrefixList map[string][]string = map[string][]string{
+	"gcp":        {string(client.GcpServiceAccountCredentialsType)},
+	"azure":      {string(client.AzureServicePrincipalCredentialsType)},
+	"aws":        {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
+	"gcp_cost":   {string(client.GoogleCostCredentialsType)},
+	"azure_cost": {string(client.AzureCostCredentialsType)},
+	"aws_cost":   {string(client.AwsCostCredentialsType)},
+}
 
 func dataCredentials(cloudType string) *schema.Resource {
 	return &schema.Resource{
@@ -35,11 +43,11 @@ func dataCredentialsRead(cloudType string) schema.ReadContextFunc {
 		var err error
 		var credentials client.Credentials
 
-		prefix := strings.ToUpper(cloudType) + "_"
+		prefixList := credentialsTypeToPrefixList[cloudType]
 
 		id, ok := d.GetOk("id")
 		if ok {
-			credentials, err = getCredentialsById(id.(string), prefix, meta)
+			credentials, err = getCredentialsById(id.(string), prefixList, meta)
 			if err != nil {
 				return diag.Errorf("could not query %s credentials by id: %v", cloudType, err)
 			}
@@ -48,7 +56,7 @@ func dataCredentialsRead(cloudType string) schema.ReadContextFunc {
 			if !ok {
 				return diag.Errorf("either 'name' or 'id' must be specified")
 			}
-			credentials, err = getCredentialsByName(name.(string), prefix, meta)
+			credentials, err = getCredentialsByName(name.(string), prefixList, meta)
 			if err != nil {
 				return diag.Errorf("could not query %s credentials by name: %v", cloudType, err)
 			}
