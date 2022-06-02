@@ -1,5 +1,7 @@
 package client
 
+import "strings"
+
 type AwsCredentialsType string
 type GcpCredentialsType string
 type AzureCredentialsType string
@@ -9,6 +11,16 @@ type Credentials struct {
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId"`
 	Type           string `json:"type"`
+}
+
+func (c *Credentials) HasPrefix(prefixList []string) bool {
+	for _, prefix := range prefixList {
+		if strings.HasPrefix(c.Type, prefix) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type AzureCredentialsCreatePayload struct {

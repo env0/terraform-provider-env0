@@ -126,7 +126,7 @@ func resourceAwsCredentialsDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceAwsCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), "AWS_", meta)
+	credentials, err := getCredentials(d.Id(), []string{"AWS_"}, meta)
 	if err != nil {
 		if _, ok := err.(*client.NotFoundError); ok {
 			return nil, fmt.Errorf("aws credentials resource with id %v not found", d.Id())
