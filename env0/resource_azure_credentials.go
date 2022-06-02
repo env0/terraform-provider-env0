@@ -12,7 +12,7 @@ import (
 func resourceAzureCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAzureCredentialsCreate,
-		ReadContext:   resourceCredentialsRead("azure"),
+		ReadContext:   resourceCredentialsRead(AZURE_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceAzureCredentialsImport},

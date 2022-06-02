@@ -12,7 +12,7 @@ import (
 func resourceGcpCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGcpCredentialsCreate,
-		ReadContext:   resourceCredentialsRead("gcp"),
+		ReadContext:   resourceCredentialsRead(GCP_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceGcpCredentialsImport},

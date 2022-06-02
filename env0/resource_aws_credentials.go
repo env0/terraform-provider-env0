@@ -12,7 +12,7 @@ import (
 func resourceAwsCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAwsCredentialsCreate,
-		ReadContext:   resourceCredentialsRead("aws"),
+		ReadContext:   resourceCredentialsRead(AWS_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceAwsCredentialsImport},
