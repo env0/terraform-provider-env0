@@ -1,12 +1,15 @@
 package env0
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
@@ -60,5 +63,33 @@ func getCredentials(id string, prefixList []string, meta interface{}) (client.Cr
 	} else {
 		log.Println("[INFO] Resolving credentials by name: ", id)
 		return getCredentialsByName(id, prefixList, meta)
+	}
+}
+
+func resourceCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	id := d.Id()
+	err := apiClient.CloudCredentialsDelete(id)
+	if err != nil {
+		return diag.Errorf("could not delete credentials: %v", err)
+	}
+	return nil
+}
+
+func resourceCredentialsRead(cloudType string) schema.ReadContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+		apiClient := meta.(client.ApiClientInterface)
+
+		credentials, err := apiClient.CloudCredentials(d.Id())
+		if err != nil {
+			return ResourceGetFailure(cloudType+" credentials", d, err)
+		}
+
+		if err := writeResourceData(&credentials, d); err != nil {
+			return diag.Errorf("schema resource data serialization failed: %v", err)
+		}
+
+		return nil
 	}
 }

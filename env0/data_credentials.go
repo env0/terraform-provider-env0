@@ -9,12 +9,12 @@ import (
 )
 
 var credentialsTypeToPrefixList map[string][]string = map[string][]string{
-	"gcp":        {string(client.GcpServiceAccountCredentialsType)},
-	"azure":      {string(client.AzureServicePrincipalCredentialsType)},
-	"aws":        {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
-	"gcp_cost":   {string(client.GoogleCostCredentialsType)},
-	"azure_cost": {string(client.AzureCostCredentialsType)},
-	"aws_cost":   {string(client.AwsCostCredentialsType)},
+	"gcp":         {string(client.GcpServiceAccountCredentialsType)},
+	"azure":       {string(client.AzureServicePrincipalCredentialsType)},
+	"aws":         {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
+	"google_cost": {string(client.GoogleCostCredentialsType)},
+	"azure_cost":  {string(client.AzureCostCredentialsType)},
+	"aws_cost":    {string(client.AwsCostCredentialsType)},
 }
 
 func dataCredentials(cloudType string) *schema.Resource {
