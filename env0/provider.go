@@ -57,7 +57,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ssh_key":                 dataSshKey(),
 				"env0_aws_cost_credentials":    dataCredentials("aws_cost"),
 				"env0_azure_cost_credentials":  dataCredentials("azure_cost"),
-				"env0_google_cost_credentials": dataCredentials("gcp_cost"),
+				"env0_google_cost_credentials": dataCredentials("google_cost"),
 				"env0_aws_credentials":         dataCredentials("aws"),
 				"env0_gcp_credentials":         dataCredentials("gcp"),
 				"env0_azure_credentials":       dataCredentials("azure"),

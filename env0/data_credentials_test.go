@@ -27,6 +27,18 @@ func TestCredentialsDataSource(t *testing.T) {
 			credentialsType: "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT",
 			cloudType:       "azure",
 		},
+		{
+			credentialsType: "GCP_CREDENTIALS",
+			cloudType:       "google_cost",
+		},
+		{
+			credentialsType: "AZURE_CREDENTIALS",
+			cloudType:       "azure_cost",
+		},
+		{
+			credentialsType: "AWS_ASSUMED_ROLE",
+			cloudType:       "aws_cost",
+		},
 	}
 
 	for _, testCase := range testCases {
