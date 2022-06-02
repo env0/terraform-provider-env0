@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,7 +14,7 @@ func resourceAzureCredentials() *schema.Resource {
 		ReadContext:   resourceCredentialsRead(AZURE_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceAzureCredentialsImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(AZURE_TYPE)},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -77,20 +76,4 @@ func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData,
 	d.SetId(credentials.Id)
 
 	return nil
-}
-
-func resourceAzureCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), []string{"AZURE_"}, meta)
-	if err != nil {
-		if _, ok := err.(*client.NotFoundError); ok {
-			return nil, fmt.Errorf("azure credentials resource with id %v not found", d.Id())
-		}
-		return nil, err
-	}
-
-	if err := writeResourceData(&credentials, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
 }

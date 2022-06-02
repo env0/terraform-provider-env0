@@ -23,6 +23,15 @@ const (
 	AWS_COST_TYPE   CloudType = "aws_cost"
 )
 
+var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
+	GCP_TYPE:        {string(client.GcpServiceAccountCredentialsType)},
+	AZURE_TYPE:      {string(client.AzureServicePrincipalCredentialsType)},
+	AWS_TYPE:        {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
+	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
+	AZURE_COST_TYPE: {string(client.AzureCostCredentialsType)},
+	AWS_COST_TYPE:   {string(client.AwsCostCredentialsType)},
+}
+
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -102,5 +111,23 @@ func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 		}
 
 		return nil
+	}
+}
+
+func resourceCredentialsImport(cloudType CloudType) schema.StateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+		credentials, err := getCredentials(d.Id(), credentialsTypeToPrefixList[cloudType], meta)
+		if err != nil {
+			if _, ok := err.(*client.NotFoundError); ok {
+				return nil, fmt.Errorf(string(cloudType)+" credentials resource with id %v not found", d.Id())
+			}
+			return nil, err
+		}
+
+		if err := writeResourceData(&credentials, d); err != nil {
+			return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		}
+
+		return []*schema.ResourceData{d}, nil
 	}
 }

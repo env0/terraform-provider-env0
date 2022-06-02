@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,7 +14,7 @@ func resourceGcpCredentials() *schema.Resource {
 		ReadContext:   resourceCredentialsRead(GCP_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceGcpCredentialsImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(GCP_TYPE)},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -66,20 +65,4 @@ func resourceGcpCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(credentials.Id)
 
 	return nil
-}
-
-func resourceGcpCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), []string{"GCP_"}, meta)
-	if err != nil {
-		if _, ok := err.(*client.NotFoundError); ok {
-			return nil, fmt.Errorf("gcp credentials resource with id %v not found", d.Id())
-		}
-		return nil, err
-	}
-
-	if err := writeResourceData(&credentials, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
 }
