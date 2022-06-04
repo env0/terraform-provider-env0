@@ -221,6 +221,94 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	return nil
 }
 
+func getInterfaceValues(i interface{}) []interface{} {
+	var result []interface{}
+
+	val := reflect.ValueOf(i)
+
+	for i := 0; i < val.Len(); i++ {
+		field := val.Index(i)
+		result = append(result, field.Interface())
+	}
+
+	return result
+}
+
+// Extracts values from a slice of interfaces, and writes it to resourcedata at name.
+func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) error {
+	writeResourceDataSliceStruct := func(val reflect.Value, value map[string]interface{}) {
+		for i := 0; i < val.NumField(); i++ {
+			fieldName := val.Type().Field(i).Name
+			fieldNameSC := toSnakeCase(fieldName)
+			field := val.Field(i)
+			fieldType := field.Type()
+
+			if fieldType.Kind() == reflect.Ptr {
+				if field.IsNil() {
+					continue
+				}
+
+				field = field.Elem()
+			}
+
+			if d.Get(name+".*."+fieldNameSC) == nil {
+				continue
+			}
+
+			value[fieldNameSC] = field.Interface()
+		}
+	}
+
+	ivalues := getInterfaceValues(i)
+
+	var values []interface{}
+
+	for _, ivalue := range ivalues {
+		value := make(map[string]interface{})
+
+		val := reflect.ValueOf(ivalue)
+
+		for i := 0; i < val.NumField(); i++ {
+			fieldName := val.Type().Field(i).Name
+
+			// Assumes golang is CamalCase and Terraform is snake_case.
+
+			fieldNameSC := toSnakeCase(fieldName)
+
+			field := val.Field(i)
+
+			fieldType := field.Type()
+
+			if fieldType.Kind() == reflect.Ptr {
+				if field.IsNil() {
+					continue
+				}
+
+				field = field.Elem()
+				fieldType = field.Type()
+			}
+
+			if fieldType.Kind() == reflect.Struct {
+				writeResourceDataSliceStruct(field, value)
+			}
+
+			if d.Get(name+".*."+fieldNameSC) == nil {
+				continue
+			}
+
+			value[fieldNameSC] = field.Interface()
+		}
+
+		values = append(values, value)
+	}
+
+	if values != nil {
+		d.Set(name, values)
+	}
+
+	return nil
+}
+
 func safeSet(d *schema.ResourceData, k string, v interface{}) {
 	// Checks that the key exist in the schema before setting the value.
 	if test := d.Get(k); test != nil {
