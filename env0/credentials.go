@@ -12,6 +12,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type CloudType string
+
+const (
+	GCP_TYPE        CloudType = "gcp"
+	AZURE_TYPE      CloudType = "azure"
+	AWS_TYPE        CloudType = "aws"
+	GCP_COST_TYPE   CloudType = "google_cost"
+	AZURE_COST_TYPE CloudType = "azure_cost"
+	AWS_COST_TYPE   CloudType = "aws_cost"
+)
+
+var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
+	GCP_TYPE:        {string(client.GcpServiceAccountCredentialsType)},
+	AZURE_TYPE:      {string(client.AzureServicePrincipalCredentialsType)},
+	AWS_TYPE:        {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
+	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
+	AZURE_COST_TYPE: {string(client.AzureCostCredentialsType)},
+	AWS_COST_TYPE:   {string(client.AwsCostCredentialsType)},
+}
+
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -77,13 +97,13 @@ func resourceCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceCredentialsRead(cloudType string) schema.ReadContextFunc {
+func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		apiClient := meta.(client.ApiClientInterface)
 
 		credentials, err := apiClient.CloudCredentials(d.Id())
 		if err != nil {
-			return ResourceGetFailure(cloudType+" credentials", d, err)
+			return ResourceGetFailure(string(cloudType)+" credentials", d, err)
 		}
 
 		if err := writeResourceData(&credentials, d); err != nil {
@@ -91,5 +111,23 @@ func resourceCredentialsRead(cloudType string) schema.ReadContextFunc {
 		}
 
 		return nil
+	}
+}
+
+func resourceCredentialsImport(cloudType CloudType) schema.StateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+		credentials, err := getCredentials(d.Id(), credentialsTypeToPrefixList[cloudType], meta)
+		if err != nil {
+			if _, ok := err.(*client.NotFoundError); ok {
+				return nil, fmt.Errorf(string(cloudType)+" credentials resource with id %v not found", d.Id())
+			}
+			return nil, err
+		}
+
+		if err := writeResourceData(&credentials, d); err != nil {
+			return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		}
+
+		return []*schema.ResourceData{d}, nil
 	}
 }

@@ -8,16 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var credentialsTypeToPrefixList map[string][]string = map[string][]string{
-	"gcp":         {string(client.GcpServiceAccountCredentialsType)},
-	"azure":       {string(client.AzureServicePrincipalCredentialsType)},
-	"aws":         {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
-	"google_cost": {string(client.GoogleCostCredentialsType)},
-	"azure_cost":  {string(client.AzureCostCredentialsType)},
-	"aws_cost":    {string(client.AwsCostCredentialsType)},
-}
-
-func dataCredentials(cloudType string) *schema.Resource {
+func dataCredentials(cloudType CloudType) *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataCredentialsRead(cloudType),
 
@@ -38,7 +29,7 @@ func dataCredentials(cloudType string) *schema.Resource {
 	}
 }
 
-func dataCredentialsRead(cloudType string) schema.ReadContextFunc {
+func dataCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		var err error
 		var credentials client.Credentials
