@@ -117,29 +117,38 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 	return nil
 }
 
+// Returns the field name or skip.
+func getFieldName(field reflect.StructField) (string, bool) {
+	name := field.Name
+	// Assumes golang is CamalCase and Terraform is snake_case.
+	// This behavior can be overrided be used in the 'tfschema' tag.
+	name = toSnakeCase(name)
+	if tag, ok := field.Tag.Lookup("tfschema"); ok {
+		if tag == "-" {
+			return "", true
+		}
+
+		// 'resource' tag found. Override to tag value.
+		name = tag
+	}
+
+	return name, false
+}
+
 // Extracts values from the interface, and writes it to resourcedata.
 func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	val := reflect.ValueOf(i).Elem()
 
 	for i := 0; i < val.NumField(); i++ {
-		fieldName := val.Type().Field(i).Name
-		// Assumes golang is CamalCase and Terraform is snake_case.
-		// This behavior can be overrided be used in the 'tfschema' tag.
-		fieldNameSC := toSnakeCase(fieldName)
-		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
-			if resFieldName == "-" {
-				continue
-			}
-
-			// 'resource' tag found. Override to tag value.
-			fieldNameSC = resFieldName
+		fieldName, skip := getFieldName(val.Type().Field(i))
+		if skip {
+			continue
 		}
 
 		field := val.Field(i)
-
 		fieldType := field.Type()
 
-		if fieldName == "Id" {
+		if fieldName == "id" {
 			id := field.String()
 			if len(id) == 0 {
 				return errors.New("id is empty")
@@ -148,12 +157,12 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			continue
 		}
 
-		if d.Get(fieldNameSC) == nil {
+		if d.Get(fieldName) == nil {
 			continue
 		}
 
 		if customField, ok := field.Interface().(CustomResourceDataField); ok {
-			if err := customField.WriteResourceData(fieldNameSC, d); err != nil {
+			if err := customField.WriteResourceData(fieldName, d); err != nil {
 				return err
 			}
 			continue
@@ -170,48 +179,20 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 
 		switch fieldType.Kind() {
 		case reflect.String:
-			if err := d.Set(fieldNameSC, field.String()); err != nil {
+			if err := d.Set(fieldName, field.String()); err != nil {
 				return err
 			}
 		case reflect.Int:
-			if err := d.Set(fieldNameSC, field.Int()); err != nil {
+			if err := d.Set(fieldName, field.Int()); err != nil {
 				return err
 			}
 		case reflect.Bool:
-			if err := d.Set(fieldNameSC, field.Bool()); err != nil {
+			if err := d.Set(fieldName, field.Bool()); err != nil {
 				return err
 			}
 		case reflect.Slice:
-			switch field.Type() {
-			case reflect.TypeOf([]client.ModuleSshKey{}):
-				var rawSshKeys []map[string]string
-				for i := 0; i < field.Len(); i++ {
-					sshKey := field.Index(i).Interface().(client.ModuleSshKey)
-					rawSshKeys = append(rawSshKeys, map[string]string{"id": sshKey.Id, "name": sshKey.Name})
-				}
-				if err := d.Set(fieldNameSC, rawSshKeys); err != nil {
-					return err
-				}
-			case reflect.TypeOf([]client.Agent{}):
-				var agents []map[string]string
-				for i := 0; i < field.Len(); i++ {
-					agent := field.Index(i).Interface().(client.Agent)
-					agents = append(agents, map[string]string{"agent_key": agent.AgentKey})
-				}
-				if err := d.Set(fieldNameSC, agents); err != nil {
-					return err
-				}
-			case reflect.TypeOf([]string{}):
-				var strs []interface{}
-				for i := 0; i < field.Len(); i++ {
-					str := field.Index(i).Interface().(string)
-					strs = append(strs, str)
-				}
-				if err := d.Set(fieldNameSC, strs); err != nil {
-					return err
-				}
-			default:
-				return fmt.Errorf("internal error - unhandled slice type %v", field.Type())
+			if err := writeResourceDataSlice(field.Interface(), fieldName, d); err != nil {
+				return err
 			}
 		default:
 			return fmt.Errorf("internal error - unhandled field kind %v", field.Kind())
@@ -221,7 +202,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	return nil
 }
 
-func getInterfaceValues(i interface{}) []interface{} {
+func getInterfaceSliceValues(i interface{}) []interface{} {
 	var result []interface{}
 
 	val := reflect.ValueOf(i)
@@ -234,76 +215,77 @@ func getInterfaceValues(i interface{}) []interface{} {
 	return result
 }
 
-// Extracts values from a slice of interfaces, and writes it to resourcedata at name.
-func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) error {
-	writeResourceDataSliceStruct := func(val reflect.Value, value map[string]interface{}) {
-		for i := 0; i < val.NumField(); i++ {
-			fieldName := val.Type().Field(i).Name
-			fieldNameSC := toSnakeCase(fieldName)
-			field := val.Field(i)
-			fieldType := field.Type()
+func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.ResourceData) (map[string]interface{}, error) {
+	value := make(map[string]interface{})
 
-			if fieldType.Kind() == reflect.Ptr {
-				if field.IsNil() {
-					continue
-				}
+	for i := 0; i < val.NumField(); i++ {
+		fieldName, skip := getFieldName(val.Type().Field(i))
+		if skip {
+			continue
+		}
 
-				field = field.Elem()
-			}
+		field := val.Field(i)
+		fieldType := field.Type()
 
-			if d.Get(name+".*."+fieldNameSC) == nil {
+		if fieldType.Kind() == reflect.Ptr {
+			if field.IsNil() {
 				continue
 			}
 
-			value[fieldNameSC] = field.Interface()
+			field = field.Elem()
 		}
+
+		// Check if the field exist in the schema. `*` is for any index.
+		if d.Get(name+".*."+fieldName) == nil {
+			continue
+		}
+
+		value[fieldName] = field.Interface()
 	}
 
-	ivalues := getInterfaceValues(i)
+	return value, nil
+}
 
+// Extracts values from a slice of interfaces, and writes it to resourcedata at name.
+func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) error {
+	ivalues := getInterfaceSliceValues(i)
 	var values []interface{}
 
+	// Iterate over the slice of values and build a slice of terraform values.
 	for _, ivalue := range ivalues {
-		value := make(map[string]interface{})
-
 		val := reflect.ValueOf(ivalue)
+		valType := val.Type()
 
-		for i := 0; i < val.NumField(); i++ {
-			fieldName := val.Type().Field(i).Name
-
-			// Assumes golang is CamalCase and Terraform is snake_case.
-
-			fieldNameSC := toSnakeCase(fieldName)
-
-			field := val.Field(i)
-
-			fieldType := field.Type()
-
-			if fieldType.Kind() == reflect.Ptr {
-				if field.IsNil() {
-					continue
-				}
-
-				field = field.Elem()
-				fieldType = field.Type()
-			}
-
-			if fieldType.Kind() == reflect.Struct {
-				writeResourceDataSliceStruct(field, value)
-			}
-
-			if d.Get(name+".*."+fieldNameSC) == nil {
+		if valType.Kind() == reflect.Ptr {
+			if val.IsNil() {
 				continue
 			}
 
-			value[fieldNameSC] = field.Interface()
+			val = val.Elem()
+			valType = val.Type()
 		}
 
-		values = append(values, value)
+		switch valType.Kind() {
+		case reflect.String:
+			values = append(values, val.String())
+		case reflect.Int:
+			values = append(values, val.Int())
+		case reflect.Bool:
+			values = append(values, val.Bool())
+		case reflect.Struct:
+			// Slice of structs.
+			value, err := getResourceDataSliceStructValue(val, name, d)
+			if err != nil {
+				return err
+			}
+			values = append(values, value)
+		default:
+			return fmt.Errorf("internal error - unhandled slice kind %v", valType.Kind())
+		}
 	}
 
 	if values != nil {
-		d.Set(name, values)
+		return d.Set(name, values)
 	}
 
 	return nil
