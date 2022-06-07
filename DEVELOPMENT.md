@@ -59,8 +59,17 @@ The writeResourceData function receives a golang struct and a Terraform configur
 Check [resource_module.go](./env0/resource_module.go) that uses the utilities vs [resource_environment.go](./env0/resource_environment.go) that does not.
 
 Pay attention to the following caveats:
-* The utilities leverage golang reflection. And work well for most simple types. Complex types may need additional code to be implemented.
 * The golang fields are in CamalCase, while the terraform fields are in snake_case. They must match. E.g., ProjectName (golang) == project_name (Terraform). To override the default CamalCase to snake_case conversion you may use the tag `tfschema`. To ignore a field set the `tfschema` tag value to `-`.
+
+#### writeResourceDataSlice
+
+The writeResourceDataSlice function receives a golang slice, a field name (of type list) and a terraform configuration.
+It will try to automatically write the slice structs to the terraform configuration under the field name.
+
+#### Important Notes
+
+When using any of these functions be sure to test them well.
+These are "best-effort" helpers that leverage golang's refelection. They will work well for most basic cases, but may fall short in complex scenarios.
 
 ### Handling drifts
 

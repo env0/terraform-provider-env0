@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,10 +11,10 @@ import (
 func resourceGcpCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGcpCredentialsCreate,
-		ReadContext:   resourceGcpCredentialsRead,
-		DeleteContext: resourceGcpCredentialsDelete,
+		ReadContext:   resourceCredentialsRead(GCP_TYPE),
+		DeleteContext: resourceCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceGcpCredentialsImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(GCP_TYPE)},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -66,47 +65,4 @@ func resourceGcpCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(credentials.Id)
 
 	return nil
-}
-
-func resourceGcpCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-
-	id := d.Id()
-	credentials, err := apiClient.CloudCredentials(id)
-	if err != nil {
-		return ResourceGetFailure("gcp credentials", d, err)
-	}
-
-	if err := writeResourceData(&credentials, d); err != nil {
-		return diag.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	return nil
-}
-
-func resourceGcpCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-
-	id := d.Id()
-	err := apiClient.CloudCredentialsDelete(id)
-	if err != nil {
-		return diag.Errorf("could not delete credentials: %v", err)
-	}
-	return nil
-}
-
-func resourceGcpCredentialsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	credentials, err := getCredentials(d.Id(), []string{"GCP_"}, meta)
-	if err != nil {
-		if _, ok := err.(*client.NotFoundError); ok {
-			return nil, fmt.Errorf("gcp credentials resource with id %v not found", d.Id())
-		}
-		return nil, err
-	}
-
-	if err := writeResourceData(&credentials, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
 }

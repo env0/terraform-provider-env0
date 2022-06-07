@@ -28,6 +28,7 @@ resource "env0_api_key" "api_key_sample" {
 ### Optional
 
 - **id** (String) The ID of this resource.
+- **organization_role** (String) the api key type. 'Admin' or 'User'. If not set defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys
 
 ## Import
 

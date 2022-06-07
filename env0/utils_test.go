@@ -198,3 +198,21 @@ func TestWriteCustomResourceData(t *testing.T) {
 	assert.Equal(t, *configurationVariable.IsRequired, d.Get("is_required"))
 	assert.Equal(t, configurationVariable.Regex, d.Get("regex"))
 }
+
+func TestWriteResourceDataSliceVariables(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]interface{}{})
+
+	agent1 := client.Agent{
+		AgentKey: "key1",
+	}
+
+	agent2 := client.Agent{
+		AgentKey: "key1",
+	}
+
+	vars := []client.Agent{agent1, agent2}
+
+	assert.Nil(t, writeResourceDataSlice(vars, "agents", d))
+	assert.Equal(t, agent1.AgentKey, d.Get("agents.0.agent_key"))
+	assert.Equal(t, agent2.AgentKey, d.Get("agents.1.agent_key"))
+}
