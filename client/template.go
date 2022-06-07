@@ -5,7 +5,6 @@ package client
 //only use "template", no mention of blueprint
 
 import (
-	"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
@@ -203,13 +202,8 @@ func (client *ApiClient) RemoveTemplateFromProject(templateId string, projectId 
 }
 
 func (client *ApiClient) VariablesFromRepository(payload *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error) {
-	b, err := json.Marshal(payload)
+	paramsInterface, err := toParamsInterface(payload)
 	if err != nil {
-		return nil, err
-	}
-
-	var paramsInterface map[string]interface{}
-	if err := json.Unmarshal(b, &paramsInterface); err != nil {
 		return nil, err
 	}
 
