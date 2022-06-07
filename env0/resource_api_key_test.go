@@ -19,19 +19,21 @@ func TestUnitApiKeyResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	apiKey := client.ApiKey{
-		Id:             uuid.NewString(),
-		Name:           "name",
-		ApiKeyId:       "keyid",
-		ApiKeySecret:   "keysecret",
-		OrganizationId: "org",
+		Id:               uuid.NewString(),
+		Name:             "name",
+		ApiKeyId:         "keyid",
+		ApiKeySecret:     "keysecret",
+		OrganizationId:   "org",
+		OrganizationRole: "Admin",
 	}
 
 	updatedApiKey := client.ApiKey{
-		Id:             "id2",
-		Name:           "name2",
-		ApiKeyId:       "keyid2",
-		ApiKeySecret:   "keysecret2",
-		OrganizationId: "org",
+		Id:               "id2",
+		Name:             "name2",
+		ApiKeyId:         "keyid2",
+		ApiKeySecret:     "keysecret2",
+		OrganizationId:   "org",
+		OrganizationRole: "Admin",
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -44,6 +46,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", apiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", apiKey.OrganizationRole),
 					),
 				},
 				{
@@ -53,6 +56,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedApiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", updatedApiKey.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", updatedApiKey.OrganizationRole),
 					),
 				},
 			},

@@ -26,6 +26,14 @@ func resourceApiKey() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
+			"organization_role": {
+				Type:             schema.TypeString,
+				Description:      "the api key type. 'Admin' or 'User'. If not set defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys",
+				Default:          "Admin",
+				Optional:         true,
+				ForceNew:         true,
+				ValidateDiagFunc: NewStringInValidator([]string{"Admin", "User"}),
+			},
 		},
 	}
 }
