@@ -19,6 +19,10 @@ type CustomResourceDataField interface {
 	WriteResourceData(fieldName string, d *schema.ResourceData) error
 }
 
+type ResourceDataSliceStructValueWriter interface {
+	ResourceDataSliceStructValueWrite(map[string]interface{}) error
+}
+
 // https://stackoverflow.com/questions/56616196/how-to-convert-camel-case-string-to-snake-case
 func toSnakeCase(str string) string {
 	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
@@ -219,13 +223,20 @@ func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.R
 	value := make(map[string]interface{})
 
 	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := field.Type()
+
+		if writer, ok := field.Interface().(ResourceDataSliceStructValueWriter); ok {
+			if err := writer.ResourceDataSliceStructValueWrite(value); err != nil {
+				return nil, err
+			}
+			continue
+		}
+
 		fieldName, skip := getFieldName(val.Type().Field(i))
 		if skip {
 			continue
 		}
-
-		field := val.Field(i)
-		fieldType := field.Type()
 
 		if fieldType.Kind() == reflect.Ptr {
 			if field.IsNil() {

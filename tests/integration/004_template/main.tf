@@ -67,6 +67,31 @@ resource "env0_configuration_variable" "in_a_template2" {
   type        = "terraform"
 }
 
+resource "env0_template" "github_template_source_code" {
+  name                                    = "Github Test Source Code-${random_string.random.result}"
+  description                             = "Template description - GitHub"
+  type                                    = "terraform"
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
+  path                                    = "misc/custom-flow-tf-vars"
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
+  terraform_version                       = "0.15.1"
+}
+
+data "env0_source_code_variables" "variables" {
+  template_id = env0_template.github_template_source_code.id
+}
+
+output "github_variables_name" {
+  value = data.env0_source_code_variables.variables.variables.0.name
+}
+
+output "github_variables_value" {
+  value = data.env0_source_code_variables.variables.variables.0.value
+}
+
 output "github_template_id" {
   value = env0_template.github_template.id
 }

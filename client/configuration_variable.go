@@ -29,6 +29,13 @@ type ConfigurationVariableSchema struct {
 	Format Format   `json:"format,omitempty"`
 }
 
+func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values map[string]interface{}) error {
+	if len(c.Format) > 0 {
+		values["format"] = c.Format
+	}
+	return nil
+}
+
 type ConfigurationVariable struct {
 	ScopeId        string                       `json:"scopeId,omitempty"`
 	Value          string                       `json:"value"`
