@@ -9,11 +9,10 @@ type Pagination struct {
 	params map[string]string
 }
 
-// Note: all the FIXME should be uncommented when Alpine adds support for go 1.18.
 // This will enable generics.
 
 type Paginated interface {
-	// FIXME: Environment
+	Environment
 	getEndpoint() string
 }
 
@@ -31,15 +30,13 @@ func (p *Pagination) next(currentPageSize int) bool {
 }
 
 // params - additional params. may be nil.
-// FIXME: func getAll[P Paginated](client *ApiClient, params map[string]string) ([]P, error) {
-func getAll(client *ApiClient, params map[string]string) ([]Environment, error) {
+func getAll[P Paginated](client *ApiClient, params map[string]string) ([]P, error) {
 	p := Pagination{
 		offset: 0,
 		params: params,
 	}
 
-	// FIXME: var allResults []P
-	var allResults []Environment
+	var allResults []P
 
 	for {
 		pageParams := p.getParams()
@@ -47,11 +44,9 @@ func getAll(client *ApiClient, params map[string]string) ([]Environment, error) 
 			pageParams[k] = v
 		}
 
-		// FIXME: var pageResults []P
-		var pageResults []Environment
+		var pageResults []P
 
-		// FIXME: err := client.http.Get(P{}.getEndpoint(), pageParams, &pageResults)
-		err := client.http.Get(Environment{}.getEndpoint(), pageParams, &pageResults)
+		err := client.http.Get(P{}.getEndpoint(), pageParams, &pageResults)
 		if err != nil {
 			return nil, err
 		}
