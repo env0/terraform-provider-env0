@@ -88,7 +88,7 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 		Type:  requestType,
 	}
 
-	credentials, err := apiClient.AwsCredentialsCreate(request)
+	credentials, err := apiClient.CredentialsCreate(&request)
 	if err != nil {
 		return diag.Errorf("could not create credentials key: %v", err)
 	}

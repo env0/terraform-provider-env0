@@ -23,6 +23,10 @@ func (c *Credentials) HasPrefix(prefixList []string) bool {
 	return false
 }
 
+type CredentialCreatePayload interface {
+	SetOrganizationId(organizationId string)
+}
+
 type AzureCredentialsCreatePayload struct {
 	Name           string                       `json:"name"`
 	OrganizationId string                       `json:"organizationId"`
@@ -75,6 +79,22 @@ type GcpCredentialsValuePayload struct {
 	ServiceAccountKey string `json:"serviceAccountKey"`
 }
 
+func (c *GoogleCostCredentialsCreatePayload) SetOrganizationId(organizationId string) {
+	c.OrganizationId = organizationId
+}
+
+func (c *AwsCredentialsCreatePayload) SetOrganizationId(organizationId string) {
+	c.OrganizationId = organizationId
+}
+
+func (c *GcpCredentialsCreatePayload) SetOrganizationId(organizationId string) {
+	c.OrganizationId = organizationId
+}
+
+func (c *AzureCredentialsCreatePayload) SetOrganizationId(organizationId string) {
+	c.OrganizationId = organizationId
+}
+
 const (
 	GoogleCostCredentialsType            GcpCredentialsType   = "GCP_CREDENTIALS"
 	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
@@ -115,45 +135,13 @@ func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
 	return credentials, nil
 }
 
-func (client *ApiClient) AwsCredentialsCreate(request AwsCredentialsCreatePayload) (Credentials, error) {
+func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Credentials, error) {
 	organizationId, err := client.organizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
 
-	request.OrganizationId = organizationId
-
-	var result Credentials
-	err = client.http.Post("/credentials", request, &result)
-	if err != nil {
-		return Credentials{}, err
-	}
-	return result, nil
-}
-
-func (client *ApiClient) GcpCredentialsCreate(request GcpCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := client.organizationId()
-	if err != nil {
-		return Credentials{}, err
-	}
-
-	request.OrganizationId = organizationId
-
-	var result Credentials
-	err = client.http.Post("/credentials", request, &result)
-	if err != nil {
-		return Credentials{}, err
-	}
-	return result, nil
-}
-
-func (client *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := client.organizationId()
-	if err != nil {
-		return Credentials{}, err
-	}
-
-	request.OrganizationId = organizationId
+	request.SetOrganizationId(organizationId)
 
 	var result Credentials
 	err = client.http.Post("/credentials", request, &result)
@@ -165,19 +153,4 @@ func (client *ApiClient) AzureCredentialsCreate(request AzureCredentialsCreatePa
 
 func (client *ApiClient) CloudCredentialsDelete(id string) error {
 	return client.http.Delete("/credentials/" + id)
-}
-
-func (client *ApiClient) GoogleCostCredentialsCreate(request GoogleCostCredentialsCreatePayload) (Credentials, error) {
-	organizationId, err := client.organizationId()
-	if err != nil {
-		return Credentials{}, err
-	}
-
-	request.OrganizationId = organizationId
-	var result Credentials
-	err = client.http.Post("/credentials", request, &result)
-	if err != nil {
-		return Credentials{}, err
-	}
-	return result, nil
 }

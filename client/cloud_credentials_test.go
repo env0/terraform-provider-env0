@@ -44,7 +44,7 @@ var _ = Describe("CloudCredentials", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/credentials", GoogleCostCredentialsCreatePayload{
+				Post("/credentials", &GoogleCostCredentialsCreatePayload{
 					Name:           credentialsName,
 					OrganizationId: organizationId,
 					Type:           "GCP_CREDENTIALS",
@@ -55,7 +55,7 @@ var _ = Describe("CloudCredentials", func() {
 					*response = mockCredentialsForGoogleCostCred
 				})
 
-			credentials, _ = apiClient.GoogleCostCredentialsCreate(GoogleCostCredentialsCreatePayload{
+			credentials, _ = apiClient.CredentialsCreate(&GoogleCostCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  "GCP_CREDENTIALS",
@@ -85,7 +85,7 @@ var _ = Describe("CloudCredentials", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/credentials", AwsCredentialsCreatePayload{
+				Post("/credentials", &AwsCredentialsCreatePayload{
 					Name:           credentialsName,
 					OrganizationId: organizationId,
 					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
@@ -96,7 +96,7 @@ var _ = Describe("CloudCredentials", func() {
 					*response = mockCredentials
 				})
 
-			credentials, _ = apiClient.AwsCredentialsCreate(AwsCredentialsCreatePayload{
+			credentials, _ = apiClient.CredentialsCreate(&AwsCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
@@ -129,7 +129,7 @@ var _ = Describe("CloudCredentials", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/credentials", GcpCredentialsCreatePayload{
+				Post("/credentials", &GcpCredentialsCreatePayload{
 					Name:           credentialsName,
 					OrganizationId: organizationId,
 					Type:           gcpRequestType,
@@ -140,7 +140,7 @@ var _ = Describe("CloudCredentials", func() {
 					*response = mockGcpCredentials
 				})
 
-			credentials, _ = apiClient.GcpCredentialsCreate(GcpCredentialsCreatePayload{
+			credentials, _ = apiClient.CredentialsCreate(&GcpCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  gcpRequestType,
@@ -176,7 +176,7 @@ var _ = Describe("CloudCredentials", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/credentials", AzureCredentialsCreatePayload{
+				Post("/credentials", &AzureCredentialsCreatePayload{
 					Name:           credentialsName,
 					OrganizationId: organizationId,
 					Type:           azureRequestType,
@@ -187,7 +187,7 @@ var _ = Describe("CloudCredentials", func() {
 					*response = mockAzureCredentials
 				}).Times(1)
 
-			credentials, _ = apiClient.AzureCredentialsCreate(AzureCredentialsCreatePayload{
+			credentials, _ = apiClient.CredentialsCreate(&AzureCredentialsCreatePayload{
 				Name:  credentialsName,
 				Value: payloadValue,
 				Type:  azureRequestType,
