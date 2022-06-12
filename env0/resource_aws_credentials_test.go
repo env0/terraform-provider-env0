@@ -135,7 +135,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseForCreate, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
 		})
@@ -144,9 +144,9 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	t.Run("any update cause a destroy before a new create", func(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
-				mock.EXPECT().AwsCredentialsCreate(updateAwsAccessKeyCredCreatePayload).Times(1).Return(updateReturnValues, nil),
+				mock.EXPECT().CredentialsCreate(&updateAwsAccessKeyCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil),
@@ -182,10 +182,10 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
-				mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
+				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
 			)
@@ -208,7 +208,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues, returnValues}, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
@@ -231,7 +231,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(3).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
 		})
@@ -254,7 +254,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(otherTypeReturnValues.Id).Times(1).Return(client.Credentials{}, &client.NotFoundError{})
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
@@ -278,7 +278,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AwsCredentialsCreate(awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues}, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
