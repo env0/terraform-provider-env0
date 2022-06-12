@@ -152,36 +152,6 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), arg0, arg1)
 }
 
-// AwsCredentialsCreate mocks base method.
-func (m *MockApiClientInterface) AwsCredentialsCreate(arg0 AwsCredentialsCreatePayload) (Credentials, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AwsCredentialsCreate", arg0)
-	ret0, _ := ret[0].(Credentials)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AwsCredentialsCreate indicates an expected call of AwsCredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) AwsCredentialsCreate(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AwsCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AwsCredentialsCreate), arg0)
-}
-
-// AzureCredentialsCreate mocks base method.
-func (m *MockApiClientInterface) AzureCredentialsCreate(arg0 AzureCredentialsCreatePayload) (Credentials, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AzureCredentialsCreate", arg0)
-	ret0, _ := ret[0].(Credentials)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AzureCredentialsCreate indicates an expected call of AzureCredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) AzureCredentialsCreate(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AzureCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AzureCredentialsCreate), arg0)
-}
-
 // CloudCredentialIdsInProject mocks base method.
 func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]string, error) {
 	m.ctrl.T.Helper()
@@ -328,6 +298,21 @@ func (m *MockApiClientInterface) CostCredentialIdsInProject(arg0 string) ([]Cost
 func (mr *MockApiClientInterfaceMockRecorder) CostCredentialIdsInProject(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CostCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CostCredentialIdsInProject), arg0)
+}
+
+// CredentialsCreate mocks base method.
+func (m *MockApiClientInterface) CredentialsCreate(arg0 CredentialCreatePayload) (Credentials, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CredentialsCreate", arg0)
+	ret0, _ := ret[0].(Credentials)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CredentialsCreate indicates an expected call of CredentialsCreate.
+func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsCreate), arg0)
 }
 
 // Deployment mocks base method.
@@ -538,21 +523,6 @@ func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
 }
 
-// GcpCredentialsCreate mocks base method.
-func (m *MockApiClientInterface) GcpCredentialsCreate(arg0 GcpCredentialsCreatePayload) (Credentials, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GcpCredentialsCreate", arg0)
-	ret0, _ := ret[0].(Credentials)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GcpCredentialsCreate indicates an expected call of GcpCredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) GcpCredentialsCreate(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GcpCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GcpCredentialsCreate), arg0)
-}
-
 // GitToken mocks base method.
 func (m *MockApiClientInterface) GitToken(arg0 string) (*GitToken, error) {
 	m.ctrl.T.Helper()
@@ -610,21 +580,6 @@ func (m *MockApiClientInterface) GitTokens() ([]GitToken, error) {
 func (mr *MockApiClientInterfaceMockRecorder) GitTokens() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokens", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokens))
-}
-
-// GoogleCostCredentialsCreate mocks base method.
-func (m *MockApiClientInterface) GoogleCostCredentialsCreate(arg0 GoogleCostCredentialsCreatePayload) (Credentials, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GoogleCostCredentialsCreate", arg0)
-	ret0, _ := ret[0].(Credentials)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GoogleCostCredentialsCreate indicates an expected call of GoogleCostCredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) GoogleCostCredentialsCreate(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GoogleCostCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GoogleCostCredentialsCreate), arg0)
 }
 
 // Module mocks base method.

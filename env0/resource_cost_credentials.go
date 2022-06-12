@@ -142,7 +142,7 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 	_, googleOk := d.GetOk("table_id")
 	switch {
 	case awsOk:
-		return apiClient.AwsCredentialsCreate(client.AwsCredentialsCreatePayload{
+		return apiClient.CredentialsCreate(&client.AwsCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.AwsCostCredentialsType,
 			Value: client.AwsCredentialsValuePayload{
@@ -150,7 +150,7 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 				ExternalId: d.Get("external_id").(string),
 			}})
 	case azureOk:
-		return apiClient.AzureCredentialsCreate(client.AzureCredentialsCreatePayload{
+		return apiClient.CredentialsCreate(&client.AzureCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.AzureCostCredentialsType,
 			Value: client.AzureCredentialsValuePayload{
@@ -161,7 +161,7 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 			},
 		})
 	case googleOk:
-		return apiClient.GoogleCostCredentialsCreate(client.GoogleCostCredentialsCreatePayload{
+		return apiClient.CredentialsCreate(&client.GoogleCostCredentialsCreatePayload{
 			Name: d.Get("name").(string),
 			Type: client.GoogleCostCredentialsType,
 			Value: client.GoogleCostCredentialsValuePayload{
