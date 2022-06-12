@@ -28,7 +28,7 @@ func resourceApiKey() *schema.Resource {
 			},
 			"organization_role": {
 				Type:             schema.TypeString,
-				Description:      "the api key type. 'Admin' or 'User'. If not set defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys",
+				Description:      "the api key type. 'Admin' or 'User'. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys",
 				Default:          "Admin",
 				Optional:         true,
 				ForceNew:         true,
@@ -45,6 +45,9 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	organizationRole := d.Get("organization_role").(string)
+	payload.Permissions.OrganizationRole = organizationRole
 
 	apiKey, err := apiClient.ApiKeyCreate(payload)
 	if err != nil {
