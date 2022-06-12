@@ -10,6 +10,11 @@ resource "env0_api_key" "test_api_key" {
   name = "my-little-api-key-${random_string.random.result}"
 }
 
+resource "env0_api_key" "test_user_api_key" {
+  name = "my-little-user-api-key-${random_string.random.result}"
+  organization_role = "User"
+}
+
 data "env0_api_key" "test_api_key1" {
   name       = env0_api_key.test_api_key.name
   depends_on = [env0_api_key.test_api_key]
