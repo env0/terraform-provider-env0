@@ -27,6 +27,15 @@ func TestUnitApiKeyResource(t *testing.T) {
 		OrganizationRole: "Admin",
 	}
 
+	apiKeyUser := client.ApiKey{
+		Id:               uuid.NewString(),
+		Name:             "name-user",
+		ApiKeyId:         "keyid",
+		ApiKeySecret:     "keysecret",
+		OrganizationId:   "org",
+		OrganizationRole: "User",
+	}
+
 	updatedApiKey := client.ApiKey{
 		Id:               "id2",
 		Name:             "name2",
@@ -36,7 +45,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		OrganizationRole: "Admin",
 	}
 
-	t.Run("Success", func(t *testing.T) {
+	t.Run("Success - Admin", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -65,15 +74,48 @@ func TestUnitApiKeyResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-					Name: apiKey.Name,
+					Name:        apiKey.Name,
+					Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 				}).Times(1).Return(&apiKey, nil),
 				mock.EXPECT().ApiKeys().Times(2).Return([]client.ApiKey{apiKey}, nil),
 				mock.EXPECT().ApiKeyDelete(apiKey.Id).Times(1),
 				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-					Name: updatedApiKey.Name,
+					Name:        updatedApiKey.Name,
+					Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 				}).Times(1).Return(&updatedApiKey, nil),
 				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{updatedApiKey}, nil),
 				mock.EXPECT().ApiKeyDelete(updatedApiKey.Id).Times(1),
+			)
+		})
+	})
+
+	t.Run("Success - User", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              apiKeyUser.Name,
+						"organization_role": apiKeyUser.OrganizationRole,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", apiKeyUser.Id),
+						resource.TestCheckResourceAttr(accessor, "name", apiKeyUser.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", apiKeyUser.OrganizationRole),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
+					Name: apiKeyUser.Name,
+					Permissions: client.ApiKeyPermissions{
+						OrganizationRole: apiKeyUser.OrganizationRole,
+					},
+				}).Times(1).Return(&apiKeyUser, nil),
+				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{apiKeyUser}, nil),
+				mock.EXPECT().ApiKeyDelete(apiKeyUser.Id).Times(1),
 			)
 		})
 	})
@@ -92,7 +134,8 @@ func TestUnitApiKeyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-				Name: apiKey.Name,
+				Name:        apiKey.Name,
+				Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 			}).Times(1).Return(nil, errors.New("error"))
 		})
 	})
@@ -116,7 +159,8 @@ func TestUnitApiKeyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-				Name: apiKey.Name,
+				Name:        apiKey.Name,
+				Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 			}).Times(1).Return(&apiKey, nil)
 			mock.EXPECT().ApiKeys().Times(3).Return([]client.ApiKey{apiKey}, nil)
 			mock.EXPECT().ApiKeyDelete(apiKey.Id).Times(1)
@@ -142,7 +186,8 @@ func TestUnitApiKeyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-				Name: apiKey.Name,
+				Name:        apiKey.Name,
+				Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 			}).Times(1).Return(&apiKey, nil)
 			mock.EXPECT().ApiKeys().Times(3).Return([]client.ApiKey{apiKey}, nil)
 			mock.EXPECT().ApiKeyDelete(apiKey.Id).Times(1)
@@ -169,7 +214,8 @@ func TestUnitApiKeyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
-				Name: updatedApiKey.Name,
+				Name:        updatedApiKey.Name,
+				Permissions: client.ApiKeyPermissions{OrganizationRole: "Admin"},
 			}).Times(1).Return(&updatedApiKey, nil)
 			mock.EXPECT().ApiKeys().Times(2).Return([]client.ApiKey{updatedApiKey}, nil)
 			mock.EXPECT().ApiKeyDelete(updatedApiKey.Id).Times(1)
