@@ -71,7 +71,20 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 			continue
 		}
 
-		if customField, ok := field.Interface().(CustomResourceDataField); ok {
+		// custom field is a pointer.
+		if _, ok := field.Interface().(CustomResourceDataField); ok {
+			if field.IsNil() {
+				// Init the field a valid value (instead of nil).
+				field.Set(reflect.New(field.Type().Elem()))
+			}
+			if err := field.Interface().(CustomResourceDataField).ReadResourceData(fieldNameSC, d); err != nil {
+				return err
+			}
+			continue
+		}
+
+		// custom field is a value, check the pointer.
+		if customField, ok := field.Addr().Interface().(CustomResourceDataField); ok {
 			if err := customField.ReadResourceData(fieldNameSC, d); err != nil {
 				return err
 			}

@@ -408,7 +408,7 @@ resource "%s" "test" {
 						"value": configVar.Value,
 						"type":  6,
 					}),
-					ExpectError: regexp.MustCompile(`(Error: 'type' can only receive either 'environment' or 'terraform')`),
+					ExpectError: regexp.MustCompile("unknown configuration variable type 6"),
 				},
 			},
 		}
@@ -581,9 +581,9 @@ resource "%s" "test" {
 						"name":        newConfigVar.Name,
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
-						"type":        newConfigVar.Type,
+						"type":        "boooo",
 					}),
-					ExpectError: regexp.MustCompile(`'type' can only receive either 'environment' or 'terraform'`),
+					ExpectError: regexp.MustCompile("unknown configuration variable type boooo"),
 				},
 			},
 		}
