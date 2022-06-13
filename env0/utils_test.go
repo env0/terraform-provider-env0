@@ -199,7 +199,7 @@ func TestWriteCustomResourceData(t *testing.T) {
 	assert.Equal(t, configurationVariable.Regex, d.Get("regex"))
 }
 
-func TestReadCustomResourceData(t *testing.T) {
+func TestReadByValueCustomResourceData(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
 		"type":        "terraform",
 		"name":        "name",
@@ -212,6 +212,37 @@ func TestReadCustomResourceData(t *testing.T) {
 
 	assert.Equal(t, params.Name, "name")
 	assert.Equal(t, int(params.Type), 1)
+	assert.Equal(t, params.Description, "description")
+}
+
+func TestReadByPointerCustomResourceData(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
+		"type":        "terraform",
+		"name":        "name",
+		"description": "description",
+	})
+
+	params := client.ConfigurationVariable{}
+
+	assert.Nil(t, readResourceData(&params, d))
+
+	assert.Equal(t, params.Name, "name")
+	assert.Equal(t, int(*params.Type), 1)
+	assert.Equal(t, params.Description, "description")
+}
+
+func TestReadByPointerNilCustomResourceData(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
+		"name":        "name",
+		"description": "description",
+	})
+
+	params := client.ConfigurationVariable{}
+
+	assert.Nil(t, readResourceData(&params, d))
+
+	assert.Equal(t, params.Name, "name")
+	assert.Nil(t, params.Type)
 	assert.Equal(t, params.Description, "description")
 }
 
