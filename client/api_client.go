@@ -95,6 +95,8 @@ type ApiClientInterface interface {
 	ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error)
 	Agents() ([]Agent, error)
 	Users() ([]OrganizationUser, error)
+	AssignApiKeyToProject(projectId string, payload *AssignAPIKeyToProjectPayload) (*ApiKeyProjectAssignment, error)
+	RemoveApiKeyFromProject(projectId string, apiKeyId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
