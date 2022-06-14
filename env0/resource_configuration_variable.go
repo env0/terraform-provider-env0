@@ -143,50 +143,26 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 }
 
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
 	scope, scopeId := whichScope(d)
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	value := d.Get("value").(string)
-	isSensitive := d.Get("is_sensitive").(bool)
-	typeAsString := d.Get("type").(string)
-	format := client.Format(d.Get("format").(string))
-	isReadOnly := d.Get("is_read_only").(bool)
-	isRequired := d.Get("is_required").(bool)
-	regex := d.Get("regex").(string)
+	params := client.ConfigurationVariableCreateParams{Scope: scope, ScopeId: scopeId}
+	if err := readResourceData(&params, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
-	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
+	if err := validateNilValue(params.IsReadOnly, params.IsRequired, params.Value); err != nil {
 		return diag.Errorf(err.Error())
 	}
 
-	var type_ client.ConfigurationVariableType
-	switch typeAsString {
-	case "environment":
-		type_ = client.ConfigurationVariableTypeEnvironment
-	case "terraform":
-		type_ = client.ConfigurationVariableTypeTerraform
-	default:
-		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
-	}
-	actualEnumValues, getEnumErr := getEnum(d, value)
+	actualEnumValues, getEnumErr := getEnum(d, params.Value)
 	if getEnumErr != nil {
 		return getEnumErr
 	}
 
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
-		Name:        name,
-		Value:       value,
-		IsSensitive: isSensitive,
-		Scope:       scope,
-		ScopeId:     scopeId,
-		Type:        type_,
-		EnumValues:  actualEnumValues,
-		Description: description,
-		Format:      format,
-		IsReadOnly:  isReadOnly,
-		IsRequired:  isRequired,
-		Regex:       regex,
-	})
+	params.EnumValues = actualEnumValues
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(params)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
