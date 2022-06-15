@@ -12,30 +12,30 @@ import (
 var _ = Describe("Agent Project Assignment", func() {
 	projectId := "projectId"
 
-	assignPayload := &AssignAPIKeyToProjectPayload{
+	assignPayload := &AssignUserToProjectPayload{
 		UserId: "userId",
-		Role:   ApiKeyRoleAdmin,
+		Role:   Admin,
 	}
 
-	expectedResponse := &ApiKeyProjectAssignment{
+	expectedResponse := &UserProjectAssignment{
 		Id: "id",
 	}
 
 	errorMock := errors.New("error")
 
-	Describe("AssignApiKeyToProject", func() {
+	Describe("AssignUserToProject", func() {
 
 		Describe("Successful", func() {
-			var actualResult *ApiKeyProjectAssignment
+			var actualResult *UserProjectAssignment
 			var err error
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Post("/permissions/projects/"+projectId, assignPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *ApiKeyProjectAssignment) {
+					Do(func(path string, request interface{}, response *UserProjectAssignment) {
 						*response = *expectedResponse
 					}).Times(1)
-				actualResult, err = apiClient.AssignApiKeyToProject(projectId, assignPayload)
+				actualResult, err = apiClient.AssignUserToProject(projectId, assignPayload)
 
 			})
 
@@ -53,13 +53,13 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult *ApiKeyProjectAssignment
+			var actualResult *UserProjectAssignment
 			var err error
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Post("/permissions/projects/"+projectId, gomock.Any(), gomock.Any()).Return(errorMock)
-				actualResult, err = apiClient.AssignApiKeyToProject(projectId, assignPayload)
+				actualResult, err = apiClient.AssignUserToProject(projectId, assignPayload)
 			})
 
 			It("Should fail if API call fails", func() {
@@ -72,10 +72,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 	})
 
-	Describe("RemoveApiKeyFromProject", func() {
+	Describe("RemoveUserFromProject", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/permissions/projects/" + projectId + "/users/" + expectedResponse.Id)
-			apiClient.RemoveApiKeyFromProject(projectId, expectedResponse.Id)
+			apiClient.RemoveUserFromProject(projectId, expectedResponse.Id)
 		})
 
 		It("Should send DELETE request with assignment id", func() {

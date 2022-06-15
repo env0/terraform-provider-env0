@@ -107,21 +107,6 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignAgentsToProjects(arg0 interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignAgentsToProjects", reflect.TypeOf((*MockApiClientInterface)(nil).AssignAgentsToProjects), arg0)
 }
 
-// AssignApiKeyToProject mocks base method.
-func (m *MockApiClientInterface) AssignApiKeyToProject(arg0 string, arg1 *AssignAPIKeyToProjectPayload) (*ApiKeyProjectAssignment, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignApiKeyToProject", arg0, arg1)
-	ret0, _ := ret[0].(*ApiKeyProjectAssignment)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AssignApiKeyToProject indicates an expected call of AssignApiKeyToProject.
-func (mr *MockApiClientInterfaceMockRecorder) AssignApiKeyToProject(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignApiKeyToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignApiKeyToProject), arg0, arg1)
-}
-
 // AssignCloudCredentialsToProject mocks base method.
 func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0, arg1 string) (CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()
@@ -165,6 +150,21 @@ func (m *MockApiClientInterface) AssignTemplateToProject(arg0 string, arg1 Templ
 func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), arg0, arg1)
+}
+
+// AssignUserToProject mocks base method.
+func (m *MockApiClientInterface) AssignUserToProject(arg0 string, arg1 *AssignUserToProjectPayload) (*UserProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignUserToProject", arg0, arg1)
+	ret0, _ := ret[0].(*UserProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssignUserToProject indicates an expected call of AssignUserToProject.
+func (mr *MockApiClientInterfaceMockRecorder) AssignUserToProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserToProject), arg0, arg1)
 }
 
 // CloudCredentialIdsInProject mocks base method.
@@ -924,20 +924,6 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectsAgentsAssignments() *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectsAgentsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectsAgentsAssignments))
 }
 
-// RemoveApiKeyFromProject mocks base method.
-func (m *MockApiClientInterface) RemoveApiKeyFromProject(arg0, arg1 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveApiKeyFromProject", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveApiKeyFromProject indicates an expected call of RemoveApiKeyFromProject.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveApiKeyFromProject(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveApiKeyFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveApiKeyFromProject), arg0, arg1)
-}
-
 // RemoveCloudCredentialsFromProject mocks base method.
 func (m *MockApiClientInterface) RemoveCloudCredentialsFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
@@ -978,6 +964,20 @@ func (m *MockApiClientInterface) RemoveTemplateFromProject(arg0, arg1 string) er
 func (mr *MockApiClientInterfaceMockRecorder) RemoveTemplateFromProject(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTemplateFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveTemplateFromProject), arg0, arg1)
+}
+
+// RemoveUserFromProject mocks base method.
+func (m *MockApiClientInterface) RemoveUserFromProject(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveUserFromProject", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveUserFromProject indicates an expected call of RemoveUserFromProject.
+func (mr *MockApiClientInterfaceMockRecorder) RemoveUserFromProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserFromProject), arg0, arg1)
 }
 
 // SshKeyCreate mocks base method.

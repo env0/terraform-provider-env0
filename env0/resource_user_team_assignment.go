@@ -55,7 +55,7 @@ func resourceUserTeamAssignment() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"user_id": {
 				Type:        schema.TypeString,
-				Description: "id of the user",
+				Description: `id of the user. Note: can also be an id of a "User" API key`,
 				Required:    true,
 				ForceNew:    true,
 			},
