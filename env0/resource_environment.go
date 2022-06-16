@@ -538,7 +538,6 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		if isRedeploy {
 			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
-		// todo debug configuration changes
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
