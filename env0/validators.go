@@ -46,6 +46,15 @@ func ValidateNotEmptyString(i interface{}, path cty.Path) diag.Diagnostics {
 	return nil
 }
 
+func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
+	retries := i.(int)
+	if retries < 1 || retries > 3 {
+		return diag.Errorf("retries amount must be between 1 and 3")
+	}
+
+	return nil
+}
+
 func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 	cr := regexp.MustCompile(r)
 

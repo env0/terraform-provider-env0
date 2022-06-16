@@ -624,7 +624,7 @@ func TestUnitTemplateResource(t *testing.T) {
 					Steps: []resource.TestStep{
 						{
 							Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", attribute: amount}),
-							ExpectError: regexp.MustCompile("Retries amount must be between 1 and 3"),
+							ExpectError: regexp.MustCompile("retries amount must be between 1 and 3"),
 						},
 					},
 				})

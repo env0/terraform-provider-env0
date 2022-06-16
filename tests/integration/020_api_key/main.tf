@@ -11,8 +11,18 @@ resource "env0_api_key" "test_api_key" {
 }
 
 resource "env0_api_key" "test_user_api_key" {
-  name = "my-little-user-api-key-${random_string.random.result}"
+  name              = "my-little-user-api-key-${random_string.random.result}"
   organization_role = "User"
+}
+
+resource "env0_team" "team_resource" {
+  name        = "team-with-api-key"
+  description = "description"
+}
+
+resource "env0_user_team_assignment" "api_key_team_assignment" {
+  user_id = env0_api_key.test_user_api_key.id
+  team_id = env0_team.team_resource.id
 }
 
 data "env0_api_key" "test_api_key1" {
