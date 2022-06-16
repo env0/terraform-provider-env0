@@ -110,7 +110,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "destroy safegurad",
+				Description: "Destroy safeguard. Must be enabled before delete/destroy",
 				Optional:    true,
 			},
 			"wait_for": {
@@ -538,6 +538,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		if isRedeploy {
 			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
+		// todo debug configuration changes
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
