@@ -64,7 +64,7 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - **auto_deploy_on_path_changes_only** (Boolean) redeploy only on path changes only
 - **configuration** (Block List) terraform and environment variables for the environment (see [below for nested schema](#nestedblock--configuration))
 - **deploy_on_push** (Boolean) should run terraform deploy on push events
-- **force_destroy** (Boolean) Destroy safeguard. Must be enabled before delete/destroy
+- **force_destroy** (Boolean) destroy safegurad
 - **id** (String) the environment's id
 - **revision** (String) the revision the environment is to be run against
 - **run_plan_on_pull_requests** (Boolean) should run terraform plan on pull requests creations
