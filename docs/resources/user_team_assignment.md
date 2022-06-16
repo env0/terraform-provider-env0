@@ -33,7 +33,7 @@ resource "env0_user_team_assignment" "assginment_example" {
 ### Required
 
 - **team_id** (String) id of the team
-- **user_id** (String) id of the user
+- **user_id** (String) id of the user. Note: can also be an id of a "User" API key
 
 ### Optional
 
