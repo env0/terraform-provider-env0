@@ -109,24 +109,6 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 			if err := readResourceDataSlice(field, dval.([]interface{})); err != nil {
 				return err
 			}
-			/*
-				switch fieldType {
-				case reflect.TypeOf([]client.ModuleSshKey{}):
-					sshKeys := []client.ModuleSshKey{}
-					for _, sshKey := range dval.([]interface{}) {
-						sshKeys = append(sshKeys, client.ModuleSshKey{
-							Name: sshKey.(map[string]interface{})["name"].(string),
-							Id:   sshKey.(map[string]interface{})["id"].(string)})
-					}
-					field.Set(reflect.ValueOf(sshKeys))
-				case reflect.TypeOf([]string{}):
-					strs := []string{}
-					for _, str := range dval.([]interface{}) {
-						strs = append(strs, str.(string))
-					}
-					field.Set(reflect.ValueOf(strs))
-				}
-			*/
 		case reflect.String, reflect.Bool, reflect.Int:
 			field.Set(reflect.ValueOf(dval).Convert(fieldType))
 		default:
