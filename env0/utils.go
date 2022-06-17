@@ -156,10 +156,11 @@ func readResourceDataSlice(field reflect.Value, resources []interface{}) error {
 			if err := readResourceDataSliceStructHelper(val, resource); err != nil {
 				return err
 			}
+			val = val.Elem()
 		default:
 			return fmt.Errorf("internal error - unhandled slice element kind %v", elemType.Kind())
 		}
-		vals = reflect.Append(vals, val.Elem())
+		vals = reflect.Append(vals, val)
 	}
 
 	field.Set(vals)
