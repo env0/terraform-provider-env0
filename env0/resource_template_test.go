@@ -207,7 +207,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 		Type:               "terraform",
 		TerraformVersion:   "0.12.24",
-		IsGitHubEnterprise: true,
+		IsGithubEnterprise: true,
 	}
 	gheeUpdatedTemplate := client.Template{
 		Id:          gheeTemplate.Id,
@@ -228,7 +228,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 		Type:               "terraform",
 		TerraformVersion:   "0.12.24",
-		IsGitHubEnterprise: true,
+		IsGithubEnterprise: true,
 	}
 	bitbucketServerTemplate := client.Template{
 		Id:          "id011",
@@ -320,8 +320,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.BitbucketClientKey != "" {
 			templateAsDictionary["bitbucket_client_key"] = template.BitbucketClientKey
 		}
-		if template.IsGitHubEnterprise != false {
-			templateAsDictionary["is_github_enterprise"] = template.IsGitHubEnterprise
+		if template.IsGithubEnterprise != false {
+			templateAsDictionary["is_github_enterprise"] = template.IsGithubEnterprise
 		}
 		if template.IsBitbucketServer != false {
 			templateAsDictionary["is_bitbucket_server"] = template.IsBitbucketServer
@@ -393,7 +393,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Retry:                templateUseCase.template.Retry,
 				TerraformVersion:     templateUseCase.template.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
-				IsGitHubEnterprise:   templateUseCase.template.IsGitHubEnterprise,
+				IsGithubEnterprise:   templateUseCase.template.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.template.IsBitbucketServer,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
@@ -411,7 +411,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Retry:                templateUseCase.updatedTemplate.Retry,
 				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
-				IsGitHubEnterprise:   templateUseCase.updatedTemplate.IsGitHubEnterprise,
+				IsGithubEnterprise:   templateUseCase.updatedTemplate.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
 			}
 
@@ -502,7 +502,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"repository": template.Repository,
 						"type":       "gruntyform",
 					}),
-					ExpectError: regexp.MustCompile(`'type' can either be 'terraform' or 'terragrunt'`),
+					ExpectError: regexp.MustCompile(`must be one of: terragrunt, terraform`),
 				},
 			},
 		}
