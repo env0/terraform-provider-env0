@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -31,20 +30,10 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				ForceNew:    true,
 			},
 			"role": {
-				Type:        schema.TypeString,
-				Description: "the assigned role (Admin, Planner, Viewer, Deployer)",
-				Required:    true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					role := client.Role(val.(string))
-					if role == "" ||
-						role != client.Admin &&
-							role != client.Deployer &&
-							role != client.Viewer &&
-							role != client.Planner {
-						errs = append(errs, fmt.Errorf("%v must be one of [Admin, Deployer, Viewer, Planner], got: %v", key, role))
-					}
-					return
-				},
+				Type:             schema.TypeString,
+				Description:      "the assigned role (Admin, Planner, Viewer, Deployer)",
+				Required:         true,
+				ValidateDiagFunc: ValidateRole,
 			},
 		},
 	}

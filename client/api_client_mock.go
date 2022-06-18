@@ -1216,6 +1216,36 @@ func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
 }
 
+// UpdateUserProjectAssignment mocks base method.
+func (m *MockApiClientInterface) UpdateUserProjectAssignment(arg0, arg1 string, arg2 *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserProjectAssignment", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*UserProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserProjectAssignment indicates an expected call of UpdateUserProjectAssignment.
+func (mr *MockApiClientInterfaceMockRecorder) UpdateUserProjectAssignment(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProjectAssignment", reflect.TypeOf((*MockApiClientInterface)(nil).UpdateUserProjectAssignment), arg0, arg1, arg2)
+}
+
+// UserProjectAssignments mocks base method.
+func (m *MockApiClientInterface) UserProjectAssignments(arg0 string) ([]UserProjectAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserProjectAssignments", arg0)
+	ret0, _ := ret[0].([]UserProjectAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserProjectAssignments indicates an expected call of UserProjectAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) UserProjectAssignments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserProjectAssignments), arg0)
+}
+
 // Users mocks base method.
 func (m *MockApiClientInterface) Users() ([]OrganizationUser, error) {
 	m.ctrl.T.Helper()

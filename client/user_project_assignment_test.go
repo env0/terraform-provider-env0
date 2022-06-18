@@ -11,10 +11,15 @@ import (
 
 var _ = Describe("Agent Project Assignment", func() {
 	projectId := "projectId"
+	userId := "userId"
 
 	assignPayload := &AssignUserToProjectPayload{
-		UserId: "userId",
+		UserId: userId,
 		Role:   Admin,
+	}
+
+	updatePayload := &UpdateUserProjectAssignmentPayload{
+		Role: Admin,
 	}
 
 	expectedResponse := &UserProjectAssignment{
@@ -80,6 +85,104 @@ var _ = Describe("Agent Project Assignment", func() {
 
 		It("Should send DELETE request with assignment id", func() {
 			httpCall.Times(1)
+		})
+	})
+
+	Describe("UserProjectAssignments", func() {
+
+		Describe("Successful", func() {
+			var actualResult []UserProjectAssignment
+			var err error
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Get("/permissions/projects/"+projectId, nil, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]UserProjectAssignment) {
+						*response = []UserProjectAssignment{*expectedResponse}
+					}).Times(1)
+				actualResult, err = apiClient.UserProjectAssignments(projectId)
+
+			})
+
+			It("Should send GET request with params", func() {
+				httpCall.Times(1)
+			})
+
+			It("should return the GET result", func() {
+				Expect(actualResult).To(Equal([]UserProjectAssignment{*expectedResponse}))
+			})
+
+			It("Should not return error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Describe("Failure", func() {
+			var actualResult []UserProjectAssignment
+			var err error
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Get("/permissions/projects/"+projectId, nil, gomock.Any()).Return(errorMock)
+				actualResult, err = apiClient.UserProjectAssignments(projectId)
+			})
+
+			It("Should fail if API call fails", func() {
+				Expect(err).To(Equal(errorMock))
+			})
+
+			It("Should not return results", func() {
+				Expect(actualResult).To(BeNil())
+			})
+		})
+	})
+
+	Describe("UpdateUserProjectAssignment", func() {
+
+		Describe("Successful", func() {
+			var actualResult *UserProjectAssignment
+			var err error
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Put("/permissions/projects/"+projectId+"/users/"+userId, updatePayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *UserProjectAssignment) {
+						*response = *expectedResponse
+					}).Times(1)
+				actualResult, err = apiClient.UpdateUserProjectAssignment(projectId, userId, updatePayload)
+
+			})
+
+			It("Should send PUT request with params", func() {
+				httpCall.Times(1)
+			})
+
+			It("should return the PUT result", func() {
+				Expect(*actualResult).To(Equal(*expectedResponse))
+			})
+
+			It("Should not return error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Describe("Failure", func() {
+			var actualResult *UserProjectAssignment
+			var err error
+
+			BeforeEach(func() {
+				httpCall = mockHttpClient.EXPECT().
+					Put("/permissions/projects/"+projectId+"/users/"+userId, gomock.Any(), gomock.Any()).Return(errorMock)
+				actualResult, err = apiClient.UpdateUserProjectAssignment(projectId, userId, updatePayload)
+			})
+
+			It("Should fail if API call fails", func() {
+				Expect(err).To(Equal(errorMock))
+			})
+
+			It("Should not return results", func() {
+				Expect(actualResult).To(BeNil())
+			})
 		})
 	})
 

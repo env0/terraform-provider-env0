@@ -55,6 +55,18 @@ func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
 	return nil
 }
 
+func ValidateRole(i interface{}, path cty.Path) diag.Diagnostics {
+	role := client.Role(i.(string))
+	if role == "" ||
+		role != client.Admin &&
+			role != client.Deployer &&
+			role != client.Viewer &&
+			role != client.Planner {
+		return diag.Errorf("must be one of [Admin, Deployer, Viewer, Planner], got: %v", role)
+	}
+	return nil
+}
+
 func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 	cr := regexp.MustCompile(r)
 
