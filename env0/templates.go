@@ -77,10 +77,11 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Optional:    true,
 		},
 		"type": {
-			Type:        schema.TypeString,
-			Description: "'terraform' or 'terragrunt'",
-			Optional:    true,
-			Default:     "terraform",
+			Type:             schema.TypeString,
+			Description:      "'terraform' or 'terragrunt'",
+			Optional:         true,
+			Default:          "terraform",
+			ValidateDiagFunc: NewStringInValidator([]string{"terragrunt", "terraform"}),
 		},
 		"ssh_keys": {
 			Type:        schema.TypeList,

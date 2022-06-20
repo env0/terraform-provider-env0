@@ -215,8 +215,8 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		d.Set("is_bitbucket_server", template.IsBitbucketServer)
 	}
 
-	if template.IsGitHubEnterprise {
-		d.Set("is_github_enterprise", template.IsGitHubEnterprise)
+	if template.IsGithubEnterprise {
+		d.Set("is_github_enterprise", template.IsGithubEnterprise)
 	}
 
 	var sshKeys []interface{}

@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -107,29 +106,64 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
 		case reflect.Slice:
-			switch fieldType {
-			case reflect.TypeOf([]client.ModuleSshKey{}):
-				sshKeys := []client.ModuleSshKey{}
-				for _, sshKey := range dval.([]interface{}) {
-					sshKeys = append(sshKeys, client.ModuleSshKey{
-						Name: sshKey.(map[string]interface{})["name"].(string),
-						Id:   sshKey.(map[string]interface{})["id"].(string)})
-				}
-				field.Set(reflect.ValueOf(sshKeys))
-			case reflect.TypeOf([]string{}):
-				strs := []string{}
-				for _, str := range dval.([]interface{}) {
-					strs = append(strs, str.(string))
-				}
-				field.Set(reflect.ValueOf(strs))
+			if err := readResourceDataSlice(field, dval.([]interface{})); err != nil {
+				return err
 			}
-
 		case reflect.String, reflect.Bool, reflect.Int:
 			field.Set(reflect.ValueOf(dval).Convert(fieldType))
 		default:
 			return fmt.Errorf("internal error - unhandled field kind %v", fieldType.Kind())
 		}
 	}
+
+	return nil
+}
+
+func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}) error {
+	val := field.Elem()
+	m := resource.(map[string]interface{})
+
+	for i := 0; i < val.NumField(); i++ {
+		fieldName, skip := getFieldName(val.Type().Field(i))
+		if skip {
+			continue
+		}
+
+		fieldValue, ok := m[fieldName]
+		if !ok {
+			continue
+		}
+
+		field := val.Field(i)
+		field.Set(reflect.ValueOf(fieldValue))
+	}
+
+	return nil
+}
+
+// Extracts a list of values from the resourcedata, and writes it to the struct field.
+func readResourceDataSlice(field reflect.Value, resources []interface{}) error {
+	elemType := field.Type().Elem()
+	vals := reflect.MakeSlice(field.Type(), 0, len(resources))
+
+	for _, resource := range resources {
+		var val reflect.Value
+		switch elemType.Kind() {
+		case reflect.String:
+			val = reflect.ValueOf(resource.(string))
+		case reflect.Struct:
+			val = reflect.New(elemType)
+			if err := readResourceDataSliceStructHelper(val, resource); err != nil {
+				return err
+			}
+			val = val.Elem()
+		default:
+			return fmt.Errorf("internal error - unhandled slice element kind %v", elemType.Kind())
+		}
+		vals = reflect.Append(vals, val)
+	}
+
+	field.Set(vals)
 
 	return nil
 }
