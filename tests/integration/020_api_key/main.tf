@@ -25,6 +25,17 @@ resource "env0_user_team_assignment" "api_key_team_assignment" {
   team_id = env0_team.team_resource.id
 }
 
+resource "env0_project" "project_resource" {
+  name        = "Test-Project-API-${random_string.random.result}"
+  description = "Test Description"
+}
+
+resource "env0_user_project_assignment" "api_key_project_assignment" {
+  user_id    = env0_api_key.test_user_api_key.id
+  project_id = env0_project.project_resource.id
+  role       = var.second_run ? "Viewer" : "Planner"
+}
+
 data "env0_api_key" "test_api_key1" {
   name       = env0_api_key.test_api_key.name
   depends_on = [env0_api_key.test_api_key]
