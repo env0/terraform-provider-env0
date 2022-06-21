@@ -66,7 +66,6 @@ func resourceConfigurationVariable() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
 				ForceNew:      true,
-				Deprecated:    "use \"configuration\" field in the environment resource instead. for more details check https://registry.terraform.io/providers/env0/env0/latest/docs/resources/environment#nested-schema-for-configuration",
 			},
 			"type": {
 				Type:        schema.TypeString,
