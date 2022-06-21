@@ -62,7 +62,7 @@ func resourceConfigurationVariable() *schema.Resource {
 			},
 			"environment_id": {
 				Type:          schema.TypeString,
-				Description:   "create the variable under this environment, not globally",
+				Description:   "create the variable under this environment, not globally. Make sure to 'ignore changes' on environment.configuration to prevent drifts",
 				Optional:      true,
 				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
 				ForceNew:      true,
