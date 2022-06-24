@@ -118,6 +118,7 @@ func resourceEnvironment() *schema.Resource {
 				Description: "whether or not to wait for environment to fully deploy",
 				Optional:    true,
 				Default:     "ACK",
+				Deprecated:  "wait_for is deprecated and will be removed in the next major release",
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					value := val.(string)
 					if value != "ACK" && value != "FULLY_DEPLOYED" {
