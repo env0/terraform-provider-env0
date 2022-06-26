@@ -81,7 +81,7 @@ resource "env0_template_project_assignment" "assignment" {
 - **terraform_version** (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).
 - **terragrunt_version** (String) the Terragrunt version to use (example: 0.36.5)
 - **token_id** (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
-- **type** (String) 'terraform' or 'terragrunt'
+- **type** (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow)
 
 ## Import
 
