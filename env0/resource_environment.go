@@ -203,6 +203,8 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	safeSet(d, "ttl", environment.LifespanEndAt)
 	safeSet(d, "terragrunt_working_directory", environment.TerragruntWorkingDirectory)
+	safeSet(d, "vcs_commands_alias", environment.VcsCommandsAlias)
+
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
