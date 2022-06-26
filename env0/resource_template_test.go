@@ -502,7 +502,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"repository": template.Repository,
 						"type":       "gruntyform",
 					}),
-					ExpectError: regexp.MustCompile(`must be one of: terragrunt, terraform`),
+					ExpectError: regexp.MustCompile(`must be one of`),
 				},
 			},
 		}

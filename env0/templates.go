@@ -1,7 +1,9 @@
 package env0
 
 import (
+	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -12,6 +14,14 @@ const (
 	TemplateTypeSingle = 1
 	TemplateTypeShared = 2
 )
+
+var allowedTemplateTypes = []string{
+	"terraform",
+	"terragrunt",
+	"pulumi",
+	"k8s",
+	"workflow",
+}
 
 func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 	/*
@@ -78,10 +88,10 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 		},
 		"type": {
 			Type:             schema.TypeString,
-			Description:      "'terraform' or 'terragrunt'",
+			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
 			Optional:         true,
 			Default:          "terraform",
-			ValidateDiagFunc: NewStringInValidator([]string{"terragrunt", "terraform"}),
+			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
 		},
 		"ssh_keys": {
 			Type:        schema.TypeList,
