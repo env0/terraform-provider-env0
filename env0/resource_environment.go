@@ -5,17 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"regexp"
-	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-const deploymentStatusWaitPollInterval = 10 // In seconds
 
 func resourceEnvironment() *schema.Resource {
 	return &schema.Resource{
@@ -114,20 +110,6 @@ func resourceEnvironment() *schema.Resource {
 				Description: "Destroy safeguard. Must be enabled before delete/destroy",
 				Optional:    true,
 			},
-			"wait_for": {
-				Type:        schema.TypeString,
-				Description: "whether or not to wait for environment to fully deploy",
-				Optional:    true,
-				Default:     "ACK",
-				Deprecated:  "wait_for is deprecated and will be removed in the next major release",
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					value := val.(string)
-					if value != "ACK" && value != "FULLY_DEPLOYED" {
-						errs = append(errs, fmt.Errorf("%q can be either \"ACK\", \"FULLY_DEPLOYED\" or empty, got: %q", key, value))
-					}
-					return
-				},
-			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
 				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used.",
@@ -221,8 +203,6 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
 	safeSet(d, "ttl", environment.LifespanEndAt)
 	safeSet(d, "terragrunt_working_directory", environment.TerragruntWorkingDirectory)
-	safeSet(d, "vcs_commands_alias", environment.VcsCommandsAlias)
-
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
@@ -294,13 +274,6 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
-	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(environment.LatestDeploymentLogId, apiClient)
-		if err != nil {
-			return diag.Errorf("failed deploying environment: %v", err)
-		}
-	}
-
 	return nil
 }
 
@@ -367,14 +340,6 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		return diag.Errorf("failed deploying environment: %v", err)
 	}
 	d.Set("deployment_id", deployResponse.Id)
-
-	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(deployResponse.Id, apiClient)
-		if err != nil {
-			return diag.Errorf("failed deploying environment: %v", err)
-		}
-	}
-
 	return nil
 }
 
@@ -411,17 +376,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	apiClient := meta.(client.ApiClientInterface)
 
-	destroyResponse, err := apiClient.EnvironmentDestroy(d.Id())
+	_, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		return diag.Errorf("could not delete environment: %v", err)
 	}
-	if shouldWaitForDeployment(d) {
-		err := waitForDeployment(destroyResponse.Id, apiClient)
-		if err != nil {
-			return diag.Errorf("failed to delete environment: %v", err)
-		}
-	}
-
 	return nil
 }
 
@@ -733,35 +691,5 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 		return nil, errors.New(getErr[0].Summary)
 	} else {
 		return []*schema.ResourceData{d}, nil
-	}
-}
-
-func shouldWaitForDeployment(d *schema.ResourceData) bool {
-	return d.Get("wait_for").(string) == "FULLY_DEPLOYED"
-}
-
-func waitForDeployment(deploymentLogId string, apiClient client.ApiClientInterface) error {
-	log.Println("[INFO] Waiting for deployment to finish")
-	for {
-		deployment, err := apiClient.Deployment(deploymentLogId)
-		if err != nil {
-			return err
-		}
-		switch deployment.Status {
-		case "IN_PROGRESS",
-			"QUEUED",
-			"WAITING_FOR_USER":
-			log.Println("[INFO] Deployment not yet done deploying. Got status ", deployment.Status)
-			// TF_ACC is set during acceptance tests. Don't pause during accpetance tests.
-			if value, present := os.LookupEnv("TF_ACC"); !present || value != "1" {
-				time.Sleep(deploymentStatusWaitPollInterval * time.Second)
-			}
-		case "SUCCESS",
-			"SKIPPED":
-			log.Println("[INFO] Deployment done deploying! Got status ", deployment.Status)
-			return nil
-		default:
-			return fmt.Errorf("environment deployment reached failure status: %v", deployment.Status)
-		}
 	}
 }
