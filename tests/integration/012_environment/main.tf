@@ -33,11 +33,6 @@ resource "env0_environment" "example" {
   vcs_commands_alias         = "alias"
 }
 
-data "env0_configuration_variable" "env_config_variable" {
-  environment_id = env0_environment.example.id
-  name           = "environment configuration variable"
-}
-
 resource "env0_template" "terragrunt_template" {
   name               = "Terragrunt template for environment resource-${random_string.random.result}"
   type               = "terragrunt"
@@ -64,10 +59,6 @@ data "env0_environment" "test" {
 
 output "revision" {
   value = data.env0_environment.test.revision
-}
-
-output "configurationVariable" {
-  value = data.env0_configuration_variable.env_config_variable.name
 }
 
 output "terragrunt_working_directory" {
