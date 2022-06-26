@@ -20,7 +20,7 @@ var allowedTemplateTypes = []string{
 	"terragrunt",
 	"pulumi",
 	"k8s",
-	"complex",
+	"workflow",
 }
 
 func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
