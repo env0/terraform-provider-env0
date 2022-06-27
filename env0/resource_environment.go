@@ -45,10 +45,11 @@ func resourceEnvironment() *schema.Resource {
 				ForceNew:    true,
 			},
 			"template_id": {
-				Type:        schema.TypeString,
-				Description: "the template id the environment is to be created from",
-				Required:    true,
-				ForceNew:    true,
+				Type:         schema.TypeString,
+				Description:  "the template id the environment is to be created from",
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"template", "template_id"},
 			},
 			"workspace": {
 				Type:        schema.TypeString,
@@ -199,6 +200,14 @@ func resourceEnvironment() *schema.Resource {
 						},
 					},
 				},
+			},
+			"template": {
+				Type:         schema.TypeList,
+				MaxItems:     1,
+				Description:  "(WIP - do not use) for creating environments without template (for more details check: https://docs.env0.com/changelog/environment-without-template)",
+				Optional:     true,
+				Elem:         &schema.Resource{Schema: getTemplateSchema(TemplateTypeSingle)},
+				ExactlyOneOf: []string{"template", "template_id"},
 			},
 		},
 	}

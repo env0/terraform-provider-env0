@@ -51,7 +51,24 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 
 		for _, attr := range allVCSAttributes {
 			if sort.SearchStrings(strs, attr) >= len(strs) {
-				ret = append(ret, attr)
+				if templateType == TemplateTypeShared {
+					ret = append(ret, attr)
+				} else {
+					ret = append(ret, "template.0."+attr)
+				}
+			}
+		}
+
+		return ret
+	}
+
+	requiredWith := func(strs ...string) []string {
+		ret := []string{}
+		for _, str := range strs {
+			if templateType == TemplateTypeShared {
+				ret = append(ret, str)
+			} else {
+				ret = append(ret, "template.0."+str)
 			}
 		}
 
@@ -112,7 +129,7 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Type:         schema.TypeString,
 			Description:  "if specified, will only retry (on deploy) if error matches specified regex",
 			Optional:     true,
-			RequiredWith: []string{"retries_on_deploy"},
+			RequiredWith: requiredWith("retries_on_deploy"),
 		},
 		"retries_on_destroy": {
 			Type:             schema.TypeInt,
@@ -124,7 +141,7 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Type:         schema.TypeString,
 			Description:  "if specified, will only retry (on destroy) if error matches specified regex",
 			Optional:     true,
-			RequiredWith: []string{"retries_on_destroy"},
+			RequiredWith: requiredWith("retries_on_destroy"),
 		},
 		"github_installation_id": {
 			Type:          schema.TypeInt,
@@ -143,7 +160,7 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Description:   "the project id of the relevant repository",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
-			RequiredWith:  []string{"token_id"},
+			RequiredWith:  requiredWith("token_id"),
 		},
 		"terraform_version": {
 			Type:             schema.TypeString,
