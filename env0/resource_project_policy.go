@@ -3,6 +3,8 @@ package env0
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -10,6 +12,9 @@ import (
 )
 
 func resourcePolicy() *schema.Resource {
+	allowedProjectTtlValues := append(allowedTtlValues, "inherit")
+	allowedProjectTtlValuesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedProjectTtlValues, ", "))
+
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
@@ -83,6 +88,20 @@ func resourcePolicy() *schema.Resource {
 				Description: "Redeploy on every push to the git branch default value",
 				Optional:    true,
 			},
+			"max_ttl": {
+				Type:             schema.TypeString,
+				Description:      "the maximum environment time-to-live allowed on deploy time " + allowedProjectTtlValuesStr + " Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
+				Optional:         true,
+				Default:          "inherit",
+				ValidateDiagFunc: NewStringInValidator(allowedProjectTtlValues),
+			},
+			"default_ttl": {
+				Type:             schema.TypeString,
+				Description:      "the default environment time-to-live allowed on deploy time " + allowedProjectTtlValuesStr + ". Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
+				Optional:         true,
+				Default:          "inherit",
+				ValidateDiagFunc: NewStringInValidator(allowedProjectTtlValues),
+			},
 		},
 	}
 }
@@ -92,9 +111,14 @@ func setPolicySchema(d *schema.ResourceData, policy client.Policy) error {
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if err := resourcePolicyUpdate(ctx, d, meta); err != nil {
+		return err
+	}
+
 	projectId := d.Get("project_id").(string)
 	d.SetId(projectId)
-	return resourcePolicyUpdate(ctx, d, meta)
+
+	return nil
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -119,13 +143,22 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	projectId := d.Id()
-	d.SetId(projectId)
-
 	payload := client.PolicyUpdatePayload{}
 
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	// Validate if one is "inherit", the other must be too.
+	if (payload.MaxTtl == "inherit" || payload.DefaultTtl == "inherit") && payload.MaxTtl != payload.DefaultTtl {
+		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
+	}
+
+	// Validate that default ttl is "less than or equal" max ttl.
+	defaultTtlIndex := getTtlIndex(&payload.DefaultTtl)
+	maxTtlIndex := getTtlIndex(&payload.MaxTtl)
+	if maxTtlIndex < defaultTtlIndex {
+		return diag.Errorf("default ttl must not be larger than max ttl")
 	}
 
 	_, err := apiClient.PolicyUpdate(payload)
