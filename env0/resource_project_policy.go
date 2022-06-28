@@ -33,6 +33,7 @@ func resourcePolicy() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "id of the project",
 				Required:         true,
+				ForceNew:         true,
 				ValidateDiagFunc: ValidateNotEmptyString,
 			},
 			"number_of_environments": {
