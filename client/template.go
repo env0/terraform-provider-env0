@@ -52,7 +52,6 @@ type Template struct {
 	GithubInstallationId int              `json:"githubInstallationId"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId,omitempty"`
-	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`

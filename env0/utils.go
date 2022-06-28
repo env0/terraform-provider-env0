@@ -230,10 +230,16 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 
 		switch fieldType.Kind() {
 		case reflect.String:
+			if field.String() == "" {
+				continue
+			}
 			if err := d.Set(fieldName, field.String()); err != nil {
 				return err
 			}
 		case reflect.Int:
+			if field.Int() == 0 {
+				continue
+			}
 			if err := d.Set(fieldName, field.Int()); err != nil {
 				return err
 			}
