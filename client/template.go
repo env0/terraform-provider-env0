@@ -60,6 +60,7 @@ type Template struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
+	IsSingleUse          bool             `json:"isSingleUse"`
 }
 
 type TemplateCreatePayload struct {
@@ -83,6 +84,7 @@ type TemplateCreatePayload struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
+	IsSingleUse          bool             `json:"isSingleUse"`
 }
 
 type TemplateAssignmentToProjectPayload struct {

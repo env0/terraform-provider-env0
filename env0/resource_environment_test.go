@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -1211,4 +1212,116 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testValidationFailures()
 	testApiFailures()
 	testWaitFor()
+}
+
+func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
+	resourceType := "env0_environment"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+
+	template := client.Template{
+		Id:          "id-template-0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:                 "terraform",
+		GithubInstallationId: 1,
+		TerraformVersion:     "0.12.24",
+		IsSingleUse:          true,
+	}
+
+	environment := client.Environment{
+		Id:                         "id0",
+		Name:                       "my-environment",
+		ProjectId:                  "project-id",
+		WorkspaceName:              "workspace-name",
+		TerragruntWorkingDirectory: "/terragrunt/directory/",
+		VcsCommandsAlias:           "alias",
+	}
+
+	createEnvironmentResourceConfig := func(environment client.Environment, template client.Template) string {
+		return fmt.Sprintf(`
+		resource "%s" "%s" {
+			name = "%s"
+			project_id = "%s"
+			workspace = "%s"
+			terragrunt_working_directory = "%s"
+			force_destroy = true
+			vcs_commands_alias = "%s"
+			template {
+				repository = "%s"
+				terraform_version = "%s"
+				type = "%s"
+				path = "%s"
+				revision = "%s"
+				retries_on_deploy = %d
+				retry_on_deploy_only_when_matches_regex = "%s"
+				retries_on_destroy = %d
+				retry_on_destroy_only_when_matches_regex = "%s"
+			}
+		}`,
+			resourceType, resourceName,
+			environment.Name,
+			environment.ProjectId,
+			environment.WorkspaceName,
+			environment.TerragruntWorkingDirectory,
+			environment.VcsCommandsAlias,
+			template.Repository,
+			template.TerraformVersion,
+			template.Type,
+			template.Path,
+			template.Revision,
+			template.Retry.OnDeploy.Times,
+			template.Retry.OnDeploy.ErrorRegex,
+			template.Retry.OnDestroy.Times,
+			template.Retry.OnDestroy.ErrorRegex,
+		)
+	}
+
+	t.Run("Success in create", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment, template),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckNoResourceAttr(accessor, "template_id"),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+						resource.TestCheckResourceAttr(accessor, "template.0.repository", template.Repository),
+						resource.TestCheckResourceAttr(accessor, "template.0.terraform_version", template.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "template.0.type", template.Type),
+						resource.TestCheckResourceAttr(accessor, "template.0.path", template.Path),
+						resource.TestCheckResourceAttr(accessor, "template.0.revision", "fsdfds"),
+						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
+					),
+					PlanOnly:           true,
+					ExpectNonEmptyPlan: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+
+		})
+	})
+
 }
