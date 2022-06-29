@@ -16,7 +16,7 @@ resource "env0_api_key" "test_user_api_key" {
 }
 
 resource "env0_team" "team_resource" {
-  name        = "team-with-api-key"
+  name        = "team-with-api-key-020-${random_string.random.result}"
   description = "description"
 }
 
