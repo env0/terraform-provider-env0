@@ -55,24 +55,24 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 
 	allVCSAttributesBut := func(strs ...string) []string {
 		sort.Strings(strs)
-		ret := []string{}
+		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
 			if sort.SearchStrings(strs, attr) >= len(strs) {
-				ret = appendByType(ret, attr)
+				butAttrs = appendByType(butAttrs, attr)
 			}
 		}
 
-		return ret
+		return butAttrs
 	}
 
 	requiredWith := func(strs ...string) []string {
-		ret := []string{}
+		attrs := []string{}
 		for _, str := range strs {
-			ret = appendByType(ret, str)
+			attrs = appendByType(attrs, str)
 		}
 
-		return ret
+		return attrs
 	}
 
 	s := map[string]*schema.Schema{
