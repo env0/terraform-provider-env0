@@ -35,6 +35,11 @@ func dataSourceCodeVariables() *schema.Resource {
 							Description: "the value of the terraform variable",
 							Computed:    true,
 						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "the description of the terraform variable",
+							Computed:    true,
+						},
 						"format": {
 							Type:        schema.TypeString,
 							Description: "the format of the terraform variable (HCL or JSON)",
