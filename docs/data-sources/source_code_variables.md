@@ -46,6 +46,7 @@ output "variable_0_value" {
 
 Read-Only:
 
+- **description** (String)
 - **format** (String)
 - **name** (String)
 - **value** (String)
