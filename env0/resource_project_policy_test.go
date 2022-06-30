@@ -18,8 +18,8 @@ func TestUnitPolicyResource(t *testing.T) {
 	policy := client.Policy{
 		Id:                         "id0",
 		ProjectId:                  "project0",
-		NumberOfEnvironments:       1,
-		NumberOfEnvironmentsTotal:  1,
+		NumberOfEnvironments:       intPtr(1),
+		NumberOfEnvironmentsTotal:  intPtr(1),
 		IncludeCostEstimation:      true,
 		SkipApplyWhenPlanIsEmpty:   true,
 		DisableDestroyEnvironments: true,
@@ -30,14 +30,16 @@ func TestUnitPolicyResource(t *testing.T) {
 	updatedPolicy := client.Policy{
 		Id:                         policy.Id,
 		ProjectId:                  policy.ProjectId,
-		NumberOfEnvironments:       1,
-		NumberOfEnvironmentsTotal:  1,
+		NumberOfEnvironments:       intPtr(1),
+		NumberOfEnvironmentsTotal:  intPtr(1),
 		RequiresApprovalDefault:    false,
 		IncludeCostEstimation:      false,
 		SkipApplyWhenPlanIsEmpty:   false,
 		DisableDestroyEnvironments: false,
 		SkipRedundantDeployments:   false,
 		UpdatedBy:                  "updater0",
+		MaxTtl:                     stringPtr("12-h"),
+		DefaultTtl:                 stringPtr("6-h"),
 	}
 
 	resetPolicy := client.Policy{
@@ -50,8 +52,8 @@ func TestUnitPolicyResource(t *testing.T) {
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"project_id":                    policy.ProjectId,
-					"number_of_environments":        policy.NumberOfEnvironments,
-					"number_of_environments_total":  policy.NumberOfEnvironmentsTotal,
+					"number_of_environments":        *policy.NumberOfEnvironments,
+					"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
 					"requires_approval_default":     policy.RequiresApprovalDefault,
 					"include_cost_estimation":       policy.IncludeCostEstimation,
 					"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
@@ -62,8 +64,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
-					resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(policy.NumberOfEnvironments)),
-					resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(policy.NumberOfEnvironmentsTotal)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(*policy.NumberOfEnvironments)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(*policy.NumberOfEnvironmentsTotal)),
 					resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(policy.RequiresApprovalDefault)),
 					resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
@@ -71,28 +73,34 @@ func TestUnitPolicyResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(policy.SkipRedundantDeployments)),
 					resource.TestCheckResourceAttr(accessor, "run_pull_request_plan_default", strconv.FormatBool(policy.RunPullRequestPlanDefault)),
 					resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
+					resource.TestCheckResourceAttr(accessor, "max_ttl", "inherit"),
+					resource.TestCheckResourceAttr(accessor, "default_ttl", "inherit"),
 				),
 			},
 			{
 				Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 					"project_id":                    updatedPolicy.ProjectId,
-					"number_of_environments":        updatedPolicy.NumberOfEnvironments,
-					"number_of_environments_total":  updatedPolicy.NumberOfEnvironmentsTotal,
+					"number_of_environments":        *updatedPolicy.NumberOfEnvironments,
+					"number_of_environments_total":  *updatedPolicy.NumberOfEnvironmentsTotal,
 					"requires_approval_default":     updatedPolicy.RequiresApprovalDefault,
 					"include_cost_estimation":       updatedPolicy.IncludeCostEstimation,
 					"skip_apply_when_plan_is_empty": updatedPolicy.SkipApplyWhenPlanIsEmpty,
 					"disable_destroy_environments":  updatedPolicy.DisableDestroyEnvironments,
 					"skip_redundant_deployments":    updatedPolicy.SkipRedundantDeployments,
+					"max_ttl":                       *updatedPolicy.MaxTtl,
+					"default_ttl":                   *updatedPolicy.DefaultTtl,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
-					resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(updatedPolicy.NumberOfEnvironments)),
-					resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(updatedPolicy.NumberOfEnvironmentsTotal)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(*updatedPolicy.NumberOfEnvironments)),
+					resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(*updatedPolicy.NumberOfEnvironmentsTotal)),
 					resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(updatedPolicy.RequiresApprovalDefault)),
 					resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(updatedPolicy.IncludeCostEstimation)),
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(updatedPolicy.SkipApplyWhenPlanIsEmpty)),
 					resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(updatedPolicy.DisableDestroyEnvironments)),
 					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(updatedPolicy.SkipRedundantDeployments)),
+					resource.TestCheckResourceAttr(accessor, "max_ttl", *updatedPolicy.MaxTtl),
+					resource.TestCheckResourceAttr(accessor, "default_ttl", *updatedPolicy.DefaultTtl),
 				),
 			},
 		},
@@ -109,6 +117,8 @@ func TestUnitPolicyResource(t *testing.T) {
 			SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
 			SkipRedundantDeployments:   policy.SkipRedundantDeployments,
+			MaxTtl:                     "inherit",
+			DefaultTtl:                 "inherit",
 		}).Times(1).Return(policy, nil)
 
 		// Update
@@ -121,6 +131,8 @@ func TestUnitPolicyResource(t *testing.T) {
 			SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
 			DisableDestroyEnvironments: updatedPolicy.DisableDestroyEnvironments,
 			SkipRedundantDeployments:   updatedPolicy.SkipRedundantDeployments,
+			MaxTtl:                     *updatedPolicy.MaxTtl,
+			DefaultTtl:                 *updatedPolicy.DefaultTtl,
 		}).Times(1).Return(policy, nil)
 
 		gomock.InOrder(
@@ -142,12 +154,11 @@ func TestUnitPolicyResource(t *testing.T) {
 	})
 
 	t.Run("requires_approval_default default is true", func(t *testing.T) {
-
 		expectedPolicy := client.Policy{
 			Id:                         "id0",
 			ProjectId:                  "project0",
-			NumberOfEnvironments:       1,
-			NumberOfEnvironmentsTotal:  1,
+			NumberOfEnvironments:       intPtr(1),
+			NumberOfEnvironmentsTotal:  intPtr(1),
 			RequiresApprovalDefault:    true,
 			IncludeCostEstimation:      true,
 			SkipApplyWhenPlanIsEmpty:   true,
@@ -161,8 +172,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"project_id":                    policy.ProjectId,
-						"number_of_environments":        policy.NumberOfEnvironments,
-						"number_of_environments_total":  policy.NumberOfEnvironmentsTotal,
+						"number_of_environments":        *policy.NumberOfEnvironments,
+						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
 						"include_cost_estimation":       policy.IncludeCostEstimation,
 						"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
 						"disable_destroy_environments":  policy.DisableDestroyEnvironments,
@@ -172,8 +183,8 @@ func TestUnitPolicyResource(t *testing.T) {
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
-						resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(policy.NumberOfEnvironments)),
-						resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(policy.NumberOfEnvironmentsTotal)),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(*policy.NumberOfEnvironments)),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(*policy.NumberOfEnvironmentsTotal)),
 						resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(true)),
 						resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
 						resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
@@ -196,6 +207,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
 				DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
 				SkipRedundantDeployments:   policy.SkipRedundantDeployments,
+				DefaultTtl:                 "inherit",
+				MaxTtl:                     "inherit",
 			}).Times(1).Return(policy, nil)
 
 			mock.EXPECT().Policy(gomock.Any()).Times(1).Return(expectedPolicy, nil)
@@ -212,7 +225,55 @@ func TestUnitPolicyResource(t *testing.T) {
 			}).Times(1).Return(resetPolicy, nil)
 
 		})
+	})
 
+	t.Run("Create Failure - max smaller than default", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id":                    policy.ProjectId,
+						"number_of_environments":        *policy.NumberOfEnvironments,
+						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
+						"include_cost_estimation":       policy.IncludeCostEstimation,
+						"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
+						"disable_destroy_environments":  policy.DisableDestroyEnvironments,
+						"skip_redundant_deployments":    policy.SkipRedundantDeployments,
+						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
+						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
+						"max_ttl":                       "12-h",
+						"default_ttl":                   "1-d",
+					}),
+					ExpectError: regexp.MustCompile("default ttl must not be larger than max ttl"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Create Failure - only one is inherit", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id":                    policy.ProjectId,
+						"number_of_environments":        *policy.NumberOfEnvironments,
+						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
+						"include_cost_estimation":       policy.IncludeCostEstimation,
+						"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
+						"disable_destroy_environments":  policy.DisableDestroyEnvironments,
+						"skip_redundant_deployments":    policy.SkipRedundantDeployments,
+						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
+						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
+						"default_ttl":                   "1-d",
+					}),
+					ExpectError: regexp.MustCompile("max_ttl and default_ttl must both inherit organization settings or override them"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 }
 

@@ -12,8 +12,8 @@ func TestPolicyDataSource(t *testing.T) {
 	policy := client.Policy{
 		Id:                          "id0",
 		ProjectId:                   "project0",
-		NumberOfEnvironments:        1,
-		NumberOfEnvironmentsTotal:   2,
+		NumberOfEnvironments:        intPtr(1),
+		NumberOfEnvironmentsTotal:   intPtr(2),
 		RequiresApprovalDefault:     true,
 		IncludeCostEstimation:       true,
 		SkipApplyWhenPlanIsEmpty:    true,
@@ -36,8 +36,8 @@ func TestPolicyDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", policy.Id),
 						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
-						resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(policy.NumberOfEnvironments)),
-						resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(policy.NumberOfEnvironmentsTotal)),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments", strconv.Itoa(*policy.NumberOfEnvironments)),
+						resource.TestCheckResourceAttr(accessor, "number_of_environments_total", strconv.Itoa(*policy.NumberOfEnvironmentsTotal)),
 						resource.TestCheckResourceAttr(accessor, "requires_approval_default", strconv.FormatBool(policy.RequiresApprovalDefault)),
 						resource.TestCheckResourceAttr(accessor, "include_cost_estimation", strconv.FormatBool(policy.IncludeCostEstimation)),
 						resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(policy.SkipApplyWhenPlanIsEmpty)),
