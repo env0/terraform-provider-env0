@@ -72,6 +72,8 @@ func TestSourceCodeVariablesDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "variables.1.value", var2.Value),
 					resource.TestCheckResourceAttr(accessor, "variables.0.format", string(var1.Schema.Format)),
 					resource.TestCheckResourceAttr(accessor, "variables.1.format", string(var2.Schema.Format)),
+					resource.TestCheckResourceAttr(accessor, "variables.0.description", var1.Description),
+					resource.TestCheckResourceAttr(accessor, "variables.1.description", var2.Description),
 				),
 			},
 		},
