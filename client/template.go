@@ -49,14 +49,14 @@ type Template struct {
 	Retry                TemplateRetry    `json:"retry"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	Type                 string           `json:"type"`
-	GithubInstallationId int              `json:"githubInstallationId"`
+	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
-	TokenId              string           `json:"tokenId,omitempty"`
+	TokenId              string           `json:"tokenId,omitempty" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
-	BitbucketClientKey   string           `json:"bitbucketClientKey"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsSingleUse          bool             `json:"isSingleUse"`
