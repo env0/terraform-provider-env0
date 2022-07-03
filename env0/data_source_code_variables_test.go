@@ -19,7 +19,6 @@ func TestSourceCodeVariablesDataSource(t *testing.T) {
 		Revision:         "branch-zero",
 		Type:             "terraform",
 		TokenId:          "1",
-		GitlabProjectId:  10,
 		TerraformVersion: "0.12.24",
 	}
 

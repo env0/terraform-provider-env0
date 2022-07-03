@@ -304,3 +304,37 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 	assert.Equal(t, string(var1.Schema.Format), d.Get("variables.0.format"))
 	assert.Equal(t, string(var2.Schema.Format), d.Get("variables.1.format"))
 }
+
+func TestWriteResourceDataOmitEmpty(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceTemplate().Schema, map[string]interface{}{})
+
+	template := client.Template{
+		Id:         "id0",
+		Name:       "template0",
+		Repository: "env0/repo",
+		Path:       "path/zero",
+		Revision:   "branch-zero",
+	}
+
+	assert.Nil(t, writeResourceData(&template, d))
+
+	attr := d.State().Attributes
+
+	assert.Equal(t, template.Name, d.Get("name"))
+
+	_, ok := attr["description"]
+	assert.True(t, ok, "description should be set")
+	_, ok = attr["bitbucket_client_key"]
+	assert.False(t, ok, "bitbucket_client_key should not be set")
+	_, ok = attr["token_id"]
+	assert.False(t, ok, "token_id should not be set")
+	_, ok = attr["github_installation_id"]
+	assert.False(t, ok, "github_installation_id should not be set")
+
+	template.TokenId = "tokenid"
+
+	assert.Nil(t, writeResourceData(&template, d))
+	attr = d.State().Attributes
+	_, ok = attr["token_id"]
+	assert.True(t, ok, "token_id should be set")
+}

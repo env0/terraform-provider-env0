@@ -71,6 +71,16 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
+func templateReadRetryOnHelper(d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
+	if retryOn != nil {
+		d.Set("retries_on_"+retryType, retryOn.Times)
+		d.Set("retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
+	} else {
+		d.Set("retries_on_"+retryType, 0)
+		d.Set("retry_on_"+retryType+"_only_when_matches_regex", "")
+	}
+}
+
 func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -85,49 +95,12 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	d.Set("name", template.Name)
-	d.Set("description", template.Description)
-	if template.GithubInstallationId != 0 {
-		d.Set("github_installation_id", template.GithubInstallationId)
-	}
-	if template.TokenId != "" {
-		d.Set("token_id", template.TokenId)
-	}
-	d.Set("repository", template.Repository)
-	d.Set("path", template.Path)
-	d.Set("revision", template.Revision)
-	d.Set("type", template.Type)
-	d.Set("terraform_version", template.TerraformVersion)
-	// 'gitlab_project_id' should not be set because it doesn't exist on 'template'
-
-	var rawSshKeys []map[string]string
-	for _, sshKey := range template.SshKeys {
-		rawSshKeys = append(rawSshKeys, map[string]string{"id": sshKey.Id, "name": sshKey.Name})
-	}
-	d.Set("ssh_keys", rawSshKeys)
-
-	if template.Retry.OnDeploy != nil {
-		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
-		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
-	} else {
-		d.Set("retries_on_deploy", 0)
-		d.Set("retry_on_deploy_only_when_matches_regex", "")
-	}
-	if template.Retry.OnDestroy != nil {
-		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
-		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
-	} else {
-		d.Set("retries_on_destroy", 0)
-		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	if err := writeResourceData(&template, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if template.BitbucketClientKey != "" {
-		d.Set("bitbucket_client_key", template.BitbucketClientKey)
-	}
-
-	d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
-	d.Set("is_bitbucket_server", template.IsBitbucketServer)
-	d.Set("is_github_enterprise", template.IsGithubEnterprise)
+	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
 
 	return nil
 }

@@ -205,10 +205,6 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		d.Set("bitbucket_client_key", template.BitbucketClientKey)
 	}
 
-	if template.GitlabProjectId != 0 {
-		d.Set("gitlab_project_id", template.GitlabProjectId)
-	}
-
 	if template.IsGitlabEnterprise {
 		d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
 	}

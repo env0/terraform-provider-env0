@@ -124,12 +124,13 @@ func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}
 	m := resource.(map[string]interface{})
 
 	for i := 0; i < val.NumField(); i++ {
-		fieldName, skip := getFieldName(val.Type().Field(i))
-		if skip {
+
+		parsedField := getFieldName(val.Type().Field(i))
+		if parsedField.skip {
 			continue
 		}
 
-		fieldValue, ok := m[fieldName]
+		fieldValue, ok := m[parsedField.name]
 		if !ok {
 			continue
 		}
@@ -168,22 +169,39 @@ func readResourceDataSlice(field reflect.Value, resources []interface{}) error {
 	return nil
 }
 
+type parsedField struct {
+	name      string
+	skip      bool
+	omitEmpty bool
+}
+
 // Returns the field name or skip.
-func getFieldName(field reflect.StructField) (string, bool) {
-	name := field.Name
+func getFieldName(field reflect.StructField) *parsedField {
+	var res parsedField
+
 	// Assumes golang is CamalCase and Terraform is snake_case.
 	// This behavior can be overrided be used in the 'tfschema' tag.
-	name = toSnakeCase(name)
+	res.name = toSnakeCase(field.Name)
 	if tag, ok := field.Tag.Lookup("tfschema"); ok {
 		if tag == "-" {
-			return "", true
+			res.skip = true
+		} else {
+			tagParts := strings.Split(tag, ",")
+			nameFromTag := tagParts[0]
+
+			// Override name by tag value.
+			if len(nameFromTag) > 0 {
+				res.name = nameFromTag
+			}
+
+			if len(tagParts) > 1 && tagParts[1] == "omitempty" {
+				res.omitEmpty = true
+			}
 		}
 
-		// 'resource' tag found. Override to tag value.
-		name = tag
 	}
 
-	return name, false
+	return &res
 }
 
 // Extracts values from the interface, and writes it to resourcedata.
@@ -191,13 +209,14 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	val := reflect.ValueOf(i).Elem()
 
 	for i := 0; i < val.NumField(); i++ {
-		fieldName, skip := getFieldName(val.Type().Field(i))
-		if skip {
+		parsedField := getFieldName(val.Type().Field(i))
+		if parsedField.skip {
 			continue
 		}
 
 		field := val.Field(i)
 		fieldType := field.Type()
+		fieldName := parsedField.name
 
 		if fieldName == "id" {
 			id := field.String()
@@ -230,10 +249,16 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 
 		switch fieldType.Kind() {
 		case reflect.String:
+			if parsedField.omitEmpty && field.String() == "" {
+				continue
+			}
 			if err := d.Set(fieldName, field.String()); err != nil {
 				return err
 			}
 		case reflect.Int:
+			if parsedField.omitEmpty && field.Int() == 0 {
+				continue
+			}
 			if err := d.Set(fieldName, field.Int()); err != nil {
 				return err
 			}
@@ -280,10 +305,12 @@ func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.R
 			continue
 		}
 
-		fieldName, skip := getFieldName(val.Type().Field(i))
-		if skip {
+		parsedField := getFieldName(val.Type().Field(i))
+		if parsedField.skip {
 			continue
 		}
+
+		fieldName := parsedField.name
 
 		if fieldType.Kind() == reflect.Ptr {
 			if field.IsNil() {

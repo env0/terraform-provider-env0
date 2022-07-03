@@ -45,34 +45,34 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 		"is_github_enterprise",
 	}
 
+	appendByType := func(strs []string, str string) []string {
+		if templateType == TemplateTypeShared {
+			return append(strs, str)
+		} else {
+			return append(strs, "template.0."+str)
+		}
+	}
+
 	allVCSAttributesBut := func(strs ...string) []string {
 		sort.Strings(strs)
-		ret := []string{}
+		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
 			if sort.SearchStrings(strs, attr) >= len(strs) {
-				if templateType == TemplateTypeShared {
-					ret = append(ret, attr)
-				} else {
-					ret = append(ret, "template.0."+attr)
-				}
+				butAttrs = appendByType(butAttrs, attr)
 			}
 		}
 
-		return ret
+		return butAttrs
 	}
 
 	requiredWith := func(strs ...string) []string {
-		ret := []string{}
+		attrs := []string{}
 		for _, str := range strs {
-			if templateType == TemplateTypeShared {
-				ret = append(ret, str)
-			} else {
-				ret = append(ret, "template.0."+str)
-			}
+			attrs = appendByType(attrs, str)
 		}
 
-		return ret
+		return attrs
 	}
 
 	s := map[string]*schema.Schema{
