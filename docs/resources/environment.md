@@ -72,7 +72,6 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - **terragrunt_working_directory** (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
 - **ttl** (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - **vcs_commands_alias** (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
-- **wait_for** (String, Deprecated) whether or not to wait for environment to fully deploy
 - **workspace** (String) the terraform workspace of the environment
 
 ### Read-Only
