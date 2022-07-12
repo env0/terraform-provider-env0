@@ -21,6 +21,7 @@ var allowedTemplateTypes = []string{
 	"pulumi",
 	"k8s",
 	"workflow",
+	"cloudformation",
 }
 
 func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
@@ -201,6 +202,11 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Optional:      true,
 			Default:       "false",
 			ConflictsWith: allVCSAttributesBut("is_github_enterprise"),
+		},
+		"file_name": {
+			Type:        schema.TypeString,
+			Description: "the cloudformation file name. Required if the template type is cloudformation",
+			Optional:    true,
 		},
 	}
 

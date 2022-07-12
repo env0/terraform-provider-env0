@@ -60,6 +60,7 @@ type Template struct {
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsSingleUse          bool             `json:"isSingleUse"`
+	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -84,6 +85,7 @@ type TemplateCreatePayload struct {
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsSingleUse          bool             `json:"isSingleUse"`
+	FileName             string           `json:"fileName,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
