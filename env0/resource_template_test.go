@@ -871,7 +871,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"id":                "id0",
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
@@ -892,7 +891,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"id":                "id0",
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "cloudformation",
@@ -911,7 +909,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"id":                "id0",
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
