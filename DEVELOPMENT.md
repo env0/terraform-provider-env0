@@ -60,6 +60,7 @@ Check [resource_module.go](./env0/resource_module.go) that uses the utilities vs
 
 Pay attention to the following caveats:
 * The golang fields are in CamalCase, while the terraform fields are in snake_case. They must match. E.g., ProjectName (golang) == project_name (Terraform). To override the default CamalCase to snake_case conversion you may use the tag `tfschema`. To ignore a field set the `tfschema` tag value to `-`.
+* In some cases if a field's value is empty (string: "", boolean: false, int: 0) it may be desired to ignore it. To apply this behavior add `omitempty` to the tfschema tag.
 
 #### writeResourceDataSlice
 

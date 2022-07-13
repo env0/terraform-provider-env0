@@ -272,6 +272,48 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerraformVersion:  "0.12.24",
 		IsBitbucketServer: true,
 	}
+	cloudformationTemplate := client.Template{
+		Id:          "id0",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:             "cloudformation",
+		FileName:         "cool.yaml",
+		TerraformVersion: "0.15.1",
+	}
+	cloudformationUpdatedTemplate := client.Template{
+		Id:          gleeTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:             "cloudformation",
+		FileName:         "stack.yaml",
+		TerraformVersion: "0.15.1",
+	}
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -330,6 +372,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.IsBitbucketServer != false {
 			templateAsDictionary["is_bitbucket_server"] = template.IsBitbucketServer
 		}
+		if template.FileName != "" {
+			templateAsDictionary["file_name"] = template.FileName
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -346,6 +391,11 @@ func TestUnitTemplateResource(t *testing.T) {
 		tokenIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId)
 		if template.TokenId == "" {
 			tokenIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_id")
+		}
+
+		filenameAssertion := resource.TestCheckResourceAttr(resourceFullName, "file_name", template.FileName)
+		if template.FileName == "" {
+			filenameAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "file_name")
 		}
 
 		githubInstallationIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId))
@@ -366,6 +416,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			resource.TestCheckResourceAttr(resourceFullName, "retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 			resource.TestCheckResourceAttr(resourceFullName, "is_gitlab_enterprise", strconv.FormatBool(template.IsGitlabEnterprise)),
 			tokenIdAssertion,
+			filenameAssertion,
 			gitlabProjectIdAssertion,
 			githubInstallationIdAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
@@ -383,6 +434,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Bitbucket", bitbucketTemplate, bitbucketUpdatedTemplate},
 		{"GitHub EE", gheeTemplate, gheeUpdatedTemplate},
 		{"Bitbucket Server", bitbucketServerTemplate, bitbucketServerUpdatedTemplate},
+		{"Cloudformation", cloudformationTemplate, cloudformationUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -411,6 +463,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
 				IsGithubEnterprise:   templateUseCase.template.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.template.IsBitbucketServer,
+				FileName:             templateUseCase.template.FileName,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -429,6 +482,12 @@ func TestUnitTemplateResource(t *testing.T) {
 				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
 				IsGithubEnterprise:   templateUseCase.updatedTemplate.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
+				FileName:             templateUseCase.updatedTemplate.FileName,
+			}
+
+			if templateUseCase.vcs == "Cloudformation" {
+				templateCreatePayload.Type = "cloudformation"
+				updateTemplateCreateTemplate.Type = "cloudformation"
 			}
 
 			testCase := resource.TestCase{
@@ -812,7 +871,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"id":                "id0",
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
@@ -821,6 +879,43 @@ func TestUnitTemplateResource(t *testing.T) {
 						"terraform_version": "v0.15.1",
 					}),
 					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Cloudformation type with no file_name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "cloudformation",
+						"terraform_version": "0.15.1",
+					}),
+					ExpectError: regexp.MustCompile("file_name is required with cloudformation template type"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Non-cloudformation type with file_name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"terraform_version": "0.15.1",
+						"file_name":         "bad.yaml",
+					}),
+					ExpectError: regexp.MustCompile("file_name cannot be set when template type is: terraform"),
 				},
 			},
 		}
