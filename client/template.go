@@ -6,6 +6,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -54,7 +55,7 @@ type Template struct {
 	TokenId              string           `json:"tokenId,omitempty" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion"`
-	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
+	TerragruntVersion    string           `json:"terragruntVersion,omitempty" tfschema:",omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
@@ -108,19 +109,33 @@ type VariablesFromRepositoryPayload struct {
 	Repository           string   `json:"repository"`
 }
 
-func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
+func (payload TemplateCreatePayload) Validate() error {
 	if payload.Name == "" {
-		return Template{}, errors.New("must specify template name on creation")
+		return errors.New("must specify template name on creation")
 	}
+
 	if payload.OrganizationId != "" {
-		return Template{}, errors.New("must not specify organizationId")
+		return errors.New("must not specify organizationId")
 	}
+
 	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
-		return Template{}, errors.New("can't define terragrunt version for non-terragrunt blueprint")
+		return errors.New("can't define terragrunt version for non-terragrunt template")
 	}
 	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
-		return Template{}, errors.New("must supply Terragrunt version")
+		return errors.New("must supply terragrunt version")
 	}
+
+	if payload.Type == "cloudformation" && payload.FileName == "" {
+		return errors.New("file_name is required with cloudformation template type")
+	}
+	if payload.Type != "cloudformation" && payload.FileName != "" {
+		return fmt.Errorf("file_name cannot be set when template type is: %s", payload.Type)
+	}
+
+	return nil
+}
+
+func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
 	organizationId, err := client.organizationId()
 	if err != nil {
 		return Template{}, nil
@@ -149,18 +164,6 @@ func (client *ApiClient) TemplateDelete(id string) error {
 }
 
 func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
-	if payload.Name == "" {
-		return Template{}, errors.New("must specify template name on creation")
-	}
-	if payload.OrganizationId != "" {
-		return Template{}, errors.New("must not specify organizationId")
-	}
-	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
-		return Template{}, errors.New("can't define terragrunt version for non-terragrunt blueprint")
-	}
-	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
-		return Template{}, errors.New("must supply Terragrunt version")
-	}
 	organizationId, err := client.organizationId()
 	if err != nil {
 		return Template{}, err
