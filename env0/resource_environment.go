@@ -195,33 +195,23 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) {
-	d.Set("id", environment.Id)
-	d.Set("name", environment.Name)
-	d.Set("project_id", environment.ProjectId)
-	safeSet(d, "workspace", environment.WorkspaceName)
-	safeSet(d, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob)
-	safeSet(d, "ttl", environment.LifespanEndAt)
-	safeSet(d, "terragrunt_working_directory", environment.TerragruntWorkingDirectory)
-	safeSet(d, "vcs_commands_alias", environment.VcsCommandsAlias)
+func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) error {
+	if err := writeResourceData(&environment, d); err != nil {
+		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	}
-	if environment.PullRequestPlanDeployments != nil {
-		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
-	}
+
 	if environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
 	}
-	if environment.ContinuousDeployment != nil {
-		d.Set("deploy_on_push", *environment.ContinuousDeployment)
-	}
-	if environment.AutoDeployOnPathChangesOnly != nil {
-		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
-	}
+
 	setEnvironmentConfigurationSchema(d, configurationVariables)
+
+	return nil
 }
 
 func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
