@@ -79,13 +79,13 @@ type Environment struct {
 	Name                        string        `json:"name"`
 	ProjectId                   string        `json:"projectId"`
 	WorkspaceName               string        `json:"workspaceName,omitempty"`
-	RequiresApproval            *bool         `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"`
+	RequiresApproval            *bool         `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push"`
+	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests"`
 	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
-	LifespanEndAt               string        `json:"lifespanEndAt"`
+	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	IsArchived                  bool          `json:"isArchived"`
