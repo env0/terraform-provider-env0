@@ -51,14 +51,8 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 	templateCreatePayloadRetryOnHelper(d, "deploy", &payload.Retry.OnDeploy)
 	templateCreatePayloadRetryOnHelper(d, "destroy", &payload.Retry.OnDestroy)
 
-	if payload.Type == "cloudformation" {
-		if len(payload.FileName) == 0 {
-			return payload, diag.Errorf("file_name is required with cloudformation template type")
-		}
-	} else {
-		if len(payload.FileName) > 0 {
-			return payload, diag.Errorf("file_name cannot be set when template type is: %s", payload.Type)
-		}
+	if err := payload.Validate(); err != nil {
+		return payload, diag.Errorf(err.Error())
 	}
 
 	return payload, nil

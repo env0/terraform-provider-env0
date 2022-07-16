@@ -57,6 +57,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			},
 		},
 		Type:               "terragrunt",
+		TerragruntVersion:  "0.35.1",
 		IsGitlabEnterprise: true,
 		TerraformVersion:   "0.15.1",
 	}
@@ -99,9 +100,10 @@ func TestUnitTemplateResource(t *testing.T) {
 				ErrorRegex: "NewForDestroy.*",
 			},
 		},
-		Type:             "terragrunt",
-		TokenId:          "2",
-		TerraformVersion: "0.15.1",
+		Type:              "terragrunt",
+		TerragruntVersion: "0.35.1",
+		TokenId:           "2",
+		TerraformVersion:  "0.15.1",
 	}
 	gitlabTemplateUpdatedProjectId := 15
 	githubTemplate := client.Template{
@@ -143,6 +145,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			},
 		},
 		Type:                 "terragrunt",
+		TerragruntVersion:    "0.35.1",
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.15.1",
 	}
@@ -186,6 +189,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 		Type:               "terragrunt",
 		BitbucketClientKey: "clientkey2",
+		TerragruntVersion:  "0.35.1",
 		TerraformVersion:   "0.15.1",
 	}
 	gheeTemplate := client.Template{
@@ -375,6 +379,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.FileName != "" {
 			templateAsDictionary["file_name"] = template.FileName
 		}
+		if template.TerragruntVersion != "" {
+			templateAsDictionary["terragrunt_version"] = template.TerragruntVersion
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -398,6 +405,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			filenameAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "file_name")
 		}
 
+		terragruntVersionAssertion := resource.TestCheckResourceAttr(resourceFullName, "terragrunt_version", template.TerragruntVersion)
+		if template.TerragruntVersion == "" {
+			terragruntVersionAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "terragrunt_version")
+		}
+
 		githubInstallationIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId))
 		if template.GithubInstallationId == 0 {
 			githubInstallationIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id")
@@ -418,6 +430,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			tokenIdAssertion,
 			filenameAssertion,
 			gitlabProjectIdAssertion,
+			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 		)
@@ -464,6 +477,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsGithubEnterprise:   templateUseCase.template.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.template.IsBitbucketServer,
 				FileName:             templateUseCase.template.FileName,
+				TerragruntVersion:    templateUseCase.template.TerragruntVersion,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -483,6 +497,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsGithubEnterprise:   templateUseCase.updatedTemplate.IsGithubEnterprise,
 				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
 				FileName:             templateUseCase.updatedTemplate.FileName,
+				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
 			}
 
 			if templateUseCase.vcs == "Cloudformation" {
@@ -916,6 +931,43 @@ func TestUnitTemplateResource(t *testing.T) {
 						"file_name":         "bad.yaml",
 					}),
 					ExpectError: regexp.MustCompile("file_name cannot be set when template type is: terraform"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("terragrunt type with no terragrunt version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terragrunt",
+						"terraform_version": "0.15.1",
+					}),
+					ExpectError: regexp.MustCompile("must supply terragrunt version"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("terragrunt version with non-terragrunt type", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":               "template0",
+						"repository":         "env0/repo",
+						"type":               "terraform",
+						"terraform_version":  "0.15.1",
+						"terragrunt_version": "0.31.1",
+					}),
+					ExpectError: regexp.MustCompile("can't define terragrunt version for non-terragrunt template"),
 				},
 			},
 		}
