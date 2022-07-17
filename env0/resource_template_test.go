@@ -102,7 +102,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			},
 		},
 		Type:              "terragrunt",
-		TerragruntVersion: "0.35.1",
+		TerragruntVersion: "0.26.1",
 		TokenId:           "2",
 		TerraformVersion:  "0.15.1",
 	}
