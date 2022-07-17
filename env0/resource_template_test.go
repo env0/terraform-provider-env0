@@ -60,6 +60,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerragruntVersion:  "0.35.1",
 		IsGitlabEnterprise: true,
 		TerraformVersion:   "0.15.1",
+		IsTerragruntRunAll: true,
 	}
 	gitlabTemplate := client.Template{
 		Id:          "id0-gitlab",
@@ -101,7 +102,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			},
 		},
 		Type:              "terragrunt",
-		TerragruntVersion: "0.35.1",
+		TerragruntVersion: "0.26.1",
 		TokenId:           "2",
 		TerraformVersion:  "0.15.1",
 	}
@@ -148,6 +149,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerragruntVersion:    "0.35.1",
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.15.1",
+		IsTerragruntRunAll:   true,
 	}
 	bitbucketTemplate := client.Template{
 		Id:          "id0",
@@ -382,6 +384,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.TerragruntVersion != "" {
 			templateAsDictionary["terragrunt_version"] = template.TerragruntVersion
 		}
+		if template.IsTerragruntRunAll {
+			templateAsDictionary["is_terragrunt_run_all"] = true
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -433,6 +438,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 		)
 	}
 
@@ -478,6 +484,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsBitbucketServer:    templateUseCase.template.IsBitbucketServer,
 				FileName:             templateUseCase.template.FileName,
 				TerragruntVersion:    templateUseCase.template.TerragruntVersion,
+				IsTerragruntRunAll:   templateUseCase.template.IsTerragruntRunAll,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -498,6 +505,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
 				FileName:             templateUseCase.updatedTemplate.FileName,
 				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
+				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
 			}
 
 			if templateUseCase.vcs == "Cloudformation" {
@@ -968,6 +976,26 @@ func TestUnitTemplateResource(t *testing.T) {
 						"terragrunt_version": "0.31.1",
 					}),
 					ExpectError: regexp.MustCompile("can't define terragrunt version for non-terragrunt template"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("run all with outdated terragrunt version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                  "template0",
+						"repository":            "env0/repo",
+						"type":                  "terragrunt",
+						"terraform_version":     "0.15.1",
+						"terragrunt_version":    "0.27.50",
+						"is_terragrunt_run_all": "true",
+					}),
+					ExpectError: regexp.MustCompile(`can't set is_terragrunt_run_all to "true" for terragrunt versions lower than 0.28.1`),
 				},
 			},
 		}

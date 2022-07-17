@@ -208,6 +208,12 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Description: "the cloudformation file name. Required if the template type is cloudformation",
 			Optional:    true,
 		},
+		"is_terragrunt_run_all": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Description: `true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above`,
+			Default:     "false",
+		},
 	}
 
 	if templateType == TemplateTypeSingle {

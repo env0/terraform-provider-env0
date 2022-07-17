@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 type TemplateRetryOn struct {
@@ -62,6 +64,7 @@ type Template struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
+	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
 
 type TemplateCreatePayload struct {
@@ -87,6 +90,7 @@ type TemplateCreatePayload struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty"`
+	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -123,6 +127,21 @@ func (payload TemplateCreatePayload) Validate() error {
 	}
 	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
 		return errors.New("must supply terragrunt version")
+	}
+
+	if payload.IsTerragruntRunAll {
+		if payload.Type != "terragrunt" {
+			return errors.New(`can't set is_terragrunt_run_all to "true" for non-terragrunt template`)
+		}
+
+		c, _ := semver.NewConstraint(">= 0.28.1")
+		v, err := semver.NewVersion(payload.TerragruntVersion)
+		if err != nil {
+			return fmt.Errorf("invalid semver version %s: %s", payload.TerragruntVersion, err.Error())
+		}
+		if !c.Check(v) {
+			return fmt.Errorf(`can't set is_terragrunt_run_all to "true" for terragrunt versions lower than 0.28.1`)
+		}
 	}
 
 	if payload.Type == "cloudformation" && payload.FileName == "" {

@@ -3,6 +3,7 @@ module github.com/env0/terraform-provider-env0
 go 1.18
 
 require (
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/adhocore/gronx v0.2.6
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/golang/mock v1.6.0
