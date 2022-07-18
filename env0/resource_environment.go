@@ -201,6 +201,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	}
 
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 	}
 
