@@ -41,31 +41,28 @@ func intPtr(i int) *int {
 	return &i
 }
 
-// Extracts values from the resourcedata, and writes it to the interface.
-func readResourceData(i interface{}, d *schema.ResourceData) error {
+// Prepends prefix to the fieldName.
+func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
 	// TODO: add a mechanism that returns an error if fields were set in the resourceData but not in the struct.
 	// Blocked by: https://github.com/hashicorp/terraform-plugin-sdk/issues/910
 
 	val := reflect.ValueOf(i).Elem()
 	for i := 0; i < val.NumField(); i++ {
-		fieldName := val.Type().Field(i).Name
-		// Assumes golang is CamalCase and Terraform is snake_case.
-		// This behavior can be overrided be used in the 'tfschema' tag.
-		fieldNameSC := toSnakeCase(fieldName)
-		if resFieldName, ok := val.Type().Field(i).Tag.Lookup("tfschema"); ok {
-			if resFieldName == "-" {
-				continue
-			}
+		parsedField := getFieldName(val.Type().Field(i))
+		if parsedField.skip {
+			continue
+		}
 
-			// 'resource' tag found. Override to tag value.
-			fieldNameSC = resFieldName
+		fieldName := parsedField.name
+		if prefix != "" {
+			fieldName = prefix + "." + fieldName
 		}
 
 		field := val.Field(i)
 
 		fieldType := field.Type()
 
-		dval, ok := d.GetOk(fieldNameSC)
+		dval, ok := d.GetOk(fieldName)
 		if !ok {
 			continue
 		}
@@ -76,7 +73,7 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 				// Init the field a valid value (instead of nil).
 				field.Set(reflect.New(field.Type().Elem()))
 			}
-			if err := field.Interface().(CustomResourceDataField).ReadResourceData(fieldNameSC, d); err != nil {
+			if err := field.Interface().(CustomResourceDataField).ReadResourceData(fieldName, d); err != nil {
 				return err
 			}
 			continue
@@ -84,7 +81,7 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 
 		// custom field is a value, check the pointer.
 		if customField, ok := field.Addr().Interface().(CustomResourceDataField); ok {
-			if err := customField.ReadResourceData(fieldNameSC, d); err != nil {
+			if err := customField.ReadResourceData(fieldName, d); err != nil {
 				return err
 			}
 			continue
@@ -106,7 +103,7 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
 		case reflect.Slice:
-			if err := readResourceDataSlice(field, dval.([]interface{})); err != nil {
+			if err := readResourceDataSliceEx(field, dval.([]interface{})); err != nil {
 				return err
 			}
 		case reflect.String, reflect.Bool, reflect.Int:
@@ -117,6 +114,11 @@ func readResourceData(i interface{}, d *schema.ResourceData) error {
 	}
 
 	return nil
+}
+
+// Extracts values from the resourcedata, and writes it to the interface.
+func readResourceData(i interface{}, d *schema.ResourceData) error {
+	return readResourceDataEx("", i, d)
 }
 
 func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}) error {
@@ -143,7 +145,7 @@ func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}
 }
 
 // Extracts a list of values from the resourcedata, and writes it to the struct field.
-func readResourceDataSlice(field reflect.Value, resources []interface{}) error {
+func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error {
 	elemType := field.Type().Elem()
 	vals := reflect.MakeSlice(field.Type(), 0, len(resources))
 
