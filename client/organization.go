@@ -46,7 +46,7 @@ func (client *ApiClient) organizationId() (string, error) {
 	}
 	organization, err := client.Organization()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	client.cachedOrganizationId = organization.Id
 	return client.cachedOrganizationId, nil
