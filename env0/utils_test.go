@@ -246,6 +246,30 @@ func TestReadByPointerNilCustomResourceData(t *testing.T) {
 	assert.Equal(t, params.Description, "description")
 }
 
+func TestReadResourceDataEx(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]interface{}{
+		"name":       "name",
+		"project_id": "poroject_id",
+		"template": []interface{}{map[string]interface{}{
+			"type":                 "terraform",
+			"is_gitlab_enterprise": true,
+			"ssh_keys": []interface{}{
+				map[string]interface{}{"id": "id1", "name": "name1"},
+			},
+		}},
+	})
+
+	var payload client.TemplateCreatePayload
+	assert.Nil(t, readResourceDataEx("template.0", &payload, d))
+	assert.Equal(t, "terraform", string(payload.Type))
+	assert.Equal(t, client.TemplateSshKey{
+		Id:   "id1",
+		Name: "name1",
+	}, payload.SshKeys[0])
+	assert.True(t, payload.IsGitlabEnterprise)
+	assert.False(t, payload.IsGithubEnterprise)
+}
+
 func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]interface{}{})
 
