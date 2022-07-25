@@ -88,6 +88,10 @@ var _ = Describe("Notification Client", func() {
 			})
 		})
 
+		// NotificationCreate calls "organizationId()""
+		// The test was "randomly" added here to test organizationId failure (when there are multiple organizations).
+		// Ideally should be tested in organization. Unfortunatly, organizationId is private and cannot be tested directly.
+		// (test package name varies from package name).
 		Describe("Failure - Multiple Organizations", func() {
 			var err error
 
