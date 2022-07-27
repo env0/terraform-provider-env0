@@ -99,11 +99,6 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Description: "terraform / terragrunt file folder inside source code",
 			Optional:    true,
 		},
-		"revision": {
-			Type:        schema.TypeString,
-			Description: "source code revision (branch / tag) to use",
-			Optional:    true,
-		},
 		"type": {
 			Type:             schema.TypeString,
 			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
@@ -221,6 +216,14 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "id of the template",
 			Computed:    true,
+		}
+	}
+
+	if templateType == TemplateTypeShared {
+		s["revision"] = &schema.Schema{
+			Type:        schema.TypeString,
+			Description: "source code revision (branch / tag) to use",
+			Optional:    true,
 		}
 	}
 

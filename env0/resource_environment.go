@@ -248,6 +248,26 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	if _, ok := d.GetOk("template.0"); ok {
+		// Templateless environment creation use-case.
+		createTemplatePayload, diagErr := templateCreatePayloadFromParameters("template.0", d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		if revision, ok := d.GetOk("revision"); ok {
+			createTemplatePayload.Revision = revision.(string)
+		}
+
+		template, err := apiClient.TemplateCreate(createTemplatePayload)
+		if err != nil {
+			return diag.Errorf("could not create template: %v", err)
+		}
+
+		d.Set("template.0.id", template.Id)
+	}
+
+	// TODO - update getCreatePayload
 	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 
 	if createEnvPayloadErr != nil {
@@ -486,6 +506,8 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload := client.DeployRequest{}
 
 	if templateId, ok := d.GetOk("template_id"); ok {
+		payload.BlueprintId = templateId.(string)
+	} else if templateId, ok := d.GetOk("template.0.id"); ok {
 		payload.BlueprintId = templateId.(string)
 	}
 
