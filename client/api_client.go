@@ -93,6 +93,7 @@ type ApiClientInterface interface {
 	AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error)
 	ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error)
 	Agents() ([]Agent, error)
+	AgentValues(id string) (string, error)
 	Users() ([]OrganizationUser, error)
 	AssignUserToProject(projectId string, payload *AssignUserToProjectPayload) (*UserProjectAssignment, error)
 	RemoveUserFromProject(projectId string, userId string) error
