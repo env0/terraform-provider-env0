@@ -259,6 +259,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			createTemplatePayload.Revision = revision.(string)
 		}
 
+		name := d.Get("name").(string)
+		createTemplatePayload.Name = "single-use-template-for-" + name
+
 		template, err := apiClient.TemplateCreate(createTemplatePayload)
 		if err != nil {
 			return diag.Errorf("could not create template: %v", err)
