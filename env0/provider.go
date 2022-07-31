@@ -74,6 +74,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_user":                    dataUser(),
 				"env0_cloud_credentials":       dataCloudCredentials(),
 				"env0_source_code_variables":   dataSourceCodeVariables(),
+				"env0_ip_ranges":               dataIpRanges(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
