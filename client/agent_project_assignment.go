@@ -14,7 +14,7 @@ type Agent struct {
 }
 
 func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssi
 }
 
 func (client *ApiClient) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (client *ApiClient) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments
 }
 
 func (client *ApiClient) Agents() ([]Agent, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

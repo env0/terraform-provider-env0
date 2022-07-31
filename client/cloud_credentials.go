@@ -121,7 +121,7 @@ func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {
 }
 
 func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return []Credentials{}, err
 	}
@@ -136,7 +136,7 @@ func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
 }
 
 func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Credentials, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Credentials{}, err
 	}

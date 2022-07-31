@@ -29,7 +29,7 @@ func (client *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
 	if payload.OrganizationId != "" {
 		return Team{}, errors.New("must not specify organizationId")
 	}
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Team{}, err
 	}
@@ -70,7 +70,7 @@ func (client *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team,
 }
 
 func (client *ApiClient) Teams() ([]Team, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

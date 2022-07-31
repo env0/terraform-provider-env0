@@ -7,7 +7,7 @@ type OrganizationUser struct {
 }
 
 func (client *ApiClient) Users() ([]OrganizationUser, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

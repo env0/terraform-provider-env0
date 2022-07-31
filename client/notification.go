@@ -35,7 +35,7 @@ type NotificationUpdatePayload struct {
 }
 
 func (client *ApiClient) Notifications() ([]Notification, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (client *ApiClient) Notifications() ([]Notification, error) {
 func (client *ApiClient) NotificationCreate(payload NotificationCreatePayload) (*Notification, error) {
 	var result Notification
 
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

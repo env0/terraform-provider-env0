@@ -28,7 +28,7 @@ type ApiKeyCreatePayloadWith struct {
 }
 
 func (client *ApiClient) ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (client *ApiClient) ApiKeyDelete(id string) error {
 }
 
 func (client *ApiClient) ApiKeys() ([]ApiKey, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
