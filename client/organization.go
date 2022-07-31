@@ -40,6 +40,10 @@ func (client *ApiClient) Organization() (Organization, error) {
 	return result[0], nil
 }
 
+func (client *ApiClient) OrganizationIdCaching() (string, error) {
+	return client.organizationId()
+}
+
 func (client *ApiClient) organizationId() (string, error) {
 	if client.cachedOrganizationId != "" {
 		return client.cachedOrganizationId, nil

@@ -18,6 +18,7 @@ type ApiClientInterface interface {
 	ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
+	OrganizationIdCaching() (string, error)
 	organizationId() (string, error)
 	OrganizationPolicyUpdate(OrganizationPolicyUpdatePayload) (*Organization, error)
 	Policy(projectId string) (Policy, error)
