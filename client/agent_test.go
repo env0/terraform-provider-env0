@@ -107,17 +107,19 @@ var _ = Describe("Agent Client", func() {
 
 		Describe("Failure", func() {
 			var err error
+			var actualResult string
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents/"+agentId+"/values", nil, gomock.Any()).
 					Return(errorMock)
 
-				_, err = apiClient.AgentValues(agentId)
+				actualResult, err = apiClient.AgentValues(agentId)
 			})
 
 			It("Should fail if API call fails", func() {
 				Expect(err).To(Equal(errorMock))
+				Expect(actualResult).To(Equal(""))
 			})
 		})
 	})
