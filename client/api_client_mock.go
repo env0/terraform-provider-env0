@@ -775,6 +775,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
+// OrganizationId mocks base method.
+func (m *MockApiClientInterface) OrganizationId() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationId")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrganizationId indicates an expected call of OrganizationId.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationId() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationId", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationId))
+}
+
 // OrganizationPolicyUpdate mocks base method.
 func (m *MockApiClientInterface) OrganizationPolicyUpdate(arg0 OrganizationPolicyUpdatePayload) (*Organization, error) {
 	m.ctrl.T.Helper()
@@ -1304,19 +1319,4 @@ func (m *MockApiClientInterface) WorkflowTriggerUpsert(arg0 string, arg1 Workflo
 func (mr *MockApiClientInterfaceMockRecorder) WorkflowTriggerUpsert(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTriggerUpsert", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTriggerUpsert), arg0, arg1)
-}
-
-// organizationId mocks base method.
-func (m *MockApiClientInterface) organizationId() (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "organizationId")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// organizationId indicates an expected call of organizationId.
-func (mr *MockApiClientInterfaceMockRecorder) organizationId() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "organizationId", reflect.TypeOf((*MockApiClientInterface)(nil).organizationId))
 }
