@@ -62,7 +62,7 @@ type ModuleUpdatePayload struct {
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (client *ApiClient) ModuleUpdate(id string, payload ModuleUpdatePayload) (*
 }
 
 func (client *ApiClient) Modules() ([]Module, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

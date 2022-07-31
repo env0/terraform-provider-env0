@@ -19,7 +19,7 @@ type ProjectCreatePayload struct {
 }
 
 func (client *ApiClient) Projects() ([]Project, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (client *ApiClient) Project(id string) (Project, error) {
 
 func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, error) {
 	var result Project
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Project{}, err
 	}

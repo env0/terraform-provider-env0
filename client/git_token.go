@@ -19,7 +19,7 @@ type GitTokenCreatePayloadWith struct {
 }
 
 func (client *ApiClient) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (client *ApiClient) GitTokenDelete(id string) error {
 }
 
 func (client *ApiClient) GitTokens() ([]GitToken, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

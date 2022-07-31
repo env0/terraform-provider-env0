@@ -40,7 +40,7 @@ func (client *ApiClient) Organization() (Organization, error) {
 	return result[0], nil
 }
 
-func (client *ApiClient) organizationId() (string, error) {
+func (client *ApiClient) OrganizationId() (string, error) {
 	if client.cachedOrganizationId != "" {
 		return client.cachedOrganizationId, nil
 	}
@@ -53,7 +53,7 @@ func (client *ApiClient) organizationId() (string, error) {
 }
 
 func (client *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpdatePayload) (*Organization, error) {
-	id, err := client.organizationId()
+	id, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

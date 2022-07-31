@@ -155,7 +155,7 @@ func (payload TemplateCreatePayload) Validate() error {
 }
 
 func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Template{}, nil
 	}
@@ -183,7 +183,7 @@ func (client *ApiClient) TemplateDelete(id string) error {
 }
 
 func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Template{}, err
 	}
@@ -198,7 +198,7 @@ func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload
 }
 
 func (client *ApiClient) Templates() ([]Template, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}

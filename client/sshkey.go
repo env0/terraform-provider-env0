@@ -19,7 +19,7 @@ type SshKeyCreatePayload struct {
 }
 
 func (client *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (client *ApiClient) SshKeyDelete(id string) error {
 }
 
 func (client *ApiClient) SshKeys() ([]SshKey, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
