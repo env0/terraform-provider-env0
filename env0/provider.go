@@ -130,7 +130,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 		}
 		apiClient := client.NewApiClient(httpClient)
 		if apiClient == nil {
-			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
+			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: "Failed to fetch organiztions."}}
 		}
 
 		apiClient.Organization()
