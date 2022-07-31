@@ -129,9 +129,6 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 		}
 		apiClient := client.NewApiClient(httpClient)
-		if apiClient == nil {
-			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: "Failed to fetch organiztions."}}
-		}
 
 		apiClient.Organization()
 		log.Printf("organizations fetched to cache Auth0 API response.")
