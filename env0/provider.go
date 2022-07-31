@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -130,8 +129,9 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 		}
 		apiClient := client.NewApiClient(httpClient)
 
+		// organizations fetched to cache Auth0 API response.
 		apiClient.Organization()
-		log.Printf("organizations fetched to cache Auth0 API response.")
+
 		return apiClient, nil
 	}
 }
