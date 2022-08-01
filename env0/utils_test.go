@@ -270,6 +270,41 @@ func TestReadResourceDataEx(t *testing.T) {
 	assert.False(t, payload.IsGithubEnterprise)
 }
 
+func TestWriteResourceDataTemplateSlice(t *testing.T) {
+	d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]interface{}{})
+	template := client.Template{
+		Name:       "name",
+		Revision:   "revision",
+		Repository: "repository",
+		Path:       "path",
+		Type:       "type",
+		SshKeys: []client.TemplateSshKey{
+			{
+				Id:   "id1",
+				Name: "name1",
+			},
+			{
+				Id:   "id2",
+				Name: "name2",
+			},
+		},
+	}
+
+	templates := []client.Template{template}
+
+	assert.Nil(t, writeResourceDataSlice(templates, "template", d))
+
+	assert.Equal(t, template.Name, d.Get("template.0.name"))
+	assert.Equal(t, template.Revision, d.Get("template.0.revision"))
+	assert.Equal(t, template.Repository, d.Get("template.0.repository"))
+	assert.Equal(t, template.Path, d.Get("template.0.path"))
+	assert.Equal(t, template.Type, d.Get("template.0.type"))
+	assert.Equal(t, template.SshKeys[0].Id, d.Get("template.0.ssh_keys.0.id"))
+	assert.Equal(t, template.SshKeys[0].Name, d.Get("template.0.ssh_keys.0.name"))
+	assert.Equal(t, template.SshKeys[1].Id, d.Get("template.0.ssh_keys.1.id"))
+	assert.Equal(t, template.SshKeys[1].Name, d.Get("template.0.ssh_keys.1.name"))
+}
+
 func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]interface{}{})
 

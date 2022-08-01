@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -225,4 +227,90 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 	}
 
 	return s
+}
+
+func templateCreatePayloadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOnPtr **client.TemplateRetryOn) {
+	if prefix != "" {
+		prefix += "."
+	}
+	retries, hasRetries := d.GetOk(prefix + "retries_on_" + retryType)
+	if hasRetries {
+		retryOn := &client.TemplateRetryOn{
+			Times: retries.(int),
+		}
+		if retryIfMatchesRegex, ok := d.GetOk(prefix + "retry_on_" + retryType + "_only_when_matches_regex"); ok {
+			retryOn.ErrorRegex = retryIfMatchesRegex.(string)
+		}
+
+		*retryOnPtr = retryOn
+	}
+}
+
+func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
+	var payload client.TemplateCreatePayload
+	if err := readResourceDataEx(prefix, &payload, d); err != nil {
+		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	tokenIdKey := "token_id"
+	if prefix != "" {
+		tokenIdKey = prefix + "." + tokenIdKey
+	}
+	if tokenId, ok := d.GetOk(tokenIdKey); ok {
+		payload.IsGitLab = tokenId != ""
+	}
+
+	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
+	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
+
+	if err := payload.Validate(); err != nil {
+		return payload, diag.Errorf(err.Error())
+	}
+
+	return payload, nil
+}
+
+// Reads template and writes to the resource data.
+func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
+	if prefix != "" {
+		templates := []client.Template{template}
+		if err := writeResourceDataSlice(templates, prefix, d); err != nil {
+			return fmt.Errorf("schema resource data serialization failed: %v", err)
+		}
+	} else if err := writeResourceData(&template, d); err != nil {
+		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	templateReadRetryOnHelper(prefix, d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper(prefix, d, "destroy", template.Retry.OnDestroy)
+
+	return nil
+}
+
+// Helpers function for templateRead.
+func templateReadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
+	if prefix != "" {
+		values := d.Get(prefix)
+		valuesSlice := values.([]interface{})
+		valueMap := valuesSlice[0].(map[string]interface{})
+		if retryOn != nil {
+			valueMap["retries_on_"+retryType] = retryOn.Times
+			valueMap["retry_on_"+retryType+"_only_when_matches_regex"] = retryOn.ErrorRegex
+		} else {
+			valueMap["retries_on_"+retryType] = 0
+			valueMap["retry_on_"+retryType+"_only_when_matches_regex"] = ""
+		}
+
+		d.Set(prefix, values)
+
+		return
+	}
+
+	if retryOn != nil {
+		d.Set(prefix+"retries_on_"+retryType, retryOn.Times)
+		d.Set(prefix+"retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
+	} else {
+		d.Set(prefix+"retries_on_"+retryType, 0)
+		d.Set(prefix+"retry_on_"+retryType+"_only_when_matches_regex", "")
+	}
 }

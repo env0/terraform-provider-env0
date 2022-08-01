@@ -195,9 +195,15 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) error {
+func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, template client.Template, configurationVariables client.ConfigurationChanges) error {
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	if template.Id != "" {
+		if err := templateRead("template", template, d); err != nil {
+			return err
+		}
 	}
 
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
@@ -247,6 +253,8 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+	var template client.Template
+	var err error
 
 	if _, ok := d.GetOk("template.0"); ok {
 		// Templateless environment creation use-case.
@@ -255,18 +263,23 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			return diagErr
 		}
 
+		createTemplatePayload.IsSingleUse = true
+
 		name := d.Get("name").(string)
 		createTemplatePayload.Name = "single-use-template-for-" + name
 
-		template, err := apiClient.TemplateCreate(createTemplatePayload)
+		template, err = apiClient.TemplateCreate(createTemplatePayload)
 		if err != nil {
 			return diag.Errorf("could not create template: %v", err)
 		}
 
-		d.Set("template.0.id", template.Id)
+		values := d.Get("template")
+		valuesSlice := values.([]interface{})
+		valueMap := valuesSlice[0].(map[string]interface{})
+		valueMap["id"] = template.Id
+		d.Set("template", values)
 	}
 
-	// TODO - update getCreatePayload
 	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 
 	if createEnvPayloadErr != nil {
@@ -283,7 +296,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
 
 	return nil
 }
@@ -296,11 +309,21 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
+	var template client.Template
+	if _, ok := d.GetOk("template.0"); ok {
+		templateId := d.Get("template.0.id").(string)
+		template, err = apiClient.Template(templateId)
+		if err != nil {
+			return diag.Errorf("could not get template: %v", err)
+		}
+	}
+
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+
+	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
 
 	return nil
 }
@@ -512,6 +535,8 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	if revision, ok := d.GetOk("revision"); ok {
 		payload.BlueprintRevision = revision.(string)
+	} else if revision, ok := d.GetOk("template.0.revision"); ok {
+		payload.BlueprintRevision = revision.(string)
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
@@ -697,8 +722,12 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
+
+	// TODO
+	var template client.Template
+
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)

@@ -24,47 +24,6 @@ func resourceTemplate() *schema.Resource {
 	}
 }
 
-func templateCreatePayloadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOnPtr **client.TemplateRetryOn) {
-	if prefix != "" {
-		prefix += "."
-	}
-	retries, hasRetries := d.GetOk(prefix + "retries_on_" + retryType)
-	if hasRetries {
-		retryOn := &client.TemplateRetryOn{
-			Times: retries.(int),
-		}
-		if retryIfMatchesRegex, ok := d.GetOk(prefix + "retry_on_" + retryType + "_only_when_matches_regex"); ok {
-			retryOn.ErrorRegex = retryIfMatchesRegex.(string)
-		}
-
-		*retryOnPtr = retryOn
-	}
-}
-
-func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
-	var payload client.TemplateCreatePayload
-	if err := readResourceDataEx(prefix, &payload, d); err != nil {
-		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	tokenIdKey := "token_id"
-	if prefix != "" {
-		tokenIdKey = prefix + "." + tokenIdKey
-	}
-	if tokenId, ok := d.GetOk(tokenIdKey); ok {
-		payload.IsGitLab = tokenId != ""
-	}
-
-	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
-	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
-
-	if err := payload.Validate(); err != nil {
-		return payload, diag.Errorf(err.Error())
-	}
-
-	return payload, nil
-}
-
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -82,16 +41,6 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func templateReadRetryOnHelper(d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
-	if retryOn != nil {
-		d.Set("retries_on_"+retryType, retryOn.Times)
-		d.Set("retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
-	} else {
-		d.Set("retries_on_"+retryType, 0)
-		d.Set("retry_on_"+retryType+"_only_when_matches_regex", "")
-	}
-}
-
 func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -106,12 +55,9 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := writeResourceData(&template, d); err != nil {
-		return diag.Errorf("schema resource data serialization failed: %v", err)
+	if err := templateRead("", template, d); err != nil {
+		return diag.Errorf("%v", err)
 	}
-
-	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
-	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
 
 	return nil
 }
