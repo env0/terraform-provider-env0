@@ -255,10 +255,6 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			return diagErr
 		}
 
-		if revision, ok := d.GetOk("revision"); ok {
-			createTemplatePayload.Revision = revision.(string)
-		}
-
 		name := d.Get("name").(string)
 		createTemplatePayload.Name = "single-use-template-for-" + name
 

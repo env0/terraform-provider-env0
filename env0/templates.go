@@ -106,6 +106,11 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Default:          "terraform",
 			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
 		},
+		"revision": {
+			Type:        schema.TypeString,
+			Description: "source code revision (branch / tag) to use",
+			Optional:    true,
+		},
 		"ssh_keys": {
 			Type:        schema.TypeList,
 			Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
@@ -216,14 +221,6 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "id of the template",
 			Computed:    true,
-		}
-	}
-
-	if templateType == TemplateTypeShared {
-		s["revision"] = &schema.Schema{
-			Type:        schema.TypeString,
-			Description: "source code revision (branch / tag) to use",
-			Optional:    true,
 		}
 	}
 
