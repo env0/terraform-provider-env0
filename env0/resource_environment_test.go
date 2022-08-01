@@ -996,11 +996,11 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 			terragrunt_working_directory = "%s"
 			force_destroy = true
 			vcs_commands_alias = "%s"
-			revision = "%s"
 			template {
 				repository = "%s"
 				terraform_version = "%s"
 				type = "%s"
+				revision = "%s"
 				path = "%s"
 				retries_on_deploy = %d
 				retry_on_deploy_only_when_matches_regex = "%s"
@@ -1014,10 +1014,10 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 			environment.WorkspaceName,
 			environment.TerragruntWorkingDirectory,
 			environment.VcsCommandsAlias,
-			template.Revision,
 			template.Repository,
 			template.TerraformVersion,
 			template.Type,
+			template.Revision,
 			template.Path,
 			template.Retry.OnDeploy.Times,
 			template.Retry.OnDeploy.ErrorRegex,
@@ -1039,11 +1039,11 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
-						resource.TestCheckResourceAttr(accessor, "revision", template.Revision),
 						resource.TestCheckResourceAttr(accessor, "template.0.repository", template.Repository),
 						resource.TestCheckResourceAttr(accessor, "template.0.terraform_version", template.TerraformVersion),
 						resource.TestCheckResourceAttr(accessor, "template.0.type", template.Type),
 						resource.TestCheckResourceAttr(accessor, "template.0.path", template.Path),
+						resource.TestCheckResourceAttr(accessor, "template.0.revision", template.Revision),
 						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
 						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
 						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
