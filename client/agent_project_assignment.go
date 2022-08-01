@@ -9,12 +9,8 @@ type ProjectsAgentsAssignments struct {
 	ProjectsAgents map[string]interface{} `json:"ProjectsAgents"`
 }
 
-type Agent struct {
-	AgentKey string `json:"agentKey"`
-}
-
 func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +24,7 @@ func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssi
 }
 
 func (client *ApiClient) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -40,19 +36,4 @@ func (client *ApiClient) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments
 	}
 
 	return &result, nil
-}
-
-func (client *ApiClient) Agents() ([]Agent, error) {
-	organizationId, err := client.organizationId()
-	if err != nil {
-		return nil, err
-	}
-
-	var result []Agent
-	err = client.http.Get("/agents", map[string]string{"organizationId": organizationId}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
 }

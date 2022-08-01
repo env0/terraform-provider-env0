@@ -86,7 +86,7 @@ func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVar
 }
 
 func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 	if params.Scope == ScopeDeploymentLog || params.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
@@ -181,7 +181,7 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 	if commonParams.Scope == ScopeDeploymentLog || commonParams.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}

@@ -18,7 +18,7 @@ type ApiClientInterface interface {
 	ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error)
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
-	organizationId() (string, error)
+	OrganizationId() (string, error)
 	OrganizationPolicyUpdate(OrganizationPolicyUpdatePayload) (*Organization, error)
 	Policy(projectId string) (Policy, error)
 	PolicyUpdate(payload PolicyUpdatePayload) (Policy, error)
@@ -93,6 +93,7 @@ type ApiClientInterface interface {
 	AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error)
 	ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error)
 	Agents() ([]Agent, error)
+	AgentValues(id string) (string, error)
 	Users() ([]OrganizationUser, error)
 	AssignUserToProject(projectId string, payload *AssignUserToProjectPayload) (*UserProjectAssignment, error)
 	RemoveUserFromProject(projectId string, userId string) error

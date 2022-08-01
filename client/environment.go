@@ -130,7 +130,7 @@ func (Environment) getEndpoint() string {
 }
 
 func (client *ApiClient) Environments() ([]Environment, error) {
-	organizationId, err := client.organizationId()
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
