@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestSelfHostedAgentValues(t *testing.T) {
-	resourceType := "env0_self_hosted_agent_values"
+func TestAgentValues(t *testing.T) {
+	resourceType := "env0_agent_values"
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 

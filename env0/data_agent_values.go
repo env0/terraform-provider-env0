@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSelfHostedAgentValues() *schema.Resource {
+func dataAgentValues() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSelfHostedAgentValuesRead,
+		ReadContext: dataAgentValuesRead,
 
 		Schema: map[string]*schema.Schema{
 			"agent_key": {
@@ -27,7 +27,7 @@ func dataSelfHostedAgentValues() *schema.Resource {
 	}
 }
 
-func dataSelfHostedAgentValuesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataAgentValuesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	agentKey := d.Get("agent_key").(string)
