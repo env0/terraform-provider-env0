@@ -99,17 +99,17 @@ func getTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 			Description: "terraform / terragrunt file folder inside source code",
 			Optional:    true,
 		},
-		"revision": {
-			Type:        schema.TypeString,
-			Description: "source code revision (branch / tag) to use",
-			Optional:    true,
-		},
 		"type": {
 			Type:             schema.TypeString,
 			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
 			Optional:         true,
 			Default:          "terraform",
 			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
+		},
+		"revision": {
+			Type:        schema.TypeString,
+			Description: "source code revision (branch / tag) to use",
+			Optional:    true,
 		},
 		"ssh_keys": {
 			Type:        schema.TypeList,

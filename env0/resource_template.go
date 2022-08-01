@@ -24,13 +24,16 @@ func resourceTemplate() *schema.Resource {
 	}
 }
 
-func templateCreatePayloadRetryOnHelper(d *schema.ResourceData, retryType string, retryOnPtr **client.TemplateRetryOn) {
-	retries, hasRetries := d.GetOk("retries_on_" + retryType)
+func templateCreatePayloadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOnPtr **client.TemplateRetryOn) {
+	if prefix != "" {
+		prefix += "."
+	}
+	retries, hasRetries := d.GetOk(prefix + "retries_on_" + retryType)
 	if hasRetries {
 		retryOn := &client.TemplateRetryOn{
 			Times: retries.(int),
 		}
-		if retryIfMatchesRegex, ok := d.GetOk("retry_on_" + retryType + "_only_when_matches_regex"); ok {
+		if retryIfMatchesRegex, ok := d.GetOk(prefix + "retry_on_" + retryType + "_only_when_matches_regex"); ok {
 			retryOn.ErrorRegex = retryIfMatchesRegex.(string)
 		}
 
@@ -38,18 +41,22 @@ func templateCreatePayloadRetryOnHelper(d *schema.ResourceData, retryType string
 	}
 }
 
-func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
+func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
 	var payload client.TemplateCreatePayload
-	if err := readResourceData(&payload, d); err != nil {
+	if err := readResourceDataEx(prefix, &payload, d); err != nil {
 		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if tokenId, ok := d.GetOk("token_id"); ok {
+	tokenIdKey := "token_id"
+	if prefix != "" {
+		tokenIdKey = prefix + "." + tokenIdKey
+	}
+	if tokenId, ok := d.GetOk(tokenIdKey); ok {
 		payload.IsGitLab = tokenId != ""
 	}
 
-	templateCreatePayloadRetryOnHelper(d, "deploy", &payload.Retry.OnDeploy)
-	templateCreatePayloadRetryOnHelper(d, "destroy", &payload.Retry.OnDestroy)
+	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
+	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
 
 	if err := payload.Validate(); err != nil {
 		return payload, diag.Errorf(err.Error())
@@ -61,7 +68,7 @@ func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.Templat
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request, problem := templateCreatePayloadFromParameters(d)
+	request, problem := templateCreatePayloadFromParameters("", d)
 	if problem != nil {
 		return problem
 	}
@@ -112,7 +119,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request, problem := templateCreatePayloadFromParameters(d)
+	request, problem := templateCreatePayloadFromParameters("", d)
 	if problem != nil {
 		return problem
 	}
