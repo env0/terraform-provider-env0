@@ -82,7 +82,7 @@ type Environment struct {
 	RequiresApproval            *bool         `json:"requiresApproval,omitempty" tfschema:"-"`
 	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push"`
 	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests"`
-	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
+	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
 	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
