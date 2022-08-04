@@ -51,7 +51,8 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 		triggerIds = append(triggerIds, value.Id)
 	}
 
-	d.Set(`downstream_environment_ids`, triggerIds)
+	d.Set("downstream_environment_ids", triggerIds)
+
 	return nil
 }
 
