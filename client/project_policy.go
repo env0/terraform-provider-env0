@@ -13,8 +13,8 @@ type Policy struct {
 	UpdatedBy                   string  `json:"updatedBy"`
 	RunPullRequestPlanDefault   bool    `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
-	MaxTtl                      *string `json:"maxTtl,omitempty"`
-	DefaultTtl                  *string `json:"defaultTtl,omitempty"`
+	MaxTtl                      *string `json:"maxTtl,omitempty" tfschema:",omitempty"`
+	DefaultTtl                  *string `json:"defaultTtl,omitempty" tfschema:",omitempty"`
 }
 
 type PolicyUpdatePayload struct {

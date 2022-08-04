@@ -203,26 +203,10 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 		return ResourceGetFailure("configuration variable", d, err)
 	}
 
-	d.Set("name", variable.Name)
-	d.Set("description", variable.Description)
-	d.Set("value", variable.Value)
-	d.Set("is_sensitive", variable.IsSensitive)
-	d.Set("is_read_only", variable.IsReadOnly)
-	d.Set("is_required", variable.IsRequired)
-	d.Set("regex", variable.Regex)
-	if variable.Type != nil && *variable.Type == client.ConfigurationVariableTypeTerraform {
-		d.Set("type", "terraform")
-	} else {
-		d.Set("type", "environment")
-	}
-	if variable.Schema != nil {
-		if len(variable.Schema.Enum) > 0 {
-			d.Set("enum", variable.Schema.Enum)
-		}
+	d.Set("type", "environment")
 
-		if variable.Schema.Format != "" {
-			d.Set("format", variable.Schema.Format)
-		}
+	if err := writeResourceData(&variable, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
