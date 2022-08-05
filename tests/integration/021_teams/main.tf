@@ -7,12 +7,12 @@ resource "random_string" "random" {
 }
 
 resource "env0_team" "team_resource1" {
-  name = "team1-021-${random_string.random.result}"
+  name        = "team1-021-${random_string.random.result}"
   description = "team 1 description"
 }
 
 resource "env0_team" "team_resource2" {
-  name = "team2-021-${random_string.random.result}"
+  name        = "team2-021-${random_string.random.result}"
   description = "team 2 description"
 }
 

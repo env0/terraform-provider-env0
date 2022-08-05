@@ -44,3 +44,11 @@ data "env0_api_key" "test_api_key1" {
 data "env0_api_key" "test_api_key2" {
   id = env0_api_key.test_api_key.id
 }
+
+resource "env0_api_key" "test_api_key_omitted" {
+  name = "omitted-api-key-secret-${random_string.random.result}"
+}
+
+output "omitted_secret" {
+  value = env0_api_key.test_api_key_omitted.api_key_secret
+}
