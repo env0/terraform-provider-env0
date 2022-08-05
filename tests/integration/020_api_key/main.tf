@@ -46,5 +46,6 @@ data "env0_api_key" "test_api_key2" {
 }
 
 resource "env0_api_key" "test_api_key_omitted" {
-  name = "omitted-api-key-secret-${random_string.random.result}"
+  name                = "omitted-api-key-secret-${random_string.random.result}"
+  omit_api_key_secret = true
 }
