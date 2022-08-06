@@ -141,27 +141,36 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 	return scope, scopeId
 }
 
-func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.ConfigurationVariableCreateParams, error) {
 	scope, scopeId := whichScope(d)
 	params := client.ConfigurationVariableCreateParams{Scope: scope, ScopeId: scopeId}
 	if err := readResourceData(&params, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	if err := validateNilValue(params.IsReadOnly, params.IsRequired, params.Value); err != nil {
-		return diag.Errorf(err.Error())
+		return nil, err
 	}
 
-	actualEnumValues, getEnumErr := getEnum(d, params.Value)
-	if getEnumErr != nil {
-		return getEnumErr
+	actualEnumValues, err := getEnum(d, params.Value)
+	if err != nil {
+		return nil, err
 	}
 
 	params.EnumValues = actualEnumValues
 
+	return &params, nil
+}
+
+func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	params, err := getConfigurationVariableCreateParams(d)
+	if err != nil {
+		return diag.Errorf(err.Error())
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
-	configurationVariable, err := apiClient.ConfigurationVariableCreate(params)
+	configurationVariable, err := apiClient.ConfigurationVariableCreate(*params)
 	if err != nil {
 		return diag.Errorf("could not create configurationVariable: %v", err)
 	}
@@ -171,7 +180,7 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagnostics) {
+func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 	var enumValues []interface{}
 	var actualEnumValues []string
 	if specified, ok := d.GetOk("enum"); ok {
@@ -179,7 +188,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagn
 		valueExists := false
 		for i, enumValue := range enumValues {
 			if enumValue == nil {
-				return nil, diag.Errorf("an empty enum value is not allowed (at index %d)", i)
+				return nil, fmt.Errorf("an empty enum value is not allowed (at index %d)", i)
 			}
 			actualEnumValues = append(actualEnumValues, enumValue.(string))
 			if enumValue == selectedValue {
@@ -187,7 +196,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, diag.Diagn
 			}
 		}
 		if !valueExists {
-			return nil, diag.Errorf("value - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
+			return nil, fmt.Errorf("value - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
 		}
 	}
 	return actualEnumValues, nil
@@ -213,52 +222,15 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-
-	id := d.Id()
-	scope, scopeId := whichScope(d)
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	value := d.Get("value").(string)
-	isSensitive := d.Get("is_sensitive").(bool)
-	typeAsString := d.Get("type").(string)
-	format := client.Format(d.Get("format").(string))
-	isReadOnly := d.Get("is_read_only").(bool)
-	isRequired := d.Get("is_required").(bool)
-	regex := d.Get("regex").(string)
-
-	if err := validateNilValue(isReadOnly, isRequired, value); err != nil {
+	params, err := getConfigurationVariableCreateParams(d)
+	if err != nil {
 		return diag.Errorf(err.Error())
 	}
 
-	var type_ client.ConfigurationVariableType
-	switch typeAsString {
-	case "environment":
-		type_ = client.ConfigurationVariableTypeEnvironment
-	case "terraform":
-		type_ = client.ConfigurationVariableTypeTerraform
-	default:
-		return diag.Errorf("'type' can only receive either 'environment' or 'terraform': %s", typeAsString)
-	}
-	actualEnumValues, getEnumErr := getEnum(d, value)
-	if getEnumErr != nil {
-		return getEnumErr
-	}
-	_, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, CommonParams: client.ConfigurationVariableCreateParams{
-		Name:        name,
-		Value:       value,
-		IsSensitive: isSensitive,
-		Scope:       scope,
-		ScopeId:     scopeId,
-		Type:        type_,
-		EnumValues:  actualEnumValues,
-		Description: description,
-		Format:      format,
-		IsReadOnly:  isReadOnly,
-		IsRequired:  isRequired,
-		Regex:       regex,
-	}})
-	if err != nil {
+	apiClient := meta.(client.ApiClientInterface)
+
+	id := d.Id()
+	if _, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: id, CommonParams: *params}); err != nil {
 		return diag.Errorf("could not update configurationVariable: %v", err)
 	}
 
