@@ -45,6 +45,8 @@ func dataWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("could not get workflow triggers: %v", err)
 	}
+
+	d.SetId(environmentId)
 	var triggerIds []string
 	for _, value := range triggers {
 		triggerIds = append(triggerIds, value.Id)
