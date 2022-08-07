@@ -16,14 +16,14 @@ const (
 type TeamProjectAssignmentPayload struct {
 	TeamId      string `json:"teamId"`
 	ProjectId   string `json:"projectId"`
-	ProjectRole Role   `json:"projectRole"`
+	ProjectRole Role   `json:"projectRole" tfschema:"role"`
 }
 
 type TeamProjectAssignment struct {
 	Id          string `json:"id"`
 	TeamId      string `json:"teamId"`
 	ProjectId   string `json:"projectId"`
-	ProjectRole Role   `json:"projectRole"`
+	ProjectRole Role   `json:"projectRole" tfschema:"role"`
 }
 
 func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
