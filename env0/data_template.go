@@ -151,84 +151,23 @@ func dataTemplate() *schema.Resource {
 }
 
 func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	name, nameSpecified := d.GetOk("name")
 	var template client.Template
 	var err diag.Diagnostics
-	if nameSpecified {
-		template, err = getTemplateByName(name, meta)
-		if err != nil {
+
+	if name, ok := d.GetOk("name"); ok {
+		if template, err = getTemplateByName(name, meta); err != nil {
 			return err
 		}
-	} else {
-		template, err = getTemplateById(d.Get("id").(string), meta)
-		if err != nil {
-			return diag.Errorf("Could not query template: %v", err)
-		}
+	} else if template, err = getTemplateById(d.Get("id").(string), meta); err != nil {
+		return diag.Errorf("Could not query template: %v", err)
 	}
 
-	// TODO: use writeResourceData instead.
-	d.SetId(template.Id)
-	d.Set("name", template.Name)
-	d.Set("repository", template.Repository)
-	d.Set("path", template.Path)
-	d.Set("revision", template.Revision)
-	d.Set("type", template.Type)
-	d.Set("project_ids", template.ProjectIds)
-	d.Set("terraform_version", template.TerraformVersion)
-	if template.TerragruntVersion != "" {
-		d.Set("terragrunt_version", template.TerragruntVersion)
-	}
-	if template.Retry.OnDeploy != nil {
-		d.Set("retries_on_deploy", template.Retry.OnDeploy.Times)
-		d.Set("retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex)
-	} else {
-		d.Set("retries_on_deploy", 0)
-		d.Set("retry_on_deploy_only_when_matches_regex", "")
-	}
-	if template.Retry.OnDestroy != nil {
-		d.Set("retries_on_destroy", template.Retry.OnDestroy.Times)
-		d.Set("retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex)
-	} else {
-		d.Set("retries_on_destroy", 0)
-		d.Set("retry_on_destroy_only_when_matches_regex", "")
+	if err := writeResourceData(&template, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if template.GithubInstallationId != 0 {
-		d.Set("github_installation_id", template.GithubInstallationId)
-	}
-
-	if template.TokenId != "" {
-		d.Set("token_id", template.TokenId)
-	}
-
-	if template.BitbucketClientKey != "" {
-		d.Set("bitbucket_client_key", template.BitbucketClientKey)
-	}
-
-	if template.IsGitlabEnterprise {
-		d.Set("is_gitlab_enterprise", template.IsGitlabEnterprise)
-	}
-
-	if template.IsBitbucketServer {
-		d.Set("is_bitbucket_server", template.IsBitbucketServer)
-	}
-
-	if template.IsGithubEnterprise {
-		d.Set("is_github_enterprise", template.IsGithubEnterprise)
-	}
-
-	var sshKeys []interface{}
-
-	for _, sshKey := range template.SshKeys {
-		newSshKey := make(map[string]interface{})
-		newSshKey["id"] = sshKey.Id
-		newSshKey["name"] = sshKey.Name
-		sshKeys = append(sshKeys, newSshKey)
-	}
-
-	if sshKeys != nil {
-		d.Set("ssh_keys", sshKeys)
-	}
+	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
 
 	return nil
 }
