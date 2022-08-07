@@ -103,14 +103,14 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one project exists", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(projectDataByName, "Found multiple Projects for name"),
+			getErrorTestCase(projectDataByName, "found multiple Projects for name"),
 			mockListProjectsCall([]client.Project{project, project}),
 		)
 	})
 
 	t.Run("Throw error when by name and no projects found at all", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(projectDataByName, "Could not find a project with name"),
+			getErrorTestCase(projectDataByName, "could not find a project with name"),
 			mockListProjectsCall([]client.Project{}),
 		)
 	})
@@ -118,14 +118,14 @@ func TestProjectDataSource(t *testing.T) {
 	t.Run("Throw error when by name and no projects found with that name", func(t *testing.T) {
 		projectWithOtherName := map[string]interface{}{"name": "other-name"}
 		runUnitTest(t,
-			getErrorTestCase(projectWithOtherName, "Could not find a project with name"),
+			getErrorTestCase(projectWithOtherName, "could not find a project with name"),
 			mockListProjectsCall([]client.Project{project, project}),
 		)
 	})
 
 	t.Run("Throw error when by id not found", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(projectDataById, "Could not find a project with id: id0"),
+			getErrorTestCase(projectDataById, "could not find a project with id: id0"),
 			mockGetProjectCallFailed(404),
 		)
 	})
