@@ -7,7 +7,6 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -23,16 +22,10 @@ func resourceProject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Description: "name to give the project",
-				Required:    true,
-				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
-					name := i.(string)
-					if name == "" {
-						return diag.Errorf("Project name cannot be empty")
-					}
-					return nil
-				},
+				Type:             schema.TypeString,
+				Description:      "name to give the project",
+				Required:         true,
+				ValidateDiagFunc: ValidateNotEmptyString,
 			},
 			"id": {
 				Type:        schema.TypeString,
@@ -54,25 +47,20 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func setProjectSchema(d *schema.ResourceData, project client.Project) {
-	d.Set("name", project.Name)
-	d.Set("description", project.Description)
-}
-
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	project, err := apiClient.ProjectCreate(client.ProjectCreatePayload{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-	})
+	var payload client.ProjectCreatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	project, err := apiClient.ProjectCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create project: %v", err)
 	}
 
 	d.SetId(project.Id)
-
-	setProjectSchema(d, project)
 
 	return nil
 }
@@ -82,10 +70,12 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	project, err := apiClient.Project(d.Id())
 	if err != nil {
-		return diag.Errorf("could not get project: %v", err)
+		return ResourceGetFailure("project", d, err)
 	}
 
-	setProjectSchema(d, project)
+	if err := writeResourceData(&project, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -94,17 +84,15 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	payload := client.ProjectCreatePayload{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
+	var payload client.ProjectCreatePayload
+
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	project, err := apiClient.ProjectUpdate(id, payload)
-	if err != nil {
+	if _, err := apiClient.ProjectUpdate(id, payload); err != nil {
 		return diag.Errorf("could not update project: %v", err)
 	}
-
-	setProjectSchema(d, project)
 
 	return nil
 }
@@ -150,25 +138,26 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
-	var getErr diag.Diagnostics
 	_, err := uuid.Parse(id)
+
+	var project client.Project
+
 	if err == nil {
 		log.Println("[INFO] Resolving Project by id: ", id)
-		_, getErr = getProjectById(id, meta)
+		if project, err = getProjectById(id, meta); err != nil {
+			return nil, err
+		}
 	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving Project by name: ", id)
 
-		var project client.Project
-		project, getErr = getProjectByName(id, meta)
-
-		d.SetId(project.Id)
-		setProjectSchema(d, project)
+		if project, err = getProjectByName(id, meta); err != nil {
+			return nil, err
+		}
 	}
 
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
+	if err := writeResourceData(&project, d); err != nil {
+		return nil, err
 	}
+
+	return []*schema.ResourceData{d}, nil
 }
