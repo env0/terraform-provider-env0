@@ -46,7 +46,7 @@ type ConfigurationVariable struct {
 	Id             string                       `json:"id,omitempty"`
 	Name           string                       `json:"name"`
 	Description    string                       `json:"description,omitempty"`
-	Type           *ConfigurationVariableType   `json:"type,omitempty"`
+	Type           *ConfigurationVariableType   `json:"type,omitempty" tfschema:",omitempty"`
 	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
 	ToDelete       *bool                        `json:"toDelete,omitempty"`
 	IsReadOnly     *bool                        `json:"isReadonly,omitempty"`

@@ -234,7 +234,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			continue
 		}
 
-		if customField, ok := field.Interface().(CustomResourceDataField); ok {
+		if customField, ok := field.Interface().(CustomResourceDataField); ok && !field.IsNil() {
 			if err := customField.WriteResourceData(fieldName, d); err != nil {
 				return err
 			}
@@ -243,6 +243,12 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 
 		if fieldType.Kind() == reflect.Ptr {
 			if field.IsNil() {
+				if !parsedField.omitEmpty {
+					if err := d.Set(fieldName, nil); err != nil {
+						return err
+					}
+				}
+
 				continue
 			}
 
