@@ -39,11 +39,12 @@ func resourceSshKey() *schema.Resource {
 func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request := client.SshKeyCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: d.Get("value").(string),
+	var payload client.SshKeyCreatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
-	sshKey, err := apiClient.SshKeyCreate(request)
+
+	sshKey, err := apiClient.SshKeyCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create ssh key: %v", err)
 	}

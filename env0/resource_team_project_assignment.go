@@ -53,9 +53,9 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	found := false
 	for _, assignment := range assignments {
 		if assignment.Id == id {
-			d.Set("project_id", assignment.ProjectId)
-			d.Set("team_id", assignment.TeamId)
-			d.Set("role", assignment.ProjectRole)
+			if err := writeResourceData(&assignment, d); err != nil {
+				return diag.Errorf("schema resource data serialization failed: %v", err)
+			}
 			found = true
 			break
 		}
@@ -70,12 +70,12 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request := client.TeamProjectAssignmentPayload{
-		TeamId:      d.Get("team_id").(string),
-		ProjectId:   d.Get("project_id").(string),
-		ProjectRole: client.Role(d.Get("role").(string)),
+	var payload client.TeamProjectAssignmentPayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
-	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(request)
+
+	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(payload)
 	if err != nil {
 		return diag.Errorf("could not Create or Update TeamProjectAssignment: %v", err)
 	}

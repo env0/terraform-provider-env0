@@ -56,6 +56,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "id", apiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "organization_role", apiKey.OrganizationRole),
+						resource.TestCheckResourceAttr(accessor, "api_key_secret", apiKey.ApiKeySecret),
 					),
 				},
 				{
@@ -66,6 +67,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "id", updatedApiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", updatedApiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "organization_role", updatedApiKey.OrganizationRole),
+						resource.TestCheckResourceAttr(accessor, "api_key_secret", updatedApiKey.ApiKeySecret),
 					),
 				},
 			},
@@ -116,6 +118,38 @@ func TestUnitApiKeyResource(t *testing.T) {
 				}).Times(1).Return(&apiKeyUser, nil),
 				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{apiKeyUser}, nil),
 				mock.EXPECT().ApiKeyDelete(apiKeyUser.Id).Times(1),
+			)
+		})
+	})
+
+	t.Run("Omit API Key Secret", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                apiKey.Name,
+						"omit_api_key_secret": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", apiKey.Id),
+						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", apiKey.OrganizationRole),
+						resource.TestCheckResourceAttr(accessor, "api_key_secret", "omitted"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
+					Name: apiKey.Name,
+					Permissions: client.ApiKeyPermissions{
+						OrganizationRole: apiKey.OrganizationRole,
+					},
+				}).Times(1).Return(&apiKey, nil),
+				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{apiKey}, nil),
+				mock.EXPECT().ApiKeyDelete(apiKey.Id).Times(1),
 			)
 		})
 	})
