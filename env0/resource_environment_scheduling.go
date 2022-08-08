@@ -40,6 +40,14 @@ func resourceEnvironmentScheduling() *schema.Resource {
 	}
 }
 
+func setCronHelper(name string, d *schema.ResourceData, expression *client.EnvironmentSchedulingExpression) {
+	if expression != nil {
+		d.Set(name, expression.Cron)
+	} else {
+		d.Set(name, "")
+	}
+}
+
 func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -51,18 +59,8 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("could not get environment scheduling: %v", err)
 	}
 
-	if environmentScheduling.Deploy != nil {
-		d.Set("deploy_cron", environmentScheduling.Deploy.Cron)
-	} else {
-		d.Set("deploy_cron", "")
-	}
-
-	if environmentScheduling.Destroy != nil {
-		d.Set("destroy_cron", environmentScheduling.Destroy.Cron)
-	} else {
-		d.Set("destroy_cron", "")
-
-	}
+	setCronHelper("deploy_cron", d, environmentScheduling.Deploy)
+	setCronHelper("destroy_cron", d, environmentScheduling.Destroy)
 
 	return nil
 }
