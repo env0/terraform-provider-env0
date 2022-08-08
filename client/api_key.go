@@ -4,7 +4,7 @@ type ApiKey struct {
 	Id               string `json:"id"`
 	Name             string `json:"name"`
 	ApiKeyId         string `json:"apiKeyId"`
-	ApiKeySecret     string `json:"apiKeySecret"`
+	ApiKeySecret     string `json:"apiKeySecret" tfschema:",omitempty"`
 	LastUsedAt       string `json:"lastUsedAt"`
 	OrganizationId   string `json:"organizationId"`
 	OrganizationRole string `json:"organizationRole"`
