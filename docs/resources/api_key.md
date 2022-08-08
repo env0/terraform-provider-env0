@@ -47,7 +47,12 @@ resource "env0_user_team_assignment" "api_key_team_assignment_example" {
 ### Optional
 
 - **id** (String) The ID of this resource.
+- **omit_api_key_secret** (Boolean) if set to 'true' will omit the api_key_secret from the state. This would mean that the api_key_secret cannot be used
 - **organization_role** (String) the api key type. 'Admin' or 'User'. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys
+
+### Read-Only
+
+- **api_key_secret** (String, Sensitive) the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'
 
 ## Import
 
