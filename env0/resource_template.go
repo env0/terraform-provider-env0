@@ -3,7 +3,10 @@ package env0
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"sort"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -11,7 +14,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var allowedTemplateTypes = []string{
+	"terraform",
+	"terragrunt",
+	"pulumi",
+	"k8s",
+	"workflow",
+	"cloudformation",
+}
+
 func resourceTemplate() *schema.Resource {
+	var allVCSAttributes = []string{
+		"token_id",
+		"gitlab_project_id",
+		"github_installation_id",
+		"bitbucket_client_key",
+		"is_gitlab_enterprise",
+		"is_bitbucket_server",
+		"is_github_enterprise",
+	}
+
+	allVCSAttributesBut := func(strs ...string) []string {
+		sort.Strings(strs)
+		butAttrs := []string{}
+
+		for _, attr := range allVCSAttributes {
+			if sort.SearchStrings(strs, attr) >= len(strs) {
+				butAttrs = append(butAttrs, attr)
+			}
+		}
+
+		return butAttrs
+	}
+
 	return &schema.Resource{
 		CreateContext: resourceTemplateCreate,
 		ReadContext:   resourceTemplateRead,
@@ -20,14 +55,155 @@ func resourceTemplate() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: resourceTemplateImport},
 
-		Schema: getTemplateSchema(TemplateTypeShared),
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Description: "id of the template",
+				Computed:    true,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Description: "name to give the template",
+				Required:    true,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "description for the template",
+				Optional:    true,
+			},
+			"repository": {
+				Type:        schema.TypeString,
+				Description: "git repository url for the template source code",
+				Required:    true,
+			},
+			"path": {
+				Type:        schema.TypeString,
+				Description: "terraform / terragrunt file folder inside source code",
+				Optional:    true,
+			},
+			"type": {
+				Type:             schema.TypeString,
+				Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
+				Optional:         true,
+				Default:          "terraform",
+				ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
+			},
+			"revision": {
+				Type:        schema.TypeString,
+				Description: "source code revision (branch / tag) to use",
+				Optional:    true,
+			},
+			"ssh_keys": {
+				Type:        schema.TypeList,
+				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeMap,
+					Description: "a map of env0_ssh_key.id and env0_ssh_key.name for each project",
+				},
+			},
+			"retries_on_deploy": {
+				Type:             schema.TypeInt,
+				Description:      "number of times to retry when deploying an environment based on this template",
+				Optional:         true,
+				ValidateDiagFunc: ValidateRetries,
+			},
+			"retry_on_deploy_only_when_matches_regex": {
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on deploy) if error matches specified regex",
+				Optional:     true,
+				RequiredWith: []string{"retries_on_deploy"},
+			},
+			"retries_on_destroy": {
+				Type:             schema.TypeInt,
+				Description:      "number of times to retry when destroying an environment based on this template",
+				Optional:         true,
+				ValidateDiagFunc: ValidateRetries,
+			},
+			"retry_on_destroy_only_when_matches_regex": {
+				Type:         schema.TypeString,
+				Description:  "if specified, will only retry (on destroy) if error matches specified regex",
+				Optional:     true,
+				RequiredWith: []string{"retries_on_destroy"},
+			},
+			"github_installation_id": {
+				Type:          schema.TypeInt,
+				Description:   "the env0 application installation id on the relevant github repository",
+				Optional:      true,
+				ConflictsWith: allVCSAttributesBut("github_installation_id"),
+			},
+			"token_id": {
+				Type:          schema.TypeString,
+				Description:   "the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
+				Optional:      true,
+				ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
+			},
+			"gitlab_project_id": {
+				Type:          schema.TypeInt,
+				Description:   "the project id of the relevant repository",
+				Optional:      true,
+				ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
+				RequiredWith:  []string{"token_id"},
+			},
+			"terraform_version": {
+				Type:             schema.TypeString,
+				Description:      "the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).",
+				Optional:         true,
+				ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|RESOLVE_FROM_TERRAFORM_CODE$`),
+				Default:          "0.15.1",
+			},
+			"terragrunt_version": {
+				Type:             schema.TypeString,
+				Description:      "the Terragrunt version to use (example: 0.36.5)",
+				ValidateDiagFunc: NewRegexValidator(`^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}$`),
+				Optional:         true,
+			},
+			"is_gitlab_enterprise": {
+				Type:          schema.TypeBool,
+				Description:   "true if this template uses gitlab enterprise repository",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: allVCSAttributesBut("is_gitlab_enterprise"),
+			},
+			"bitbucket_client_key": {
+				Type:          schema.TypeString,
+				Description:   "the bitbucket client key used for integration",
+				Optional:      true,
+				ConflictsWith: allVCSAttributesBut("bitbucket_client_key"),
+			},
+			"is_bitbucket_server": {
+				Type:          schema.TypeBool,
+				Description:   "true if this template uses bitbucket server repository",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: allVCSAttributesBut("is_bitbucket_server"),
+			},
+			"is_github_enterprise": {
+				Type:          schema.TypeBool,
+				Description:   "true if this template uses github enterprise repository",
+				Optional:      true,
+				Default:       "false",
+				ConflictsWith: allVCSAttributesBut("is_github_enterprise"),
+			},
+			"file_name": {
+				Type:        schema.TypeString,
+				Description: "the cloudformation file name. Required if the template type is cloudformation",
+				Optional:    true,
+			},
+			"is_terragrunt_run_all": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above`,
+				Default:     "false",
+			},
+		},
 	}
 }
 
 func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request, problem := templateCreatePayloadFromParameters("", d)
+	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
 		return problem
 	}
@@ -55,7 +231,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := templateRead("", template, d); err != nil {
+	if err := templateRead(template, d); err != nil {
 		return diag.Errorf("%v", err)
 	}
 
@@ -65,7 +241,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request, problem := templateCreatePayloadFromParameters("", d)
+	request, problem := templateCreatePayloadFromParameters(d)
 	if problem != nil {
 		return problem
 	}
@@ -106,5 +282,62 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 		return nil, errors.New(getErr[0].Summary)
 	} else {
 		return []*schema.ResourceData{d}, nil
+	}
+}
+
+func templateCreatePayloadRetryOnHelper(d *schema.ResourceData, retryType string, retryOnPtr **client.TemplateRetryOn) {
+	retries, hasRetries := d.GetOk("retries_on_" + retryType)
+	if hasRetries {
+		retryOn := &client.TemplateRetryOn{
+			Times: retries.(int),
+		}
+		if retryIfMatchesRegex, ok := d.GetOk("retry_on_" + retryType + "_only_when_matches_regex"); ok {
+			retryOn.ErrorRegex = retryIfMatchesRegex.(string)
+		}
+
+		*retryOnPtr = retryOn
+	}
+}
+
+func templateCreatePayloadFromParameters(d *schema.ResourceData) (client.TemplateCreatePayload, diag.Diagnostics) {
+	var payload client.TemplateCreatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	if tokenId, ok := d.GetOk("token_id"); ok {
+		payload.IsGitLab = tokenId != ""
+	}
+
+	templateCreatePayloadRetryOnHelper(d, "deploy", &payload.Retry.OnDeploy)
+	templateCreatePayloadRetryOnHelper(d, "destroy", &payload.Retry.OnDestroy)
+
+	if err := payload.Validate(); err != nil {
+		return payload, diag.Errorf(err.Error())
+	}
+
+	return payload, nil
+}
+
+// Reads template and writes to the resource data.
+func templateRead(template client.Template, d *schema.ResourceData) error {
+	if err := writeResourceData(&template, d); err != nil {
+		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
+
+	return nil
+}
+
+// Helpers function for templateRead.
+func templateReadRetryOnHelper(d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
+	if retryOn != nil {
+		d.Set("retries_on_"+retryType, retryOn.Times)
+		d.Set("retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
+	} else {
+		d.Set("retries_on_"+retryType, 0)
+		d.Set("retry_on_"+retryType+"_only_when_matches_regex", "")
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -950,6 +949,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testApiFailures()
 }
 
+/* TODO
 func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
@@ -1107,3 +1107,4 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 	})
 
 }
+*/

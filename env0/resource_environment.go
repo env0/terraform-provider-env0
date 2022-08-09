@@ -41,11 +41,10 @@ func resourceEnvironment() *schema.Resource {
 				ForceNew:    true,
 			},
 			"template_id": {
-				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from",
-				Optional:     true,
-				ForceNew:     true,
-				ExactlyOneOf: []string{"template", "template_id"},
+				Type:        schema.TypeString,
+				Description: "the template id the environment is to be created from",
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"workspace": {
 				Type:        schema.TypeString,
@@ -183,27 +182,13 @@ func resourceEnvironment() *schema.Resource {
 					},
 				},
 			},
-			"template": {
-				Type:         schema.TypeList,
-				MaxItems:     1,
-				Description:  "(WIP - do not use) for creating environments without template (for more details check: https://docs.env0.com/changelog/environment-without-template)",
-				Optional:     true,
-				Elem:         &schema.Resource{Schema: getTemplateSchema(TemplateTypeSingle)},
-				ExactlyOneOf: []string{"template", "template_id"},
-			},
 		},
 	}
 }
 
-func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, template client.Template, configurationVariables client.ConfigurationChanges) error {
+func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) error {
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
-	}
-
-	if template.Id != "" {
-		if err := templateRead("template", template, d); err != nil {
-			return err
-		}
 	}
 
 	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
@@ -253,32 +238,7 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	var template client.Template
 	var err error
-
-	if _, ok := d.GetOk("template.0"); ok {
-		// Templateless environment creation use-case.
-		createTemplatePayload, diagErr := templateCreatePayloadFromParameters("template.0", d)
-		if diagErr != nil {
-			return diagErr
-		}
-
-		createTemplatePayload.IsSingleUse = true
-
-		name := d.Get("name").(string)
-		createTemplatePayload.Name = "single-use-template-for-" + name
-
-		template, err = apiClient.TemplateCreate(createTemplatePayload)
-		if err != nil {
-			return diag.Errorf("could not create template: %v", err)
-		}
-
-		values := d.Get("template")
-		valuesSlice := values.([]interface{})
-		valueMap := valuesSlice[0].(map[string]interface{})
-		valueMap["id"] = template.Id
-		d.Set("template", values)
-	}
 
 	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 
@@ -296,7 +256,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
 }
@@ -309,21 +269,12 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
-	var template client.Template
-	if _, ok := d.GetOk("template.0"); ok {
-		templateId := d.Get("template.0.id").(string)
-		template, err = apiClient.Template(templateId)
-		if err != nil {
-			return diag.Errorf("could not get template: %v", err)
-		}
-	}
-
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
 
-	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
 }
@@ -529,13 +480,9 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	if templateId, ok := d.GetOk("template_id"); ok {
 		payload.BlueprintId = templateId.(string)
-	} else if templateId, ok := d.GetOk("template.0.id"); ok {
-		payload.BlueprintId = templateId.(string)
 	}
 
 	if revision, ok := d.GetOk("revision"); ok {
-		payload.BlueprintRevision = revision.(string)
-	} else if revision, ok := d.GetOk("template.0.revision"); ok {
 		payload.BlueprintRevision = revision.(string)
 	}
 
@@ -723,11 +670,8 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
 
-	// TODO
-	var template client.Template
-
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment, template, environmentConfigurationVariables)
+	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
