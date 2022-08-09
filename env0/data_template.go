@@ -166,8 +166,8 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
-	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
+	templateReadRetryOnHelper("", d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper("", d, "destroy", template.Retry.OnDestroy)
 
 	return nil
 }
