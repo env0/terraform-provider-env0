@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -111,7 +110,7 @@ func runTest(testName string, destroy bool) (bool, error) {
 }
 
 func readExpectedOutputs(testName string) (map[string]string, error) {
-	expectedBytes, err := ioutil.ReadFile(path.Join(TESTS_FOLDER, testName, "expected_outputs.json"))
+	expectedBytes, err := os.ReadFile(path.Join(TESTS_FOLDER, testName, "expected_outputs.json"))
 	if err != nil {
 		log.Println("Test folder for ", testName, " does not contain expected_outputs.json", err)
 		return nil, err
@@ -188,7 +187,7 @@ func testNamesFromCommandLineArguments() []string {
 			testNames = append(testNames, testName)
 		}
 	} else {
-		allFilesUnderTests, err := ioutil.ReadDir(TESTS_FOLDER)
+		allFilesUnderTests, err := os.ReadDir(TESTS_FOLDER)
 		if err != nil {
 			log.Fatalln("Unable to list 'tests' folder", err)
 		}
@@ -208,11 +207,11 @@ func buildFakeTerraformRegistry() {
 	if err != nil {
 		log.Fatalln("Unable to create registry folder ", registry_dir, " error: ", err)
 	}
-	data, err := ioutil.ReadFile("terraform-provider-env0")
+	data, err := os.ReadFile("terraform-provider-env0")
 	if err != nil {
 		log.Fatalln("Unable to read provider binary: did you build it?", err)
 	}
-	err = ioutil.WriteFile(registry_dir+"/terraform-provider-env0", data, 0755)
+	err = os.WriteFile(registry_dir+"/terraform-provider-env0", data, 0755)
 	if err != nil {
 		log.Fatalln("Unable to write: ", err)
 	}
@@ -231,7 +230,7 @@ provider_installation {
 	exclude = ["terraform-registry.env0.com/*/*"]
   }
 }`, cwd)
-	err = ioutil.WriteFile("tests/terraform.rc", []byte(terraformRc), 0644)
+	err = os.WriteFile("tests/terraform.rc", []byte(terraformRc), 0644)
 	if err != nil {
 		log.Fatalln("Unable to write: ", err)
 	}

@@ -114,10 +114,6 @@ type VariablesFromRepositoryPayload struct {
 }
 
 func (payload TemplateCreatePayload) Validate() error {
-	if payload.Name == "" {
-		return errors.New("must specify template name on creation")
-	}
-
 	if payload.OrganizationId != "" {
 		return errors.New("must not specify organizationId")
 	}
