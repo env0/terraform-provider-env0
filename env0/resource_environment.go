@@ -238,7 +238,6 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	var err error
 
 	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 
