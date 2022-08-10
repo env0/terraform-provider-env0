@@ -375,6 +375,21 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(arg0 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), arg0)
 }
 
+// EnvironmentCreateWithoutTemplate mocks base method.
+func (m *MockApiClientInterface) EnvironmentCreateWithoutTemplate(arg0 EnvironmentCreateWithoutTemplate) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentCreateWithoutTemplate", arg0)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentCreateWithoutTemplate indicates an expected call of EnvironmentCreateWithoutTemplate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreateWithoutTemplate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreateWithoutTemplate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreateWithoutTemplate), arg0)
+}
+
 // EnvironmentDeploy mocks base method.
 func (m *MockApiClientInterface) EnvironmentDeploy(arg0 string, arg1 DeployRequest) (EnvironmentDeployResponse, error) {
 	m.ctrl.T.Helper()

@@ -62,7 +62,6 @@ type Template struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
@@ -88,7 +87,6 @@ type TemplateCreatePayload struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }

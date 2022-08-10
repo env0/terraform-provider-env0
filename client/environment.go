@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -109,6 +110,42 @@ type EnvironmentCreate struct {
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
 }
 
+// When converted to JSON needs to be flattened. See custom MarshalJSON below.
+type EnvironmentCreateWithoutTemplate struct {
+	EnvironmentCreate EnvironmentCreate
+	TemplateCreate    TemplateCreatePayload
+}
+
+// The custom marshalJSON is used to return a flat JSON.
+func (create *EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
+	// 1. Marshal to JSON both structs.
+	ecb, err := json.Marshal(&create.EnvironmentCreate)
+	if err != nil {
+		return nil, err
+	}
+	tcb, err := json.Marshal(&create.TemplateCreate)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Unmarshal both JSON byte arrays to two maps.
+	var ecm, tcm map[string]interface{}
+	if err := json.Unmarshal(ecb, &ecm); err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(tcb, &tcm); err != nil {
+		return nil, err
+	}
+
+	// 3. Merged the maps.
+	for k, v := range ecm {
+		tcm[k] = v
+	}
+
+	// 4. Marshal the merged map back to JSON.
+	return json.Marshal(tcm)
+}
+
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
 	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
@@ -162,6 +199,22 @@ func (client *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environme
 	if err != nil {
 		return Environment{}, err
 	}
+	return result, nil
+}
+
+func (client *ApiClient) EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error) {
+	var result Environment
+
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return result, nil
+	}
+	payload.TemplateCreate.OrganizationId = organizationId
+
+	if err := client.http.Post("/environments/without-template", payload, &result); err != nil {
+		return result, err
+	}
+
 	return result, nil
 }
 
