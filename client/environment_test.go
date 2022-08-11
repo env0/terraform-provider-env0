@@ -1,13 +1,16 @@
 package client_test
 
 import (
+	"encoding/json"
 	"errors"
+	"testing"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/require"
 )
 
 const full_page = 100
@@ -21,6 +24,12 @@ var _ = Describe("Environment Client", func() {
 	mockEnvironment := Environment{
 		Id:   environmentId,
 		Name: "env0",
+	}
+
+	mockTemplate := Template{
+		Id:         "template-id",
+		Name:       "template-name",
+		Repository: "https://re.po",
 	}
 
 	Describe("Environments", func() {
@@ -212,6 +221,51 @@ var _ = Describe("Environment Client", func() {
 		})
 	})
 
+	Describe("EnvironmentCreateWithoutTemplate", func() {
+		var createdEnvironment Environment
+		var err error
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			createEnvironmentPayload := EnvironmentCreate{}
+			copier.Copy(&createEnvironmentPayload, &mockEnvironment)
+			createTemplatePayload := TemplateCreatePayload{}
+			copier.Copy(&createTemplatePayload, &mockTemplate)
+
+			createRequest := EnvironmentCreateWithoutTemplate{
+				EnvironmentCreate: createEnvironmentPayload,
+				TemplateCreate:    createTemplatePayload,
+			}
+
+			expectedCreateRequest := createRequest
+			expectedCreateRequest.TemplateCreate.OrganizationId = organizationId
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/environments/without-template", expectedCreateRequest, gomock.Any()).
+				Do(func(path string, request interface{}, response *Environment) {
+					*response = mockEnvironment
+				})
+
+			createdEnvironment, err = apiClient.EnvironmentCreateWithoutTemplate(createRequest)
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send POST request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return the created environment", func() {
+			Expect(createdEnvironment).To(Equal(mockEnvironment))
+		})
+	})
+
 	Describe("EnvironmentDelete", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any())
@@ -331,3 +385,35 @@ var _ = Describe("Environment Client", func() {
 		})
 	})
 })
+
+func TestMarshalEnvironmentCreateWithoutTemplate(t *testing.T) {
+	templateCreate := TemplateCreatePayload{
+		Name: "name",
+		SshKeys: []TemplateSshKey{
+			{Id: "id1", Name: "name1"},
+		},
+		Type: "terraform",
+	}
+	environmentCreate := EnvironmentCreate{
+		Name:      "name",
+		ProjectId: "project_id",
+	}
+
+	environmentCreateWithoutTemplate := EnvironmentCreateWithoutTemplate{
+		EnvironmentCreate: environmentCreate,
+		TemplateCreate:    templateCreate,
+	}
+
+	b, err := json.Marshal(&environmentCreateWithoutTemplate)
+	require.NoError(t, err)
+
+	var templateCreateFromJson TemplateCreatePayload
+
+	require.NoError(t, json.Unmarshal(b, &templateCreateFromJson))
+	require.Equal(t, templateCreate, templateCreateFromJson)
+
+	var environmentCreateFromJSON EnvironmentCreate
+
+	require.NoError(t, json.Unmarshal(b, &environmentCreateFromJSON))
+	require.Equal(t, environmentCreate, environmentCreateFromJSON)
+}

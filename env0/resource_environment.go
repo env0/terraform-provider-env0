@@ -41,10 +41,11 @@ func resourceEnvironment() *schema.Resource {
 				ForceNew:    true,
 			},
 			"template_id": {
-				Type:        schema.TypeString,
-				Description: "the template id the environment is to be created from",
-				Optional:    true,
-				ForceNew:    true,
+				Type:         schema.TypeString,
+				Description:  "the template id the environment is to be created from",
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
 			"workspace": {
 				Type:        schema.TypeString,
@@ -182,6 +183,17 @@ func resourceEnvironment() *schema.Resource {
 					},
 				},
 			},
+			"without_template_settings": {
+				Type:         schema.TypeList,
+				Description:  "settings for creating an environment without a template. Is not imported when running the import command",
+				Optional:     true,
+				MinItems:     1,
+				MaxItems:     1,
+				ExactlyOneOf: []string{"without_template_settings", "template_id"},
+				Elem: &schema.Resource{
+					Schema: getTemplateSchema("without_template_settings.0."),
+				},
+			},
 		},
 	}
 }
@@ -239,19 +251,33 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
-
+	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 	if createEnvPayloadErr != nil {
-		return diag.Errorf("%v", createEnvPayloadErr)
+		return createEnvPayloadErr
 	}
 
-	environment, err := apiClient.EnvironmentCreate(payload)
+	var environment client.Environment
+	var err error
+
+	if d.Get("template_id") != "" {
+		environment, err = apiClient.EnvironmentCreate(environmentPayload)
+	} else {
+		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
+		if createTemPayloadErr != nil {
+			return createTemPayloadErr
+		}
+		payload := client.EnvironmentCreateWithoutTemplate{
+			EnvironmentCreate: environmentPayload,
+			TemplateCreate:    templatePayload,
+		}
+		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
+	}
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
 	environmentConfigurationVariables := client.ConfigurationChanges{}
-	if payload.DeployRequest.ConfigurationChanges != nil {
-		environmentConfigurationVariables = *payload.DeployRequest.ConfigurationChanges
+	if environmentPayload.DeployRequest.ConfigurationChanges != nil {
+		environmentConfigurationVariables = *environmentPayload.DeployRequest.ConfigurationChanges
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)

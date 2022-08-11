@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -949,8 +950,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testApiFailures()
 }
 
-/* TODO
-func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
+func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -984,16 +984,12 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 		Type:                 "terraform",
 		GithubInstallationId: 1,
 		TerraformVersion:     "0.12.24",
-		IsSingleUse:          true,
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
-		Name:      environment.Name,
-		ProjectId: environment.ProjectId,
-		DeployRequest: &client.DeployRequest{
-			BlueprintId:       template.Id,
-			BlueprintRevision: template.Revision,
-		},
+		Name:                        environment.Name,
+		ProjectId:                   environment.ProjectId,
+		DeployRequest:               &client.DeployRequest{},
 		WorkspaceName:               environment.WorkspaceName,
 		RequiresApproval:            environment.RequiresApproval,
 		ContinuousDeployment:        environment.ContinuousDeployment,
@@ -1004,7 +1000,6 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 	}
 
 	templateCreatePayload := client.TemplateCreatePayload{
-		Name:                 template.Name,
 		Repository:           template.Repository,
 		Description:          template.Description,
 		GithubInstallationId: template.GithubInstallationId,
@@ -1022,7 +1017,12 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 		FileName:             template.FileName,
 		TerragruntVersion:    template.TerragruntVersion,
 		IsTerragruntRunAll:   template.IsTerragruntRunAll,
-		IsSingleUse:          template.IsSingleUse,
+		OrganizationId:       template.OrganizationId,
+	}
+
+	createPayload := client.EnvironmentCreateWithoutTemplate{
+		EnvironmentCreate: environmentCreatePayload,
+		TemplateCreate:    templateCreatePayload,
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment, template client.Template) string {
@@ -1034,7 +1034,7 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 			terragrunt_working_directory = "%s"
 			force_destroy = true
 			vcs_commands_alias = "%s"
-			template {
+			without_template_settings {
 				repository = "%s"
 				terraform_version = "%s"
 				type = "%s"
@@ -1081,30 +1081,26 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
-						resource.TestCheckResourceAttr(accessor, "template.0.id", template.Id),
-						resource.TestCheckResourceAttr(accessor, "template.0.repository", template.Repository),
-						resource.TestCheckResourceAttr(accessor, "template.0.terraform_version", template.TerraformVersion),
-						resource.TestCheckResourceAttr(accessor, "template.0.type", template.Type),
-						resource.TestCheckResourceAttr(accessor, "template.0.path", template.Path),
-						resource.TestCheckResourceAttr(accessor, "template.0.revision", template.Revision),
-						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
-						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
-						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
-						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", template.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", template.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", template.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", template.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", template.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 					),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TemplateCreate(templateCreatePayload).Times(1).Return(template, nil)
-			mock.EXPECT().EnvironmentCreate(environmentCreatePayload).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
-			mock.EXPECT().Template(template.Id).Times(1).Return(template, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
 
 }
-*/
