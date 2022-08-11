@@ -67,11 +67,11 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - **id** (String) the environment's id
 - **revision** (String) the revision the environment is to be run against
 - **run_plan_on_pull_requests** (Boolean) should run terraform plan on pull requests creations
-- **template** (Block List, Max: 1) (WIP - do not use) for creating environments without template (for more details check: https://docs.env0.com/changelog/environment-without-template) (see [below for nested schema](#nestedblock--template))
 - **template_id** (String) the template id the environment is to be created from
 - **terragrunt_working_directory** (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
 - **ttl** (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - **vcs_commands_alias** (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
+- **without_template_settings** (Block List, Max: 1) settings for creating an environment without a template. Is not imported when running the import command (see [below for nested schema](#nestedblock--without_template_settings))
 - **workspace** (String) the terraform workspace of the environment
 
 ### Read-Only
@@ -96,8 +96,8 @@ Optional:
 - **type** (String) variable type (allowed values are: terraform, environment)
 
 
-<a id="nestedblock--template"></a>
-### Nested Schema for `template`
+<a id="nestedblock--without_template_settings"></a>
+### Nested Schema for `without_template_settings`
 
 Required:
 
@@ -125,11 +125,6 @@ Optional:
 - **terragrunt_version** (String) the Terragrunt version to use (example: 0.36.5)
 - **token_id** (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - **type** (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
-
-Read-Only:
-
-- **id** (String) id of the template
-- **name** (String) name to give the template
 
 ## Import
 

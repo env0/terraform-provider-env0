@@ -62,7 +62,6 @@ type Template struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
@@ -88,7 +87,6 @@ type TemplateCreatePayload struct {
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	IsSingleUse          bool             `json:"isSingleUse"`
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
@@ -114,10 +112,6 @@ type VariablesFromRepositoryPayload struct {
 }
 
 func (payload TemplateCreatePayload) Validate() error {
-	if payload.Name == "" {
-		return errors.New("must specify template name on creation")
-	}
-
 	if payload.OrganizationId != "" {
 		return errors.New("must not specify organizationId")
 	}
