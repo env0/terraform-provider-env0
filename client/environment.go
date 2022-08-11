@@ -87,7 +87,7 @@ type Environment struct {
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
 	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
-	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
+	LatestDeploymentLogId       string        `json:"latestDeploymentLogId" tfschema:"deployment_id"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	IsArchived                  bool          `json:"isArchived"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
