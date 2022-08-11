@@ -117,7 +117,7 @@ type EnvironmentCreateWithoutTemplate struct {
 }
 
 // The custom marshalJSON is used to return a flat JSON.
-func (create *EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
+func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	// 1. Marshal to JSON both structs.
 	ecb, err := json.Marshal(&create.EnvironmentCreate)
 	if err != nil {

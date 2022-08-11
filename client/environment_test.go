@@ -3,7 +3,6 @@ package client_test
 import (
 	"encoding/json"
 	"errors"
-	"strings"
 	"testing"
 
 	. "github.com/env0/terraform-provider-env0/client"
@@ -405,10 +404,16 @@ func TestMarshalEnvironmentCreateWithoutTemplate(t *testing.T) {
 		TemplateCreate:    templateCreate,
 	}
 
-	b, err := json.Marshal(environmentCreateWithoutTemplate)
+	b, err := json.Marshal(&environmentCreateWithoutTemplate)
 	require.NoError(t, err)
-	s := string(b)
-	require.True(t, strings.Contains(s, `"sshKeys":[{"id":"id1","name":"name1"}]`))
-	require.True(t, strings.Contains(s, `"name":"name"`))
-	require.True(t, strings.Contains(s, `"projectId":"project_id"`))
+
+	var templateCreateFromJson TemplateCreatePayload
+
+	require.NoError(t, json.Unmarshal(b, &templateCreateFromJson))
+	require.Equal(t, templateCreate, templateCreateFromJson)
+
+	var environmentCreateFromJSON EnvironmentCreate
+
+	require.NoError(t, json.Unmarshal(b, &environmentCreateFromJSON))
+	require.Equal(t, environmentCreate, environmentCreateFromJSON)
 }
