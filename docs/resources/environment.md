@@ -71,6 +71,7 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - **terragrunt_working_directory** (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
 - **ttl** (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - **vcs_commands_alias** (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
+- **without_template_settings** (Block List, Max: 1) settings for creating an environment without a template. Is not imported when running the import command (see [below for nested schema](#nestedblock--without_template_settings))
 - **workspace** (String) the terraform workspace of the environment
 
 ### Read-Only
@@ -93,6 +94,37 @@ Optional:
 - **schema_format** (String) the variable format:
 - **schema_type** (String) the type the variable must be of
 - **type** (String) variable type (allowed values are: terraform, environment)
+
+
+<a id="nestedblock--without_template_settings"></a>
+### Nested Schema for `without_template_settings`
+
+Required:
+
+- **repository** (String) git repository url for the template source code
+
+Optional:
+
+- **bitbucket_client_key** (String) the bitbucket client key used for integration
+- **description** (String) description for the template
+- **file_name** (String) the cloudformation file name. Required if the template type is cloudformation
+- **github_installation_id** (Number) the env0 application installation id on the relevant github repository
+- **gitlab_project_id** (Number) the project id of the relevant repository
+- **is_bitbucket_server** (Boolean) true if this template uses bitbucket server repository
+- **is_github_enterprise** (Boolean) true if this template uses github enterprise repository
+- **is_gitlab_enterprise** (Boolean) true if this template uses gitlab enterprise repository
+- **is_terragrunt_run_all** (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
+- **path** (String) terraform / terragrunt file folder inside source code
+- **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
+- **retries_on_destroy** (Number) number of times to retry when destroying an environment based on this template
+- **retry_on_deploy_only_when_matches_regex** (String) if specified, will only retry (on deploy) if error matches specified regex
+- **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
+- **revision** (String) source code revision (branch / tag) to use
+- **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
+- **terraform_version** (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).
+- **terragrunt_version** (String) the Terragrunt version to use (example: 0.36.5)
+- **token_id** (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
+- **type** (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
 
 ## Import
 
