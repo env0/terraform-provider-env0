@@ -158,6 +158,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:   "my env var",
 				Type:   &varType,
 				Schema: &varSchema,
+				Regex:  "regex",
 			}
 			formatVariables := func(variables []client.ConfigurationVariable) string {
 				format := ""
@@ -188,11 +189,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									name = "%s"
 									value = "%s"
 									type = "%s"
+									regex = "%s"
 									%s
 									}
 
 							`, variable.Name,
-						variable.Value, varType, schemaFormat)
+						variable.Value, varType, variable.Regex, schemaFormat)
 				}
 
 				return format
@@ -216,13 +218,14 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			environmentResource := formatResourceWithConfiguration(environment, client.ConfigurationChanges{configurationVariables})
 			newVarType := client.ConfigurationVariableTypeTerraform
 			redeployConfigurationVariables := client.ConfigurationChanges{client.ConfigurationVariable{
-				Value: "configurationVariables.Value",
+				Value: configurationVariables.Value,
 				Name:  configurationVariables.Name,
 				Type:  &newVarType,
 				Schema: &client.ConfigurationVariableSchema{
 					Type:   "string",
 					Format: client.Text,
 				},
+				Regex: "regex2",
 			}}
 			updatedEnvironmentResource := formatResourceWithConfiguration(updatedEnvironment, redeployConfigurationVariables)
 			testCase := resource.TestCase{
@@ -241,6 +244,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(configurationVariables.Schema.Format)),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.regex", configurationVariables.Regex),
 						),
 					},
 					{
@@ -252,8 +256,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
-							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "configurationVariables.Value"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(client.Text)),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.regex", "regex2"),
 						),
 					},
 				},
@@ -263,6 +268,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				isSensitive := false
 				configurationVariables.Scope = client.ScopeDeployment
 				configurationVariables.IsSensitive = &isSensitive
+				configurationVariables.IsReadOnly = boolPtr(false)
+				configurationVariables.IsRequired = boolPtr(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
@@ -286,6 +293,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				)
 				redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 				redeployConfigurationVariables[0].IsSensitive = &isSensitive
+				redeployConfigurationVariables[0].IsReadOnly = boolPtr(false)
+				redeployConfigurationVariables[0].IsRequired = boolPtr(false)
 
 				deployRequest := client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
