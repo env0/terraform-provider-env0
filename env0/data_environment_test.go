@@ -24,6 +24,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId:       "blueprint-id",
 			BlueprintRevision: "revision",
+			Output:            []byte(`{"a": "b"}`),
 		},
 	}
 
@@ -56,6 +57,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "deployment_id", environment.LatestDeploymentLogId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+						resource.TestCheckResourceAttr(accessor, "output", string(environment.LatestDeploymentLog.Output)),
 					),
 				},
 			},
