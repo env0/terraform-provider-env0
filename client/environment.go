@@ -69,10 +69,11 @@ type DeployRequest struct {
 }
 
 type DeploymentLog struct {
-	Id                  string `json:"id"`
-	BlueprintId         string `json:"blueprintId"`
-	BlueprintRepository string `json:"blueprintRepository"`
-	BlueprintRevision   string `json:"blueprintRevision"`
+	Id                  string          `json:"id"`
+	BlueprintId         string          `json:"blueprintId"`
+	BlueprintRepository string          `json:"blueprintRepository"`
+	BlueprintRevision   string          `json:"blueprintRevision"`
+	Output              json.RawMessage `json:"output,omitempty"`
 }
 
 type Environment struct {
