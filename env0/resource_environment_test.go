@@ -80,6 +80,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
 					},
 					{
@@ -94,6 +96,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
 					},
 				},
@@ -601,11 +605,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId: "template-id",
 				},
 
-				AutoDeployOnPathChangesOnly: &truthyFruity,
-				ContinuousDeployment:        &truthyFruity,
+				AutoDeployOnPathChangesOnly: &falsey,
+				ContinuousDeployment:        &falsey,
 				RequiresApproval:            &falsey,
-				PullRequestPlanDeployments:  &truthyFruity,
-				AutoDeployByCustomGlob:      ".*",
+				PullRequestPlanDeployments:  &falsey,
 			}
 			environmentAfterUpdate := client.Environment{
 				Id:        environment.Id,
@@ -615,9 +618,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 				},
 
-				ContinuousDeployment:       &falsey,
+				ContinuousDeployment:       &truthyFruity,
 				RequiresApproval:           &truthyFruity,
-				PullRequestPlanDeployments: &falsey,
+				PullRequestPlanDeployments: &truthyFruity,
+				AutoDeployByCustomGlob:     ".*",
 			}
 
 			testCase := resource.TestCase{
@@ -631,7 +635,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"approve_plan_automatically":       !*environment.RequiresApproval,
 							"run_plan_on_pull_requests":        *environment.PullRequestPlanDeployments,
 							"auto_deploy_on_path_changes_only": *environment.AutoDeployOnPathChangesOnly,
-							"auto_deploy_by_custom_glob":       environment.AutoDeployByCustomGlob,
 						}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -639,8 +642,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
-							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+							resource.TestCheckResourceAttr(accessor, "deploy_on_push", "false"),
+							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
 							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob),
 						),
 					},
@@ -649,8 +653,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+							"deploy_on_push":                   true,
+							"run_plan_on_pull_requests":        true,
 							"force_destroy":                    true,
-							"auto_deploy_on_path_changes_only": false,
+							"auto_deploy_on_path_changes_only": true,
+							"auto_deploy_by_custom_glob":       ".*",
 						}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -658,9 +665,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
-							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", autoDeployByCustomGlobDefault),
+							resource.TestCheckResourceAttr(accessor, "deploy_on_push", "true"),
+							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ".*"),
 						),
 					},
 				},
@@ -669,13 +677,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(environment.Id, client.EnvironmentUpdate{
-					Name: environment.Name,
-
-					ContinuousDeployment:        &falsey,
-					AutoDeployOnPathChangesOnly: &falsey,
+					Name:                        environment.Name,
+					ContinuousDeployment:        &truthyFruity,
+					AutoDeployOnPathChangesOnly: &truthyFruity,
 					RequiresApproval:            &truthyFruity,
-					PullRequestPlanDeployments:  &falsey,
-					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+					PullRequestPlanDeployments:  &truthyFruity,
+					AutoDeployByCustomGlob:      ".*",
 				}).Times(1).Return(environmentAfterUpdate, nil)
 
 				gomock.InOrder(

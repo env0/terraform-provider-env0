@@ -428,7 +428,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
-	if d.HasChange("deploy_on_push") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 
@@ -438,7 +439,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
-	if d.HasChange("run_plan_on_pull_requests") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
@@ -494,6 +496,7 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	if d.HasChange("deploy_on_push") {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
+
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
