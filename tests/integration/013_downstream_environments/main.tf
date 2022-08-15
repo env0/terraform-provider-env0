@@ -12,6 +12,11 @@ resource "env0_template" "template" {
   terraform_version = "0.15.1"
 }
 
+resource "env0_template_project_assignment" "assignment" {
+  template_id = env0_template.template.id
+  project_id  = env0_project.test_project.id
+}
+
 resource "env0_environment" "the_trigger" {
   force_destroy              = true
   name                       = "the_trigger"
