@@ -981,6 +981,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		WorkspaceName:              "workspace-name",
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
+		BlueprintId:                "id-template-0",
 	}
 
 	template := client.Template{
@@ -1003,6 +1004,28 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		Type:                 "terraform",
 		GithubInstallationId: 1,
 		TerraformVersion:     "0.12.24",
+	}
+
+	updatedTemplate := client.Template{
+		Id:          "id-template-0",
+		Name:        "single-use-template-for-" + environment.Name,
+		Description: "description1",
+		Repository:  "env0/repo1",
+		Path:        "path/zero1",
+		Revision:    "branch-zero1",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      3,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      3,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:                 "terraform",
+		GithubInstallationId: 2,
+		TerraformVersion:     "0.12.25",
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
@@ -1037,6 +1060,27 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TerragruntVersion:    template.TerragruntVersion,
 		IsTerragruntRunAll:   template.IsTerragruntRunAll,
 		OrganizationId:       template.OrganizationId,
+	}
+
+	templateUpdatePayload := client.TemplateCreatePayload{
+		Repository:           updatedTemplate.Repository,
+		Description:          updatedTemplate.Description,
+		GithubInstallationId: updatedTemplate.GithubInstallationId,
+		IsGitlabEnterprise:   updatedTemplate.IsGitlabEnterprise,
+		IsGitLab:             updatedTemplate.TokenId != "",
+		TokenId:              updatedTemplate.TokenId,
+		Path:                 updatedTemplate.Path,
+		Revision:             updatedTemplate.Revision,
+		Type:                 client.TemplateTypeTerraform,
+		Retry:                updatedTemplate.Retry,
+		TerraformVersion:     updatedTemplate.TerraformVersion,
+		BitbucketClientKey:   updatedTemplate.BitbucketClientKey,
+		IsGithubEnterprise:   updatedTemplate.IsGithubEnterprise,
+		IsBitbucketServer:    updatedTemplate.IsBitbucketServer,
+		FileName:             updatedTemplate.FileName,
+		TerragruntVersion:    updatedTemplate.TerragruntVersion,
+		IsTerragruntRunAll:   updatedTemplate.IsTerragruntRunAll,
+		OrganizationId:       updatedTemplate.OrganizationId,
 	}
 
 	createPayload := client.EnvironmentCreateWithoutTemplate{
@@ -1090,6 +1134,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
+				// Create the environment and template
 				{
 					Config: createEnvironmentResourceConfig(environment, template),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -1111,13 +1156,69 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 					),
 				},
+				// Update the template.
+				{
+					Config: createEnvironmentResourceConfig(environment, updatedTemplate),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckNoResourceAttr(accessor, "template_id"),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", updatedTemplate.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(updatedTemplate.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", updatedTemplate.Retry.OnDestroy.ErrorRegex),
+					),
+				},
+				// No need to update template
+				{
+					Config: createEnvironmentResourceConfig(environment, updatedTemplate),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckNoResourceAttr(accessor, "template_id"),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", updatedTemplate.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(updatedTemplate.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", updatedTemplate.Retry.OnDestroy.ErrorRegex),
+					),
+				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// Step1
 			mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+
+			// Step2
+			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+			mock.EXPECT().TemplateUpdate(environment.BlueprintId, templateUpdatePayload).Times(1).Return(updatedTemplate, nil)
+
+			// Step3
+			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})

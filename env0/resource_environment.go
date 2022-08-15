@@ -320,27 +320,40 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	apiClient := meta.(client.ApiClientInterface)
 
 	if shouldUpdate(d) {
-		err := update(d, apiClient)
-		if err != nil {
+		if err := update(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	if shouldUpdateTTL(d) {
-		err := updateTTL(d, apiClient)
-		if err != nil {
+
+		if err := updateTTL(d, apiClient); err != nil {
+			return err
+		}
+	}
+
+	if shouldUpdateTemplate(d) {
+		if err := updateTemplate(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	if shouldDeploy(d) {
-		err := deploy(d, apiClient)
-		if err != nil {
+		if err := deploy(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func shouldUpdateTemplate(d *schema.ResourceData) bool {
+	if d.Get("template_id") != "" {
+		// Using an environment with a template.
+		return false
+	}
+
+	return d.HasChange("without_template_settings.0")
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
@@ -353,6 +366,24 @@ func shouldUpdate(d *schema.ResourceData) bool {
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
 	return d.HasChange("ttl")
+}
+
+func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	payload, problem := templateCreatePayloadFromParameters("without_template_settings.0", d)
+	if problem != nil {
+		return problem
+	}
+
+	environment, err := apiClient.Environment(d.Id())
+	if err != nil {
+		return diag.Errorf("could not get environment: %v", err)
+	}
+
+	if _, err := apiClient.TemplateUpdate(environment.BlueprintId, payload); err != nil {
+		return diag.Errorf("could not update template: %v", err)
+	}
+
+	return nil
 }
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
