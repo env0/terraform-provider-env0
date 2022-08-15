@@ -91,6 +91,12 @@ func resourceEnvironment() *schema.Resource {
 				Description: "id of the last deployment",
 				Computed:    true,
 			},
+			"output": {
+				Type:        schema.TypeString,
+				Description: "the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'",
+				Computed:    true,
+				Optional:    true,
+			},
 			"ttl": {
 				Type:        schema.TypeString,
 				Description: "the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.",
@@ -220,9 +226,15 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+	if environment.LatestDeploymentLog.BlueprintId != "" {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	}
+
+	if len(environment.LatestDeploymentLog.Output) == 0 {
+		d.Set("output", "null")
+	} else {
+		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
 	if environment.RequiresApproval != nil {

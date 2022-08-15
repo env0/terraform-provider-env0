@@ -29,6 +29,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Id:                deploymentLogId,
 			BlueprintId:       templateId,
 			BlueprintRevision: "revision",
+			Output:            []byte(`{"a": "b"}`),
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
@@ -43,6 +44,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Id:                deploymentLogId,
 			BlueprintId:       templateId,
 			BlueprintRevision: "revision",
+			Output:            []byte(`{"a": "b"}`),
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory2/",
 		VcsCommandsAlias:           "alias2",
@@ -77,6 +79,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 						),
 					},
 					{
@@ -90,6 +93,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 						),
 					},
 				},
@@ -144,6 +148,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				LatestDeploymentLog: client.DeploymentLog{
 					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision: "updated revision",
+					Output:            []byte(`{"a": "b"}`),
 				},
 			}
 
@@ -199,20 +204,32 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 				return format
 			}
+
 			formatResourceWithConfiguration := func(env client.Environment, variables []client.ConfigurationVariable) string {
+				output := "null"
+				if len(env.LatestDeploymentLog.Output) > 0 {
+					output = strings.ReplaceAll(string(env.LatestDeploymentLog.Output), `"`, `\"`)
+				}
+
 				return fmt.Sprintf(`
 				resource "%s" "%s" {
 					name = "%s"
 					project_id = "%s"
 					template_id = "%s"
 					revision = "%s"
+					output = "%s"
 					force_destroy = true
 					%s
 
 				}`,
-					resourceType, resourceName, env.Name,
-					env.ProjectId, env.LatestDeploymentLog.BlueprintId,
-					env.LatestDeploymentLog.BlueprintRevision, formatVariables(variables))
+					resourceType,
+					resourceName,
+					env.Name,
+					env.ProjectId,
+					env.LatestDeploymentLog.BlueprintId,
+					env.LatestDeploymentLog.BlueprintRevision,
+					output,
+					formatVariables(variables))
 			}
 
 			environmentResource := formatResourceWithConfiguration(environment, client.ConfigurationChanges{configurationVariables})
@@ -238,6 +255,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", "null"),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Schema.Enum[0]),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
@@ -255,6 +273,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(client.Text)),
