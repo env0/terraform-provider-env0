@@ -97,11 +97,7 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	// TODO: use writeResourceData instead.
-	d.SetId(environment.Id)
-
 	setEnvironmentSchema(d, environment, client.ConfigurationChanges{})
-	d.Set("status", environment.Status)
-	d.Set("deployment_id", environment.LatestDeploymentLogId)
+
 	return nil
 }
