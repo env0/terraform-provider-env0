@@ -124,7 +124,7 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 
 	params := ConfigurationVariableParams{Scope: scope, ScopeId: scopeId}
 	if err := readResourceData(&params, d); err != nil {
-		return diag.Errorf("schema resource data serialization failed: %v", err)
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	variable, err := getConfigurationVariable(params, meta)
@@ -136,7 +136,6 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	// TODO: consider finding a way to add to writeResourceData.
 	d.Set("enum", variable.Schema.Enum)
 	if variable.Schema.Format != client.Text {
 		d.Set("format", string(variable.Schema.Format))

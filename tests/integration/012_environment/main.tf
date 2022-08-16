@@ -25,6 +25,7 @@ resource "env0_template_project_assignment" "assignment" {
 }
 
 resource "env0_environment" "example" {
+  depends_on    = [env0_template_project_assignment.assignment]
   force_destroy = true
   name          = "environment-${random_string.random.result}"
   project_id    = env0_project.test_project.id
@@ -53,6 +54,7 @@ resource "env0_template_project_assignment" "terragrunt_assignment" {
 }
 
 resource "env0_environment" "terragrunt_environment" {
+  depends_on                       = [env0_template_project_assignment.terragrunt_assignment]
   force_destroy                    = true
   name                             = "environment-${random_string.random.result}"
   project_id                       = env0_project.test_project.id

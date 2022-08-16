@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -142,32 +143,37 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 	_, googleOk := d.GetOk("table_id")
 	switch {
 	case awsOk:
+		var value client.AwsCredentialsValuePayload
+		if err := readResourceData(&value, d); err != nil {
+			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		}
+
 		return apiClient.CredentialsCreate(&client.AwsCredentialsCreatePayload{
-			Name: d.Get("name").(string),
-			Type: client.AwsCostCredentialsType,
-			Value: client.AwsCredentialsValuePayload{
-				RoleArn:    d.Get("arn").(string),
-				ExternalId: d.Get("external_id").(string),
-			}})
+			Name:  d.Get("name").(string),
+			Type:  client.AwsCostCredentialsType,
+			Value: value,
+		})
 	case azureOk:
+		var value client.AzureCredentialsValuePayload
+		if err := readResourceData(&value, d); err != nil {
+			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		}
+
 		return apiClient.CredentialsCreate(&client.AzureCredentialsCreatePayload{
-			Name: d.Get("name").(string),
-			Type: client.AzureCostCredentialsType,
-			Value: client.AzureCredentialsValuePayload{
-				ClientId:       d.Get("client_id").(string),
-				ClientSecret:   d.Get("client_secret").(string),
-				TenantId:       d.Get("tenant_id").(string),
-				SubscriptionId: d.Get("subscription_id").(string),
-			},
+			Name:  d.Get("name").(string),
+			Type:  client.AzureCostCredentialsType,
+			Value: value,
 		})
 	case googleOk:
+		var value client.GoogleCostCredentialsValuePayload
+		if err := readResourceData(&value, d); err != nil {
+			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		}
+
 		return apiClient.CredentialsCreate(&client.GoogleCostCredentialsCreatePayload{
-			Name: d.Get("name").(string),
-			Type: client.GoogleCostCredentialsType,
-			Value: client.GoogleCostCredentialsValuePayload{
-				TableId: d.Get("table_id").(string),
-				Secret:  d.Get("secret").(string),
-			},
+			Name:  d.Get("name").(string),
+			Type:  client.GoogleCostCredentialsType,
+			Value: value,
 		})
 	default:
 		return client.Credentials{}, errors.New("error in schema, no required value defined")
