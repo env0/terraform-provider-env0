@@ -152,12 +152,10 @@ func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.Confi
 		return nil, err
 	}
 
-	actualEnumValues, err := getEnum(d, params.Value)
-	if err != nil {
+	var err error
+	if params.EnumValues, err = getEnum(d, params.Value); err != nil {
 		return nil, err
 	}
-
-	params.EnumValues = actualEnumValues
 
 	return &params, nil
 }

@@ -19,7 +19,13 @@ resource "env0_template" "template" {
   terraform_version = "0.15.1"
 }
 
+resource "env0_template_project_assignment" "assignment" {
+  template_id = env0_template.template.id
+  project_id  = env0_project.test_project.id
+}
+
 resource "env0_environment" "example" {
+  depends_on    = [env0_template_project_assignment.assignment]
   force_destroy = true
   name          = "environment-${random_string.random.result}"
   project_id    = env0_project.test_project.id
@@ -42,7 +48,13 @@ resource "env0_template" "terragrunt_template" {
   terragrunt_version = "0.35.0"
 }
 
+resource "env0_template_project_assignment" "terragrunt_assignment" {
+  template_id = env0_template.terragrunt_template.id
+  project_id  = env0_project.test_project.id
+}
+
 resource "env0_environment" "terragrunt_environment" {
+  depends_on                       = [env0_template_project_assignment.terragrunt_assignment]
   force_destroy                    = true
   name                             = "environment-${random_string.random.result}"
   project_id                       = env0_project.test_project.id

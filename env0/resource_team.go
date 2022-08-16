@@ -37,11 +37,10 @@ func resourceTeam() *schema.Resource {
 
 func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
-	payload := client.TeamCreatePayload{
-		Name: d.Get("name").(string),
-	}
-	if description, ok := d.GetOk("description"); ok {
-		payload.Description = description.(string)
+
+	var payload client.TeamCreatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	team, err := apiClient.TeamCreate(payload)
@@ -54,11 +53,6 @@ func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func setTeamSchema(d *schema.ResourceData, team client.Team) {
-	d.Set("name", team.Name)
-	d.Set("description", team.Description)
-}
-
 func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -67,7 +61,9 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		return ResourceGetFailure("team", d, err)
 	}
 
-	setTeamSchema(d, team)
+	if err := writeResourceData(&team, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -75,15 +71,12 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	payload := client.TeamUpdatePayload{
-		Name: d.Get("name").(string),
-	}
-	if description, ok := d.GetOk("description"); ok {
-		payload.Description = description.(string)
+	var payload client.TeamUpdatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	_, err := apiClient.TeamUpdate(d.Id(), payload)
-	if err != nil {
+	if _, err := apiClient.TeamUpdate(d.Id(), payload); err != nil {
 		return diag.Errorf("could not update team: %v", err)
 	}
 
