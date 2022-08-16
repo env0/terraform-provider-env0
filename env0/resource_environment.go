@@ -339,6 +339,17 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
+	if d.Get("template_id").(string) == "" {
+		// envrionment with no template.
+		template, err := apiClient.Template(environment.BlueprintId)
+		if err != nil {
+			return diag.Errorf("could not get template: %v", err)
+		}
+		if err := templateRead("without_template_settings", template, d); err != nil {
+			return diag.Errorf("schema resource data serialization failed: %v", err)
+		}
+	}
+
 	return nil
 }
 

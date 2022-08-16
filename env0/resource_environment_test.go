@@ -1224,17 +1224,20 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environment, nil)
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(template, nil)
 
 			// Step2
 			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(template, nil)
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 			mock.EXPECT().TemplateUpdate(environment.BlueprintId, templateUpdatePayload).Times(1).Return(updatedTemplate, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(updatedTemplate, nil)
 
 			// Step3
 			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
-
+			mock.EXPECT().Template(environment.BlueprintId).Times(2).Return(updatedTemplate, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})

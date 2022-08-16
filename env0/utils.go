@@ -404,3 +404,10 @@ func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) 
 
 	return nil
 }
+
+func writeResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
+	if prefix == "" {
+		return writeResourceData(i, d)
+	}
+	return writeResourceDataSlice([]interface{}{i}, prefix, d)
+}
