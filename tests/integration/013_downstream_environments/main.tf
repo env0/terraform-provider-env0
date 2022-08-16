@@ -18,6 +18,7 @@ resource "env0_template_project_assignment" "assignment" {
 }
 
 resource "env0_environment" "the_trigger" {
+  depends_on                 = [env0_template_project_assignment.assignment]
   force_destroy              = true
   name                       = "the_trigger"
   project_id                 = env0_project.test_project.id
@@ -26,6 +27,7 @@ resource "env0_environment" "the_trigger" {
 }
 
 resource "env0_environment" "downstream_environment" {
+  depends_on                 = [env0_template_project_assignment.assignment]
   force_destroy              = true
   name                       = "downstream_environment"
   project_id                 = env0_project.test_project.id
