@@ -90,7 +90,10 @@ Required:
 Optional:
 
 - **description** (String) description for the variable
+- **is_read_only** (Boolean) is the variable read only
+- **is_required** (Boolean) is the variable required
 - **is_sensitive** (Boolean) should the variable value be hidden
+- **regex** (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - **schema_enum** (List of String) a list of possible variable values
 - **schema_format** (String) the variable format:
 - **schema_type** (String) the type the variable must be of

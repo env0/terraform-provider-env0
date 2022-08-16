@@ -186,6 +186,23 @@ func resourceEnvironment() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: ValidateConfigurationPropertySchema,
 						},
+						"is_read_only": {
+							Type:        schema.TypeBool,
+							Description: "is the variable read only",
+							Optional:    true,
+							Default:     false,
+						},
+						"is_required": {
+							Type:        schema.TypeBool,
+							Description: "is the variable required",
+							Optional:    true,
+							Default:     false,
+						},
+						"regex": {
+							Type:        schema.TypeString,
+							Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -244,8 +261,17 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 		if configurationVariable.Description != "" {
 			variable["description"] = configurationVariable.Description
 		}
+		if configurationVariable.Regex != "" {
+			variable["regex"] = configurationVariable.Regex
+		}
 		if configurationVariable.IsSensitive != nil {
 			variable["is_sensitive"] = configurationVariable.IsSensitive
+		}
+		if configurationVariable.IsReadOnly != nil {
+			variable["is_read_only"] = configurationVariable.IsReadOnly
+		}
+		if configurationVariable.IsRequired != nil {
+			variable["is_required"] = configurationVariable.IsRequired
 		}
 		if configurationVariable.Schema != nil {
 			variable["schema_type"] = configurationVariable.Schema.Type
@@ -459,7 +485,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
-	if d.HasChange("deploy_on_push") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 
@@ -469,7 +496,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
-	if d.HasChange("run_plan_on_pull_requests") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
@@ -525,6 +553,7 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	if d.HasChange("deploy_on_push") {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
+
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
@@ -659,8 +688,22 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.IsSensitive = &isSensitive
 	}
 
+	if variable["is_read_only"] != nil {
+		isReadOnly := variable["is_read_only"].(bool)
+		configurationVariable.IsReadOnly = &isReadOnly
+	}
+
+	if variable["is_required"] != nil {
+		isRequired := variable["is_required"].(bool)
+		configurationVariable.IsRequired = &isRequired
+	}
+
 	if variable["description"] != nil {
 		configurationVariable.Description = variable["description"].(string)
+	}
+
+	if variable["regex"] != nil {
+		configurationVariable.Regex = variable["regex"].(string)
 	}
 
 	configurationSchema := client.ConfigurationVariableSchema{
