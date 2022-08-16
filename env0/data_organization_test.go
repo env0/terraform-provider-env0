@@ -17,7 +17,6 @@ func TestUnitOrganizationData(t *testing.T) {
 		Name:            "name0",
 		CreatedBy:       "env0",
 		Role:            "role0",
-		IsSelfHosted:    false,
 		IsSelfHostedK8s: true,
 	}
 
