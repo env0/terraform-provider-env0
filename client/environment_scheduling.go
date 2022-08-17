@@ -1,15 +1,42 @@
 package client
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
 
 type EnvironmentSchedulingExpression struct {
 	Cron    string `json:"cron,omitempty"`
 	Enabled bool   `json:"enabled"`
 }
 
+func (e *EnvironmentSchedulingExpression) ReadResourceData(fieldName string, d *schema.ResourceData) error {
+	val := d.Get(fieldName).(string)
+
+	if val != "" {
+		*e = EnvironmentSchedulingExpression{Cron: val, Enabled: true}
+	} else {
+		*e = EnvironmentSchedulingExpression{}
+	}
+
+	return nil
+}
+
+func (e *EnvironmentSchedulingExpression) WriteResourceData(fieldName string, d *schema.ResourceData) error {
+	val := *e
+	valStr := ""
+
+	if val.Enabled && len(val.Cron) > 0 {
+		valStr = val.Cron
+	}
+
+	return d.Set(fieldName, valStr)
+}
+
 type EnvironmentScheduling struct {
-	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty"`
-	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty"`
+	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty" tfschema:"deploy_cron"`
+	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty" tfschema:"destroy_cron"`
 }
 
 func (client *ApiClient) EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error) {
