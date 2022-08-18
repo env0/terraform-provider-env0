@@ -1,5 +1,11 @@
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 resource "env0_git_token" "test_git_token" {
-  name  = "name"
+  name  = "name-${random_string.random.result}"
   value = "value"
 }
 

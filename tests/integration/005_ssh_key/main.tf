@@ -17,7 +17,7 @@ resource "env0_ssh_key" "tested" {
 }
 
 data "env0_ssh_key" "tested" {
-  name       =  "test-key-${random_string.random.result}"
+  name       = "test-key-${random_string.random.result}"
   depends_on = [env0_ssh_key.tested]
 }
 
@@ -26,7 +26,7 @@ data "env0_ssh_key" "tested2" {
 }
 
 output "name" {
-  value = replace(data.env0_ssh_key.tested2.name, random_string.random.result, "")
+  value = replace(env0_ssh_key.tested.name, random_string.random.result, "")
 }
 
 resource "env0_template" "usage" {
