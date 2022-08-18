@@ -257,7 +257,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := templateRead(template, d); err != nil {
+	if err := templateRead("", template, d); err != nil {
 		return diag.Errorf("%v", err)
 	}
 
@@ -354,24 +354,36 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 }
 
 // Reads template and writes to the resource data.
-func templateRead(template client.Template, d *schema.ResourceData) error {
-	if err := writeResourceData(&template, d); err != nil {
+func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
+	if err := writeResourceDataEx(prefix, &template, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	templateReadRetryOnHelper(d, "deploy", template.Retry.OnDeploy)
-	templateReadRetryOnHelper(d, "destroy", template.Retry.OnDestroy)
+	templateReadRetryOnHelper(prefix, d, "deploy", template.Retry.OnDeploy)
+	templateReadRetryOnHelper(prefix, d, "destroy", template.Retry.OnDestroy)
 
 	return nil
 }
 
 // Helpers function for templateRead.
-func templateReadRetryOnHelper(d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
-	if retryOn != nil {
-		d.Set("retries_on_"+retryType, retryOn.Times)
-		d.Set("retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
+func templateReadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
+	if prefix != "" {
+		value := d.Get(prefix + ".0").(map[string]interface{})
+		if retryOn != nil {
+			value["retries_on_"+retryType] = retryOn.Times
+			value["retry_on_"+retryType+"_only_when_matches_regex"] = retryOn.ErrorRegex
+		} else {
+			value["retries_on_"+retryType] = 0
+			value["retry_on_"+retryType+"_only_when_matches_regex"] = ""
+		}
+		d.Set(prefix, []interface{}{value})
 	} else {
-		d.Set("retries_on_"+retryType, 0)
-		d.Set("retry_on_"+retryType+"_only_when_matches_regex", "")
+		if retryOn != nil {
+			d.Set("retries_on_"+retryType, retryOn.Times)
+			d.Set("retry_on_"+retryType+"_only_when_matches_regex", retryOn.ErrorRegex)
+		} else {
+			d.Set("retries_on_"+retryType, 0)
+			d.Set("retry_on_"+retryType+"_only_when_matches_regex", "")
+		}
 	}
 }

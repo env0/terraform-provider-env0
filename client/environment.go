@@ -93,6 +93,7 @@ type Environment struct {
 	IsArchived                  bool          `json:"isArchived"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
+	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
