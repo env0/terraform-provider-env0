@@ -99,15 +99,15 @@ type Environment struct {
 type EnvironmentCreate struct {
 	Name                        string                `json:"name"`
 	ProjectId                   string                `json:"projectId"`
-	DeployRequest               *DeployRequest        `json:"deployRequest"`
-	WorkspaceName               string                `json:"workspaceName,omitempty"`
-	RequiresApproval            *bool                 `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty"`
+	DeployRequest               *DeployRequest        `json:"deployRequest" tfschema:"-"`
+	WorkspaceName               string                `json:"workspaceName,omitempty" tfschema:"workspace"`
+	RequiresApproval            *bool                 `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
 	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
-	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                         *TTL                  `json:"ttl,omitempty"`
+	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty" tfschema:"-"`
+	TTL                         *TTL                  `json:"ttl,omitempty" tfschema:"-"`
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
 }
@@ -150,14 +150,13 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
-	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
-	IsArchived                  *bool  `json:"isArchived,omitempty"`
-	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
 }
 
 type EnvironmentDeployResponse struct {
