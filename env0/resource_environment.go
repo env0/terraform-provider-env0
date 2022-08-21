@@ -42,7 +42,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from",
+				Description:  "the template id the environment is to be created from. Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
@@ -311,7 +311,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
 	}
 	if err != nil {
-		return diag.Errorf("could not create environment: %v", err)
+		return diag.Errorf(`could not create environment: %v\nNote: if "template_id" is used make sure the template is first assigned to the project.`, err)
 	}
 	environmentConfigurationVariables := client.ConfigurationChanges{}
 	if environmentPayload.DeployRequest.ConfigurationChanges != nil {
