@@ -50,6 +50,14 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		VcsCommandsAlias:           "alias2",
 	}
 
+	template := client.Template{
+		ProjectId: updatedEnvironment.ProjectId,
+	}
+
+	templateInSlice := client.Template{
+		ProjectIds: []string{updatedEnvironment.ProjectId},
+	}
+
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
 		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 			"name":                         environment.Name,
@@ -104,6 +112,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -294,6 +303,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				configurationVariables.IsReadOnly = boolPtr(false)
 				configurationVariables.IsRequired = boolPtr(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(templateInSlice, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -431,6 +441,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -515,6 +526,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdateTTL(environment.Id, client.TTL{
 					Type:  client.TTLTypeDate,
@@ -585,6 +597,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdateTTL(environment.Id, client.TTL{
 					Type:  client.TTlTypeInfinite,
@@ -684,6 +697,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(environment.Id, client.EnvironmentUpdate{
 					Name:                        environment.Name,
@@ -763,6 +777,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
@@ -808,6 +823,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 			}
 			runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
@@ -835,6 +851,25 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	testApiFailures := func() {
+		t.Run("Failure template not assigned to project", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      createEnvironmentResourceConfig(environment),
+						ExpectError: regexp.MustCompile("could not create environment: template is not assigned to project"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(client.Template{
+					ProjectId:  "no-match",
+					ProjectIds: []string{"no-match"},
+				}, nil)
+			})
+
+		})
+
 		t.Run("Failure in create", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
@@ -846,6 +881,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -876,6 +912,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -934,6 +971,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDeploy(updatedEnvironment.Id, client.DeployRequest{
 					BlueprintId:       updatedEnvironment.LatestDeploymentLog.BlueprintId,
@@ -957,6 +995,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,

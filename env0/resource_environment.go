@@ -286,6 +286,23 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 	}
 }
 
+// Validate that the template is assigned to the "project_id".
+func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	projectId := d.Get("project_id").(string)
+	templateId := d.Get("template_id").(string)
+
+	template, err := apiClient.Template(templateId)
+	if err != nil {
+		return fmt.Errorf("could not get template: %v", err)
+	}
+
+	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
+		return errors.New("could not create environment: template is not assigned to project")
+	}
+
+	return nil
+}
+
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -297,7 +314,10 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	var err error
 
-	if d.Get("template_id") != "" {
+	if d.Get("template_id").(string) != "" {
+		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
+			return diag.Errorf("%v\n", err)
+		}
 		environment, err = apiClient.EnvironmentCreate(environmentPayload)
 	} else {
 		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
@@ -311,7 +331,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
 	}
 	if err != nil {
-		return diag.Errorf(`could not create environment: %v\nNote: if "template_id" is used make sure the template is first assigned to the project.`, err)
+		return diag.Errorf("could not create environment: %v", err)
 	}
 	environmentConfigurationVariables := client.ConfigurationChanges{}
 	if environmentPayload.DeployRequest.ConfigurationChanges != nil {

@@ -41,6 +41,15 @@ func intPtr(i int) *int {
 	return &i
 }
 
+func stringInSlice(str string, strs []string) bool {
+	for _, strOther := range strs {
+		if str == strOther {
+			return true
+		}
+	}
+	return false
+}
+
 // Extracts values from the resourcedata, and writes it to the interface.
 // Prepends prefix to the fieldName.
 func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
