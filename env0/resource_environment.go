@@ -42,7 +42,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from. Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
