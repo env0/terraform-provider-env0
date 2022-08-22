@@ -1,6 +1,13 @@
-resource "env0_project" "test_project" {
-  name = "Test-Project-For_policy"
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
 }
+
+resource "env0_project" "test_project" {
+  name = "Test-Project-For_policy-${random_string.random.result}"
+}
+
 resource "env0_project_policy" "test_policy" {
   project_id                    = env0_project.test_project.id
   number_of_environments        = 1

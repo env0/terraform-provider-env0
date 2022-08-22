@@ -1,5 +1,11 @@
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 resource "env0_project" "test_project" {
-  name = "Project-for-003-configuration-variable"
+  name = "Project-for-003-configuration-variable-${random_string.random.result}"
 }
 
 resource "env0_configuration_variable" "region_in_project_resource" {
@@ -22,16 +28,16 @@ output "region_in_project_id" {
 }
 
 resource "env0_configuration_variable" "tested1" {
-  name  = "tested1"
+  name  = "tested1-${random_string.random.result}"
   value = "fake value 1 ${var.second_run ? "after update" : ""}"
 }
 data "env0_configuration_variable" "tested1" {
-  name       = "tested1"
+  name       = "tested1-${random_string.random.result}"
   depends_on = [env0_configuration_variable.tested1]
 }
 
 output "tested1_value" {
-  value     = data.env0_configuration_variable.tested1.value
+  value     = replace(data.env0_configuration_variable.tested1.value, random_string.random.result, "")
   sensitive = true
 }
 
@@ -40,12 +46,12 @@ data "env0_configuration_variable" "tested2" {
 }
 
 resource "env0_configuration_variable" "tested3" {
-  name  = "tested3"
+  name  = "tested3-${random_string.random.result}"
   value = "First"
   enum  = ["First", "Second"]
 }
 data "env0_configuration_variable" "tested3" {
-  name       = "tested3"
+  name       = "tested3-${random_string.random.result}"
   depends_on = [env0_configuration_variable.tested3]
 }
 
