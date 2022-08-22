@@ -494,36 +494,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
-	payload := client.EnvironmentCreate{}
+	var payload client.EnvironmentCreate
 
-	if name, ok := d.GetOk("name"); ok {
-		payload.Name = name.(string)
-	}
-	if projectId, ok := d.GetOk("project_id"); ok {
-		payload.ProjectId = projectId.(string)
-	}
-
-	if workspace, ok := d.GetOk("workspace"); ok {
-		payload.WorkspaceName = workspace.(string)
-	}
-
-	if terragruntWorkingDirectory, ok := d.GetOk("terragrunt_working_directory"); ok {
-		payload.TerragruntWorkingDirectory = terragruntWorkingDirectory.(string)
-	}
-
-	if vcsCommandsAlias, ok := d.GetOk("vcs_commands_alias"); ok {
-		payload.VcsCommandsAlias = vcsCommandsAlias.(string)
+	if err := readResourceData(&payload, d); err != nil {
+		return client.EnvironmentCreate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = &continuousDeployment
-	}
-
-	if d.HasChange("approve_plan_automatically") {
-		requiresApproval := !d.Get("approve_plan_automatically").(bool)
-		payload.RequiresApproval = &requiresApproval
 	}
 
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
@@ -533,9 +513,16 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
 
-	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("approve_plan_automatically"); exists {
+		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
+	}
+
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
 		return client.EnvironmentCreate{}, err
@@ -545,13 +532,13 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
 	}
+
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
 		payload.TTL = &ttlPayload
 	}
 
 	deployPayload := getDeployPayload(d, apiClient, false)
-
 	payload.DeployRequest = &deployPayload
 
 	return payload, nil
@@ -570,14 +557,14 @@ func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeploymen
 }
 
 func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Diagnostics) {
-	payload := client.EnvironmentUpdate{}
+	var payload client.EnvironmentUpdate
 
-	if name, ok := d.GetOk("name"); ok {
-		payload.Name = name.(string)
+	if err := readResourceData(&payload, d); err != nil {
+		return client.EnvironmentUpdate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
 	if d.HasChange("approve_plan_automatically") {
-		requiresApproval := !d.Get("approve_plan_automatically").(bool)
-		payload.RequiresApproval = &requiresApproval
+		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
@@ -589,11 +576,9 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	if d.HasChange("run_plan_on_pull_requests") {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
+
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	payload.TerragruntWorkingDirectory = d.Get("terragrunt_working_directory").(string)
-	payload.VcsCommandsAlias = d.Get("vcs_commands_alias").(string)
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
