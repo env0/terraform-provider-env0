@@ -1,9 +1,9 @@
 provider "random" {}
 
 resource "random_string" "random" {
-  length    = 5
+  length    = 8
   special   = false
-  min_lower = 5
+  min_lower = 8
 }
 
 resource "env0_project" "test_project" {
