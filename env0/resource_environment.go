@@ -42,7 +42,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
@@ -286,6 +286,23 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 	}
 }
 
+// Validate that the template is assigned to the "project_id".
+func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	projectId := d.Get("project_id").(string)
+	templateId := d.Get("template_id").(string)
+
+	template, err := apiClient.Template(templateId)
+	if err != nil {
+		return fmt.Errorf("could not get template: %v", err)
+	}
+
+	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
+		return errors.New("could not create environment: template is not assigned to project")
+	}
+
+	return nil
+}
+
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -297,7 +314,10 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	var err error
 
-	if d.Get("template_id") != "" {
+	if d.Get("template_id").(string) != "" {
+		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
+			return diag.Errorf("%v\n", err)
+		}
 		environment, err = apiClient.EnvironmentCreate(environmentPayload)
 	} else {
 		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
