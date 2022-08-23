@@ -723,12 +723,12 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 	}
 
 	configurationSchema := client.ConfigurationVariableSchema{
-		Type:   "string",
 		Format: client.Format(variable["schema_format"].(string)),
 		Enum:   nil,
+		Type:   variable["schema_type"].(string),
 	}
-	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 
+	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 		enumOfAny := variable["schema_enum"].([]interface{})
 		enum := make([]string, len(enumOfAny))
 		for i := range enum {
