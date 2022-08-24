@@ -15,7 +15,15 @@ resource "env0_project" "test_project" {
 }
 
 resource "env0_aws_credentials" "credentials" {
-  name        = "examplee-${random_string.random.result}"
+  name        = "example-${random_string.random.result}"
   arn         = "Example role ARN"
   external_id = "Example external id"
+}
+
+data "env0_project_cloud_credentials" "project_cloud_credentials" {
+  project_id = env0_project.test_project.id
+}
+
+output "validate" {
+  value = var.second_run ? "${data.env0_project_cloud_credentials.project_cloud_credentials.ids.0}" == "${env0_aws_credentials.credentials.id}" ? "1" : "0" : "0"
 }
