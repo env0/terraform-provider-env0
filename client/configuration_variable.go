@@ -24,7 +24,7 @@ const (
 )
 
 type ConfigurationVariableSchema struct {
-	Type   string   `json:"type"`
+	Type   string   `json:"type,omitempty"`
 	Enum   []string `json:"enum"`
 	Format Format   `json:"format,omitempty"`
 }
