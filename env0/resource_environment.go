@@ -352,7 +352,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
+	environmentConfigurationVariables, err := getConfigurationVariables(apiClient, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -529,7 +529,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -600,7 +600,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		if isRedeploy {
 			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
@@ -628,8 +628,25 @@ func getTTl(date string) client.TTL {
 	}
 }
 
+func getConfigurationVariables(apiClient client.ApiClientInterface, environmentId string) ([]client.ConfigurationVariable, error) {
+	variables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter out template/blueprint variables.
+	filteredVariables := []client.ConfigurationVariable{}
+	for _, variable := range variables {
+		if variable.Scope != client.ScopeTemplate {
+			filteredVariables = append(filteredVariables, variable)
+		}
+	}
+
+	return filteredVariables, nil
+}
+
 func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
-	existVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
+	existVariables, err := getConfigurationVariables(apiClient, environmentId)
 	if err != nil {
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -638,10 +655,10 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	return configurationChanges
 }
 
-func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariablesFromSchema(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
-		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
+		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
 
@@ -685,7 +702,7 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
 }
 
-func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
+func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
 	varType := client.VariableTypes[variable["type"].(string)]
 
 	configurationVariable := client.ConfigurationVariable{
@@ -792,7 +809,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
+	environmentConfigurationVariables, err := getConfigurationVariables(apiClient, environment.Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
