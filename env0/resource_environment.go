@@ -352,7 +352,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
-	environmentConfigurationVariables, err := getConfigurationVariables(apiClient, environment.Id)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -628,25 +628,8 @@ func getTTl(date string) client.TTL {
 	}
 }
 
-func getConfigurationVariables(apiClient client.ApiClientInterface, environmentId string) ([]client.ConfigurationVariable, error) {
-	variables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
-	if err != nil {
-		return nil, err
-	}
-
-	// Filter out template/blueprint variables.
-	filteredVariables := []client.ConfigurationVariable{}
-	for _, variable := range variables {
-		if variable.Scope != client.ScopeTemplate {
-			filteredVariables = append(filteredVariables, variable)
-		}
-	}
-
-	return filteredVariables, nil
-}
-
 func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
-	existVariables, err := getConfigurationVariables(apiClient, environmentId)
+	existVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
 	if err != nil {
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -809,7 +792,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
-	environmentConfigurationVariables, err := getConfigurationVariables(apiClient, environment.Id)
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
