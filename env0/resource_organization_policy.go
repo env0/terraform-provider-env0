@@ -50,7 +50,7 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "set to 'true' to enable OIDC token availability (defaults to 'false')",
+				Description: "set to 'true' to enable OIDC token (JWT) availability during env0 deployments (defaults to 'false')",
 			},
 		},
 	}
