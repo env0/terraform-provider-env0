@@ -46,6 +46,12 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"enable_oidc": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "set to 'true' to enable OIDC token availability (defaults to 'false')",
+			},
 		},
 	}
 }

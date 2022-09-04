@@ -8,4 +8,5 @@ resource "env0_organization_policy" "my_organization_policy" {
   max_ttl                                    = "1-M"
   default_ttl                                = var.second_run ? "6-h" : "12-h"
   do_not_consider_merge_commits_for_pr_plans = var.second_run ? false : true
+  enable_oidc                                = var.second_run ? false : true
 }
