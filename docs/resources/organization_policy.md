@@ -28,7 +28,7 @@ resource "env0_organization_policy" "policy_example" {
 - **default_ttl** (String) the default environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M). omit for infinite ttl. must be equal or shorter than max_ttl
 - **do_not_consider_merge_commits_for_pr_plans** (Boolean)
 - **do_not_report_skipped_status_checks** (Boolean)
-- **enable_oidc** (Boolean) set to 'true' to enable OIDC token availability (defaults to 'false')
+- **enable_oidc** (Boolean) set to 'true' to enable OIDC token (JWT) availability during env0 deployments (defaults to 'false')
 - **id** (String) The ID of this resource.
 - **max_ttl** (String) the maximum environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M). omit for infinite ttl. must be equal or longer than default_ttl
 
