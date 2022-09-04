@@ -85,6 +85,16 @@ func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVar
 	return result, nil
 }
 
+func filterOutConfigurationVariables(variables []ConfigurationVariable, scope Scope) []ConfigurationVariable {
+	filteredVariables := []ConfigurationVariable{}
+	for _, variable := range variables {
+		if variable.Scope != scope {
+			filteredVariables = append(filteredVariables, variable)
+		}
+	}
+	return filteredVariables
+}
+
 func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -110,15 +120,12 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 		return []ConfigurationVariable{}, err
 	}
 
+	// The API returns global and template scopes for environment (and other) scopes. Filter them out.
 	if scope != ScopeGlobal {
-		// Filter out global scopes. If a non global scope is requested.
-		filteredResult := []ConfigurationVariable{}
-		for _, variable := range result {
-			if variable.Scope != ScopeGlobal {
-				filteredResult = append(filteredResult, variable)
-			}
+		result = filterOutConfigurationVariables(result, ScopeGlobal)
+		if scope != ScopeTemplate {
+			result = filterOutConfigurationVariables(result, ScopeTemplate)
 		}
-		return filteredResult, nil
 	}
 
 	return result, nil

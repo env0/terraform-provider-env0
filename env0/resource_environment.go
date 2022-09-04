@@ -529,7 +529,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -600,7 +600,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		if isRedeploy {
 			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
@@ -638,10 +638,10 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	return configurationChanges
 }
 
-func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariablesFromSchema(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
-		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
+		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
 
@@ -685,7 +685,7 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
 }
 
-func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
+func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
 	varType := client.VariableTypes[variable["type"].(string)]
 
 	configurationVariable := client.ConfigurationVariable{
