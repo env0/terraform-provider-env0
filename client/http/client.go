@@ -36,9 +36,8 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 		ApiSecret: config.ApiSecret,
 		client:    config.RestClient.SetHostURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}
-	var res string
 	req := httpClient.client.R().SetBasicAuth(httpClient.ApiKey, httpClient.ApiSecret)
-	response, err := req.SetQueryParams(map[string]string{"encoded": "true"}).SetResult(&res).Get("auth/token")
+	response, err := req.SetQueryParams(map[string]string{"encoded": "true"}).Get("auth/token")
 	if err != nil {
 		return nil, err
 	}

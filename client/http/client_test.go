@@ -29,7 +29,7 @@ type RequestBody struct {
 const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
-const ExpectedBasicAuth = "Bearer mockedJwtToken"
+const ExpectedBasicAuth = "Bearer \"mockedJwtToken\""
 const UserAgent = "super-cool-ua"
 const ErrorStatusCode = 500
 const ErrorMessage = "Very bad!"
@@ -40,7 +40,7 @@ var _ = BeforeSuite(func() {
 	// mock all HTTP requests
 	restClient := resty.New()
 	httpmock.ActivateNonDefault(restClient.GetClient())
-	httpmock.RegisterResponder("GET", BaseUrl+"/auth/token", httpmock.NewStringResponder(200, `mockedJwtToken`))
+	httpmock.RegisterResponder("GET", BaseUrl+"/auth/token", httpmock.NewStringResponder(200, `"mockedJwtToken"`))
 	config := httpModule.HttpClientConfig{
 		ApiKey:      ApiKey,
 		ApiSecret:   ApiSecret,
