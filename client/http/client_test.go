@@ -29,7 +29,7 @@ type RequestBody struct {
 const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
-const ExpectedBasicAuth = "Bearer \"mockedJwtToken\""
+const ExpectedJWTAuth = "Bearer \"mockedJwtToken\""
 const UserAgent = "super-cool-ua"
 const ErrorStatusCode = 500
 const ErrorMessage = "Very bad!"
@@ -83,7 +83,7 @@ var _ = Describe("Http Client", func() {
 	AssertAuth := func() {
 		authorization := httpRequest.Header["Authorization"]
 		Expect(len(authorization)).To(Equal(1), "Should have authorization header")
-		Expect(authorization[0]).To(Equal(ExpectedBasicAuth), "Should have correct Basic Auth")
+		Expect(authorization[0]).To(Equal(ExpectedJWTAuth), "Should have correct Basic Auth")
 	}
 
 	AssertNoError := func(err error) {
