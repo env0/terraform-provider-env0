@@ -46,9 +46,12 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 		client:    config.RestClient.SetHostURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}
 	response, err := getJWTToken(httpClient)
+	if err != nil {
+		return nil, err
+	}
 
 	httpClient.jwtToken = string(response.Body())
-	return httpClient, err
+	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
