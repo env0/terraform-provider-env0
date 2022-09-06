@@ -3,6 +3,8 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
+	"fmt"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -38,7 +40,8 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	}
 	req := httpClient.client.R().SetBasicAuth(httpClient.ApiKey, httpClient.ApiSecret)
 
-	req.SetQueryParams(nil).SetResult(&httpClient.jwtToken).Get("auth/token?encoded=true")
+	req.SetQueryParams(nil).SetResult(httpClient.jwtToken).Get("auth/token?encoded=true")
+	fmt.Println("***", httpClient.jwtToken);
 
 	return httpClient, nil
 }
