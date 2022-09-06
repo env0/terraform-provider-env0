@@ -17,7 +17,7 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	jwtToken    string
+	jwtToken  string
 	ApiKey    string
 	ApiSecret string
 	Endpoint  string
@@ -41,7 +41,7 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	req := httpClient.client.R().SetBasicAuth(httpClient.ApiKey, httpClient.ApiSecret)
 
 	req.SetQueryParams(nil).SetResult(httpClient.jwtToken).Get("auth/token?encoded=true")
-	fmt.Println("***", httpClient.jwtToken);
+	fmt.Println("***", httpClient.jwtToken)
 
 	return httpClient, nil
 }
