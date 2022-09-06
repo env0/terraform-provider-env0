@@ -51,7 +51,6 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	return httpClient, err
 }
 
-
 func (client *HttpClient) request() *resty.Request {
 	return client.client.R().SetAuthToken(client.jwtToken)
 }
