@@ -86,3 +86,7 @@ func (r *TestReporter) Errorf(format string, args ...interface{}) {
 	r.T.Helper()
 	r.T.Errorf(format, args...)
 }
+
+func (r *TestReporter) Cleanup(cb func()) {
+	r.T.Helper()
+}
