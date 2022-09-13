@@ -72,7 +72,7 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"environment_id": environmentId,
 					}),
-					ExpectError: regexp.MustCompile("AtLeastOne"),
+					ExpectError: regexp.MustCompile("Missing required argument"),
 				},
 			},
 		}

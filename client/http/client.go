@@ -43,7 +43,7 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	httpClient := &HttpClient{
 		ApiKey:    config.ApiKey,
 		ApiSecret: config.ApiSecret,
-		client:    config.RestClient.SetHostURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}
 	response, err := getJWTToken(httpClient)
 	if err != nil {
