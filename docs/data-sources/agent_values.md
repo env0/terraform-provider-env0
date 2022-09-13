@@ -17,14 +17,11 @@ description: |-
 
 ### Required
 
-- **agent_key** (String) the agent key
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `agent_key` (String) the agent key
 
 ### Read-Only
 
-- **values** (String) Self hosted agent helm values. The values can be passed to a helm release resource (https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release)
+- `id` (String) The ID of this resource.
+- `values` (String) Self hosted agent helm values. The values can be passed to a helm release resource (https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release)
 
 

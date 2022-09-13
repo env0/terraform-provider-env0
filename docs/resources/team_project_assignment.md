@@ -17,12 +17,12 @@ description: |-
 
 ### Required
 
-- **project_id** (String) id of the project
-- **role** (String) the assigned role (Admin, Planner, Viewer, Deployer)
-- **team_id** (String) id of the team
+- `project_id` (String) id of the project
+- `role` (String) the assigned role (Admin, Planner, Viewer, Deployer)
+- `team_id` (String) id of the team
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

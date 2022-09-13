@@ -41,23 +41,26 @@ resource "env0_configuration_variable" "json_variable" {
 
 ### Required
 
-- **name** (String) name to give the configuration variable
+- `name` (String) name to give the configuration variable
 
 ### Optional
 
-- **description** (String) a description of the variables
-- **enum** (List of String) limit possible values to values from this list
-- **environment_id** (String) create the variable under this environment, not globally. Make sure to 'ignore changes' on environment.configuration to prevent drifts
-- **format** (String) specifies the format of the configuration value (HCL/JSON)
-- **id** (String) The ID of this resource.
-- **is_read_only** (Boolean) the value of this variable cannot be edited by lower scopes
-- **is_required** (Boolean) the value of this variable must be set by lower scopes
-- **is_sensitive** (Boolean) is the variable sensitive, defaults to false
-- **project_id** (String) create the variable under this project, not globally
-- **regex** (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
-- **template_id** (String) create the variable under this template, not globally
-- **type** (String) default 'environment'. set to 'terraform' to create a terraform variable
-- **value** (String, Sensitive) value for the configuration variable
+- `description` (String) a description of the variables
+- `enum` (List of String) limit possible values to values from this list
+- `environment_id` (String) create the variable under this environment, not globally. Make sure to 'ignore changes' on environment.configuration to prevent drifts
+- `format` (String) specifies the format of the configuration value (HCL/JSON)
+- `is_read_only` (Boolean) the value of this variable cannot be edited by lower scopes
+- `is_required` (Boolean) the value of this variable must be set by lower scopes
+- `is_sensitive` (Boolean) is the variable sensitive, defaults to false
+- `project_id` (String) create the variable under this project, not globally
+- `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
+- `template_id` (String) create the variable under this template, not globally
+- `type` (String) default 'environment'. set to 'terraform' to create a terraform variable
+- `value` (String, Sensitive) value for the configuration variable
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 ## Import
 

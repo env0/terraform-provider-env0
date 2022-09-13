@@ -33,12 +33,12 @@ resource "env0_user_project_assignment" "project_assignment_example" {
 
 ### Required
 
-- **project_id** (String) id of the project
-- **role** (String) the assigned role (Admin, Planner, Viewer, Deployer)
-- **user_id** (String) id of the user. Note: can also be an id of a "User" API key
+- `project_id` (String) id of the project
+- `role` (String) the assigned role (Admin, Planner, Viewer, Deployer)
+- `user_id` (String) id of the user. Note: can also be an id of a "User" API key
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

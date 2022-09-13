@@ -31,7 +31,7 @@ data "env0_api_key" "api_key_sample_by_name" {
 
 ### Optional
 
-- **id** (String) the id of the api key
-- **name** (String) the name of the api key
+- `id` (String) the id of the api key
+- `name` (String) the name of the api key
 
 

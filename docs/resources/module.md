@@ -27,19 +27,22 @@ resource "env0_module" "example" {
 
 ### Required
 
-- **module_name** (String) name of the module (Match pattern: ^[0-9A-Za-z](?:[0-9A-Za-z-_]{0,62}[0-9A-Za-z])?$)
-- **repository** (String) the repository containing the module files
+- `module_name` (String) name of the module (Match pattern: ^[0-9A-Za-z](?:[0-9A-Za-z-_]{0,62}[0-9A-Za-z])?$)
+- `repository` (String) the repository containing the module files
 
 ### Optional
 
-- **bitbucket_client_key** (String) the client key used for integration with Bitbucket
-- **description** (String) description of the module
-- **github_installation_id** (Number) the env0 application installation id on the relevant Github repository
-- **id** (String) The ID of this resource.
-- **module_provider** (String) the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)
-- **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
-- **token_id** (String) the token id used for integration with GitLab
-- **token_name** (String) the token name used for integration with GitLab
+- `bitbucket_client_key` (String) the client key used for integration with Bitbucket
+- `description` (String) description of the module
+- `github_installation_id` (Number) the env0 application installation id on the relevant Github repository
+- `module_provider` (String) the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)
+- `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
+- `token_id` (String) the token id used for integration with GitLab
+- `token_name` (String) the token name used for integration with GitLab
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 ## Import
 

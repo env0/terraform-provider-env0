@@ -27,10 +27,10 @@ output "user_id" {
 
 ### Required
 
-- **email** (String) the email of the user
+- `email` (String) the email of the user
 
 ### Read-Only
 
-- **id** (String) id of the user
+- `id` (String) id of the user
 
 

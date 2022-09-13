@@ -32,11 +32,11 @@ output "credentials_name" {
 
 ### Optional
 
-- **credential_type** (String) the type of cloud credential to filter by (allowed values: AWS_ASSUMED_ROLE, AWS_ASSUMED_ROLE_FOR_DEPLOYMENT, AWS_ACCESS_KEYS_FOR_DEPLOYMENT, GCP_CREDENTIALS, GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT, AZURE_CREDENTIALS, AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT)
-- **id** (String) The ID of this resource.
+- `credential_type` (String) the type of cloud credential to filter by (allowed values: AWS_ASSUMED_ROLE, AWS_ASSUMED_ROLE_FOR_DEPLOYMENT, AWS_ACCESS_KEYS_FOR_DEPLOYMENT, GCP_CREDENTIALS, GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT, AZURE_CREDENTIALS, AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT)
 
 ### Read-Only
 
-- **names** (List of String) list of all cloud credentials (by name), optionaly filtered by credential_type
+- `id` (String) The ID of this resource.
+- `names` (List of String) list of all cloud credentials (by name), optionaly filtered by credential_type
 
 

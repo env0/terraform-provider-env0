@@ -24,12 +24,12 @@ resource "env0_git_token" "git_token_sample" {
 
 ### Required
 
-- **name** (String) the git token name
-- **value** (String, Sensitive) the git token value
+- `name` (String) the git token name
+- `value` (String, Sensitive) the git token value
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 ## Import
 

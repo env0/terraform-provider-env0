@@ -17,7 +17,7 @@ description: |-
 
 ### Optional
 
-- **id** (String) the id of the credentials
-- **name** (String) the name of the credentials
+- `id` (String) the id of the credentials
+- `name` (String) the name of the credentials
 
 

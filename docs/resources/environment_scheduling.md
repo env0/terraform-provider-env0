@@ -29,12 +29,15 @@ resource "env0_environment_scheduling" "example" {
 
 ### Required
 
-- **environment_id** (String) The environment's id
+- `environment_id` (String) The environment's id
 
 ### Optional
 
-- **deploy_cron** (String) Cron expression for scheduled deploy of the environment. Destroy and Deploy cron expressions must not be the same.
-- **destroy_cron** (String) Cron expression for scheduled destroy of the environment. Destroy and Deploy cron expressions must not be the same.
-- **id** (String) The ID of this resource.
+- `deploy_cron` (String) Cron expression for scheduled deploy of the environment. Destroy and Deploy cron expressions must not be the same.
+- `destroy_cron` (String) Cron expression for scheduled destroy of the environment. Destroy and Deploy cron expressions must not be the same.
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

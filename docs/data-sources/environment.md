@@ -35,20 +35,20 @@ output "environment_name" {
 
 ### Optional
 
-- **id** (String) the environment's id
-- **name** (String) name of the environment
-- **output** (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
+- `id` (String) the environment's id
+- `name` (String) name of the environment
+- `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 
 ### Read-Only
 
-- **approve_plan_automatically** (Boolean) the default require approval of the environment
-- **auto_deploy_on_path_changes_only** (Boolean) does continuous deployment on file changes in path enable
-- **deploy_on_push** (Boolean) does continuous deployment is enabled
-- **deployment_id** (String) the id of the latest deployment
-- **project_id** (String) project id of the environment
-- **revision** (String) the last deployed revision
-- **run_plan_on_pull_requests** (Boolean) does pr plan enable
-- **status** (String) the status of the environment
-- **template_id** (String) the template id the environment is to be created from
+- `approve_plan_automatically` (Boolean) the default require approval of the environment
+- `auto_deploy_on_path_changes_only` (Boolean) does continuous deployment on file changes in path enable
+- `deploy_on_push` (Boolean) does continuous deployment is enabled
+- `deployment_id` (String) the id of the latest deployment
+- `project_id` (String) project id of the environment
+- `revision` (String) the last deployed revision
+- `run_plan_on_pull_requests` (Boolean) does pr plan enable
+- `status` (String) the status of the environment
+- `template_id` (String) the template id the environment is to be created from
 
 

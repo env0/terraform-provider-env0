@@ -31,14 +31,11 @@ output "pid1_credential_1_id" {
 
 ### Required
 
-- **project_id** (String) the project id for listing the cloud credentials
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `project_id` (String) the project id for listing the cloud credentials
 
 ### Read-Only
 
-- **ids** (List of String) a list of cloud credentials (ids) associated with the project
+- `id` (String) The ID of this resource.
+- `ids` (List of String) a list of cloud credentials (ids) associated with the project
 
 

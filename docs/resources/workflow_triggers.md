@@ -54,11 +54,11 @@ resource "env0_workflow_triggers" "trigger_link" {
 
 ### Required
 
-- **downstream_environment_ids** (List of String) environments to trigger
-- **environment_id** (String) id of the source environment
+- `downstream_environment_ids` (List of String) environments to trigger
+- `environment_id` (String) id of the source environment
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

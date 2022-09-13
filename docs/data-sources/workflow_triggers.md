@@ -31,14 +31,11 @@ output "downstream_env_name" {
 
 ### Required
 
-- **environment_id** (String) id of the source environment
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `environment_id` (String) id of the source environment
 
 ### Read-Only
 
-- **downstream_environment_ids** (List of String) environments to trigger
+- `downstream_environment_ids` (List of String) environments to trigger
+- `id` (String) The ID of this resource.
 
 
