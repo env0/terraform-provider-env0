@@ -1,18 +1,18 @@
 package client
 
 type AssignUserToProjectPayload struct {
-	UserId string `json:"userId"`
-	Role   Role   `json:"role"`
+	UserId string      `json:"userId"`
+	Role   ProjectRole `json:"role"`
 }
 
 type UpdateUserProjectAssignmentPayload struct {
-	Role Role `json:"role"`
+	Role ProjectRole `json:"role"`
 }
 
 type UserProjectAssignment struct {
-	UserId string `json:"userId"`
-	Role   Role   `json:"role"`
-	Id     string `json:"id"`
+	UserId string      `json:"userId"`
+	Role   ProjectRole `json:"role"`
+	Id     string      `json:"id"`
 }
 
 func (client *ApiClient) AssignUserToProject(projectId string, payload *AssignUserToProjectPayload) (*UserProjectAssignment, error) {
