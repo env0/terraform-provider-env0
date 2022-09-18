@@ -91,6 +91,7 @@ type Environment struct {
 	IsArchived                  bool          `json:"isArchived"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
+	IsRemoteBackend             *bool         `json:"isRemoteBackend"`
 }
 
 type EnvironmentCreate struct {
@@ -107,6 +108,7 @@ type EnvironmentCreate struct {
 	TTL                         *TTL                  `json:"ttl,omitempty"`
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
+	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty"`
 }
 
 type EnvironmentUpdate struct {
@@ -119,6 +121,7 @@ type EnvironmentUpdate struct {
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
+	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty"`
 }
 
 type EnvironmentDeployResponse struct {

@@ -343,7 +343,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -446,6 +446,9 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		return client.EnvironmentCreate{}, err
 	}
 
+	isRemoteBackend := d.Get("is_remote_backend").(bool)
+	payload.IsRemoteBackend = &isRemoteBackend
+
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
@@ -498,6 +501,8 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
 	payload.TerragruntWorkingDirectory = d.Get("terragrunt_working_directory").(string)
 	payload.VcsCommandsAlias = d.Get("vcs_commands_alias").(string)
+	isRemoteBackend := d.Get("is_remote_backend").(bool)
+	payload.IsRemoteBackend = &isRemoteBackend
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
