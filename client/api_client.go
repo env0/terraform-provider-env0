@@ -100,6 +100,11 @@ type ApiClientInterface interface {
 	RemoveUserFromProject(projectId string, userId string) error
 	UserProjectAssignments(projectId string) ([]UserProjectAssignment, error)
 	UpdateUserProjectAssignment(projectId string, userId string, payload *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error)
+	RoleCreate(payload RoleCreatePayload) (*Role, error)
+	Role(id string) (*Role, error)
+	RoleDelete(id string) error
+	RoleUpdate(id string, payload RoleUpdatePayload) (*Role, error)
+	Roles() ([]Role, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

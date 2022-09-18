@@ -4,26 +4,26 @@ import (
 	"errors"
 )
 
-type Role string
+type ProjectRole string
 
 const (
-	Admin    Role = "Admin"
-	Deployer Role = "Deployer"
-	Planner  Role = "Planner"
-	Viewer   Role = "Viewer"
+	Admin    ProjectRole = "Admin"
+	Deployer ProjectRole = "Deployer"
+	Planner  ProjectRole = "Planner"
+	Viewer   ProjectRole = "Viewer"
 )
 
 type TeamProjectAssignmentPayload struct {
-	TeamId      string `json:"teamId"`
-	ProjectId   string `json:"projectId"`
-	ProjectRole Role   `json:"projectRole" tfschema:"role"`
+	TeamId      string      `json:"teamId"`
+	ProjectId   string      `json:"projectId"`
+	ProjectRole ProjectRole `json:"projectRole" tfschema:"role"`
 }
 
 type TeamProjectAssignment struct {
-	Id          string `json:"id"`
-	TeamId      string `json:"teamId"`
-	ProjectId   string `json:"projectId"`
-	ProjectRole Role   `json:"projectRole" tfschema:"role"`
+	Id          string      `json:"id"`
+	TeamId      string      `json:"teamId"`
+	ProjectId   string      `json:"projectId"`
+	ProjectRole ProjectRole `json:"projectRole" tfschema:"role"`
 }
 
 func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
