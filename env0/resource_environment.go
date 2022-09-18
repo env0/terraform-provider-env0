@@ -191,6 +191,12 @@ func resourceEnvironment() *schema.Resource {
 				Elem:         &schema.Resource{Schema: getTemplateSchema(TemplateTypeSingle)},
 				ExactlyOneOf: []string{"template", "template_id"},
 			},
+			"is_remote_backend": {
+				Type:        schema.TypeBool,
+				Description: "should use remote backend",
+				Default:     false,
+				Optional:    true,
+			},
 		},
 	}
 }
