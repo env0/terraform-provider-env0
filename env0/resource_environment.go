@@ -533,9 +533,6 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		return client.EnvironmentCreate{}, err
 	}
 
-	isRemoteBackend := d.Get("is_remote_backend").(bool)
-	payload.IsRemoteBackend = &isRemoteBackend
-
 	if configuration, ok := d.GetOk("configuration"); ok {
 		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
@@ -587,8 +584,6 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	isRemoteBackend := d.Get("is_remote_backend").(bool)
-	payload.IsRemoteBackend = &isRemoteBackend
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
