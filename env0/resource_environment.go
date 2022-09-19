@@ -588,9 +588,6 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
-	payload.TerragruntWorkingDirectory = d.Get("terragrunt_working_directory").(string)
-	payload.VcsCommandsAlias = d.Get("vcs_commands_alias").(string)
 	isRemoteBackend := d.Get("is_remote_backend").(bool)
 	payload.IsRemoteBackend = &isRemoteBackend
 
