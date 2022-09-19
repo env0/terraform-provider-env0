@@ -35,7 +35,7 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 		ApiSecret: config.ApiSecret,
 		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}
-	
+
 	return httpClient, nil
 }
 

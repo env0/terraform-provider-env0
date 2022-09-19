@@ -39,7 +39,7 @@ var httpclient *httpModule.HttpClient
 var _ = BeforeSuite(func() {
 	// mock all HTTP requests
 	restClient := resty.New()
-		config := httpModule.HttpClientConfig{
+	config := httpModule.HttpClientConfig{
 		ApiKey:      ApiKey,
 		ApiSecret:   ApiSecret,
 		ApiEndpoint: BaseUrl,
