@@ -25,13 +25,16 @@ resource "env0_gcp_credentials" "credentials" {
 
 ### Required
 
-- **name** (String) name for the credentials
-- **service_account_key** (String, Sensitive) the gcp service account key
+- `name` (String) name for the credentials
+- `service_account_key` (String, Sensitive) the gcp service account key
 
 ### Optional
 
-- **id** (String) The ID of this resource.
-- **project_id** (String, Sensitive) the gcp project id
+- `project_id` (String, Sensitive) the gcp project id
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 ## Import
 

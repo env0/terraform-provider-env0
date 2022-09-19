@@ -11,14 +11,14 @@ type Organization struct {
 	DefaultTtl                          *string `json:"defaultTtl"`
 	DoNotReportSkippedStatusChecks      bool    `json:"doNotReportSkippedStatusChecks"`
 	DoNotConsiderMergeCommitsForPrPlans bool    `json:"doNotConsiderMergeCommitsForPrPlans"`
+	EnableOidc                          bool    `json:"enableOidc"`
 	Description                         string  `json:"description"`
 	PhotoUrl                            string  `json:"photoUrl"`
 	CreatedBy                           string  `json:"createdBy"`
 	CreatedAt                           string  `json:"createdAt"`
 	UpdatedAt                           string  `json:"updatedAt"`
 	Role                                string  `json:"role"`
-	IsSelfHosted                        bool    `json:"isSelfHosted"`
-	IsSelfHostedK8s                     bool    `json:"isSelfHostedK8s"`
+	IsSelfHostedK8s                     bool    `json:"isSelfHostedK8s" tfschema:"is_self_hosted"`
 }
 
 type OrganizationPolicyUpdatePayload struct {
@@ -26,6 +26,7 @@ type OrganizationPolicyUpdatePayload struct {
 	DefaultTtl                          *string `json:"defaultTtl"`
 	DoNotReportSkippedStatusChecks      *bool   `json:"doNotReportSkippedStatusChecks,omitempty"`
 	DoNotConsiderMergeCommitsForPrPlans *bool   `json:"doNotConsiderMergeCommitsForPrPlans,omitempty"`
+	EnableOidc                          *bool   `json:"enableOidc,omitempty"`
 }
 
 func (client *ApiClient) Organization() (Organization, error) {

@@ -17,12 +17,12 @@ description: |-
 
 ### Required
 
-- **name** (String) the name for the credentials
-- **secret** (String, Sensitive) the GCP service account key
-- **table_id** (String) the full BigQuery table id of the exported billing data
+- `name` (String) the name for the credentials
+- `secret` (String, Sensitive) the GCP service account key
+- `table_id` (String) the full BigQuery table id of the exported billing data
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

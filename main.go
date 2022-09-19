@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/env0"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
@@ -25,11 +23,7 @@ func main() {
 	opts := &plugin.ServeOpts{ProviderFunc: env0.Provider(version)}
 
 	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/env0/env0", opts)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return
+		opts.Debug = true
 	}
 
 	plugin.Serve(opts)

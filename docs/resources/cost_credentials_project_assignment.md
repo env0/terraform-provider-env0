@@ -17,11 +17,11 @@ description: |-
 
 ### Required
 
-- **credential_id** (String) id of cost credentials
-- **project_id** (String) id of the project
+- `credential_id` (String) id of cost credentials
+- `project_id` (String) id of the project
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

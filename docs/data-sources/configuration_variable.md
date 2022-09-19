@@ -27,24 +27,24 @@ output "aws_default_region" {
 
 ### Optional
 
-- **deployment_log_id** (String) search for the variable under this deployment log, not globally
-- **description** (String) a description of the variable
-- **environment_id** (String) search for the variable under this environment, not globally
-- **id** (String) id of the configuration variable
-- **is_read_only** (Boolean) specifies if the value of this variable cannot be edited by lower scopes
-- **is_required** (Boolean) specifies if the value of this variable must be set by lower scopes
-- **name** (String) the name of the configuration variable
-- **project_id** (String) search for the variable under this project, not globally
-- **regex** (String) specifies a regular expression to validate variable value (enforced only in env0 UI)
-- **template_id** (String) search for the variable under this template, not globally
-- **type** (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
+- `deployment_log_id` (String) search for the variable under this deployment log, not globally
+- `description` (String) a description of the variable
+- `environment_id` (String) search for the variable under this environment, not globally
+- `id` (String) id of the configuration variable
+- `is_read_only` (Boolean) specifies if the value of this variable cannot be edited by lower scopes
+- `is_required` (Boolean) specifies if the value of this variable must be set by lower scopes
+- `name` (String) the name of the configuration variable
+- `project_id` (String) search for the variable under this project, not globally
+- `regex` (String) specifies a regular expression to validate variable value (enforced only in env0 UI)
+- `template_id` (String) search for the variable under this template, not globally
+- `type` (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
 
 ### Read-Only
 
-- **enum** (List of String) possible values of this variable
-- **format** (String) specifies the format of the configuration value (HCL/JSON)
-- **is_sensitive** (Boolean) is the variable defined as sensitive
-- **scope** (String) scope of the variable
-- **value** (String, Sensitive) value stored in the variable
+- `enum` (List of String) possible values of this variable
+- `format` (String) specifies the format of the configuration value (HCL/JSON)
+- `is_sensitive` (Boolean) is the variable defined as sensitive
+- `scope` (String) scope of the variable
+- `value` (String, Sensitive) value stored in the variable
 
 

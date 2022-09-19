@@ -35,11 +35,11 @@ resource "env0_template_project_assignment" "assignment" {
 
 ### Required
 
-- **project_id** (String) id of the project
-- **template_id** (String) id of the template
+- `project_id` (String) id of the project
+- `template_id` (String) id of the template
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

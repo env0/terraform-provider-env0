@@ -34,8 +34,7 @@ func resourceCostCredentialsProjectAssignment() *schema.Resource {
 func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	credentialId := d.Get("credential_id").(string)
-	projectId := d.Get("project_id").(string)
+	credentialId, projectId := getCredentialIdAndProjectId(d)
 	result, err := apiClient.AssignCostCredentialsToProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not assign cost credentials to project: %v", err)
@@ -47,8 +46,7 @@ func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *sche
 func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	credentialId := d.Get("credential_id").(string)
-	projectId := d.Get("project_id").(string)
+	credentialId, projectId := getCredentialIdAndProjectId(d)
 	credentialsList, err := apiClient.CostCredentialIdsInProject(projectId)
 	if err != nil {
 		return diag.Errorf("could not get cost credentials: %v", err)
@@ -72,8 +70,7 @@ func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 func resourceCostCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	credentialId := d.Get("credential_id").(string)
-	projectId := d.Get("project_id").(string)
+	credentialId, projectId := getCredentialIdAndProjectId(d)
 	err := apiClient.RemoveCostCredentialsFromProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not delete cost credentials from project: %v", err)

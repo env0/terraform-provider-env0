@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,10 +69,11 @@ type DeployRequest struct {
 }
 
 type DeploymentLog struct {
-	Id                  string `json:"id"`
-	BlueprintId         string `json:"blueprintId"`
-	BlueprintRepository string `json:"blueprintRepository"`
-	BlueprintRevision   string `json:"blueprintRevision"`
+	Id                  string          `json:"id"`
+	BlueprintId         string          `json:"blueprintId"`
+	BlueprintRepository string          `json:"blueprintRepository"`
+	BlueprintRevision   string          `json:"blueprintRevision"`
+	Output              json.RawMessage `json:"output,omitempty"`
 }
 
 type Environment struct {
@@ -80,47 +82,83 @@ type Environment struct {
 	ProjectId                   string        `json:"projectId"`
 	WorkspaceName               string        `json:"workspaceName,omitempty"`
 	RequiresApproval            *bool         `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push"`
-	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests"`
-	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty"`
+	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push,omitempty"`
+	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests,omitempty"`
+	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
 	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
-	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"`
+	LatestDeploymentLogId       string        `json:"latestDeploymentLogId" tfschema:"deployment_id"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	IsArchived                  bool          `json:"isArchived"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
+	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
 	IsRemoteBackend             *bool         `json:"isRemoteBackend"`
 }
 
 type EnvironmentCreate struct {
 	Name                        string                `json:"name"`
 	ProjectId                   string                `json:"projectId"`
-	DeployRequest               *DeployRequest        `json:"deployRequest"`
-	WorkspaceName               string                `json:"workspaceName,omitempty"`
-	RequiresApproval            *bool                 `json:"requiresApproval,omitempty"`
-	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty"`
+	DeployRequest               *DeployRequest        `json:"deployRequest" tfschema:"-"`
+	WorkspaceName               string                `json:"workspaceName,omitempty" tfschema:"workspace"`
+	RequiresApproval            *bool                 `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
 	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
-	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                         *TTL                  `json:"ttl,omitempty"`
+	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty" tfschema:"-"`
+	TTL                         *TTL                  `json:"ttl,omitempty" tfschema:"-"`
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
 	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty"`
 }
 
+// When converted to JSON needs to be flattened. See custom MarshalJSON below.
+type EnvironmentCreateWithoutTemplate struct {
+	EnvironmentCreate EnvironmentCreate
+	TemplateCreate    TemplateCreatePayload
+}
+
+// The custom marshalJSON is used to return a flat JSON.
+func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
+	// 1. Marshal to JSON both structs.
+	ecb, err := json.Marshal(&create.EnvironmentCreate)
+	if err != nil {
+		return nil, err
+	}
+	tcb, err := json.Marshal(&create.TemplateCreate)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Unmarshal both JSON byte arrays to two maps.
+	var ecm, tcm map[string]interface{}
+	if err := json.Unmarshal(ecb, &ecm); err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(tcb, &tcm); err != nil {
+		return nil, err
+	}
+
+	// 3. Merged the maps.
+	for k, v := range ecm {
+		tcm[k] = v
+	}
+
+	// 4. Marshal the merged map back to JSON.
+	return json.Marshal(tcm)
+}
+
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
-	RequiresApproval            *bool  `json:"requiresApproval,omitempty"`
-	IsArchived                  *bool  `json:"isArchived,omitempty"`
-	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"`
-	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"`
-	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty"`
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
 	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty"`
 }
 
@@ -165,6 +203,22 @@ func (client *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environme
 	if err != nil {
 		return Environment{}, err
 	}
+	return result, nil
+}
+
+func (client *ApiClient) EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error) {
+	var result Environment
+
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return result, nil
+	}
+	payload.TemplateCreate.OrganizationId = organizationId
+
+	if err := client.http.Post("/environments/without-template", payload, &result); err != nil {
+		return result, err
+	}
+
 	return result, nil
 }
 

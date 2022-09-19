@@ -78,7 +78,7 @@ func TestUnitProjectInvalidParams(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate("env0_project", "test", map[string]interface{}{"name": ""}),
-				ExpectError: regexp.MustCompile("Project name cannot be empty"),
+				ExpectError: regexp.MustCompile("may not be empty"),
 			},
 		},
 	}

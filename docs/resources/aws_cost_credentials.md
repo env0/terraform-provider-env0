@@ -17,12 +17,12 @@ description: |-
 
 ### Required
 
-- **arn** (String) the aws role arn
-- **external_id** (String, Sensitive) the aws role external id
-- **name** (String) the name for the credentials
+- `arn` (String) the aws role arn
+- `external_id` (String, Sensitive) the aws role external id
+- `name` (String) the name for the credentials
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

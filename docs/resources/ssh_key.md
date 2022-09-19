@@ -32,12 +32,12 @@ resource "env0_ssh_key" "tested" {
 
 ### Required
 
-- **name** (String) name to give the ssh key
-- **value** (String, Sensitive) value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)
+- `name` (String) name to give the ssh key
+- `value` (String, Sensitive) value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 ## Import
 

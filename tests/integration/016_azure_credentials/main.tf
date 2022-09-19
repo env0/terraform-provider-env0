@@ -1,5 +1,11 @@
+resource "random_string" "random" {
+  length    = 8
+  special   = false
+  min_lower = 8
+}
+
 resource "env0_azure_credentials" "azure_cred" {
-  name            = "test azure credentials 1"
+  name            = "test azure credentials 1 ${random_string.random.result}"
   client_id       = "client_id"
   client_secret   = "client_secret"
   subscription_id = "subscription_id"
@@ -11,7 +17,7 @@ data "env0_azure_credentials" "azure_cred" {
 }
 
 output "azure_cred_name" {
-  value = data.env0_azure_credentials.azure_cred.name
+  value = replace(data.env0_azure_credentials.azure_cred.name, random_string.random.result, "")
 }
 
 

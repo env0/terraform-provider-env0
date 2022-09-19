@@ -17,11 +17,11 @@ description: |-
 
 ### Optional
 
-- **id** (String) ID of the team
-- **name** (String) The name of the team
+- `id` (String) ID of the team
+- `name` (String) The name of the team
 
 ### Read-Only
 
-- **description** (String) Textual description of the team
+- `description` (String) Textual description of the team
 
 

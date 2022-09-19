@@ -17,14 +17,14 @@ description: |-
 
 ### Required
 
-- **client_id** (String) the azure client id
-- **client_secret** (String, Sensitive) the azure client secret
-- **name** (String) the name for the credentials
-- **subscription_id** (String) the azure subscription id
-- **tenant_id** (String) the azure tenant id
+- `client_id` (String) the azure client id
+- `client_secret` (String, Sensitive) the azure client secret
+- `name` (String) the name for the credentials
+- `subscription_id` (String) the azure subscription id
+- `tenant_id` (String) the azure tenant id
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

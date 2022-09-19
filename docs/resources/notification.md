@@ -35,13 +35,13 @@ resource "env0_notification_project_assignment" "test_assignment" {
 
 ### Required
 
-- **name** (String) the name of the notification
-- **type** (String) 'Slack' or 'Teams'
-- **value** (String) the target url of the notification
+- `name` (String) the name of the notification
+- `type` (String) 'Slack' or 'Teams'
+- `value` (String) the target url of the notification
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 ## Import
 

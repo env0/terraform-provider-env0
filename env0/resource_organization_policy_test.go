@@ -29,6 +29,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		DefaultTtl:                          stringPtr("12-h"),
 		DoNotReportSkippedStatusChecks:      false,
 		DoNotConsiderMergeCommitsForPrPlans: true,
+		EnableOidc:                          false,
 	}
 
 	organizationUpdated := client.Organization{
@@ -37,6 +38,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		DefaultTtl:                          stringPtr("1-M"),
 		DoNotReportSkippedStatusChecks:      true,
 		DoNotConsiderMergeCommitsForPrPlans: false,
+		EnableOidc:                          true,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -54,18 +56,21 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *organization.DefaultTtl),
 						resource.TestCheckResourceAttr(accessor, "do_not_report_skipped_status_checks", strconv.FormatBool(organization.DoNotReportSkippedStatusChecks)),
 						resource.TestCheckResourceAttr(accessor, "do_not_consider_merge_commits_for_pr_plans", strconv.FormatBool(organization.DoNotConsiderMergeCommitsForPrPlans)),
+						resource.TestCheckResourceAttr(accessor, "enable_oidc", strconv.FormatBool(organization.EnableOidc)),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"default_ttl":                         *organizationUpdated.DefaultTtl,
 						"do_not_report_skipped_status_checks": organizationUpdated.DoNotReportSkippedStatusChecks,
+						"enable_oidc":                         organizationUpdated.EnableOidc,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", organization.Id),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *organizationUpdated.DefaultTtl),
 						resource.TestCheckResourceAttr(accessor, "do_not_report_skipped_status_checks", strconv.FormatBool(organizationUpdated.DoNotReportSkippedStatusChecks)),
 						resource.TestCheckResourceAttr(accessor, "do_not_consider_merge_commits_for_pr_plans", strconv.FormatBool(organizationUpdated.DoNotConsiderMergeCommitsForPrPlans)),
+						resource.TestCheckResourceAttr(accessor, "enable_oidc", strconv.FormatBool(organizationUpdated.EnableOidc)),
 					),
 				},
 			},
@@ -82,6 +87,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
 					DefaultTtl:                     organizationUpdated.DefaultTtl,
 					DoNotReportSkippedStatusChecks: &organizationUpdated.DoNotReportSkippedStatusChecks,
+					EnableOidc:                     &organizationUpdated.EnableOidc,
 				}).Times(1).Return(&organizationUpdated, nil),
 				mock.EXPECT().Organization().Times(1).Return(organizationUpdated, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{}).Times(1).Return(&defaultOrganization, nil),

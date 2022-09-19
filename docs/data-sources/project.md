@@ -23,13 +23,13 @@ data "env0_project" "default_project" {
 
 ### Optional
 
-- **id** (String) id of the project
-- **name** (String) the name of the project
+- `id` (String) id of the project
+- `name` (String) the name of the project
 
 ### Read-Only
 
-- **created_by** (String) textual description of the entity who created the project
-- **description** (String) textual description of the project
-- **role** (String) role of the authenticated user (through api key) in the project
+- `created_by` (String) textual description of the entity who created the project
+- `description` (String) textual description of the project
+- `role` (String) role of the authenticated user (through api key) in the project
 
 

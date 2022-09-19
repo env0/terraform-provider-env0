@@ -32,11 +32,11 @@ resource "env0_user_team_assignment" "assginment_example" {
 
 ### Required
 
-- **team_id** (String) id of the team
-- **user_id** (String) id of the user. Note: can also be an id of a "User" API key
+- `team_id` (String) id of the team
+- `user_id` (String) id of the user. Note: can also be an id of a "User" API key
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

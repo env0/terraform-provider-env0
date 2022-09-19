@@ -31,24 +31,21 @@ output "variable_0_value" {
 
 ### Required
 
-- **template_id** (String) extracts source code terraform variables from the VCS configuration of this template
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `template_id` (String) extracts source code terraform variables from the VCS configuration of this template
 
 ### Read-Only
 
-- **variables** (List of Object) a list of terraform variables extracted from the source code (see [below for nested schema](#nestedatt--variables))
+- `id` (String) The ID of this resource.
+- `variables` (List of Object) a list of terraform variables extracted from the source code (see [below for nested schema](#nestedatt--variables))
 
 <a id="nestedatt--variables"></a>
 ### Nested Schema for `variables`
 
 Read-Only:
 
-- **description** (String)
-- **format** (String)
-- **name** (String)
-- **value** (String)
+- `description` (String)
+- `format` (String)
+- `name` (String)
+- `value` (String)
 
 

@@ -37,9 +37,9 @@ provider "env0" {
 
 ### Required
 
-- **api_key** (String, Sensitive) env0 API key. This can also be set via the ENV0_API_KEY environment variable.
-- **api_secret** (String, Sensitive) env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.
+- `api_key` (String, Sensitive) env0 API key. This can also be set via the ENV0_API_KEY environment variable.
+- `api_secret` (String, Sensitive) env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.
 
 ### Optional
 
-- **api_endpoint** (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.
+- `api_endpoint` (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.

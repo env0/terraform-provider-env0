@@ -31,12 +31,12 @@ resource "env0_agent_project_assignment" {
 
 ### Required
 
-- **agent_id** (String) id of the agent
-- **project_id** (String) id of the project
+- `agent_id` (String) id of the agent
+- `project_id` (String) id of the project
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 ## Import
 

@@ -60,6 +60,7 @@ type ApiClientInterface interface {
 	ProjectEnvironments(projectId string) ([]Environment, error)
 	Environment(id string) (Environment, error)
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)
+	EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error)
 	EnvironmentDestroy(id string) (Environment, error)
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
@@ -99,6 +100,11 @@ type ApiClientInterface interface {
 	RemoveUserFromProject(projectId string, userId string) error
 	UserProjectAssignments(projectId string) ([]UserProjectAssignment, error)
 	UpdateUserProjectAssignment(projectId string, userId string, payload *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error)
+	RoleCreate(payload RoleCreatePayload) (*Role, error)
+	Role(id string) (*Role, error)
+	RoleDelete(id string) error
+	RoleUpdate(id string, payload RoleUpdatePayload) (*Role, error)
+	Roles() ([]Role, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

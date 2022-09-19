@@ -42,10 +42,10 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
 				ForceNew:     true,
-				ExactlyOneOf: []string{"template", "template_id"},
+				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
 			"workspace": {
 				Type:        schema.TypeString,
@@ -90,6 +90,12 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "id of the last deployment",
 				Computed:    true,
+			},
+			"output": {
+				Type:        schema.TypeString,
+				Description: "the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'",
+				Computed:    true,
+				Optional:    true,
 			},
 			"ttl": {
 				Type:        schema.TypeString,
@@ -180,16 +186,36 @@ func resourceEnvironment() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: ValidateConfigurationPropertySchema,
 						},
+						"is_read_only": {
+							Type:        schema.TypeBool,
+							Description: "is the variable read only",
+							Optional:    true,
+							Default:     false,
+						},
+						"is_required": {
+							Type:        schema.TypeBool,
+							Description: "is the variable required",
+							Optional:    true,
+							Default:     false,
+						},
+						"regex": {
+							Type:        schema.TypeString,
+							Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
+							Optional:    true,
+						},
 					},
 				},
 			},
-			"template": {
+			"without_template_settings": {
 				Type:         schema.TypeList,
-				MaxItems:     1,
-				Description:  "(WIP - do not use) for creating environments without template (for more details check: https://docs.env0.com/changelog/environment-without-template)",
+				Description:  "settings for creating an environment without a template. Is not imported when running the import command",
 				Optional:     true,
-				Elem:         &schema.Resource{Schema: getTemplateSchema(TemplateTypeSingle)},
-				ExactlyOneOf: []string{"template", "template_id"},
+				MinItems:     1,
+				MaxItems:     1,
+				ExactlyOneOf: []string{"without_template_settings", "template_id"},
+				Elem: &schema.Resource{
+					Schema: getTemplateSchema("without_template_settings.0."),
+				},
 			},
 			"is_remote_backend": {
 				Type:        schema.TypeBool,
@@ -206,9 +232,15 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if environment.LatestDeploymentLog != (client.DeploymentLog{}) {
+	if environment.LatestDeploymentLog.BlueprintId != "" {
 		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	}
+
+	if len(environment.LatestDeploymentLog.Output) == 0 {
+		d.Set("output", "null")
+	} else {
+		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
 	if environment.RequiresApproval != nil {
@@ -235,8 +267,17 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 		if configurationVariable.Description != "" {
 			variable["description"] = configurationVariable.Description
 		}
+		if configurationVariable.Regex != "" {
+			variable["regex"] = configurationVariable.Regex
+		}
 		if configurationVariable.IsSensitive != nil {
 			variable["is_sensitive"] = configurationVariable.IsSensitive
+		}
+		if configurationVariable.IsReadOnly != nil {
+			variable["is_read_only"] = configurationVariable.IsReadOnly
+		}
+		if configurationVariable.IsRequired != nil {
+			variable["is_required"] = configurationVariable.IsRequired
 		}
 		if configurationVariable.Schema != nil {
 			variable["schema_type"] = configurationVariable.Schema.Type
@@ -251,41 +292,56 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 	}
 }
 
+// Validate that the template is assigned to the "project_id".
+func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	projectId := d.Get("project_id").(string)
+	templateId := d.Get("template_id").(string)
+
+	template, err := apiClient.Template(templateId)
+	if err != nil {
+		return fmt.Errorf("could not get template: %v", err)
+	}
+
+	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
+		return errors.New("could not create environment: template is not assigned to project")
+	}
+
+	return nil
+}
+
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	if _, ok := d.GetOk("template.0"); ok {
-		// Templateless environment creation use-case.
-		createTemplatePayload, diagErr := templateCreatePayloadFromParameters("template.0", d)
-		if diagErr != nil {
-			return diagErr
-		}
-
-		name := d.Get("name").(string)
-		createTemplatePayload.Name = "single-use-template-for-" + name
-
-		template, err := apiClient.TemplateCreate(createTemplatePayload)
-		if err != nil {
-			return diag.Errorf("could not create template: %v", err)
-		}
-
-		d.Set("template.0.id", template.Id)
-	}
-
-	// TODO - update getCreatePayload
-	payload, createEnvPayloadErr := getCreatePayload(d, apiClient)
-
+	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 	if createEnvPayloadErr != nil {
-		return diag.Errorf("%v", createEnvPayloadErr)
+		return createEnvPayloadErr
 	}
 
-	environment, err := apiClient.EnvironmentCreate(payload)
+	var environment client.Environment
+	var err error
+
+	if d.Get("template_id").(string) != "" {
+		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
+			return diag.Errorf("%v\n", err)
+		}
+		environment, err = apiClient.EnvironmentCreate(environmentPayload)
+	} else {
+		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
+		if createTemPayloadErr != nil {
+			return createTemPayloadErr
+		}
+		payload := client.EnvironmentCreateWithoutTemplate{
+			EnvironmentCreate: environmentPayload,
+			TemplateCreate:    templatePayload,
+		}
+		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
+	}
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
 	environmentConfigurationVariables := client.ConfigurationChanges{}
-	if payload.DeployRequest.ConfigurationChanges != nil {
-		environmentConfigurationVariables = *payload.DeployRequest.ConfigurationChanges
+	if environmentPayload.DeployRequest.ConfigurationChanges != nil {
+		environmentConfigurationVariables = *environmentPayload.DeployRequest.ConfigurationChanges
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
@@ -306,7 +362,19 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
+
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+
+	if d.Get("template_id").(string) == "" {
+		// envrionment with no template.
+		template, err := apiClient.Template(environment.BlueprintId)
+		if err != nil {
+			return diag.Errorf("could not get template: %v", err)
+		}
+		if err := templateRead("without_template_settings", template, d); err != nil {
+			return diag.Errorf("schema resource data serialization failed: %v", err)
+		}
+	}
 
 	return nil
 }
@@ -315,27 +383,40 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	apiClient := meta.(client.ApiClientInterface)
 
 	if shouldUpdate(d) {
-		err := update(d, apiClient)
-		if err != nil {
+		if err := update(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	if shouldUpdateTTL(d) {
-		err := updateTTL(d, apiClient)
-		if err != nil {
+
+		if err := updateTTL(d, apiClient); err != nil {
+			return err
+		}
+	}
+
+	if shouldUpdateTemplate(d) {
+		if err := updateTemplate(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	if shouldDeploy(d) {
-		err := deploy(d, apiClient)
-		if err != nil {
+		if err := deploy(d, apiClient); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func shouldUpdateTemplate(d *schema.ResourceData) bool {
+	if d.Get("template_id") != "" {
+		// Using an environment with a template.
+		return false
+	}
+
+	return d.HasChange("without_template_settings.0")
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
@@ -348,6 +429,24 @@ func shouldUpdate(d *schema.ResourceData) bool {
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
 	return d.HasChange("ttl")
+}
+
+func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	payload, problem := templateCreatePayloadFromParameters("without_template_settings.0", d)
+	if problem != nil {
+		return problem
+	}
+
+	environment, err := apiClient.Environment(d.Id())
+	if err != nil {
+		return diag.Errorf("could not get environment: %v", err)
+	}
+
+	if _, err := apiClient.TemplateUpdate(environment.BlueprintId, payload); err != nil {
+		return diag.Errorf("could not update template: %v", err)
+	}
+
+	return nil
 }
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
@@ -401,46 +500,35 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
-	payload := client.EnvironmentCreate{}
+	var payload client.EnvironmentCreate
 
-	if name, ok := d.GetOk("name"); ok {
-		payload.Name = name.(string)
-	}
-	if projectId, ok := d.GetOk("project_id"); ok {
-		payload.ProjectId = projectId.(string)
-	}
-
-	if workspace, ok := d.GetOk("workspace"); ok {
-		payload.WorkspaceName = workspace.(string)
-	}
-
-	if terragruntWorkingDirectory, ok := d.GetOk("terragrunt_working_directory"); ok {
-		payload.TerragruntWorkingDirectory = terragruntWorkingDirectory.(string)
-	}
-
-	if vcsCommandsAlias, ok := d.GetOk("vcs_commands_alias"); ok {
-		payload.VcsCommandsAlias = vcsCommandsAlias.(string)
+	if err := readResourceData(&payload, d); err != nil {
+		return client.EnvironmentCreate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
-	if d.HasChange("deploy_on_push") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
 
-	if d.HasChange("approve_plan_automatically") {
-		requiresApproval := !d.Get("approve_plan_automatically").(bool)
-		payload.RequiresApproval = &requiresApproval
-	}
-
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
-	if d.HasChange("run_plan_on_pull_requests") {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
 
-	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("approve_plan_automatically"); exists {
+		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
+	}
+
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
 		return client.EnvironmentCreate{}, err
@@ -450,16 +538,16 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	payload.IsRemoteBackend = &isRemoteBackend
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		payload.ConfigurationChanges = &configurationChanges
 	}
+
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
 		payload.TTL = &ttlPayload
 	}
 
 	deployPayload := getDeployPayload(d, apiClient, false)
-
 	payload.DeployRequest = &deployPayload
 
 	return payload, nil
@@ -478,24 +566,26 @@ func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeploymen
 }
 
 func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Diagnostics) {
-	payload := client.EnvironmentUpdate{}
+	var payload client.EnvironmentUpdate
 
-	if name, ok := d.GetOk("name"); ok {
-		payload.Name = name.(string)
+	if err := readResourceData(&payload, d); err != nil {
+		return client.EnvironmentUpdate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
 	if d.HasChange("approve_plan_automatically") {
-		requiresApproval := !d.Get("approve_plan_automatically").(bool)
-		payload.RequiresApproval = &requiresApproval
+		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
 	}
 
 	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
 		payload.ContinuousDeployment = &continuousDeployment
 	}
+
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
+
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
 	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
 	payload.AutoDeployByCustomGlob = d.Get("auto_deploy_by_custom_glob").(string)
@@ -517,8 +607,6 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	if templateId, ok := d.GetOk("template_id"); ok {
 		payload.BlueprintId = templateId.(string)
-	} else if templateId, ok := d.GetOk("template.0.id"); ok {
-		payload.BlueprintId = templateId.(string)
 	}
 
 	if revision, ok := d.GetOk("revision"); ok {
@@ -526,7 +614,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariables(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 		if isRedeploy {
 			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		}
@@ -564,10 +652,10 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	return configurationChanges
 }
 
-func getConfigurationVariables(configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariablesFromSchema(configuration []interface{}) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 	for _, variable := range configuration {
-		configurationVariable := getConfigurationVariableForEnvironment(variable.(map[string]interface{}))
+		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]interface{}))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
 
@@ -611,7 +699,7 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
 }
 
-func getConfigurationVariableForEnvironment(variable map[string]interface{}) client.ConfigurationVariable {
+func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
 	varType := client.VariableTypes[variable["type"].(string)]
 
 	configurationVariable := client.ConfigurationVariable{
@@ -630,17 +718,31 @@ func getConfigurationVariableForEnvironment(variable map[string]interface{}) cli
 		configurationVariable.IsSensitive = &isSensitive
 	}
 
+	if variable["is_read_only"] != nil {
+		isReadOnly := variable["is_read_only"].(bool)
+		configurationVariable.IsReadOnly = &isReadOnly
+	}
+
+	if variable["is_required"] != nil {
+		isRequired := variable["is_required"].(bool)
+		configurationVariable.IsRequired = &isRequired
+	}
+
 	if variable["description"] != nil {
 		configurationVariable.Description = variable["description"].(string)
 	}
 
+	if variable["regex"] != nil {
+		configurationVariable.Regex = variable["regex"].(string)
+	}
+
 	configurationSchema := client.ConfigurationVariableSchema{
-		Type:   "string",
 		Format: client.Format(variable["schema_format"].(string)),
 		Enum:   nil,
+		Type:   variable["schema_type"].(string),
 	}
-	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 
+	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
 		enumOfAny := variable["schema_enum"].([]interface{})
 		enum := make([]string, len(enumOfAny))
 		for i := range enum {
@@ -708,6 +810,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
+
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 

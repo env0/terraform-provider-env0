@@ -34,6 +34,18 @@ func resourceApiKey() *schema.Resource {
 				ForceNew:         true,
 				ValidateDiagFunc: NewStringInValidator([]string{"Admin", "User"}),
 			},
+			"api_key_secret": {
+				Type:        schema.TypeString,
+				Description: "the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'",
+				Computed:    true,
+				Sensitive:   true,
+			},
+			"omit_api_key_secret": {
+				Type:        schema.TypeBool,
+				Description: "if set to 'true' will omit the api_key_secret from the state. This would mean that the api_key_secret cannot be used",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -54,6 +66,12 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("could not create api key: %v", err)
 	}
 
+	if omit, ok := d.GetOk("omit_api_key_secret"); ok && omit.(bool) {
+		d.Set("api_key_secret", "omitted")
+	} else {
+		d.Set("api_key_secret", apiKey.ApiKeySecret)
+	}
+
 	d.SetId(apiKey.Id)
 
 	return nil
@@ -69,6 +87,8 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		d.SetId("")
 		return nil
 	}
+
+	apiKey.ApiKeySecret = "" // Don't override the api key secret currently in the state.
 
 	if err := writeResourceData(apiKey, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)

@@ -38,11 +38,11 @@ resource "env0_environment_drift_detection" "drift" {
 
 ### Required
 
-- **cron** (String) Cron expression for scheduled drift detection of the environment
-- **environment_id** (String) The environment's id
+- `cron` (String) Cron expression for scheduled drift detection of the environment
+- `environment_id` (String) The environment's id
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

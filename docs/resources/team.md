@@ -24,12 +24,15 @@ resource "env0_team" "example" {
 
 ### Required
 
-- **name** (String) The name of the team
+- `name` (String) The name of the team
 
 ### Optional
 
-- **description** (String) Description for the team
-- **id** (String) The ID of this resource.
+- `description` (String) Description for the team
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 ## Import
 

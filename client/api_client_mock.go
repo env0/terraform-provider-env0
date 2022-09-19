@@ -375,6 +375,21 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(arg0 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), arg0)
 }
 
+// EnvironmentCreateWithoutTemplate mocks base method.
+func (m *MockApiClientInterface) EnvironmentCreateWithoutTemplate(arg0 EnvironmentCreateWithoutTemplate) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentCreateWithoutTemplate", arg0)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentCreateWithoutTemplate indicates an expected call of EnvironmentCreateWithoutTemplate.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreateWithoutTemplate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreateWithoutTemplate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreateWithoutTemplate), arg0)
+}
+
 // EnvironmentDeploy mocks base method.
 func (m *MockApiClientInterface) EnvironmentDeploy(arg0 string, arg1 DeployRequest) (EnvironmentDeployResponse, error) {
 	m.ctrl.T.Helper()
@@ -993,6 +1008,80 @@ func (m *MockApiClientInterface) RemoveUserFromProject(arg0, arg1 string) error 
 func (mr *MockApiClientInterfaceMockRecorder) RemoveUserFromProject(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserFromProject), arg0, arg1)
+}
+
+// Role mocks base method.
+func (m *MockApiClientInterface) Role(arg0 string) (*Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Role", arg0)
+	ret0, _ := ret[0].(*Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Role indicates an expected call of Role.
+func (mr *MockApiClientInterfaceMockRecorder) Role(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Role", reflect.TypeOf((*MockApiClientInterface)(nil).Role), arg0)
+}
+
+// RoleCreate mocks base method.
+func (m *MockApiClientInterface) RoleCreate(arg0 RoleCreatePayload) (*Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleCreate", arg0)
+	ret0, _ := ret[0].(*Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RoleCreate indicates an expected call of RoleCreate.
+func (mr *MockApiClientInterfaceMockRecorder) RoleCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleCreate), arg0)
+}
+
+// RoleDelete mocks base method.
+func (m *MockApiClientInterface) RoleDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RoleDelete indicates an expected call of RoleDelete.
+func (mr *MockApiClientInterfaceMockRecorder) RoleDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RoleDelete), arg0)
+}
+
+// RoleUpdate mocks base method.
+func (m *MockApiClientInterface) RoleUpdate(arg0 string, arg1 RoleUpdatePayload) (*Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RoleUpdate indicates an expected call of RoleUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) RoleUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleUpdate), arg0, arg1)
+}
+
+// Roles mocks base method.
+func (m *MockApiClientInterface) Roles() ([]Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Roles")
+	ret0, _ := ret[0].([]Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Roles indicates an expected call of Roles.
+func (mr *MockApiClientInterfaceMockRecorder) Roles() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Roles", reflect.TypeOf((*MockApiClientInterface)(nil).Roles))
 }
 
 // SshKeyCreate mocks base method.

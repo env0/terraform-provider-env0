@@ -34,11 +34,11 @@ resource "env0_cloud_credentials_project_assignment" "example" {
 
 ### Required
 
-- **credential_id** (String) id of cloud credentials
-- **project_id** (String) id of the project
+- `credential_id` (String) id of cloud credentials
+- `project_id` (String) id of the project
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 

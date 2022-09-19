@@ -29,6 +29,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Id:                deploymentLogId,
 			BlueprintId:       templateId,
 			BlueprintRevision: "revision",
+			Output:            []byte(`{"a": "b"}`),
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
@@ -43,9 +44,18 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			Id:                deploymentLogId,
 			BlueprintId:       templateId,
 			BlueprintRevision: "revision",
+			Output:            []byte(`{"a": "b"}`),
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory2/",
 		VcsCommandsAlias:           "alias2",
+	}
+
+	template := client.Template{
+		ProjectId: updatedEnvironment.ProjectId,
+	}
+
+	templateInSlice := client.Template{
+		ProjectIds: []string{updatedEnvironment.ProjectId},
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
@@ -77,6 +87,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
 					},
 					{
@@ -90,12 +103,16 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
 					},
 				},
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -144,6 +161,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				LatestDeploymentLog: client.DeploymentLog{
 					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
 					BlueprintRevision: "updated revision",
+					Output:            []byte(`{"a": "b"}`),
 				},
 			}
 
@@ -158,6 +176,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:   "my env var",
 				Type:   &varType,
 				Schema: &varSchema,
+				Regex:  "regex",
 			}
 			formatVariables := func(variables []client.ConfigurationVariable) string {
 				format := ""
@@ -188,41 +207,54 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									name = "%s"
 									value = "%s"
 									type = "%s"
+									regex = "%s"
 									%s
 									}
 
 							`, variable.Name,
-						variable.Value, varType, schemaFormat)
+						variable.Value, varType, variable.Regex, schemaFormat)
 				}
 
 				return format
 			}
+
 			formatResourceWithConfiguration := func(env client.Environment, variables []client.ConfigurationVariable) string {
+				output := "null"
+				if len(env.LatestDeploymentLog.Output) > 0 {
+					output = strings.ReplaceAll(string(env.LatestDeploymentLog.Output), `"`, `\"`)
+				}
+
 				return fmt.Sprintf(`
 				resource "%s" "%s" {
 					name = "%s"
 					project_id = "%s"
 					template_id = "%s"
 					revision = "%s"
+					output = "%s"
 					force_destroy = true
 					%s
 
 				}`,
-					resourceType, resourceName, env.Name,
-					env.ProjectId, env.LatestDeploymentLog.BlueprintId,
-					env.LatestDeploymentLog.BlueprintRevision, formatVariables(variables))
+					resourceType,
+					resourceName,
+					env.Name,
+					env.ProjectId,
+					env.LatestDeploymentLog.BlueprintId,
+					env.LatestDeploymentLog.BlueprintRevision,
+					output,
+					formatVariables(variables))
 			}
 
 			environmentResource := formatResourceWithConfiguration(environment, client.ConfigurationChanges{configurationVariables})
 			newVarType := client.ConfigurationVariableTypeTerraform
 			redeployConfigurationVariables := client.ConfigurationChanges{client.ConfigurationVariable{
-				Value: "configurationVariables.Value",
+				Value: configurationVariables.Value,
 				Name:  configurationVariables.Name,
 				Type:  &newVarType,
 				Schema: &client.ConfigurationVariableSchema{
-					Type:   "string",
 					Format: client.Text,
 				},
+				Regex: "regex2",
 			}}
 			updatedEnvironmentResource := formatResourceWithConfiguration(updatedEnvironment, redeployConfigurationVariables)
 			testCase := resource.TestCase{
@@ -235,12 +267,14 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", "null"),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Schema.Enum[0]),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", configurationVariables.Schema.Type),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(configurationVariables.Schema.Format)),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.0", configurationVariables.Schema.Enum[0]),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.1", configurationVariables.Schema.Enum[1]),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.regex", configurationVariables.Regex),
 						),
 					},
 					{
@@ -251,9 +285,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", updatedEnvironment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
-							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "configurationVariables.Value"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_format", string(client.Text)),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.regex", "regex2"),
 						),
 					},
 				},
@@ -263,7 +299,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				isSensitive := false
 				configurationVariables.Scope = client.ScopeDeployment
 				configurationVariables.IsSensitive = &isSensitive
+				configurationVariables.IsReadOnly = boolPtr(false)
+				configurationVariables.IsRequired = boolPtr(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(templateInSlice, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -286,6 +325,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				)
 				redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 				redeployConfigurationVariables[0].IsSensitive = &isSensitive
+				redeployConfigurationVariables[0].IsReadOnly = boolPtr(false)
+				redeployConfigurationVariables[0].IsRequired = boolPtr(false)
 
 				deployRequest := client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
@@ -301,6 +342,149 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("Create configuration variables - default values", func(t *testing.T) {
+			environment := client.Environment{
+				Id:                          "id0",
+				Name:                        "my-environment",
+				ProjectId:                   "project-id",
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       "template-id",
+					BlueprintRevision: "revision",
+				},
+			}
+
+			varType := client.ConfigurationVariableTypeEnvironment
+			varSchema := client.ConfigurationVariableSchema{
+				Type: "string",
+			}
+			configurationVariables := client.ConfigurationVariable{
+				Value:  "my env var value",
+				Name:   "my env var",
+				Type:   &varType,
+				Schema: &varSchema,
+			}
+
+			environmentResource := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					revision = "%s"
+					force_destroy = true
+					configuration {
+						name = "%s"
+						value = "%s"
+					}
+				}`,
+				resourceType, resourceName, environment.Name,
+				environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+				environment.LatestDeploymentLog.BlueprintRevision, configurationVariables.Name,
+				configurationVariables.Value,
+			)
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: environmentResource,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", ""),
+							resource.TestCheckNoResourceAttr(accessor, "configuration.0.schema_enum"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("Create configuration variables - schema type string", func(t *testing.T) {
+			environment := client.Environment{
+				Id:                          "id0",
+				Name:                        "my-environment",
+				ProjectId:                   "project-id",
+				AutoDeployOnPathChangesOnly: &autoDeployOnPathChangesOnlyDefault,
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       "template-id",
+					BlueprintRevision: "revision",
+				},
+			}
+
+			varType := client.ConfigurationVariableTypeEnvironment
+			varSchema := client.ConfigurationVariableSchema{
+				Type: "string",
+			}
+			configurationVariables := client.ConfigurationVariable{
+				Value:  "my env var value",
+				Name:   "my env var",
+				Type:   &varType,
+				Schema: &varSchema,
+			}
+
+			environmentResource := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					revision = "%s"
+					force_destroy = true
+					configuration {
+						name = "%s"
+						value = "%s"
+						schema_type = "string"
+					}
+				}`,
+				resourceType, resourceName, environment.Name,
+				environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+				environment.LatestDeploymentLog.BlueprintRevision, configurationVariables.Name,
+				configurationVariables.Value,
+			)
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: environmentResource,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", "string"),
+							resource.TestCheckNoResourceAttr(accessor, "configuration.0.schema_enum"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
@@ -399,6 +583,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -483,6 +668,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdateTTL(environment.Id, client.TTL{
 					Type:  client.TTLTypeDate,
@@ -553,6 +739,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdateTTL(environment.Id, client.TTL{
 					Type:  client.TTlTypeInfinite,
@@ -582,11 +769,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId: "template-id",
 				},
 
-				AutoDeployOnPathChangesOnly: &truthyFruity,
-				ContinuousDeployment:        &truthyFruity,
+				AutoDeployOnPathChangesOnly: &falsey,
+				ContinuousDeployment:        &falsey,
 				RequiresApproval:            &falsey,
-				PullRequestPlanDeployments:  &truthyFruity,
-				AutoDeployByCustomGlob:      ".*",
+				PullRequestPlanDeployments:  &falsey,
 			}
 			environmentAfterUpdate := client.Environment{
 				Id:        environment.Id,
@@ -596,9 +782,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 				},
 
-				ContinuousDeployment:       &falsey,
+				ContinuousDeployment:       &truthyFruity,
 				RequiresApproval:           &truthyFruity,
-				PullRequestPlanDeployments: &falsey,
+				PullRequestPlanDeployments: &truthyFruity,
+				AutoDeployByCustomGlob:     ".*",
 			}
 
 			testCase := resource.TestCase{
@@ -612,7 +799,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"approve_plan_automatically":       !*environment.RequiresApproval,
 							"run_plan_on_pull_requests":        *environment.PullRequestPlanDeployments,
 							"auto_deploy_on_path_changes_only": *environment.AutoDeployOnPathChangesOnly,
-							"auto_deploy_by_custom_glob":       environment.AutoDeployByCustomGlob,
 						}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -620,8 +806,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
-							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+							resource.TestCheckResourceAttr(accessor, "deploy_on_push", "false"),
+							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
 							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", environment.AutoDeployByCustomGlob),
 						),
 					},
@@ -630,8 +817,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
+							"deploy_on_push":                   true,
+							"run_plan_on_pull_requests":        true,
 							"force_destroy":                    true,
-							"auto_deploy_on_path_changes_only": false,
+							"auto_deploy_on_path_changes_only": true,
+							"auto_deploy_by_custom_glob":       ".*",
 						}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -639,24 +829,25 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 							resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "false"),
-							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "false"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "false"),
-							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", autoDeployByCustomGlobDefault),
+							resource.TestCheckResourceAttr(accessor, "deploy_on_push", "true"),
+							resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", "true"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_on_path_changes_only", "true"),
+							resource.TestCheckResourceAttr(accessor, "auto_deploy_by_custom_glob", ".*"),
 						),
 					},
 				},
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(environment.Id, client.EnvironmentUpdate{
-					Name: environment.Name,
-
-					ContinuousDeployment:        &falsey,
-					AutoDeployOnPathChangesOnly: &falsey,
+					Name:                        environment.Name,
+					ContinuousDeployment:        &truthyFruity,
+					AutoDeployOnPathChangesOnly: &truthyFruity,
 					RequiresApproval:            &truthyFruity,
-					PullRequestPlanDeployments:  &falsey,
-					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
+					PullRequestPlanDeployments:  &truthyFruity,
+					AutoDeployByCustomGlob:      ".*",
 				}).Times(1).Return(environmentAfterUpdate, nil)
 
 				gomock.InOrder(
@@ -728,6 +919,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
@@ -773,6 +965,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 			}
 			runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
@@ -800,6 +993,25 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	testApiFailures := func() {
+		t.Run("Failure template not assigned to project", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config:      createEnvironmentResourceConfig(environment),
+						ExpectError: regexp.MustCompile("could not create environment: template is not assigned to project"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(client.Template{
+					ProjectId:  "no-match",
+					ProjectIds: []string{"no-match"},
+				}, nil)
+			})
+
+		})
+
 		t.Run("Failure in create", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
@@ -811,6 +1023,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -841,6 +1054,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -899,6 +1113,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDeploy(updatedEnvironment.Id, client.DeployRequest{
 					BlueprintId:       updatedEnvironment.LatestDeploymentLog.BlueprintId,
@@ -922,6 +1137,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                        environment.Name,
 					ProjectId:                   environment.ProjectId,
@@ -950,14 +1166,24 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testApiFailures()
 }
 
-func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
+func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 
+	environment := client.Environment{
+		Id:                         "id0",
+		Name:                       "my-environment",
+		ProjectId:                  "project-id",
+		WorkspaceName:              "workspace-name",
+		TerragruntWorkingDirectory: "/terragrunt/directory/",
+		VcsCommandsAlias:           "alias",
+		BlueprintId:                "id-template-0",
+	}
+
 	template := client.Template{
 		Id:          "id-template-0",
-		Name:        "template0",
+		Name:        "single-use-template-for-" + environment.Name,
 		Description: "description0",
 		Repository:  "env0/repo",
 		Path:        "path/zero",
@@ -975,16 +1201,88 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 		Type:                 "terraform",
 		GithubInstallationId: 1,
 		TerraformVersion:     "0.12.24",
-		IsSingleUse:          true,
 	}
 
-	environment := client.Environment{
-		Id:                         "id0",
-		Name:                       "my-environment",
-		ProjectId:                  "project-id",
-		WorkspaceName:              "workspace-name",
-		TerragruntWorkingDirectory: "/terragrunt/directory/",
-		VcsCommandsAlias:           "alias",
+	updatedTemplate := client.Template{
+		Id:          "id-template-0",
+		Name:        "single-use-template-for-" + environment.Name,
+		Description: "description1",
+		Repository:  "env0/repo1",
+		Path:        "path/zero1",
+		Revision:    "branch-zero1",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      3,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      3,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:                 "terraform",
+		GithubInstallationId: 2,
+		TerraformVersion:     "0.12.25",
+	}
+
+	environmentCreatePayload := client.EnvironmentCreate{
+		Name:                        environment.Name,
+		ProjectId:                   environment.ProjectId,
+		DeployRequest:               &client.DeployRequest{},
+		WorkspaceName:               environment.WorkspaceName,
+		RequiresApproval:            environment.RequiresApproval,
+		ContinuousDeployment:        environment.ContinuousDeployment,
+		PullRequestPlanDeployments:  environment.PullRequestPlanDeployments,
+		TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
+		VcsCommandsAlias:            environment.VcsCommandsAlias,
+		AutoDeployOnPathChangesOnly: boolPtr(true),
+	}
+
+	templateCreatePayload := client.TemplateCreatePayload{
+		Repository:           template.Repository,
+		Description:          template.Description,
+		GithubInstallationId: template.GithubInstallationId,
+		IsGitlabEnterprise:   template.IsGitlabEnterprise,
+		IsGitLab:             template.TokenId != "",
+		TokenId:              template.TokenId,
+		Path:                 template.Path,
+		Revision:             template.Revision,
+		Type:                 client.TemplateTypeTerraform,
+		Retry:                template.Retry,
+		TerraformVersion:     template.TerraformVersion,
+		BitbucketClientKey:   template.BitbucketClientKey,
+		IsGithubEnterprise:   template.IsGithubEnterprise,
+		IsBitbucketServer:    template.IsBitbucketServer,
+		FileName:             template.FileName,
+		TerragruntVersion:    template.TerragruntVersion,
+		IsTerragruntRunAll:   template.IsTerragruntRunAll,
+		OrganizationId:       template.OrganizationId,
+	}
+
+	templateUpdatePayload := client.TemplateCreatePayload{
+		Repository:           updatedTemplate.Repository,
+		Description:          updatedTemplate.Description,
+		GithubInstallationId: updatedTemplate.GithubInstallationId,
+		IsGitlabEnterprise:   updatedTemplate.IsGitlabEnterprise,
+		IsGitLab:             updatedTemplate.TokenId != "",
+		TokenId:              updatedTemplate.TokenId,
+		Path:                 updatedTemplate.Path,
+		Revision:             updatedTemplate.Revision,
+		Type:                 client.TemplateTypeTerraform,
+		Retry:                updatedTemplate.Retry,
+		TerraformVersion:     updatedTemplate.TerraformVersion,
+		BitbucketClientKey:   updatedTemplate.BitbucketClientKey,
+		IsGithubEnterprise:   updatedTemplate.IsGithubEnterprise,
+		IsBitbucketServer:    updatedTemplate.IsBitbucketServer,
+		FileName:             updatedTemplate.FileName,
+		TerragruntVersion:    updatedTemplate.TerragruntVersion,
+		IsTerragruntRunAll:   updatedTemplate.IsTerragruntRunAll,
+		OrganizationId:       updatedTemplate.OrganizationId,
+	}
+
+	createPayload := client.EnvironmentCreateWithoutTemplate{
+		EnvironmentCreate: environmentCreatePayload,
+		TemplateCreate:    templateCreatePayload,
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment, template client.Template) string {
@@ -996,7 +1294,7 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 			terragrunt_working_directory = "%s"
 			force_destroy = true
 			vcs_commands_alias = "%s"
-			template {
+			without_template_settings {
 				repository = "%s"
 				terraform_version = "%s"
 				type = "%s"
@@ -1006,6 +1304,8 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 				retry_on_deploy_only_when_matches_regex = "%s"
 				retries_on_destroy = %d
 				retry_on_destroy_only_when_matches_regex = "%s"
+				description = "%s"
+				github_installation_id = %d
 			}
 		}`,
 			resourceType, resourceName,
@@ -1023,12 +1323,15 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 			template.Retry.OnDeploy.ErrorRegex,
 			template.Retry.OnDestroy.Times,
 			template.Retry.OnDestroy.ErrorRegex,
+			template.Description,
+			template.GithubInstallationId,
 		)
 	}
 
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
+				// Create the environment and template
 				{
 					Config: createEnvironmentResourceConfig(environment, template),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -1039,24 +1342,84 @@ func TestUnitTemplatelessEnvironmentResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
 						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
-						resource.TestCheckResourceAttr(accessor, "template.0.repository", template.Repository),
-						resource.TestCheckResourceAttr(accessor, "template.0.terraform_version", template.TerraformVersion),
-						resource.TestCheckResourceAttr(accessor, "template.0.type", template.Type),
-						resource.TestCheckResourceAttr(accessor, "template.0.path", template.Path),
-						resource.TestCheckResourceAttr(accessor, "template.0.revision", template.Revision),
-						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
-						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
-						resource.TestCheckResourceAttr(accessor, "template.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
-						resource.TestCheckResourceAttr(accessor, "template.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", template.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", template.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", template.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", template.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", template.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(template.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", template.Retry.OnDestroy.ErrorRegex),
 					),
-					PlanOnly:           true,
-					ExpectNonEmptyPlan: true,
+				},
+				// Update the template.
+				{
+					Config: createEnvironmentResourceConfig(environment, updatedTemplate),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckNoResourceAttr(accessor, "template_id"),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", updatedTemplate.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(updatedTemplate.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", updatedTemplate.Retry.OnDestroy.ErrorRegex),
+					),
+				},
+				// No need to update template
+				{
+					Config: createEnvironmentResourceConfig(environment, updatedTemplate),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckNoResourceAttr(accessor, "template_id"),
+						resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", updatedTemplate.Repository),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_destroy", strconv.Itoa(updatedTemplate.Retry.OnDestroy.Times)),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_destroy_only_when_matches_regex", updatedTemplate.Retry.OnDestroy.ErrorRegex),
+					),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// Step1
+			mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environment, nil)
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(template, nil)
 
+			// Step2
+			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(template, nil)
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+			mock.EXPECT().TemplateUpdate(environment.BlueprintId, templateUpdatePayload).Times(1).Return(updatedTemplate, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(1).Return(updatedTemplate, nil)
+
+			// Step3
+			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Template(environment.BlueprintId).Times(2).Return(updatedTemplate, nil)
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
 

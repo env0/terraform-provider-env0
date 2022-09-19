@@ -51,17 +51,8 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("could not get environment scheduling: %v", err)
 	}
 
-	if environmentScheduling.Deploy != nil {
-		d.Set("deploy_cron", environmentScheduling.Deploy.Cron)
-	} else {
-		d.Set("deploy_cron", "")
-	}
-
-	if environmentScheduling.Destroy != nil {
-		d.Set("destroy_cron", environmentScheduling.Destroy.Cron)
-	} else {
-		d.Set("destroy_cron", "")
-
+	if err := writeResourceData(&environmentScheduling, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
 	return nil
@@ -71,17 +62,11 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
-	deployCron := d.Get("deploy_cron").(string)
-	destroyCron := d.Get("destroy_cron").(string)
 
-	payload := client.EnvironmentScheduling{}
+	var payload client.EnvironmentScheduling
 
-	if deployCron != "" {
-		payload.Deploy = &client.EnvironmentSchedulingExpression{Cron: deployCron, Enabled: true}
-	}
-
-	if destroyCron != "" {
-		payload.Destroy = &client.EnvironmentSchedulingExpression{Cron: destroyCron, Enabled: true}
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
 	if _, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload); err != nil {

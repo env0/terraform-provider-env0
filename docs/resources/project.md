@@ -24,16 +24,16 @@ resource "env0_project" "example" {
 
 ### Required
 
-- **name** (String) name to give the project
+- `name` (String) name to give the project
 
 ### Optional
 
-- **description** (String) description of the project
-- **force_destroy** (Boolean) Destroy the project even when environments exist
+- `description` (String) description of the project
+- `force_destroy` (Boolean) Destroy the project even when environments exist
 
 ### Read-Only
 
-- **id** (String) id of the project
+- `id` (String) id of the project
 
 ## Import
 

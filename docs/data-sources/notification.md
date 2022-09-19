@@ -23,13 +23,13 @@ data "env0_notification" "my_notification" {
 
 ### Optional
 
-- **id** (String) the id of the notification
-- **name** (String) the name of the notification
+- `id` (String) the id of the notification
+- `name` (String) the name of the notification
 
 ### Read-Only
 
-- **created_by** (String) textual description of the entity who created the notification
-- **type** (String) the type of the notification
-- **value** (String) the target url of the notification
+- `created_by` (String) textual description of the entity who created the notification
+- `type` (String) the type of the notification
+- `value` (String) the target url of the notification
 
 

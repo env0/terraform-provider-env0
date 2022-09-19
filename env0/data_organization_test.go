@@ -13,11 +13,11 @@ func TestUnitOrganizationData(t *testing.T) {
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 	organization := client.Organization{
-		Id:           "id0",
-		Name:         "name0",
-		CreatedBy:    "env0",
-		Role:         "role0",
-		IsSelfHosted: false,
+		Id:              "id0",
+		Name:            "name0",
+		CreatedBy:       "env0",
+		Role:            "role0",
+		IsSelfHostedK8s: true,
 	}
 
 	testCase := resource.TestCase{
@@ -29,7 +29,7 @@ func TestUnitOrganizationData(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", organization.Name),
 					resource.TestCheckResourceAttr(accessor, "created_by", organization.CreatedBy),
 					resource.TestCheckResourceAttr(accessor, "role", organization.Role),
-					resource.TestCheckResourceAttr(accessor, "is_self_hosted", strconv.FormatBool(organization.IsSelfHosted)),
+					resource.TestCheckResourceAttr(accessor, "is_self_hosted", strconv.FormatBool(organization.IsSelfHostedK8s)),
 				),
 			},
 		},

@@ -70,6 +70,11 @@ func dataEnvironment() *schema.Resource {
 				Description: "the last deployed revision",
 				Computed:    true,
 			},
+			"output": {
+				Type:        schema.TypeString,
+				Description: "the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -92,10 +97,7 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	// TODO: use writeResourceData instead.
-	d.SetId(environment.Id)
 	setEnvironmentSchema(d, environment, client.ConfigurationChanges{})
-	d.Set("status", environment.Status)
-	d.Set("deployment_id", environment.LatestDeploymentLogId)
+
 	return nil
 }

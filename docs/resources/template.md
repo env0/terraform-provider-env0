@@ -58,32 +58,35 @@ resource "env0_template_project_assignment" "assignment" {
 
 ### Required
 
-- **name** (String) name to give the template
-- **repository** (String) git repository url for the template source code
+- `name` (String) name to give the template
+- `repository` (String) git repository url for the template source code
 
 ### Optional
 
-- **bitbucket_client_key** (String) the bitbucket client key used for integration
-- **description** (String) description for the template
-- **file_name** (String) the cloudformation file name. Required if the template type is cloudformation
-- **github_installation_id** (Number) the env0 application installation id on the relevant github repository
-- **gitlab_project_id** (Number) the project id of the relevant repository
-- **id** (String) The ID of this resource.
-- **is_bitbucket_server** (Boolean) true if this template uses bitbucket server repository
-- **is_github_enterprise** (Boolean) true if this template uses github enterprise repository
-- **is_gitlab_enterprise** (Boolean) true if this template uses gitlab enterprise repository
-- **is_terragrunt_run_all** (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
-- **path** (String) terraform / terragrunt file folder inside source code
-- **retries_on_deploy** (Number) number of times to retry when deploying an environment based on this template
-- **retries_on_destroy** (Number) number of times to retry when destroying an environment based on this template
-- **retry_on_deploy_only_when_matches_regex** (String) if specified, will only retry (on deploy) if error matches specified regex
-- **retry_on_destroy_only_when_matches_regex** (String) if specified, will only retry (on destroy) if error matches specified regex
-- **revision** (String) source code revision (branch / tag) to use
-- **ssh_keys** (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
-- **terraform_version** (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).
-- **terragrunt_version** (String) the Terragrunt version to use (example: 0.36.5)
-- **token_id** (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
-- **type** (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
+- `bitbucket_client_key` (String) the bitbucket client key used for integration
+- `description` (String) description for the template
+- `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
+- `github_installation_id` (Number) the env0 application installation id on the relevant github repository
+- `gitlab_project_id` (Number) the project id of the relevant repository
+- `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
+- `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
+- `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
+- `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
+- `path` (String) terraform / terragrunt file folder inside source code
+- `retries_on_deploy` (Number) number of times to retry when deploying an environment based on this template
+- `retries_on_destroy` (Number) number of times to retry when destroying an environment based on this template
+- `retry_on_deploy_only_when_matches_regex` (String) if specified, will only retry (on deploy) if error matches specified regex
+- `retry_on_destroy_only_when_matches_regex` (String) if specified, will only retry (on destroy) if error matches specified regex
+- `revision` (String) source code revision (branch / tag) to use
+- `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
+- `terraform_version` (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).
+- `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
+- `token_id` (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
+
+### Read-Only
+
+- `id` (String) id of the template
 
 ## Import
 

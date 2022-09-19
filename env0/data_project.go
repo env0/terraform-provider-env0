@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -48,23 +49,23 @@ func dataProject() *schema.Resource {
 }
 
 func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var err diag.Diagnostics
+	var err error
 	var project client.Project
 
 	id, ok := d.GetOk("id")
 	if ok {
 		project, err = getProjectById(id.(string), meta)
 		if err != nil {
-			return err
+			return diag.Errorf("%v", err)
 		}
 	} else {
 		name, ok := d.GetOk("name")
 		if !ok {
-			return diag.Errorf("Either 'name' or 'id' must be specified")
+			return diag.Errorf("either 'name' or 'id' must be specified")
 		}
 		project, err = getProjectByName(name.(string), meta)
 		if err != nil {
-			return err
+			return diag.Errorf("%v", err)
 		}
 	}
 
@@ -75,11 +76,11 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
-func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.Diagnostics) {
+func getProjectByName(name interface{}, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
 	if err != nil {
-		return client.Project{}, diag.Errorf("Could not query project by name: %v", err)
+		return client.Project{}, fmt.Errorf("could not query project by name: %v", err)
 	}
 
 	projectsByName := make([]client.Project, 0)
@@ -90,22 +91,22 @@ func getProjectByName(name interface{}, meta interface{}) (client.Project, diag.
 	}
 
 	if len(projectsByName) > 1 {
-		return client.Project{}, diag.Errorf("Found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projectsByName)
+		return client.Project{}, fmt.Errorf("found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projectsByName)
 	}
 	if len(projectsByName) == 0 {
-		return client.Project{}, diag.Errorf("Could not find a project with name: %s", name)
+		return client.Project{}, fmt.Errorf("could not find a project with name: %s", name)
 	}
 	return projectsByName[0], nil
 }
 
-func getProjectById(id string, meta interface{}) (client.Project, diag.Diagnostics) {
+func getProjectById(id string, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	project, err := apiClient.Project(id)
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-			return client.Project{}, diag.Errorf("Could not find a project with id: %s", id)
+			return client.Project{}, fmt.Errorf("could not find a project with id: %s", id)
 		}
-		return client.Project{}, diag.Errorf("Could not query project: %v", err)
+		return client.Project{}, fmt.Errorf("could not query project: %v", err)
 	}
 	return project, nil
 }
