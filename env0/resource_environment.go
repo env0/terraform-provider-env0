@@ -116,6 +116,11 @@ func resourceEnvironment() *schema.Resource {
 				Description: "Destroy safeguard. Must be enabled before delete/destroy",
 				Optional:    true,
 			},
+			"is_remote_backend": {
+				Type:        schema.TypeBool,
+				Description: "should use remote backend",
+				Optional:    true,
+			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
 				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used.",
@@ -216,11 +221,6 @@ func resourceEnvironment() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: getTemplateSchema("without_template_settings.0."),
 				},
-			},
-			"is_remote_backend": {
-				Type:        schema.TypeBool,
-				Description: "should use remote backend",
-				Optional:    true,
 			},
 		},
 	}
@@ -528,6 +528,11 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
 	}
 
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("is_remote_backend"); exists {
+		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
+	}
+
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
 		return client.EnvironmentCreate{}, err
@@ -580,6 +585,10 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
+	}
+
+	if d.HasChange("is_remote_backend") {
+		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
 	}
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)

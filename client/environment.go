@@ -94,7 +94,7 @@ type Environment struct {
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
 	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
-	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"is_remote_backend,omitempty"`
+	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
@@ -111,7 +111,7 @@ type EnvironmentCreate struct {
 	TTL                         *TTL                  `json:"ttl,omitempty" tfschema:"-"`
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
-	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty" tfschema:"is_remote_backend,omitempty"`
+	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty" tfschema:"-"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
@@ -159,7 +159,7 @@ type EnvironmentUpdate struct {
 	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty" tfschema:"-"`
 	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
-	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty" tfschema:"is_remote_backend,omitempty"`
+	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty" tfschema:"-"`
 }
 
 type EnvironmentDeployResponse struct {
