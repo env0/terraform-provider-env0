@@ -15,7 +15,6 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	jwtToken  string
 	ApiKey    string
 	ApiSecret string
 	Endpoint  string
@@ -30,32 +29,18 @@ type HttpClientConfig struct {
 	RestClient  *resty.Client
 }
 
-func getJWTToken(httpClient *HttpClient) (*resty.Response, error) {
-	req := httpClient.client.R().SetBasicAuth(httpClient.ApiKey, httpClient.ApiSecret)
-	response, err := req.SetQueryParams(map[string]string{"encoded": "true"}).Get("auth/token")
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	httpClient := &HttpClient{
 		ApiKey:    config.ApiKey,
 		ApiSecret: config.ApiSecret,
 		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
 	}
-	response, err := getJWTToken(httpClient)
-	if err != nil {
-		return nil, err
-	}
-
-	httpClient.jwtToken = string(response.Body())
+	
 	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
-	return client.client.R().SetAuthToken(client.jwtToken)
+	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 
 func (client *HttpClient) httpResult(response *resty.Response, err error) error {
