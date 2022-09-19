@@ -220,7 +220,6 @@ func resourceEnvironment() *schema.Resource {
 			"is_remote_backend": {
 				Type:        schema.TypeBool,
 				Description: "should use remote backend",
-				Default:     false,
 				Optional:    true,
 			},
 		},
