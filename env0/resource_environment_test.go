@@ -19,6 +19,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 	templateId := "template-id"
 	deploymentLogId := "deploymentLogId0"
+	isRemoteBackendTrue := true
+	isRemoteBackendFalse := false
 
 	environment := client.Environment{
 		Id:            "id0",
@@ -33,6 +35,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
+		IsRemoteBackend:            &isRemoteBackendFalse,
 	}
 
 	updatedEnvironment := client.Environment{
@@ -48,6 +51,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory2/",
 		VcsCommandsAlias:           "alias2",
+		IsRemoteBackend:            &isRemoteBackendTrue,
 	}
 
 	template := client.Template{
@@ -67,6 +71,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
+			"is_remote_backend":            *(environment.IsRemoteBackend),
 		})
 	}
 	autoDeployOnPathChangesOnlyDefault := true
@@ -87,6 +92,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "false"),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
 							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
@@ -124,6 +130,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
+					IsRemoteBackend: &isRemoteBackendFalse,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 					Name:                        updatedEnvironment.Name,
@@ -131,6 +138,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:            updatedEnvironment.VcsCommandsAlias,
+					IsRemoteBackend:             &isRemoteBackendTrue,
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				gomock.InOrder(
@@ -1035,6 +1043,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendFalse,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 			})
 
@@ -1066,6 +1075,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendFalse,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
@@ -1074,6 +1084,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:      autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory:  updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:            updatedEnvironment.VcsCommandsAlias,
+					IsRemoteBackend:             &isRemoteBackendTrue,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -1149,6 +1160,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendFalse,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
