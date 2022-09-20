@@ -82,12 +82,16 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					MaxTtl:                              organization.MaxTtl,
 					DefaultTtl:                          organization.DefaultTtl,
 					DoNotConsiderMergeCommitsForPrPlans: &organization.DoNotConsiderMergeCommitsForPrPlans,
+					DoNotReportSkippedStatusChecks:      boolPtr(false),
+					EnableOidc:                          boolPtr(false),
 				}).Times(1).Return(&organization, nil),
 				mock.EXPECT().Organization().Times(2).Return(organization, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
-					DefaultTtl:                     organizationUpdated.DefaultTtl,
-					DoNotReportSkippedStatusChecks: &organizationUpdated.DoNotReportSkippedStatusChecks,
-					EnableOidc:                     &organizationUpdated.EnableOidc,
+					DefaultTtl:                          organizationUpdated.DefaultTtl,
+					DoNotReportSkippedStatusChecks:      &organizationUpdated.DoNotReportSkippedStatusChecks,
+					EnableOidc:                          &organizationUpdated.EnableOidc,
+					DoNotConsiderMergeCommitsForPrPlans: boolPtr(false),
+					MaxTtl:                              stringPtr(""),
 				}).Times(1).Return(&organizationUpdated, nil),
 				mock.EXPECT().Organization().Times(1).Return(organizationUpdated, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{}).Times(1).Return(&defaultOrganization, nil),
@@ -130,6 +134,8 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 				MaxTtl:                              organization.MaxTtl,
 				DefaultTtl:                          organization.DefaultTtl,
 				DoNotConsiderMergeCommitsForPrPlans: &organization.DoNotConsiderMergeCommitsForPrPlans,
+				DoNotReportSkippedStatusChecks:      boolPtr(false),
+				EnableOidc:                          boolPtr(false),
 			}).Times(1).Return(nil, errors.New("error"))
 		})
 	})
