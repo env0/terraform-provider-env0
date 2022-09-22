@@ -13,8 +13,8 @@ type Module struct {
 	LogoUrl              string         `json:"logoUrl"`
 	TokenId              string         `json:"tokenId"`
 	TokenName            string         `json:"tokenName"`
-	GithubInstallationId *int           `json:"githubInstallationId"`
-	BitbucketClientKey   *string        `json:"bitbucketClientKey"`
+	GithubInstallationId *int           `json:"githubInstallationId" tfschema:",omitempty"`
+	BitbucketClientKey   *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
 	Type                 string         `json:"type"`
