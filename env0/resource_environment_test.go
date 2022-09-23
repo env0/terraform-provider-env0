@@ -1280,16 +1280,15 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
-		Name:                        environment.Name,
-		ProjectId:                   environment.ProjectId,
-		DeployRequest:               &client.DeployRequest{},
-		WorkspaceName:               environment.WorkspaceName,
-		RequiresApproval:            environment.RequiresApproval,
-		ContinuousDeployment:        environment.ContinuousDeployment,
-		PullRequestPlanDeployments:  environment.PullRequestPlanDeployments,
-		TerragruntWorkingDirectory:  environment.TerragruntWorkingDirectory,
-		VcsCommandsAlias:            environment.VcsCommandsAlias,
-		AutoDeployOnPathChangesOnly: boolPtr(true),
+		Name:                       environment.Name,
+		ProjectId:                  environment.ProjectId,
+		DeployRequest:              &client.DeployRequest{},
+		WorkspaceName:              environment.WorkspaceName,
+		RequiresApproval:           environment.RequiresApproval,
+		ContinuousDeployment:       environment.ContinuousDeployment,
+		PullRequestPlanDeployments: environment.PullRequestPlanDeployments,
+		TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+		VcsCommandsAlias:           environment.VcsCommandsAlias,
 	}
 
 	templateCreatePayload := client.TemplateCreatePayload{
