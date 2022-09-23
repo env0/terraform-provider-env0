@@ -79,7 +79,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
-				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
@@ -344,6 +343,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
+	d.Set("auto_deploy_on_path_changes_only", environment.AutoDeployOnPathChangesOnly)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
@@ -563,6 +563,11 @@ func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeploymen
 			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
 	}
+
+	if autoDeployOnPathChangesOnly && !continuousDeployment && !pullRequestPlanDeployments {
+		return diag.Errorf("cannot set auto_deploy_on_path_changes_only when both deploy_on_push and run_plan_on_pull_requests are disabled")
+	}
+
 	return nil
 }
 
@@ -592,7 +597,9 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	}
 
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	if d.HasChange("auto_deploy_on_path_changes_only") {
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
