@@ -345,6 +345,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			EnvironmentCreate: environmentPayload,
 			TemplateCreate:    templatePayload,
 		}
+		// Note: the blueprint id field of the environment is returned only during creation of a template without envrionment.
+		// Afterward, it will be omitted from future response.
+		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
 	}
 	if err != nil {
