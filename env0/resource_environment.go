@@ -13,6 +13,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func isTemplateless(d *schema.ResourceData) bool {
+	_, ok := d.GetOk("without_template_settings.0")
+	return ok
+}
+
 func resourceEnvironment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentCreate,
@@ -231,9 +236,16 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if environment.LatestDeploymentLog.BlueprintId != "" {
-		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
-		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	if !isTemplateless(d) {
+		if environment.LatestDeploymentLog.BlueprintId != "" {
+			d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+			d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+		}
+	} else if environment.BlueprintId != "" {
+		settings := d.Get("without_template_settings").([]interface{})
+		elem := settings[0].(map[string]interface{})
+		elem["id"] = environment.BlueprintId
+		d.Set("without_template_settings", settings)
 	}
 
 	if len(environment.LatestDeploymentLog.Output) == 0 {
@@ -319,7 +331,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	var err error
 
-	if d.Get("template_id").(string) != "" {
+	if !isTemplateless(d) {
 		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
 			return diag.Errorf("%v\n", err)
 		}
@@ -364,9 +376,10 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
-	if d.Get("template_id").(string) == "" {
+	if isTemplateless(d) {
 		// envrionment with no template.
-		template, err := apiClient.Template(environment.BlueprintId)
+		templateId := d.Get("without_template_settings.0.id").(string)
+		template, err := apiClient.Template(templateId)
 		if err != nil {
 			return diag.Errorf("could not get template: %v", err)
 		}
@@ -410,12 +423,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func shouldUpdateTemplate(d *schema.ResourceData) bool {
-	if d.Get("template_id") != "" {
-		// Using an environment with a template.
-		return false
-	}
-
-	return d.HasChange("without_template_settings.0")
+	return isTemplateless(d) && d.HasChange("without_template_settings.0")
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
@@ -436,12 +444,9 @@ func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface)
 		return problem
 	}
 
-	environment, err := apiClient.Environment(d.Id())
-	if err != nil {
-		return diag.Errorf("could not get environment: %v", err)
-	}
+	templateId := d.Get("without_template_settings.0.id").(string)
 
-	if _, err := apiClient.TemplateUpdate(environment.BlueprintId, payload); err != nil {
+	if _, err := apiClient.TemplateUpdate(templateId, payload); err != nil {
 		return diag.Errorf("could not update template: %v", err)
 	}
 
@@ -605,8 +610,13 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterface, isRedeploy bool) client.DeployRequest {
 	payload := client.DeployRequest{}
 
-	if templateId, ok := d.GetOk("template_id"); ok {
-		payload.BlueprintId = templateId.(string)
+	if isTemplateless(d) {
+		templateId, ok := d.GetOk("without_template_settings.0.id")
+		if ok {
+			payload.BlueprintId = templateId.(string)
+		}
+	} else {
+		payload.BlueprintId = d.Get("template_id").(string)
 	}
 
 	if revision, ok := d.GetOk("revision"); ok {
