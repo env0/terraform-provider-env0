@@ -132,6 +132,10 @@ Optional:
 - `token_id` (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
 
+Read-Only:
+
+- `id` (String) id of the template
+
 ## Import
 
 Import is supported using the following syntax:
