@@ -64,6 +64,11 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	}
 
 	templateSchema := map[string]*schema.Schema{
+		"id": {
+			Type:        schema.TypeString,
+			Description: "id of the template",
+			Computed:    true,
+		},
 		"description": {
 			Type:        schema.TypeString,
 			Description: "description for the template",
@@ -197,12 +202,6 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	}
 
 	if prefix == "" {
-		templateSchema["id"] = &schema.Schema{
-			Type:        schema.TypeString,
-			Description: "id of the template",
-			Computed:    true,
-		}
-
 		templateSchema["name"] = &schema.Schema{
 			Type:        schema.TypeString,
 			Description: "name to give the template",
