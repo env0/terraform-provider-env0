@@ -241,10 +241,16 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 			d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 			d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 		}
-	} else if environment.BlueprintId != "" {
+	} else if environment.BlueprintId != "" || environment.LatestDeploymentLog.BlueprintId != "" {
 		settings := d.Get("without_template_settings").([]interface{})
 		elem := settings[0].(map[string]interface{})
-		elem["id"] = environment.BlueprintId
+
+		if environment.BlueprintId != "" {
+			elem["id"] = environment.BlueprintId
+		} else {
+			elem["id"] = environment.LatestDeploymentLog.BlueprintId
+		}
+
 		d.Set("without_template_settings", settings)
 	}
 
