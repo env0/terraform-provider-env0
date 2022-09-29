@@ -578,10 +578,6 @@ func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeploymen
 		}
 	}
 
-	if autoDeployOnPathChangesOnly && !continuousDeployment && !pullRequestPlanDeployments {
-		return diag.Errorf("cannot set auto_deploy_on_path_changes_only when both deploy_on_push and run_plan_on_pull_requests are disabled")
-	}
-
 	return nil
 }
 

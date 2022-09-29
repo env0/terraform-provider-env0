@@ -991,59 +991,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 			runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {})
 		})
-
-		t.Run("Failure in validation for auto_deploy_on_path_changes_only", func(t *testing.T) {
-			tc := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":                             environment.Name,
-							"project_id":                       environment.ProjectId,
-							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
-							"force_destroy":                    true,
-							"auto_deploy_on_path_changes_only": true,
-						}),
-						ExpectError: regexp.MustCompile("cannot set auto_deploy_on_path_changes_only when both deploy_on_push and run_plan_on_pull_requests are disabled"),
-					},
-				},
-			}
-			runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
-		})
-		t.Run("Failure in validation for auto_deploy_on_path_changes_only - update", func(t *testing.T) {
-			tc := resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":                         environment.Name,
-							"project_id":                   environment.ProjectId,
-							"template_id":                  environment.LatestDeploymentLog.BlueprintId,
-							"force_destroy":                true,
-							"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
-							"vcs_commands_alias":           environment.VcsCommandsAlias,
-						}),
-					},
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":                             environment.Name,
-							"project_id":                       environment.ProjectId,
-							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
-							"force_destroy":                    true,
-							"terragrunt_working_directory":     environment.TerragruntWorkingDirectory,
-							"vcs_commands_alias":               environment.VcsCommandsAlias,
-							"auto_deploy_on_path_changes_only": true,
-						}),
-						ExpectError: regexp.MustCompile("cannot set auto_deploy_on_path_changes_only when both deploy_on_push and run_plan_on_pull_requests are disabled"),
-					},
-				},
-			}
-			runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
-				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
-				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil)
-				mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(2).Return(client.ConfigurationChanges{}, nil)
-				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
-			})
-		})
 	}
 
 	testApiFailures := func() {
