@@ -1191,7 +1191,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		WorkspaceName:              "workspace-name",
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
-		LatestDeploymentLog:         client.DeploymentLog{
+		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: "id-template-0",
 		},
 	}
