@@ -10,6 +10,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -49,7 +50,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
 			"workspace": {
@@ -227,6 +227,15 @@ func resourceEnvironment() *schema.Resource {
 				},
 			},
 		},
+
+		CustomizeDiff: customdiff.ForceNewIf("template_id", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+			// For templateless: any changes in template_id, no need to do anything (template id can't change).
+			// This is done due to historical bugs/issues.
+			if _, ok := d.GetOk("without_template_settings.0"); ok {
+				return false
+			}
+			return true
+		}),
 	}
 }
 
