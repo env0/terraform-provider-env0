@@ -50,6 +50,29 @@ func stringInSlice(str string, strs []string) bool {
 	return false
 }
 
+func reasourceDataGetValue(fieldName string, d *schema.ResourceData) interface{} {
+	dval := d.Get(fieldName)
+	if dval == nil {
+		return nil
+	}
+
+	_, okInt := dval.(int)
+	_, okBool := dval.(bool)
+	_, okString := dval.(string)
+	if okString || okBool || okInt {
+		//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+		if _, exists := d.GetOkExists(fieldName); !exists {
+			return nil
+		}
+	}
+
+	if sval, ok := dval.([]interface{}); ok && len(sval) == 0 {
+		return nil
+	}
+
+	return dval
+}
+
 // Extracts values from the resourcedata, and writes it to the interface.
 // Prepends prefix to the fieldName.
 func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
@@ -68,14 +91,14 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 			fieldName = prefix + "." + fieldName
 		}
 
+		dval := reasourceDataGetValue(fieldName, d)
+		if dval == nil {
+			continue
+		}
+
 		field := val.Field(i)
 
 		fieldType := field.Type()
-
-		dval, ok := d.GetOk(fieldName)
-		if !ok {
-			continue
-		}
 
 		// custom field is a pointer.
 		if _, ok := field.Interface().(CustomResourceDataField); ok {

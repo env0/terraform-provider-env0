@@ -7,7 +7,7 @@ description: |-
 
 # env0 Provider
 
-The [env0][https://www.env0.com] provider is used to interact with the resources supported by env0. The provider needs to be configured with proper credentials before it can be used. Please refer tho [this guide](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key) on how to generate those credentials.
+The [env0](https://www.env0.com) provider is used to interact with the resources supported by env0. The provider needs to be configured with proper credentials before it can be used. Please refer tho [this guide](https://developer.env0.com/docs/api/YXBpOjY4Njc2-env0-api#creating-an-api-key) on how to generate those credentials.
 
 Use the navigation to the left to read about the available resources.
 

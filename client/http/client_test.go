@@ -29,7 +29,7 @@ type RequestBody struct {
 const BaseUrl = "https://fake.env0.com"
 const ApiKey = "MY_USER"
 const ApiSecret = "MY_PASS"
-const ExpectedJWTAuth = "Bearer \"mockedJwtToken\""
+const ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
 const UserAgent = "super-cool-ua"
 const ErrorStatusCode = 500
 const ErrorMessage = "Very bad!"
@@ -39,8 +39,6 @@ var httpclient *httpModule.HttpClient
 var _ = BeforeSuite(func() {
 	// mock all HTTP requests
 	restClient := resty.New()
-	httpmock.ActivateNonDefault(restClient.GetClient())
-	httpmock.RegisterResponder("GET", BaseUrl+"/auth/token", httpmock.NewStringResponder(200, `"mockedJwtToken"`))
 	config := httpModule.HttpClientConfig{
 		ApiKey:      ApiKey,
 		ApiSecret:   ApiSecret,
@@ -49,6 +47,7 @@ var _ = BeforeSuite(func() {
 		RestClient:  restClient,
 	}
 	httpclient, _ = httpModule.NewHttpClient(config)
+	httpmock.ActivateNonDefault(restClient.GetClient())
 })
 
 var _ = BeforeEach(func() {
@@ -83,7 +82,7 @@ var _ = Describe("Http Client", func() {
 	AssertAuth := func() {
 		authorization := httpRequest.Header["Authorization"]
 		Expect(len(authorization)).To(Equal(1), "Should have authorization header")
-		Expect(authorization[0]).To(Equal(ExpectedJWTAuth), "Should have correct Basic Auth")
+		Expect(authorization[0]).To(Equal(ExpectedBasicAuth), "Should have correct Basic Auth")
 	}
 
 	AssertNoError := func(err error) {

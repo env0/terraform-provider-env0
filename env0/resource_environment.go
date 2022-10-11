@@ -10,8 +10,14 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func isTemplateless(d *schema.ResourceData) bool {
+	_, ok := d.GetOk("without_template_settings.0")
+	return ok
+}
 
 func resourceEnvironment() *schema.Resource {
 	return &schema.Resource{
@@ -44,7 +50,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
 			"workspace": {
@@ -79,7 +84,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "redeploy only on path changes only",
 				Optional:    true,
-				Default:     true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
@@ -114,6 +118,11 @@ func resourceEnvironment() *schema.Resource {
 			"force_destroy": {
 				Type:        schema.TypeBool,
 				Description: "Destroy safeguard. Must be enabled before delete/destroy",
+				Optional:    true,
+			},
+			"is_remote_backend": {
+				Type:        schema.TypeBool,
+				Description: "should use remote backend",
 				Optional:    true,
 			},
 			"terragrunt_working_directory": {
@@ -218,6 +227,15 @@ func resourceEnvironment() *schema.Resource {
 				},
 			},
 		},
+
+		CustomizeDiff: customdiff.ForceNewIf("template_id", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+			// For templateless: any changes in template_id, no need to do anything (template id can't change).
+			// This is done due to historical bugs/issues.
+			if _, ok := d.GetOk("without_template_settings.0"); ok {
+				return false
+			}
+			return true
+		}),
 	}
 }
 
@@ -226,9 +244,22 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if environment.LatestDeploymentLog.BlueprintId != "" {
-		d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
-		d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+	if !isTemplateless(d) {
+		if environment.LatestDeploymentLog.BlueprintId != "" {
+			d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
+			d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
+		}
+	} else if environment.BlueprintId != "" || environment.LatestDeploymentLog.BlueprintId != "" {
+		settings := d.Get("without_template_settings").([]interface{})
+		elem := settings[0].(map[string]interface{})
+
+		if environment.BlueprintId != "" {
+			elem["id"] = environment.BlueprintId
+		} else {
+			elem["id"] = environment.LatestDeploymentLog.BlueprintId
+		}
+
+		d.Set("without_template_settings", settings)
 	}
 
 	if len(environment.LatestDeploymentLog.Output) == 0 {
@@ -314,7 +345,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	var err error
 
-	if d.Get("template_id").(string) != "" {
+	if !isTemplateless(d) {
 		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
 			return diag.Errorf("%v\n", err)
 		}
@@ -328,6 +359,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			EnvironmentCreate: environmentPayload,
 			TemplateCreate:    templatePayload,
 		}
+		// Note: the blueprint id field of the environment is returned only during creation of a template without envrionment.
+		// Afterward, it will be omitted from future response.
+		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
 	}
 	if err != nil {
@@ -339,6 +373,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
+	d.Set("auto_deploy_on_path_changes_only", environment.AutoDeployOnPathChangesOnly)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
@@ -359,9 +394,10 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
-	if d.Get("template_id").(string) == "" {
+	if isTemplateless(d) {
 		// envrionment with no template.
-		template, err := apiClient.Template(environment.BlueprintId)
+		templateId := d.Get("without_template_settings.0.id").(string)
+		template, err := apiClient.Template(templateId)
 		if err != nil {
 			return diag.Errorf("could not get template: %v", err)
 		}
@@ -405,12 +441,7 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func shouldUpdateTemplate(d *schema.ResourceData) bool {
-	if d.Get("template_id") != "" {
-		// Using an environment with a template.
-		return false
-	}
-
-	return d.HasChange("without_template_settings.0")
+	return isTemplateless(d) && d.HasChange("without_template_settings.0")
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
@@ -418,7 +449,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -431,12 +462,9 @@ func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface)
 		return problem
 	}
 
-	environment, err := apiClient.Environment(d.Id())
-	if err != nil {
-		return diag.Errorf("could not get environment: %v", err)
-	}
+	templateId := d.Get("without_template_settings.0.id").(string)
 
-	if _, err := apiClient.TemplateUpdate(environment.BlueprintId, payload); err != nil {
+	if _, err := apiClient.TemplateUpdate(templateId, payload); err != nil {
 		return diag.Errorf("could not update template: %v", err)
 	}
 
@@ -523,6 +551,11 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
 	}
 
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("is_remote_backend"); exists {
+		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
+	}
+
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
 		return client.EnvironmentCreate{}, err
@@ -553,6 +586,7 @@ func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeploymen
 			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
 	}
+
 	return nil
 }
 
@@ -577,8 +611,14 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
 	}
 
+	if d.HasChange("is_remote_backend") {
+		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
+	}
+
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	if d.HasChange("auto_deploy_on_path_changes_only") {
+		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	}
 
 	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
 	if err != nil {
@@ -591,8 +631,13 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterface, isRedeploy bool) client.DeployRequest {
 	payload := client.DeployRequest{}
 
-	if templateId, ok := d.GetOk("template_id"); ok {
-		payload.BlueprintId = templateId.(string)
+	if isTemplateless(d) {
+		templateId, ok := d.GetOk("without_template_settings.0.id")
+		if ok {
+			payload.BlueprintId = templateId.(string)
+		}
+	} else {
+		payload.BlueprintId = d.Get("template_id").(string)
 	}
 
 	if revision, ok := d.GetOk("revision"); ok {

@@ -65,6 +65,7 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - `deploy_on_push` (Boolean) should run terraform deploy on push events
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
+- `is_remote_backend` (Boolean) should use remote backend
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 - `revision` (String) the revision the environment is to be run against
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations
@@ -130,6 +131,10 @@ Optional:
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team
 - `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
+
+Read-Only:
+
+- `id` (String) id of the template
 
 ## Import
 
