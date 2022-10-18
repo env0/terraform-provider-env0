@@ -7,7 +7,7 @@ resource "random_string" "random" {
 resource "env0_aws_credentials" "my_role_by_arn" {
   name        = "Test Role arn ${random_string.random.result}"
   arn         = "Role ARN"
-  external_id = "External id"
+  external_id = "External-id"
 }
 
 data "env0_aws_credentials" "my_role_by_arn" {
