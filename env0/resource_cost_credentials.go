@@ -24,11 +24,12 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			Required:    true,
 		},
 		"external_id": {
-			Type:        schema.TypeString,
-			Description: "the aws role external id",
-			Sensitive:   true,
-			ForceNew:    true,
-			Required:    true,
+			Type:             schema.TypeString,
+			Description:      "the aws role external id",
+			Sensitive:        true,
+			ForceNew:         true,
+			Required:         true,
+			ValidateDiagFunc: NewRegexValidator(`^[A-Za-z0-9+=\-.,@:/]{2,1000}$`),
 		},
 	}
 

@@ -137,6 +137,23 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 		})
 	})
 
+	t.Run("throw error when external id is invalid", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        "update",
+						"external_id": "invalid external id",
+						"arn":         "333333",
+					}),
+					ExpectError: regexp.MustCompile("Error: must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 }
 
 func TestUnitAzureCostCredentialsResource(t *testing.T) {
