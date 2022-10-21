@@ -320,7 +320,11 @@ func createVariable(configurationVariable *client.ConfigurationVariable) interfa
 }
 
 func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
-	ivariables := d.Get("configuration")
+	ivariables, ok := d.GetOk("configuration")
+	if !ok {
+		return
+	}
+
 	if ivariables == nil {
 		ivariables = make([]interface{}, 0)
 	}
