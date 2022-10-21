@@ -178,6 +178,7 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "the type the variable must be of",
 							Optional:    true,
+							Default:     "string",
 						},
 						"schema_enum": {
 							Type:        schema.TypeList,
@@ -277,43 +278,93 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 	return nil
 }
 
-func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
-	var variables []interface{}
+func createVariable(configurationVariable *client.ConfigurationVariable) interface{} {
+	variable := make(map[string]interface{})
 
-	for _, configurationVariable := range configurationVariables {
-		variable := make(map[string]interface{})
-		variable["name"] = configurationVariable.Name
-		variable["value"] = configurationVariable.Value
-		if configurationVariable.Type == nil || *configurationVariable.Type == 0 {
-			variable["type"] = "environment"
-		} else {
-			variable["type"] = "terraform"
-		}
-		if configurationVariable.Description != "" {
-			variable["description"] = configurationVariable.Description
-		}
-		if configurationVariable.Regex != "" {
-			variable["regex"] = configurationVariable.Regex
-		}
-		if configurationVariable.IsSensitive != nil {
-			variable["is_sensitive"] = configurationVariable.IsSensitive
-		}
-		if configurationVariable.IsReadOnly != nil {
-			variable["is_read_only"] = configurationVariable.IsReadOnly
-		}
-		if configurationVariable.IsRequired != nil {
-			variable["is_required"] = configurationVariable.IsRequired
-		}
-		if configurationVariable.Schema != nil {
-			variable["schema_type"] = configurationVariable.Schema.Type
-			variable["schema_enum"] = configurationVariable.Schema.Enum
-			variable["schema_format"] = configurationVariable.Schema.Format
-		}
-		variables = append(variables, variable)
+	variable["name"] = configurationVariable.Name
+	variable["value"] = configurationVariable.Value
+
+	if configurationVariable.Type == nil || *configurationVariable.Type == 0 {
+		variable["type"] = "environment"
+	} else {
+		variable["type"] = "terraform"
 	}
 
-	if variables != nil {
-		d.Set("configuration", variables)
+	if configurationVariable.Description != "" {
+		variable["description"] = configurationVariable.Description
+	}
+
+	if configurationVariable.Regex != "" {
+		variable["regex"] = configurationVariable.Regex
+	}
+
+	if configurationVariable.IsSensitive != nil {
+		variable["is_sensitive"] = configurationVariable.IsSensitive
+	}
+
+	if configurationVariable.IsReadOnly != nil {
+		variable["is_read_only"] = configurationVariable.IsReadOnly
+	}
+
+	if configurationVariable.IsRequired != nil {
+		variable["is_required"] = configurationVariable.IsRequired
+	}
+
+	if configurationVariable.Schema != nil {
+		variable["schema_type"] = configurationVariable.Schema.Type
+		variable["schema_enum"] = configurationVariable.Schema.Enum
+		variable["schema_format"] = configurationVariable.Schema.Format
+	}
+
+	return variable
+}
+
+func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
+	ivariables := d.Get("configuration")
+	if ivariables == nil {
+		ivariables = make([]interface{}, 0)
+	}
+
+	variables := ivariables.([]interface{})
+
+	newVariables := make([]interface{}, 0)
+
+	// The goal is to maintain existing state order as much as possible. (The backend response order may vary from state).
+	for _, ivariable := range variables {
+		variable := ivariable.(map[string]interface{})
+		variableName := variable["name"].(string)
+
+		for _, configurationVariable := range configurationVariables {
+			if configurationVariable.Name == variableName {
+				newVariables = append(newVariables, createVariable(&configurationVariable))
+				break
+			}
+		}
+	}
+
+	// Check for drifts: add new configuration variables received from the backend.
+	for _, configurationVariable := range configurationVariables {
+		found := false
+
+		for _, ivariable := range variables {
+			variable := ivariable.(map[string]interface{})
+			variableName := variable["name"].(string)
+			if configurationVariable.Name == variableName {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			log.Printf("[WARN] Drift Detected for configuration: %s", configurationVariable.Name)
+			newVariables = append(newVariables, createVariable(&configurationVariable))
+		}
+	}
+
+	if len(newVariables) > 0 {
+		d.Set("configuration", newVariables)
+	} else {
+		d.Set("configuration", nil)
 	}
 }
 
