@@ -17,7 +17,7 @@ resource "env0_project" "test_project" {
 resource "env0_aws_credentials" "credentials" {
   name        = "example-${random_string.random.result}"
   arn         = "Example role ARN"
-  external_id = "Example external id"
+  external_id = "Example-external-id"
 }
 
 data "env0_project_cloud_credentials" "project_cloud_credentials" {
