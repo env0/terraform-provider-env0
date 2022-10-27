@@ -81,3 +81,16 @@ func (client *ApiClient) Teams() ([]Team, error) {
 	}
 	return result, err
 }
+
+func (client *ApiClient) TeamsByName(name string) ([]Team, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, err
+	}
+	var result []Team
+	err = client.http.Get("/teams/organizations/"+organizationId, map[string]string{"name": name}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
