@@ -82,7 +82,7 @@ func (client *ApiClient) GetTeams(params map[string]string) ([]Team, error) {
 	return result, err
 }
 
-func (client *ApiClient) Teams(params map[string]string) ([]Team, error) {
+func (client *ApiClient) Teams() ([]Team, error) {
 	return client.GetTeams(nil)
 }
 
