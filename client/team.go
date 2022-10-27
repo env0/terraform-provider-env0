@@ -69,28 +69,23 @@ func (client *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team,
 	return result, nil
 }
 
-func (client *ApiClient) Teams() ([]Team, error) {
+func (client *ApiClient) GetTeams(params map[string]string) ([]Team, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
 	var result []Team
-	err = client.http.Get("/teams/organizations/"+organizationId, nil, &result)
+	err = client.http.Get("/teams/organizations/"+organizationId, params, &result)
 	if err != nil {
 		return nil, err
 	}
 	return result, err
 }
 
+func (client *ApiClient) Teams(params map[string]string) ([]Team, error) {
+	return client.GetTeams(nil)
+}
+
 func (client *ApiClient) TeamsByName(name string) ([]Team, error) {
-	organizationId, err := client.OrganizationId()
-	if err != nil {
-		return nil, err
-	}
-	var result []Team
-	err = client.http.Get("/teams/organizations/"+organizationId, map[string]string{"name": name}, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result, err
+	return client.GetTeams(map[string]string{"name": name})
 }
