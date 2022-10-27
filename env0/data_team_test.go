@@ -60,9 +60,9 @@ func TestTeamDataSource(t *testing.T) {
 		}
 	}
 
-	mockListTeamsCall := func(returnValue []client.Team) func(mockFunc *client.MockApiClientInterface) {
+	mockTeamsByNameCall := func(returnValue []client.Team) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().Teams().AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().TeamsByName(team.Name).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
@@ -76,7 +76,7 @@ func TestTeamDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(teamFieldsByName),
-			mockListTeamsCall([]client.Team{team, otherTeam}),
+			mockTeamsByNameCall([]client.Team{team, otherTeam}),
 		)
 	})
 
@@ -90,21 +90,21 @@ func TestTeamDataSource(t *testing.T) {
 	t.Run("Throw error when by name and more than one team exists", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(teamFieldsByName, "Found multiple teams for name"),
-			mockListTeamsCall([]client.Team{team, team, otherTeam}),
+			mockTeamsByNameCall([]client.Team{team, team, otherTeam}),
 		)
 	})
 
 	t.Run("Throw error when by name and no projects found at all", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(teamFieldsByName, "Could not find an env0 team with name"),
-			mockListTeamsCall([]client.Team{}),
+			mockTeamsByNameCall([]client.Team{}),
 		)
 	})
 
 	t.Run("Throw error when by name and no teams found with that name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(teamFieldsByName, "Could not find an env0 team with name"),
-			mockListTeamsCall([]client.Team{otherTeam}),
+			mockTeamsByNameCall([]client.Team{otherTeam}),
 		)
 	})
 }
