@@ -7,8 +7,8 @@ import (
 )
 
 type ApiClient struct {
-	http                 http.HttpClientInterface
-	cachedOrganizationId string
+	http               http.HttpClientInterface
+	cachedOrganization *Organization
 }
 
 type ApiClientInterface interface {
@@ -19,6 +19,7 @@ type ApiClientInterface interface {
 	ConfigurationVariableDelete(id string) error
 	Organization() (Organization, error)
 	OrganizationId() (string, error)
+	IsOrganizationSelfHostedAgent() (bool, error)
 	OrganizationPolicyUpdate(OrganizationPolicyUpdatePayload) (*Organization, error)
 	Policy(projectId string) (Policy, error)
 	PolicyUpdate(payload PolicyUpdatePayload) (Policy, error)
@@ -109,7 +110,6 @@ type ApiClientInterface interface {
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
 	return &ApiClient{
-		http:                 client,
-		cachedOrganizationId: "",
+		http: client,
 	}
 }

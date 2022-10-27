@@ -612,6 +612,21 @@ func (mr *MockApiClientInterfaceMockRecorder) GitTokens() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokens", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokens))
 }
 
+// IsOrganizationSelfHostedAgent mocks base method.
+func (m *MockApiClientInterface) IsOrganizationSelfHostedAgent() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsOrganizationSelfHostedAgent")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsOrganizationSelfHostedAgent indicates an expected call of IsOrganizationSelfHostedAgent.
+func (mr *MockApiClientInterfaceMockRecorder) IsOrganizationSelfHostedAgent() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOrganizationSelfHostedAgent", reflect.TypeOf((*MockApiClientInterface)(nil).IsOrganizationSelfHostedAgent))
+}
+
 // Module mocks base method.
 func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
 	m.ctrl.T.Helper()

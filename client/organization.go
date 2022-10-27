@@ -2,7 +2,10 @@ package client
 
 import (
 	"errors"
+	"sync"
 )
+
+var cachedOrganizationLock sync.Mutex
 
 type Organization struct {
 	Id                                  string  `json:"id"`
@@ -41,16 +44,39 @@ func (client *ApiClient) Organization() (Organization, error) {
 	return result[0], nil
 }
 
-func (client *ApiClient) OrganizationId() (string, error) {
-	if client.cachedOrganizationId != "" {
-		return client.cachedOrganizationId, nil
+func (client *ApiClient) getCachedOrganization() (*Organization, error) {
+	cachedOrganizationLock.Lock()
+	defer cachedOrganizationLock.Unlock()
+
+	if client.cachedOrganization != nil {
+		return client.cachedOrganization, nil
 	}
+
 	organization, err := client.Organization()
+	if err != nil {
+		return nil, err
+	}
+
+	client.cachedOrganization = &organization
+
+	return client.cachedOrganization, nil
+}
+
+func (client *ApiClient) OrganizationId() (string, error) {
+	organization, err := client.getCachedOrganization()
 	if err != nil {
 		return "", err
 	}
-	client.cachedOrganizationId = organization.Id
-	return client.cachedOrganizationId, nil
+	return organization.Id, nil
+}
+
+func (client *ApiClient) IsOrganizationSelfHostedAgent() (bool, error) {
+	organization, err := client.getCachedOrganization()
+	if err != nil {
+		return false, err
+	}
+
+	return organization.IsSelfHostedK8s, nil
 }
 
 func (client *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpdatePayload) (*Organization, error) {

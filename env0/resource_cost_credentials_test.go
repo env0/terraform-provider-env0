@@ -111,6 +111,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseForCreate, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
@@ -120,8 +121,10 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	t.Run("any update cause a destroy before a new create", func(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&awsCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&updateAwsCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
@@ -134,6 +137,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 
 	t.Run("throw error when don't enter any valid options", func(t *testing.T) {
 		runUnitTest(t, testCaseFormMissingValidInputError, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 		})
 	})
 
@@ -146,12 +150,14 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 						"external_id": "invalid external id",
 						"arn":         "333333",
 					}),
-					ExpectError: regexp.MustCompile("Error: must match pattern"),
+					ExpectError: regexp.MustCompile("external_id is invalid"),
 				},
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
+		})
 	})
 
 }

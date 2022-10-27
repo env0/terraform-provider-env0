@@ -24,12 +24,11 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			Required:    true,
 		},
 		"external_id": {
-			Type:             schema.TypeString,
-			Description:      "the aws role external id",
-			Sensitive:        true,
-			ForceNew:         true,
-			Required:         true,
-			ValidateDiagFunc: NewRegexValidator(`^[A-Za-z0-9+=\-.,@:/]{2,1000}$`),
+			Type:        schema.TypeString,
+			Description: "the aws role external id",
+			Sensitive:   true,
+			ForceNew:    true,
+			Required:    true,
 		},
 	}
 
@@ -147,6 +146,14 @@ func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.C
 		var value client.AwsCredentialsValuePayload
 		if err := readResourceData(&value, d); err != nil {
 			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		}
+
+		valid, err := IsExternalIdValid(d, apiClient)
+		if err != nil {
+			return client.Credentials{}, fmt.Errorf("failed to validate external_id: %v", err)
+		}
+		if !valid {
+			return client.Credentials{}, fmt.Errorf("external_id is invalid")
 		}
 
 		return apiClient.CredentialsCreate(&client.AwsCredentialsCreatePayload{

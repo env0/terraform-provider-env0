@@ -30,6 +30,12 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		"secret_access_key": "44444",
 	}
 
+	invalidExternalIdResource := map[string]interface{}{
+		"name":        "test",
+		"external_id": "invalid external id",
+		"arn":         "11111",
+	}
+
 	awsArnCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: awsArnCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
@@ -46,6 +52,15 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 			SecretAccessKey: updatedAwsAccessKeyCredentialResource["secret_access_key"].(string),
 		},
 		Type: client.AwsAccessKeysCredentialsType,
+	}
+
+	invalidExternalIdCreatePayload := client.AwsCredentialsCreatePayload{
+		Name: invalidExternalIdResource["name"].(string),
+		Value: client.AwsCredentialsValuePayload{
+			RoleArn:    invalidExternalIdResource["arn"].(string),
+			ExternalId: invalidExternalIdResource["external_id"].(string),
+		},
+		Type: client.AwsAssumedRoleCredentialsType,
 	}
 
 	returnValues := client.Credentials{
@@ -135,6 +150,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		runUnitTest(t, testCaseForCreate, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
@@ -144,8 +160,10 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	t.Run("any update cause a destroy before a new create", func(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&updateAwsAccessKeyCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
@@ -158,11 +176,13 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	t.Run("throw error when enter mutually exclusive values", func(t *testing.T) {
 		runUnitTest(t, testCaseFormMutuallyExclusiveError, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 		})
 	})
 
 	t.Run("throw error when don't enter any valid options", func(t *testing.T) {
 		runUnitTest(t, testCaseFormMissingValidInputError, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 		})
 	})
 
@@ -170,17 +190,32 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        "update",
-						"external_id": "invalid external id",
-						"arn":         "333333",
-					}),
-					ExpectError: regexp.MustCompile("Error: must match pattern"),
+					Config:      resourceConfigCreate(resourceType, resourceName, invalidExternalIdResource),
+					ExpectError: regexp.MustCompile("Error: external_id is invalid"),
 				},
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
+		})
+	})
+
+	t.Run("do not throw error when external id is invalid but is self-hosted", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, invalidExternalIdResource),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(true, nil)
+			mock.EXPECT().CredentialsCreate(&invalidExternalIdCreatePayload).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
+		})
 	})
 
 	t.Run("AWS credentials removed in UI", func(t *testing.T) {
@@ -199,9 +234,11 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil),
 				mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
@@ -225,6 +262,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues, returnValues}, nil)
@@ -248,6 +286,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(3).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil)
@@ -271,6 +310,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(otherTypeReturnValues.Id).Times(1).Return(client.Credentials{}, &client.NotFoundError{})
@@ -295,6 +335,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().IsOrganizationSelfHostedAgent().Times(1).Return(false, nil)
 			mock.EXPECT().CredentialsCreate(&awsArnCredCreatePayload).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil)
 			mock.EXPECT().CloudCredentialsList().Times(1).Return([]client.Credentials{otherTypeReturnValues}, nil)
