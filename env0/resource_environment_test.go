@@ -404,7 +404,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariables.Name),
 							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
-							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", ""),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", "string"),
 							resource.TestCheckNoResourceAttr(accessor, "configuration.0.schema_enum"),
 						),
 					},
@@ -415,7 +415,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil) // read after create -> on update -> read after update
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -486,7 +486,88 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		// Tests use-cases where the response returned by the backend varies from the order of the state.
+		t.Run("Create unordered configuration variables", func(t *testing.T) {
+			environment := client.Environment{
+				Id:        "id0",
+				Name:      "my-environment",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       "template-id",
+					BlueprintRevision: "revision",
+				},
+			}
+
+			configurationVariable1 := client.ConfigurationVariable{
+				Value: "my env var value",
+				Name:  "my env var",
+				Schema: &client.ConfigurationVariableSchema{
+					Type: "string",
+				},
+			}
+
+			configurationVariable2 := client.ConfigurationVariable{
+				Value: "a",
+				Name:  "b",
+				Schema: &client.ConfigurationVariableSchema{
+					Type: "string",
+				},
+			}
+
+			environmentResource := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					revision = "%s"
+					force_destroy = true
+					configuration {
+						name = "%s"
+						value = "%s"
+					}
+					configuration {
+						name = "%s"
+						value = "%s"
+					}
+				}`,
+				resourceType, resourceName, environment.Name,
+				environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+				environment.LatestDeploymentLog.BlueprintRevision, configurationVariable1.Name,
+				configurationVariable1.Value, configurationVariable2.Name,
+				configurationVariable2.Value,
+			)
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: environmentResource,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.name", configurationVariable1.Name),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariable1.Value),
+							resource.TestCheckResourceAttr(accessor, "configuration.1.name", configurationVariable2.Name),
+							resource.TestCheckResourceAttr(accessor, "configuration.1.value", configurationVariable2.Value),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable2, configurationVariable1}, nil) // read after create -> on update -> read after update
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -599,10 +680,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDeploy(environment.Id, gomock.Any()).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: "deployment-id",
 				}, nil)
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(4).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(2).Return(client.ConfigurationChanges{}, nil) // read after create -> on update -> read after update
 				gomock.InOrder(
-					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil), // 1 after create, 1 before update
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil),
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil),
 				)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
