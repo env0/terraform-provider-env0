@@ -1246,6 +1246,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Teams() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Teams", reflect.TypeOf((*MockApiClientInterface)(nil).Teams))
 }
 
+// TeamsByName mocks base method.
+func (m *MockApiClientInterface) TeamsByName(arg0 string) ([]Team, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TeamsByName", arg0)
+	ret0, _ := ret[0].([]Team)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TeamsByName indicates an expected call of TeamsByName.
+func (mr *MockApiClientInterfaceMockRecorder) TeamsByName(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamsByName", reflect.TypeOf((*MockApiClientInterface)(nil).TeamsByName), arg0)
+}
+
 // Template mocks base method.
 func (m *MockApiClientInterface) Template(arg0 string) (Template, error) {
 	m.ctrl.T.Helper()

@@ -50,6 +50,7 @@ type ApiClientInterface interface {
 	RemoveCostCredentialsFromProject(projectId string, credentialId string) error
 	Team(id string) (Team, error)
 	Teams() ([]Team, error)
+	TeamsByName(name string) ([]Team, error)
 	TeamCreate(payload TeamCreatePayload) (Team, error)
 	TeamUpdate(id string, payload TeamUpdatePayload) (Team, error)
 	TeamDelete(id string) error
