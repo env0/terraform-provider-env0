@@ -13,6 +13,10 @@ const (
 	Viewer   ProjectRole = "Viewer"
 )
 
+func IsBuiltinProjectRole(role string) bool {
+	return role == string(Admin) || role == string(Deployer) || role == string(Planner) || role == string(Viewer)
+}
+
 type TeamProjectAssignmentPayload struct {
 	TeamId      string      `json:"teamId"`
 	ProjectId   string      `json:"projectId"`
