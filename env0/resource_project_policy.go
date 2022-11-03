@@ -12,14 +12,14 @@ import (
 )
 
 func resourcePolicy() *schema.Resource {
-	allowedProjectTtlValues := append(allowedTtlValues, "inherit")
+	allowedProjectTtlValues := append(allowedTtlValues, "Infinite", "inherit")
 	allowedProjectTtlValuesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedProjectTtlValues, ", "))
 
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: resourcePolicyReset,
+		DeleteContext: resourcePolicyDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourcePolicyImport},
 
@@ -107,10 +107,6 @@ func resourcePolicy() *schema.Resource {
 	}
 }
 
-func setPolicySchema(d *schema.ResourceData, policy client.Policy) error {
-	return writeResourceData(&policy, d)
-}
-
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if err := resourcePolicyUpdate(ctx, d, meta); err != nil {
 		return err
@@ -132,7 +128,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get policy: %v", err)
 	}
 
-	if err := setPolicySchema(d, policy); err != nil {
+	if err := writeResourceData(&policy, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -162,14 +158,22 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("default ttl must not be larger than max ttl")
 	}
 
-	_, err := apiClient.PolicyUpdate(payload)
-	if err != nil {
+	if payload.DefaultTtl == "Infinite" {
+		payload.DefaultTtl = ""
+	}
+
+	if payload.MaxTtl == "Infinine" {
+		payload.MaxTtl = ""
+	}
+
+	if _, err := apiClient.PolicyUpdate(payload); err != nil {
 		return diag.Errorf("could not update policy: %v", err)
 	}
+
 	return nil
 }
 
-func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()
@@ -185,7 +189,9 @@ func resourcePolicyReset(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	d.SetId(projectId)
-	setPolicySchema(d, policy)
+	if err := writeResourceData(&policy, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -199,7 +205,9 @@ func resourcePolicyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(projectId)
-	setPolicySchema(d, policy)
+	if err := writeResourceData(&policy, d); err != nil {
+		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
