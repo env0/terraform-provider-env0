@@ -28,8 +28,6 @@ func resourceEnvironment() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
 
-		SchemaVersion: 1,
-
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
