@@ -28,6 +28,8 @@ func resourceEnvironment() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
 
+		SchemaVersion: 1,
+
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
@@ -87,7 +89,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
-				Description: "redeploy on file filter pattern",
+				Description: "redeploy on file filter pattern. If used then 'auto_deploy_on_path_changes_only' must be configured to true. If used then 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.",
 				Optional:    true,
 			},
 			"deployment_id": {
@@ -583,36 +585,32 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		return client.EnvironmentCreate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	continuousDeployment := d.Get("deploy_on_push").(bool)
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	if _, exists := d.GetOkExists("deploy_on_push"); exists {
-		payload.ContinuousDeployment = &continuousDeployment
-	}
-
-	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	if _, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
-		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
-	}
-
-	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
-		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
+	if val, exists := d.GetOkExists("deploy_on_push"); exists {
+		payload.ContinuousDeployment = boolPtr(val.(bool))
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	if _, exists := d.GetOkExists("approve_plan_automatically"); exists {
-		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
+	if val, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
+		payload.PullRequestPlanDeployments = boolPtr(val.(bool))
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	if _, exists := d.GetOkExists("is_remote_backend"); exists {
-		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
+	if val, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
+		payload.AutoDeployOnPathChangesOnly = boolPtr(val.(bool))
 	}
 
-	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
-	if err != nil {
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
+		payload.RequiresApproval = boolPtr(!val.(bool))
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("is_remote_backend"); exists {
+		payload.IsRemoteBackend = boolPtr(val.(bool))
+	}
+
+	if err := assertDeploymentTriggers(d); err != nil {
 		return client.EnvironmentCreate{}, err
 	}
 
@@ -632,7 +630,12 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	return payload, nil
 }
 
-func assertDeploymentTriggers(autoDeployByCustomGlob string, continuousDeployment bool, pullRequestPlanDeployments bool, autoDeployOnPathChangesOnly bool) diag.Diagnostics {
+func assertDeploymentTriggers(d *schema.ResourceData) diag.Diagnostics {
+	continuousDeployment := d.Get("deploy_on_push").(bool)
+	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
+	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
+	autoDeployByCustomGlob := d.Get("auto_deploy_by_custom_glob").(string)
+
 	if autoDeployByCustomGlob != "" {
 		if !continuousDeployment && !pullRequestPlanDeployments {
 			return diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
@@ -656,27 +659,23 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
 	}
 
-	continuousDeployment := d.Get("deploy_on_push").(bool)
 	if d.HasChange("deploy_on_push") {
-		payload.ContinuousDeployment = &continuousDeployment
+		payload.ContinuousDeployment = boolPtr(d.Get("deploy_on_push").(bool))
 	}
 
-	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	if d.HasChange("run_plan_on_pull_requests") {
-		payload.PullRequestPlanDeployments = &pullRequestPlanDeployments
+		payload.PullRequestPlanDeployments = boolPtr(d.Get("run_plan_on_pull_requests").(bool))
+	}
+
+	if d.HasChange("auto_deploy_on_path_changes_only") {
+		payload.AutoDeployOnPathChangesOnly = boolPtr(d.Get("auto_deploy_on_path_changes_only").(bool))
 	}
 
 	if d.HasChange("is_remote_backend") {
 		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
 	}
 
-	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
-	if d.HasChange("auto_deploy_on_path_changes_only") {
-		payload.AutoDeployOnPathChangesOnly = &autoDeployOnPathChangesOnly
-	}
-
-	err := assertDeploymentTriggers(payload.AutoDeployByCustomGlob, continuousDeployment, pullRequestPlanDeployments, autoDeployOnPathChangesOnly)
-	if err != nil {
+	if err := assertDeploymentTriggers(d); err != nil {
 		return client.EnvironmentUpdate{}, err
 	}
 
