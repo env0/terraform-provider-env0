@@ -39,10 +39,10 @@ resource "env0_project_policy" "example" {
 ### Optional
 
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
-- `default_ttl` (String) the default environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M, inherit). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
+- `default_ttl` (String) the default environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M, Infinite, inherit). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
 - `include_cost_estimation` (Boolean) Enable cost estimation for the project
-- `max_ttl` (String) the maximum environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M, inherit) Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl
+- `max_ttl` (String) the maximum environment time-to-live allowed on deploy time (allowed values: 6-h, 12-h, 1-d, 3-d, 1-w, 2-w, 1-M, Infinite, inherit) Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl
 - `number_of_environments` (Number) Max number of environments a single user can have in this project, `null` indicates no limit
 - `number_of_environments_total` (Number) Max number of environments in this project, `null` indicates no limit
 - `requires_approval_default` (Boolean) Requires approval default value when creating a new environment in the project
