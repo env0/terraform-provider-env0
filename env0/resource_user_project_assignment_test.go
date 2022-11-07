@@ -147,6 +147,20 @@ func TestUnitUserProjectAssignmentResource(t *testing.T) {
 						resource.TestCheckNoResourceAttr(accessor, "role"),
 					),
 				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"user_id":    userId,
+						"project_id": projectId,
+						"role":       string(updatedRole),
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", id),
+						resource.TestCheckResourceAttr(accessor, "user_id", userId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "custom_role_id", ""),
+						resource.TestCheckResourceAttr(accessor, "role", string(updatedRole)),
+					),
+				},
 			},
 		}
 
@@ -155,7 +169,9 @@ func TestUnitUserProjectAssignmentResource(t *testing.T) {
 				mock.EXPECT().AssignUserToProject(projectId, &createCustomPayload).Times(1).Return(&createCustomResponse, nil),
 				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, createCustomResponse}, nil),
 				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updateCustomPayload).Times(1).Return(&updateCustomResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return([]client.UserProjectAssignment{otherResponse, updateCustomResponse}, nil),
+				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, updateCustomResponse}, nil),
+				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updatePayload).Times(1).Return(&updateResponse, nil),
+				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return([]client.UserProjectAssignment{otherResponse, updateResponse}, nil),
 				mock.EXPECT().RemoveUserFromProject(projectId, userId).Times(1).Return(nil),
 			)
 		})

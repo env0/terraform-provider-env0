@@ -61,5 +61,6 @@ resource "env0_custom_role" "custom_role" {
 resource "env0_user_project_assignment" "api_key_project_assignment_custom_role" {
   user_id        = env0_api_key.test_user_api_key.id
   project_id     = env0_project.project_resource.id
-  custom_role_id = env0_custom_role.custom_role.id
+  custom_role_id = var.second_run ? null : env0_custom_role.custom_role.id
+  role           = var.second_run ? "Viewer" : null
 }
