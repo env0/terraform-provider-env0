@@ -138,13 +138,13 @@ Afterwards, when cleanup is required, just set `DESTROY_MODE` to `DESTROY_ONLY` 
 Run from root directory:
 
 ```shell
-go test ./...
+go test -v ./...
 ```
 
 #### Running a single provider test
 
 ```shell
-export TEST_PATTERN="TestUnitConfigurationVariableResource/Create" && go test ./env0
+export TEST_PATTERN="TestUnitConfigurationVariableResource/Create" && go test -v ./env0
 ```
 
 #### How to use mocks

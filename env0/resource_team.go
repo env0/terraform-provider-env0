@@ -114,9 +114,9 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 }
 
-func getTeamByName(name interface{}, meta interface{}) (client.Team, diag.Diagnostics) {
+func getTeamByName(name string, meta interface{}) (client.Team, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	teams, err := apiClient.Teams()
+	teams, err := apiClient.TeamsByName(name)
 	if err != nil {
 		return client.Team{}, diag.Errorf("Could not get teams: %v", err)
 	}
