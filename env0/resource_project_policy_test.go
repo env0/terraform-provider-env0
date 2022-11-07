@@ -25,6 +25,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		DisableDestroyEnvironments: true,
 		SkipRedundantDeployments:   true,
 		UpdatedBy:                  "updater0",
+		DefaultTtl:                 stringPtr("6-h"),
 	}
 
 	updatedPolicy := client.Policy{
@@ -38,7 +39,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		DisableDestroyEnvironments: false,
 		SkipRedundantDeployments:   false,
 		UpdatedBy:                  "updater0",
-		MaxTtl:                     stringPtr("12-h"),
+		MaxTtl:                     nil,
 		DefaultTtl:                 stringPtr("6-h"),
 	}
 
@@ -87,7 +88,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					"skip_apply_when_plan_is_empty": updatedPolicy.SkipApplyWhenPlanIsEmpty,
 					"disable_destroy_environments":  updatedPolicy.DisableDestroyEnvironments,
 					"skip_redundant_deployments":    updatedPolicy.SkipRedundantDeployments,
-					"max_ttl":                       *updatedPolicy.MaxTtl,
+					"max_ttl":                       "Infinite",
 					"default_ttl":                   *updatedPolicy.DefaultTtl,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -99,7 +100,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "skip_apply_when_plan_is_empty", strconv.FormatBool(updatedPolicy.SkipApplyWhenPlanIsEmpty)),
 					resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(updatedPolicy.DisableDestroyEnvironments)),
 					resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(updatedPolicy.SkipRedundantDeployments)),
-					resource.TestCheckResourceAttr(accessor, "max_ttl", *updatedPolicy.MaxTtl),
+					resource.TestCheckResourceAttr(accessor, "max_ttl", "Infinite"),
 					resource.TestCheckResourceAttr(accessor, "default_ttl", *updatedPolicy.DefaultTtl),
 				),
 			},
@@ -243,6 +244,31 @@ func TestUnitPolicyResource(t *testing.T) {
 						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
 						"max_ttl":                       "12-h",
 						"default_ttl":                   "1-d",
+					}),
+					ExpectError: regexp.MustCompile("default ttl must not be larger than max ttl"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Create Failure - max smaller than default (Infinite)", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id":                    policy.ProjectId,
+						"number_of_environments":        *policy.NumberOfEnvironments,
+						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
+						"include_cost_estimation":       policy.IncludeCostEstimation,
+						"skip_apply_when_plan_is_empty": policy.SkipApplyWhenPlanIsEmpty,
+						"disable_destroy_environments":  policy.DisableDestroyEnvironments,
+						"skip_redundant_deployments":    policy.SkipRedundantDeployments,
+						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
+						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
+						"max_ttl":                       "1-M",
+						"default_ttl":                   "Infinite",
 					}),
 					ExpectError: regexp.MustCompile("default ttl must not be larger than max ttl"),
 				},

@@ -1,7 +1,7 @@
 package client
 
 type Policy struct {
-	Id                          string  `json:"id"`
+	Id                          string  `json:"id" tfschema:"-"`
 	ProjectId                   string  `json:"projectId"`
 	NumberOfEnvironments        *int    `json:"numberOfEnvironments,omitempty"`
 	NumberOfEnvironmentsTotal   *int    `json:"numberOfEnvironmentsTotal,omitempty"`
@@ -28,8 +28,8 @@ type PolicyUpdatePayload struct {
 	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
 	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
-	MaxTtl                      string `json:"maxTtl"`
-	DefaultTtl                  string `json:"defaultTtl"`
+	MaxTtl                      string `json:"maxTtl,omitempty"`
+	DefaultTtl                  string `json:"defaultTtl,omitempty"`
 }
 
 // Policy retrieves a policy from the API
