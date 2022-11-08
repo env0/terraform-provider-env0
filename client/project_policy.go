@@ -3,8 +3,8 @@ package client
 type Policy struct {
 	Id                          string  `json:"id" tfschema:"-"`
 	ProjectId                   string  `json:"projectId"`
-	NumberOfEnvironments        *int    `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal   *int    `json:"numberOfEnvironmentsTotal,omitempty"`
+	NumberOfEnvironments        *int    `json:"numberOfEnvironments,omitempty" tfschema:",omitempty"`
+	NumberOfEnvironmentsTotal   *int    `json:"numberOfEnvironmentsTotal,omitempty" tfschema:",omitempty"`
 	RequiresApprovalDefault     bool    `json:"requiresApprovalDefault"`
 	IncludeCostEstimation       bool    `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty    bool    `json:"skipApplyWhenPlanIsEmpty"`
@@ -19,8 +19,8 @@ type Policy struct {
 
 type PolicyUpdatePayload struct {
 	ProjectId                   string `json:"projectId"`
-	NumberOfEnvironments        *int   `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal   *int   `json:"numberOfEnvironmentsTotal,omitempty"`
+	NumberOfEnvironments        *int   `json:"numberOfEnvironments" tfschema:",omitempty"`
+	NumberOfEnvironmentsTotal   *int   `json:"numberOfEnvironmentsTotal" tfschema:",omitempty"`
 	RequiresApprovalDefault     bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation       bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty    bool   `json:"skipApplyWhenPlanIsEmpty"`
@@ -44,6 +44,7 @@ func (client *ApiClient) Policy(projectId string) (Policy, error) {
 	if err != nil {
 		return Policy{}, err
 	}
+
 	return result, nil
 }
 
