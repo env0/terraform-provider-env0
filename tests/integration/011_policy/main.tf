@@ -10,8 +10,8 @@ resource "env0_project" "test_project" {
 
 resource "env0_project_policy" "test_policy" {
   project_id                    = env0_project.test_project.id
-  number_of_environments        = 1
-  number_of_environments_total  = 1
+  number_of_environments        = var.second_run ? null : 1
+  number_of_environments_total  = var.second_run ? null : 1
   requires_approval_default     = true
   include_cost_estimation       = false
   skip_apply_when_plan_is_empty = false
