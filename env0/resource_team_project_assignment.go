@@ -31,9 +31,16 @@ func resourceTeamProjectAssignment() *schema.Resource {
 			},
 			"role": {
 				Type:             schema.TypeString,
-				Description:      "the assigned role (Admin, Planner, Viewer, Deployer)",
-				Required:         true,
+				Description:      "the assigned built-in role (Admin, Planner, Viewer, Deployer)",
+				Optional:         true,
 				ValidateDiagFunc: ValidateRole,
+				ExactlyOneOf:     []string{"custom_role_id", "role"},
+			},
+			"custom_role_id": {
+				Type:         schema.TypeString,
+				Description:  "id of the assigned custom role",
+				Optional:     true,
+				ExactlyOneOf: []string{"custom_role_id", "role"},
 			},
 		},
 	}
