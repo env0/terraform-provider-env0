@@ -50,15 +50,25 @@ func stringInSlice(str string, strs []string) bool {
 	return false
 }
 
-func reasourceDataGetValue(fieldName string, d *schema.ResourceData) interface{} {
+func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceData) interface{} {
 	dval := d.Get(fieldName)
 	if dval == nil {
 		return nil
 	}
 
-	_, okInt := dval.(int)
+	ival, okInt := dval.(int)
+
+	if omitEmpty && okInt && ival == 0 {
+		return nil
+	}
+
+	sval, okString := dval.(string)
+	if omitEmpty && okString && (sval == "") {
+		return nil
+	}
+
 	_, okBool := dval.(bool)
-	_, okString := dval.(string)
+
 	if okString || okBool || okInt {
 		//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 		if _, exists := d.GetOkExists(fieldName); !exists {
@@ -91,7 +101,7 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 			fieldName = prefix + "." + fieldName
 		}
 
-		dval := reasourceDataGetValue(fieldName, d)
+		dval := reasourceDataGetValue(fieldName, parsedField.omitEmpty, d)
 		if dval == nil {
 			continue
 		}
