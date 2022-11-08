@@ -1014,7 +1014,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	testValidationFailures := func() {
-		t.Run("Failure in validation while  glob is enabled and pathChanges no", func(t *testing.T) {
+		t.Run("Failure in validation while glob is enabled and pathChanges no", func(t *testing.T) {
 			autoDeployWithCustomGlobEnabled := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -1068,7 +1068,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"force_destroy":              true,
 							"auto_deploy_by_custom_glob": "/**",
 						}),
-						ExpectError: regexp.MustCompile("run_plan_on_pull_requests or deploy_on_push must be enabled.*"),
+						ExpectError: regexp.MustCompile("Missing required argument"),
 					},
 				},
 			}
