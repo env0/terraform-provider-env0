@@ -30,6 +30,11 @@ resource "env0_project" "project_resource" {
   description = "Test Description"
 }
 
+resource "env0_project" "project_resource2" {
+  name        = "Test-Project-API-${random_string.random.result}2"
+  description = "Test Description"
+}
+
 resource "env0_user_project_assignment" "api_key_project_assignment" {
   user_id    = env0_api_key.test_user_api_key.id
   project_id = env0_project.project_resource.id
@@ -48,4 +53,19 @@ data "env0_api_key" "test_api_key2" {
 resource "env0_api_key" "test_api_key_omitted" {
   name                = "omitted-api-key-secret-${random_string.random.result}"
   omit_api_key_secret = true
+}
+
+resource "env0_custom_role" "custom_role" {
+  name = "custom-role-${random_string.random.result}"
+  permissions = [
+    "VIEW_PROJECT",
+    "EDIT_PROJECT_SETTINGS"
+  ]
+}
+
+resource "env0_user_project_assignment" "api_key_project_assignment_custom_role" {
+  user_id        = env0_api_key.test_user_api_key.id
+  project_id     = env0_project.project_resource2.id
+  custom_role_id = var.second_run ? null : env0_custom_role.custom_role.id
+  role           = var.second_run ? "Viewer" : null
 }

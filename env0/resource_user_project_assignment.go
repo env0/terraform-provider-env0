@@ -32,8 +32,15 @@ func resourceUserProjectAssignment() *schema.Resource {
 			"role": {
 				Type:             schema.TypeString,
 				Description:      "the assigned role (Admin, Planner, Viewer, Deployer)",
-				Required:         true,
+				Optional:         true,
 				ValidateDiagFunc: ValidateRole,
+				ExactlyOneOf:     []string{"custom_role_id", "role"},
+			},
+			"custom_role_id": {
+				Type:         schema.TypeString,
+				Description:  "id of the assigned custom role",
+				Optional:     true,
+				ExactlyOneOf: []string{"custom_role_id", "role"},
 			},
 		},
 	}
@@ -44,6 +51,12 @@ func resourceUserProjectAssignmentCreate(ctx context.Context, d *schema.Resource
 	if err := readResourceData(&newAssignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	role, ok := d.GetOk("role")
+	if !ok {
+		role = d.Get("custom_role_id")
+	}
+	newAssignment.Role = role.(string)
 
 	projectId := d.Get("project_id").(string)
 
@@ -75,6 +88,13 @@ func resourceUserProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 			if err := writeResourceData(&assignment, d); err != nil {
 				return diag.Errorf("schema resource data serialization failed: %v", err)
 			}
+
+			if client.IsBuiltinProjectRole(assignment.Role) {
+				d.Set("role", assignment.Role)
+			} else {
+				d.Set("custom_role_id", assignment.Role)
+			}
+
 			return nil
 		}
 	}
@@ -93,6 +113,12 @@ func resourceUserProjectAssignmentUpdate(ctx context.Context, d *schema.Resource
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	role, ok := d.GetOk("role")
+	if !ok {
+		role = d.Get("custom_role_id")
+	}
+	payload.Role = role.(string)
 
 	apiClient := meta.(client.ApiClientInterface)
 	if _, err := apiClient.UpdateUserProjectAssignment(projectId, userId, &payload); err != nil {
