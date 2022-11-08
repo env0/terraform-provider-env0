@@ -87,7 +87,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:         schema.TypeString,
-				Description:  "redeploy on file filter pattern.\nWhen used, 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.",
+				Description:  "redeploy on file filter pattern.\nWhen used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.",
 				Optional:     true,
 				RequiredWith: []string{"auto_deploy_on_path_changes_only"},
 			},
