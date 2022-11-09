@@ -59,7 +59,8 @@ resource "env0_environment" "example_with_hcl_configuration" {
 ### Optional
 
 - `approve_plan_automatically` (Boolean) should deployments require manual approvals
-- `auto_deploy_by_custom_glob` (String) redeploy on file filter pattern
+- `auto_deploy_by_custom_glob` (String) redeploy on file filter pattern.
+When used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.
 - `auto_deploy_on_path_changes_only` (Boolean) redeploy only on path changes only
 - `configuration` (Block List) terraform and environment variables for the environment (see [below for nested schema](#nestedblock--configuration))
 - `deploy_on_push` (Boolean) should run terraform deploy on push events
