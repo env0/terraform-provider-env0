@@ -16,6 +16,11 @@ resource "env0_team" "team_resource" {
   description = var.second_run ? "second description" : "first description"
 }
 
+resource "env0_team" "team_resource2" {
+  name        = "Test-Team-010-${random_string.random.result}2"
+  description = var.second_run ? "second description" : "first description"
+}
+
 resource "env0_team_project_assignment" "assignment" {
   depends_on = [env0_team.team_resource, env0_project.test_project]
   project_id = env0_project.test_project.id
@@ -34,7 +39,7 @@ resource "env0_custom_role" "custom_role" {
 resource "env0_team_project_assignment" "custom_assignment" {
   depends_on     = [env0_team.team_resource, env0_project.test_project]
   project_id     = env0_project.test_project.id
-  team_id        = env0_team.team_resource.id
+  team_id        = env0_team.team_resource2.id
   custom_role_id = var.second_run ? null : env0_custom_role.custom_role.id
   role           = var.second_run ? "Viewer" : null
 }
