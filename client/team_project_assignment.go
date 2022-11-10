@@ -18,32 +18,19 @@ func IsBuiltinProjectRole(role string) bool {
 }
 
 type TeamProjectAssignmentPayload struct {
-	TeamId      string      `json:"teamId"`
-	ProjectId   string      `json:"projectId"`
-	ProjectRole ProjectRole `json:"projectRole" tfschema:"role"`
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole string `json:"projectRole" tfschema:"-"`
 }
 
 type TeamProjectAssignment struct {
-	Id          string      `json:"id"`
-	TeamId      string      `json:"teamId"`
-	ProjectId   string      `json:"projectId"`
-	ProjectRole ProjectRole `json:"projectRole" tfschema:"role"`
+	Id          string `json:"id"`
+	TeamId      string `json:"teamId"`
+	ProjectId   string `json:"projectId"`
+	ProjectRole string `json:"projectRole" tfschema:"-"`
 }
 
 func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
-	if payload.ProjectId == "" {
-		return TeamProjectAssignment{}, errors.New("must specify project_id")
-	}
-	if payload.TeamId == "" {
-		return TeamProjectAssignment{}, errors.New("must specify team_id")
-	}
-	if payload.ProjectRole == "" ||
-		payload.ProjectRole != Admin &&
-			payload.ProjectRole != Deployer &&
-			payload.ProjectRole != Viewer &&
-			payload.ProjectRole != Planner {
-		return TeamProjectAssignment{}, errors.New("must specify valid project_role")
-	}
 	var result TeamProjectAssignment
 
 	var err = client.http.Post("/teams/assignments", payload, &result)
