@@ -45,6 +45,6 @@ resource "env0_team_project_assignment" "custom_assignment" {
   depends_on     = [env0_team.team_resource, env0_project.test_project]
   project_id     = env0_project.test_project.id
   team_id        = env0_team.team_resource2.id
-  custom_role_id = var.second_run ? env0_custom_role.custom_role.id : null
+  custom_role_id = var.second_run ? data.env0_custom_role.custom_role.id : null
   role           = var.second_run ? null : "Viewer"
 }
