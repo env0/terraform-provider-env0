@@ -33,6 +33,10 @@ func resourceCustomRole() *schema.Resource {
 		"RUN_TASK",
 		"CREATE_CUSTOM_ROLES",
 		"VIEW_DASHBOARD",
+		"VIEW_MODULES",
+		"READ_STATE",
+		"WRITE_STATE",
+		"FORCE_UNLOCK_WORKSPACE",
 	}
 
 	allowedCustomRoleTypesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedCustomRoleTypes, ", "))
