@@ -37,10 +37,11 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				ExactlyOneOf:     []string{"custom_role_id", "role"},
 			},
 			"custom_role_id": {
-				Type:         schema.TypeString,
-				Description:  "id of the assigned custom role",
-				Optional:     true,
-				ExactlyOneOf: []string{"custom_role_id", "role"},
+				Type:             schema.TypeString,
+				Description:      "id of the assigned custom role",
+				Optional:         true,
+				ExactlyOneOf:     []string{"custom_role_id", "role"},
+				ValidateDiagFunc: ValidateNotEmptyString,
 			},
 		},
 	}
@@ -57,20 +58,25 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("could not get TeamProjectAssignment: %v", err)
 	}
 
-	found := false
 	for _, assignment := range assignments {
 		if assignment.Id == id {
 			if err := writeResourceData(&assignment, d); err != nil {
 				return diag.Errorf("schema resource data serialization failed: %v", err)
 			}
-			found = true
-			break
+
+			if client.IsBuiltinProjectRole(assignment.ProjectRole) {
+				d.Set("role", assignment.ProjectRole)
+			} else {
+				d.Set("custom_role_id", assignment.ProjectRole)
+			}
+
+			return nil
 		}
 	}
-	if !found && !d.IsNewResource() {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
-		d.SetId("")
-	}
+
+	log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+	d.SetId("")
+
 	return nil
 }
 
@@ -81,6 +87,12 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	role, ok := d.GetOk("role")
+	if !ok {
+		role = d.Get("custom_role_id")
+	}
+	payload.ProjectRole = role.(string)
 
 	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(payload)
 	if err != nil {

@@ -37,10 +37,11 @@ func resourceUserProjectAssignment() *schema.Resource {
 				ExactlyOneOf:     []string{"custom_role_id", "role"},
 			},
 			"custom_role_id": {
-				Type:         schema.TypeString,
-				Description:  "id of the assigned custom role",
-				Optional:     true,
-				ExactlyOneOf: []string{"custom_role_id", "role"},
+				Type:             schema.TypeString,
+				Description:      "id of the assigned custom role",
+				Optional:         true,
+				ExactlyOneOf:     []string{"custom_role_id", "role"},
+				ValidateDiagFunc: ValidateNotEmptyString,
 			},
 		},
 	}

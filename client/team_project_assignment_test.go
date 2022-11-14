@@ -1,8 +1,6 @@
 package client_test
 
 import (
-	"errors"
-
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -48,41 +46,6 @@ var _ = Describe("TeamProjectAssignment", func() {
 				Expect(teamProjectAssignment).To(Equal(mockTeamProjectAssignment))
 			})
 		})
-
-		Describe("Failure", func() {
-
-			It("Should fail if assignment has no project_id", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{TeamId: dummyTeamId, ProjectRole: dummyProjectRole}
-				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
-				Expect(err).To(BeEquivalentTo(errors.New("must specify project_id")))
-			})
-
-			It("Should fail if assignment has no team_id", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, ProjectRole: dummyProjectRole}
-				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
-				Expect(err).To(BeEquivalentTo(errors.New("must specify team_id")))
-			})
-
-			It("Should fail if assignment has no project_role", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, TeamId: dummyTeamId}
-				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
-				Expect(err).To(BeEquivalentTo(errors.New("must specify valid project_role")))
-			})
-
-			It("Should fail if assignment has invalid project_role", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, TeamId: dummyTeamId, ProjectRole: "wrongProjectRole"}
-				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
-				Expect(err).To(BeEquivalentTo(errors.New("must specify valid project_role")))
-			})
-
-			It("Should fail if assignment has empty project_role", func() {
-				assignmentWithoutProjectId := TeamProjectAssignmentPayload{ProjectId: dummyProjectId, TeamId: dummyTeamId}
-				_, err := apiClient.TeamProjectAssignmentCreateOrUpdate(assignmentWithoutProjectId)
-				Expect(err).To(BeEquivalentTo(errors.New("must specify valid project_role")))
-			})
-
-		})
-
 	})
 
 	Describe("Get", func() {
