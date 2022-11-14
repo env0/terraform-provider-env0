@@ -36,10 +36,15 @@ resource "env0_custom_role" "custom_role" {
   ]
 }
 
+data "env0_custom_role" "custom_role" {
+  name       = "custom-role-${random_string.random.result}"
+  depends_on = [env0_custom_role.custom_role]
+}
+
 resource "env0_team_project_assignment" "custom_assignment" {
   depends_on     = [env0_team.team_resource, env0_project.test_project]
   project_id     = env0_project.test_project.id
   team_id        = env0_team.team_resource2.id
-  custom_role_id = var.second_run ? null : env0_custom_role.custom_role.id
-  role           = var.second_run ? "Viewer" : null
+  custom_role_id = var.second_run ? env0_custom_role.custom_role.id : null
+  role           = var.second_run ? null : "Viewer"
 }
