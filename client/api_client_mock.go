@@ -820,6 +820,20 @@ func (mr *MockApiClientInterfaceMockRecorder) OrganizationPolicyUpdate(arg0 inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationPolicyUpdate), arg0)
 }
 
+// OrganizationUserUpdateRole mocks base method.
+func (m *MockApiClientInterface) OrganizationUserUpdateRole(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationUserUpdateRole", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OrganizationUserUpdateRole indicates an expected call of OrganizationUserUpdateRole.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationUserUpdateRole(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationUserUpdateRole", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationUserUpdateRole), arg0, arg1)
+}
+
 // Policy mocks base method.
 func (m *MockApiClientInterface) Policy(arg0 string) (Policy, error) {
 	m.ctrl.T.Helper()
