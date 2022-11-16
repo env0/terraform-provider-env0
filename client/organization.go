@@ -66,3 +66,12 @@ func (client *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpda
 
 	return &result, nil
 }
+
+func (client *ApiClient) OrganizationUserUpdateRole(userId string, roleId string) error {
+	id, err := client.OrganizationId()
+	if err != nil {
+		return err
+	}
+
+	return client.http.Put("/organizations/"+id+"/users/"+userId+"/role", roleId, nil)
+}

@@ -109,4 +109,30 @@ var _ = Describe("Organization", func() {
 			})
 		})
 	})
+
+	Describe("OrganizationUserUpdateRole", func() {
+		userId := "userId"
+		roleId := "roleId"
+
+		var err error
+
+		Describe("Success", func() {
+			BeforeEach(func() {
+				mockOrganizationIdCall(organizationId)
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/organizations/"+organizationId+"/users/"+userId+"/role", roleId, nil)
+
+				err = apiClient.OrganizationUserUpdateRole(userId, roleId)
+			})
+
+			It("Should send Post request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+	})
 })
