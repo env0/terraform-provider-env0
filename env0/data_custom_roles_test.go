@@ -20,6 +20,10 @@ func TestCustomRolesDataSource(t *testing.T) {
 		Name: "name1",
 	}
 
+	role3 := client.Role{
+		Name: "name1",
+	}
+
 	resourceType := "env0_custom_roles"
 	resourceName := "test"
 
@@ -48,7 +52,7 @@ func TestCustomRolesDataSource(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		runUnitTest(t,
 			getTestCase(),
-			mockRoles([]client.Role{role1, role2}),
+			mockRoles([]client.Role{role3, role1, role2}),
 		)
 	})
 
