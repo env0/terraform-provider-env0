@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 1
     steps:
       - name: Check Title
-        uses: gsactions/commit-message-checker@v1
+        uses: gsactions/commit-message-checker@v2
         with:
           pattern: '^.*(Feat|Chore|Fix):.*$'
           error: 'You need at least one of "Feat:|Chore:|Fix:" in PR title prefix.'
