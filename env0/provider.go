@@ -78,6 +78,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_ip_ranges":                 dataIpRanges(),
 				"env0_agent_values":              dataAgentValues(),
 				"env0_custom_role":               dataCustomRole(),
+				"env0_custom_roles":              dataCustomRoles(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
