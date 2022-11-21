@@ -67,7 +67,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
-				Description: "should run terraform plan on pull requests creations",
+				Description: "should run terraform plan on pull requests creations.\nWhen github is used, if 'true' then 'github_installation_id' must be specified as well.",
 				Optional:    true,
 			},
 			"approve_plan_automatically": {
@@ -77,7 +77,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
-				Description: "should run terraform deploy on push events",
+				Description: "should run terraform deploy on push events.\nWhen github is used, if 'true' then 'github_installation_id' must be specified as well.",
 				Optional:    true,
 			},
 			"auto_deploy_on_path_changes_only": {
