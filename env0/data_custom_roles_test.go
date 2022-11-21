@@ -21,7 +21,8 @@ func TestCustomRolesDataSource(t *testing.T) {
 	}
 
 	role3 := client.Role{
-		Name: "name1",
+		Name:          "name1",
+		IsDefaultRole: true,
 	}
 
 	resourceType := "env0_custom_roles"

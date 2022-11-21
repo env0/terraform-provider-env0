@@ -36,8 +36,7 @@ func dataCustomRolesRead(ctx context.Context, d *schema.ResourceData, meta inter
 	data := []string{}
 
 	for _, role := range roles {
-		// Built-in roles do not have an identifier.
-		if role.Id != "" {
+		if !role.IsDefaultRole {
 			data = append(data, role.Name)
 		}
 	}
