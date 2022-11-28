@@ -63,13 +63,15 @@ resource "env0_environment" "example_with_hcl_configuration" {
 When used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.
 - `auto_deploy_on_path_changes_only` (Boolean) redeploy only on path changes only
 - `configuration` (Block List) terraform and environment variables for the environment (see [below for nested schema](#nestedblock--configuration))
-- `deploy_on_push` (Boolean) should run terraform deploy on push events
+- `deploy_on_push` (Boolean) should run terraform deploy on push events.
+If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
 - `is_remote_backend` (Boolean) should use remote backend
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 - `revision` (String) the revision the environment is to be run against
-- `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations
+- `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
+If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
