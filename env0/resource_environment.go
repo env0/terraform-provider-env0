@@ -77,7 +77,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"deploy_on_push": {
 				Type:        schema.TypeBool,
-				Description: "should run terraform deploy on push events.\nWhen github is used, if 'true' then 'github_installation_id' must be specified as well.",
+				Description: "should run terraform deploy on push events.\nIf true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 				Optional:    true,
 			},
 			"auto_deploy_on_path_changes_only": {
