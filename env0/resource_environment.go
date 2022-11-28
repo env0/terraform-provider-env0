@@ -67,7 +67,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
-				Description: "should run terraform plan on pull requests creations.\nWhen github is used, if 'true' then 'github_installation_id' must be specified as well.",
+				Description: "should run terraform plan on pull requests creations.\nIf true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 				Optional:    true,
 			},
 			"approve_plan_automatically": {
