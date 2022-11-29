@@ -76,15 +76,15 @@ type TemplateCreatePayload struct {
 	Path                 string           `json:"path"`
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
-	TokenId              string           `json:"tokenId,omitempty"`
-	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
+	TokenId              NullString       `json:"tokenId"`
+	GithubInstallationId NullInt          `json:"githubInstallationId"`
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
-	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
+	BitbucketClientKey   NullString       `json:"bitbucketClientKey"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	FileName             string           `json:"fileName,omitempty"`

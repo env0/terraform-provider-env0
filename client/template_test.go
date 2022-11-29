@@ -25,7 +25,7 @@ var _ = Describe("Templates Client", func() {
 		DescribeTable("Github Installation Id",
 			func(value int, expected types.GomegaMatcher) {
 				payload := TemplateCreatePayload{
-					GithubInstallationId: value,
+					GithubInstallationId: NullInt(value),
 				}
 				jsonPayload, _ := json.Marshal(payload)
 				var parsedPayload map[string]interface{}
