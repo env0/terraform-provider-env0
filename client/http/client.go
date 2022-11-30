@@ -62,10 +62,13 @@ func (client *HttpClient) Post(path string, request interface{}, response interf
 }
 
 func (client *HttpClient) Put(path string, request interface{}, response interface{}) error {
-	result, err := client.request().
-		SetBody(request).
-		SetResult(response).
-		Put(path)
+	req := client.request().SetBody(request)
+	if response != nil {
+		req = req.SetResult(response)
+	}
+
+	result, err := req.Put(path)
+
 	return client.httpResult(result, err)
 }
 

@@ -34,5 +34,5 @@ resource "env0_api_key" "test_api_key" {
 resource "env0_user_organization_assignment" "user_org" {
   user_id        = env0_api_key.test_api_key.id
   custom_role_id = var.second_run ? null : env0_custom_role.custom_role1.id
-  role           = var.second_run ? "Viewer" : null
+  role           = var.second_run ? "Admin" : null
 }
