@@ -64,6 +64,7 @@ type Template struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"`
 }
 
 type TemplateCreatePayload struct {
@@ -89,6 +90,7 @@ type TemplateCreatePayload struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"`
 }
 
 type TemplateAssignmentToProjectPayload struct {

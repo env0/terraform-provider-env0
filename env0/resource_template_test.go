@@ -320,6 +320,51 @@ func TestUnitTemplateResource(t *testing.T) {
 		FileName:         "stack.yaml",
 		TerraformVersion: "0.15.1",
 	}
+	azureDevOpsTemplate := client.Template{
+		Id:          "id0-azure-dev-ops",
+		Name:        "template0",
+		Description: "description0",
+		Repository:  "env0/repo",
+		Path:        "path/zero",
+		Revision:    "branch-zero",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:             "terraform",
+		TokenId:          "1",
+		TerraformVersion: "0.12.24",
+		IsAzureDevOps:    true,
+	}
+	azureDevOpsUpdatedTemplate := client.Template{
+		Id:          azureDevOpsTemplate.Id,
+		Name:        "new-name",
+		Description: "new-description",
+		Repository:  "env0/repo-new",
+		Path:        "path/zero/new",
+		Revision:    "branch-zero-new",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:              "terragrunt",
+		TerragruntVersion: "0.26.1",
+		TokenId:           "2",
+		TerraformVersion:  "0.15.1",
+		IsAzureDevOps:     true,
+	}
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -387,6 +432,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.IsTerragruntRunAll {
 			templateAsDictionary["is_terragrunt_run_all"] = true
 		}
+		if template.IsAzureDevOps {
+			templateAsDictionary["is_azure_dev_ops"] = true
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -439,6 +487,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			githubInstallationIdAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
+			resource.TestCheckResourceAttr(resourceFullName, "is_azure_dev_ops", strconv.FormatBool(template.IsAzureDevOps)),
 		)
 	}
 
@@ -454,6 +503,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitHub EE", gheeTemplate, gheeUpdatedTemplate},
 		{"Bitbucket Server", bitbucketServerTemplate, bitbucketServerUpdatedTemplate},
 		{"Cloudformation", cloudformationTemplate, cloudformationUpdatedTemplate},
+		{"Azure DevOps", azureDevOpsTemplate, azureDevOpsUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -485,6 +535,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				FileName:             templateUseCase.template.FileName,
 				TerragruntVersion:    templateUseCase.template.TerragruntVersion,
 				IsTerragruntRunAll:   templateUseCase.template.IsTerragruntRunAll,
+				IsAzureDevOps:        templateUseCase.template.IsAzureDevOps,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -506,6 +557,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				FileName:             templateUseCase.updatedTemplate.FileName,
 				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
 				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
+				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
 			}
 
 			if templateUseCase.vcs == "Cloudformation" {
