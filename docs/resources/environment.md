@@ -119,6 +119,7 @@ Optional:
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
 - `github_installation_id` (Number) the env0 application installation id on the relevant github repository
 - `gitlab_project_id` (Number) the project id of the relevant repository
+- `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
