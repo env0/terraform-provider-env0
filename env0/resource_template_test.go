@@ -433,7 +433,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			templateAsDictionary["is_terragrunt_run_all"] = true
 		}
 		if template.IsAzureDevOps {
-			templateAsDictionary["is_azure_dev_ops"] = true
+			templateAsDictionary["is_azure_devops"] = true
 		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
@@ -487,7 +487,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			githubInstallationIdAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
-			resource.TestCheckResourceAttr(resourceFullName, "is_azure_dev_ops", strconv.FormatBool(template.IsAzureDevOps)),
+			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
 		)
 	}
 
