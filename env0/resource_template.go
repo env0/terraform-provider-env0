@@ -32,6 +32,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"is_gitlab_enterprise",
 		"is_bitbucket_server",
 		"is_github_enterprise",
+		"is_azure_devops",
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
@@ -198,6 +199,14 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Optional:    true,
 			Description: `true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above`,
 			Default:     "false",
+		},
+		"is_azure_devops": {
+			Type:          schema.TypeBool,
+			Optional:      true,
+			Description:   "true if this template integrates with azure dev ops",
+			Default:       "false",
+			ConflictsWith: allVCSAttributesBut("is_azure_devops", "token_id"),
+			RequiredWith:  requiredWith("token_id"),
 		},
 	}
 
