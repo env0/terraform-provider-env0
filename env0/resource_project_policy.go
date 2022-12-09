@@ -44,7 +44,7 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments_total": {
 				Type:             schema.TypeInt,
-				Description:      "Max number of environments in this project.\nnOmitting removes the restriction.",
+				Description:      "Max number of environments in this project.\nOmitting removes the restriction.",
 				Optional:         true,
 				ValidateDiagFunc: NewGreaterThanValidator(0),
 			},
