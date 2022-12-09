@@ -112,8 +112,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				// Create
 				mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
 					ProjectId:                  policy.ProjectId,
-					NumberOfEnvironments:       policy.NumberOfEnvironments,
-					NumberOfEnvironmentsTotal:  policy.NumberOfEnvironmentsTotal,
+					NumberOfEnvironments:       *policy.NumberOfEnvironments,
+					NumberOfEnvironmentsTotal:  *policy.NumberOfEnvironmentsTotal,
 					RequiresApprovalDefault:    policy.RequiresApprovalDefault,
 					IncludeCostEstimation:      policy.IncludeCostEstimation,
 					SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
@@ -126,8 +126,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				// Update
 				mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
 					ProjectId:                  updatedPolicy.ProjectId,
-					NumberOfEnvironments:       updatedPolicy.NumberOfEnvironments,
-					NumberOfEnvironmentsTotal:  updatedPolicy.NumberOfEnvironmentsTotal,
+					NumberOfEnvironments:       0,
+					NumberOfEnvironmentsTotal:  0,
 					RequiresApprovalDefault:    updatedPolicy.RequiresApprovalDefault,
 					IncludeCostEstimation:      updatedPolicy.IncludeCostEstimation,
 					SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
@@ -140,8 +140,8 @@ func TestUnitPolicyResource(t *testing.T) {
 				// Delete
 				mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
 					ProjectId:                  resetPolicy.ProjectId,
-					NumberOfEnvironments:       resetPolicy.NumberOfEnvironments,
-					NumberOfEnvironmentsTotal:  resetPolicy.NumberOfEnvironmentsTotal,
+					NumberOfEnvironments:       0,
+					NumberOfEnvironmentsTotal:  0,
 					RequiresApprovalDefault:    resetPolicy.RequiresApprovalDefault,
 					IncludeCostEstimation:      resetPolicy.IncludeCostEstimation,
 					SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
@@ -199,8 +199,8 @@ func TestUnitPolicyResource(t *testing.T) {
 		runUnitTest(t, testCaseForDefault, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
 				ProjectId:                  policy.ProjectId,
-				NumberOfEnvironments:       policy.NumberOfEnvironments,
-				NumberOfEnvironmentsTotal:  policy.NumberOfEnvironmentsTotal,
+				NumberOfEnvironments:       *policy.NumberOfEnvironments,
+				NumberOfEnvironmentsTotal:  *policy.NumberOfEnvironmentsTotal,
 				RequiresApprovalDefault:    true,
 				IncludeCostEstimation:      policy.IncludeCostEstimation,
 				SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
@@ -214,8 +214,8 @@ func TestUnitPolicyResource(t *testing.T) {
 
 			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
 				ProjectId:                  resetPolicy.ProjectId,
-				NumberOfEnvironments:       resetPolicy.NumberOfEnvironments,
-				NumberOfEnvironmentsTotal:  resetPolicy.NumberOfEnvironmentsTotal,
+				NumberOfEnvironments:       0,
+				NumberOfEnvironmentsTotal:  0,
 				RequiresApprovalDefault:    resetPolicy.RequiresApprovalDefault,
 				IncludeCostEstimation:      resetPolicy.IncludeCostEstimation,
 				SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
