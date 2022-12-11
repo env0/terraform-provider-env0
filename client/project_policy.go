@@ -19,8 +19,8 @@ type Policy struct {
 
 type PolicyUpdatePayload struct {
 	ProjectId                   string `json:"projectId"`
-	NumberOfEnvironments        *int   `json:"numberOfEnvironments" tfschema:",omitempty"`
-	NumberOfEnvironmentsTotal   *int   `json:"numberOfEnvironmentsTotal" tfschema:",omitempty"`
+	NumberOfEnvironments        int    `json:"numberOfEnvironments,omitempty"`
+	NumberOfEnvironmentsTotal   int    `json:"numberOfEnvironmentsTotal,omitempty"`
 	RequiresApprovalDefault     bool   `json:"requiresApprovalDefault"`
 	IncludeCostEstimation       bool   `json:"includeCostEstimation"`
 	SkipApplyWhenPlanIsEmpty    bool   `json:"skipApplyWhenPlanIsEmpty"`

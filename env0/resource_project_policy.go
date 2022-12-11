@@ -38,13 +38,13 @@ func resourcePolicy() *schema.Resource {
 			},
 			"number_of_environments": {
 				Type:             schema.TypeInt,
-				Description:      "Max number of environments a single user can have in this project.\nSetting to `null` or omitting, removes the restriction.",
+				Description:      "Max number of environments a single user can have in this project.\nOmitting removes the restriction.",
 				Optional:         true,
 				ValidateDiagFunc: NewGreaterThanValidator(0),
 			},
 			"number_of_environments_total": {
 				Type:             schema.TypeInt,
-				Description:      "Max number of environments in this project.\nSetting to `null` or omitting, removes the restriction.",
+				Description:      "Max number of environments in this project.\nOmitting removes the restriction.",
 				Optional:         true,
 				ValidateDiagFunc: NewGreaterThanValidator(0),
 			},
@@ -162,7 +162,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		payload.DefaultTtl = ""
 	}
 
-	if payload.MaxTtl == "Infinine" {
+	if payload.MaxTtl == "Infinite" {
 		payload.MaxTtl = ""
 	}
 
