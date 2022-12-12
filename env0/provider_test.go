@@ -17,6 +17,8 @@ import (
 )
 
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	t.Helper()
+
 	os.Setenv("TF_ACC", "1")
 	os.Setenv("ENV0_API_KEY", "value")
 	os.Setenv("ENV0_API_SECRET", "value")
@@ -29,7 +31,6 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 
 	testReporter := utils.TestReporter{T: t}
 	ctrl := gomock.NewController(&testReporter)
-	defer ctrl.Finish()
 
 	apiClientMock := client.NewMockApiClientInterface(ctrl)
 	mockFunc(apiClientMock)
