@@ -13,4 +13,5 @@ resource "env0_module" "test_module" {
   token_name             = var.second_run ? null : "johns_token"
   repository             = "https://gitlab.com/moooo/moooo-docs-aws-functions.git"
   github_installation_id = var.second_run ? 32112 : null
+  path                   = var.second_run ? "/cool1" : "/cool2"
 }
