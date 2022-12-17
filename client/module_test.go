@@ -14,6 +14,7 @@ var _ = Describe("Module Client", func() {
 		ModuleName:     "module-name",
 		ModuleProvider: "module-provider",
 		Repository:     "repository-name",
+		Path:           "path",
 	}
 
 	Describe("Get Single Module", func() {

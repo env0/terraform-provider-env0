@@ -82,6 +82,11 @@ func resourceModule() *schema.Resource {
 					Description: "a map of env0_ssh_key.id and env0_ssh_key.name for each module",
 				},
 			},
+			"path": {
+				Type:        schema.TypeString,
+				Description: "the folder in the repository to create the module from",
+				Optional:    true,
+			},
 		},
 	}
 }

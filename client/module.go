@@ -25,6 +25,7 @@ type Module struct {
 	CreatedAt            string         `json:"createdAt"`
 	UpdatedAt            string         `json:"updatedAt"`
 	IsDeleted            bool           `json:"isDeleted"`
+	Path                 string         `json:"path"`
 }
 
 type ModuleCreatePayload struct {
@@ -39,6 +40,7 @@ type ModuleCreatePayload struct {
 	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
 	IsGitlab             *bool          `json:"isGitLab,omitempty"`
 	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
+	Path                 string         `json:"path,omitempty"`
 }
 
 type ModuleCreatePayloadWith struct {
@@ -59,6 +61,7 @@ type ModuleUpdatePayload struct {
 	BitbucketClientKey   string         `json:"bitbucketClientKey"`
 	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
+	Path                 string         `json:"path"`
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {
