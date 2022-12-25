@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -124,16 +125,33 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 	userAgent := p.UserAgent("terraform-provider-env0", version)
 
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		restyClient := resty.New()
+
+		restyClient.
+			SetRetryCount(5).
+			SetRetryWaitTime(time.Second).
+			SetRetryMaxWaitTime(time.Second * 5).
+			AddRetryCondition(func(r *resty.Response, err error) bool {
+				if r == nil {
+					// No response. Possiblly a networking issue (E.g. DNS lookup failure).
+					return true
+				}
+
+				// Retry when there's a 5xx error. Otherwise do not retry.
+				return r.StatusCode() >= 500
+			})
+
 		httpClient, err := http.NewHttpClient(http.HttpClientConfig{
 			ApiKey:      d.Get("api_key").(string),
 			ApiSecret:   d.Get("api_secret").(string),
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
-			RestClient:  resty.New(),
+			RestClient:  restyClient,
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 		}
+
 		apiClient := client.NewApiClient(httpClient)
 
 		// organizations fetched to cache Auth0 API response.
