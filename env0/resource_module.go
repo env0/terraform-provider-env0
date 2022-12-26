@@ -99,10 +99,6 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	if len(payload.TokenId) > 0 {
-		payload.IsGitlab = boolPtr(true)
-	}
-
 	module, err := apiClient.ModuleCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create module: %v", err)

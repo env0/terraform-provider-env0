@@ -138,9 +138,9 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"token_id": {
 			Type:          schema.TypeString,
-			Description:   "the token id used for private git repos or for integration with GitLab, you can get this value by using a data resource of an existing Gitlab template or contact our support team",
+			Description:   "the token id is used for integration with repositories such as: GitLab, Azure DevOps, and more...",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
+			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "is_azure_devops"),
 		},
 		"gitlab_project_id": {
 			Type:          schema.TypeInt,
@@ -344,11 +344,17 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 	}
 
 	tokenIdKey := "token_id"
+	isAzureDevOpsKey := "is_azure_devops"
+
 	if prefix != "" {
 		tokenIdKey = prefix + "." + tokenIdKey
+		isAzureDevOpsKey = prefix + "." + isAzureDevOpsKey
 	}
+
 	if tokenId, ok := d.GetOk(tokenIdKey); ok {
-		payload.IsGitLab = tokenId != ""
+		if isAzureDevOps := d.Get(isAzureDevOpsKey); !isAzureDevOps.(bool) {
+			payload.IsGitLab = tokenId != ""
+		}
 	}
 
 	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
