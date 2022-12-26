@@ -51,7 +51,7 @@ func resourceModule() *schema.Resource {
 			},
 			"token_id": {
 				Type:         schema.TypeString,
-				Description:  "the token id used for integration with GitLab",
+				Description:  "the token id used for integration with GitLab, Azure Devops, and more...",
 				Optional:     true,
 				ExactlyOneOf: vcsExcatlyOneOf,
 			},
