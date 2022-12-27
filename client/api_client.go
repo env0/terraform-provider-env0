@@ -107,6 +107,11 @@ type ApiClientInterface interface {
 	RoleDelete(id string) error
 	RoleUpdate(id string, payload RoleUpdatePayload) (*Role, error)
 	Roles() ([]Role, error)
+	CustomFlow(id string) (*CustomFlow, error)
+	CustomFlows(name string) ([]CustomFlow, error)
+	CustomFlowCreate(payload CustomFlowCreatePayload) (*CustomFlow, error)
+	CustomFlowUpdate(id string, payload CustomFlowCreatePayload) (*CustomFlow, error)
+	CustomFlowDelete(id string) error
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
