@@ -138,7 +138,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"token_id": {
 			Type:          schema.TypeString,
-			Description:   "the token id is used for integration with repositories such as: GitLab, Azure DevOps, and more...",
+			Description:   "the git token id to be used",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "is_azure_devops"),
 		},
