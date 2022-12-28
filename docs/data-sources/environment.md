@@ -35,6 +35,7 @@ output "environment_name" {
 
 ### Optional
 
+- `exclude_archived` (Boolean) set to 'true' to exclude archived environments when getting an environment by name
 - `id` (String) the environment's id
 - `name` (String) name of the environment
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
