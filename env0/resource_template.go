@@ -351,6 +351,7 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		isAzureDevOpsKey = prefix + "." + isAzureDevOpsKey
 	}
 
+	// IsGitLab is implicitly assumed to be true if tokenId is non-empty. Unless AzureDevOps is explicitly used.
 	if tokenId, ok := d.GetOk(tokenIdKey); ok {
 		if isAzureDevOps := d.Get(isAzureDevOpsKey); !isAzureDevOps.(bool) {
 			payload.IsGitLab = tokenId != ""
