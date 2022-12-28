@@ -33,7 +33,14 @@ func TestEnvironmentDataSource(t *testing.T) {
 		Name: "other-name",
 	}
 
+	archivedEnvironment := client.Environment{
+		Id:         "id-archived",
+		Name:       environment.Name,
+		IsArchived: true,
+	}
+
 	environmentFieldsByName := map[string]interface{}{"name": environment.Name}
+	environmentFieldsByNameWithExclude := map[string]interface{}{"name": environment.Name, "exclude_archived": "true"}
 	environmentFieldsById := map[string]interface{}{"id": environment.Id}
 
 	resourceType := "env0_environment"
@@ -101,6 +108,13 @@ func TestEnvironmentDataSource(t *testing.T) {
 		)
 	})
 
+	t.Run("By Name with Archived", func(t *testing.T) {
+		runUnitTest(t,
+			getValidTestCase(environmentFieldsByNameWithExclude),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}),
+		)
+	})
+
 	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
@@ -112,6 +126,13 @@ func TestEnvironmentDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
 			mockListEnvironmentsCall([]client.Environment{environment, environment, otherEnvironment}),
+		)
+	})
+
+	t.Run("Throw error when by name and more than one environment exists (archived use-case)", func(t *testing.T) {
+		runUnitTest(t,
+			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}),
 		)
 	})
 
