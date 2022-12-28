@@ -20,7 +20,7 @@ resource "env0_project" "example" {
 
 data "env0_agents" "agents" {}
 
-resource "env0_agent_project_assignment" {
+resource "env0_agent_project_assignment" "example" {
   agent_id   = data.env0_agents.agents.0.agent_key
   project_id = env0_project.example.id
 }

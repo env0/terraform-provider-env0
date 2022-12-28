@@ -51,7 +51,7 @@ func resourceModule() *schema.Resource {
 			},
 			"token_id": {
 				Type:         schema.TypeString,
-				Description:  "the token id used for integration with GitLab",
+				Description:  "the git token id to be used",
 				Optional:     true,
 				ExactlyOneOf: vcsExcatlyOneOf,
 			},
@@ -97,10 +97,6 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	var payload client.ModuleCreatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
-	}
-
-	if len(payload.TokenId) > 0 {
-		payload.IsGitlab = boolPtr(true)
 	}
 
 	module, err := apiClient.ModuleCreate(payload)

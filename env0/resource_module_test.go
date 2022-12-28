@@ -28,7 +28,7 @@ func TestUnitModuleResource(t *testing.T) {
 		Description:    "description1",
 		TokenId:        "tokenid",
 		TokenName:      "tokenname",
-		IsGitlab:       true,
+		IsGitlab:       false,
 		OrganizationId: "org1",
 		Author:         author,
 		AuthorId:       "author1",
@@ -105,7 +105,6 @@ func TestUnitModuleResource(t *testing.T) {
 				Description:    module.Description,
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
-				IsGitlab:       boolPtr(true),
 				Path:           module.Path,
 			}).Times(1).Return(&module, nil)
 
@@ -156,7 +155,6 @@ func TestUnitModuleResource(t *testing.T) {
 				Description:    module.Description,
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
-				IsGitlab:       boolPtr(true),
 			}).Times(1).Return(nil, errors.New("error"))
 		})
 	})
@@ -237,7 +235,6 @@ func TestUnitModuleResource(t *testing.T) {
 				Description:    module.Description,
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
-				IsGitlab:       boolPtr(true),
 				Path:           module.Path,
 			}).Times(1).Return(&module, nil)
 
@@ -290,7 +287,6 @@ func TestUnitModuleResource(t *testing.T) {
 				Description:    module.Description,
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
-				IsGitlab:       boolPtr(true),
 				Path:           module.Path,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Modules().Times(1).Return([]client.Module{module}, nil)
@@ -330,7 +326,6 @@ func TestUnitModuleResource(t *testing.T) {
 				Description:    module.Description,
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
-				IsGitlab:       boolPtr(true),
 				Path:           module.Path,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Module(module.Id).Times(3).Return(&module, nil)
