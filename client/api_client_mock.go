@@ -345,6 +345,80 @@ func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(arg0 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsCreate), arg0)
 }
 
+// CustomFlow mocks base method.
+func (m *MockApiClientInterface) CustomFlow(arg0 string) (*CustomFlow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlow", arg0)
+	ret0, _ := ret[0].(*CustomFlow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CustomFlow indicates an expected call of CustomFlow.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlow", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlow), arg0)
+}
+
+// CustomFlowCreate mocks base method.
+func (m *MockApiClientInterface) CustomFlowCreate(arg0 CustomFlowCreatePayload) (*CustomFlow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowCreate", arg0)
+	ret0, _ := ret[0].(*CustomFlow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CustomFlowCreate indicates an expected call of CustomFlowCreate.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowCreate), arg0)
+}
+
+// CustomFlowDelete mocks base method.
+func (m *MockApiClientInterface) CustomFlowDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CustomFlowDelete indicates an expected call of CustomFlowDelete.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowDelete), arg0)
+}
+
+// CustomFlowUpdate mocks base method.
+func (m *MockApiClientInterface) CustomFlowUpdate(arg0 string, arg1 CustomFlowCreatePayload) (*CustomFlow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*CustomFlow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CustomFlowUpdate indicates an expected call of CustomFlowUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUpdate), arg0, arg1)
+}
+
+// CustomFlows mocks base method.
+func (m *MockApiClientInterface) CustomFlows(arg0 string) ([]CustomFlow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlows", arg0)
+	ret0, _ := ret[0].([]CustomFlow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CustomFlows indicates an expected call of CustomFlows.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlows(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlows", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlows), arg0)
+}
+
 // Environment mocks base method.
 func (m *MockApiClientInterface) Environment(arg0 string) (Environment, error) {
 	m.ctrl.T.Helper()

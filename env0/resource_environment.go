@@ -840,7 +840,7 @@ func getConfigurationVariableFromSchema(variable map[string]interface{}) client.
 	return configurationVariable
 }
 
-func getEnvironmentByName(name interface{}, meta interface{}) (client.Environment, diag.Diagnostics) {
+func getEnvironmentByName(name interface{}, meta interface{}, excludeArchived bool) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	environments, err := apiClient.Environments()
 	if err != nil {
@@ -849,6 +849,10 @@ func getEnvironmentByName(name interface{}, meta interface{}) (client.Environmen
 
 	var environmentsByName []client.Environment
 	for _, candidate := range environments {
+		if excludeArchived && candidate.IsArchived {
+			continue
+		}
+
 		if candidate.Name == name {
 			environmentsByName = append(environmentsByName, candidate)
 		}
@@ -886,7 +890,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 		log.Println("[DEBUG] ID is not a valid env0 id ", id)
 		log.Println("[INFO] Resolving Environment by name: ", id)
 
-		environment, getErr = getEnvironmentByName(id, meta)
+		environment, getErr = getEnvironmentByName(id, meta, false)
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)

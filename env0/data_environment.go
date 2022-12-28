@@ -25,6 +25,13 @@ func dataEnvironment() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
+			"exclude_archived": {
+				Type:          schema.TypeBool,
+				Description:   "set to 'true' to exclude archived environments when getting an environment by name",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"id"},
+			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "project id of the environment",
@@ -91,7 +98,8 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	} else {
 		name := d.Get("name")
-		environment, err = getEnvironmentByName(name.(string), meta)
+		excludeArchived := d.Get("exclude_archived")
+		environment, err = getEnvironmentByName(name.(string), meta, excludeArchived.(bool))
 		if err != nil {
 			return err
 		}
