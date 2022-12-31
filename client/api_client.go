@@ -112,6 +112,9 @@ type ApiClientInterface interface {
 	CustomFlowCreate(payload CustomFlowCreatePayload) (*CustomFlow, error)
 	CustomFlowUpdate(id string, payload CustomFlowCreatePayload) (*CustomFlow, error)
 	CustomFlowDelete(id string) error
+	CustomFlowAssign(assignments []CustomFlowAssignment) error
+	CustomFlowUnassign(assignments []CustomFlowAssignment) error
+	CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface) ApiClientInterface {

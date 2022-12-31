@@ -35,6 +35,19 @@ type CustomFlow struct {
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
 
+type CustomFlowAssignmentScope string
+
+const (
+	CustomFlowOrganizationScope CustomFlowAssignmentScope = "ORGANIZATION"
+	CustomFlowProjectScope      CustomFlowAssignmentScope = "PROJECT"
+)
+
+type CustomFlowAssignment struct {
+	Scope       CustomFlowAssignmentScope `json:"scope"`
+	ScopeId     string                    `json:"scopeId"`
+	BlueprintId string                    `json:"blueprintId,omitempty"`
+}
+
 func (client *ApiClient) CustomFlowCreate(payload CustomFlowCreatePayload) (*CustomFlow, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -100,4 +113,21 @@ func (client *ApiClient) CustomFlows(name string) ([]CustomFlow, error) {
 	}
 
 	return result, err
+}
+
+func (client *ApiClient) CustomFlowAssign(assignments []CustomFlowAssignment) error {
+	return client.http.Post("/custom-flow/assign", assignments, nil)
+}
+
+func (client *ApiClient) CustomFlowUnassign(assignments []CustomFlowAssignment) error {
+	return client.http.Post("/custom-flow/unassign", assignments, nil)
+}
+
+func (client *ApiClient) CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error) {
+	var result []CustomFlowAssignment
+	if err := client.http.Post("/custom-flow/get-assignments", assignments, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
