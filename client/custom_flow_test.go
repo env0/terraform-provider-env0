@@ -151,7 +151,7 @@ var _ = Describe("Custom Flow Client", func() {
 	})
 
 	mockAssignment := CustomFlowAssignment{
-		Scope:       CustomFlowOrganizationScope,
+		Scope:       CustomFlowProjectScope,
 		ScopeId:     "scope_id",
 		BlueprintId: "blueprint_id",
 	}

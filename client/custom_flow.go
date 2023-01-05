@@ -38,8 +38,8 @@ type CustomFlow struct {
 type CustomFlowAssignmentScope string
 
 const (
-	CustomFlowOrganizationScope CustomFlowAssignmentScope = "ORGANIZATION"
-	CustomFlowProjectScope      CustomFlowAssignmentScope = "PROJECT"
+	// CustomFlowOrganizationScope CustomFlowAssignmentScope = "ORGANIZATION" - to be added if required in the future.
+	CustomFlowProjectScope CustomFlowAssignmentScope = "PROJECT"
 )
 
 type CustomFlowAssignment struct {
