@@ -360,6 +360,20 @@ func (mr *MockApiClientInterfaceMockRecorder) CustomFlow(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlow", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlow), arg0)
 }
 
+// CustomFlowAssign mocks base method.
+func (m *MockApiClientInterface) CustomFlowAssign(arg0 []CustomFlowAssignment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowAssign", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CustomFlowAssign indicates an expected call of CustomFlowAssign.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowAssign(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowAssign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowAssign), arg0)
+}
+
 // CustomFlowCreate mocks base method.
 func (m *MockApiClientInterface) CustomFlowCreate(arg0 CustomFlowCreatePayload) (*CustomFlow, error) {
 	m.ctrl.T.Helper()
@@ -387,6 +401,35 @@ func (m *MockApiClientInterface) CustomFlowDelete(arg0 string) error {
 func (mr *MockApiClientInterfaceMockRecorder) CustomFlowDelete(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowDelete), arg0)
+}
+
+// CustomFlowGetAssignments mocks base method.
+func (m *MockApiClientInterface) CustomFlowGetAssignments(arg0 []CustomFlowAssignment) ([]CustomFlowAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowGetAssignments", arg0)
+	ret0, _ := ret[0].([]CustomFlowAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CustomFlowGetAssignments indicates an expected call of CustomFlowGetAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowGetAssignments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowGetAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowGetAssignments), arg0)
+}
+
+// CustomFlowUnassign mocks base method.
+func (m *MockApiClientInterface) CustomFlowUnassign(arg0 []CustomFlowAssignment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CustomFlowUnassign", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CustomFlowUnassign indicates an expected call of CustomFlowUnassign.
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUnassign(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUnassign), arg0)
 }
 
 // CustomFlowUpdate mocks base method.

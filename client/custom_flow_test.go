@@ -38,11 +38,8 @@ var _ = Describe("Custom Flow Client", func() {
 				Do(func(path string, request interface{}, response *CustomFlow) {
 					*response = mockCustomFlow
 				})
-			returnedCustomFlow, _ = apiClient.CustomFlow(mockCustomFlow.Id)
-		})
-
-		It("Should send GET request", func() {
 			httpCall.Times(1)
+			returnedCustomFlow, _ = apiClient.CustomFlow(mockCustomFlow.Id)
 		})
 
 		It("Should return custom flow", func() {
@@ -61,15 +58,9 @@ var _ = Describe("Custom Flow Client", func() {
 				Do(func(path string, request interface{}, response *[]CustomFlow) {
 					*response = mockCustomFlows
 				})
-			returnedCustomFlows, _ = apiClient.CustomFlows(mockCustomFlow.Name)
-		})
-
-		It("Should get organization id", func() {
 			organizationIdCall.Times(1)
-		})
-
-		It("Should send GET request", func() {
 			httpCall.Times(1)
+			returnedCustomFlows, _ = apiClient.CustomFlows(mockCustomFlow.Name)
 		})
 
 		It("Should return custom flows", func() {
@@ -100,16 +91,9 @@ var _ = Describe("Custom Flow Client", func() {
 				Do(func(path string, request interface{}, response *CustomFlow) {
 					*response = mockCustomFlow
 				})
-
-			createdCustomFlow, err = apiClient.CustomFlowCreate(createCustomFlowPayload)
-		})
-
-		It("Should get organization id", func() {
-			organizationIdCall.Times(1)
-		})
-
-		It("Should send POST request with params", func() {
 			httpCall.Times(1)
+			organizationIdCall.Times(1)
+			createdCustomFlow, err = apiClient.CustomFlowCreate(createCustomFlowPayload)
 		})
 
 		It("Should not return error", func() {
@@ -124,11 +108,8 @@ var _ = Describe("Custom Flow Client", func() {
 	Describe("Delete Custom Flow", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/custom-flow/" + mockCustomFlow.Id)
-			apiClient.CustomFlowDelete(mockCustomFlow.Id)
-		})
-
-		It("Should send DELETE request with custom flow id", func() {
 			httpCall.Times(1)
+			apiClient.CustomFlowDelete(mockCustomFlow.Id)
 		})
 	})
 
@@ -156,12 +137,8 @@ var _ = Describe("Custom Flow Client", func() {
 				Do(func(path string, request interface{}, response *CustomFlow) {
 					*response = updatedMockCustomFlow
 				})
-
-			updatedCustomFlow, err = apiClient.CustomFlowUpdate(updatedMockCustomFlow.Id, updateCustomFlowPayload)
-		})
-
-		It("Should send PUT request with expected payload", func() {
 			httpCall.Times(1)
+			updatedCustomFlow, err = apiClient.CustomFlowUpdate(updatedMockCustomFlow.Id, updateCustomFlowPayload)
 		})
 
 		It("Should not return an error", func() {
@@ -170,6 +147,65 @@ var _ = Describe("Custom Flow Client", func() {
 
 		It("Should return updated custom flow", func() {
 			Expect(*updatedCustomFlow).To(Equal(updatedMockCustomFlow))
+		})
+	})
+
+	mockAssignment := CustomFlowAssignment{
+		Scope:       CustomFlowProjectScope,
+		ScopeId:     "scope_id",
+		BlueprintId: "blueprint_id",
+	}
+
+	mockAssignmentList := []CustomFlowAssignment{mockAssignment}
+
+	Describe("Assign Custom Flow", func() {
+		var err error
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/custom-flow/assign", mockAssignmentList, nil)
+			httpCall.Times(1)
+			err = apiClient.CustomFlowAssign(mockAssignmentList)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("Unassign Custom Flow", func() {
+		var err error
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/custom-flow/unassign", mockAssignmentList, nil)
+			httpCall.Times(1)
+			err = apiClient.CustomFlowUnassign(mockAssignmentList)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("Get Custom Flow Assignments", func() {
+		var err error
+		var assignments []CustomFlowAssignment
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Post("/custom-flow/get-assignments", mockAssignmentList, gomock.Any()).
+				Do(func(path string, request interface{}, response *[]CustomFlowAssignment) {
+					*response = mockAssignmentList
+				})
+			httpCall.Times(1)
+			assignments, err = apiClient.CustomFlowGetAssignments(mockAssignmentList)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return custom flow assignments", func() {
+			Expect(assignments).To(Equal(mockAssignmentList))
 		})
 	})
 })
