@@ -113,6 +113,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_user_project_assignment":              resourceUserProjectAssignment(),
 				"env0_custom_role":                          resourceCustomRole(),
 				"env0_user_organization_assignment":         resourceUserOrganizationAssignment(),
+				"env0_custom_flow":                          resourceCustomFlow(),
 			},
 		}
 
