@@ -58,14 +58,29 @@ const (
 	TTlTypeInfinite TTLType = "INFINITE"
 )
 
+type SubEnvironment struct {
+	Revision             string               `json:"revision,omitempty"`
+	Workspace            string               `json:"workspace,omitempty"`
+	ConfigurationChanges ConfigurationChanges `json:"configurationChanges"`
+}
+
 type DeployRequest struct {
-	BlueprintId          string                `json:"blueprintId,omitempty"`
-	BlueprintRevision    string                `json:"blueprintRevision,omitempty"`
-	BlueprintRepository  string                `json:"blueprintRepository,omitempty"`
-	ConfigurationChanges *ConfigurationChanges `json:"configurationChanges,omitempty"`
-	TTL                  *TTL                  `json:"ttl,omitempty"`
-	EnvName              string                `json:"envName,omitempty"`
-	UserRequiresApproval *bool                 `json:"userRequiresApproval,omitempty"`
+	BlueprintId          string                    `json:"blueprintId,omitempty"`
+	BlueprintRevision    string                    `json:"blueprintRevision,omitempty"`
+	BlueprintRepository  string                    `json:"blueprintRepository,omitempty"`
+	ConfigurationChanges *ConfigurationChanges     `json:"configurationChanges,omitempty"`
+	TTL                  *TTL                      `json:"ttl,omitempty"`
+	EnvName              string                    `json:"envName,omitempty"`
+	UserRequiresApproval *bool                     `json:"userRequiresApproval,omitempty"`
+	SubEnvironments      map[string]SubEnvironment `json:"subEnvironments,omitempty"`
+}
+
+type WorkflowSubEnvironment struct {
+	EnvironmentId string `json:"environmentId"`
+}
+
+type WorkflowFile struct {
+	Environments map[string]WorkflowSubEnvironment `json:"environments"`
 }
 
 type DeploymentLog struct {
@@ -74,6 +89,7 @@ type DeploymentLog struct {
 	BlueprintRepository string          `json:"blueprintRepository"`
 	BlueprintRevision   string          `json:"blueprintRevision"`
 	Output              json.RawMessage `json:"output,omitempty"`
+	WorkflowFile        *WorkflowFile   `json:"workflowFile,omitempty" tfschema:"-"`
 }
 
 type Environment struct {
