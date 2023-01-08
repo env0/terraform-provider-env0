@@ -75,12 +75,12 @@ type DeployRequest struct {
 	SubEnvironments      map[string]SubEnvironment `json:"subEnvironments,omitempty"`
 }
 
-type WorkflowEnvironment struct {
+type WorkflowSubEnvironment struct {
 	EnvironmentId string `json:"environmentId"`
 }
 
 type WorkflowFile struct {
-	Environments map[string]WorkflowEnvironment `json:"environments"`
+	Environments map[string]WorkflowSubEnvironment `json:"environments"`
 }
 
 type DeploymentLog struct {
