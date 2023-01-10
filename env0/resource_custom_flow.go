@@ -38,7 +38,7 @@ func resourceCustomFlow() *schema.Resource {
 			},
 			"path": {
 				Type:        schema.TypeString,
-				Description: "terraform / terragrunt file folder inside source code",
+				Description: "terraform / terragrunt file folder inside source code. Should be the full path including the .yaml/.yml file",
 				Optional:    true,
 			},
 			"revision": {
