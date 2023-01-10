@@ -20,6 +20,84 @@ func isTemplateless(d *schema.ResourceData) bool {
 }
 
 func resourceEnvironment() *schema.Resource {
+	configurationSchema := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: "variable name",
+				Required:    true,
+			},
+			"value": {
+				Type:        schema.TypeString,
+				Description: "variable value",
+				Required:    true,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Description: "variable type (allowed values are: terraform, environment)",
+				Default:     "environment",
+				Optional:    true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					value := val.(string)
+					if value != "environment" && value != "terraform" {
+						errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
+					}
+					return
+				},
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "description for the variable",
+				Optional:    true,
+			},
+			"is_sensitive": {
+				Type:        schema.TypeBool,
+				Description: "should the variable value be hidden",
+				Optional:    true,
+				Default:     false,
+			},
+			"schema_type": {
+				Type:        schema.TypeString,
+				Description: "the type the variable",
+				Optional:    true,
+				Default:     "string",
+			},
+			"schema_enum": {
+				Type:        schema.TypeList,
+				Description: "a list of possible variable values",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type:        schema.TypeString,
+					Description: "name to give the configuration variable",
+				},
+			},
+			"schema_format": {
+				Type:         schema.TypeString,
+				Description:  "the variable format",
+				Default:      "",
+				Optional:     true,
+				ValidateFunc: ValidateConfigurationPropertySchema,
+			},
+			"is_read_only": {
+				Type:        schema.TypeBool,
+				Description: "is the variable read only",
+				Optional:    true,
+				Default:     false,
+			},
+			"is_required": {
+				Type:        schema.TypeBool,
+				Description: "is the variable required",
+				Optional:    true,
+				Default:     false,
+			},
+			"regex": {
+				Type:        schema.TypeString,
+				Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
+				Optional:    true,
+			},
+		},
+	}
+
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentCreate,
 		ReadContext:   resourceEnvironmentRead,
@@ -140,82 +218,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:        schema.TypeString,
-							Description: "variable name",
-							Required:    true,
-						},
-						"value": {
-							Type:        schema.TypeString,
-							Description: "variable value",
-							Required:    true,
-						},
-						"type": {
-							Type:        schema.TypeString,
-							Description: "variable type (allowed values are: terraform, environment)",
-							Default:     "environment",
-							Optional:    true,
-							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-								value := val.(string)
-								if value != "environment" && value != "terraform" {
-									errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
-								}
-								return
-							},
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Description: "description for the variable",
-							Optional:    true,
-						},
-						"is_sensitive": {
-							Type:        schema.TypeBool,
-							Description: "should the variable value be hidden",
-							Optional:    true,
-						},
-						"schema_type": {
-							Type:        schema.TypeString,
-							Description: "the type the variable must be of",
-							Optional:    true,
-							Default:     "string",
-						},
-						"schema_enum": {
-							Type:        schema.TypeList,
-							Description: "a list of possible variable values",
-							Optional:    true,
-							Elem: &schema.Schema{
-								Type:        schema.TypeString,
-								Description: "name to give the configuration variable",
-							},
-						},
-						"schema_format": {
-							Type:         schema.TypeString,
-							Description:  "the variable format:",
-							Default:      "",
-							Optional:     true,
-							ValidateFunc: ValidateConfigurationPropertySchema,
-						},
-						"is_read_only": {
-							Type:        schema.TypeBool,
-							Description: "is the variable read only",
-							Optional:    true,
-							Default:     false,
-						},
-						"is_required": {
-							Type:        schema.TypeBool,
-							Description: "is the variable required",
-							Optional:    true,
-							Default:     false,
-						},
-						"regex": {
-							Type:        schema.TypeString,
-							Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
-							Optional:    true,
-						},
-					},
-				},
+				Elem:        configurationSchema,
 			},
 			"without_template_settings": {
 				Type:         schema.TypeList,
@@ -226,6 +229,31 @@ func resourceEnvironment() *schema.Resource {
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 				Elem: &schema.Resource{
 					Schema: getTemplateSchema("without_template_settings.0."),
+				},
+			},
+			"sub_environment_configuration": {
+				Type:        schema.TypeList,
+				Description: "the subenvironments for a workflow enviornment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "sub environment name",
+							Required:    true,
+						},
+						"revision": {
+							Type:        schema.TypeString,
+							Description: "sub environment revision",
+							Required:    true,
+						},
+						"configuration": {
+							Type:        schema.TypeList,
+							Description: "sub environment configuration variables",
+							Optional:    true,
+							Elem:        configurationSchema,
+						},
+					},
 				},
 			},
 		},
