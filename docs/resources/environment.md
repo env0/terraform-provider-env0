@@ -72,6 +72,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `revision` (String) the revision the environment is to be run against
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
+- `sub_environment_configuration` (Block List) the subenvironments for a workflow enviornment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
@@ -100,9 +101,43 @@ Optional:
 - `is_sensitive` (Boolean) should the variable value be hidden
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `schema_enum` (List of String) a list of possible variable values
-- `schema_format` (String) the variable format:
-- `schema_type` (String) the type the variable must be of
+- `schema_format` (String) the variable format
+- `schema_type` (String) the type the variable
 - `type` (String) variable type (allowed values are: terraform, environment)
+
+
+<a id="nestedblock--sub_environment_configuration"></a>
+### Nested Schema for `sub_environment_configuration`
+
+Required:
+
+- `name` (String) sub environment name
+- `revision` (String) sub environment revision
+
+Optional:
+
+- `configuration` (Block List) sub environment configuration variables (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
+
+<a id="nestedblock--sub_environment_configuration--configuration"></a>
+### Nested Schema for `sub_environment_configuration.configuration`
+
+Required:
+
+- `name` (String) variable name
+- `value` (String) variable value
+
+Optional:
+
+- `description` (String) description for the variable
+- `is_read_only` (Boolean) is the variable read only
+- `is_required` (Boolean) is the variable required
+- `is_sensitive` (Boolean) should the variable value be hidden
+- `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
+- `schema_enum` (List of String) a list of possible variable values
+- `schema_format` (String) the variable format
+- `schema_type` (String) the type the variable
+- `type` (String) variable type (allowed values are: terraform, environment)
+
 
 
 <a id="nestedblock--without_template_settings"></a>
