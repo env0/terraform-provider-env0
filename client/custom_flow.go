@@ -12,7 +12,7 @@ type CustomFlowCreatePayload struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
-	IsGitLab             bool             `json:"isGitLab"`
+	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
@@ -30,7 +30,7 @@ type CustomFlow struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
-	IsGitLab             bool             `json:"isGitLab"`
+	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
