@@ -6,6 +6,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadResourceDataModule(t *testing.T) {
@@ -337,4 +338,76 @@ func TestWriteResourceDataOmitEmpty(t *testing.T) {
 	attr = d.State().Attributes
 	_, ok = attr["token_id"]
 	assert.True(t, ok, "token_id should be set")
+}
+
+func TestReadSubEnvironment(t *testing.T) {
+	expectedSubEnvironments := []SubEnvironment{
+		{
+			Id:       "id1",
+			Name:     "name1",
+			Revision: "revision1",
+		},
+		{
+			Id:       "id2",
+			Name:     "name2",
+			Revision: "revision2",
+			Configuration: client.ConfigurationChanges{
+				{
+					Name:        "name1",
+					Value:       "value1",
+					IsSensitive: boolPtr(false),
+					IsRequired:  boolPtr(false),
+					IsReadOnly:  boolPtr(false),
+					Scope:       "ENVIRONMENT",
+					Type:        (*client.ConfigurationVariableType)(intPtr(0)),
+					Schema: &client.ConfigurationVariableSchema{
+						Type: "string",
+					},
+				},
+				{
+					Name:        "name2",
+					Value:       "value2",
+					IsSensitive: boolPtr(false),
+					IsRequired:  boolPtr(false),
+					IsReadOnly:  boolPtr(false),
+					Scope:       "ENVIRONMENT",
+					Type:        (*client.ConfigurationVariableType)(intPtr(0)),
+					Schema: &client.ConfigurationVariableSchema{
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]interface{}{
+		"sub_environment_configuration": []interface{}{
+			map[string]interface{}{
+				"id":       expectedSubEnvironments[0].Id,
+				"name":     expectedSubEnvironments[0].Name,
+				"revision": expectedSubEnvironments[0].Revision,
+			},
+			map[string]interface{}{
+				"id":       expectedSubEnvironments[1].Id,
+				"name":     expectedSubEnvironments[1].Name,
+				"revision": expectedSubEnvironments[1].Revision,
+				"configuration": []interface{}{
+					map[string]interface{}{
+						"name":  expectedSubEnvironments[1].Configuration[0].Name,
+						"value": expectedSubEnvironments[1].Configuration[0].Value,
+					},
+					map[string]interface{}{
+						"name":  expectedSubEnvironments[1].Configuration[1].Name,
+						"value": expectedSubEnvironments[1].Configuration[1].Value,
+					},
+				},
+			},
+		},
+	})
+
+	subEnvironments, err := getSubEnvironments(d)
+
+	require.Nil(t, err)
+	require.Len(t, subEnvironments, 2)
+	require.Equal(t, expectedSubEnvironments, subEnvironments)
 }

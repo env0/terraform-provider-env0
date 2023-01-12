@@ -14,6 +14,47 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type SubEnvironment struct {
+	Id            string
+	Name          string
+	Revision      string
+	Configuration client.ConfigurationChanges `tfschema:"-"`
+}
+
+func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
+	isubEnvironments, ok := d.GetOk("sub_environment_configuration")
+	if !ok {
+		return nil, nil
+	}
+
+	numberOfSubEnvironments := len(isubEnvironments.([]interface{}))
+
+	var subEnvironments []SubEnvironment
+
+	for i := 0; i < numberOfSubEnvironments; i++ {
+		prefix := fmt.Sprintf("sub_environment_configuration.%d", i)
+
+		var subEnvironment SubEnvironment
+
+		if err := readResourceDataEx(prefix, &subEnvironment, d); err != nil {
+			return nil, err
+		}
+
+		configurationPrefix := prefix + ".configuration"
+		if configuration, ok := d.GetOk(configurationPrefix); ok {
+			subEnvironment.Configuration = getConfigurationVariablesFromSchema(configuration.([]interface{}))
+
+			for i := range subEnvironment.Configuration {
+				subEnvironment.Configuration[i].Scope = client.ScopeEnvironment
+			}
+		}
+
+		subEnvironments = append(subEnvironments, subEnvironment)
+	}
+
+	return subEnvironments, nil
+}
+
 func isTemplateless(d *schema.ResourceData) bool {
 	_, ok := d.GetOk("without_template_settings.0")
 	return ok
@@ -237,6 +278,11 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "the id of the sub environment",
+							Computed:    true,
+						},
 						"name": {
 							Type:        schema.TypeString,
 							Description: "sub environment name",
