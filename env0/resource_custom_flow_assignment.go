@@ -25,6 +25,8 @@ func getCustomFlowAssignmentFromId(d *schema.ResourceData) client.CustomFlowAssi
 		assignment.BlueprintId = split[1]
 	}
 
+	assignment.Scope = client.CustomFlowProjectScope
+
 	return assignment
 }
 

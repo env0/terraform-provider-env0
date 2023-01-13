@@ -28,11 +28,6 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 		BlueprintId: "blueprint_id",
 	}
 
-	assignmentNoScope := client.CustomFlowAssignment{
-		ScopeId:     assignment.ScopeId,
-		BlueprintId: assignment.BlueprintId,
-	}
-
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 		"scope_id":    assignment.ScopeId,
 		"template_id": assignment.BlueprintId,
@@ -56,8 +51,8 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowAssign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
-				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return([]client.CustomFlowAssignment{anotherAssignment, assignment}, nil),
-				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return(nil),
+				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignment}).Times(1).Return([]client.CustomFlowAssignment{anotherAssignment, assignment}, nil),
+				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
 			)
 		})
 	})
@@ -90,8 +85,8 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowAssign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
-				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return(nil),
+				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
 			)
 		})
 	})
@@ -115,8 +110,8 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowAssign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
-				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return([]client.CustomFlowAssignment{anotherAssignment}, nil),
-				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignmentNoScope}).Times(1).Return(nil),
+				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignment}).Times(1).Return([]client.CustomFlowAssignment{anotherAssignment}, nil),
+				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
 			)
 		})
 	})
