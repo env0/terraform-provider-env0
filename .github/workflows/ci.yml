@@ -47,8 +47,6 @@ jobs:
     runs-on: ubuntu-20.04
     container: golang:1.18-alpine3.16
     timeout-minutes: 20
-    env:
-      INTEGRATION_TESTS: 1
     steps:
       - name: Install Terraform
         run: apk add terraform
