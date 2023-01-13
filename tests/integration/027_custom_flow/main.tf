@@ -6,6 +6,11 @@ resource "random_string" "random" {
   min_lower = 8
 }
 
+resource "env0_project" "project" {
+  name        = "Test-Project-Custom-Flow-${random_string.random.result}"
+  description = "Test Description"
+}
+
 data "env0_template" "github_template" {
   name = "Github Integrated Template"
 }
@@ -15,4 +20,9 @@ resource "env0_custom_flow" "test" {
   repository             = data.env0_template.github_template.repository
   github_installation_id = data.env0_template.github_template.github_installation_id
   path                   = "custom-flows/opa.yaml"
+}
+
+resource "env0_custom_flow_assignment" "assignment" {
+  scope_id    = env0_project.project.id
+  template_id = env0_custom_flow.test.id
 }
