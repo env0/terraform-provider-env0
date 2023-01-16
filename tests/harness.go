@@ -14,11 +14,10 @@ import (
 const TESTS_FOLDER = "tests/integration"
 
 func main() {
-	err := compileProvider()
-	if err != nil {
-		log.Fatalln("Couldn't compile go")
-		return
+	if err := compileProvider(); err != nil {
+		log.Fatalf("failed to compile go: %v", err)
 	}
+
 	printTerraformVersion()
 	makeSureRunningFromProjectRoot()
 	testNames := testNamesFromCommandLineArguments()
@@ -151,6 +150,8 @@ func terraformDestory(testName string) {
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd := exec.Command("terraform", arg...)
 	cmd.Dir = TESTS_FOLDER + "/" + testName
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
 	log.Println("Running terraform ", arg, " in ", testName)
 	outputBytes, err := cmd.CombinedOutput()
 	output := string(outputBytes)
