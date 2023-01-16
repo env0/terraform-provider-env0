@@ -118,6 +118,10 @@ Optional:
 
 - `configuration` (Block List) sub environment configuration variables (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
 
+Read-Only:
+
+- `id` (String) the id of the sub environment
+
 <a id="nestedblock--sub_environment_configuration--configuration"></a>
 ### Nested Schema for `sub_environment_configuration.configuration`
 

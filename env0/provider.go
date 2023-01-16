@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -129,6 +130,12 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		restyClient := resty.New()
 
+		isIntegrationTest := false
+
+		if os.Getenv("INTEGRATION_TESTS") == "1" {
+			isIntegrationTest = true
+		}
+
 		restyClient.
 			SetRetryCount(5).
 			SetRetryWaitTime(time.Second).
@@ -140,7 +147,8 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 				}
 
 				// Retry when there's a 5xx error. Otherwise do not retry.
-				return r.StatusCode() >= 500
+				// When running integration tests 404 may occur due to "database eventual consistency".
+				return r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404)
 			})
 
 		httpClient, err := http.NewHttpClient(http.HttpClientConfig{
