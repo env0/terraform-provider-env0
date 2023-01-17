@@ -1532,3 +1532,123 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	})
 
 }
+
+func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
+	resourceType := "env0_environment"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+
+	workflowSubEnvironment := client.WorkflowSubEnvironment{
+		EnvironmentId: "subenv1id",
+	}
+
+	subEnvrionment := SubEnvironment{
+		Name:     "name1",
+		Revision: "revision1",
+		Configuration: client.ConfigurationChanges{
+			{
+				Name:        "name",
+				Value:       "value",
+				Scope:       client.ScopeEnvironment,
+				IsSensitive: boolPtr(false),
+				IsReadOnly:  boolPtr(false),
+				IsRequired:  boolPtr(false),
+				Schema: &client.ConfigurationVariableSchema{
+					Type: "string",
+				},
+				Type: (*client.ConfigurationVariableType)(intPtr(0)),
+			},
+		},
+	}
+
+	subEnvrionmentWithId := subEnvrionment
+	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
+
+	environment := client.Environment{
+		Id:          "id",
+		Name:        "environment",
+		ProjectId:   "project-id",
+		BlueprintId: "template-id",
+
+		LatestDeploymentLog: client.DeploymentLog{
+			WorkflowFile: &client.WorkflowFile{
+				Environments: map[string]client.WorkflowSubEnvironment{
+					subEnvrionment.Name: workflowSubEnvironment,
+				},
+			},
+		},
+	}
+
+	environmentCreatePayload := client.EnvironmentCreate{
+		Name:      environment.Name,
+		ProjectId: environment.ProjectId,
+		DeployRequest: &client.DeployRequest{
+			BlueprintId: environment.BlueprintId,
+			SubEnvironments: map[string]client.SubEnvironment{
+				subEnvrionment.Name: {
+					Revision:             subEnvrionment.Revision,
+					ConfigurationChanges: subEnvrionment.Configuration,
+				},
+			},
+		},
+	}
+
+	template := client.Template{
+		ProjectId: environment.ProjectId,
+	}
+
+	t.Run("Success in create", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				// Create the environment and template
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						project_id = "%s"
+						template_id = "%s"
+						force_destroy = true
+						sub_environment_configuration {
+							name = "%s"
+							revision = "%s"
+							configuration {
+								name = "%s"
+								value = "%s"
+							}
+						}
+					}`,
+						resourceType, resourceName,
+						environmentCreatePayload.Name,
+						environmentCreatePayload.ProjectId,
+						environment.BlueprintId,
+						subEnvrionment.Name,
+						subEnvrionment.Revision,
+						subEnvrionment.Configuration[0].Name,
+						subEnvrionment.Configuration[0].Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.name", subEnvrionment.Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvrionment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvrionment.Configuration[0].Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvrionment.Configuration[0].Value),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().Template(environmentCreatePayload.DeployRequest.BlueprintId).Times(1).Return(template, nil),
+				mock.EXPECT().EnvironmentCreate(environmentCreatePayload).Times(1).Return(environment, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
+			)
+		})
+	})
+}
