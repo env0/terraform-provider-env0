@@ -1543,7 +1543,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 	}
 
 	subEnvrionment := SubEnvironment{
-		Name:     "name1",
+		Alias:    "alias1",
 		Revision: "revision1",
 		Configuration: client.ConfigurationChanges{
 			{
@@ -1573,7 +1573,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{
-					subEnvrionment.Name: workflowSubEnvironment,
+					subEnvrionment.Alias: workflowSubEnvironment,
 				},
 			},
 		},
@@ -1585,7 +1585,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		DeployRequest: &client.DeployRequest{
 			BlueprintId: environment.BlueprintId,
 			SubEnvironments: map[string]client.SubEnvironment{
-				subEnvrionment.Name: {
+				subEnvrionment.Alias: {
 					Revision:             subEnvrionment.Revision,
 					ConfigurationChanges: subEnvrionment.Configuration,
 				},
@@ -1609,7 +1609,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 						template_id = "%s"
 						force_destroy = true
 						sub_environment_configuration {
-							name = "%s"
+							alias = "%s"
 							revision = "%s"
 							configuration {
 								name = "%s"
@@ -1621,7 +1621,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 						environmentCreatePayload.Name,
 						environmentCreatePayload.ProjectId,
 						environment.BlueprintId,
-						subEnvrionment.Name,
+						subEnvrionment.Alias,
 						subEnvrionment.Revision,
 						subEnvrionment.Configuration[0].Name,
 						subEnvrionment.Configuration[0].Value,
@@ -1632,7 +1632,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.name", subEnvrionment.Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvrionment.Alias),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvrionment.Revision),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvrionment.Configuration[0].Name),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvrionment.Configuration[0].Value),

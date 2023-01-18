@@ -16,7 +16,7 @@ import (
 
 type SubEnvironment struct {
 	Id            string
-	Name          string
+	Alias         string
 	Revision      string
 	Configuration client.ConfigurationChanges `tfschema:"-"`
 }
@@ -283,9 +283,9 @@ func resourceEnvironment() *schema.Resource {
 							Description: "the id of the sub environment",
 							Computed:    true,
 						},
-						"name": {
+						"alias": {
 							Type:        schema.TypeString,
-							Description: "sub environment name",
+							Description: "sub environment alias name",
 							Required:    true,
 						},
 						"revision": {
@@ -357,9 +357,9 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 			for i, iSubEnvironment := range iSubEnvironments.([]interface{}) {
 				subEnviornment := iSubEnvironment.(map[string]interface{})
 
-				name := d.Get(fmt.Sprintf("sub_environment_configuration.%d.name", i)).(string)
+				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
 
-				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[name]
+				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[alias]
 				if ok {
 					subEnviornment["id"] = workkflowSubEnvironment.EnvironmentId
 				}
@@ -731,7 +731,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
 		for _, subEnvironment := range subEnvironments {
-			deployPayload.SubEnvironments[subEnvironment.Name] = client.SubEnvironment{
+			deployPayload.SubEnvironments[subEnvironment.Alias] = client.SubEnvironment{
 				Revision:             subEnvironment.Revision,
 				ConfigurationChanges: subEnvironment.Configuration,
 			}
