@@ -15,7 +15,7 @@ func setCustomFlowAssignmentId(d *schema.ResourceData, assignment client.CustomF
 	d.SetId(fmt.Sprintf("%s|%s", assignment.ScopeId, assignment.BlueprintId))
 }
 
-func getCustomFlowAssignmentFromId(d *schema.ResourceData) client.CustomFlowAssignment {
+func getCustomFlowAssignmentFromId(d *schema.ResourceData) (client.CustomFlowAssignment, error) {
 	id := d.Id()
 	split := strings.Split(id, "|")
 
@@ -23,11 +23,13 @@ func getCustomFlowAssignmentFromId(d *schema.ResourceData) client.CustomFlowAssi
 	assignment.ScopeId = split[0]
 	if len(split) > 1 {
 		assignment.BlueprintId = split[1]
+	} else {
+		return assignment, fmt.Errorf("invalid id %s", id)
 	}
 
 	assignment.Scope = client.CustomFlowProjectScope
 
-	return assignment
+	return assignment, nil
 }
 
 func resourceCustomFlowAssignment() *schema.Resource {
@@ -38,8 +40,9 @@ func resourceCustomFlowAssignment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"scope": {
-				Type:        schema.TypeString,
-				Description: "the type of the scope. Valid values: PROJECT",
+				Type: schema.TypeString,
+				// Note: at the moment the only valid scope is "PROJECT". May add more scopes in the future.
+				Description: "the type of the scope. Valid values: PROJECT. Default value: PROJECT",
 				Optional:    true,
 				Default:     client.CustomFlowProjectScope,
 				ForceNew:    true,
@@ -80,7 +83,10 @@ func resourceCustomFlowAssignmentCreate(ctx context.Context, d *schema.ResourceD
 func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	assignmentFromId := getCustomFlowAssignmentFromId(d)
+	assignmentFromId, err := getCustomFlowAssignmentFromId(d)
+	if err != nil {
+		return diag.Errorf("could get assignment from id: %v", err)
+	}
 
 	assignments, err := apiClient.CustomFlowGetAssignments([]client.CustomFlowAssignment{assignmentFromId})
 	if err != nil {
@@ -109,7 +115,10 @@ func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceDat
 func resourceCustomFlowAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	assignmentFromId := getCustomFlowAssignmentFromId(d)
+	assignmentFromId, err := getCustomFlowAssignmentFromId(d)
+	if err != nil {
+		return diag.Errorf("could get assignment from id: %v", err)
+	}
 
 	if err := apiClient.CustomFlowUnassign([]client.CustomFlowAssignment{assignmentFromId}); err != nil {
 		return diag.Errorf("failed to unassign %s from custom flow %s: %v", assignmentFromId.ScopeId, assignmentFromId.BlueprintId, err)
