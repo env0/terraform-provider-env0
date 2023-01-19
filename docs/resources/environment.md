@@ -111,7 +111,7 @@ Optional:
 
 Required:
 
-- `name` (String) sub environment name
+- `alias` (String) sub environment alias name
 - `revision` (String) sub environment revision
 
 Optional:

@@ -16,7 +16,7 @@ import (
 
 type SubEnvironment struct {
 	Id            string
-	Name          string
+	Alias         string
 	Revision      string
 	Configuration client.ConfigurationChanges `tfschema:"-"`
 }
@@ -283,9 +283,9 @@ func resourceEnvironment() *schema.Resource {
 							Description: "the id of the sub environment",
 							Computed:    true,
 						},
-						"name": {
+						"alias": {
 							Type:        schema.TypeString,
-							Description: "sub environment name",
+							Description: "sub environment alias name",
 							Required:    true,
 						},
 						"revision": {
@@ -346,6 +346,29 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 
 	if environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
+	}
+
+	if environment.LatestDeploymentLog.WorkflowFile != nil && len(environment.LatestDeploymentLog.WorkflowFile.Environments) > 0 {
+		iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
+
+		if ok {
+			var newSubEnvironments []interface{}
+
+			for i, iSubEnvironment := range iSubEnvironments.([]interface{}) {
+				subEnviornment := iSubEnvironment.(map[string]interface{})
+
+				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
+
+				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[alias]
+				if ok {
+					subEnviornment["id"] = workkflowSubEnvironment.EnvironmentId
+				}
+
+				newSubEnvironments = append(newSubEnvironments, subEnviornment)
+			}
+
+			d.Set("sub_environment_configuration", newSubEnvironments)
+		}
 	}
 
 	setEnvironmentConfigurationSchema(d, configurationVariables)
@@ -698,6 +721,23 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	deployPayload := getDeployPayload(d, apiClient, false)
+
+	subEnvironments, err := getSubEnvironments(d)
+	if err != nil {
+		return client.EnvironmentCreate{}, diag.Errorf("failed to extract subenvrionments from resourcedata: %v", err)
+	}
+
+	if len(subEnvironments) > 0 {
+		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
+
+		for _, subEnvironment := range subEnvironments {
+			deployPayload.SubEnvironments[subEnvironment.Alias] = client.SubEnvironment{
+				Revision:             subEnvironment.Revision,
+				ConfigurationChanges: subEnvironment.Configuration,
+			}
+		}
+	}
+
 	payload.DeployRequest = &deployPayload
 
 	return payload, nil
