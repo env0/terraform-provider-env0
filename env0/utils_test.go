@@ -344,12 +344,12 @@ func TestReadSubEnvironment(t *testing.T) {
 	expectedSubEnvironments := []SubEnvironment{
 		{
 			Id:       "id1",
-			Name:     "name1",
+			Alias:    "alias1",
 			Revision: "revision1",
 		},
 		{
 			Id:       "id2",
-			Name:     "name2",
+			Alias:    "alias2",
 			Revision: "revision2",
 			Configuration: client.ConfigurationChanges{
 				{
@@ -384,12 +384,12 @@ func TestReadSubEnvironment(t *testing.T) {
 		"sub_environment_configuration": []interface{}{
 			map[string]interface{}{
 				"id":       expectedSubEnvironments[0].Id,
-				"name":     expectedSubEnvironments[0].Name,
+				"alias":    expectedSubEnvironments[0].Alias,
 				"revision": expectedSubEnvironments[0].Revision,
 			},
 			map[string]interface{}{
 				"id":       expectedSubEnvironments[1].Id,
-				"name":     expectedSubEnvironments[1].Name,
+				"alias":    expectedSubEnvironments[1].Alias,
 				"revision": expectedSubEnvironments[1].Revision,
 				"configuration": []interface{}{
 					map[string]interface{}{
