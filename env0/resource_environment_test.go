@@ -1531,6 +1531,63 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Revision conflict", func(t *testing.T) {
+		createEnvironmentResourceConfigWithRevision := func(environment client.Environment, template client.Template, revision string) string {
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				revision = "%s"
+				project_id = "%s"
+				workspace = "%s"
+				terragrunt_working_directory = "%s"
+				force_destroy = true
+				vcs_commands_alias = "%s"
+				without_template_settings {
+					repository = "%s"
+					terraform_version = "%s"
+					type = "%s"
+					revision = "%s"
+					path = "%s"
+					retries_on_deploy = %d
+					retry_on_deploy_only_when_matches_regex = "%s"
+					retries_on_destroy = %d
+					retry_on_destroy_only_when_matches_regex = "%s"
+					description = "%s"
+					github_installation_id = %d
+				}
+			}`,
+				resourceType, resourceName,
+				environment.Name,
+				revision,
+				environment.ProjectId,
+				environment.WorkspaceName,
+				environment.TerragruntWorkingDirectory,
+				environment.VcsCommandsAlias,
+				template.Repository,
+				template.TerraformVersion,
+				template.Type,
+				template.Revision,
+				template.Path,
+				template.Retry.OnDeploy.Times,
+				template.Retry.OnDeploy.ErrorRegex,
+				template.Retry.OnDestroy.Times,
+				template.Retry.OnDestroy.ErrorRegex,
+				template.Description,
+				template.GithubInstallationId,
+			)
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      createEnvironmentResourceConfigWithRevision(environment, template, "environment_revision"),
+					ExpectError: regexp.MustCompile("conflicts with without_template_settings.0.revision"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }
 
 func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
