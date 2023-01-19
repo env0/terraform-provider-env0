@@ -45,7 +45,7 @@ const (
 type CustomFlowAssignment struct {
 	Scope       CustomFlowAssignmentScope `json:"scope"`
 	ScopeId     string                    `json:"scopeId"`
-	BlueprintId string                    `json:"blueprintId,omitempty"`
+	BlueprintId string                    `json:"blueprintId,omitempty" tfschema:"template_id"`
 }
 
 func (client *ApiClient) CustomFlowCreate(payload CustomFlowCreatePayload) (*CustomFlow, error) {
