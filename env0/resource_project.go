@@ -4,12 +4,16 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+const PROJECT_DESTROY_TOTAL_WAIT_TIME = time.Minute * 10
+const PROJECT_DESTROY_WAIT_INTERVAL = time.Second * 30
 
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
@@ -40,6 +44,12 @@ func resourceProject() *schema.Resource {
 			"force_destroy": {
 				Type:        schema.TypeBool,
 				Description: "Destroy the project even when environments exist",
+				Optional:    true,
+				Default:     false,
+			},
+			"wait": {
+				Type:        schema.TypeBool,
+				Description: "Wait for all environments to be destroyed before destroying this project (up to 10 minutes)",
 				Optional:    true,
 				Default:     false,
 			},
@@ -125,6 +135,29 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
+
+	if d.Get("wait").(bool) {
+		ticker := time.NewTicker(PROJECT_DESTROY_WAIT_INTERVAL) // When invoked check if project can be deleted.
+		timer := time.NewTimer(PROJECT_DESTROY_TOTAL_WAIT_TIME) // When invoked wait time has elapsed.
+		done := make(chan bool)
+
+		go func() {
+			for {
+				select {
+				case <-timer.C:
+					done <- true
+					return
+				case <-ticker.C:
+					if resourceProjectAssertCanDelete(ctx, d, meta) == nil {
+						done <- true
+						return
+					}
+				}
+			}
+		}()
+
+		<-done
+	}
 
 	if err := resourceProjectAssertCanDelete(ctx, d, meta); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
