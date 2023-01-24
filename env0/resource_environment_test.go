@@ -1581,7 +1581,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config:      createEnvironmentResourceConfigWithRevision(environment, template, "environment_revision"),
-					ExpectError: regexp.MustCompile("conflicts with without_template_settings.0.revision"),
+					ExpectError: regexp.MustCompile("conflicts with without_template_settings"),
 				},
 			},
 		}
