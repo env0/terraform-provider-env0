@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"log"
 	"os"
 	"time"
 
@@ -146,9 +147,14 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 					return true
 				}
 
-				// Retry when there's a 5xx error. Otherwise do not retry.
 				// When running integration tests 404 may occur due to "database eventual consistency".
-				return r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404)
+				// Retry when there's a 5xx error. Otherwise do not retry.
+				if r.StatusCode() >= 500 || isIntegrationTest && r.StatusCode() == 404 {
+					log.Printf("[INFO] Received %d status code, retrying request: %s %s", r.StatusCode(), r.Request.Method, r.Request.URL)
+					return true
+				}
+
+				return false
 			})
 
 		httpClient, err := http.NewHttpClient(http.HttpClientConfig{
