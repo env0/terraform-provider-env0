@@ -2,14 +2,28 @@ package env0
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+const PROJECT_DESTROY_TOTAL_WAIT_TIME = time.Minute * 10
+const PROJECT_DESTROY_WAIT_INTERVAL = time.Second * 10
+
+type ActiveEnvironmentError struct {
+	message string
+	retry   bool
+}
+
+func (e *ActiveEnvironmentError) Error() string {
+	return e.message
+}
 
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
@@ -40,6 +54,12 @@ func resourceProject() *schema.Resource {
 			"force_destroy": {
 				Type:        schema.TypeBool,
 				Description: "Destroy the project even when environments exist",
+				Optional:    true,
+				Default:     false,
+			},
+			"wait": {
+				Type:        schema.TypeBool,
+				Description: "Wait for all environments to be destroyed before destroying this project (up to 10 minutes)",
 				Optional:    true,
 				Default:     false,
 			},
@@ -113,8 +133,18 @@ func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData,
 	}
 
 	for _, env := range envs {
+		if env.Status == "FAILED" && env.LatestDeploymentLog.Type == "destroy" {
+			return &ActiveEnvironmentError{
+				retry:   false,
+				message: fmt.Sprintf("found an environment that destroy failed %s (deactivate the environment or use the force_destroy flag)", env.Name),
+			}
+		}
+
 		if !env.IsArchived {
-			return errors.New("has active environments (remove the environments or use the force_destroy flag)")
+			return &ActiveEnvironmentError{
+				retry:   true,
+				message: fmt.Sprintf("found an active environment %s (remove the environment or use the force_destroy flag)", env.Name),
+			}
 		}
 	}
 
@@ -125,6 +155,43 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
+
+	if d.Get("wait").(bool) {
+		waitInteval := PROJECT_DESTROY_WAIT_INTERVAL
+		if os.Getenv("TF_ACC") == "1" { // For acceptance tests.
+			waitInteval = time.Second
+		}
+
+		ticker := time.NewTicker(waitInteval)                   // When invoked check if project can be deleted.
+		timer := time.NewTimer(PROJECT_DESTROY_TOTAL_WAIT_TIME) // When invoked wait time has elapsed.
+		done := make(chan bool)
+
+		go func() {
+			for {
+				select {
+				case <-timer.C:
+					done <- true
+					return
+				case <-ticker.C:
+					err := resourceProjectAssertCanDelete(ctx, d, meta)
+
+					if err == nil {
+						done <- true
+						return
+					}
+
+					if aeerr, ok := err.(*ActiveEnvironmentError); ok {
+						if !aeerr.retry {
+							done <- true
+							return
+						}
+					}
+				}
+			}
+		}()
+
+		<-done
+	}
 
 	if err := resourceProjectAssertCanDelete(ctx, d, meta); err != nil {
 		return diag.Errorf("could not delete project: %v", err)

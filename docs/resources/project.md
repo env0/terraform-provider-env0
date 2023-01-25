@@ -30,6 +30,7 @@ resource "env0_project" "example" {
 
 - `description` (String) description of the project
 - `force_destroy` (Boolean) Destroy the project even when environments exist
+- `wait` (Boolean) Wait for all environments to be destroyed before destroying this project (up to 10 minutes)
 
 ### Read-Only
 
