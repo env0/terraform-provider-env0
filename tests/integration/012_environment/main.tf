@@ -86,12 +86,12 @@ resource "env0_environment" "environment-without-template" {
   name                             = "environment-without-template-${random_string.random.result}"
   project_id                       = env0_project.test_project.id
   approve_plan_automatically       = true
-  revision                         = "master"
   auto_deploy_on_path_changes_only = false
 
   without_template_settings {
     description                             = "Template description - GitHub"
     type                                    = "terraform"
+    revision                                = "master"
     repository                              = data.env0_template.github_template.repository
     github_installation_id                  = data.env0_template.github_template.github_installation_id
     path                                    = var.second_run ? "second" : "misc/null-resource"

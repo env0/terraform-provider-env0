@@ -179,10 +179,11 @@ func resourceEnvironment() *schema.Resource {
 				Computed:    true,
 			},
 			"revision": {
-				Type:        schema.TypeString,
-				Description: "the revision the environment is to be run against",
-				Optional:    true,
-				Computed:    true,
+				Type:          schema.TypeString,
+				Description:   "the revision the environment is to be run against",
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"without_template_settings"},
 			},
 			"run_plan_on_pull_requests": {
 				Type:        schema.TypeBool,
