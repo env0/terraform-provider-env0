@@ -5,8 +5,8 @@ resource "random_string" "random" {
 }
 
 resource "env0_project" "test_project" {
-  name          = "Test-Project-for-environment-scheduling-${random_string.random.result}"
-  force_destroy = true
+  name = "Test-Project-for-environment-scheduling-${random_string.random.result}"
+  wait = true
 }
 
 resource "env0_template" "template" {
