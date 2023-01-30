@@ -39,6 +39,7 @@ func TestApiKeyDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", apiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
+						resource.TestCheckResourceAttr(accessor, "api_key_id", apiKey.ApiKeyId),
 					),
 				},
 			},
