@@ -46,6 +46,11 @@ func resourceApiKey() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
+			"api_key_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "the api key id",
+			},
 		},
 	}
 }
@@ -66,13 +71,13 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("could not create api key: %v", err)
 	}
 
-	if omit, ok := d.GetOk("omit_api_key_secret"); ok && omit.(bool) {
-		d.Set("api_key_secret", "omitted")
-	} else {
-		d.Set("api_key_secret", apiKey.ApiKeySecret)
+	if err := writeResourceData(apiKey, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	d.SetId(apiKey.Id)
+	if omit, ok := d.GetOk("omit_api_key_secret"); ok && omit.(bool) {
+		d.Set("api_key_secret", "omitted")
+	}
 
 	return nil
 }
