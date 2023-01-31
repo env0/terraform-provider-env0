@@ -34,4 +34,8 @@ data "env0_api_key" "api_key_sample_by_name" {
 - `id` (String) the id of the api key
 - `name` (String) the name of the api key
 
+### Read-Only
+
+- `api_key_id` (String) the api key id
+
 

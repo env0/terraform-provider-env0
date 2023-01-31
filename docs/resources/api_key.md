@@ -51,6 +51,7 @@ resource "env0_user_team_assignment" "api_key_team_assignment_example" {
 
 ### Read-Only
 
+- `api_key_id` (String) the api key id
 - `api_key_secret` (String, Sensitive) the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'
 - `id` (String) The ID of this resource.
 
