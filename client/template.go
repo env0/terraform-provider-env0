@@ -23,13 +23,6 @@ type TemplateRetry struct {
 	OnDestroy *TemplateRetryOn `json:"onDestroy"`
 }
 
-type TemplateType string
-
-const (
-	TemplateTypeTerraform  TemplateType = "terraform"
-	TemplateTypeTerragrunt TemplateType = "terragrunt"
-)
-
 type TemplateSshKey struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -70,7 +63,7 @@ type Template struct {
 type TemplateCreatePayload struct {
 	Retry                TemplateRetry    `json:"retry"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
-	Type                 TemplateType     `json:"type"`
+	Type                 string           `json:"type"`
 	Description          string           `json:"description"`
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`

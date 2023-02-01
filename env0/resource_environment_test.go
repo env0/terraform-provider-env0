@@ -1335,7 +1335,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TokenId:              template.TokenId,
 		Path:                 template.Path,
 		Revision:             template.Revision,
-		Type:                 client.TemplateTypeTerraform,
+		Type:                 "terraform",
 		Retry:                template.Retry,
 		TerraformVersion:     template.TerraformVersion,
 		BitbucketClientKey:   template.BitbucketClientKey,
@@ -1356,7 +1356,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TokenId:              updatedTemplate.TokenId,
 		Path:                 updatedTemplate.Path,
 		Revision:             updatedTemplate.Revision,
-		Type:                 client.TemplateTypeTerraform,
+		Type:                 "terraform",
 		Retry:                updatedTemplate.Retry,
 		TerraformVersion:     updatedTemplate.TerraformVersion,
 		BitbucketClientKey:   updatedTemplate.BitbucketClientKey,
@@ -1662,6 +1662,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				},
 			},
 		},
+		Type: "workflow",
 	}
 
 	template := client.Template{

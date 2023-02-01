@@ -15,7 +15,7 @@ func TestUnitTemplateResource(t *testing.T) {
 	const resourceType = "env0_template"
 	const resourceName = "test"
 	const defaultVersion = "0.15.1"
-	const defaultType = client.TemplateTypeTerraform
+	const defaultType = "terraform"
 
 	var resourceFullName = resourceAccessor(resourceType, resourceName)
 	gleeTemplate := client.Template{
@@ -526,7 +526,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				TokenId:              templateUseCase.template.TokenId,
 				Path:                 templateUseCase.template.Path,
 				Revision:             templateUseCase.template.Revision,
-				Type:                 client.TemplateTypeTerraform,
+				Type:                 "terraform",
 				Retry:                templateUseCase.template.Retry,
 				TerraformVersion:     templateUseCase.template.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
@@ -548,7 +548,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				TokenId:              templateUseCase.updatedTemplate.TokenId,
 				Path:                 templateUseCase.updatedTemplate.Path,
 				Revision:             templateUseCase.updatedTemplate.Revision,
-				Type:                 client.TemplateType(templateUseCase.updatedTemplate.Type),
+				Type:                 templateUseCase.updatedTemplate.Type,
 				Retry:                templateUseCase.updatedTemplate.Retry,
 				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
