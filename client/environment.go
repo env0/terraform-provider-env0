@@ -129,7 +129,6 @@ type EnvironmentCreate struct {
 	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
 	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty" tfschema:"-"`
-	Type                        string                `json:"type,omitempty"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
