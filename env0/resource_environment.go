@@ -256,6 +256,12 @@ func resourceEnvironment() *schema.Resource {
 				Description: "set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments",
 				Optional:    true,
 			},
+			"is_inactive": {
+				Type:        schema.TypeBool,
+				Description: "If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.",
+				Default:     false,
+				Optional:    true,
+			},
 			"configuration": {
 				Type:        schema.TypeList,
 				Description: "terraform and environment variables for the environment",
@@ -603,7 +609,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend", "is_inactive")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {

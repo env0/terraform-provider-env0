@@ -102,6 +102,18 @@ resource "env0_environment" "environment-without-template" {
   }
 }
 
+resource "env0_environment" "inactive" {
+  depends_on                 = [env0_template_project_assignment.assignment]
+  force_destroy              = true
+  name                       = "environment-${random_string.random.result}-inactive"
+  project_id                 = env0_project.test_project.id
+  template_id                = env0_template.template.id
+  approve_plan_automatically = true
+  revision                   = "master"
+  vcs_commands_alias         = "alias"
+  is_inactive                = var.second_run ? "true" : "false"
+}
+
 resource "env0_template" "workflow_template" {
   name              = "Template for workflow environment"
   type              = "workflow"
