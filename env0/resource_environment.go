@@ -729,6 +729,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if len(subEnvironments) > 0 {
+		payload.Type = "workflow"
+
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
 		for _, subEnvironment := range subEnvironments {

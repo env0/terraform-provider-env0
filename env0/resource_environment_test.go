@@ -1648,6 +1648,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 				},
 			},
 		},
+		Type: "workflow",
 	}
 
 	template := client.Template{
