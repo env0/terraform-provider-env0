@@ -57,6 +57,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "organization_role", apiKey.OrganizationRole),
 						resource.TestCheckResourceAttr(accessor, "api_key_secret", apiKey.ApiKeySecret),
+						resource.TestCheckResourceAttr(accessor, "api_key_id", apiKey.ApiKeyId),
 					),
 				},
 				{
@@ -68,6 +69,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", updatedApiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "organization_role", updatedApiKey.OrganizationRole),
 						resource.TestCheckResourceAttr(accessor, "api_key_secret", updatedApiKey.ApiKeySecret),
+						resource.TestCheckResourceAttr(accessor, "api_key_id", updatedApiKey.ApiKeyId),
 					),
 				},
 			},
@@ -135,6 +137,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "organization_role", apiKey.OrganizationRole),
 						resource.TestCheckResourceAttr(accessor, "api_key_secret", "omitted"),
+						resource.TestCheckResourceAttr(accessor, "api_key_id", apiKey.ApiKeyId),
 					),
 				},
 			},

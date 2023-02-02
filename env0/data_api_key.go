@@ -25,6 +25,11 @@ func dataApiKey() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
+			"api_key_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "the api key id",
+			},
 		},
 	}
 }
