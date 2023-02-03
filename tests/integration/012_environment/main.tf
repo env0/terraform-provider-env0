@@ -102,14 +102,6 @@ resource "env0_environment" "environment-without-template" {
   }
 }
 
-resource "env_environment" "evironment-with-subenvironments" {
-  force_destroy                    = true
-  name                             = "environment-without-template-${random_string.random.result}"
-  project_id                       = env0_project.test_project.id
-  approve_plan_automatically       = true
-  auto_deploy_on_path_changes_only = false
-}
-
 resource "env0_template" "workflow_template" {
   name              = "Template for workflow environment"
   type              = "workflow"
@@ -123,7 +115,7 @@ resource "env0_template_project_assignment" "assignment_workflow" {
   project_id  = env0_project.test_project.id
 }
 
-resource "env0_environment" "example" {
+resource "env0_environment" "workflow-environment" {
   depends_on                 = [env0_template_project_assignment.assignment_workflow]
   force_destroy              = true
   name                       = "environment-workflow-${random_string.random.result}"
