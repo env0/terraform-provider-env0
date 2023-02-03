@@ -101,3 +101,59 @@ resource "env0_environment" "environment-without-template" {
     terraform_version                       = "0.15.1"
   }
 }
+
+resource "env_environment" "evironment-with-subenvironments" {
+  force_destroy                    = true
+  name                             = "environment-without-template-${random_string.random.result}"
+  project_id                       = env0_project.test_project.id
+  approve_plan_automatically       = true
+  auto_deploy_on_path_changes_only = false
+}
+
+resource "env0_template" "workflow_template" {
+  name              = "Template for workflow environment"
+  type              = "workflow"
+  repository        = "https://github.com/env0/templates"
+  path              = "misc/workflow-environment-basic"
+  terraform_version = "1.1.5"
+}
+
+resource "env0_template_project_assignment" "assignment_workflow" {
+  template_id = env0_template.workflow_template.id
+  project_id  = env0_project.test_project.id
+}
+
+resource "env0_environment" "example" {
+  depends_on                 = [env0_template_project_assignment.assignment_workflow]
+  force_destroy              = true
+  name                       = "environment-workflow-${random_string.random.result}"
+  project_id                 = env0_project.test_project.id
+  template_id                = env0_template.workflow_template.id
+  approve_plan_automatically = true
+
+  sub_environment_configuration {
+    alias    = "rootService1"
+    revision = "master"
+    configuration {
+      name  = "sub_env1_var1"
+      value = "hello"
+    }
+    configuration {
+      name  = "sub_env1_var2"
+      value = "world"
+    }
+  }
+
+  sub_environment_configuration {
+    alias    = "rootService2"
+    revision = "master"
+    configuration {
+      name  = "sub_env2_var1"
+      value = "hello"
+    }
+    configuration {
+      name  = var.second_run ? "sub_env2_var3" : "sub_env2_var2"
+      value = var.second_run ? "world2" : "world"
+    }
+  }
+}
