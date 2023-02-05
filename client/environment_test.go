@@ -415,5 +415,8 @@ func TestMarshalEnvironmentCreateWithoutTemplate(t *testing.T) {
 	var environmentCreateFromJSON EnvironmentCreate
 
 	require.NoError(t, json.Unmarshal(b, &environmentCreateFromJSON))
-	require.Equal(t, environmentCreate, environmentCreateFromJSON)
+
+	environmentCreateWithType := environmentCreate
+	environmentCreateWithType.Type = templateCreate.Type
+	require.Equal(t, environmentCreateWithType, environmentCreateFromJSON)
 }

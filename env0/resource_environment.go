@@ -599,7 +599,7 @@ func shouldUpdateTemplate(d *schema.ResourceData) bool {
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
-	return d.HasChanges("revision", "configuration")
+	return d.HasChanges("revision", "configuration", "sub_environment_configuration")
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
@@ -627,6 +627,31 @@ func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface)
 
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	deployPayload := getDeployPayload(d, apiClient, true)
+
+	subEnvironments, err := getSubEnvironments(d)
+	if err != nil {
+		return diag.Errorf("failed to extract subenvrionments from resourcedata: %v", err)
+	}
+
+	if len(subEnvironments) > 0 {
+		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
+
+		for i, subEnvironment := range subEnvironments {
+			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]interface{})
+			configurationChanges := getConfigurationVariablesFromSchema(configuration)
+			configurationChanges = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, apiClient)
+
+			for i := range configurationChanges {
+				configurationChanges[i].Scope = client.ScopeEnvironment
+			}
+
+			deployPayload.SubEnvironments[subEnvironment.Alias] = client.SubEnvironment{
+				Revision:             subEnvironment.Revision,
+				ConfigurationChanges: configurationChanges,
+			}
+		}
+	}
+
 	deployResponse, err := apiClient.EnvironmentDeploy(d.Id(), deployPayload)
 	if err != nil {
 		return diag.Errorf("failed deploying environment: %v", err)
@@ -729,6 +754,8 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if len(subEnvironments) > 0 {
+		payload.Type = "workflow"
+
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
 		for _, subEnvironment := range subEnvironments {

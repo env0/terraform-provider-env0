@@ -1335,7 +1335,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TokenId:              template.TokenId,
 		Path:                 template.Path,
 		Revision:             template.Revision,
-		Type:                 client.TemplateTypeTerraform,
+		Type:                 "terraform",
 		Retry:                template.Retry,
 		TerraformVersion:     template.TerraformVersion,
 		BitbucketClientKey:   template.BitbucketClientKey,
@@ -1356,7 +1356,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TokenId:              updatedTemplate.TokenId,
 		Path:                 updatedTemplate.Path,
 		Revision:             updatedTemplate.Revision,
-		Type:                 client.TemplateTypeTerraform,
+		Type:                 "terraform",
 		Retry:                updatedTemplate.Retry,
 		TerraformVersion:     updatedTemplate.TerraformVersion,
 		BitbucketClientKey:   updatedTemplate.BitbucketClientKey,
@@ -1590,7 +1590,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	})
 }
 
-func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
+func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -1599,7 +1599,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		EnvironmentId: "subenv1id",
 	}
 
-	subEnvrionment := SubEnvironment{
+	subEnvironment := SubEnvironment{
 		Alias:    "alias1",
 		Revision: "revision1",
 		Configuration: client.ConfigurationChanges{
@@ -1618,7 +1618,21 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		},
 	}
 
-	subEnvrionmentWithId := subEnvrionment
+	updatedSubEnvironment := subEnvironment
+	updatedSubEnvironment.Configuration = append(updatedSubEnvironment.Configuration, client.ConfigurationVariable{
+		Name:        "name2",
+		Value:       "value2",
+		Scope:       client.ScopeEnvironment,
+		IsSensitive: boolPtr(false),
+		IsReadOnly:  boolPtr(false),
+		IsRequired:  boolPtr(false),
+		Schema: &client.ConfigurationVariableSchema{
+			Type: "string",
+		},
+		Type: (*client.ConfigurationVariableType)(intPtr(0)),
+	})
+
+	subEnvrionmentWithId := subEnvironment
 	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
 	environment := client.Environment{
@@ -1630,7 +1644,7 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{
-					subEnvrionment.Alias: workflowSubEnvironment,
+					subEnvironment.Alias: workflowSubEnvironment,
 				},
 			},
 		},
@@ -1642,22 +1656,33 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 		DeployRequest: &client.DeployRequest{
 			BlueprintId: environment.BlueprintId,
 			SubEnvironments: map[string]client.SubEnvironment{
-				subEnvrionment.Alias: {
-					Revision:             subEnvrionment.Revision,
-					ConfigurationChanges: subEnvrionment.Configuration,
+				subEnvironment.Alias: {
+					Revision:             subEnvironment.Revision,
+					ConfigurationChanges: subEnvironment.Configuration,
 				},
 			},
 		},
+		Type: "workflow",
 	}
 
 	template := client.Template{
 		ProjectId: environment.ProjectId,
 	}
 
+	deployRequest := client.DeployRequest{
+		BlueprintId:       environment.BlueprintId,
+		BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
+		SubEnvironments: map[string]client.SubEnvironment{
+			subEnvironment.Alias: {
+				Revision:             subEnvironment.Revision,
+				ConfigurationChanges: updatedSubEnvironment.Configuration,
+			},
+		},
+	}
+
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
-				// Create the environment and template
 				{
 					Config: fmt.Sprintf(`
 					resource "%s" "%s" {
@@ -1678,10 +1703,10 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 						environmentCreatePayload.Name,
 						environmentCreatePayload.ProjectId,
 						environment.BlueprintId,
-						subEnvrionment.Alias,
-						subEnvrionment.Revision,
-						subEnvrionment.Configuration[0].Name,
-						subEnvrionment.Configuration[0].Value,
+						subEnvironment.Alias,
+						subEnvironment.Revision,
+						subEnvironment.Configuration[0].Name,
+						subEnvironment.Configuration[0].Value,
 					),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
@@ -1689,10 +1714,55 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvrionment.Alias),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvrionment.Revision),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvrionment.Configuration[0].Name),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvrionment.Configuration[0].Value),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvironment.Alias),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvironment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvironment.Configuration[0].Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvironment.Configuration[0].Value),
+					),
+				},
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						project_id = "%s"
+						template_id = "%s"
+						force_destroy = true
+						sub_environment_configuration {
+							alias = "%s"
+							revision = "%s"
+							configuration {
+								name = "%s"
+								value = "%s"
+							}
+							configuration {
+								name = "%s"
+								value = "%s"
+							}
+						}
+					}`,
+						resourceType, resourceName,
+						environmentCreatePayload.Name,
+						environmentCreatePayload.ProjectId,
+						environment.BlueprintId,
+						subEnvironment.Alias,
+						subEnvironment.Revision,
+						subEnvironment.Configuration[0].Name,
+						subEnvironment.Configuration[0].Value,
+						updatedSubEnvironment.Configuration[1].Name,
+						updatedSubEnvironment.Configuration[1].Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.BlueprintId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvironment.Alias),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvironment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvironment.Configuration[0].Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvironment.Configuration[0].Value),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.name", updatedSubEnvironment.Configuration[1].Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.value", updatedSubEnvironment.Configuration[1].Value),
 					),
 				},
 			},
@@ -1702,6 +1772,14 @@ func TestUnitEnvironmentWithoutSubEnvironment(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().Template(environmentCreatePayload.DeployRequest.BlueprintId).Times(1).Return(template, nil),
 				mock.EXPECT().EnvironmentCreate(environmentCreatePayload).Times(1).Return(environment, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
+				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
+					Id: environment.Id,
+				}, nil),
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
