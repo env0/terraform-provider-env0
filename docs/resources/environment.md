@@ -67,6 +67,7 @@ When used 'auto_deploy_on_path_changes_only' must be configured to true and 'dep
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
+- `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.
 - `is_remote_backend` (Boolean) should use remote backend
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 - `revision` (String) the revision the environment is to be run against
