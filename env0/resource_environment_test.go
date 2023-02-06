@@ -52,6 +52,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		TerragruntWorkingDirectory: "/terragrunt/directory2/",
 		VcsCommandsAlias:           "alias2",
 		IsRemoteBackend:            &isRemoteBackendTrue,
+		IsArchived:                 true,
 	}
 
 	template := client.Template{
@@ -72,6 +73,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
 			"is_remote_backend":            *(environment.IsRemoteBackend),
+			"is_inactive":                  environment.IsArchived,
 		})
 	}
 
@@ -111,6 +113,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
 							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
 							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
@@ -138,6 +141,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
+					IsArchived:                 updatedEnvironment.IsArchived,
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				gomock.InOrder(
@@ -1158,6 +1162,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
+					IsArchived:                 true,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)

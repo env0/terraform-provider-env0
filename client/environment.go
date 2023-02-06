@@ -107,7 +107,7 @@ type Environment struct {
 	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId" tfschema:"deployment_id"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
-	IsArchived                  bool          `json:"isArchived"`
+	IsArchived                  bool          `json:"isArchived" tfschema:"is_inactive,omitempty"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
 	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
@@ -178,6 +178,7 @@ type EnvironmentUpdate struct {
 	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
 	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty" tfschema:"-"`
+	IsArchived                  bool   `json:"isArchived" tfschema:"is_inactive"`
 }
 
 type EnvironmentDeployResponse struct {
