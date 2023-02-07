@@ -154,6 +154,11 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 					return true
 				}
 
+				if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
+					log.Printf("[INFO] Received an empty list for an integration test, retrying request: %s %s", r.Request.Method, r.Request.URL)
+					return true
+				}
+
 				return false
 			})
 
