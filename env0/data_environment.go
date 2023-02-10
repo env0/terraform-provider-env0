@@ -80,7 +80,27 @@ func dataEnvironment() *schema.Resource {
 			"output": {
 				Type:        schema.TypeString,
 				Description: "the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'",
-				Optional:    true,
+				Computed:    true,
+			},
+			"bitbucket_client_key": {
+				Type:        schema.TypeString,
+				Description: "Bitbucket client key",
+				Computed:    true,
+			},
+			"github_installation_id": {
+				Type:        schema.TypeInt,
+				Description: "Github installation id",
+				Computed:    true,
+			},
+			"gitlab_project_id": {
+				Type:        schema.TypeInt,
+				Description: "Gitlab project id",
+				Computed:    true,
+			},
+			"token_id": {
+				Type:        schema.TypeString,
+				Description: "The token id used for repo integrations (Used by Gitlab or Azure DevOps)",
+				Computed:    true,
 			},
 		},
 	}
@@ -106,6 +126,29 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	setEnvironmentSchema(d, environment, client.ConfigurationChanges{})
+
+	templateId := environment.LatestDeploymentLog.BlueprintId
+
+	template, err := getTemplateById(templateId, meta)
+	if err != nil {
+		return err
+	}
+
+	templateUpdater := struct {
+		GithubInstallationId int    `tfschema:",omitempty"`
+		TokenId              string `tfschema:",omitempty"`
+		BitbucketClientKey   string `tfschema:",omitempty"`
+		GitlabProjectId      int    `tfschema:",omitempty"`
+	}{
+		GithubInstallationId: template.GithubInstallationId,
+		TokenId:              template.TokenId,
+		BitbucketClientKey:   template.BitbucketClientKey,
+		GitlabProjectId:      template.GitlabProjectId,
+	}
+
+	if err := writeResourceData(&templateUpdater, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
 
 	return nil
 }
