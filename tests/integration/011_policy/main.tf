@@ -39,8 +39,8 @@ resource "env0_project_policy" "test_policy_ttl" {
   skip_apply_when_plan_is_empty = true
   disable_destroy_environments  = true
   skip_redundant_deployments    = true
-  max_ttl                       = "3-d"
-  default_ttl                   = "12-h"
+  max_ttl                       = "4-d"
+  default_ttl                   = "14-h"
 }
 
 resource "env0_project_policy" "test_policy_infinite" {
@@ -53,5 +53,5 @@ resource "env0_project_policy" "test_policy_infinite" {
   disable_destroy_environments  = true
   skip_redundant_deployments    = true
   max_ttl                       = "Infinite"
-  default_ttl                   = var.second_run ? "3-d" : "Infinite"
+  default_ttl                   = var.second_run ? "4-d" : "Infinite"
 }

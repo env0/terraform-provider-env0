@@ -3,15 +3,19 @@ package env0
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
 var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+var matchTtl = regexp.MustCompile("^([1-9][0-9]*)-([M|w|d|h])$")
 
 type CustomResourceDataField interface {
 	ReadResourceData(fieldName string, d *schema.ResourceData) error
@@ -452,4 +456,35 @@ func writeResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) e
 		return writeResourceData(i, d)
 	}
 	return writeResourceDataSlice([]interface{}{i}, prefix, d)
+}
+
+func ttlToDuration(ttl string) (time.Duration, error) {
+	if ttl == "Infinite" || ttl == "inherit" {
+		return math.MaxInt64, nil
+	}
+
+	match := matchTtl.FindStringSubmatch(ttl)
+	if match == nil {
+		return 0, fmt.Errorf("invalid TTL format %s", ttl)
+	}
+
+	numberStr := match[1]
+	number, err := strconv.Atoi(numberStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid TTL format %s - not a number: %w", ttl, err)
+	}
+	// M/w/d/h
+
+	var hours int = number
+
+	switch rangeType := match[2]; rangeType {
+	case "M":
+		hours *= 30 * 24
+	case "w":
+		hours *= 7 * 24
+	case "d":
+		hours *= 24
+	}
+
+	return time.ParseDuration(fmt.Sprintf("%dh", hours))
 }

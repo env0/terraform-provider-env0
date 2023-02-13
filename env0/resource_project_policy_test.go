@@ -41,7 +41,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		SkipRedundantDeployments:   false,
 		UpdatedBy:                  "updater0",
 		MaxTtl:                     nil,
-		DefaultTtl:                 stringPtr("6-h"),
+		DefaultTtl:                 stringPtr("7-h"),
 	}
 
 	resetPolicy := client.Policy{

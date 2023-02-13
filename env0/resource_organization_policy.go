@@ -2,21 +2,15 @@ package env0
 
 import (
 	"context"
-	"fmt"
-	"strings"
+	"math"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// The order is important (should be from shortest to longest).
-// See the usage of getTtlIndex for context.
-var allowedTtlValues = []string{"6-h", "12-h", "1-d", "3-d", "1-w", "2-w", "1-M"}
-
 func resourceOrganizationPolicy() *schema.Resource {
-	allowedTtlValuesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedTtlValues, ", "))
-
 	return &schema.Resource{
 		CreateContext: resourceOrganizationPolicyCreateOrUpdate,
 		ReadContext:   resourceOrganizationPolicyRead,
@@ -26,15 +20,15 @@ func resourceOrganizationPolicy() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"max_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the maximum environment time-to-live allowed on deploy time " + allowedTtlValuesStr + ". omit for infinite ttl. must be equal or longer than default_ttl",
+				Description:      "the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Omit for infinite ttl. must be equal or longer than default_ttl",
 				Optional:         true,
-				ValidateDiagFunc: NewStringInValidator(allowedTtlValues),
+				ValidateDiagFunc: ValidateTtl,
 			},
 			"default_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the default environment time-to-live allowed on deploy time " + allowedTtlValuesStr + ". omit for infinite ttl. must be equal or shorter than max_ttl",
+				Description:      "the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Omit for infinite ttl. must be equal or shorter than max_ttl",
 				Optional:         true,
-				ValidateDiagFunc: NewStringInValidator(allowedTtlValues),
+				ValidateDiagFunc: ValidateTtl,
 			},
 			"do_not_report_skipped_status_checks": {
 				Type:     schema.TypeBool,
@@ -71,16 +65,12 @@ func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func getTtlIndex(value *string) int {
-	if value != nil {
-		for i, v := range allowedTtlValues {
-			if *value == v {
-				return i
-			}
-		}
+func getOrganizationPolicyTtl(value *string) (time.Duration, error) {
+	if value == nil || *value == "" {
+		return math.MaxInt64, nil
 	}
 
-	return len(allowedTtlValues)
+	return ttlToDuration(*value)
 }
 
 func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -92,10 +82,18 @@ func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.Res
 	}
 
 	// Validate that default ttl is "less than or equal" max ttl.
-	defaultTtlIndex := getTtlIndex(payload.DefaultTtl)
-	maxTtlIndex := getTtlIndex(payload.MaxTtl)
-	if maxTtlIndex < defaultTtlIndex {
-		return diag.Errorf("default ttl must not be larger than max ttl")
+	defaultTtl, err := getOrganizationPolicyTtl(payload.DefaultTtl)
+	if err != nil {
+		return diag.Errorf("invalid default ttl: %v", err)
+	}
+
+	maxTtl, err := getOrganizationPolicyTtl(payload.MaxTtl)
+	if err != nil {
+		return diag.Errorf("invalid max ttl: %v", err)
+	}
+
+	if maxTtl < defaultTtl {
+		return diag.Errorf("default ttl must not be larger than max ttl: %d %d", defaultTtl, maxTtl)
 	}
 
 	organization, err := apiClient.OrganizationPolicyUpdate((payload))
