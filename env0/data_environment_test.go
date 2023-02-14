@@ -15,7 +15,6 @@ func TestEnvironmentDataSource(t *testing.T) {
 		TokenId:              "tokenId",
 		GithubInstallationId: 100,
 		BitbucketClientKey:   "bitbucket",
-		GitlabProjectId:      200,
 	}
 
 	boolean := true
@@ -76,7 +75,6 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "output", string(environment.LatestDeploymentLog.Output)),
 						resource.TestCheckResourceAttr(accessor, "token_id", template.TokenId),
 						resource.TestCheckResourceAttr(accessor, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
-						resource.TestCheckResourceAttr(accessor, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId)),
 						resource.TestCheckResourceAttr(accessor, "bitbucket_client_key", template.BitbucketClientKey),
 					),
 				},

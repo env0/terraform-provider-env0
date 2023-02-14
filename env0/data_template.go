@@ -86,11 +86,6 @@ func dataTemplate() *schema.Resource {
 				Description: "The token id used for private git repos or for integration with GitLab",
 				Optional:    true,
 			},
-			"gitlab_project_id": {
-				Type:        schema.TypeInt,
-				Description: "The project id of the relevant repository",
-				Optional:    true,
-			},
 			"terraform_version": {
 				Type:        schema.TypeString,
 				Description: "terraform version to use",

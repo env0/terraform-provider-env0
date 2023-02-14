@@ -92,11 +92,6 @@ func dataEnvironment() *schema.Resource {
 				Description: "Github installation id",
 				Computed:    true,
 			},
-			"gitlab_project_id": {
-				Type:        schema.TypeInt,
-				Description: "Gitlab project id",
-				Computed:    true,
-			},
 			"token_id": {
 				Type:        schema.TypeString,
 				Description: "The token id used for repo integrations (Used by Gitlab or Azure DevOps)",
@@ -138,12 +133,10 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		GithubInstallationId int    `tfschema:",omitempty"`
 		TokenId              string `tfschema:",omitempty"`
 		BitbucketClientKey   string `tfschema:",omitempty"`
-		GitlabProjectId      int    `tfschema:",omitempty"`
 	}{
 		GithubInstallationId: template.GithubInstallationId,
 		TokenId:              template.TokenId,
 		BitbucketClientKey:   template.BitbucketClientKey,
-		GitlabProjectId:      template.GitlabProjectId,
 	}
 
 	if err := writeResourceData(&templateUpdater, d); err != nil {
