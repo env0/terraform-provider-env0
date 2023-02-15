@@ -10,6 +10,13 @@ import (
 )
 
 func TestEnvironmentDataSource(t *testing.T) {
+	template := client.Template{
+		Id:                   "template-id",
+		TokenId:              "tokenId",
+		GithubInstallationId: 100,
+		BitbucketClientKey:   "bitbucket",
+	}
+
 	boolean := true
 	environment := client.Environment{
 		Id:                          "id-0",
@@ -22,7 +29,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 		AutoDeployOnPathChangesOnly: &boolean,
 		ContinuousDeployment:        &boolean,
 		LatestDeploymentLog: client.DeploymentLog{
-			BlueprintId:       "blueprint-id",
+			BlueprintId:       template.Id,
 			BlueprintRevision: "revision",
 			Output:            []byte(`{"a": "b"}`),
 		},
@@ -55,6 +62,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
 						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", strconv.FormatBool(!*environment.RequiresApproval)),
 						resource.TestCheckResourceAttr(accessor, "run_plan_on_pull_requests", strconv.FormatBool(*environment.PullRequestPlanDeployments)),
@@ -65,6 +73,9 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.LatestDeploymentLog.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 						resource.TestCheckResourceAttr(accessor, "output", string(environment.LatestDeploymentLog.Output)),
+						resource.TestCheckResourceAttr(accessor, "token_id", template.TokenId),
+						resource.TestCheckResourceAttr(accessor, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
+						resource.TestCheckResourceAttr(accessor, "bitbucket_client_key", template.BitbucketClientKey),
 					),
 				},
 			},
@@ -82,36 +93,40 @@ func TestEnvironmentDataSource(t *testing.T) {
 		}
 	}
 
-	mockGetEnvironmentCall := func(returnValue client.Environment) func(mockFunc *client.MockApiClientInterface) {
+	mockGetEnvironmentCall := func(env client.Environment, tem client.Template) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().Environment(environment.Id).AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().Environment(environment.Id).AnyTimes().Return(env, nil)
+			mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).AnyTimes().Return(tem, nil)
 		}
 	}
 
-	mockListEnvironmentsCall := func(returnValue []client.Environment) func(mockFunc *client.MockApiClientInterface) {
+	mockListEnvironmentsCall := func(returnValue []client.Environment, tem *client.Template) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().Environments().AnyTimes().Return(returnValue, nil)
+			if tem != nil {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).AnyTimes().Return(*tem, nil)
+			}
 		}
 	}
 
 	t.Run("By ID", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsById),
-			mockGetEnvironmentCall(environment),
+			mockGetEnvironmentCall(environment, template),
 		)
 	})
 
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsByName),
-			mockListEnvironmentsCall([]client.Environment{environment, otherEnvironment}),
+			mockListEnvironmentsCall([]client.Environment{environment, otherEnvironment}, &template),
 		)
 	})
 
 	t.Run("By Name with Archived", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsByNameWithExclude),
-			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}, &template),
 		)
 	})
 
@@ -125,28 +140,28 @@ func TestEnvironmentDataSource(t *testing.T) {
 	t.Run("Throw error when by name and more than one environment exists", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
-			mockListEnvironmentsCall([]client.Environment{environment, environment, otherEnvironment}),
+			mockListEnvironmentsCall([]client.Environment{environment, environment, otherEnvironment}, nil),
 		)
 	})
 
 	t.Run("Throw error when by name and more than one environment exists (archived use-case)", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
-			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}, nil),
 		)
 	})
 
 	t.Run("Throw error when by name and no environments found at all", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Could not find an env0 environment with name"),
-			mockListEnvironmentsCall([]client.Environment{}),
+			mockListEnvironmentsCall([]client.Environment{}, nil),
 		)
 	})
 
 	t.Run("Throw error when by name and no environments found with that name", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Could not find an env0 environment with name"),
-			mockListEnvironmentsCall([]client.Environment{otherEnvironment}),
+			mockListEnvironmentsCall([]client.Environment{otherEnvironment}, nil),
 		)
 	})
 }

@@ -50,7 +50,7 @@ func resourceAwsCredentials() *schema.Resource {
 			},
 			"secret_access_key": {
 				Type:          schema.TypeString,
-				Description:   "the aws access key secret",
+				Description:   "the aws access key secret. In case your organization is self-hosted, please use a secret reference in the shape of ${ssm:<secret-id>}",
 				Optional:      true,
 				Sensitive:     true,
 				ForceNew:      true,
