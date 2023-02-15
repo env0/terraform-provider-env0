@@ -32,7 +32,7 @@ func resourceGcpCredentials() *schema.Resource {
 			},
 			"service_account_key": {
 				Type:        schema.TypeString,
-				Description: "the gcp service account key",
+				Description: "the gcp service account key. In case your organization is self-hosted, please use a secret reference in the shape of ${gcp:<secret-id>}",
 				Required:    true,
 				Sensitive:   true,
 				ForceNew:    true,
