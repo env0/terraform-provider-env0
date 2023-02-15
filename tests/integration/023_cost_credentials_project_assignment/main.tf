@@ -12,9 +12,8 @@ resource "env0_project" "project" {
 }
 
 resource "env0_aws_cost_credentials" "cost" {
-  name        = "cost-${random_string.random.result}"
-  arn         = "arn"
-  external_id = "external-id"
+  name = "cost-${random_string.random.result}"
+  arn  = "arn"
 }
 
 resource "env0_cost_credentials_project_assignment" "cost_project_assignment" {
