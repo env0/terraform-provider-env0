@@ -39,7 +39,6 @@ resource "env0_configuration_variable" "in_a_template" {
   template_id = env0_template.tested1.id
 }
 ```
-
 ## Authentication
 
 1. Generate an `api_key` and `api_secret` from the Organization Settings page.
@@ -64,6 +63,29 @@ resource "env0_configuration_variable" "in_a_template" {
      api_secret = var.env0_api_secret
    }
    ```
+
+### How to get VCS credentials for Creating a template or a VCS environment
+To create an `env0_template` or a VCS `env0_environment` resources a user must provision the corresponding credentials:
+1. `github_installation_id` for Github
+2. `bitbucket_client_key` for Bitbucket
+3. `gitlab_project_id` + `token_id` for Gitlab
+4. `token_id` for Azure DevOps
+
+To get those credentials in the provider you must first create a "master" environment via the `env0` app, then just fetch the corresponding `env0_environment` data source and use the relevant credentials:
+
+```
+data "env0_environment" "master_environment" {
+  id = "exampleId"
+}
+
+resource "env0_template" "example" {
+  name        = "example AzureDevOps"
+  description = "Example AzureDevOps template"
+  repository  = "https://dev.azure.com/example-org/AWS/_git/example"
+  path        = "hello-world"
+  token_id    = data.env0_environment.master_environment.token_id
+}
+```
 
 ## Development Setup
 
