@@ -28,7 +28,7 @@ resource "env0_azure_credentials" "credentials" {
 ### Required
 
 - `client_id` (String) the azure client id
-- `client_secret` (String, Sensitive) the azure client secret
+- `client_secret` (String, Sensitive) the azure client secret. In case your organization is self-hosted, please use a secret reference in the shape of ${azure:<secret-name>@<vault-name>}
 - `name` (String) name for the credentials
 - `subscription_id` (String) the azure subscription id
 - `tenant_id` (String) the azure tenant id

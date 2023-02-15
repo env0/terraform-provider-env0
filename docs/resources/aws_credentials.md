@@ -32,7 +32,7 @@ resource "env0_aws_credentials" "credentials" {
 - `access_key_id` (String, Sensitive) the aws access key id
 - `arn` (String) the aws role arn
 - `external_id` (String, Sensitive) the aws role external id
-- `secret_access_key` (String, Sensitive) the aws access key secret
+- `secret_access_key` (String, Sensitive) the aws access key secret. In case your organization is self-hosted, please use a secret reference in the shape of ${ssm:<secret-id>}
 
 ### Read-Only
 

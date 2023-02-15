@@ -26,7 +26,7 @@ resource "env0_gcp_credentials" "credentials" {
 ### Required
 
 - `name` (String) name for the credentials
-- `service_account_key` (String, Sensitive) the gcp service account key
+- `service_account_key` (String, Sensitive) the gcp service account key. In case your organization is self-hosted, please use a secret reference in the shape of ${gcp:<secret-id>}
 
 ### Optional
 
