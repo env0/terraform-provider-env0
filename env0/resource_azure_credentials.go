@@ -31,7 +31,7 @@ func resourceAzureCredentials() *schema.Resource {
 			},
 			"client_secret": {
 				Type:        schema.TypeString,
-				Description: "the azure client secret",
+				Description: "the azure client secret. In case your organization is self-hosted, please use a secret reference in the shape of ${azure:<secret-name>@<vault-name>}",
 				Required:    true,
 				Sensitive:   true,
 				ForceNew:    true,
