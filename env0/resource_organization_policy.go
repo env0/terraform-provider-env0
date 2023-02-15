@@ -2,8 +2,7 @@ package env0
 
 import (
 	"context"
-	"math"
-	"time"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -65,12 +64,23 @@ func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func getOrganizationPolicyTtl(value *string) (time.Duration, error) {
-	if value == nil || *value == "" {
-		return math.MaxInt64, nil
+// Validate that default ttl is "less than or equal" max ttl.
+func validateTtl(defaultTtl *string, maxTtl *string) error {
+	defaultDuration, err := ttlToDuration(defaultTtl)
+	if err != nil {
+		return fmt.Errorf("invalid default ttl: %v", err)
 	}
 
-	return ttlToDuration(*value)
+	maxDuration, err := ttlToDuration(maxTtl)
+	if err != nil {
+		return fmt.Errorf("invalid max ttl: %v", err)
+	}
+
+	if maxDuration < defaultDuration {
+		return fmt.Errorf("default ttl must not be larger than max ttl: %d %d", defaultTtl, maxTtl)
+	}
+
+	return nil
 }
 
 func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -81,19 +91,8 @@ func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.Res
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	// Validate that default ttl is "less than or equal" max ttl.
-	defaultTtl, err := getOrganizationPolicyTtl(payload.DefaultTtl)
-	if err != nil {
-		return diag.Errorf("invalid default ttl: %v", err)
-	}
-
-	maxTtl, err := getOrganizationPolicyTtl(payload.MaxTtl)
-	if err != nil {
-		return diag.Errorf("invalid max ttl: %v", err)
-	}
-
-	if maxTtl < defaultTtl {
-		return diag.Errorf("default ttl must not be larger than max ttl: %d %d", defaultTtl, maxTtl)
+	if err := validateTtl(payload.DefaultTtl, payload.MaxTtl); err != nil {
+		return diag.FromErr(err)
 	}
 
 	organization, err := apiClient.OrganizationPolicyUpdate((payload))

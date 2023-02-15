@@ -458,20 +458,20 @@ func writeResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) e
 	return writeResourceDataSlice([]interface{}{i}, prefix, d)
 }
 
-func ttlToDuration(ttl string) (time.Duration, error) {
-	if ttl == "Infinite" || ttl == "inherit" {
+func ttlToDuration(ttl *string) (time.Duration, error) {
+	if ttl == nil || *ttl == "" || *ttl == "Infinite" || *ttl == "inherit" {
 		return math.MaxInt64, nil
 	}
 
-	match := matchTtl.FindStringSubmatch(ttl)
+	match := matchTtl.FindStringSubmatch(*ttl)
 	if match == nil {
-		return 0, fmt.Errorf("invalid TTL format %s", ttl)
+		return 0, fmt.Errorf("invalid TTL format %s", *ttl)
 	}
 
 	numberStr := match[1]
 	number, err := strconv.Atoi(numberStr)
 	if err != nil {
-		return 0, fmt.Errorf("invalid TTL format %s - not a number: %w", ttl, err)
+		return 0, fmt.Errorf("invalid TTL format %s - not a number: %w", *ttl, err)
 	}
 	// M/w/d/h
 
@@ -479,6 +479,7 @@ func ttlToDuration(ttl string) (time.Duration, error) {
 
 	switch rangeType := match[2]; rangeType {
 	case "M":
+		// 'M' varies each month. Assuming it's 30 days.
 		hours *= 30 * 24
 	case "w":
 		hours *= 7 * 24

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -135,14 +133,6 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func getPolicyTtl(value string) (time.Duration, error) {
-	if value == "" {
-		return math.MaxInt64, nil
-	}
-
-	return ttlToDuration(value)
-}
-
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -157,19 +147,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
 	}
 
-	// Validate that default ttl is "less than or equal" max ttl.
-	defaultTtl, err := getPolicyTtl(payload.DefaultTtl)
-	if err != nil {
-		return diag.Errorf("invalid default ttl: %v", err)
-	}
-
-	maxTtl, err := getPolicyTtl(payload.MaxTtl)
-	if err != nil {
-		return diag.Errorf("invalid max ttl: %v", err)
-	}
-
-	if maxTtl < defaultTtl {
-		return diag.Errorf("default ttl must not be larger than max ttl: %d %d", defaultTtl, maxTtl)
+	if err := validateTtl(&payload.DefaultTtl, &payload.MaxTtl); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if payload.DefaultTtl == "Infinite" {

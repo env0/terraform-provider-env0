@@ -105,7 +105,7 @@ func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
 func ValidateTtl(i interface{}, path cty.Path) diag.Diagnostics {
 	ttl := i.(string)
 
-	_, err := ttlToDuration(ttl)
+	_, err := ttlToDuration(&ttl)
 	if err != nil {
 		return diag.FromErr(err)
 	}
