@@ -822,6 +822,10 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
 	}
 
+	if d.HasChange("is_inactive") {
+		payload.IsArchived = boolPtr(d.Get("is_inactive").(bool))
+	}
+
 	if err := assertDeploymentTriggers(d); err != nil {
 		return client.EnvironmentUpdate{}, err
 	}
@@ -997,7 +1001,7 @@ func getEnvironmentByName(name interface{}, meta interface{}, excludeArchived bo
 
 	var environmentsByName []client.Environment
 	for _, candidate := range environments {
-		if excludeArchived && candidate.IsArchived {
+		if excludeArchived && candidate.IsArchived != nil && *candidate.IsArchived {
 			continue
 		}
 
