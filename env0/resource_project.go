@@ -140,7 +140,7 @@ func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData,
 			}
 		}
 
-		if env.IsArchived != nil && !*env.IsArchived {
+		if env.IsArchived == nil || !*env.IsArchived {
 			return &ActiveEnvironmentError{
 				retry:   true,
 				message: fmt.Sprintf("found an active environment %s (remove the environment or use the force_destroy flag)", env.Name),
