@@ -25,8 +25,8 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 	organization := client.Organization{
 		Id:                                  organizationId,
 		Name:                                "name",
-		MaxTtl:                              stringPtr("3-d"),
-		DefaultTtl:                          stringPtr("12-h"),
+		MaxTtl:                              stringPtr("4-d"),
+		DefaultTtl:                          stringPtr("13-h"),
 		DoNotReportSkippedStatusChecks:      false,
 		DoNotConsiderMergeCommitsForPrPlans: true,
 		EnableOidc:                          false,
@@ -35,7 +35,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 	organizationUpdated := client.Organization{
 		Id:                                  organizationId,
 		Name:                                "name",
-		DefaultTtl:                          stringPtr("1-M"),
+		DefaultTtl:                          stringPtr("2-M"),
 		DoNotReportSkippedStatusChecks:      true,
 		DoNotConsiderMergeCommitsForPrPlans: false,
 		EnableOidc:                          true,
@@ -104,7 +104,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"max_ttl":     "12-h",
+						"max_ttl":     "23-h",
 						"default_ttl": "1-d",
 					}),
 					ExpectError: regexp.MustCompile("default ttl must not be larger than max ttl"),

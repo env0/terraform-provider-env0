@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,9 +11,6 @@ import (
 )
 
 func resourcePolicy() *schema.Resource {
-	allowedProjectTtlValues := append(allowedTtlValues, "Infinite", "inherit")
-	allowedProjectTtlValuesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedProjectTtlValues, ", "))
-
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
@@ -91,17 +87,17 @@ func resourcePolicy() *schema.Resource {
 			},
 			"max_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the maximum environment time-to-live allowed on deploy time " + allowedProjectTtlValuesStr + " Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
+				Description:      "the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
 				Optional:         true,
 				Default:          "inherit",
-				ValidateDiagFunc: NewStringInValidator(allowedProjectTtlValues),
+				ValidateDiagFunc: ValidateTtl,
 			},
 			"default_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the default environment time-to-live allowed on deploy time " + allowedProjectTtlValuesStr + ". Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
+				Description:      "the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
 				Optional:         true,
 				Default:          "inherit",
-				ValidateDiagFunc: NewStringInValidator(allowedProjectTtlValues),
+				ValidateDiagFunc: ValidateTtl,
 			},
 		},
 	}
@@ -151,11 +147,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
 	}
 
-	// Validate that default ttl is "less than or equal" max ttl.
-	defaultTtlIndex := getTtlIndex(&payload.DefaultTtl)
-	maxTtlIndex := getTtlIndex(&payload.MaxTtl)
-	if maxTtlIndex < defaultTtlIndex {
-		return diag.Errorf("default ttl must not be larger than max ttl")
+	if err := validateTtl(&payload.DefaultTtl, &payload.MaxTtl); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if payload.DefaultTtl == "Infinite" {

@@ -1,7 +1,9 @@
 package env0
 
 import (
+	"math"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -410,4 +412,52 @@ func TestReadSubEnvironment(t *testing.T) {
 	require.Nil(t, err)
 	require.Len(t, subEnvironments, 2)
 	require.Equal(t, expectedSubEnvironments, subEnvironments)
+}
+
+func TestTTLToDuration(t *testing.T) {
+	t.Run("hours", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("2-h"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(3600*2*1000000000), duration)
+	})
+
+	t.Run("days", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("1-d"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(3600*24*1000000000), duration)
+	})
+
+	t.Run("weeks", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("3-w"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(21*3600*24*1000000000), duration)
+	})
+
+	t.Run("months", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("1-M"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(30*3600*24*1000000000), duration)
+	})
+
+	t.Run("inherit", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("inherit"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(math.MaxInt64), duration)
+	})
+
+	t.Run("Infinite", func(t *testing.T) {
+		duration, err := ttlToDuration(stringPtr("Infinite"))
+		require.Nil(t, err)
+		require.Equal(t, time.Duration(math.MaxInt64), duration)
+	})
+
+	t.Run("invalid format", func(t *testing.T) {
+		_, err := ttlToDuration(stringPtr("2-F"))
+		require.Error(t, err)
+	})
+
+	t.Run("invalid format - not a number", func(t *testing.T) {
+		_, err := ttlToDuration(stringPtr("f-M"))
+		require.Error(t, err)
+	})
 }
