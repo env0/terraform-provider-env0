@@ -29,6 +29,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			Sensitive:   true,
 			ForceNew:    true,
 			Required:    true,
+			Deprecated:  "field will be removed in the near future",
 		},
 	}
 
