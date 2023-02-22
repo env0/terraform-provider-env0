@@ -28,7 +28,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			Description: "the aws role external id",
 			Sensitive:   true,
 			ForceNew:    true,
-			Required:    true,
+			Optional:    true,
 			Deprecated:  "field will be removed in the near future",
 		},
 	}
