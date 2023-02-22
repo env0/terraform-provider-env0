@@ -1,21 +1,23 @@
 package client
 
 type Project struct {
-	IsArchived     bool   `json:"isArchived"`
-	OrganizationId string `json:"organizationId"`
-	UpdatedAt      string `json:"updatedAt"`
-	CreatedAt      string `json:"createdAt"`
-	Id             string `json:"id"`
-	Name           string `json:"name"`
-	CreatedBy      string `json:"createdBy"`
-	Role           string `json:"role"`
-	CreatedByUser  User   `json:"createdByUser"`
-	Description    string `json:"description"`
+	IsArchived      bool   `json:"isArchived"`
+	OrganizationId  string `json:"organizationId"`
+	UpdatedAt       string `json:"updatedAt"`
+	CreatedAt       string `json:"createdAt"`
+	Id              string `json:"id"`
+	Name            string `json:"name"`
+	CreatedBy       string `json:"createdBy"`
+	Role            string `json:"role"`
+	CreatedByUser   User   `json:"createdByUser"`
+	Description     string `json:"description"`
+	ParentProjectId string `json:"parentProjectId,omitempty" tfschema:",omitempty"`
 }
 
 type ProjectCreatePayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	ParentProjectId string `json:"parentProjectId,omitempty"`
 }
 
 func (client *ApiClient) Projects() ([]Project, error) {

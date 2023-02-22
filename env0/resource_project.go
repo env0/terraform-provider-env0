@@ -63,6 +63,12 @@ func resourceProject() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"parent_project_id": {
+				Type:        schema.TypeString,
+				Description: "If set, the project becomes a 'sub-project' of the parent project. See https://docs.env0.com/docs/sub-projects",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }

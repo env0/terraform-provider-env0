@@ -44,6 +44,11 @@ func dataProject() *schema.Resource {
 				Description: "textual description of the project",
 				Computed:    true,
 			},
+			"parent_project_id": {
+				Type:        schema.TypeString,
+				Description: "if the project is a sub-project, returns the parent of this sub-project",
+				Computed:    true,
+			},
 		},
 	}
 }

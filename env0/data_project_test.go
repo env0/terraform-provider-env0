@@ -11,11 +11,12 @@ import (
 
 func TestProjectDataSource(t *testing.T) {
 	project := client.Project{
-		Id:          "id0",
-		Name:        "my-project-1",
-		CreatedBy:   "env0",
-		Role:        "role0",
-		Description: "A project's description",
+		Id:              "id0",
+		Name:            "my-project-1",
+		CreatedBy:       "env0",
+		Role:            "role0",
+		Description:     "A project's description",
+		ParentProjectId: "parent_id",
 	}
 
 	archivedProject := client.Project{
@@ -45,6 +46,7 @@ func TestProjectDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "created_by", project.CreatedBy),
 						resource.TestCheckResourceAttr(accessor, "role", project.Role),
 						resource.TestCheckResourceAttr(accessor, "description", project.Description),
+						resource.TestCheckResourceAttr(accessor, "parent_project_id", project.ParentProjectId),
 					),
 				},
 			},
