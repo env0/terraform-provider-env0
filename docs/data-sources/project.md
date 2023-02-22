@@ -30,6 +30,7 @@ data "env0_project" "default_project" {
 
 - `created_by` (String) textual description of the entity who created the project
 - `description` (String) textual description of the project
+- `parent_project_id` (String) if the project is a sub-project, returns the parent of this sub-project
 - `role` (String) role of the authenticated user (through api key) in the project
 
 
