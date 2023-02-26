@@ -144,18 +144,19 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			AddRetryCondition(func(r *resty.Response, err error) bool {
 				if r == nil {
 					// No response. Possiblly a networking issue (E.g. DNS lookup failure).
+					log.Printf("[WARN] No response, retrying request: %s %s", r.Request.Method, r.Request.URL)
 					return true
 				}
 
 				// When running integration tests 404 may occur due to "database eventual consistency".
 				// Retry when there's a 5xx error. Otherwise do not retry.
 				if r.StatusCode() >= 500 || isIntegrationTest && r.StatusCode() == 404 {
-					log.Printf("[INFO] Received %d status code, retrying request: %s %s", r.StatusCode(), r.Request.Method, r.Request.URL)
+					log.Printf("[WARN] Received %d status code, retrying request: %s %s", r.StatusCode(), r.Request.Method, r.Request.URL)
 					return true
 				}
 
 				if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-					log.Printf("[INFO] Received an empty list for an integration test, retrying request: %s %s", r.Request.Method, r.Request.URL)
+					log.Printf("[WARN] Received an empty list for an integration test, retrying request: %s %s", r.Request.Method, r.Request.URL)
 					return true
 				}
 
