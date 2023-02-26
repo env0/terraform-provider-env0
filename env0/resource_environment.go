@@ -445,7 +445,15 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 
 		for _, configurationVariable := range configurationVariables {
 			if configurationVariable.Name == variableName {
-				newVariables = append(newVariables, createVariable(&configurationVariable))
+				newVariable := createVariable(&configurationVariable)
+
+				if configurationVariable.IsSensitive != nil && *configurationVariable.IsSensitive {
+					// To avoid drift for sensitive variables, don't override with the variable value received from API. Use the one in the schema instead.
+					newVariable.(map[string]interface{})["value"] = variable["value"]
+				}
+
+				newVariables = append(newVariables, newVariable)
+
 				break
 			}
 		}
@@ -524,16 +532,20 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
 	}
+
 	if err != nil {
 		return diag.Errorf("could not create environment: %v", err)
 	}
+
 	environmentConfigurationVariables := client.ConfigurationChanges{}
-	if environmentPayload.DeployRequest.ConfigurationChanges != nil {
-		environmentConfigurationVariables = *environmentPayload.DeployRequest.ConfigurationChanges
+	if environmentPayload.ConfigurationChanges != nil {
+		environmentConfigurationVariables = *environmentPayload.ConfigurationChanges
 	}
+
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	d.Set("auto_deploy_on_path_changes_only", environment.AutoDeployOnPathChangesOnly)
+
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
 	return nil
@@ -849,11 +861,9 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.BlueprintRevision = revision.(string)
 	}
 
-	if configuration, ok := d.GetOk("configuration"); ok {
+	if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
-		if isRedeploy {
-			configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
-		}
+		configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -885,6 +895,7 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	}
 	configurationChanges = linkToExistConfigurationVariables(configurationChanges, existVariables)
 	configurationChanges = deleteUnusedConfigurationVariables(configurationChanges, existVariables)
+
 	return configurationChanges
 }
 
