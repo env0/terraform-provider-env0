@@ -18,8 +18,11 @@ description: |-
 ### Required
 
 - `arn` (String) the aws role arn
-- `external_id` (String, Sensitive) the aws role external id
 - `name` (String) the name for the credentials
+
+### Optional
+
+- `external_id` (String, Sensitive, Deprecated) the aws role external id
 
 ### Read-Only
 

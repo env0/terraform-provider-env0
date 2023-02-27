@@ -37,7 +37,7 @@ func resourceAwsCredentials() *schema.Resource {
 				Sensitive:     true,
 				ForceNew:      true,
 				ConflictsWith: []string{"access_key_id"},
-				RequiredWith:  []string{"arn"},
+				Deprecated:    "field will be removed in the near future",
 			},
 			"access_key_id": {
 				Type:          schema.TypeString,
