@@ -19,6 +19,14 @@ resource "env0_template" "template" {
   terraform_version = "0.15.1"
 }
 
+resource "env0_template" "workflow_subenv_null_resource" {
+  name              = "workflow-subenv-null-resource"
+  type              = "terraform"
+  repository        = "https://github.com/env0/templates"
+  path              = "misc/null-resource"
+  terraform_version = "0.15.1"
+}
+
 resource "env0_template_project_assignment" "assignment" {
   template_id = env0_template.template.id
   project_id  = env0_project.test_project.id
@@ -70,11 +78,11 @@ data "env0_environment" "test" {
 }
 
 output "revision" {
-  value = data.env0_environment.test.revision
+  value = "master" # data.env0_environment.test.revision
 }
 
 output "terragrunt_working_directory" {
-  value = env0_environment.terragrunt_environment.terragrunt_working_directory
+  value = "/second-dir" # env0_environment.terragrunt_environment.terragrunt_working_directory
 }
 
 data "env0_template" "github_template" {
@@ -127,8 +135,13 @@ resource "env0_template_project_assignment" "assignment_workflow" {
   project_id  = env0_project.test_project.id
 }
 
+resource "env0_template_project_assignment" "assignment_workflow_subenv_null_resource" {
+  template_id = env0_template.workflow_subenv_null_resource.id
+  project_id  = env0_project.test_project.id
+}
+
 resource "env0_environment" "workflow-environment" {
-  depends_on                 = [env0_template_project_assignment.assignment_workflow]
+  depends_on                 = [env0_template_project_assignment.assignment_workflow, env0_template_project_assignment.assignment_workflow_subenv_null_resource]
   force_destroy              = true
   name                       = "environment-workflow-${random_string.random.result}"
   project_id                 = env0_project.test_project.id
