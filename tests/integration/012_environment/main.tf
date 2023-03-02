@@ -78,11 +78,11 @@ data "env0_environment" "test" {
 }
 
 output "revision" {
-  value = "master" # data.env0_environment.test.revision
+  value = data.env0_environment.test.revision
 }
 
 output "terragrunt_working_directory" {
-  value = "/second-dir" # env0_environment.terragrunt_environment.terragrunt_working_directory
+  value = env0_environment.terragrunt_environment.terragrunt_working_directory
 }
 
 data "env0_template" "github_template" {
