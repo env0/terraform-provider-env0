@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Organization struct {
@@ -36,7 +37,17 @@ func (client *ApiClient) Organization() (Organization, error) {
 		return Organization{}, err
 	}
 	if len(result) != 1 {
-		return Organization{}, errors.New("server responded with too many organizations")
+		if client.defaultOrganizationId != "" {
+			for _, organization := range result {
+				if organization.Id == client.defaultOrganizationId {
+					return organization, nil
+				}
+			}
+
+			return Organization{}, fmt.Errorf("the api key is not assigned to organization id: %s", client.defaultOrganizationId)
+		}
+
+		return Organization{}, errors.New("server responded with too many organizations (set a default organization id in the provider settings)")
 	}
 	return result[0], nil
 }

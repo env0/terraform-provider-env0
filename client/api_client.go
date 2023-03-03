@@ -7,8 +7,9 @@ import (
 )
 
 type ApiClient struct {
-	http                 http.HttpClientInterface
-	cachedOrganizationId string
+	http                  http.HttpClientInterface
+	cachedOrganizationId  string
+	defaultOrganizationId string
 }
 
 type ApiClientInterface interface {
@@ -117,9 +118,10 @@ type ApiClientInterface interface {
 	CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error)
 }
 
-func NewApiClient(client http.HttpClientInterface) ApiClientInterface {
+func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
 	return &ApiClient{
-		http:                 client,
-		cachedOrganizationId: "",
+		http:                  client,
+		cachedOrganizationId:  "",
+		defaultOrganizationId: defaultOrganizationId,
 	}
 }

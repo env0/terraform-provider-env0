@@ -13,7 +13,8 @@ import (
 // This file wraps the test suite for the entire client folder
 
 const (
-	organizationId = "organization0"
+	organizationId        = "organization0"
+	defaultOrganizationId = "organization1"
 )
 
 var (
@@ -31,7 +32,7 @@ var _ = BeforeSuite(func() {
 
 var _ = BeforeEach(func() {
 	mockHttpClient = http.NewMockHttpClientInterface(ctrl)
-	apiClient = NewApiClient(mockHttpClient)
+	apiClient = NewApiClient(mockHttpClient, defaultOrganizationId)
 })
 
 var _ = AfterSuite(func() {

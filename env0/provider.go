@@ -49,6 +49,11 @@ func Provider(version string) plugin.ProviderFunc {
 					Required:    true,
 					Sensitive:   true,
 				},
+				"organization_id": {
+					Type:        schema.TypeString,
+					Description: "when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored.",
+					Optional:    true,
+				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
 				"env0_organization":              dataOrganization(),
@@ -174,7 +179,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 		}
 
-		apiClient := client.NewApiClient(httpClient)
+		apiClient := client.NewApiClient(httpClient, d.Get("organization_id").(string))
 
 		// organizations fetched to cache Auth0 API response.
 		if _, err := apiClient.OrganizationId(); err != nil {
