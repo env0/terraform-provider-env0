@@ -9,6 +9,7 @@ import (
 
 const projectName = "project_test"
 const projectDescription = "project description"
+const parentProjectId = "parent_project_id"
 
 var _ = Describe("Project", func() {
 	var project Project
@@ -23,20 +24,28 @@ var _ = Describe("Project", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
 
-			httpCall = mockHttpClient.EXPECT().
-				Post("/projects", map[string]interface{}{
-					"name":           projectName,
-					"organizationId": organizationId,
-					"description":    projectDescription,
+			payload := struct {
+				ProjectCreatePayload
+				OrganizationId string `json:"organizationId"`
+			}{
+				ProjectCreatePayload{
+					Name:            projectName,
+					Description:     projectDescription,
+					ParentProjectId: parentProjectId,
 				},
-					gomock.Any()).
+				organizationId,
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/projects", payload, gomock.Any()).
 				Do(func(path string, request interface{}, response *Project) {
 					*response = mockProject
 				})
 
 			project, _ = apiClient.ProjectCreate(ProjectCreatePayload{
-				Name:        projectName,
-				Description: projectDescription,
+				Name:            projectName,
+				Description:     projectDescription,
+				ParentProjectId: parentProjectId,
 			})
 		})
 
