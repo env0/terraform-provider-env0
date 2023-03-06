@@ -49,7 +49,7 @@ func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, e
 		return Project{}, err
 	}
 
-	payloadWith := struct {
+	payloadWithOrganizationId := struct {
 		ProjectCreatePayload
 		OrganizationId string `json:"organizationId"`
 	}{
@@ -57,7 +57,7 @@ func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, e
 		organizationId,
 	}
 
-	err = client.http.Post("/projects", payloadWith, &result)
+	err = client.http.Post("/projects", payloadWithOrganizationId, &result)
 	if err != nil {
 		return Project{}, err
 	}
