@@ -37,7 +37,7 @@ func resourceCustomRole() *schema.Resource {
 		"READ_STATE",
 		"WRITE_STATE",
 		"FORCE_UNLOCK_WORKSPACE",
-		"MANAGE_BILLINGS",
+		"MANAGE_BILLING",
 		"VIEW_AUDIT_LOGS",
 		"MANAGE_ENVIRONMENT_LOCK",
 	}
