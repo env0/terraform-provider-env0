@@ -15,6 +15,11 @@ var _ = Describe("Organization", func() {
 		Name: "env0 🦄",
 	}
 
+	mockDefaultOrganization := Organization{
+		Id:   defaultOrganizationId,
+		Name: "default",
+	}
+
 	Describe("Organization", func() {
 		var organization Organization
 		var err error
@@ -41,6 +46,28 @@ var _ = Describe("Organization", func() {
 			})
 		})
 
+		Describe("Default Organization", func() {
+			BeforeEach(func() {
+				organizationsResult := []Organization{mockOrganization, mockDefaultOrganization}
+				httpCall = mockHttpClient.EXPECT().
+					Get("/organizations", nil, gomock.Any()).
+					Do(func(path string, request interface{}, response *[]Organization) {
+						*response = organizationsResult
+					})
+
+				organization, err = apiClient.Organization()
+			})
+
+			It("Should send GET request once", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should return organization", func() {
+				Expect(organization).Should(Equal(mockDefaultOrganization))
+				Expect(err).Should(BeNil())
+			})
+		})
+
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
@@ -62,7 +89,7 @@ var _ = Describe("Organization", func() {
 
 				_, err = apiClient.Organization()
 				Expect(err).ShouldNot(BeNil())
-				Expect(err.Error()).Should(Equal("server responded with too many organizations"))
+				Expect(err.Error()).Should(Equal("the api key is not assigned to organization id: " + defaultOrganizationId))
 			})
 		})
 	})

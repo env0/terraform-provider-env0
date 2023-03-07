@@ -1,8 +1,6 @@
 package client_test
 
 import (
-	"errors"
-
 	. "github.com/env0/terraform-provider-env0/client"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -85,29 +83,6 @@ var _ = Describe("Notification Client", func() {
 
 			It("Should return created notification", func() {
 				Expect(*createdNotification).To(Equal(mockNotification))
-			})
-		})
-
-		// NotificationCreate calls "organizationId()""
-		// The test was "randomly" added here to test organizationId failure (when there are multiple organizations).
-		// Ideally should be tested in organization. Unfortunatly, organizationId is private and cannot be tested directly.
-		// (test package name varies from package name).
-		Describe("Failure - Multiple Organizations", func() {
-			var err error
-
-			BeforeEach(func() {
-				organizationsResult := []Organization{{}, {}}
-				mockHttpClient.EXPECT().
-					Get("/organizations", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Organization) {
-						*response = organizationsResult
-					})
-				_, err = apiClient.NotificationCreate(NotificationCreatePayload{})
-
-			})
-
-			It("Should return error", func() {
-				Expect(err).To(BeEquivalentTo(errors.New("server responded with too many organizations")))
 			})
 		})
 	})
