@@ -45,6 +45,12 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Default:     false,
 				Description: "set to 'true' to enable OIDC token (JWT) availability during env0 deployments (defaults to 'false')",
 			},
+			"enforce_pr_commenter_permissions": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false')",
+			},
 		},
 	}
 }
