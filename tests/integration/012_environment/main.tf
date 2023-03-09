@@ -123,13 +123,23 @@ resource "env0_template" "workflow_template" {
   path              = "misc/workflow-environment-basic"
   terraform_version = "1.1.5"
 }
+
+data "env0_template" "sub_environment_null_template" {
+  name = "null resource"
+}
+
+resource "env0_template_project_assignment" "assignment_sub_environment_null_template" {
+  template_id = data.env0_template.sub_environment_null_template.id
+  project_id  = env0_project.test_project.id
+}
+
 resource "env0_template_project_assignment" "assignment_workflow" {
   template_id = env0_template.workflow_template.id
   project_id  = env0_project.test_project.id
 }
 
 resource "env0_environment" "workflow-environment" {
-  depends_on                 = [env0_template_project_assignment.assignment_workflow]
+  depends_on                 = [env0_template_project_assignment.assignment_workflow, env0_template_project_assignment.assignment_sub_environment_null_template]
   force_destroy              = true
   name                       = "environment-workflow-${random_string.random.result}"
   project_id                 = env0_project.test_project.id
