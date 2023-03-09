@@ -122,7 +122,6 @@ resource "env0_template" "workflow_template" {
   repository        = "https://github.com/env0/templates"
   path              = "misc/workflow-environment-basic"
   terraform_version = "1.1.5"
-  revision          = "added-workspace-to-subenvironments"
 }
 
 data "env0_template" "sub_environment_null_template" {
