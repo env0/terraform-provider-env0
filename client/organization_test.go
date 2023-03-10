@@ -100,6 +100,7 @@ var _ = Describe("Organization", func() {
 		updatedMockOrganization := mockOrganization
 		updatedMockOrganization.DoNotConsiderMergeCommitsForPrPlans = true
 		updatedMockOrganization.EnableOidc = true
+		updatedMockOrganization.EnforcePrCommenterPermissions = true
 		updatedMockOrganization.DefaultTtl = &hour12
 
 		var updatedOrganization *Organization
@@ -112,6 +113,7 @@ var _ = Describe("Organization", func() {
 					DefaultTtl:                          &hour12,
 					DoNotConsiderMergeCommitsForPrPlans: &t,
 					EnableOidc:                          &t,
+					EnforcePrCommenterPermissions:       &t,
 				}
 
 				httpCall = mockHttpClient.EXPECT().
