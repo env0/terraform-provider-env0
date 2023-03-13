@@ -113,3 +113,62 @@ resource "env0_environment" "inactive" {
   vcs_commands_alias         = "alias"
   is_inactive                = var.second_run ? "true" : "false"
 }
+
+# workflow environment
+
+resource "env0_template" "workflow_template" {
+  name              = "Template for workflow environment-${random_string.random.result}"
+  type              = "workflow"
+  repository        = "https://github.com/env0/templates"
+  path              = "misc/workflow-environment-basic"
+  terraform_version = "1.1.5"
+}
+
+data "env0_template" "sub_environment_null_template" {
+  name = "null resource"
+}
+
+resource "env0_template_project_assignment" "assignment_sub_environment_null_template" {
+  template_id = data.env0_template.sub_environment_null_template.id
+  project_id  = env0_project.test_project.id
+}
+
+resource "env0_template_project_assignment" "assignment_workflow" {
+  template_id = env0_template.workflow_template.id
+  project_id  = env0_project.test_project.id
+}
+
+resource "env0_environment" "workflow-environment" {
+  depends_on                 = [env0_template_project_assignment.assignment_workflow, env0_template_project_assignment.assignment_sub_environment_null_template]
+  force_destroy              = true
+  name                       = "environment-workflow-${random_string.random.result}"
+  project_id                 = env0_project.test_project.id
+  template_id                = env0_template.workflow_template.id
+  approve_plan_automatically = true
+
+  sub_environment_configuration {
+    alias    = "rootService1"
+    revision = "master"
+    configuration {
+      name  = "sub_env1_var1"
+      value = "hello"
+    }
+    configuration {
+      name  = "sub_env1_var2"
+      value = "world"
+    }
+  }
+
+  sub_environment_configuration {
+    alias    = "rootService2"
+    revision = "master"
+    configuration {
+      name  = "sub_env2_var1"
+      value = "hello"
+    }
+    configuration {
+      name  = var.second_run ? "sub_env2_var3" : "sub_env2_var2"
+      value = var.second_run ? "world2" : "world"
+    }
+  }
+}
