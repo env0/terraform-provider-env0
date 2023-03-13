@@ -80,8 +80,7 @@ var _ = Describe("CloudCredentials", func() {
 			mockOrganizationIdCall(organizationId)
 
 			payloadValue := AwsCredentialsValuePayload{
-				RoleArn:    "role",
-				ExternalId: "external",
+				RoleArn: "role",
 			}
 
 			httpCall = mockHttpClient.EXPECT().

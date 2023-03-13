@@ -13,6 +13,7 @@ type Organization struct {
 	DoNotReportSkippedStatusChecks      bool    `json:"doNotReportSkippedStatusChecks"`
 	DoNotConsiderMergeCommitsForPrPlans bool    `json:"doNotConsiderMergeCommitsForPrPlans"`
 	EnableOidc                          bool    `json:"enableOidc"`
+	EnforcePrCommenterPermissions       bool    `json:"enforcePrCommenterPermissions"`
 	Description                         string  `json:"description"`
 	PhotoUrl                            string  `json:"photoUrl"`
 	CreatedBy                           string  `json:"createdBy"`
@@ -28,6 +29,7 @@ type OrganizationPolicyUpdatePayload struct {
 	DoNotReportSkippedStatusChecks      *bool   `json:"doNotReportSkippedStatusChecks,omitempty"`
 	DoNotConsiderMergeCommitsForPrPlans *bool   `json:"doNotConsiderMergeCommitsForPrPlans,omitempty"`
 	EnableOidc                          *bool   `json:"enableOidc,omitempty"`
+	EnforcePrCommenterPermissions       *bool   `json:"enforcePrCommenterPermissions,omitempty"`
 }
 
 func (client *ApiClient) Organization() (Organization, error) {
