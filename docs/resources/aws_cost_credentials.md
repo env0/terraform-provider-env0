@@ -20,10 +20,6 @@ description: |-
 - `arn` (String) the aws role arn
 - `name` (String) the name for the credentials
 
-### Optional
-
-- `external_id` (String, Sensitive, Deprecated) the aws role external id
-
 ### Read-Only
 
 - `id` (String) The ID of this resource.
