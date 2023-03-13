@@ -17,22 +17,19 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	awsCredentialResource := map[string]interface{}{
-		"name":        "test",
-		"arn":         "11111",
-		"external_id": "22222",
+		"name": "test",
+		"arn":  "11111",
 	}
 
 	updatedAwsCredentialResource := map[string]interface{}{
-		"name":        "update",
-		"arn":         "33333",
-		"external_id": "44444",
+		"name": "update",
+		"arn":  "33333",
 	}
 
 	awsCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: awsCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    awsCredentialResource["arn"].(string),
-			ExternalId: awsCredentialResource["external_id"].(string),
+			RoleArn: awsCredentialResource["arn"].(string),
 		},
 		Type: client.AwsCostCredentialsType,
 	}
@@ -40,8 +37,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	updateAwsCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: updatedAwsCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    updatedAwsCredentialResource["arn"].(string),
-			ExternalId: updatedAwsCredentialResource["external_id"].(string),
+			RoleArn: updatedAwsCredentialResource["arn"].(string),
 		},
 		Type: client.AwsCostCredentialsType,
 	}
@@ -67,7 +63,6 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", "id"),
 				),
 			},
@@ -81,7 +76,6 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
@@ -90,7 +84,6 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", updatedAwsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", updatedAwsCredentialResource["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", updatedAwsCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
 				),
 			},

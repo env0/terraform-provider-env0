@@ -1259,6 +1259,20 @@ func (mr *MockApiClientInterfaceMockRecorder) SshKeys() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeys", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeys))
 }
 
+// SubscribeWorkflowTrigger mocks base method.
+func (m *MockApiClientInterface) SubscribeWorkflowTrigger(arg0 string, arg1 WorkflowTriggerEnvironments) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubscribeWorkflowTrigger", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SubscribeWorkflowTrigger indicates an expected call of SubscribeWorkflowTrigger.
+func (mr *MockApiClientInterfaceMockRecorder) SubscribeWorkflowTrigger(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).SubscribeWorkflowTrigger), arg0, arg1)
+}
+
 // Team mocks base method.
 func (m *MockApiClientInterface) Team(arg0 string) (Team, error) {
 	m.ctrl.T.Helper()
@@ -1464,6 +1478,20 @@ func (m *MockApiClientInterface) Templates() ([]Template, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
+}
+
+// UnsubscribeWorkflowTrigger mocks base method.
+func (m *MockApiClientInterface) UnsubscribeWorkflowTrigger(arg0 string, arg1 WorkflowTriggerEnvironments) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnsubscribeWorkflowTrigger", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UnsubscribeWorkflowTrigger indicates an expected call of UnsubscribeWorkflowTrigger.
+func (mr *MockApiClientInterfaceMockRecorder) UnsubscribeWorkflowTrigger(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).UnsubscribeWorkflowTrigger), arg0, arg1)
 }
 
 // UpdateUserProjectAssignment mocks base method.
