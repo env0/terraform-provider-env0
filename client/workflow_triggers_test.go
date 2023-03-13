@@ -41,7 +41,7 @@ var _ = Describe("Workflow Triggers", func() {
 	Describe("WorkflowTrigger", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Get("environments/"+environmentId+"/downstream", nil, gomock.Any()).
+				Get("/environments/"+environmentId+"/downstream", nil, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]WorkflowTrigger) {
 					*response = mockTrigger
 				})
@@ -50,6 +50,42 @@ var _ = Describe("Workflow Triggers", func() {
 
 		It("Should return correct triggers", func() {
 			Expect(triggers).To(Equal(mockTrigger))
+		})
+	})
+
+	Describe("SubscribeWorkflowTrigger", func() {
+		var err error
+
+		subscribePayload := WorkflowTriggerEnvironments{
+			DownstreamEnvironmentIds: []string{"1", "2"},
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/downstream/subscribe", subscribePayload, nil)
+			httpCall.Times(1)
+			err = apiClient.SubscribeWorkflowTrigger(environmentId, subscribePayload)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("UnsubscribeWorkflowTrigger", func() {
+		var err error
+
+		unsubscribePayload := WorkflowTriggerEnvironments{
+			DownstreamEnvironmentIds: []string{"1", "2"},
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/downstream/unsubscribe", unsubscribePayload, nil)
+			httpCall.Times(1)
+			err = apiClient.UnsubscribeWorkflowTrigger(environmentId, unsubscribePayload)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 })

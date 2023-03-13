@@ -116,6 +116,8 @@ type ApiClientInterface interface {
 	CustomFlowAssign(assignments []CustomFlowAssignment) error
 	CustomFlowUnassign(assignments []CustomFlowAssignment) error
 	CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error)
+	SubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error
+	UnsubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
