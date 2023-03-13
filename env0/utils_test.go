@@ -96,14 +96,12 @@ func TestReadResourceDataNotification(t *testing.T) {
 
 func TestReadResourceDataWithTag(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, resourceAwsCredentials().Schema, map[string]interface{}{
-		"name":        "name",
-		"arn":         "tagged_arn",
-		"external_id": "external_id",
+		"name": "name",
+		"arn":  "tagged_arn",
 	})
 
 	expectedPayload := client.AwsCredentialsValuePayload{
-		RoleArn:    "tagged_arn",
-		ExternalId: "external_id",
+		RoleArn: "tagged_arn",
 	}
 
 	var payload client.AwsCredentialsValuePayload

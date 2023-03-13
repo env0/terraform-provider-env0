@@ -23,14 +23,6 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			ForceNew:    true,
 			Required:    true,
 		},
-		"external_id": {
-			Type:        schema.TypeString,
-			Description: "the aws role external id",
-			Sensitive:   true,
-			ForceNew:    true,
-			Optional:    true,
-			Deprecated:  "field will be removed in the near future",
-		},
 	}
 
 	azureSchema := map[string]*schema.Schema{

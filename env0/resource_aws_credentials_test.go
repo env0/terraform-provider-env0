@@ -19,9 +19,8 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	awsArnCredentialResource := map[string]interface{}{
-		"name":        "test",
-		"arn":         "11111",
-		"external_id": "22222",
+		"name": "test",
+		"arn":  "11111",
 	}
 
 	updatedAwsAccessKeyCredentialResource := map[string]interface{}{
@@ -33,8 +32,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	awsArnCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: awsArnCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:    awsArnCredentialResource["arn"].(string),
-			ExternalId: awsArnCredentialResource["external_id"].(string),
+			RoleArn: awsArnCredentialResource["arn"].(string),
 		},
 		Type: client.AwsAssumedRoleCredentialsType,
 	}
@@ -76,7 +74,6 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsArnCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
@@ -90,7 +87,6 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
-					resource.TestCheckResourceAttr(accessor, "external_id", awsArnCredentialResource["external_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
@@ -102,21 +98,6 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "secret_access_key", updatedAwsAccessKeyCredentialResource["secret_access_key"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
 				),
-			},
-		},
-	}
-
-	mutuallyExclusiveErrorResource := map[string]interface{}{
-		"name":          "update",
-		"arn":           "11111",
-		"external_id":   "22222",
-		"access_key_id": "some-key",
-	}
-	testCaseFormMutuallyExclusiveError := resource.TestCase{
-		Steps: []resource.TestStep{
-			{
-				Config:      resourceConfigCreate(resourceType, resourceName, mutuallyExclusiveErrorResource),
-				ExpectError: regexp.MustCompile(`"external_id": conflicts with access_key_id`),
 			},
 		},
 	}
@@ -153,11 +134,6 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 				mock.EXPECT().CloudCredentials(updateReturnValues.Id).Times(1).Return(updateReturnValues, nil),
 			)
 			mock.EXPECT().CloudCredentialsDelete(updateReturnValues.Id).Times(1).Return(nil)
-		})
-	})
-
-	t.Run("throw error when enter mutually exclusive values", func(t *testing.T) {
-		runUnitTest(t, testCaseFormMutuallyExclusiveError, func(mock *client.MockApiClientInterface) {
 		})
 	})
 
