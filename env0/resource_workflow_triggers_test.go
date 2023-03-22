@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestUnitWorkflowTriggerResource(t *testing.T) {
+func TestUnitWorkflowTriggersResource(t *testing.T) {
 	resourceType := "env0_workflow_triggers"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
