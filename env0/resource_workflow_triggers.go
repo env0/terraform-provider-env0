@@ -14,6 +14,7 @@ func resourceWorkflowTriggers() *schema.Resource {
 		ReadContext:   resourceWorkflowTriggersRead,
 		UpdateContext: resourceWorkflowTriggersCreateOrUpdate,
 		DeleteContext: resourceWorkflowTriggersDelete,
+		Description:   "cannot be used with env0_workflow_trigger",
 
 		Schema: map[string]*schema.Schema{
 			"environment_id": {

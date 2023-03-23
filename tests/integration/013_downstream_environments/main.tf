@@ -47,3 +47,26 @@ resource "env0_workflow_triggers" "trigger_link" {
     env0_environment.downstream_environment.id
   ]
 }
+
+resource "env0_environment" "the_trigger_2" {
+  depends_on                 = [env0_template_project_assignment.assignment]
+  force_destroy              = true
+  name                       = "the_trigger-${random_string.random.result}-2"
+  project_id                 = env0_project.test_project.id
+  template_id                = env0_template.template.id
+  approve_plan_automatically = true
+}
+
+resource "env0_environment" "downstream_environment_2" {
+  depends_on                 = [env0_template_project_assignment.assignment]
+  force_destroy              = true
+  name                       = "downstream_environment-${random_string.random.result}-2"
+  project_id                 = env0_project.test_project.id
+  template_id                = env0_template.template.id
+  approve_plan_automatically = true
+}
+
+resource "env0_workflow_trigger" "trigger_link_2" {
+  environment_id            = env0_environment.the_trigger_2.id
+  downstream_environment_id = env0_environment.downstream_environment_2.id
+}
