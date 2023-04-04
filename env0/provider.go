@@ -18,6 +18,7 @@ func Provider(version string) plugin.ProviderFunc {
 	return func() *schema.Provider {
 		apiKeyEnv := "ENV0_API_KEY"
 		apiSecretEnv := "ENV0_API_SECRET"
+		apiOrganizationIdEnv := "ENV0_ORGANIZATION_ID"
 
 		// version "TEST" is used for acceptance testing the provider with env variables.
 		// must use different env variables to prevent race conditions with other acceptance tests that run in parallel.
@@ -51,7 +52,8 @@ func Provider(version string) plugin.ProviderFunc {
 				},
 				"organization_id": {
 					Type:        schema.TypeString,
-					Description: "when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored.",
+					Description: "when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored. This can also be set via the ENV0_ORGANIZATION_ID environment variable.",
+					DefaultFunc: schema.EnvDefaultFunc(apiOrganizationIdEnv, nil),
 					Optional:    true,
 				},
 			},
