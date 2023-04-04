@@ -43,4 +43,4 @@ provider "env0" {
 ### Optional
 
 - `api_endpoint` (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.
-- `organization_id` (String) when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored.
+- `organization_id` (String) when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored. This can also be set via the ENV0_ORGANIZATION_ID environment variable.
