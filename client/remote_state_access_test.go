@@ -29,7 +29,7 @@ var _ = Describe("RemoteStateAccess", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/remote-backend/states/"+environmentId+"/access-control", createRequest, gomock.Any()).
+				Put("/remote-backend/states/"+environmentId+"/access-control", createRequest, gomock.Any()).
 				Do(func(path string, request interface{}, response *RemoteStateAccessConfiguration) {
 					*response = remoteStateAccess
 				})
