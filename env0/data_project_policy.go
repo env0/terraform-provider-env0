@@ -73,6 +73,16 @@ func dataPolicy() *schema.Resource {
 				Description: "Redeploy on every push to the git branch default value",
 				Computed:    true,
 			},
+			"max_ttl": {
+				Type:        schema.TypeString,
+				Description: "the maximum environment time-to-live allowed on deploy time",
+				Computed:    true,
+			},
+			"default_ttl": {
+				Type:        schema.TypeString,
+				Description: "the default environment time-to-live allowed on deploy time",
+				Computed:    true,
+			},
 		},
 	}
 }
