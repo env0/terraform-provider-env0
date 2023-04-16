@@ -16,7 +16,6 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	remoteState := client.RemoteStateAccessConfiguration{
-		Id:            "id1",
 		EnvironmentId: "env",
 		AllowedProjectIds: []string{
 			"pr1",
@@ -24,7 +23,6 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 	}
 
 	updatedRemoteState := client.RemoteStateAccessConfiguration{
-		Id:                               "id2",
 		EnvironmentId:                    remoteState.EnvironmentId,
 		AccessibleFromEntireOrganization: true,
 	}
@@ -46,7 +44,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 						"allowed_project_ids": remoteState.AllowedProjectIds,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", remoteState.Id),
+						resource.TestCheckResourceAttr(accessor, "id", remoteState.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "environment_id", remoteState.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "allowed_project_ids.0", remoteState.AllowedProjectIds[0]),
 						resource.TestCheckResourceAttr(accessor, "accessible_from_entire_organization", "false"),
@@ -58,7 +56,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 						"accessible_from_entire_organization": "true",
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", updatedRemoteState.Id),
+						resource.TestCheckResourceAttr(accessor, "id", updatedRemoteState.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "environment_id", updatedRemoteState.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "accessible_from_entire_organization", "true"),
 						resource.TestCheckNoResourceAttr(accessor, "allowed_project_ids"),

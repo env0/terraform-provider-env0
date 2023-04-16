@@ -59,7 +59,8 @@ func resourceEnvironmentStateAccessCreate(ctx context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.Errorf("could not create a remote state access configation: %v", err)
 	}
-	d.SetId(remoteStateAccess.Id)
+
+	d.SetId(remoteStateAccess.EnvironmentId)
 
 	return nil
 }

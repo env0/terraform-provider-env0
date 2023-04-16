@@ -1,7 +1,6 @@
 package client
 
 type RemoteStateAccessConfiguration struct {
-	Id                               string   `json:"id"`
 	EnvironmentId                    string   `json:"environmentId"`
 	AccessibleFromEntireOrganization bool     `json:"accessibleFromEntireOrganization"`
 	AllowedProjectIds                []string `json:"allowedProjectIds" tfschema:",omitempty"`

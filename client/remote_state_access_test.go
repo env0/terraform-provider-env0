@@ -11,7 +11,6 @@ var _ = Describe("RemoteStateAccess", func() {
 	environmentId := "environmnet_id"
 
 	remoteStateAccess := RemoteStateAccessConfiguration{
-		Id:                               "id",
 		EnvironmentId:                    environmentId,
 		AccessibleFromEntireOrganization: false,
 		AllowedProjectIds: []string{
