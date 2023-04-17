@@ -118,6 +118,9 @@ type ApiClientInterface interface {
 	CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error)
 	SubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error
 	UnsubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error
+	RemoteStateAccessConfiguration(environmentId string) (*RemoteStateAccessConfiguration, error)
+	RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error)
+	RemoteStateAccessConfigurationDelete(environmentId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

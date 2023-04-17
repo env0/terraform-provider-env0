@@ -39,6 +39,7 @@ resource "env0_configuration_variable" "in_a_template" {
   template_id = env0_template.tested1.id
 }
 ```
+
 ## Authentication
 
 1. Generate an `api_key` and `api_secret` from the Organization Settings page.
@@ -65,7 +66,9 @@ resource "env0_configuration_variable" "in_a_template" {
    ```
 
 ### How to get VCS credentials for Creating a template or a VCS environment
+
 To create an `env0_template` or a VCS `env0_environment` resources a user must provision the corresponding credentials:
+
 1. `github_installation_id` for Github
 2. `bitbucket_client_key` for Bitbucket
 3. `gitlab_project_id` + `token_id` for Gitlab
@@ -89,7 +92,7 @@ resource "env0_template" "example" {
 
 ## Development Setup
 
-> **Supported Go Version: 1.18**
+> **Supported Go Version: 1.19**
 
 ### Build
 
