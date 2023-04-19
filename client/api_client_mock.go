@@ -1085,6 +1085,50 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectsAgentsAssignments() *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectsAgentsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectsAgentsAssignments))
 }
 
+// RemoteStateAccessConfiguration mocks base method.
+func (m *MockApiClientInterface) RemoteStateAccessConfiguration(arg0 string) (*RemoteStateAccessConfiguration, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfiguration", arg0)
+	ret0, _ := ret[0].(*RemoteStateAccessConfiguration)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RemoteStateAccessConfiguration indicates an expected call of RemoteStateAccessConfiguration.
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfiguration(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfiguration", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfiguration), arg0)
+}
+
+// RemoteStateAccessConfigurationCreate mocks base method.
+func (m *MockApiClientInterface) RemoteStateAccessConfigurationCreate(arg0 string, arg1 RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationCreate", arg0, arg1)
+	ret0, _ := ret[0].(*RemoteStateAccessConfiguration)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RemoteStateAccessConfigurationCreate indicates an expected call of RemoteStateAccessConfigurationCreate.
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationCreate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationCreate), arg0, arg1)
+}
+
+// RemoteStateAccessConfigurationDelete mocks base method.
+func (m *MockApiClientInterface) RemoteStateAccessConfigurationDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoteStateAccessConfigurationDelete indicates an expected call of RemoteStateAccessConfigurationDelete.
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationDelete), arg0)
+}
+
 // RemoveCloudCredentialsFromProject mocks base method.
 func (m *MockApiClientInterface) RemoveCloudCredentialsFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()

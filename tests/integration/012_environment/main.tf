@@ -39,6 +39,13 @@ resource "env0_environment" "example" {
   vcs_commands_alias         = "alias"
 }
 
+/* TODO: need to add an integration test.
+resource "env0_environment_state_access" "state_access" {
+  environment_id      = env0_environment.example.id
+  allowed_project_ids = [env0_project.test_project.id]
+}
+*/
+
 resource "env0_template" "terragrunt_template" {
   name               = "Terragrunt template for environment resource-${random_string.random.result}"
   type               = "terragrunt"
