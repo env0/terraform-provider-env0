@@ -139,13 +139,6 @@ func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData,
 	}
 
 	for _, env := range envs {
-		if env.Status == "FAILED" && env.LatestDeploymentLog.Type == "destroy" {
-			return &ActiveEnvironmentError{
-				retry:   false,
-				message: fmt.Sprintf("found an environment that destroy failed %s (deactivate the environment or use the force_destroy flag)", env.Name),
-			}
-		}
-
 		if env.IsArchived == nil || !*env.IsArchived {
 			return &ActiveEnvironmentError{
 				retry:   true,

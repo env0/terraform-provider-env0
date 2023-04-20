@@ -222,47 +222,6 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		})
 	})
 
-	t.Run("Failure Without Force Destory - Destroy Failed", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":        project.Name,
-						"description": project.Description,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", project.Id),
-						resource.TestCheckResourceAttr(accessor, "name", project.Name),
-						resource.TestCheckResourceAttr(accessor, "description", project.Description),
-						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
-					),
-				},
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name": project.Name,
-					}),
-					Destroy:     true,
-					ExpectError: regexp.MustCompile("could not delete project: found an environment that destroy failed " + environmentDestroyFailed.Name),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
-				Name:        project.Name,
-				Description: project.Description,
-			}).Times(1).Return(project, nil)
-
-			gomock.InOrder(
-				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environmentDestroyFailed}, nil),
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
-			)
-
-			mock.EXPECT().ProjectDelete(project.Id).Times(1)
-		})
-	})
-
 	t.Run("Test wait", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
