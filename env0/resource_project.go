@@ -174,17 +174,16 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 				case <-ticker.C:
 					err := resourceProjectAssertCanDelete(ctx, d, meta)
 
-					if err == nil {
-						done <- true
-						return
-					}
-
-					if aeerr, ok := err.(*ActiveEnvironmentError); ok {
-						if !aeerr.retry {
-							done <- true
-							return
+					if err != nil {
+						if aeerr, ok := err.(*ActiveEnvironmentError); ok {
+							if aeerr.retry {
+								continue
+							}
 						}
 					}
+
+					done <- true
+					return
 				}
 			}
 		}()

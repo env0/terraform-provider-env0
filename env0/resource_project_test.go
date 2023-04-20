@@ -236,7 +236,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 						"name": project.Name,
 					}),
 					Destroy:     true,
-					ExpectError: regexp.MustCompile("random error"),
+					ExpectError: regexp.MustCompile("could not delete project: found an active environment"),
 				},
 			},
 		}
@@ -250,8 +250,9 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // First time wait - an environment is still active.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error (is always called one last time).
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error will stop waiting.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // Third time will fail.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),            // This will allow the project to get destroyed (no environments).
 			)
 
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
