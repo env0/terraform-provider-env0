@@ -250,9 +250,9 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // First time wait - an environment is still active.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error will stop waiting.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // Third time will fail.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),            // This will allow the project to get destroyed (no environments).
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error to force the test to stop waiting.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // Third time fail and expect the error.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),            // These calls are for destroying the project at the end of test (return no environments so it won't fail).
 			)
 
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
