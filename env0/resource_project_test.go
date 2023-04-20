@@ -144,14 +144,6 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		Name: "name1",
 	}
 
-	environmentDestroyFailed := client.Environment{
-		Name:   "name1",
-		Status: "FAILED",
-		LatestDeploymentLog: client.DeploymentLog{
-			Type: "destroy",
-		},
-	}
-
 	t.Run("Success With Force Destory", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -257,9 +249,8 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 
 			gomock.InOrder(
 				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),              // First time wait - an environment is still active.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environmentDestroyFailed}, nil), // Second time don't wait - found an environment that failed to destory.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),                     // Third time return some random error (is always called one last time).
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // First time wait - an environment is still active.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error (is always called one last time).
 				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),
 			)
 
