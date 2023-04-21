@@ -29,6 +29,12 @@ func dataProject() *schema.Resource {
 				ExactlyOneOf: []string{"name", "id"},
 				Computed:     true,
 			},
+			"parent_project_name": {
+				Type:        schema.TypeString,
+				Description: "the name of the parent project. To be used when there are multiple subprojects with the same name under different parent projects",
+				Optional:    true,
+				Computed:    true,
+			},
 			"created_by": {
 				Type:        schema.TypeString,
 				Description: "textual description of the entity who created the project",
@@ -68,7 +74,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 		if !ok {
 			return diag.Errorf("either 'name' or 'id' must be specified")
 		}
-		project, err = getProjectByName(name.(string), meta)
+		project, err = getProjectByName(name.(string), d.Get("parent_project_name").(string), meta)
 		if err != nil {
 			return diag.Errorf("%v", err)
 		}
@@ -81,7 +87,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
-func getProjectByName(name interface{}, meta interface{}) (client.Project, error) {
+func getProjectByName(name string, parentName string, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
 	if err != nil {
@@ -90,13 +96,35 @@ func getProjectByName(name interface{}, meta interface{}) (client.Project, error
 
 	projectsByName := make([]client.Project, 0)
 	for _, candidate := range projects {
-		if candidate.Name == name.(string) && !candidate.IsArchived {
+		if candidate.Name == name && !candidate.IsArchived {
 			projectsByName = append(projectsByName, candidate)
 		}
 	}
 
 	if len(projectsByName) > 1 {
-		return client.Project{}, fmt.Errorf("found multiple Projects for name: %s. Use ID instead or make sure Project names are unique %v", name, projectsByName)
+		if len(parentName) > 0 {
+			filteredProjectsByName := make([]client.Project, 0)
+			for _, project := range projects {
+				if len(project.ParentProjectId) == 0 {
+					continue
+				}
+
+				parentProject, err := getProjectById(project.ParentProjectId, meta)
+				if err != nil {
+					return client.Project{}, err
+				}
+
+				if parentProject.Name == parentName {
+					filteredProjectsByName = append(filteredProjectsByName, project)
+				}
+			}
+
+			projectsByName = filteredProjectsByName
+		}
+
+		if len(projectsByName) > 1 {
+			return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or parent_name or make sure project names are unique %v", name, projectsByName)
+		}
 	}
 	if len(projectsByName) == 0 {
 		return client.Project{}, fmt.Errorf("could not find a project with name: %s", name)
