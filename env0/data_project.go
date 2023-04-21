@@ -87,6 +87,30 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
+func filterByParentProjectName(name string, parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
+	if len(parentName) > 0 {
+		filteredProjects := make([]client.Project, 0)
+		for _, project := range projects {
+			if len(project.ParentProjectId) == 0 {
+				continue
+			}
+
+			parentProject, err := getProjectById(project.ParentProjectId, meta)
+			if err != nil {
+				return nil, err
+			}
+
+			if parentProject.Name == parentName {
+				filteredProjects = append(filteredProjects, project)
+			}
+		}
+
+		projects = filteredProjects
+	}
+
+	return projects, nil
+}
+
 func getProjectByName(name string, parentName string, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
@@ -102,33 +126,21 @@ func getProjectByName(name string, parentName string, meta interface{}) (client.
 	}
 
 	if len(projectsByName) > 1 {
-		if len(parentName) > 0 {
-			filteredProjectsByName := make([]client.Project, 0)
-			for _, project := range projects {
-				if len(project.ParentProjectId) == 0 {
-					continue
-				}
-
-				parentProject, err := getProjectById(project.ParentProjectId, meta)
-				if err != nil {
-					return client.Project{}, err
-				}
-
-				if parentProject.Name == parentName {
-					filteredProjectsByName = append(filteredProjectsByName, project)
-				}
-			}
-
-			projectsByName = filteredProjectsByName
+		// Too many results. If the parentName filter exist try filtering to one result.
+		projectsByName, err = filterByParentProjectName(name, parentName, projectsByName, meta)
+		if err != nil {
+			return client.Project{}, err
 		}
-
+		// Check again (after additional filtering).
 		if len(projectsByName) > 1 {
 			return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or parent_name or make sure project names are unique %v", name, projectsByName)
 		}
 	}
+
 	if len(projectsByName) == 0 {
 		return client.Project{}, fmt.Errorf("could not find a project with name: %s", name)
 	}
+
 	return projectsByName[0], nil
 }
 
