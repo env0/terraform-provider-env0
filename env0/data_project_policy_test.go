@@ -20,6 +20,8 @@ func TestPolicyDataSource(t *testing.T) {
 		DisableDestroyEnvironments:  true,
 		ContinuousDeploymentDefault: true,
 		RunPullRequestPlanDefault:   false,
+		MaxTtl:                      stringPtr("3h"),
+		DefaultTtl:                  stringPtr("1h"),
 	}
 
 	resourceType := "env0_project_policy"
@@ -44,6 +46,8 @@ func TestPolicyDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "disable_destroy_environments", strconv.FormatBool(policy.DisableDestroyEnvironments)),
 						resource.TestCheckResourceAttr(accessor, "run_pull_request_plan_default", strconv.FormatBool(policy.RunPullRequestPlanDefault)),
 						resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
+						resource.TestCheckResourceAttr(accessor, "max_ttl", *policy.MaxTtl),
+						resource.TestCheckResourceAttr(accessor, "default_ttl", *policy.DefaultTtl),
 					),
 				},
 			},
