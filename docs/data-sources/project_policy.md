@@ -22,9 +22,11 @@ description: |-
 ### Read-Only
 
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
+- `default_ttl` (String) the default environment time-to-live allowed on deploy time
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
 - `id` (String) id of the policy
 - `include_cost_estimation` (Boolean) Enable cost estimation for the project
+- `max_ttl` (String) the maximum environment time-to-live allowed on deploy time
 - `number_of_environments` (Number) Max number of environments a single user can have in this project, 0 indicates no limit
 - `number_of_environments_total` (Number) Max number of environments in this project, 0 indicates no limit
 - `requires_approval_default` (Boolean) Requires approval default value when creating a new environment in the project
