@@ -87,27 +87,23 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 }
 
 func filterByParentProjectName(name string, parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
-	if len(parentName) > 0 {
-		filteredProjects := make([]client.Project, 0)
-		for _, project := range projects {
-			if len(project.ParentProjectId) == 0 {
-				continue
-			}
-
-			parentProject, err := getProjectById(project.ParentProjectId, meta)
-			if err != nil {
-				return nil, err
-			}
-
-			if parentProject.Name == parentName {
-				filteredProjects = append(filteredProjects, project)
-			}
+	filteredProjects := make([]client.Project, 0)
+	for _, project := range projects {
+		if len(project.ParentProjectId) == 0 {
+			continue
 		}
 
-		projects = filteredProjects
+		parentProject, err := getProjectById(project.ParentProjectId, meta)
+		if err != nil {
+			return nil, err
+		}
+
+		if parentProject.Name == parentName {
+			filteredProjects = append(filteredProjects, project)
+		}
 	}
 
-	return projects, nil
+	return filteredProjects, nil
 }
 
 func getProjectByName(name string, parentName string, meta interface{}) (client.Project, error) {
@@ -124,16 +120,16 @@ func getProjectByName(name string, parentName string, meta interface{}) (client.
 		}
 	}
 
-	if len(projectsByName) > 1 {
-		// Too many results. If the parentName filter exist try filtering to one result.
+	if len(projectsByName) > 1 && len(parentName) > 0 {
+		// Too many results. Use parentName filter to reduce the results.
 		projectsByName, err = filterByParentProjectName(name, parentName, projectsByName, meta)
 		if err != nil {
 			return client.Project{}, err
 		}
-		// Check again (after additional filtering).
-		if len(projectsByName) > 1 {
-			return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or parent_name or make sure project names are unique %v", name, projectsByName)
-		}
+	}
+
+	if len(projectsByName) > 1 {
+		return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or parent_name or make sure project names are unique %v", name, projectsByName)
 	}
 
 	if len(projectsByName) == 0 {
