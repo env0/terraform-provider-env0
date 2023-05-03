@@ -204,9 +204,8 @@ func TestProjectDataSource(t *testing.T) {
 			getErrorTestCase(map[string]interface{}{"name": projectWithParent.Name, "parent_project_name": "noooo"}, "could not find a project with name"),
 			func(mock *client.MockApiClientInterface) {
 				gomock.InOrder(
-					mock.EXPECT().Projects().Times(1).Return([]client.Project{projectWithParent, otherProjectWithParent}, nil),
+					mock.EXPECT().Projects().Times(1).Return([]client.Project{projectWithParent}, nil),
 					mock.EXPECT().Project(projectWithParent.ParentProjectId).Times(1).Return(parentProject, nil),
-					mock.EXPECT().Project(otherProjectWithParent.ParentProjectId).Times(1).Return(otherParentProject, nil),
 				)
 			},
 		)
