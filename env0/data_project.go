@@ -31,7 +31,7 @@ func dataProject() *schema.Resource {
 			},
 			"parent_project_name": {
 				Type:        schema.TypeString,
-				Description: "the name of the parent project. To be used when there are multiple subprojects with the same name under different parent projects",
+				Description: "the name of the parent project. To be used only when there are multiple subprojects with the same name under different parent projects",
 				Optional:    true,
 			},
 			"created_by": {
