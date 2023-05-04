@@ -154,28 +154,30 @@ resource "env0_environment" "workflow-environment" {
   approve_plan_automatically = true
 
   sub_environment_configuration {
-    alias    = "rootService1"
-    revision = "master"
+    alias     = "rootService1"
+    revision  = "master"
+    workspace = "rootService1"
     configuration {
-      name  = "sub_env1_var1"
-      value = "hello"
+      name    = "sub_env1_var1"
+      value   = "hello"
     }
     configuration {
-      name  = "sub_env1_var2"
-      value = "world"
+      name    = "sub_env1_var2"
+      value   = "world"
     }
   }
 
   sub_environment_configuration {
-    alias    = "rootService2"
-    revision = "master"
+    alias     = "rootService2"
+    revision  = "master"
+    workspace = "rootService2"
     configuration {
-      name  = "sub_env2_var1"
-      value = "hello"
+      name    = "sub_env2_var1"
+      value   = "hello"
     }
     configuration {
-      name  = var.second_run ? "sub_env2_var3" : "sub_env2_var2"
-      value = var.second_run ? "world2" : "world"
+      name    = var.second_run ? "sub_env2_var3" : "sub_env2_var2"
+      value   = var.second_run ? "world2" : "world"
     }
   }
 }
