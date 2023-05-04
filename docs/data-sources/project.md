@@ -25,6 +25,7 @@ data "env0_project" "default_project" {
 
 - `id` (String) id of the project
 - `name` (String) the name of the project
+- `parent_project_name` (String) the name of the parent project. Can be used when there are multiple subprojects with the same name under different parent projects
 
 ### Read-Only
 
