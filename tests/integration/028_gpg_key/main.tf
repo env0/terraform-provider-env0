@@ -17,8 +17,7 @@ resource "env0_gpg_key" "test_gpg_key" {
 }
 
 data "env0_gpg_key" "test_gpg_key_data" {
-  name       = env0_gpg_key.test_gpg_key.name
-  depends_on = [env0_gpg_key.test_gpg_key]
+  name = env0_gpg_key.test_gpg_key.name
 }
 
 resource "env0_gpg_key" "test_gpg_key_modify" {

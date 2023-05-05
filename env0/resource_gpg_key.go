@@ -127,14 +127,14 @@ func getGpgKeyByName(name string, meta interface{}) (*client.GpgKey, error) {
 	return &foundGpgKeys[0], nil
 }
 
-func getGpgKey(id string, meta interface{}) (*client.GpgKey, error) {
-	_, err := uuid.Parse(id)
+func getGpgKey(idOrName string, meta interface{}) (*client.GpgKey, error) {
+	_, err := uuid.Parse(idOrName)
 	if err == nil {
-		log.Println("[INFO] Resolving gpg key by id: ", id)
-		return getGpgKeyById(id, meta)
+		log.Println("[INFO] Resolving gpg key by id: ", idOrName)
+		return getGpgKeyById(idOrName, meta)
 	} else {
-		log.Println("[INFO] Resolving gpg key by name: ", id)
-		return getGpgKeyByName(id, meta)
+		log.Println("[INFO] Resolving gpg key by name: ", idOrName)
+		return getGpgKeyByName(idOrName, meta)
 	}
 }
 
