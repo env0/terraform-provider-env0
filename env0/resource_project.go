@@ -215,7 +215,7 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	} else {
 		log.Println("[INFO] Resolving Project by name: ", id)
 
-		if project, err = getProjectByName(id, meta); err != nil {
+		if project, err = getProjectByName(id, "", meta); err != nil {
 			return nil, err
 		}
 	}

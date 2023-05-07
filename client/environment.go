@@ -89,6 +89,7 @@ type DeploymentLog struct {
 	BlueprintRepository string          `json:"blueprintRepository"`
 	BlueprintRevision   string          `json:"blueprintRevision"`
 	Output              json.RawMessage `json:"output,omitempty"`
+	Error               json.RawMessage `json:"error,omitempty"`
 	Type                string          `json:"type"`
 	WorkflowFile        *WorkflowFile   `json:"workflowFile,omitempty" tfschema:"-"`
 }

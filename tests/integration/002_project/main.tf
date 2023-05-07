@@ -25,6 +25,22 @@ data "env0_project" "data_by_id" {
   id = env0_project.test_project.id
 }
 
+resource "env0_project" "test_project_other" {
+  name        = "Test-Project-${random_string.random.result}-other"
+  description = "Test Description"
+}
+
+resource "env0_project" "test_sub_project_other" {
+  name              = "Test-Sub-Project-${random_string.random.result}"
+  description       = "Test Description"
+  parent_project_id = env0_project.test_project_other.id
+}
+
+data "env0_project" "data_by_name_with_parent_name" {
+  name                = env0_project.test_sub_project_other.name
+  parent_project_name = env0_project.test_project_other.name
+}
+
 output "test_project_name" {
   value = replace(env0_project.test_project.name, random_string.random.result, "")
 }
