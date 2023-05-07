@@ -1,10 +1,12 @@
 package client
 
 type GpgKey struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	KeyId   string `json:"keyId"`
-	Content string `json:"content"`
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	OrganizationId string `json:"organizationId"`
+	KeyId          string `json:"keyId"`
+	Content        string `json:"content"`
+	CreatedBy      string `json:"createdBy"`
 }
 
 type GpgKeyCreatePayload struct {
