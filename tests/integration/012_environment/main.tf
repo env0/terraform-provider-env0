@@ -127,7 +127,7 @@ resource "env0_template" "workflow_template" {
   name              = "Template for workflow environment-${random_string.random.result}"
   type              = "workflow"
   repository        = "https://github.com/env0/templates"
-  path              = "misc/workflow-environment-basic"
+  path              = "misc/single-environment-workflow"
   terraform_version = "1.1.5"
 }
 
