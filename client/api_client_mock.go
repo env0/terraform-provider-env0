@@ -729,6 +729,50 @@ func (mr *MockApiClientInterfaceMockRecorder) GitTokens() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokens", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokens))
 }
 
+// GpgKeyCreate mocks base method.
+func (m *MockApiClientInterface) GpgKeyCreate(arg0 *GpgKeyCreatePayload) (*GpgKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GpgKeyCreate", arg0)
+	ret0, _ := ret[0].(*GpgKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GpgKeyCreate indicates an expected call of GpgKeyCreate.
+func (mr *MockApiClientInterfaceMockRecorder) GpgKeyCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyCreate), arg0)
+}
+
+// GpgKeyDelete mocks base method.
+func (m *MockApiClientInterface) GpgKeyDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GpgKeyDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GpgKeyDelete indicates an expected call of GpgKeyDelete.
+func (mr *MockApiClientInterfaceMockRecorder) GpgKeyDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyDelete), arg0)
+}
+
+// GpgKeys mocks base method.
+func (m *MockApiClientInterface) GpgKeys() ([]GpgKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GpgKeys")
+	ret0, _ := ret[0].([]GpgKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GpgKeys indicates an expected call of GpgKeys.
+func (mr *MockApiClientInterfaceMockRecorder) GpgKeys() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeys", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeys))
+}
+
 // Module mocks base method.
 func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
 	m.ctrl.T.Helper()

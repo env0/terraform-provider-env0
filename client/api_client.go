@@ -121,6 +121,9 @@ type ApiClientInterface interface {
 	RemoteStateAccessConfiguration(environmentId string) (*RemoteStateAccessConfiguration, error)
 	RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error)
 	RemoteStateAccessConfigurationDelete(environmentId string) error
+	GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, error)
+	GpgKeyDelete(id string) error
+	GpgKeys() ([]GpgKey, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

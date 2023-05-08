@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func driftDetected(d *schema.ResourceData, err error) bool {
+func driftDetected(err error) bool {
 	if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
 		return true
 	}
@@ -22,7 +22,7 @@ func driftDetected(d *schema.ResourceData, err error) bool {
 }
 
 func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
-	if driftDetected(d, err) {
+	if driftDetected(err) {
 		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
 		d.SetId("")
 		return nil
