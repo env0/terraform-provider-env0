@@ -166,18 +166,4 @@ resource "env0_environment" "workflow-environment" {
       value   = "world"
     }
   }
-
-  sub_environment_configuration {
-    alias     = "rootService2"
-    revision  = "master"
-    workspace = "rootService2"
-    configuration {
-      name    = "sub_env2_var1"
-      value   = "hello"
-    }
-    configuration {
-      name    = var.second_run ? "sub_env2_var3" : "sub_env2_var2"
-      value   = var.second_run ? "world2" : "world"
-    }
-  }
 }
