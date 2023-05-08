@@ -156,7 +156,6 @@ resource "env0_environment" "workflow-environment" {
   sub_environment_configuration {
     alias     = "rootService1"
     revision  = "master"
-    workspace = "rootService1"
     configuration {
       name    = "sub_env1_var1"
       value   = "hello"
