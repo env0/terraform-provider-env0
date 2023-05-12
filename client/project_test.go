@@ -76,7 +76,7 @@ var _ = Describe("Project", func() {
 	Describe("ProjectUpdate", func() {
 		var mockedResponse Project
 		BeforeEach(func() {
-			payload := ProjectCreatePayload{
+			payload := ProjectUpdatePayload{
 				Name:        "newName",
 				Description: "newDesc",
 			}
@@ -147,5 +147,22 @@ var _ = Describe("Project", func() {
 		It("Should return projects", func() {
 			Expect(projects).To(Equal(mockProjects))
 		})
+	})
+
+	Describe("ProjectMove", func() {
+		targetProjectId := "targetid"
+
+		payload := struct {
+			TargetProjectId string `json:"targetProjectId"`
+		}{
+			targetProjectId,
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/projects/"+mockProject.Id+"/move", payload, nil).Times(1)
+			apiClient.ProjectMove(mockProject.Id, targetProjectId)
+		})
+
+		It("Should send POST request with project id and target project id", func() {})
 	})
 })
