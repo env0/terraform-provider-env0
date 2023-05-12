@@ -11,7 +11,7 @@ resource "env0_project" "test_project" {
   description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 
-esource "env0_project" "test_project2" {
+resource "env0_project" "test_project2" {
   name        = "Test-Project-${random_string.random.result}2"
   description = "Test Description2 ${var.second_run ? "after update" : ""}"
 }
