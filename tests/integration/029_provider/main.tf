@@ -12,7 +12,7 @@ resource "env0_provider" "test_provider" {
 }
 
 data "env0_provider" "test_provider_data" {
-  type = env0_provider.test_gpg_key.name
+  type = env0_provider.test_provider.type
 }
 
 resource "env0_provider" "test_provider-type-change" {
