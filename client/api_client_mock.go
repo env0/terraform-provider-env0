@@ -1129,6 +1129,80 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectsAgentsAssignments() *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectsAgentsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectsAgentsAssignments))
 }
 
+// Provider mocks base method.
+func (m *MockApiClientInterface) Provider(arg0 string) (*Provider, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Provider", arg0)
+	ret0, _ := ret[0].(*Provider)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Provider indicates an expected call of Provider.
+func (mr *MockApiClientInterfaceMockRecorder) Provider(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provider", reflect.TypeOf((*MockApiClientInterface)(nil).Provider), arg0)
+}
+
+// ProviderCreate mocks base method.
+func (m *MockApiClientInterface) ProviderCreate(arg0 ProviderCreatePayload) (*Provider, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProviderCreate", arg0)
+	ret0, _ := ret[0].(*Provider)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProviderCreate indicates an expected call of ProviderCreate.
+func (mr *MockApiClientInterfaceMockRecorder) ProviderCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderCreate), arg0)
+}
+
+// ProviderDelete mocks base method.
+func (m *MockApiClientInterface) ProviderDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProviderDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProviderDelete indicates an expected call of ProviderDelete.
+func (mr *MockApiClientInterfaceMockRecorder) ProviderDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderDelete), arg0)
+}
+
+// ProviderUpdate mocks base method.
+func (m *MockApiClientInterface) ProviderUpdate(arg0 string, arg1 ProviderUpdatePayload) (*Provider, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProviderUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*Provider)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProviderUpdate indicates an expected call of ProviderUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) ProviderUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderUpdate), arg0, arg1)
+}
+
+// Providers mocks base method.
+func (m *MockApiClientInterface) Providers() ([]Provider, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Providers")
+	ret0, _ := ret[0].([]Provider)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Providers indicates an expected call of Providers.
+func (mr *MockApiClientInterfaceMockRecorder) Providers() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Providers", reflect.TypeOf((*MockApiClientInterface)(nil).Providers))
+}
+
 // RemoteStateAccessConfiguration mocks base method.
 func (m *MockApiClientInterface) RemoteStateAccessConfiguration(arg0 string) (*RemoteStateAccessConfiguration, error) {
 	m.ctrl.T.Helper()
