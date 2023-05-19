@@ -153,9 +153,9 @@ var _ = Describe("Project", func() {
 		targetProjectId := "targetid"
 
 		payload := struct {
-			TargetProjectId string `json:"targetProjectId"`
+			TargetProjectId *string `json:"targetProjectId"`
 		}{
-			targetProjectId,
+			&targetProjectId,
 		}
 
 		BeforeEach(func() {
@@ -164,5 +164,20 @@ var _ = Describe("Project", func() {
 		})
 
 		It("Should send POST request with project id and target project id", func() {})
+	})
+
+	Describe("ProjectMove with no target project id", func() {
+		payload := struct {
+			TargetProjectId *string `json:"targetProjectId"`
+		}{
+			nil,
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/projects/"+mockProject.Id+"/move", payload, nil).Times(1)
+			apiClient.ProjectMove(mockProject.Id, "")
+		})
+
+		It("Should send POST request with project id and nil target project id", func() {})
 	})
 })

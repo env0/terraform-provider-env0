@@ -84,10 +84,16 @@ func (client *ApiClient) ProjectUpdate(id string, payload ProjectUpdatePayload) 
 }
 
 func (client *ApiClient) ProjectMove(id string, targetProjectId string) error {
+	// Pass nil if a subproject becomes a project.
+	var targetProjectIdPtr *string
+	if targetProjectId != "" {
+		targetProjectIdPtr = &targetProjectId
+	}
+
 	payload := struct {
-		TargetProjectId string `json:"targetProjectId"`
+		TargetProjectId *string `json:"targetProjectId"`
 	}{
-		targetProjectId,
+		targetProjectIdPtr,
 	}
 
 	return client.http.Post("/projects/"+id+"/move", payload, nil)
