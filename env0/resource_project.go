@@ -113,9 +113,6 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	if d.HasChange("parent_project_id") {
 		parentProjectId := d.Get("parent_project_id").(string)
-		if parentProjectId == "" {
-			return diag.Errorf("could not move project: subproject cannot become a project")
-		}
 
 		if err := apiClient.ProjectMove(id, parentProjectId); err != nil {
 			return diag.Errorf("could not move project: %v", err)
