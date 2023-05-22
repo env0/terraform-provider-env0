@@ -34,6 +34,13 @@ func TestUnitProjectResource(t *testing.T) {
 		ParentProjectId: project.Id,
 	}
 
+	updatedSubproject := client.Project{
+		Id:              "subProjectId",
+		Description:     "sub project des2",
+		Name:            "sub project nam2",
+		ParentProjectId: "other_parent_id",
+	}
+
 	t.Run("Test project", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -67,7 +74,7 @@ func TestUnitProjectResource(t *testing.T) {
 				Name:        project.Name,
 				Description: project.Description,
 			}).Times(1).Return(project, nil)
-			mock.EXPECT().ProjectUpdate(updatedProject.Id, client.ProjectCreatePayload{
+			mock.EXPECT().ProjectUpdate(updatedProject.Id, client.ProjectUpdatePayload{
 				Name:        updatedProject.Name,
 				Description: updatedProject.Description,
 			}).Times(1).Return(updatedProject, nil)
@@ -98,6 +105,19 @@ func TestUnitProjectResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "parent_project_id", project.Id),
 					),
 				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              updatedSubproject.Name,
+						"description":       updatedSubproject.Description,
+						"parent_project_id": updatedSubproject.ParentProjectId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", subProject.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedSubproject.Name),
+						resource.TestCheckResourceAttr(accessor, "description", updatedSubproject.Description),
+						resource.TestCheckResourceAttr(accessor, "parent_project_id", updatedSubproject.ParentProjectId),
+					),
+				},
 			},
 		}
 
@@ -108,7 +128,13 @@ func TestUnitProjectResource(t *testing.T) {
 					Description:     subProject.Description,
 					ParentProjectId: project.Id,
 				}).Times(1).Return(subProject, nil),
-				mock.EXPECT().Project(subProject.Id).Times(1).Return(subProject, nil),
+				mock.EXPECT().Project(subProject.Id).Times(2).Return(subProject, nil),
+				mock.EXPECT().ProjectMove(subProject.Id, updatedSubproject.ParentProjectId).Times(1).Return(nil),
+				mock.EXPECT().ProjectUpdate(subProject.Id, client.ProjectUpdatePayload{
+					Name:        updatedSubproject.Name,
+					Description: updatedSubproject.Description,
+				}).Times(1).Return(updatedSubproject, nil),
+				mock.EXPECT().Project(subProject.Id).Times(1).Return(updatedSubproject, nil),
 				mock.EXPECT().ProjectEnvironments(subProject.Id).Times(1).Return([]client.Environment{}, nil),
 				mock.EXPECT().ProjectDelete(subProject.Id).Times(1),
 			)

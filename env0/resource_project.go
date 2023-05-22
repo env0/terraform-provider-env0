@@ -67,7 +67,6 @@ func resourceProject() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "If set, the project becomes a 'sub-project' of the parent project. See https://docs.env0.com/docs/sub-projects",
 				Optional:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -110,7 +109,15 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
-	var payload client.ProjectCreatePayload
+	var payload client.ProjectUpdatePayload
+
+	if d.HasChange("parent_project_id") {
+		parentProjectId := d.Get("parent_project_id").(string)
+
+		if err := apiClient.ProjectMove(id, parentProjectId); err != nil {
+			return diag.Errorf("could not move project: %v", err)
+		}
+	}
 
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
