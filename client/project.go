@@ -20,6 +20,11 @@ type ProjectCreatePayload struct {
 	ParentProjectId string `json:"parentProjectId,omitempty"`
 }
 
+type ProjectUpdatePayload struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func (client *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -68,7 +73,7 @@ func (client *ApiClient) ProjectDelete(id string) error {
 	return client.http.Delete("/projects/" + id)
 }
 
-func (client *ApiClient) ProjectUpdate(id string, payload ProjectCreatePayload) (Project, error) {
+func (client *ApiClient) ProjectUpdate(id string, payload ProjectUpdatePayload) (Project, error) {
 	var result Project
 	err := client.http.Put("/projects/"+id, payload, &result)
 
@@ -76,4 +81,20 @@ func (client *ApiClient) ProjectUpdate(id string, payload ProjectCreatePayload) 
 		return Project{}, err
 	}
 	return result, nil
+}
+
+func (client *ApiClient) ProjectMove(id string, targetProjectId string) error {
+	// Pass nil if a subproject becomes a project.
+	var targetProjectIdPtr *string
+	if targetProjectId != "" {
+		targetProjectIdPtr = &targetProjectId
+	}
+
+	payload := struct {
+		TargetProjectId *string `json:"targetProjectId"`
+	}{
+		targetProjectIdPtr,
+	}
+
+	return client.http.Post("/projects/"+id+"/move", payload, nil)
 }
