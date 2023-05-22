@@ -11,11 +11,23 @@ resource "env0_project" "test_project" {
   description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 
+resource "env0_project" "test_project2" {
+  name        = "Test-Project-${random_string.random.result}2"
+  description = "Test Description2 ${var.second_run ? "after update" : ""}"
+}
+
 resource "env0_project" "test_sub_project" {
   name              = "Test-Sub-Project-${random_string.random.result}"
   description       = "Test Description ${var.second_run ? "after update" : ""}"
-  parent_project_id = env0_project.test_project.id
+  parent_project_id = var.second_run ? env0_project.test_project2.id : env0_project.test_project.id
 }
+
+resource "env0_project" "test_sub_project_to_project" {
+  name              = "Test-Sub-Project-To-Project-${random_string.random.result}"
+  description       = "Test Description ${var.second_run ? "after update" : ""}"
+  parent_project_id = var.second_run ? "" : env0_project.test_project.id
+}
+
 
 data "env0_project" "data_by_name" {
   name = env0_project.test_project.name
