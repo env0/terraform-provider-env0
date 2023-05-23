@@ -83,6 +83,11 @@ func dataPolicy() *schema.Resource {
 				Description: "the default environment time-to-live allowed on deploy time",
 				Computed:    true,
 			},
+			"force_remote_backend": {
+				Type:        schema.TypeBool,
+				Description: "force env0 remote backend",
+				Computed:    true,
+			},
 		},
 	}
 }

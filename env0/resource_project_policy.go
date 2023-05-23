@@ -99,6 +99,12 @@ func resourcePolicy() *schema.Resource {
 				Default:          "inherit",
 				ValidateDiagFunc: ValidateTtl,
 			},
+			"force_remote_backend": {
+				Type:        schema.TypeBool,
+				Description: "if 'true' all environments created in this project will be forced to use env0 remote backend. Default is 'false'",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
