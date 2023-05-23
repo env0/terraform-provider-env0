@@ -24,6 +24,7 @@ description: |-
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
 - `default_ttl` (String) the default environment time-to-live allowed on deploy time
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
+- `force_remote_backend` (Boolean) force env0 remote backend
 - `id` (String) id of the policy
 - `include_cost_estimation` (Boolean) Enable cost estimation for the project
 - `max_ttl` (String) the maximum environment time-to-live allowed on deploy time

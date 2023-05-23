@@ -22,6 +22,7 @@ func TestPolicyDataSource(t *testing.T) {
 		RunPullRequestPlanDefault:   false,
 		MaxTtl:                      stringPtr("3h"),
 		DefaultTtl:                  stringPtr("1h"),
+		ForceRemoteBackend:          true,
 	}
 
 	resourceType := "env0_project_policy"
@@ -48,6 +49,7 @@ func TestPolicyDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
 						resource.TestCheckResourceAttr(accessor, "max_ttl", *policy.MaxTtl),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *policy.DefaultTtl),
+						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(policy.ForceRemoteBackend)),
 					),
 				},
 			},

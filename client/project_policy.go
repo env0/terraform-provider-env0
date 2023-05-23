@@ -15,6 +15,7 @@ type Policy struct {
 	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
 	MaxTtl                      *string `json:"maxTtl,omitempty" tfschema:",omitempty"`
 	DefaultTtl                  *string `json:"defaultTtl,omitempty" tfschema:",omitempty"`
+	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
 }
 
 type PolicyUpdatePayload struct {
@@ -30,6 +31,7 @@ type PolicyUpdatePayload struct {
 	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
 	MaxTtl                      string `json:"maxTtl,omitempty"`
 	DefaultTtl                  string `json:"defaultTtl,omitempty"`
+	ForceRemoteBackend          bool   `json:"forceRemoteBackend"`
 }
 
 // Policy retrieves a policy from the API

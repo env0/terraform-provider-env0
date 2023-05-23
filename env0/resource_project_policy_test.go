@@ -27,6 +27,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		UpdatedBy:                  "updater0",
 		MaxTtl:                     stringPtr("inherit"),
 		DefaultTtl:                 stringPtr("inherit"),
+		ForceRemoteBackend:         true,
 	}
 
 	updatedPolicy := client.Policy{
@@ -42,6 +43,7 @@ func TestUnitPolicyResource(t *testing.T) {
 		UpdatedBy:                  "updater0",
 		MaxTtl:                     nil,
 		DefaultTtl:                 stringPtr("7-h"),
+		ForceRemoteBackend:         false,
 	}
 
 	resetPolicy := client.Policy{
@@ -64,6 +66,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						"skip_redundant_deployments":    policy.SkipRedundantDeployments,
 						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
 						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
+						"force_remote_backend":          policy.ForceRemoteBackend,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
@@ -78,6 +81,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "continuous_deployment_default", strconv.FormatBool(policy.ContinuousDeploymentDefault)),
 						resource.TestCheckResourceAttr(accessor, "max_ttl", "inherit"),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", "inherit"),
+						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(policy.ForceRemoteBackend)),
 					),
 				},
 				{
@@ -102,6 +106,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "skip_redundant_deployments", strconv.FormatBool(updatedPolicy.SkipRedundantDeployments)),
 						resource.TestCheckResourceAttr(accessor, "max_ttl", "Infinite"),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *updatedPolicy.DefaultTtl),
+						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(updatedPolicy.ForceRemoteBackend)),
 					),
 				},
 			},
@@ -121,6 +126,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					SkipRedundantDeployments:   policy.SkipRedundantDeployments,
 					MaxTtl:                     "inherit",
 					DefaultTtl:                 "inherit",
+					ForceRemoteBackend:         true,
 				}).Times(1).Return(policy, nil),
 				mock.EXPECT().Policy(gomock.Any()).Times(2).Return(policy, nil), // 1 after create, 1 before update
 				// Update
@@ -135,6 +141,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					SkipRedundantDeployments:   updatedPolicy.SkipRedundantDeployments,
 					MaxTtl:                     "",
 					DefaultTtl:                 *updatedPolicy.DefaultTtl,
+					ForceRemoteBackend:         updatedPolicy.ForceRemoteBackend,
 				}).Times(1).Return(updatedPolicy, nil),
 				mock.EXPECT().Policy(gomock.Any()).Times(1).Return(updatedPolicy, nil), // 1 after update.
 				// Delete
@@ -147,6 +154,7 @@ func TestUnitPolicyResource(t *testing.T) {
 					SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
 					DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
 					SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
+					ForceRemoteBackend:         resetPolicy.ForceRemoteBackend,
 				}).Times(1).Return(resetPolicy, nil),
 			)
 		})
