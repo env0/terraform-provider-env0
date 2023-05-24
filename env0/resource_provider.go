@@ -23,14 +23,14 @@ func resourceProvider() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:             schema.TypeString,
-				Description:      `type of the provider registry (Match pattern: ^[0-9a-z](?:[0-9a-z-]{0,30}[0-9a-z])?$). Your provider’s type is essentially it’s name, and should match your provider’s files. For example, if your binaries look like terraform-provider-aws_1.1.1_linux_amd64.zip, than your provider’s type should be aws.`,
+				Description:      `type of the provider (Match pattern: ^[0-9a-zA-Z](?:[0-9a-zA-Z-]{0,30}[0-9a-zA-Z])?$). Your provider’s type is essentially it’s name, and should match your provider’s files. For example, if your binaries look like terraform-provider-aws_1.1.1_linux_amd64.zip, than your provider’s type should be aws.`,
 				Required:         true,
 				ForceNew:         true,
-				ValidateDiagFunc: NewRegexValidator(`^[0-9a-z](?:[0-9a-z-]{0,30}[0-9a-z])?$`),
+				ValidateDiagFunc: NewRegexValidator(`^[0-9a-zA-Z](?:[0-9a-zA-Z-]{0,30}[0-9a-zA-Z])?$`),
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "description of the provider registry",
+				Description: "description of the provider",
 				Optional:    true,
 			},
 		},
@@ -111,7 +111,7 @@ func getProviderByName(name string, meta interface{}) (*client.Provider, error) 
 	}
 
 	if len(foundProviders) == 0 {
-		return nil, fmt.Errorf("provider with name/type %v not found", name)
+		return nil, fmt.Errorf("provider with type %v not found", name)
 	}
 
 	if len(foundProviders) > 1 {

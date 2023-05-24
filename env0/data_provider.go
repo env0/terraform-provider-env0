@@ -15,19 +15,19 @@ func dataProvider() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:         schema.TypeString,
-				Description:  "the type/name of the registry provider",
+				Description:  "the type/name of the provider",
 				Optional:     true,
 				ExactlyOneOf: []string{"type", "id"},
 			},
 			"id": {
 				Type:         schema.TypeString,
-				Description:  "id of the registry provider",
+				Description:  "id of the provider",
 				Optional:     true,
 				ExactlyOneOf: []string{"type", "id"},
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "the description of the registry provider",
+				Description: "the description of the provider",
 				Computed:    true,
 			},
 		},
