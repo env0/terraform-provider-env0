@@ -125,6 +125,11 @@ type ApiClientInterface interface {
 	GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, error)
 	GpgKeyDelete(id string) error
 	GpgKeys() ([]GpgKey, error)
+	ProviderCreate(payload ProviderCreatePayload) (*Provider, error)
+	Provider(providerId string) (*Provider, error)
+	ProviderDelete(providerId string) error
+	ProviderUpdate(providerId string, payload ProviderUpdatePayload) (*Provider, error)
+	Providers() ([]Provider, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
