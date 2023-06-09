@@ -365,6 +365,50 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerraformVersion:  "0.15.1",
 		IsAzureDevOps:     true,
 	}
+
+	helmTemplate := client.Template{
+		Id:               "helmTemplate",
+		Name:             "template0",
+		Description:      "description0",
+		Repository:       "env0/repo",
+		Path:             "path/zero/new",
+		Type:             "helm",
+		HelmChartName:    "chart1",
+		IsHelmRepository: true,
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		TerraformVersion: "0.12.24",
+	}
+	helmUpdatedTemplate := client.Template{
+		Id:               helmTemplate.Id,
+		Name:             "new-name",
+		Description:      "new-description",
+		Repository:       "env0/repo-new",
+		Path:             "path/zero/new",
+		Type:             "helm",
+		HelmChartName:    "chart1",
+		IsHelmRepository: true,
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		TerraformVersion: "0.12.24",
+	}
+
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -435,6 +479,12 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.IsAzureDevOps {
 			templateAsDictionary["is_azure_devops"] = true
 		}
+		if template.IsHelmRepository {
+			templateAsDictionary["is_helm_repository"] = true
+		}
+		if template.HelmChartName != "" {
+			templateAsDictionary["helm_chart_name"] = template.HelmChartName
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -451,6 +501,11 @@ func TestUnitTemplateResource(t *testing.T) {
 		tokenIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId)
 		if template.TokenId == "" {
 			tokenIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_id")
+		}
+
+		helmChartNameAssertion := resource.TestCheckResourceAttr(resourceFullName, "helm_chart_name", template.HelmChartName)
+		if template.HelmChartName == "" {
+			helmChartNameAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "helm_chart_name")
 		}
 
 		filenameAssertion := resource.TestCheckResourceAttr(resourceFullName, "file_name", template.FileName)
@@ -485,9 +540,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			gitlabProjectIdAssertion,
 			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
+			helmChartNameAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
+			resource.TestCheckResourceAttr(resourceFullName, "is_helm_repository", strconv.FormatBool(template.IsHelmRepository)),
 		)
 	}
 
@@ -504,6 +561,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Bitbucket Server", bitbucketServerTemplate, bitbucketServerUpdatedTemplate},
 		{"Cloudformation", cloudformationTemplate, cloudformationUpdatedTemplate},
 		{"Azure DevOps", azureDevOpsTemplate, azureDevOpsUpdatedTemplate},
+		{"Helm Chart", helmTemplate, helmUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -526,7 +584,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				TokenId:              templateUseCase.template.TokenId,
 				Path:                 templateUseCase.template.Path,
 				Revision:             templateUseCase.template.Revision,
-				Type:                 "terraform",
+				Type:                 templateUseCase.template.Type,
 				Retry:                templateUseCase.template.Retry,
 				TerraformVersion:     templateUseCase.template.TerraformVersion,
 				BitbucketClientKey:   templateUseCase.template.BitbucketClientKey,
@@ -536,6 +594,8 @@ func TestUnitTemplateResource(t *testing.T) {
 				TerragruntVersion:    templateUseCase.template.TerragruntVersion,
 				IsTerragruntRunAll:   templateUseCase.template.IsTerragruntRunAll,
 				IsAzureDevOps:        templateUseCase.template.IsAzureDevOps,
+				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
+				HelmChartName:        templateUseCase.template.HelmChartName,
 			}
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
@@ -558,6 +618,8 @@ func TestUnitTemplateResource(t *testing.T) {
 				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
 				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
 				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
+				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
+				HelmChartName:        templateUseCase.template.HelmChartName,
 			}
 
 			if templateUseCase.vcs == "Cloudformation" {

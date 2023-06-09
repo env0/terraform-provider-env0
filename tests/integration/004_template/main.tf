@@ -80,6 +80,23 @@ resource "env0_template" "github_template_source_code" {
   terraform_version                       = "0.15.1"
 }
 
+resource "env0_template" "helm_template" {
+  name        = "helm-${random_string.random.result}-1"
+  description = "Template description helm"
+  repository  = "https://github.com/env0/templates"
+  path        = "misc/helm/dummy"
+  type        = "helm"
+}
+
+resource "env0_template" "helm_template_repo" {
+  name               = "helm-${random_string.random.result}-2"
+  description        = "Template description helm repo"
+  repository         = "https://charts.bitnami.com/bitnami"
+  type               = "helm"
+  helm_chart_name    = "nginx"
+  is_helm_repository = true
+}
+
 data "env0_source_code_variables" "variables" {
   template_id = env0_template.github_template_source_code.id
 }

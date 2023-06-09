@@ -21,6 +21,7 @@ var allowedTemplateTypes = []string{
 	"k8s",
 	"workflow",
 	"cloudformation",
+	"helm",
 }
 
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
@@ -33,6 +34,8 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"is_bitbucket_server",
 		"is_github_enterprise",
 		"is_azure_devops",
+		"helm_chart_name",
+		"is_helm_repository",
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
@@ -207,6 +210,20 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Default:       "false",
 			ConflictsWith: allVCSAttributesBut("is_azure_devops", "token_id"),
 			RequiredWith:  requiredWith("token_id"),
+		},
+		"helm_chart_name": {
+			Type:          schema.TypeString,
+			Optional:      true,
+			Description:   "the helm chart name. Required if is_helm_repository is set to 'true'",
+			ConflictsWith: allVCSAttributesBut("helm_chart_name", "is_helm_repository"),
+		},
+		"is_helm_repository": {
+			Type:          schema.TypeBool,
+			Optional:      true,
+			Description:   "true if this template integrates with a helm repository",
+			Default:       "false",
+			ConflictsWith: allVCSAttributesBut("helm_chart_name", "is_helm_repository"),
+			RequiredWith:  requiredWith("helm_chart_name"),
 		},
 	}
 

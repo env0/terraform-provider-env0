@@ -58,6 +58,8 @@ type Template struct {
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsHelmRepository     bool             `json:"isHelmRepository"`
+	HelmChartName        string           `json:"helmChartName,omitempty" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -84,6 +86,8 @@ type TemplateCreatePayload struct {
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsHelmRepository     bool             `json:"isHelmRepository"`
+	HelmChartName        string           `json:"helmChartName,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
