@@ -144,6 +144,16 @@ func (payload TemplateCreatePayload) Validate() error {
 		return fmt.Errorf("file_name cannot be set when template type is: %s", payload.Type)
 	}
 
+	if payload.IsHelmRepository {
+		if payload.Type != "helm" {
+			return errors.New(`can't set is_helm_repository to "true" for non-helm template`)
+		}
+
+		if payload.HelmChartName == "" {
+			return errors.New("helm_chart_name is required with helm repository")
+		}
+	}
+
 	return nil
 }
 
