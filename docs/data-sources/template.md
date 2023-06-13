@@ -45,7 +45,7 @@ data "env0_template" "example" {
 - `retry_on_destroy_only_when_matches_regex` (String) if specified, will only retry (on destroy) if error matches specified regex
 - `revision` (String) source code revision (branch / tag) to use
 - `terraform_version` (String) terraform version to use
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm)
 
 <a id="nestedblock--ssh_keys"></a>
 ### Nested Schema for `ssh_keys`

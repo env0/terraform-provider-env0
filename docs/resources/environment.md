@@ -159,10 +159,12 @@ Optional:
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
 - `github_installation_id` (Number) the env0 application installation id on the relevant github repository
 - `gitlab_project_id` (Number) the project id of the relevant repository
+- `helm_chart_name` (String) the helm chart name. Required if is_helm_repository is set to 'true'
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
+- `is_helm_repository` (Boolean) true if this template integrates with a helm repository
 - `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
 - `path` (String) terraform / terragrunt file folder inside source code
 - `retries_on_deploy` (Number) number of times to retry when deploying an environment based on this template
@@ -174,7 +176,7 @@ Optional:
 - `terraform_version` (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code).
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation)
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm)
 
 Read-Only:
 
