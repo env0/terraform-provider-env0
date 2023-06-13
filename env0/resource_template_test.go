@@ -371,7 +371,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		Name:             "template0",
 		Description:      "description0",
 		Repository:       "env0/repo",
-		Path:             "path/zero/new",
 		Type:             "helm",
 		HelmChartName:    "chart1",
 		IsHelmRepository: true,
@@ -392,7 +391,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		Name:             "new-name",
 		Description:      "new-description",
 		Repository:       "env0/repo-new",
-		Path:             "path/zero/new",
 		Type:             "helm",
 		HelmChartName:    "chart1",
 		IsHelmRepository: true,
@@ -523,12 +521,16 @@ func TestUnitTemplateResource(t *testing.T) {
 			githubInstallationIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id")
 		}
 
+		pathAssertion := resource.TestCheckResourceAttr(resourceFullName, "path", template.Path)
+		if template.Path == "" {
+			pathAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "path")
+		}
+
 		return resource.ComposeAggregateTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 			resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
 			resource.TestCheckResourceAttr(resourceFullName, "description", template.Description),
 			resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-			resource.TestCheckResourceAttr(resourceFullName, "path", template.Path),
 			resource.TestCheckResourceAttr(resourceFullName, "type", template.Type),
 			resource.TestCheckResourceAttr(resourceFullName, "retries_on_deploy", strconv.Itoa(template.Retry.OnDeploy.Times)),
 			resource.TestCheckResourceAttr(resourceFullName, "retry_on_deploy_only_when_matches_regex", template.Retry.OnDeploy.ErrorRegex),
@@ -541,6 +543,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
 			helmChartNameAssertion,
+			pathAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),

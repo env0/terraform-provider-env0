@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -40,11 +39,18 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
-		sort.Strings(strs)
 		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
-			if sort.SearchStrings(strs, attr) >= len(strs) {
+			var found bool
+			for _, str := range strs {
+				if str == attr {
+					found = true
+					break
+				}
+			}
+
+			if !found {
 				if prefix != "" {
 					attr = prefix + attr
 				}
