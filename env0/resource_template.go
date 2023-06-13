@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -21,6 +20,7 @@ var allowedTemplateTypes = []string{
 	"k8s",
 	"workflow",
 	"cloudformation",
+	"helm",
 }
 
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
@@ -33,14 +33,24 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"is_bitbucket_server",
 		"is_github_enterprise",
 		"is_azure_devops",
+		"helm_chart_name",
+		"is_helm_repository",
+		"path",
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
-		sort.Strings(strs)
 		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
-			if sort.SearchStrings(strs, attr) >= len(strs) {
+			var found bool
+			for _, str := range strs {
+				if str == attr {
+					found = true
+					break
+				}
+			}
+
+			if !found {
 				if prefix != "" {
 					attr = prefix + attr
 				}
@@ -134,19 +144,19 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:          schema.TypeInt,
 			Description:   "the env0 application installation id on the relevant github repository",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("github_installation_id"),
+			ConflictsWith: allVCSAttributesBut("github_installation_id", "path"),
 		},
 		"token_id": {
 			Type:          schema.TypeString,
 			Description:   "the git token id to be used",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "is_azure_devops"),
+			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "is_azure_devops", "path"),
 		},
 		"gitlab_project_id": {
 			Type:          schema.TypeInt,
 			Description:   "the project id of the relevant repository",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id"),
+			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "path"),
 			RequiredWith:  requiredWith("token_id"),
 		},
 		"terraform_version": {
@@ -167,27 +177,27 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "true if this template uses gitlab enterprise repository",
 			Optional:      true,
 			Default:       "false",
-			ConflictsWith: allVCSAttributesBut("is_gitlab_enterprise"),
+			ConflictsWith: allVCSAttributesBut("is_gitlab_enterprise", "path"),
 		},
 		"bitbucket_client_key": {
 			Type:          schema.TypeString,
 			Description:   "the bitbucket client key used for integration",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("bitbucket_client_key"),
+			ConflictsWith: allVCSAttributesBut("bitbucket_client_key", "path"),
 		},
 		"is_bitbucket_server": {
 			Type:          schema.TypeBool,
 			Description:   "true if this template uses bitbucket server repository",
 			Optional:      true,
 			Default:       "false",
-			ConflictsWith: allVCSAttributesBut("is_bitbucket_server"),
+			ConflictsWith: allVCSAttributesBut("is_bitbucket_server", "path"),
 		},
 		"is_github_enterprise": {
 			Type:          schema.TypeBool,
 			Description:   "true if this template uses github enterprise repository",
 			Optional:      true,
 			Default:       "false",
-			ConflictsWith: allVCSAttributesBut("is_github_enterprise"),
+			ConflictsWith: allVCSAttributesBut("is_github_enterprise", "path"),
 		},
 		"file_name": {
 			Type:        schema.TypeString,
@@ -205,8 +215,22 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Optional:      true,
 			Description:   "true if this template integrates with azure dev ops",
 			Default:       "false",
-			ConflictsWith: allVCSAttributesBut("is_azure_devops", "token_id"),
+			ConflictsWith: allVCSAttributesBut("is_azure_devops", "token_id", "path"),
 			RequiredWith:  requiredWith("token_id"),
+		},
+		"helm_chart_name": {
+			Type:          schema.TypeString,
+			Optional:      true,
+			Description:   "the helm chart name. Required if is_helm_repository is set to 'true'",
+			ConflictsWith: allVCSAttributesBut("helm_chart_name", "is_helm_repository"),
+		},
+		"is_helm_repository": {
+			Type:          schema.TypeBool,
+			Optional:      true,
+			Description:   "true if this template integrates with a helm repository",
+			Default:       "false",
+			ConflictsWith: allVCSAttributesBut("helm_chart_name", "is_helm_repository"),
+			RequiredWith:  requiredWith("helm_chart_name"),
 		},
 	}
 

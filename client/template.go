@@ -37,7 +37,7 @@ type Template struct {
 	Name                 string           `json:"name"`
 	Description          string           `json:"description"`
 	OrganizationId       string           `json:"organizationId"`
-	Path                 string           `json:"path"`
+	Path                 string           `json:"path,omitempty" tfschema:",omitempty"`
 	Revision             string           `json:"revision"`
 	ProjectId            string           `json:"projectId"`
 	ProjectIds           []string         `json:"projectIds"`
@@ -58,6 +58,8 @@ type Template struct {
 	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsHelmRepository     bool             `json:"isHelmRepository"`
+	HelmChartName        string           `json:"helmChartName,omitempty" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -67,7 +69,7 @@ type TemplateCreatePayload struct {
 	Description          string           `json:"description"`
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
-	Path                 string           `json:"path"`
+	Path                 string           `json:"path,omitempty"`
 	IsGitLab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName"`
 	TokenId              string           `json:"tokenId,omitempty"`
@@ -84,6 +86,8 @@ type TemplateCreatePayload struct {
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsHelmRepository     bool             `json:"isHelmRepository"`
+	HelmChartName        string           `json:"helmChartName,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -138,6 +142,20 @@ func (payload TemplateCreatePayload) Validate() error {
 	}
 	if payload.Type != "cloudformation" && payload.FileName != "" {
 		return fmt.Errorf("file_name cannot be set when template type is: %s", payload.Type)
+	}
+
+	if payload.IsHelmRepository || payload.HelmChartName != "" {
+		if payload.Type != "helm" {
+			return errors.New(`can't set is_helm_repository to "true" for non-helm template`)
+		}
+
+		if payload.HelmChartName == "" {
+			return errors.New("helm_chart_name is required with helm repository")
+		}
+
+		if !payload.IsHelmRepository {
+			return errors.New(`is_helm_repositroy set to "true" is required with "helm_chart_name"`)
+		}
 	}
 
 	return nil
