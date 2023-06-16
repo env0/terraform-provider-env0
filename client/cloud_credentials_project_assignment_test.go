@@ -60,7 +60,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 		var actualError error
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Delete("/credentials/deployment/" + credentialId + "/project/" + projectId).
+				Delete("/credentials/deployment/"+credentialId+"/project/"+projectId, nil).
 				Return(errors.New(errorInfo)).
 				Times(1)
 			actualError = apiClient.RemoveCloudCredentialsFromProject(projectId, credentialId)

@@ -167,6 +167,21 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), arg0, arg1)
 }
 
+// AssignUserRoleToEnvironment mocks base method.
+func (m *MockApiClientInterface) AssignUserRoleToEnvironment(arg0 *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignUserRoleToEnvironment", arg0)
+	ret0, _ := ret[0].(*UserRoleEnvironmentAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssignUserRoleToEnvironment indicates an expected call of AssignUserRoleToEnvironment.
+func (mr *MockApiClientInterfaceMockRecorder) AssignUserRoleToEnvironment(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserRoleToEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserRoleToEnvironment), arg0)
+}
+
 // AssignUserToProject mocks base method.
 func (m *MockApiClientInterface) AssignUserToProject(arg0 string, arg1 *AssignUserToProjectPayload) (*UserProjectAssignment, error) {
 	m.ctrl.T.Helper()
@@ -1317,6 +1332,20 @@ func (mr *MockApiClientInterfaceMockRecorder) RemoveUserFromProject(arg0, arg1 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserFromProject), arg0, arg1)
 }
 
+// RemoveUserRoleFromEnvironment mocks base method.
+func (m *MockApiClientInterface) RemoveUserRoleFromEnvironment(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveUserRoleFromEnvironment", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveUserRoleFromEnvironment indicates an expected call of RemoveUserRoleFromEnvironment.
+func (mr *MockApiClientInterfaceMockRecorder) RemoveUserRoleFromEnvironment(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserRoleFromEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserRoleFromEnvironment), arg0, arg1)
+}
+
 // Role mocks base method.
 func (m *MockApiClientInterface) Role(arg0 string) (*Role, error) {
 	m.ctrl.T.Helper()
@@ -1698,6 +1727,21 @@ func (m *MockApiClientInterface) UserProjectAssignments(arg0 string) ([]UserProj
 func (mr *MockApiClientInterfaceMockRecorder) UserProjectAssignments(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserProjectAssignments), arg0)
+}
+
+// UserRoleEnvironmentAssignments mocks base method.
+func (m *MockApiClientInterface) UserRoleEnvironmentAssignments(arg0 string) ([]UserRoleEnvironmentAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserRoleEnvironmentAssignments", arg0)
+	ret0, _ := ret[0].([]UserRoleEnvironmentAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserRoleEnvironmentAssignments indicates an expected call of UserRoleEnvironmentAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) UserRoleEnvironmentAssignments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserRoleEnvironmentAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserRoleEnvironmentAssignments), arg0)
 }
 
 // Users mocks base method.

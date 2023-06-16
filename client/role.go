@@ -48,7 +48,7 @@ func (client *ApiClient) Role(id string) (*Role, error) {
 }
 
 func (client *ApiClient) RoleDelete(id string) error {
-	return client.http.Delete("/roles/" + id)
+	return client.http.Delete("/roles/"+id, nil)
 }
 
 func (client *ApiClient) RoleUpdate(id string, payload RoleUpdatePayload) (*Role, error) {

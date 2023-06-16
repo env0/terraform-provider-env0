@@ -19,7 +19,7 @@ func (client *ApiClient) AssignCostCredentialsToProject(projectId string, creden
 }
 
 func (client *ApiClient) RemoveCostCredentialsFromProject(projectId string, credentialId string) error {
-	return client.http.Delete("/costs/project/" + projectId + "/credentials/" + credentialId)
+	return client.http.Delete("/costs/project/"+projectId+"/credentials/"+credentialId, nil)
 }
 
 func (client *ApiClient) CostCredentialIdsInProject(projectId string) ([]CostCredentialProjectAssignment, error) {

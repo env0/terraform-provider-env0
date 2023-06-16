@@ -204,7 +204,7 @@ var _ = Describe("Configuration Variable", func() {
 
 	Describe("ConfigurationVariableDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("configuration/" + mockConfigurationVariable.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("configuration/"+mockConfigurationVariable.Id, nil)
 			apiClient.ConfigurationVariableDelete(mockConfigurationVariable.Id)
 		})
 

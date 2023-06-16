@@ -79,7 +79,7 @@ var _ = Describe("Agent Project Assignment", func() {
 
 	Describe("RemoveUserFromProject", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/permissions/projects/" + projectId + "/users/" + expectedResponse.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/permissions/projects/"+projectId+"/users/"+expectedResponse.Id, nil)
 			apiClient.RemoveUserFromProject(projectId, expectedResponse.Id)
 		})
 

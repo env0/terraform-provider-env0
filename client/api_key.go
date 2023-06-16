@@ -47,7 +47,7 @@ func (client *ApiClient) ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, err
 }
 
 func (client *ApiClient) ApiKeyDelete(id string) error {
-	return client.http.Delete("/api-keys/" + id)
+	return client.http.Delete("/api-keys/"+id, nil)
 }
 
 func (client *ApiClient) ApiKeys() ([]ApiKey, error) {

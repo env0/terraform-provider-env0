@@ -109,7 +109,7 @@ var _ = Describe("Module Client", func() {
 
 	Describe("Delete Module", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/modules/" + mockModule.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/modules/"+mockModule.Id, nil)
 			apiClient.ModuleDelete(mockModule.Id)
 		})
 

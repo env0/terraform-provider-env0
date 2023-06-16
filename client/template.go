@@ -186,7 +186,7 @@ func (client *ApiClient) Template(id string) (Template, error) {
 }
 
 func (client *ApiClient) TemplateDelete(id string) error {
-	return client.http.Delete("/blueprints/" + id)
+	return client.http.Delete("/blueprints/"+id, nil)
 }
 
 func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
@@ -230,7 +230,7 @@ func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssi
 }
 
 func (client *ApiClient) RemoveTemplateFromProject(templateId string, projectId string) error {
-	return client.http.Delete("/blueprints/" + templateId + "/projects/" + projectId)
+	return client.http.Delete("/blueprints/"+templateId+"/projects/"+projectId, nil)
 }
 
 func (client *ApiClient) VariablesFromRepository(payload *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error) {

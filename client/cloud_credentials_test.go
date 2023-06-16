@@ -200,7 +200,7 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("CloudCredentialsDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/credentials/" + mockCredentials.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/credentials/"+mockCredentials.Id, nil)
 			apiClient.CloudCredentialsDelete(mockCredentials.Id)
 		})
 

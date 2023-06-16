@@ -60,7 +60,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 		var actualError error
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Delete("/costs/project/" + projectId + "/credentials/" + credentialId).
+				Delete("/costs/project/"+projectId+"/credentials/"+credentialId, nil).
 				Return(errors.New(errorInfo)).
 				Times(1)
 			actualError = apiClient.RemoveCostCredentialsFromProject(projectId, credentialId)

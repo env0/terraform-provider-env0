@@ -127,7 +127,7 @@ var _ = Describe("Templates Client", func() {
 
 	Describe("TemplateDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/" + mockTemplate.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id, nil)
 			apiClient.TemplateDelete(mockTemplate.Id)
 		})
 
@@ -211,7 +211,7 @@ var _ = Describe("Templates Client", func() {
 	Describe("remove template from project", func() {
 		projectId := "project-id"
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/" + mockTemplate.Id + "/projects/" + projectId)
+			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/"+projectId, nil)
 			apiClient.RemoveTemplateFromProject(mockTemplate.Id, projectId)
 		})
 

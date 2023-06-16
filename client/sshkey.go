@@ -33,7 +33,7 @@ func (client *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, err
 }
 
 func (client *ApiClient) SshKeyDelete(id string) error {
-	return client.http.Delete("/ssh-keys/" + id)
+	return client.http.Delete("/ssh-keys/"+id, nil)
 }
 
 func (client *ApiClient) SshKeys() ([]SshKey, error) {

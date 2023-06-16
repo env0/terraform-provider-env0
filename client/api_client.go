@@ -130,6 +130,9 @@ type ApiClientInterface interface {
 	ProviderDelete(providerId string) error
 	ProviderUpdate(providerId string, payload ProviderUpdatePayload) (*Provider, error)
 	Providers() ([]Provider, error)
+	AssignUserRoleToEnvironment(payload *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error)
+	RemoveUserRoleFromEnvironment(environmentId string, userId string) error
+	UserRoleEnvironmentAssignments(environmentId string) ([]UserRoleEnvironmentAssignment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

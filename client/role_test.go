@@ -72,7 +72,7 @@ var _ = Describe("Role", func() {
 
 	Describe("RoleDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/roles/" + mockRole.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/roles/"+mockRole.Id, nil)
 			apiClient.RoleDelete(mockRole.Id)
 		})
 

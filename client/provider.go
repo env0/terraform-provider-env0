@@ -47,7 +47,7 @@ func (client *ApiClient) Provider(providerId string) (*Provider, error) {
 }
 
 func (client *ApiClient) ProviderDelete(providerId string) error {
-	return client.http.Delete("/providers/" + providerId)
+	return client.http.Delete("/providers/"+providerId, nil)
 }
 
 func (client *ApiClient) ProviderUpdate(providerId string, payload ProviderUpdatePayload) (*Provider, error) {

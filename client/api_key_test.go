@@ -86,7 +86,7 @@ var _ = Describe("ApiKey Client", func() {
 
 	Describe("Delete ApiKey", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/api-keys/" + mockApiKey.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/api-keys/"+mockApiKey.Id, nil)
 			apiClient.ApiKeyDelete(mockApiKey.Id)
 		})
 

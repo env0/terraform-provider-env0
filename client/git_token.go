@@ -48,7 +48,7 @@ func (client *ApiClient) GitToken(id string) (*GitToken, error) {
 }
 
 func (client *ApiClient) GitTokenDelete(id string) error {
-	return client.http.Delete("/tokens/" + id)
+	return client.http.Delete("/tokens/"+id, nil)
 }
 
 func (client *ApiClient) GitTokens() ([]GitToken, error) {

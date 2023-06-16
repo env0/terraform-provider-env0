@@ -42,7 +42,7 @@ var _ = Describe("Gpg Token Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockHttpClient.EXPECT().Delete("/gpg-keys/" + mockGpgKey.Id)
+			mockHttpClient.EXPECT().Delete("/gpg-keys/"+mockGpgKey.Id, nil)
 			err = apiClient.GpgKeyDelete(mockGpgKey.Id)
 		})
 
