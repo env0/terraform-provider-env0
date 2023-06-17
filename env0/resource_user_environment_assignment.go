@@ -29,9 +29,9 @@ func resourceUserEnvironmentAssignment() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"custom_role_id": {
+			"role_id": {
 				Type:             schema.TypeString,
-				Description:      "id of the assigned custom role",
+				Description:      "id of the assigned role",
 				Required:         true,
 				ValidateDiagFunc: ValidateNotEmptyString,
 			},
@@ -74,7 +74,7 @@ func resourceUserEnvironmentAssignmentRead(ctx context.Context, d *schema.Resour
 				return diag.Errorf("schema resource data serialization failed: %v", err)
 			}
 
-			d.Set("custom_role_id", assignment.Role)
+			d.Set("role_id", assignment.Role)
 
 			return nil
 		}

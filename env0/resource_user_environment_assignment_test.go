@@ -11,65 +11,43 @@ import (
 )
 
 func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
-	// TODO!!!!!
-
 	userId := "uid"
-	projectId := "pid"
+	environmentId := "eid"
 	id := "id"
-	role := client.Deployer
-	updatedRole := client.Viewer
-	customRole := "id1"
-	updatedCustomRole := "id2"
+	role := "rid1"
+	updatedRole := "rid2"
 
-	createPayload := client.AssignUserToProjectPayload{
-		UserId: userId,
-		Role:   string(role),
+	createPayload := client.AssignUserRoleToEnvironmentPayload{
+		UserId:        userId,
+		Role:          role,
+		EnvironmentId: environmentId,
 	}
 
-	updatePayload := client.UpdateUserProjectAssignmentPayload{
-		Role: string(updatedRole),
+	updatePayload := client.AssignUserRoleToEnvironmentPayload{
+		UserId:        userId,
+		Role:          updatedRole,
+		EnvironmentId: environmentId,
 	}
 
-	createResponse := client.UserProjectAssignment{
+	createResponse := client.UserRoleEnvironmentAssignment{
 		Id:     id,
 		UserId: userId,
-		Role:   string(role),
+		Role:   role,
 	}
 
-	updateResponse := client.UserProjectAssignment{
+	updateResponse := client.UserRoleEnvironmentAssignment{
 		Id:     id,
 		UserId: userId,
-		Role:   string(updatedRole),
+		Role:   updatedRole,
 	}
 
-	createCustomPayload := client.AssignUserToProjectPayload{
-		UserId: userId,
-		Role:   customRole,
-	}
-
-	updateCustomPayload := client.UpdateUserProjectAssignmentPayload{
-		Role: updatedCustomRole,
-	}
-
-	createCustomResponse := client.UserProjectAssignment{
-		Id:     id,
-		UserId: userId,
-		Role:   customRole,
-	}
-
-	updateCustomResponse := client.UserProjectAssignment{
-		Id:     id,
-		UserId: userId,
-		Role:   updatedCustomRole,
-	}
-
-	otherResponse := client.UserProjectAssignment{
+	otherResponse := client.UserRoleEnvironmentAssignment{
 		Id:     "id2",
 		UserId: "userId2",
-		Role:   string(role),
+		Role:   "dasdasd",
 	}
 
-	resourceType := "env0_user_project_assignment"
+	resourceType := "env0_user_environment_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
 
@@ -78,30 +56,28 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", id),
 						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "role", string(role)),
-						resource.TestCheckNoResourceAttr(accessor, "custom_role_id"),
+						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
+						resource.TestCheckResourceAttr(accessor, "role_id", role),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(updatedRole),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        updatedRole,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", id),
 						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "role", string(updatedRole)),
-						resource.TestCheckNoResourceAttr(accessor, "custom_role_id"),
+						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
+						resource.TestCheckResourceAttr(accessor, "role_id", updatedRole),
 					),
 				},
 			},
@@ -109,72 +85,11 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updatePayload).Times(1).Return(&updateResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return([]client.UserProjectAssignment{otherResponse, updateResponse}, nil),
-				mock.EXPECT().RemoveUserFromProject(projectId, userId).Times(1).Return(nil),
-			)
-		})
-	})
-
-	t.Run("Create assignment and update custom role", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":        userId,
-						"project_id":     projectId,
-						"custom_role_id": customRole,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", id),
-						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "custom_role_id", customRole),
-						resource.TestCheckNoResourceAttr(accessor, "role"),
-					),
-				},
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":        userId,
-						"project_id":     projectId,
-						"custom_role_id": updatedCustomRole,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", id),
-						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "custom_role_id", updatedCustomRole),
-						resource.TestCheckNoResourceAttr(accessor, "role"),
-					),
-				},
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(updatedRole),
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", id),
-						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "custom_role_id", ""),
-						resource.TestCheckResourceAttr(accessor, "role", string(updatedRole)),
-					),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createCustomPayload).Times(1).Return(&createCustomResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, createCustomResponse}, nil),
-				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updateCustomPayload).Times(1).Return(&updateCustomResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, updateCustomResponse}, nil),
-				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updatePayload).Times(1).Return(&updateResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return([]client.UserProjectAssignment{otherResponse, updateResponse}, nil),
-				mock.EXPECT().RemoveUserFromProject(projectId, userId).Times(1).Return(nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().UserRoleEnvironmentAssignments(environmentId).Times(2).Return([]client.UserRoleEnvironmentAssignment{otherResponse, createResponse}, nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&updatePayload).Times(1).Return(&updateResponse, nil),
+				mock.EXPECT().UserRoleEnvironmentAssignments(environmentId).Times(1).Return([]client.UserRoleEnvironmentAssignment{otherResponse, updateResponse}, nil),
+				mock.EXPECT().RemoveUserRoleFromEnvironment(environmentId, userId).Times(1).Return(nil),
 			)
 		})
 	})
@@ -184,29 +99,29 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", id),
 						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "role", string(role)),
+						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
+						resource.TestCheckResourceAttr(accessor, "role_id", role),
 					),
 					ExpectNonEmptyPlan: true,
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", id),
 						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "role", string(role)),
+						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
+						resource.TestCheckResourceAttr(accessor, "role_id", role),
 					),
 					PlanOnly:           true,
 					ExpectNonEmptyPlan: true,
@@ -216,8 +131,8 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return([]client.UserProjectAssignment{otherResponse}, nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().UserRoleEnvironmentAssignments(environmentId).Times(1).Return([]client.UserRoleEnvironmentAssignment{otherResponse}, nil),
 			)
 		})
 	})
@@ -227,9 +142,9 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
 					ExpectError: regexp.MustCompile("could not create assignment: error"),
 				},
@@ -238,7 +153,7 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createPayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().AssignUserRoleToEnvironment(&createPayload).Times(1).Return(nil, errors.New("error")),
 			)
 		})
 	})
@@ -248,20 +163,20 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
-					ExpectError: regexp.MustCompile("could not get UserProjectAssignments: error"),
+					ExpectError: regexp.MustCompile("could not get assignments: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveUserFromProject(projectId, userId).Times(1).Return(nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().UserRoleEnvironmentAssignments(environmentId).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().RemoveUserRoleFromEnvironment(environmentId, userId).Times(1).Return(nil),
 			)
 		})
 	})
@@ -271,34 +186,34 @@ func TestUnitUserEnvironmntAssignmentResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(role),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", id),
 						resource.TestCheckResourceAttr(accessor, "user_id", userId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "role", string(role)),
+						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
+						resource.TestCheckResourceAttr(accessor, "role_id", role),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"user_id":    userId,
-						"project_id": projectId,
-						"role":       string(updatedRole),
+						"user_id":        userId,
+						"environment_id": environmentId,
+						"role_id":        updatedRole,
 					}),
-					ExpectError: regexp.MustCompile("could not update role for UserProjectAssignment: error"),
+					ExpectError: regexp.MustCompile("could not update assignment: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignUserToProject(projectId, &createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().UserProjectAssignments(projectId).Times(2).Return([]client.UserProjectAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().UpdateUserProjectAssignment(projectId, userId, &updatePayload).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveUserFromProject(projectId, userId).Times(1).Return(nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().UserRoleEnvironmentAssignments(environmentId).Times(2).Return([]client.UserRoleEnvironmentAssignment{otherResponse, createResponse}, nil),
+				mock.EXPECT().AssignUserRoleToEnvironment(&updatePayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().RemoveUserRoleFromEnvironment(environmentId, userId).Times(1).Return(nil),
 			)
 		})
 	})
