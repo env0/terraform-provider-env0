@@ -43,14 +43,14 @@ resource "env0_custom_role" "custom_role1" {
   name = "custom-role-${random_string.random.result}"
   permissions = [
     "VIEW_PROJECT",
-    "VIEW_ENVIRONMENT"
+    "EDIT_ENVIRONMENT_SETTINGS"
   ]
 }
 
 resource "env0_custom_role" "custom_role2" {
   name = "custom-role-${random_string.random.result}2"
   permissions = [
-    "VIEW_ENVIRONMENT"
+    "EDIT_ENVIRONMENT_SETTINGS"
   ]
 }
 
