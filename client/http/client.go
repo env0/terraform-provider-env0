@@ -10,7 +10,7 @@ type HttpClientInterface interface {
 	Get(path string, params map[string]string, response interface{}) error
 	Post(path string, request interface{}, response interface{}) error
 	Put(path string, request interface{}, response interface{}) error
-	Delete(path string) error
+	Delete(path string, params map[string]string) error
 	Patch(path string, request interface{}, response interface{}) error
 }
 
@@ -83,8 +83,8 @@ func (client *HttpClient) Get(path string, params map[string]string, response in
 	return client.httpResult(result, err)
 }
 
-func (client *HttpClient) Delete(path string) error {
-	result, err := client.request().Delete(path)
+func (client *HttpClient) Delete(path string, params map[string]string) error {
+	result, err := client.request().SetQueryParams(params).Delete(path)
 	return client.httpResult(result, err)
 }
 

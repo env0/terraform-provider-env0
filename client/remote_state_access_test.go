@@ -72,7 +72,7 @@ var _ = Describe("RemoteStateAccess", func() {
 		var err error
 
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/remote-backend/states/" + environmentId + "/access-control")
+			httpCall = mockHttpClient.EXPECT().Delete("/remote-backend/states/"+environmentId+"/access-control", nil)
 			httpCall.Times(1)
 			err = apiClient.RemoteStateAccessConfigurationDelete(environmentId)
 		})

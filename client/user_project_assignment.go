@@ -26,7 +26,7 @@ func (client *ApiClient) AssignUserToProject(projectId string, payload *AssignUs
 }
 
 func (client *ApiClient) RemoveUserFromProject(projectId string, userId string) error {
-	return client.http.Delete("/permissions/projects/" + projectId + "/users/" + userId)
+	return client.http.Delete("/permissions/projects/"+projectId+"/users/"+userId, nil)
 }
 
 func (client *ApiClient) UpdateUserProjectAssignment(projectId string, userId string, payload *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error) {

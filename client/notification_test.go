@@ -89,7 +89,7 @@ var _ = Describe("Notification Client", func() {
 
 	Describe("NotificationDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/notifications/endpoints/" + mockNotification.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/notifications/endpoints/"+mockNotification.Id, nil)
 			apiClient.NotificationDelete(mockNotification.Id)
 		})
 

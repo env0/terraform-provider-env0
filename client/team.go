@@ -53,7 +53,7 @@ func (client *ApiClient) Team(id string) (Team, error) {
 }
 
 func (client *ApiClient) TeamDelete(id string) error {
-	return client.http.Delete("/teams/" + id)
+	return client.http.Delete("/teams/"+id, nil)
 }
 
 func (client *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team, error) {

@@ -84,7 +84,7 @@ var _ = Describe("Provider Client", func() {
 
 	Describe("Delete Provider", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/providers/" + mockProvider.Id).Times(1)
+			httpCall = mockHttpClient.EXPECT().Delete("/providers/"+mockProvider.Id, nil).Times(1)
 			apiClient.ProviderDelete(mockProvider.Id)
 		})
 

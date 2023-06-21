@@ -38,7 +38,7 @@ func (client *ApiClient) GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, er
 }
 
 func (client *ApiClient) GpgKeyDelete(id string) error {
-	return client.http.Delete("/gpg-keys/" + id)
+	return client.http.Delete("/gpg-keys/"+id, nil)
 }
 
 func (client *ApiClient) GpgKeys() ([]GpgKey, error) {

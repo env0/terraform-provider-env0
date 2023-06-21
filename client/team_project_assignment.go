@@ -45,7 +45,7 @@ func (client *ApiClient) TeamProjectAssignmentDelete(assignmentId string) error 
 	if assignmentId == "" {
 		return errors.New("empty assignmentId")
 	}
-	return client.http.Delete("/teams/assignments/" + assignmentId)
+	return client.http.Delete("/teams/assignments/"+assignmentId, nil)
 }
 
 func (client *ApiClient) TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error) {

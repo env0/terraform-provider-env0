@@ -189,7 +189,7 @@ var _ = Describe("Http Client", func() {
 
 	Describe("Delete", func() {
 		It("2XX response", func() {
-			var err = httpclient.Delete(successURI)
+			var err = httpclient.Delete(successURI, nil)
 
 			AssertHttpCall("DELETE", successUrl)
 			AssertNoError(err)
@@ -197,7 +197,7 @@ var _ = Describe("Http Client", func() {
 		})
 
 		It("5XX response", func() {
-			var err = httpclient.Delete(failureURI)
+			var err = httpclient.Delete(failureURI, nil)
 
 			AssertHttpCall("DELETE", failureUrl)
 			AssertError(err)

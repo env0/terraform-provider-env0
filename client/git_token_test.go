@@ -108,7 +108,7 @@ var _ = Describe("GitToken Client", func() {
 
 	Describe("Delete GitToken", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/tokens/" + mockGitToken.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/tokens/"+mockGitToken.Id, nil)
 			apiClient.GitTokenDelete(mockGitToken.Id)
 		})
 

@@ -70,7 +70,7 @@ func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, e
 }
 
 func (client *ApiClient) ProjectDelete(id string) error {
-	return client.http.Delete("/projects/" + id)
+	return client.http.Delete("/projects/"+id, nil)
 }
 
 func (client *ApiClient) ProjectUpdate(id string, payload ProjectUpdatePayload) (Project, error) {

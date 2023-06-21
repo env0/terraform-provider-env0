@@ -67,7 +67,7 @@ func (client *ApiClient) NotificationCreate(payload NotificationCreatePayload) (
 }
 
 func (client *ApiClient) NotificationDelete(id string) error {
-	if err := client.http.Delete("/notifications/endpoints/" + id); err != nil {
+	if err := client.http.Delete("/notifications/endpoints/"+id, nil); err != nil {
 		return err
 	}
 	return nil

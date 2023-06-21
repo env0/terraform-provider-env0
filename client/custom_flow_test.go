@@ -107,7 +107,7 @@ var _ = Describe("Custom Flow Client", func() {
 
 	Describe("Delete Custom Flow", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/custom-flow/" + mockCustomFlow.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/custom-flow/"+mockCustomFlow.Id, nil)
 			httpCall.Times(1)
 			apiClient.CustomFlowDelete(mockCustomFlow.Id)
 		})

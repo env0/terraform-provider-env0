@@ -31,5 +31,5 @@ func (client *ApiClient) RemoteStateAccessConfigurationCreate(environmentId stri
 }
 
 func (client *ApiClient) RemoteStateAccessConfigurationDelete(environmentId string) error {
-	return client.http.Delete("/remote-backend/states/" + environmentId + "/access-control")
+	return client.http.Delete("/remote-backend/states/"+environmentId+"/access-control", nil)
 }

@@ -73,7 +73,7 @@ var _ = Describe("TeamProjectAssignment", func() {
 	Describe("Delete", func() {
 
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/teams/assignments/" + mockTeamProjectAssignment.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/teams/assignments/"+mockTeamProjectAssignment.Id, nil)
 			apiClient.TeamProjectAssignmentDelete(mockTeamProjectAssignment.Id)
 		})
 

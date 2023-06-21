@@ -39,6 +39,33 @@ resource "env0_environment" "example" {
   vcs_commands_alias         = "alias"
 }
 
+resource "env0_custom_role" "custom_role1" {
+  name = "custom-role-${random_string.random.result}"
+  permissions = [
+    "VIEW_PROJECT",
+    "EDIT_ENVIRONMENT_SETTINGS"
+  ]
+}
+
+resource "env0_custom_role" "custom_role2" {
+  name = "custom-role-${random_string.random.result}2"
+  permissions = [
+    "EDIT_ENVIRONMENT_SETTINGS"
+  ]
+}
+
+resource "env0_api_key" "test_user_api_key" {
+  name              = "my-little-user-api-key-${random_string.random.result}"
+  organization_role = "User"
+}
+
+resource "env0_user_environment_assignment" "user_role_environment_assignment" {
+  user_id        = env0_api_key.test_user_api_key.id
+  environment_id = env0_environment.example.id
+  role_id        = var.second_run ? env0_custom_role.custom_role1.id : env0_custom_role.custom_role2.id
+}
+
+
 /* TODO: need to add an integration test.
 resource "env0_environment_state_access" "state_access" {
   environment_id      = env0_environment.example.id
@@ -154,15 +181,15 @@ resource "env0_environment" "workflow-environment" {
   approve_plan_automatically = true
 
   sub_environment_configuration {
-    alias     = "rootService1"
-    revision  = "master"
+    alias    = "rootService1"
+    revision = "master"
     configuration {
-      name    = "sub_env1_var1"
-      value   = "hello"
+      name  = "sub_env1_var1"
+      value = "hello"
     }
     configuration {
-      name    = "sub_env1_var2"
-      value   = "world"
+      name  = "sub_env1_var2"
+      value = "world"
     }
   }
 }

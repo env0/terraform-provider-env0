@@ -47,7 +47,7 @@ var _ = Describe("SshKey", func() {
 
 	Describe("SshKeyDelete", func() {
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/ssh-keys/" + mockSshKey.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/ssh-keys/"+mockSshKey.Id, nil)
 			_ = apiClient.SshKeyDelete(mockSshKey.Id)
 		})
 

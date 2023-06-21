@@ -81,7 +81,7 @@ func (client *ApiClient) CustomFlow(id string) (*CustomFlow, error) {
 }
 
 func (client *ApiClient) CustomFlowDelete(id string) error {
-	return client.http.Delete("/custom-flow/" + id)
+	return client.http.Delete("/custom-flow/"+id, nil)
 }
 
 func (client *ApiClient) CustomFlowUpdate(id string, payload CustomFlowCreatePayload) (*CustomFlow, error) {

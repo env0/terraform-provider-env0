@@ -21,7 +21,7 @@ func (client *ApiClient) AssignCloudCredentialsToProject(projectId string, crede
 }
 
 func (client *ApiClient) RemoveCloudCredentialsFromProject(projectId string, credentialId string) error {
-	return client.http.Delete("/credentials/deployment/" + credentialId + "/project/" + projectId)
+	return client.http.Delete("/credentials/deployment/"+credentialId+"/project/"+projectId, nil)
 }
 
 func (client *ApiClient) CloudCredentialIdsInProject(projectId string) ([]string, error) {

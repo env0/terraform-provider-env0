@@ -151,5 +151,5 @@ func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Cre
 }
 
 func (client *ApiClient) CloudCredentialsDelete(id string) error {
-	return client.http.Delete("/credentials/" + id)
+	return client.http.Delete("/credentials/"+id, nil)
 }

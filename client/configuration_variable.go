@@ -180,7 +180,7 @@ func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} 
 }
 
 func (client *ApiClient) ConfigurationVariableDelete(id string) error {
-	return client.http.Delete("configuration/" + id)
+	return client.http.Delete("configuration/"+id, nil)
 }
 
 func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {

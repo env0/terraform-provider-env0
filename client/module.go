@@ -94,7 +94,7 @@ func (client *ApiClient) Module(id string) (*Module, error) {
 }
 
 func (client *ApiClient) ModuleDelete(id string) error {
-	return client.http.Delete("/modules/" + id)
+	return client.http.Delete("/modules/"+id, nil)
 }
 
 func (client *ApiClient) ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error) {
