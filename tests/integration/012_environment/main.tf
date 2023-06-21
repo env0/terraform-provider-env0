@@ -39,18 +39,18 @@ resource "env0_environment" "example" {
   vcs_commands_alias         = "alias"
 }
 
-resource "env0_custom_role" "custom_role" {
+resource "env0_custom_role" "custom_role1" {
   name = "custom-role-${random_string.random.result}"
   permissions = [
     "VIEW_PROJECT",
-    "EDIT_PROJECT_SETTINGS"
+    "VIEW_ENVIRONMENT"
   ]
 }
 
 resource "env0_custom_role" "custom_role2" {
   name = "custom-role-${random_string.random.result}2"
   permissions = [
-    "EDIT_PROJECT_SETTINGS"
+    "VIEW_ENVIRONMENT"
   ]
 }
 
@@ -62,7 +62,7 @@ resource "env0_api_key" "test_user_api_key" {
 resource "env0_user_environment_assignment" "user_role_environment_assignment" {
   user_id        = env0_api_key.test_user_api_key.id
   environment_id = env0_environment.example.id
-  role_id        = var.second_run ? env0_custom_role.custom_role.id : env0_custom_role.custom_role2.id
+  role_id        = var.second_run ? env0_custom_role.custom_role1.id : env0_custom_role.custom_role2.id
 }
 
 
