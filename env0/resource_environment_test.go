@@ -1831,6 +1831,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,
+				Workspace:            subEnvironment.Workspace,
 				ConfigurationChanges: updatedSubEnvironment.Configuration,
 			},
 		},
