@@ -1755,8 +1755,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	subEnvironment := SubEnvironment{
-		Alias:    "alias1",
-		Revision: "revision1",
+		Alias:     "alias1",
+		Revision:  "revision1",
+		Workspace: "workspace1",
 		Configuration: client.ConfigurationChanges{
 			{
 				Name:        "name",
@@ -1830,6 +1831,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,
+				Workspace:            subEnvironment.Workspace,
 				ConfigurationChanges: updatedSubEnvironment.Configuration,
 			},
 		},
@@ -1848,6 +1850,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						sub_environment_configuration {
 							alias = "%s"
 							revision = "%s"
+							workspace = "%s"
 							configuration {
 								name = "%s"
 								value = "%s"
@@ -1860,6 +1863,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						environment.BlueprintId,
 						subEnvironment.Alias,
 						subEnvironment.Revision,
+						subEnvironment.Workspace,
 						subEnvironment.Configuration[0].Name,
 						subEnvironment.Configuration[0].Value,
 					),
@@ -1871,6 +1875,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvironment.Alias),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvironment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.workspace", subEnvironment.Workspace),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvironment.Configuration[0].Name),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvironment.Configuration[0].Value),
 					),
@@ -1885,6 +1890,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						sub_environment_configuration {
 							alias = "%s"
 							revision = "%s"
+							workspace = "%s"
 							configuration {
 								name = "%s"
 								value = "%s"
@@ -1901,6 +1907,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						environment.BlueprintId,
 						subEnvironment.Alias,
 						subEnvironment.Revision,
+						subEnvironment.Workspace,
 						subEnvironment.Configuration[0].Name,
 						subEnvironment.Configuration[0].Value,
 						updatedSubEnvironment.Configuration[1].Name,
@@ -1914,6 +1921,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvironment.Alias),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvironment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.workspace", subEnvironment.Workspace),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvironment.Configuration[0].Name),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvironment.Configuration[0].Value),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.name", updatedSubEnvironment.Configuration[1].Name),

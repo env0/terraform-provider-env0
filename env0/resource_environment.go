@@ -18,6 +18,8 @@ type SubEnvironment struct {
 	Id            string
 	Alias         string
 	Revision      string
+	Workflow      string
+	Workspace     string
 	Configuration client.ConfigurationChanges `tfschema:"-"`
 }
 
@@ -299,6 +301,11 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "sub environment revision",
 							Required:    true,
+						},
+						"workspace": {
+							Type:        schema.TypeString,
+							Description: "sub environment workspace (overrides the configurtion in the yml file)",
+							Optional:    true,
 						},
 						"configuration": {
 							Type:        schema.TypeList,
@@ -665,6 +672,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 
 			deployPayload.SubEnvironments[subEnvironment.Alias] = client.SubEnvironment{
 				Revision:             subEnvironment.Revision,
+				Workspace:            subEnvironment.Workspace,
 				ConfigurationChanges: configurationChanges,
 			}
 		}
