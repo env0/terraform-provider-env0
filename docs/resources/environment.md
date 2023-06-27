@@ -118,6 +118,7 @@ Required:
 Optional:
 
 - `configuration` (Block List) sub environment configuration variables (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
+- `workspace` (String) sub environment workspace (overrides the configurtion in the yml file)
 
 Read-Only:
 
