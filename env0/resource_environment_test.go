@@ -22,6 +22,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	isRemoteBackendTrue := true
 	isRemoteBackendFalse := false
 
+	driftDetectionCron := "*/5 * * * *"
+	updatedDriftDetectionCron := "*/10 1 * * *"
+
 	environment := client.Environment{
 		Id:            "id0",
 		Name:          "my-environment",
@@ -78,6 +81,27 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		if environment.IsArchived != nil {
 			config["is_inactive"] = *(environment.IsArchived)
 		}
+
+		return resourceConfigCreate(resourceType, resourceName, config)
+	}
+
+	createEnvironmentResourceConfigDriftDetection := func(environment client.Environment, cron string) string {
+		config := map[string]interface{}{
+			"name":                         environment.Name,
+			"project_id":                   environment.ProjectId,
+			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
+			"workspace":                    environment.WorkspaceName,
+			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
+			"force_destroy":                true,
+			"vcs_commands_alias":           environment.VcsCommandsAlias,
+			"is_remote_backend":            *(environment.IsRemoteBackend),
+		}
+
+		if environment.IsArchived != nil {
+			config["is_inactive"] = *(environment.IsArchived)
+		}
+
+		config["drift_detection_cron"] = cron
 
 		return resourceConfigCreate(resourceType, resourceName, config)
 	}
@@ -148,6 +172,166 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
 				}).Times(1).Return(updatedEnvironment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("Success create and remove drift cron", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfigDriftDetection(environment, driftDetectionCron),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "false"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "drift_detection_cron", driftDetectionCron),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+						),
+					},
+					{
+						Config: createEnvironmentResourceConfig(updatedEnvironment),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+							resource.TestCheckResourceAttr(accessor, "drift_detection_cron", ""),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+					DriftDetectionRequest: &client.DriftDetectionRequest{
+						Enabled: true,
+						Cron:    driftDetectionCron,
+					},
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
+					Name:                       updatedEnvironment.Name,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendTrue,
+					IsArchived:                 updatedEnvironment.IsArchived,
+				}).Times(1).Return(updatedEnvironment, nil)
+				mock.EXPECT().EnvironmentStopDriftDetection(environment.Id).Times(1).Return(nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("Success create and update drift cron", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfigDriftDetection(environment, driftDetectionCron),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "false"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "drift_detection_cron", driftDetectionCron),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+						),
+					},
+					{
+						Config: createEnvironmentResourceConfigDriftDetection(updatedEnvironment, updatedDriftDetectionCron),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+							resource.TestCheckResourceAttr(accessor, "drift_detection_cron", updatedDriftDetectionCron),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+					DriftDetectionRequest: &client.DriftDetectionRequest{
+						Enabled: true,
+						Cron:    driftDetectionCron,
+					},
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
+					Name:                       updatedEnvironment.Name,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendTrue,
+					IsArchived:                 updatedEnvironment.IsArchived,
+				}).Times(1).Return(updatedEnvironment, nil)
+				mock.EXPECT().EnvironmentUpdateDriftDetection(environment.Id, client.EnvironmentSchedulingExpression{Cron: updatedDriftDetectionCron, Enabled: true}).Times(1).Return(client.EnvironmentSchedulingExpression{}, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				gomock.InOrder(
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update

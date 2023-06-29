@@ -16,6 +16,8 @@ func resourceDriftDetection() *schema.Resource {
 		UpdateContext: resourceEnvironmentDriftCreateOrUpdate,
 		DeleteContext: resourceEnvironmentDriftDelete,
 
+		Description: "note: instead of using this resource, setting drift detection can be configured directly through the environment resource",
+
 		Schema: map[string]*schema.Schema{
 			"environment_id": {
 				Type:        schema.TypeString,

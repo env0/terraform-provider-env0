@@ -37,6 +37,7 @@ resource "env0_environment" "example" {
   approve_plan_automatically = true
   revision                   = "master"
   vcs_commands_alias         = "alias"
+  drift_detection_cron       = var.second_run ? "*/5 * * * *" : "*/10 * * * *"
 }
 
 resource "env0_custom_role" "custom_role1" {
