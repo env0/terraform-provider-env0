@@ -65,6 +65,7 @@ When used 'auto_deploy_on_path_changes_only' must be configured to true and 'dep
 - `configuration` (Block List) terraform and environment variables for the environment (see [below for nested schema](#nestedblock--configuration))
 - `deploy_on_push` (Boolean) should run terraform deploy on push events.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
+- `drift_detection_cron` (String) cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
 - `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.

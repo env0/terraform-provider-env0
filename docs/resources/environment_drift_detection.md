@@ -3,12 +3,12 @@
 page_title: "env0_environment_drift_detection Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  
+  note: instead of using this resource, setting drift detection can be configured directly through the environment resource
 ---
 
 # env0_environment_drift_detection (Resource)
 
-
+note: instead of using this resource, setting drift detection can be configured directly through the environment resource
 
 ## Example Usage
 
