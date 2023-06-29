@@ -316,6 +316,12 @@ func resourceEnvironment() *schema.Resource {
 					},
 				},
 			},
+			"drift_detection_cron": {
+				Type:             schema.TypeString,
+				Description:      "cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)",
+				Optional:         true,
+				ValidateDiagFunc: ValidateCronExpression,
+			},
 		},
 
 		CustomizeDiff: customdiff.ForceNewIf("template_id", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
@@ -598,8 +604,13 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if shouldUpdateTTL(d) {
-
 		if err := updateTTL(d, apiClient); err != nil {
+			return err
+		}
+	}
+
+	if shouldUpdateDriftDetection(d) {
+		if err := updateDriftDetection(d, apiClient); err != nil {
 			return err
 		}
 	}
@@ -635,6 +646,10 @@ func shouldUpdateTTL(d *schema.ResourceData) bool {
 	return d.HasChange("ttl")
 }
 
+func shouldUpdateDriftDetection(d *schema.ResourceData) bool {
+	return d.HasChange("drift_detection_cron")
+}
+
 func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	payload, problem := templateCreatePayloadFromParameters("without_template_settings.0", d)
 	if problem != nil {
@@ -645,6 +660,24 @@ func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface)
 
 	if _, err := apiClient.TemplateUpdate(templateId, payload); err != nil {
 		return diag.Errorf("could not update template: %v", err)
+	}
+
+	return nil
+}
+
+func updateDriftDetection(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	drift_detection_cron, ok := d.GetOk("drift_detection_cron")
+	if !ok || drift_detection_cron.(string) == "" {
+		if err := apiClient.EnvironmentStopDriftDetection(d.Id()); err != nil {
+			return diag.Errorf("could not stop drift detection: %v", err)
+		}
+	} else {
+		if _, err := apiClient.EnvironmentUpdateDriftDetection(d.Id(), client.EnvironmentSchedulingExpression{
+			Enabled: true,
+			Cron:    drift_detection_cron.(string),
+		}); err != nil {
+			return diag.Errorf("could not update drift detection: %v", err)
+		}
 	}
 
 	return nil
@@ -770,6 +803,13 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
 		payload.TTL = &ttlPayload
+	}
+
+	if drift_detection_cron, ok := d.GetOk("drift_detection_cron"); ok && drift_detection_cron.(string) != "" {
+		payload.DriftDetectionRequest = &client.DriftDetectionRequest{
+			Enabled: true,
+			Cron:    drift_detection_cron.(string),
+		}
 	}
 
 	deployPayload := getDeployPayload(d, apiClient, false)

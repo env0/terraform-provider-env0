@@ -94,6 +94,11 @@ type DeploymentLog struct {
 	WorkflowFile        *WorkflowFile   `json:"workflowFile,omitempty" tfschema:"-"`
 }
 
+type DriftDetectionRequest struct {
+	Enabled bool   `json:"enabled"`
+	Cron    string `json:"cron"`
+}
+
 type Environment struct {
 	Id                          string        `json:"id"`
 	Name                        string        `json:"name"`
@@ -116,21 +121,22 @@ type Environment struct {
 }
 
 type EnvironmentCreate struct {
-	Name                        string                `json:"name"`
-	ProjectId                   string                `json:"projectId"`
-	DeployRequest               *DeployRequest        `json:"deployRequest" tfschema:"-"`
-	WorkspaceName               string                `json:"workspaceName,omitempty" tfschema:"workspace"`
-	RequiresApproval            *bool                 `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool                 `json:"continuousDeployment,omitempty" tfschema:"-"`
-	PullRequestPlanDeployments  *bool                 `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
-	AutoDeployOnPathChangesOnly *bool                 `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
-	AutoDeployByCustomGlob      string                `json:"autoDeployByCustomGlob,omitempty"`
-	ConfigurationChanges        *ConfigurationChanges `json:"configurationChanges,omitempty" tfschema:"-"`
-	TTL                         *TTL                  `json:"ttl,omitempty" tfschema:"-"`
-	TerragruntWorkingDirectory  string                `json:"terragruntWorkingDirectory,omitempty"`
-	VcsCommandsAlias            string                `json:"vcsCommandsAlias"`
-	IsRemoteBackend             *bool                 `json:"isRemoteBackend,omitempty" tfschema:"-"`
-	Type                        string                `json:"type,omitempty"`
+	Name                        string                 `json:"name"`
+	ProjectId                   string                 `json:"projectId"`
+	DeployRequest               *DeployRequest         `json:"deployRequest" tfschema:"-"`
+	WorkspaceName               string                 `json:"workspaceName,omitempty" tfschema:"workspace"`
+	RequiresApproval            *bool                  `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool                  `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool                  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool                  `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
+	AutoDeployByCustomGlob      string                 `json:"autoDeployByCustomGlob,omitempty"`
+	ConfigurationChanges        *ConfigurationChanges  `json:"configurationChanges,omitempty" tfschema:"-"`
+	TTL                         *TTL                   `json:"ttl,omitempty" tfschema:"-"`
+	TerragruntWorkingDirectory  string                 `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string                 `json:"vcsCommandsAlias"`
+	IsRemoteBackend             *bool                  `json:"isRemoteBackend,omitempty" tfschema:"-"`
+	Type                        string                 `json:"type,omitempty"`
+	DriftDetectionRequest       *DriftDetectionRequest `json:"driftDetectionRequest,omitempty" tfschema:"-"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
