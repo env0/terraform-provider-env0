@@ -40,6 +40,8 @@ func main() {
 					log.Fatalln("Halting due to test failure:", err)
 				}
 			}
+
+			wg.Done()
 		}(testName)
 	}
 
