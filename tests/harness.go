@@ -25,14 +25,16 @@ func main() {
 	buildFakeTerraformRegistry()
 	destroyMode := os.Getenv("DESTROY_MODE")
 	for _, testName := range testNames {
-		if destroyMode == "DESTROY_ONLY" {
-			terraformDestory(testName)
-		} else {
-			success, err := runTest(testName, destroyMode != "NO_DESTROY")
-			if !success {
-				log.Fatalln("Halting due to test failure:", err)
+		go func(testName string) {
+			if destroyMode == "DESTROY_ONLY" {
+				terraformDestory(testName)
+			} else {
+				success, err := runTest(testName, destroyMode != "NO_DESTROY")
+				if !success {
+					log.Fatalln("Halting due to test failure:", err)
+				}
 			}
-		}
+		}(testName)
 	}
 }
 func compileProvider() error {
