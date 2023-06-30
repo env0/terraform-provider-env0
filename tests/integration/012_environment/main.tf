@@ -66,6 +66,15 @@ resource "env0_user_environment_assignment" "user_role_environment_assignment" {
   role_id        = var.second_run ? env0_custom_role.custom_role1.id : env0_custom_role.custom_role2.id
 }
 
+resource "env0_team" "team" {
+  name = "environment-team-${random_string.random.result}"
+}
+
+resource "env0_team_environment_assignment" "team_role_environment_assignment" {
+  team_id        = env0_team.team.id
+  environment_id = env0_environment.example.id
+  role_id        = var.second_run ? env0_custom_role.custom_role1.id : env0_custom_role.custom_role2.id
+}
 
 /* TODO: need to add an integration test.
 resource "env0_environment_state_access" "state_access" {

@@ -133,6 +133,9 @@ type ApiClientInterface interface {
 	AssignUserRoleToEnvironment(payload *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error)
 	RemoveUserRoleFromEnvironment(environmentId string, userId string) error
 	UserRoleEnvironmentAssignments(environmentId string) ([]UserRoleEnvironmentAssignment, error)
+	AssignTeamRoleToEnvironment(payload *AssignTeamRoleToEnvironmentPayload) (*TeamRoleEnvironmentAssignment, error)
+	RemoveTeamRoleFromEnvironment(environmentId string, teamId string) error
+	TeamRoleEnvironmentAssignments(environmentId string) ([]TeamRoleEnvironmentAssignment, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
