@@ -9,7 +9,6 @@ import (
 	"path"
 	"runtime"
 	"strings"
-	"sync"
 )
 
 const TESTS_FOLDER = "tests/integration"
@@ -25,27 +24,16 @@ func main() {
 	log.Println(len(testNames), " tests to run")
 	buildFakeTerraformRegistry()
 	destroyMode := os.Getenv("DESTROY_MODE")
-
-	var wg sync.WaitGroup
-
 	for _, testName := range testNames {
-		wg.Add(1)
-
-		go func(testName string) {
-			if destroyMode == "DESTROY_ONLY" {
-				terraformDestory(testName)
-			} else {
-				success, err := runTest(testName, destroyMode != "NO_DESTROY")
-				if !success {
-					log.Fatalln("Halting due to test failure:", err)
-				}
+		if destroyMode == "DESTROY_ONLY" {
+			terraformDestory(testName)
+		} else {
+			success, err := runTest(testName, destroyMode != "NO_DESTROY")
+			if !success {
+				log.Fatalln("Halting due to test failure:", err)
 			}
-
-			wg.Done()
-		}(testName)
+		}
 	}
-
-	wg.Wait()
 }
 func compileProvider() error {
 	cmd := exec.Command("go", "build")
