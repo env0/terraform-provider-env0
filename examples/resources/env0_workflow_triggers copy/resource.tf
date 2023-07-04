@@ -20,8 +20,7 @@ resource "env0_api_key" "api_key" {
 resource "env0_custom_role" "custom_role" {
   name = "custom-role-sample"
   permissions = [
-    "VIEW_PROJECT",
-    "EDIT_PROJECT_SETTINGS"
+    "VIEW_ENVIRONMENT"
   ]
 }
 

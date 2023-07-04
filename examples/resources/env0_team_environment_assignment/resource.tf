@@ -19,8 +19,7 @@ resource "env0_team" "team" {
 resource "env0_custom_role" "custom_role" {
   name = "custom-role-sample"
   permissions = [
-    "VIEW_PROJECT",
-    "EDIT_PROJECT_SETTINGS"
+    "VIEW_ENVIRONMENT"
   ]
 }
 
