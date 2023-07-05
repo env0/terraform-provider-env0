@@ -131,6 +131,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_gpg_key":                              resourceGpgKey(),
 				"env0_provider":                             resourceProvider(),
 				"env0_user_environment_assignment":          resourceUserEnvironmentAssignment(),
+				"env0_team_environment_assignment":          resourceTeamEnvironmentAssignment(),
 			},
 		}
 
