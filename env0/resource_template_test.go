@@ -339,7 +339,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 		Type:             "terraform",
 		TokenId:          "1",
-		TerraformVersion: "0.12.24",
+		TerraformVersion: "latest",
 		IsAzureDevOps:    true,
 	}
 	azureDevOpsUpdatedTemplate := client.Template{
