@@ -16,17 +16,22 @@ resource "env0_team" "team_resource2" {
   description = "team 2 description"
 }
 
-data "env0_teams" "all_teams" {}
+data "env0_teams" "all_teams" {
+  depends_on = [env0_team.team_resource1, env0_team.team_resource2]
+}
 
-data "env0_team" "teams" {
-  for_each = toset(data.env0_teams.all_teams.names)
-  name     = each.value
+data "env0_team" "team_resource1" {
+  name = data.env0_teams.all_teams.names[index(data.env0_teams.all_teams.names, env0_team.team_resource1.name)]
+}
+
+data "env0_team" "team_resource2" {
+  name = data.env0_teams.all_teams.names[index(data.env0_teams.all_teams.names, env0_team.team_resource2.name)]
 }
 
 output "team1_description" {
-  value = var.second_run ? data.env0_team.teams[env0_team.team_resource1.name].description : ""
+  value = var.second_run ? data.env0_team.team_resource1.description : ""
 }
 
 output "team2_description" {
-  value = var.second_run ? data.env0_team.teams[env0_team.team_resource2.name].description : ""
+  value = var.second_run ? data.env0_team.team_resource2.description : ""
 }
