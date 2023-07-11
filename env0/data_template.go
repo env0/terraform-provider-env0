@@ -27,6 +27,11 @@ func dataTemplate() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Description: "description for the template",
+				Computed:    true,
+			},
 			"repository": {
 				Type:        schema.TypeString,
 				Description: "template source code repository url",
