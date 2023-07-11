@@ -36,6 +36,7 @@ data "env0_template" "example" {
 
 ### Read-Only
 
+- `description` (String) description for the template
 - `path` (String) terraform / terrgrunt folder inside source code repository
 - `project_ids` (List of String) which projects may access this template (id of project)
 - `repository` (String) template source code repository url
