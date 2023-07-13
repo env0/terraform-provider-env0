@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -11,6 +12,7 @@ import (
 func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 	resourceType := "env0_team_project_assignment"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 
 	accessor := resourceAccessor(resourceType, resourceName)
 
@@ -168,4 +170,83 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		})
 	})
 
+	t.Run("import - built-in role", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"team_id":    assignment.TeamId,
+						"project_id": assignment.ProjectId,
+						"role":       assignment.ProjectRole,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     assignment.TeamId + "_" + assignment.ProjectId,
+					ImportStateVerify: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, ProjectRole: assignment.ProjectRole}).Times(1).Return(assignment, nil)
+			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(3).Return([]client.TeamProjectAssignment{assignment}, nil)
+			mock.EXPECT().TeamProjectAssignmentDelete(assignment.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("import - custom role", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"team_id":        assignmentCustom.TeamId,
+						"project_id":     assignmentCustom.ProjectId,
+						"custom_role_id": assignmentCustom.ProjectRole,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     assignmentCustom.TeamId + "_" + assignmentCustom.ProjectId,
+					ImportStateVerify: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(client.TeamProjectAssignmentPayload{TeamId: assignmentCustom.TeamId, ProjectId: assignmentCustom.ProjectId, ProjectRole: assignmentCustom.ProjectRole}).Times(1).Return(assignmentCustom, nil)
+			mock.EXPECT().TeamProjectAssignments(assignmentCustom.ProjectId).Times(3).Return([]client.TeamProjectAssignment{assignmentCustom}, nil)
+			mock.EXPECT().TeamProjectAssignmentDelete(assignmentCustom.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Import role - not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"team_id":    assignment.TeamId,
+						"project_id": assignment.ProjectId,
+						"role":       assignment.ProjectRole,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     assignment.TeamId + "_" + assignment.ProjectId,
+					ImportStateVerify: true,
+					ExpectError:       regexp.MustCompile("not found"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, ProjectRole: assignment.ProjectRole}).Times(1).Return(assignment, nil)
+			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{assignment}, nil)
+			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{}, nil)
+			mock.EXPECT().TeamProjectAssignmentDelete(assignment.Id).Times(1)
+		})
+	})
 }

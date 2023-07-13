@@ -2,7 +2,9 @@ package env0
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,6 +17,8 @@ func resourceTeamProjectAssignment() *schema.Resource {
 		ReadContext:   resourceTeamProjectAssignmentRead,
 		UpdateContext: resourceTeamProjectAssignmentCreateOrUpdate,
 		DeleteContext: resourceTeamProjectAssignmentDelete,
+
+		Importer: &schema.ResourceImporter{StateContext: resourceTeamProjectAssignmentImport},
 
 		Schema: map[string]*schema.Schema{
 			"team_id": {
@@ -113,4 +117,38 @@ func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.Resource
 	}
 
 	return nil
+}
+
+func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	splitTeamProject := strings.Split(d.Id(), "_")
+	if len(splitTeamProject) != 2 {
+		return nil, fmt.Errorf("the id %v is invalid must be <team_id>_<project_id>", d.Id())
+	}
+
+	teamId := splitTeamProject[0]
+	projectId := splitTeamProject[1]
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	assignments, err := apiClient.TeamProjectAssignments(projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, assignment := range assignments {
+		if assignment.TeamId == teamId {
+			if err := writeResourceData(&assignment, d); err != nil {
+				return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
+			}
+
+			if client.IsBuiltinProjectRole(assignment.ProjectRole) {
+				d.Set("role", assignment.ProjectRole)
+			} else {
+				d.Set("custom_role_id", assignment.ProjectRole)
+			}
+			return []*schema.ResourceData{d}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("assignment with id %v not found", d.Id())
 }

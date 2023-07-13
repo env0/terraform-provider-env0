@@ -1,0 +1,1 @@
+terraform import env0_team_project_assignment.example team-id_project-id
