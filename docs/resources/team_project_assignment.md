@@ -59,4 +59,10 @@ resource "env0_team_project_assignment" "role_assignment_custom_role_example" {
 
 - `id` (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import env0_team_project_assignment.example team-id_project-id
+```
