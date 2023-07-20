@@ -33,6 +33,7 @@ func (a *UserTeamAssignment) GetId() string {
 }
 
 func GetUserTeamAssignmentFromId(id string) (*UserTeamAssignment, error) {
+	// lastSplit is used to avoid issues where the user_id has underscores in it.
 	splitUserTeam := lastSplit(id, "_")
 	if len(splitUserTeam) != 2 {
 		return nil, fmt.Errorf("the id %v is invalid must be <user_id>_<team_id>", id)
