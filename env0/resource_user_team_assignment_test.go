@@ -13,7 +13,7 @@ import (
 )
 
 func TestUnitUserTeamAssignmentResource(t *testing.T) {
-	userId := "uid"
+	userId := "ui_d"
 	teamId := "tid"
 
 	GenerateTeam := func(teamId string, userIds []string) client.Team {

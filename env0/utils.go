@@ -489,3 +489,12 @@ func ttlToDuration(ttl *string) (time.Duration, error) {
 
 	return time.ParseDuration(fmt.Sprintf("%dh", hours))
 }
+
+func lastSplit(s string, sep string) []string {
+	lastIndex := strings.LastIndex(s, sep)
+	if lastIndex == -1 {
+		return nil
+	}
+
+	return []string{s[:lastIndex], s[lastIndex+1:]}
+}

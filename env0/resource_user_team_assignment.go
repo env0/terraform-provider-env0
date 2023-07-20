@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 	"sync"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -34,7 +33,7 @@ func (a *UserTeamAssignment) GetId() string {
 }
 
 func GetUserTeamAssignmentFromId(id string) (*UserTeamAssignment, error) {
-	splitUserTeam := strings.Split(id, "_")
+	splitUserTeam := lastSplit(id, "_")
 	if len(splitUserTeam) != 2 {
 		return nil, fmt.Errorf("the id %v is invalid must be <user_id>_<team_id>", id)
 	}
