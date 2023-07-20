@@ -557,7 +557,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	d.Set("auto_deploy_on_path_changes_only", environment.AutoDeployOnPathChangesOnly)
+	if environment.AutoDeployOnPathChangesOnly != nil {
+		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
+	}
 
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
 
@@ -1112,6 +1114,21 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+
+	if environment.IsRemoteBackend != nil {
+		d.Set("is_remote_backend", *environment.IsRemoteBackend)
+	}
+
+	if environment.AutoDeployOnPathChangesOnly != nil {
+		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
+	}
+
+	d.Set("is_inactive", false) // default is false.
+	if environment.IsArchived != nil {
+		d.Set("is_inactive", *environment.IsArchived)
+	}
+
+	d.Set("force_destroy", false)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
