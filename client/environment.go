@@ -103,7 +103,7 @@ type Environment struct {
 	Id                          string        `json:"id"`
 	Name                        string        `json:"name"`
 	ProjectId                   string        `json:"projectId"`
-	WorkspaceName               string        `json:"workspaceName,omitempty"`
+	WorkspaceName               string        `json:"workspaceName,omitempty" tfschema:"workspace"`
 	RequiresApproval            *bool         `json:"requiresApproval,omitempty" tfschema:"-"`
 	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push,omitempty"`
 	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests,omitempty"`
