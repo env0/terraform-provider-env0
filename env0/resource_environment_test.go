@@ -10,12 +10,14 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestUnitEnvironmentResource(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 	templateId := "template-id"
 	deploymentLogId := "deploymentLogId0"
@@ -26,7 +28,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	updatedDriftDetectionCron := "*/10 1 * * *"
 
 	environment := client.Environment{
-		Id:            "id0",
+		Id:            uuid.New().String(),
 		Name:          "my-environment",
 		ProjectId:     "project-id",
 		WorkspaceName: "workspace-name",
@@ -179,6 +181,42 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("Import By Id", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfig(environment),
+					},
+					{
+						ResourceName:            resourceNameImport,
+						ImportState:             true,
+						ImportStateId:           environment.Id,
+						ImportStateVerify:       true,
+						ImportStateVerifyIgnore: []string{"force_destroy"},
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().Environment(environment.Id).Times(3).Return(environment, nil)
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 			})
 		})
 
@@ -344,7 +382,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Success in create and deploy with variables update", func(t *testing.T) {
 			environment := client.Environment{
-				Id:                     "id0",
+				Id:                     environment.Id,
 				Name:                   "my-environment",
 				ProjectId:              "project-id",
 				AutoDeployByCustomGlob: autoDeployByCustomGlobDefault,
@@ -546,7 +584,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Create configuration variables - default values", func(t *testing.T) {
 			environment := client.Environment{
-				Id:        "id0",
+				Id:        environment.Id,
 				Name:      "my-environment",
 				ProjectId: "project-id",
 				LatestDeploymentLog: client.DeploymentLog{
@@ -616,7 +654,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Create and redeploy configuration variables - sensitive values", func(t *testing.T) {
 			environment := client.Environment{
-				Id:        "id0",
+				Id:        environment.Id,
 				Name:      "my-environment",
 				ProjectId: "project-id",
 				LatestDeploymentLog: client.DeploymentLog{
@@ -762,7 +800,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Create configuration variables - schema type string", func(t *testing.T) {
 			environment := client.Environment{
-				Id:        "id0",
+				Id:        environment.Id,
 				Name:      "my-environment",
 				ProjectId: "project-id",
 				LatestDeploymentLog: client.DeploymentLog{
@@ -834,7 +872,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		// Tests use-cases where the response returned by the backend varies from the order of the state.
 		t.Run("Create unordered configuration variables", func(t *testing.T) {
 			environment := client.Environment{
-				Id:        "id0",
+				Id:        environment.Id,
 				Name:      "my-environment",
 				ProjectId: "project-id",
 				LatestDeploymentLog: client.DeploymentLog{
@@ -914,7 +952,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Update to: revision, configuration should trigger a deployment", func(t *testing.T) {
 			environment := client.Environment{
-				Id:                     "id0",
+				Id:                     environment.Id,
 				Name:                   "my-environment",
 				ProjectId:              "project-id",
 				AutoDeployByCustomGlob: autoDeployByCustomGlobDefault,
@@ -1035,7 +1073,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testTTL := func() {
 		t.Run("TTL update", func(t *testing.T) {
 			environment := client.Environment{
-				Id:            "id0",
+				Id:            environment.Id,
 				Name:          "my-environment",
 				ProjectId:     "project-id",
 				LifespanEndAt: "2021-12-08T11:45:11Z",
@@ -1109,7 +1147,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("Deleting TTL from environment should update ttl to infinite", func(t *testing.T) {
 			environment := client.Environment{
-				Id:            "id0",
+				Id:            environment.Id,
 				Name:          "my-environment",
 				ProjectId:     "project-id",
 				LifespanEndAt: "2021-12-08T11:45:11Z",
@@ -1184,7 +1222,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			falsey := false
 			truthyFruity := true
 			environment := client.Environment{
-				Id:        "id0",
+				Id:        environment.Id,
 				Name:      "my-environment",
 				ProjectId: "project-id",
 				LatestDeploymentLog: client.DeploymentLog{
@@ -1286,7 +1324,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testForceDestroy := func() {
 		t.Run("should only allow destroy when force destroy is enabled", func(t *testing.T) {
 			environment := client.Environment{
-				Id:            "id0",
+				Id:            environment.Id,
 				Name:          "my-environment",
 				ProjectId:     "project-id",
 				WorkspaceName: "workspace-name",
