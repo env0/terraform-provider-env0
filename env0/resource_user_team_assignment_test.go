@@ -13,8 +13,10 @@ import (
 )
 
 func TestUnitUserTeamAssignmentResource(t *testing.T) {
-	userId := "ui_d"
+	userId := "uid"
 	teamId := "tid"
+
+	userIdWithUnderscore := "u_id_c"
 
 	GenerateTeam := func(teamId string, userIds []string) client.Team {
 		team := client.Team{
@@ -193,6 +195,34 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 				mock.EXPECT().Team(teamId).Times(1).Return(GenerateTeam(teamId, []string{"otherId"}), nil),
 				mock.EXPECT().TeamUpdate(teamId, GenerateUpdateTeamPayload([]string{userId, "otherId"})).Times(1).Return(client.Team{}, nil),
 				mock.EXPECT().Team(teamId).Times(4).Return(GenerateTeam(teamId, []string{userId, "otherId"}), nil),
+				mock.EXPECT().TeamUpdate(teamId, GenerateUpdateTeamPayload([]string{"otherId"})).Times(1).Return(client.Team{}, nil),
+			)
+		})
+	})
+
+	t.Run("Import Assignment - user id with underscore", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"user_id": userIdWithUnderscore,
+						"team_id": teamId,
+					}),
+				},
+				{
+					ResourceName:      resourceType + "." + resourceName,
+					ImportState:       true,
+					ImportStateId:     userIdWithUnderscore + "_" + teamId,
+					ImportStateVerify: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().Team(teamId).Times(1).Return(GenerateTeam(teamId, []string{"otherId"}), nil),
+				mock.EXPECT().TeamUpdate(teamId, GenerateUpdateTeamPayload([]string{userIdWithUnderscore, "otherId"})).Times(1).Return(client.Team{}, nil),
+				mock.EXPECT().Team(teamId).Times(4).Return(GenerateTeam(teamId, []string{userIdWithUnderscore, "otherId"}), nil),
 				mock.EXPECT().TeamUpdate(teamId, GenerateUpdateTeamPayload([]string{"otherId"})).Times(1).Return(client.Team{}, nil),
 			)
 		})

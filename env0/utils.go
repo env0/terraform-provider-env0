@@ -493,7 +493,7 @@ func ttlToDuration(ttl *string) (time.Duration, error) {
 func lastSplit(s string, sep string) []string {
 	lastIndex := strings.LastIndex(s, sep)
 	if lastIndex == -1 {
-		return nil
+		return []string{s}
 	}
 
 	return []string{s[:lastIndex], s[lastIndex+1:]}

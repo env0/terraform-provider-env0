@@ -465,6 +465,5 @@ func TestLastSplit(t *testing.T) {
 	assert.Equal(t, []string{"a__", "b"}, lastSplit("a___b", "_"))
 	assert.Equal(t, []string{"a_", ""}, lastSplit("a__", "_"))
 
-	var nilString []string
-	assert.Equal(t, nilString, lastSplit("abc", "_"))
+	assert.Equal(t, []string{"abc"}, lastSplit("abc", "_"))
 }
