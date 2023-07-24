@@ -459,3 +459,11 @@ func TestTTLToDuration(t *testing.T) {
 		require.Error(t, err)
 	})
 }
+
+func TestLastSplit(t *testing.T) {
+	assert.Equal(t, []string{"a", "b"}, lastSplit("a_b", "_"))
+	assert.Equal(t, []string{"a__", "b"}, lastSplit("a___b", "_"))
+	assert.Equal(t, []string{"a_", ""}, lastSplit("a__", "_"))
+
+	assert.Equal(t, []string{"abc"}, lastSplit("abc", "_"))
+}
