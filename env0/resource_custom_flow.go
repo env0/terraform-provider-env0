@@ -28,7 +28,7 @@ func resourceCustomFlow() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "name for the custom flow",
+				Description: "name for the custom flow. note: for the UI to render the custom-flow please use `project-<project.id>`",
 				Required:    true,
 			},
 			"repository": {
