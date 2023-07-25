@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `name` (String) name for the custom flow
+- `name` (String) name for the custom flow. note: for the UI to render the custom-flow please use `project-<project.id>`
 - `repository` (String) repository url for the custom flow source code
 
 ### Optional
