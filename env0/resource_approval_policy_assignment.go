@@ -87,12 +87,20 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	scopeId := d.Get("scope_id").(string)
 	blueprintId := d.Get("blueprint_id").(string)
 
-	approvalPolicyByScope, err := apiClient.ApprovalPolicyByScope(scope, scopeId)
+	approvalPolicyByScopeArr, err := apiClient.ApprovalPolicyByScope(scope, scopeId)
 	if err != nil {
 		return ResourceGetFailure("approval policy assignment", d, err)
 	}
 
-	if approvalPolicyByScope.ApprovalPolicy.Id != blueprintId {
+	found := false
+	for _, approvalPolicyByScope := range approvalPolicyByScopeArr {
+		if approvalPolicyByScope.ApprovalPolicy.Id == blueprintId {
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
 		d.SetId("")
 		return nil

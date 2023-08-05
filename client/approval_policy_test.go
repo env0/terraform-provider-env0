@@ -90,7 +90,7 @@ var _ = Describe("Approval Policy Client", func() {
 	})
 
 	Describe("Get Approval Policy By Scope", func() {
-		var ret *ApprovalPolicyByScope
+		var ret []ApprovalPolicyByScope
 
 		scope := string(mockAssignment.Scope)
 		scopeId := mockAssignment.ScopeId
@@ -101,18 +101,20 @@ var _ = Describe("Approval Policy Client", func() {
 			ApprovalPolicy: &mockApprovalPolicy,
 		}
 
+		mockApprovalPolicyByScopeArr := []ApprovalPolicyByScope{mockApprovalPolicyByScope}
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get(fmt.Sprintf("/approval-policy/%s/%s", scope, scopeId), nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *ApprovalPolicyByScope) {
-					*response = mockApprovalPolicyByScope
+				Do(func(path string, request interface{}, response *[]ApprovalPolicyByScope) {
+					*response = mockApprovalPolicyByScopeArr
 				})
 			httpCall.Times(1)
 			ret, _ = apiClient.ApprovalPolicyByScope(scope, scopeId)
 		})
 
 		It("Should return approval policy assignment", func() {
-			Expect(*ret).To(Equal(mockApprovalPolicyByScope))
+			Expect(ret).To(Equal(mockApprovalPolicyByScopeArr))
 		})
 	})
 })

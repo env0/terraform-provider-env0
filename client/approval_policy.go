@@ -66,12 +66,12 @@ func (client *ApiClient) ApprovalPolicyUnassign(scope string, scopeId string) er
 	return client.http.Delete(fmt.Sprintf("/approval-policy/assignment/%s/%s", scope, scopeId), nil)
 }
 
-func (client *ApiClient) ApprovalPolicyByScope(scope string, scopeId string) (*ApprovalPolicyByScope, error) {
-	var result ApprovalPolicyByScope
+func (client *ApiClient) ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error) {
+	var result []ApprovalPolicyByScope
 
 	if err := client.http.Get(fmt.Sprintf("/approval-policy/%s/%s", scope, scopeId), nil, &result); err != nil {
 		return nil, err
 	}
 
-	return &result, nil
+	return result, nil
 }

@@ -138,10 +138,10 @@ func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyAssign(arg0 interfac
 }
 
 // ApprovalPolicyByScope mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyByScope(arg0, arg1 string) (*ApprovalPolicyByScope, error) {
+func (m *MockApiClientInterface) ApprovalPolicyByScope(arg0, arg1 string) ([]ApprovalPolicyByScope, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ApprovalPolicyByScope", arg0, arg1)
-	ret0, _ := ret[0].(*ApprovalPolicyByScope)
+	ret0, _ := ret[0].([]ApprovalPolicyByScope)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

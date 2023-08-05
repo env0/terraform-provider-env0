@@ -61,7 +61,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
-				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return(&approvalPolicyByScope, nil),
+				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return([]client.ApprovalPolicyByScope{approvalPolicyByScope}, nil),
 				mock.EXPECT().ApprovalPolicyUnassign(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil),
 			)
 		})
@@ -197,7 +197,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
-				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return(&approvalPolicyByScopeMismatch, nil),
+				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return([]client.ApprovalPolicyByScope{approvalPolicyByScopeMismatch}, nil),
 				mock.EXPECT().ApprovalPolicyUnassign(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil),
 			)
 		})

@@ -139,7 +139,7 @@ type ApiClientInterface interface {
 	ApprovalPolicies(name string) ([]ApprovalPolicy, error)
 	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
 	ApprovalPolicyUnassign(scope string, scopeId string) error
-	ApprovalPolicyByScope(scope string, scopeId string) (*ApprovalPolicyByScope, error)
+	ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
