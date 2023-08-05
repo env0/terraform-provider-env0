@@ -60,6 +60,7 @@ type Template struct {
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName,omitempty" tfschema:",omitempty"`
+	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 }
 
 type TemplateCreatePayload struct {
