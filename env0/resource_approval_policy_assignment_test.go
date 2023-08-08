@@ -87,26 +87,6 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 		})
 	})
 
-	t.Run("Create assignment - name mismatch", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config:      stepConfig,
-					ExpectError: regexp.MustCompile("template name is"),
-				},
-			},
-		}
-
-		invalidTemplate := validTemplate
-		invalidTemplate.Name = "bad name"
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
-				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(invalidTemplate, nil),
-			)
-		})
-	})
-
 	t.Run("Create assignment - error when assigning", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

@@ -56,13 +56,8 @@ func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("unable to get template with id %s: %v", blueprintId, err)
 	}
 
-	if template.Type != APPROVAL_POLICY {
-		return diag.Errorf("template with id %s is of type %s, but %s type is required", blueprintId, template.Type, APPROVAL_POLICY)
-	}
-
-	expectedTemplateName := fmt.Sprintf("approval-policy-%s-%s", scope, scopeId)
-	if template.Name != expectedTemplateName {
-		return diag.Errorf("template name is %s, but the following name was expected %s:", template.Name, expectedTemplateName)
+	if template.Type != string(ApprovalPolicy) {
+		return diag.Errorf("template with id %s is of type %s, but %s type is required", blueprintId, template.Type, ApprovalPolicy)
 	}
 
 	assignment := client.ApprovalPolicyAssignment{

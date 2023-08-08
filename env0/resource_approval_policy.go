@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const APPROVAL_POLICY = "approval-policy"
-
 func resourceApprovalPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApprovalPolicyCreate,
@@ -34,7 +32,7 @@ func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	payload.Type = APPROVAL_POLICY
+	payload.Type = string(ApprovalPolicy)
 
 	template, err := apiClient.TemplateCreate(payload)
 	if err != nil {
@@ -75,7 +73,7 @@ func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, m
 		return problem
 	}
 
-	request.Type = APPROVAL_POLICY
+	request.Type = string(ApprovalPolicy)
 
 	_, err := apiClient.TemplateUpdate(d.Id(), request)
 	if err != nil {
@@ -123,8 +121,8 @@ func getApprovalPolicy(id string, meta interface{}) (interface{}, error) {
 			return nil, err
 		}
 
-		if template.Type != APPROVAL_POLICY {
-			return nil, fmt.Errorf("template type requires type %s but received type %s", APPROVAL_POLICY, template.Type)
+		if template.Type != string(ApprovalPolicy) {
+			return nil, fmt.Errorf("template type requires type %s but received type %s", ApprovalPolicy, template.Type)
 		}
 
 		return &template, nil

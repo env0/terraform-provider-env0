@@ -9,20 +9,29 @@ import (
 type TemplateType string
 
 const (
-	CustomFlow     TemplateType = "custom flow"
-	ApprovalPolicy TemplateType = "approval policy"
+	CustomFlow     TemplateType = "custom-flow"
+	ApprovalPolicy TemplateType = "approval-policy"
 )
 
 func getTemplate(templateType TemplateType) map[string]*schema.Schema {
+	var text string
+
+	switch templateType {
+	case CustomFlow:
+		text = "custom flow"
+	case ApprovalPolicy:
+		text = "approval-policy"
+	}
+
 	s := map[string]*schema.Schema{
 		"id": {
 			Type:        schema.TypeString,
-			Description: fmt.Sprintf("id of the %s", templateType),
+			Description: fmt.Sprintf("id of the %s", text),
 			Computed:    true,
 		},
 		"repository": {
 			Type:        schema.TypeString,
-			Description: fmt.Sprintf("repository url for the %s source code", templateType),
+			Description: fmt.Sprintf("repository url for the %s source code", text),
 			Required:    true,
 		},
 		"path": {
@@ -67,51 +76,39 @@ func getTemplate(templateType TemplateType) map[string]*schema.Schema {
 		},
 		"is_bitbucket_server": {
 			Type:        schema.TypeBool,
-			Description: fmt.Sprintf("true if this %s uses bitbucket server repository", templateType),
+			Description: fmt.Sprintf("true if this %s uses bitbucket server repository", text),
 			Optional:    true,
 			Default:     false,
 		},
 		"is_gitlab_enterprise": {
 			Type:        schema.TypeBool,
-			Description: fmt.Sprintf("true if this %s uses gitlab enterprise repository", templateType),
+			Description: fmt.Sprintf("true if this %s uses gitlab enterprise repository", text),
 			Optional:    true,
 			Default:     false,
 		},
 		"is_github_enterprise": {
 			Type:        schema.TypeBool,
-			Description: fmt.Sprintf("true if this %s uses github enterprise repository", templateType),
+			Description: fmt.Sprintf("true if this %s uses github enterprise repository", text),
 			Optional:    true,
 			Default:     false,
 		},
 		"is_gitlab": {
 			Type:        schema.TypeBool,
 			Optional:    true,
-			Description: fmt.Sprintf("true if this %s integrates with gitlab repository", templateType),
+			Description: fmt.Sprintf("true if this %s integrates with gitlab repository", text),
 			Default:     false,
 		},
 		"is_azure_devops": {
 			Type:        schema.TypeBool,
 			Optional:    true,
-			Description: fmt.Sprintf("true if this %s integrates with azure dev ops repository", templateType),
+			Description: fmt.Sprintf("true if this %s integrates with azure dev ops repository", text),
 			Default:     false,
 		},
-	}
-
-	if templateType == CustomFlow {
-		s["name"] = &schema.Schema{
+		"name": {
 			Type:        schema.TypeString,
-			Description: "name for the custom flow. note: for the UI to render the custom-flow please use `project-<project.id>`",
+			Description: fmt.Sprintf("name for the %s", text),
 			Required:    true,
-		}
-	}
-
-	if templateType == ApprovalPolicy {
-		s["name"] = &schema.Schema{
-			Type:        schema.TypeString,
-			Description: "name for the approval policy. The name must be in the following format `approval-policy-{scope}-{scopeId}` (E.g. `approval-policy-PROJECT-<project.id>`) - see examples",
-			Required:    true,
-			ForceNew:    true,
-		}
+		},
 	}
 
 	return s

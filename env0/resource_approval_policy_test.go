@@ -34,7 +34,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 	var template client.Template
 	copier.Copy(&template, &approvalPolicy)
-	template.Type = APPROVAL_POLICY
+	template.Type = string(ApprovalPolicy)
 
 	deletedTemplate := template
 	deletedTemplate.IsDeleted = true
@@ -54,7 +54,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 	var updatedTemplate client.Template
 	copier.Copy(&updatedTemplate, &updatedApprovalPolicy)
-	template.Type = APPROVAL_POLICY
+	template.Type = string(ApprovalPolicy)
 
 	createPayload := client.TemplateCreatePayload{
 		Name:                 approvalPolicy.Name,
@@ -64,7 +64,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		TokenId:              approvalPolicy.TokenId,
 		GithubInstallationId: approvalPolicy.GithubInstallationId,
 		IsGithubEnterprise:   approvalPolicy.IsGithubEnterprise,
-		Type:                 APPROVAL_POLICY,
+		Type:                 string(ApprovalPolicy),
 	}
 
 	updatePayload := client.TemplateCreatePayload{
@@ -74,7 +74,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		Revision:      updatedApprovalPolicy.Revision,
 		TokenId:       updatedApprovalPolicy.TokenId,
 		IsAzureDevOps: updatedApprovalPolicy.IsAzureDevOps,
-		Type:          APPROVAL_POLICY,
+		Type:          string(ApprovalPolicy),
 	}
 
 	t.Run("Success", func(t *testing.T) {

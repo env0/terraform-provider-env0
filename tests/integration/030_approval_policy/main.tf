@@ -16,9 +16,11 @@ data "env0_template" "github_template" {
 }
 
 resource "env0_approval_policy" "test" {
-  name                   = "approval-policy-PROJECT-${env0_project.project.id}"
+  name                   = "approval-policy-${random_string.random.result}"
   repository             = data.env0_template.github_template.repository
   github_installation_id = data.env0_template.github_template.github_installation_id
+  path                   = var.second_run ? "second" : "misc/null-resource"
+
 }
 
 resource "env0_approval_policy_assignment" "assignment" {
