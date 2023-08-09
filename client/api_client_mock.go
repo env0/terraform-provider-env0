@@ -107,6 +107,65 @@ func (mr *MockApiClientInterfaceMockRecorder) ApiKeys() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeys", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeys))
 }
 
+// ApprovalPolicies mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicies(arg0 string) ([]ApprovalPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicies", arg0)
+	ret0, _ := ret[0].([]ApprovalPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApprovalPolicies indicates an expected call of ApprovalPolicies.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicies(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicies", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicies), arg0)
+}
+
+// ApprovalPolicyAssign mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicyAssign(arg0 *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicyAssign", arg0)
+	ret0, _ := ret[0].(*ApprovalPolicyAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApprovalPolicyAssign indicates an expected call of ApprovalPolicyAssign.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyAssign(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyAssign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyAssign), arg0)
+}
+
+// ApprovalPolicyByScope mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicyByScope(arg0, arg1 string) ([]ApprovalPolicyByScope, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicyByScope", arg0, arg1)
+	ret0, _ := ret[0].([]ApprovalPolicyByScope)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApprovalPolicyByScope indicates an expected call of ApprovalPolicyByScope.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyByScope(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyByScope), arg0, arg1)
+}
+
+// ApprovalPolicyUnassign mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicyUnassign", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ApprovalPolicyUnassign indicates an expected call of ApprovalPolicyUnassign.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), arg0, arg1)
+}
+
 // AssignAgentsToProjects mocks base method.
 func (m *MockApiClientInterface) AssignAgentsToProjects(arg0 AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
 	m.ctrl.T.Helper()

@@ -136,6 +136,10 @@ type ApiClientInterface interface {
 	AssignTeamRoleToEnvironment(payload *AssignTeamRoleToEnvironmentPayload) (*TeamRoleEnvironmentAssignment, error)
 	RemoveTeamRoleFromEnvironment(environmentId string, teamId string) error
 	TeamRoleEnvironmentAssignments(environmentId string) ([]TeamRoleEnvironmentAssignment, error)
+	ApprovalPolicies(name string) ([]ApprovalPolicy, error)
+	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
+	ApprovalPolicyUnassign(scope string, scopeId string) error
+	ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
