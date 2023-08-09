@@ -20,7 +20,7 @@ func resourceCustomFlow() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: resourceCustomFlowImport},
 
-		Schema: getTemplate(CustomFlow),
+		Schema: getConfigurationTemplateSchema(CustomFlow),
 	}
 }
 

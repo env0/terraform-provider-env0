@@ -13,14 +13,14 @@ const (
 	ApprovalPolicy TemplateType = "approval-policy"
 )
 
-func getTemplate(templateType TemplateType) map[string]*schema.Schema {
+func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schema.Schema {
 	var text string
 
 	switch templateType {
 	case CustomFlow:
 		text = "custom flow"
 	case ApprovalPolicy:
-		text = "approval-policy"
+		text = "approval policy"
 	}
 
 	s := map[string]*schema.Schema{

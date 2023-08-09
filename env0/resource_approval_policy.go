@@ -20,7 +20,7 @@ func resourceApprovalPolicy() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: resourceApprovalPolicyImport},
 
-		Schema: getTemplate(ApprovalPolicy),
+		Schema: getConfigurationTemplateSchema(ApprovalPolicy),
 	}
 }
 
