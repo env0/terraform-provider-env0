@@ -164,6 +164,7 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd.Dir = TESTS_FOLDER + "/" + testName
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
+	cmd.Env = append(cmd.Env, "TF_LOG=INFO")
 	log.Println("Running terraform ", arg, " in ", testName)
 	outputBytes, err := cmd.CombinedOutput()
 	output := string(outputBytes)
