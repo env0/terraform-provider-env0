@@ -164,11 +164,13 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd.Dir = TESTS_FOLDER + "/" + testName
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
+	cmd.Env = append(cmd.Env, "TF_LOG_PROVIDER=info")
 	log.Println("Running terraform ", arg, " in ", testName)
 	outputBytes, err := cmd.CombinedOutput()
 	output := string(outputBytes)
+	log.Println(output)
 	if err != nil {
-		log.Println("error running terraform ", arg, " in ", testName, " error: ", err, " output: ", output)
+		log.Println("error running terraform ", arg, " in ", testName, " error: ", err)
 	} else {
 		log.Println("Completed successfully terraform", arg, "in", testName)
 	}
