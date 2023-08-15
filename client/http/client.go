@@ -3,6 +3,8 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
+	"reflect"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -76,11 +78,22 @@ func (client *HttpClient) Put(path string, request interface{}, response interfa
 }
 
 func (client *HttpClient) Get(path string, params map[string]string, response interface{}) error {
-	result, err := client.request().
-		SetQueryParams(params).
-		SetResult(response).
-		Get(path)
-	return client.httpResult(result, err)
+	request := client.request().SetQueryParams(params)
+
+	responseType := reflect.TypeOf(response)
+
+	if responseType.Kind() == reflect.Ptr && responseType.Elem().Kind() == reflect.String {
+		responseStrPtr := response.(*string)
+
+		result, err := request.Get(path)
+		if err == nil {
+			*responseStrPtr = string(result.Body())
+		}
+
+		return client.httpResult(result, err)
+	} else {
+		return client.httpResult(request.SetResult(response).Get(path))
+	}
 }
 
 func (client *HttpClient) Delete(path string, params map[string]string) error {
