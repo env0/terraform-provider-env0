@@ -60,7 +60,7 @@ func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get ssh key: %v", err)
 	}
 	if sshKey == nil {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 	}
 	return nil
@@ -82,10 +82,10 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	var getErr error
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		tflog.Info(context.Background(), "Resolving SSH key by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving SSH key by id", map[string]interface{}{"id": id})
 		_, getErr = getSshKeyById(id, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving SSH key by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving SSH key by name", map[string]interface{}{"name": id})
 		var sshKey *client.SshKey
 		sshKey, getErr = getSshKeyByName(id, meta)
 		d.SetId(sshKey.Id)

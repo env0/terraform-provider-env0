@@ -120,7 +120,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 
 	team, err := apiClient.Team(assignment.TeamId)
 	if err != nil {
-		return ResourceGetFailure("team", d, err)
+		return ResourceGetFailure(ctx, "team", d, err)
 	}
 
 	found := false
@@ -132,7 +132,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if !found {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

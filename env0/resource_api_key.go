@@ -88,7 +88,7 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get api key: %v", err)
 	}
 	if apiKey == nil {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -153,19 +153,19 @@ func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
 	return &foundApiKeys[0], nil
 }
 
-func getApiKey(id string, meta interface{}) (*client.ApiKey, error) {
+func getApiKey(ctx context.Context, id string, meta interface{}) (*client.ApiKey, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(context.Background(), "Resolving api key by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving api key by id", map[string]interface{}{"id": id})
 		return getApiKeyById(id, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving api key by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving api key by name", map[string]interface{}{"name": id})
 		return getApiKeyByName(id, meta)
 	}
 }
 
 func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	apiKey, err := getApiKey(d.Id(), meta)
+	apiKey, err := getApiKey(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err
 	}

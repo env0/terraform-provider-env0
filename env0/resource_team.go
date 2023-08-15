@@ -58,7 +58,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	team, err := apiClient.Team(d.Id())
 	if err != nil {
-		return ResourceGetFailure("team", d, err)
+		return ResourceGetFailure(ctx, "team", d, err)
 	}
 
 	if err := writeResourceData(&team, d); err != nil {
@@ -98,10 +98,10 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		tflog.Info(context.Background(), "Resolving team by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving team by id", map[string]interface{}{"id": id})
 		_, getErr = getTeamById(id, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving team by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving team by name", map[string]interface{}{"name": id})
 		var team client.Team
 		team, getErr = getTeamByName(id, meta)
 		d.SetId(team.Id)

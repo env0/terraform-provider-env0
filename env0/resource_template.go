@@ -284,7 +284,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if template.IsDeleted && !d.IsNewResource() {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -327,10 +327,10 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		tflog.Info(context.Background(), "Resolving template by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving template by id", map[string]interface{}{"id": id})
 		_, getErr = getTemplateById(id, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving template by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving template by name", map[string]interface{}{"name": id})
 		var template client.Template
 		template, getErr = getTemplateByName(id, meta)
 		d.SetId(template.Id)

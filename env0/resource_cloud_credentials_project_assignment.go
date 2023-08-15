@@ -66,7 +66,7 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 		}
 	}
 	if !found && !d.IsNewResource() {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

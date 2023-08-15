@@ -112,7 +112,7 @@ func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceD
 	}
 
 	if assignment == nil {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

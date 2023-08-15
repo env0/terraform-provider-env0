@@ -95,7 +95,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	project, err := apiClient.Project(d.Id())
 	if err != nil {
-		return ResourceGetFailure("project", d, err)
+		return ResourceGetFailure(ctx, "project", d, err)
 	}
 
 	if err := writeResourceData(&project, d); err != nil {
@@ -215,12 +215,12 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	var project client.Project
 
 	if err == nil {
-		tflog.Info(context.Background(), "Resolving project by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving project by id", map[string]interface{}{"id": id})
 		if project, err = getProjectById(id, meta); err != nil {
 			return nil, err
 		}
 	} else {
-		tflog.Info(context.Background(), "Resolving project by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving project by name", map[string]interface{}{"name": id})
 
 		if project, err = getProjectByName(id, "", meta); err != nil {
 			return nil, err

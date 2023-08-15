@@ -114,7 +114,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	module, err := apiClient.Module(d.Id())
 	if err != nil {
-		return ResourceGetFailure("module", d, err)
+		return ResourceGetFailure(ctx, "module", d, err)
 	}
 
 	if err := writeResourceData(module, d); err != nil {
@@ -175,19 +175,19 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 	return &foundModules[0], nil
 }
 
-func getModule(id string, meta interface{}) (*client.Module, error) {
+func getModule(ctx context.Context, id string, meta interface{}) (*client.Module, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(context.Background(), "Resolving module by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving module by id", map[string]interface{}{"id": id})
 		return meta.(client.ApiClientInterface).Module(id)
 	} else {
-		tflog.Info(context.Background(), "Resolving module by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving module by name", map[string]interface{}{"name": id})
 		return getModuleByName(id, meta)
 	}
 }
 
 func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	module, err := getModule(d.Id(), meta)
+	module, err := getModule(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err
 	}

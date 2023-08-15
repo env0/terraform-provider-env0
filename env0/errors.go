@@ -22,9 +22,9 @@ func driftDetected(err error) bool {
 	return false
 }
 
-func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
+func ResourceGetFailure(ctx context.Context, resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
 	if driftDetected(err) {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

@@ -335,7 +335,7 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) error {
+func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges) error {
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
@@ -391,7 +391,7 @@ func setEnvironmentSchema(d *schema.ResourceData, environment client.Environment
 		}
 	}
 
-	setEnvironmentConfigurationSchema(d, configurationVariables)
+	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
 	return nil
 }
@@ -437,7 +437,7 @@ func createVariable(configurationVariable *client.ConfigurationVariable) interfa
 	return variable
 }
 
-func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
+func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
 	ivariables, ok := d.GetOk("configuration")
 	if !ok {
 		return
@@ -486,7 +486,7 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 		}
 
 		if !found {
-			tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"configuration name": configurationVariable.Name})
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"configuration name": configurationVariable.Name})
 			newVariables = append(newVariables, createVariable(&configurationVariable))
 		}
 	}
@@ -561,7 +561,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	}
 
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables)
 
 	return nil
 }
@@ -579,7 +579,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
 
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables)
 
 	if isTemplateless(d) {
 		// envrionment with no template.
@@ -1097,10 +1097,10 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(context.Background(), "Resolving environment by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving environment by id", map[string]interface{}{"id": id})
 		environment, getErr = getEnvironmentById(id, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving environment by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving environment by name", map[string]interface{}{"name": id})
 
 		environment, getErr = getEnvironmentByName(id, meta, false)
 	}
@@ -1112,7 +1112,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
-	setEnvironmentSchema(d, environment, environmentConfigurationVariables)
+	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables)
 
 	if environment.IsRemoteBackend != nil {
 		d.Set("is_remote_backend", *environment.IsRemoteBackend)

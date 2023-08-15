@@ -113,7 +113,7 @@ func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, me
 	id := d.Id()
 	_, err := apiClient.CloudCredentials(id)
 	if err != nil {
-		return ResourceGetFailure("cost credentials", d, err)
+		return ResourceGetFailure(ctx, "cost credentials", d, err)
 	}
 	return nil
 

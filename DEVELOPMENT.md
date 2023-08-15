@@ -85,7 +85,7 @@ apiClient := meta.(client.ApiClientInterface)
 
 module, err := apiClient.Module(d.Id())
 if err != nil {
-    return ResourceGetFailure("module", d, err)
+    return ResourceGetFailure(ctx, "module", d, err)
 }
 
 .
@@ -94,7 +94,7 @@ if err != nil {
 
 func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
     if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-        tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+        tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
         d.SetId("")
         return nil
     }

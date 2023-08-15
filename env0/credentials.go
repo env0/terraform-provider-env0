@@ -75,13 +75,13 @@ func getCredentialsById(id string, prefixList []string, meta interface{}) (clien
 	return credentials, nil
 }
 
-func getCredentials(id string, prefixList []string, meta interface{}) (client.Credentials, error) {
+func getCredentials(ctx context.Context, id string, prefixList []string, meta interface{}) (client.Credentials, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(context.Background(), "Resolving credentials by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving credentials by id", map[string]interface{}{"id": id})
 		return getCredentialsById(id, prefixList, meta)
 	} else {
-		tflog.Info(context.Background(), "Resolving credentials by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving credentials by name", map[string]interface{}{"name": id})
 		return getCredentialsByName(id, prefixList, meta)
 	}
 }
@@ -103,7 +103,7 @@ func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 
 		credentials, err := apiClient.CloudCredentials(d.Id())
 		if err != nil {
-			return ResourceGetFailure(string(cloudType)+" credentials", d, err)
+			return ResourceGetFailure(ctx, string(cloudType)+" credentials", d, err)
 		}
 
 		if err := writeResourceData(&credentials, d); err != nil {
@@ -116,7 +116,7 @@ func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 
 func resourceCredentialsImport(cloudType CloudType) schema.StateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-		credentials, err := getCredentials(d.Id(), credentialsTypeToPrefixList[cloudType], meta)
+		credentials, err := getCredentials(ctx, d.Id(), credentialsTypeToPrefixList[cloudType], meta)
 		if err != nil {
 			if _, ok := err.(*client.NotFoundError); ok {
 				return nil, fmt.Errorf(string(cloudType)+" credentials resource with id %v not found", d.Id())

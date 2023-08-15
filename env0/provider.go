@@ -155,26 +155,37 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			isIntegrationTest = true
 		}
 
-		restyClient.
+		subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
+
+		restyClient = restyClient.
 			SetRetryCount(5).
 			SetRetryWaitTime(time.Second).
 			SetRetryMaxWaitTime(time.Second * 5).
+			OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
+				return nil
+			}).
+			OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
+				tflog.SubsystemInfo(subCtx, "env0_api_client", "Received respose", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
+				return nil
+			}).
+			AddRetryAfterErrorCondition().
 			AddRetryCondition(func(r *resty.Response, err error) bool {
 				if r == nil {
 					// No response. Possiblly a networking issue (E.g. DNS lookup failure).
-					tflog.Warn(context.Background(), "No response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+					tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
 					return true
 				}
 
 				// When running integration tests 404 may occur due to "database eventual consistency".
 				// Retry when there's a 5xx error. Otherwise do not retry.
 				if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
-					tflog.Warn(context.Background(), "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+					tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
 					return true
 				}
 
 				if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-					tflog.Warn(context.Background(), "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+					tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
 					return true
 				}
 

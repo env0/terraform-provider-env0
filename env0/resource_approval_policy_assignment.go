@@ -84,7 +84,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 
 	approvalPolicyByScopeArr, err := apiClient.ApprovalPolicyByScope(scope, scopeId)
 	if err != nil {
-		return ResourceGetFailure("approval policy assignment", d, err)
+		return ResourceGetFailure(ctx, "approval policy assignment", d, err)
 	}
 
 	found := false
@@ -96,7 +96,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	}
 
 	if !found {
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

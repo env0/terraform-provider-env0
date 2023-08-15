@@ -47,7 +47,7 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	customFlow, err := apiClient.CustomFlow(d.Id())
 	if err != nil {
-		return ResourceGetFailure("custom flow", d, err)
+		return ResourceGetFailure(ctx, "custom flow", d, err)
 	}
 
 	if err := writeResourceData(customFlow, d); err != nil {
@@ -101,18 +101,18 @@ func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, err
 	return &customFlows[0], nil
 }
 
-func getCustomFlow(id string, meta interface{}) (*client.CustomFlow, error) {
+func getCustomFlow(ctx context.Context, id string, meta interface{}) (*client.CustomFlow, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		tflog.Info(context.Background(), "Resolving custom flow by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving custom flow by id", map[string]interface{}{"id": id})
 		return meta.(client.ApiClientInterface).CustomFlow(id)
 	} else {
-		tflog.Info(context.Background(), "Resolving custom flow by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving custom flow by name", map[string]interface{}{"name": id})
 		return getCustomFlowByName(id, meta)
 	}
 }
 
 func resourceCustomFlowImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	customFlow, err := getCustomFlow(d.Id(), meta)
+	customFlow, err := getCustomFlow(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err
 	}

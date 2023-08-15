@@ -104,11 +104,11 @@ func getNotificationProjectAssignment(d *schema.ResourceData, meta interface{}) 
 func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	assignment, err := getNotificationProjectAssignment(d, meta)
 	if err != nil {
-		return ResourceGetFailure("notification project assignment", d, err)
+		return ResourceGetFailure(ctx, "notification project assignment", d, err)
 	}
 	if assignment == nil {
 		// Notification endpoint not found.
-		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
