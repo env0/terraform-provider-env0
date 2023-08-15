@@ -168,7 +168,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 
 				// When running integration tests 404 may occur due to "database eventual consistency".
 				// Retry when there's a 5xx error. Otherwise do not retry.
-				if r.StatusCode() >= 500 || isIntegrationTest && r.StatusCode() == 404 {
+				if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
 					log.Printf("[WARN] Received %d status code, retrying request: %s %s", r.StatusCode(), r.Request.Method, r.Request.URL)
 					return true
 				}
