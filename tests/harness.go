@@ -166,7 +166,7 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd.Dir = TESTS_FOLDER + "/" + testName
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
-	cmd.Env = append(cmd.Env, "TF_LOG_PROVIDER=info")
+	cmd.Env = append(cmd.Env, "TF_LOG_PROVIDER_ENV0=info")
 	var output, errOutput bytes.Buffer
 	cmd.Stderr = bufio.NewWriter(&errOutput)
 	cmd.Stdout = bufio.NewWriter(&output)
