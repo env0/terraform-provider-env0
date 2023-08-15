@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -486,7 +486,7 @@ func setEnvironmentConfigurationSchema(d *schema.ResourceData, configurationVari
 		}
 
 		if !found {
-			log.Printf("[WARN] Drift Detected for configuration: %s", configurationVariable.Name)
+			tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"configuration name": configurationVariable.Name})
 			newVariables = append(newVariables, createVariable(&configurationVariable))
 		}
 	}
@@ -1097,11 +1097,10 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	var environment client.Environment
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving Environment by id: ", id)
+		tflog.Info(context.Background(), "Resolving environment by id", map[string]interface{}{"id": id})
 		environment, getErr = getEnvironmentById(id, meta)
 	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving Environment by name: ", id)
+		tflog.Info(context.Background(), "Resolving environment by name", map[string]interface{}{"name": id})
 
 		environment, getErr = getEnvironmentByName(id, meta, false)
 	}

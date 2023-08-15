@@ -2,9 +2,9 @@ package env0
 
 import (
 	"context"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -66,7 +66,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	}
 
 	if template.IsDeleted {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -79,7 +79,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 		}
 	}
 	if !isProjectIdInTemplate {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

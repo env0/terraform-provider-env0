@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -88,7 +88,7 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get api key: %v", err)
 	}
 	if apiKey == nil {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -156,10 +156,10 @@ func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
 func getApiKey(id string, meta interface{}) (*client.ApiKey, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving api key by id: ", id)
+		tflog.Info(context.Background(), "Resolving api key by id", map[string]interface{}{"id": id})
 		return getApiKeyById(id, meta)
 	} else {
-		log.Println("[INFO] Resolving api key by name: ", id)
+		tflog.Info(context.Background(), "Resolving api key by name", map[string]interface{}{"name": id})
 		return getApiKeyByName(id, meta)
 	}
 }

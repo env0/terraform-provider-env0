@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -130,10 +130,10 @@ func getGpgKeyByName(name string, meta interface{}) (*client.GpgKey, error) {
 func getGpgKey(idOrName string, meta interface{}) (*client.GpgKey, error) {
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
-		log.Println("[INFO] Resolving gpg key by id: ", idOrName)
+		tflog.Info(context.Background(), "Resolving gpg key by id", map[string]interface{}{"id": idOrName})
 		return getGpgKeyById(idOrName, meta)
 	} else {
-		log.Println("[INFO] Resolving gpg key by name: ", idOrName)
+		tflog.Info(context.Background(), "Resolving gpg key by name", map[string]interface{}{"name": idOrName})
 		return getGpgKeyByName(idOrName, meta)
 	}
 }

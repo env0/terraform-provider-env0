@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -98,11 +98,10 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		log.Println("[INFO] Resolving team by id: ", id)
+		tflog.Info(context.Background(), "Resolving team by id", map[string]interface{}{"id": id})
 		_, getErr = getTeamById(id, meta)
 	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving team by name: ", id)
+		tflog.Info(context.Background(), "Resolving team by name", map[string]interface{}{"name": id})
 		var team client.Team
 		team, getErr = getTeamByName(id, meta)
 		d.SetId(team.Id)

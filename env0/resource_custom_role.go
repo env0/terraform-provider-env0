@@ -3,11 +3,11 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -172,10 +172,10 @@ func getCustomRoleByName(name string, meta interface{}) (*client.Role, error) {
 func getCustomRole(id string, meta interface{}) (*client.Role, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving custom role by id: ", id)
+		tflog.Info(context.Background(), "Resolving custom role by id", map[string]interface{}{"id": id})
 		return getCustomRoleById(id, meta)
 	} else {
-		log.Println("[INFO] Resolving custom role by name: ", id)
+		tflog.Info(context.Background(), "Resolving custom role by name", map[string]interface{}{"name": id})
 		return getCustomRoleByName(id, meta)
 	}
 }

@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -109,10 +109,10 @@ func getGitTokenByName(name string, meta interface{}) (*client.GitToken, error) 
 func getGitToken(id string, meta interface{}) (*client.GitToken, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving git token by id: ", id)
+		tflog.Info(context.Background(), "Resolving git token by id", map[string]interface{}{"id": id})
 		return meta.(client.ApiClientInterface).GitToken(id)
 	} else {
-		log.Println("[INFO] Resolving git token by name: ", id)
+		tflog.Info(context.Background(), "Resolving git token by name", map[string]interface{}{"name": id})
 		return getGitTokenByName(id, meta)
 	}
 }

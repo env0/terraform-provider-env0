@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -178,10 +178,10 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 func getModule(id string, meta interface{}) (*client.Module, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving module by id: ", id)
+		tflog.Info(context.Background(), "Resolving module by id", map[string]interface{}{"id": id})
 		return meta.(client.ApiClientInterface).Module(id)
 	} else {
-		log.Println("[INFO] Resolving module by name: ", id)
+		tflog.Info(context.Background(), "Resolving module by name", map[string]interface{}{"name": id})
 		return getModuleByName(id, meta)
 	}
 }

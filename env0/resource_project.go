@@ -3,12 +3,12 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -215,12 +215,12 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	var project client.Project
 
 	if err == nil {
-		log.Println("[INFO] Resolving Project by id: ", id)
+		tflog.Info(context.Background(), "Resolving project by id", map[string]interface{}{"id": id})
 		if project, err = getProjectById(id, meta); err != nil {
 			return nil, err
 		}
 	} else {
-		log.Println("[INFO] Resolving Project by name: ", id)
+		tflog.Info(context.Background(), "Resolving project by name", map[string]interface{}{"name": id})
 
 		if project, err = getProjectByName(id, "", meta); err != nil {
 			return nil, err

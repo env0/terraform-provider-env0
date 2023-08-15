@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -103,10 +103,10 @@ func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, err
 
 func getCustomFlow(id string, meta interface{}) (*client.CustomFlow, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		log.Println("[INFO] Resolving custom flow by id: ", id)
+		tflog.Info(context.Background(), "Resolving custom flow by id", map[string]interface{}{"id": id})
 		return meta.(client.ApiClientInterface).CustomFlow(id)
 	} else {
-		log.Println("[INFO] Resolving custom flow by name: ", id)
+		tflog.Info(context.Background(), "Resolving custom flow by name", map[string]interface{}{"name": id})
 		return getCustomFlowByName(id, meta)
 	}
 }

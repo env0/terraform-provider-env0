@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -124,10 +124,10 @@ func getProviderByName(name string, meta interface{}) (*client.Provider, error) 
 func getProvider(idOrName string, meta interface{}) (*client.Provider, error) {
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
-		log.Println("[INFO] Resolving provider by id: ", idOrName)
+		tflog.Info(context.Background(), "Resolving provider by id", map[string]interface{}{"id": idOrName})
 		return meta.(client.ApiClientInterface).Provider(idOrName)
 	} else {
-		log.Println("[INFO] Resolving provider by name: ", idOrName)
+		tflog.Info(context.Background(), "Resolving provider by name", map[string]interface{}{"name": idOrName})
 		return getProviderByName(idOrName, meta)
 	}
 }

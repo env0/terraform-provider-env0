@@ -3,10 +3,10 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -53,7 +53,7 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if approvalPolicy.IsDeleted && !d.IsNewResource() {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(context.Background(), "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -114,7 +114,7 @@ func getApprovalPolicyByName(name string, meta interface{}) (*client.ApprovalPol
 
 func getApprovalPolicy(id string, meta interface{}) (interface{}, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		log.Println("[INFO] Resolving approval policy by id: ", id)
+		tflog.Info(context.Background(), "Resolving approval policy by id", map[string]interface{}{"id": id})
 
 		template, err := meta.(client.ApiClientInterface).Template(id)
 		if err != nil {
@@ -127,7 +127,7 @@ func getApprovalPolicy(id string, meta interface{}) (interface{}, error) {
 
 		return &template, nil
 	} else {
-		log.Println("[INFO] Resolving approval policy by name: ", id)
+		tflog.Info(context.Background(), "Resolving approval policy by name", map[string]interface{}{"name": id})
 
 		return getApprovalPolicyByName(id, meta)
 	}
