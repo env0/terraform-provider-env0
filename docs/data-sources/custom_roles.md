@@ -28,5 +28,3 @@ data "env0_custom_role" "roles" {
 
 - `id` (String) The ID of this resource.
 - `names` (List of String) list of all custom roles (by name)
-
-

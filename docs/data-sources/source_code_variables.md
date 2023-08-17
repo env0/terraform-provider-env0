@@ -47,5 +47,3 @@ Read-Only:
 - `format` (String)
 - `name` (String)
 - `value` (String)
-
-

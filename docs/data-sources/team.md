@@ -23,5 +23,3 @@ description: |-
 ### Read-Only
 
 - `description` (String) Textual description of the team
-
-

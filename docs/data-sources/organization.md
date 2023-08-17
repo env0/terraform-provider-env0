@@ -30,5 +30,3 @@ output "organization_name" {
 - `is_self_hosted` (Boolean) is the organization self hosted
 - `name` (String) the name of the organization
 - `role` (String) role of the authenticated user (through api key) in the organization
-
-

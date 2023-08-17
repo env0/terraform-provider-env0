@@ -41,5 +41,3 @@ resource "env0_template_project_assignment" "assignment" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

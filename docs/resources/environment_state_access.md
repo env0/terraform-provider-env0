@@ -47,5 +47,3 @@ resource "env0_environment_state_access" "example_entire_organization" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

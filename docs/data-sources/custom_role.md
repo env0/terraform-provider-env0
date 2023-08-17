@@ -31,5 +31,3 @@ resource "env0_team_project_assignment" "role_assignment_custom_role_example" {
 
 - `id` (String) the id of the custom role
 - `name` (String) the name of the custom role
-
-

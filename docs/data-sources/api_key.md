@@ -37,5 +37,3 @@ data "env0_api_key" "api_key_sample_by_name" {
 ### Read-Only
 
 - `api_key_id` (String) the api key id
-
-

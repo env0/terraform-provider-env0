@@ -39,5 +39,3 @@ resource "env0_environment_scheduling" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

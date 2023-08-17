@@ -37,5 +37,3 @@ output "pid1_credential_1_id" {
 
 - `id` (String) The ID of this resource.
 - `ids` (List of String) a list of cloud credentials (ids) associated with the project
-
-

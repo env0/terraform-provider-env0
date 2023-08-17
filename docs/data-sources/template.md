@@ -55,5 +55,3 @@ Required:
 
 - `id` (String) ssh key id
 - `name` (String) ssh key name
-
-

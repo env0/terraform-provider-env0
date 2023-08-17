@@ -31,5 +31,3 @@ data "env0_notification" "my_notification" {
 - `created_by` (String) textual description of the entity who created the notification
 - `type` (String) the type of the notification
 - `value` (String) the target url of the notification
-
-

@@ -36,5 +36,3 @@ output "team2_name" {
 
 - `id` (String) The ID of this resource.
 - `names` (List of String) list of all teams (by name)
-
-

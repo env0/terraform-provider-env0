@@ -34,5 +34,3 @@ data "env0_git_token" "git_token_sample_by_name" {
 
 - `id` (String) the id of the git token
 - `name` (String) the name of the git token
-
-

@@ -46,5 +46,3 @@ output "aws_default_region" {
 - `is_sensitive` (Boolean) is the variable defined as sensitive
 - `scope` (String) scope of the variable
 - `value` (String, Sensitive) value stored in the variable
-
-

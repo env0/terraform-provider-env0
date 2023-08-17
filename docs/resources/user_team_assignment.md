@@ -38,5 +38,3 @@ resource "env0_user_team_assignment" "assginment_example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

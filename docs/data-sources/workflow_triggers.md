@@ -37,5 +37,3 @@ output "downstream_env_name" {
 
 - `downstream_environment_ids` (List of String) environments to trigger
 - `id` (String) The ID of this resource.
-
-

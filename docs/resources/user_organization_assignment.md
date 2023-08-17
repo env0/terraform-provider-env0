@@ -45,5 +45,3 @@ resource "env0_user_organization_assignment" "user_org" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

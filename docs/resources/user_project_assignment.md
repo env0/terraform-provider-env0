@@ -58,5 +58,3 @@ resource "env0_user_project_assignment" "role_assignment_custom_role_example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

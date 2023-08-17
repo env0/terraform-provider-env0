@@ -26,5 +26,3 @@ description: |-
 Read-Only:
 
 - `agent_key` (String)
-
-

@@ -30,5 +30,3 @@ resource "env0_template" "example" {
 
 - `id` (String) id of the ssh key
 - `name` (String) the name of the ssh key
-
-

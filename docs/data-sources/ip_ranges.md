@@ -23,5 +23,3 @@ data "env0_ip_ranges" "test" {}
 
 - `id` (String) The ID of this resource.
 - `ipv4` (List of String) list of env0 ipv4 CIDR addresses. This list can be used to whitelist inconming env0 traffic (E.g.: https://docs.env0.com/docs/templates#on-premises-git-servers-support)
-
-

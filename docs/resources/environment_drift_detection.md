@@ -44,5 +44,3 @@ resource "env0_environment_drift_detection" "drift" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

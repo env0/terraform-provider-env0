@@ -32,5 +32,3 @@ output "user_id" {
 ### Read-Only
 
 - `id` (String) id of the user
-
-

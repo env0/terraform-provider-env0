@@ -23,5 +23,3 @@ description: |-
 ### Read-Only
 
 - `description` (String) the description of the provider
-
-

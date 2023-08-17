@@ -36,5 +36,3 @@ output "template2_name" {
 
 - `id` (String) The ID of this resource.
 - `names` (List of String) list of all templates (by name)
-
-

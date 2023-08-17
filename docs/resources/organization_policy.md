@@ -35,5 +35,3 @@ resource "env0_organization_policy" "policy_example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

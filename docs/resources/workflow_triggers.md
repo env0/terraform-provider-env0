@@ -60,5 +60,3 @@ resource "env0_workflow_triggers" "trigger_link" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

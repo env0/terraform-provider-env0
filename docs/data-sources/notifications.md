@@ -36,5 +36,3 @@ output "notification2_name" {
 
 - `id` (String) The ID of this resource.
 - `names` (List of String) list of all notifications (by name)
-
-

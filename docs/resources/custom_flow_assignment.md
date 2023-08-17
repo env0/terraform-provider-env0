@@ -49,5 +49,3 @@ resource "env0_custom_flow_assignment" "my_assignment" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

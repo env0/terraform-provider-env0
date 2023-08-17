@@ -24,5 +24,3 @@ description: |-
 
 - `content` (String) the gpg public key block
 - `key_id` (String) the gpg key id
-
-

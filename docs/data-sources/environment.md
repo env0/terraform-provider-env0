@@ -54,5 +54,3 @@ output "environment_name" {
 - `status` (String) the status of the environment
 - `template_id` (String) the template id the environment is to be created from
 - `token_id` (String) The token id used for repo integrations (Used by Gitlab or Azure DevOps)
-
-

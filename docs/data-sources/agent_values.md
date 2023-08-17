@@ -23,5 +23,3 @@ description: |-
 
 - `id` (String) The ID of this resource.
 - `values` (String) Self hosted agent helm values. The values can be passed to a helm release resource (https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release)
-
-

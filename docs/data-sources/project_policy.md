@@ -35,5 +35,3 @@ description: |-
 - `skip_apply_when_plan_is_empty` (Boolean) Skip apply when plan has no changes
 - `skip_redundant_deployments` (Boolean) Automatically skip queued deployments when a newer deployment is triggered
 - `updated_by` (String) updated by
-
-

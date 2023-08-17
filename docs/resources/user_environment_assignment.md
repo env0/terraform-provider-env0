@@ -59,5 +59,3 @@ resource "env0_user_environment_assignment" "assignment" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

@@ -57,5 +57,3 @@ Omitting removes the restriction.
 
 - `id` (String) id of the policy
 - `updated_by` (String) updated by
-
-

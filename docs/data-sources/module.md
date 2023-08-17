@@ -34,5 +34,3 @@ data "env0_module" "some_name" {
 
 - `module_provider` (String) the provider name in the module source
 - `repository` (String) template source code repository url
-
-
