@@ -207,7 +207,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	variable, err := apiClient.ConfigurationVariablesById(id)
 
 	if err != nil {
-		return ResourceGetFailure("configuration variable", d, err)
+		return ResourceGetFailure(ctx, "configuration variable", d, err)
 	}
 
 	d.Set("type", "environment")

@@ -72,7 +72,7 @@ func resourceEnvironmentStateAccessRead(ctx context.Context, d *schema.ResourceD
 
 	remoteStateAccess, err := apiClient.RemoteStateAccessConfiguration(environmentId)
 	if err != nil {
-		return ResourceGetFailure("remote state access configation", d, err)
+		return ResourceGetFailure(ctx, "remote state access configation", d, err)
 	}
 
 	if err := writeResourceData(remoteStateAccess, d); err != nil {

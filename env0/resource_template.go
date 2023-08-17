@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -284,7 +284,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if template.IsDeleted && !d.IsNewResource() {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -327,11 +327,10 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 	var getErr diag.Diagnostics
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		log.Println("[INFO] Resolving Template by id: ", id)
+		tflog.Info(ctx, "Resolving template by id", map[string]interface{}{"id": id})
 		_, getErr = getTemplateById(id, meta)
 	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving Template by name: ", id)
+		tflog.Info(ctx, "Resolving template by name", map[string]interface{}{"name": id})
 		var template client.Template
 		template, getErr = getTemplateByName(id, meta)
 		d.SetId(template.Id)

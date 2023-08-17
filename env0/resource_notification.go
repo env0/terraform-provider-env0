@@ -3,11 +3,11 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -115,7 +115,7 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("could not get notification: %v", err)
 	}
 	if notification == nil {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}
@@ -154,19 +154,19 @@ func resourceNotificationDelete(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func getNotification(id string, meta interface{}) (*client.Notification, error) {
+func getNotification(ctx context.Context, id string, meta interface{}) (*client.Notification, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving notification by id: ", id)
+		tflog.Info(ctx, "Resolving notifcation by id", map[string]interface{}{"id": id})
 		return getNotificationById(id, meta)
 	} else {
-		log.Println("[INFO] Resolving notification by name: ", id)
+		tflog.Info(ctx, "Resolving notifcation by name", map[string]interface{}{"name	": id})
 		return getNotificationByName(id, meta)
 	}
 }
 
 func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	notification, err := getNotification(d.Id(), meta)
+	notification, err := getNotification(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err
 	}

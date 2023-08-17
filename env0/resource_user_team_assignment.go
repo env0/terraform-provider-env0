@@ -3,11 +3,11 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -120,7 +120,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 
 	team, err := apiClient.Team(assignment.TeamId)
 	if err != nil {
-		return ResourceGetFailure("team", d, err)
+		return ResourceGetFailure(ctx, "team", d, err)
 	}
 
 	found := false
@@ -132,7 +132,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if !found {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
 	}

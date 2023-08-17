@@ -3,11 +3,11 @@ package env0
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -101,7 +101,7 @@ func resourceCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	role, err := apiClient.Role(d.Id())
 	if err != nil {
-		return ResourceGetFailure("role", d, err)
+		return ResourceGetFailure(ctx, "role", d, err)
 	}
 
 	if err := writeResourceData(role, d); err != nil {
@@ -169,19 +169,19 @@ func getCustomRoleByName(name string, meta interface{}) (*client.Role, error) {
 	return &foundRoles[0], nil
 }
 
-func getCustomRole(id string, meta interface{}) (*client.Role, error) {
+func getCustomRole(ctx context.Context, id string, meta interface{}) (*client.Role, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		log.Println("[INFO] Resolving custom role by id: ", id)
+		tflog.Info(ctx, "Resolving custom role by id", map[string]interface{}{"id": id})
 		return getCustomRoleById(id, meta)
 	} else {
-		log.Println("[INFO] Resolving custom role by name: ", id)
+		tflog.Info(ctx, "Resolving custom role by name", map[string]interface{}{"name": id})
 		return getCustomRoleByName(id, meta)
 	}
 }
 
 func resourceCustomRoleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	role, err := getCustomRole(d.Id(), meta)
+	role, err := getCustomRole(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err
 	}

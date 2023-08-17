@@ -2,10 +2,10 @@ package env0
 
 import (
 	"context"
-	"log"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -60,7 +60,7 @@ func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("could not get ssh key: %v", err)
 	}
 	if sshKey == nil {
-		log.Printf("[WARN] Drift Detected: Terraform will remove %s from state", d.Id())
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 	}
 	return nil
@@ -82,11 +82,10 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	var getErr error
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		log.Println("[INFO] Resolving SSH Key by id: ", id)
+		tflog.Info(ctx, "Resolving SSH key by id", map[string]interface{}{"id": id})
 		_, getErr = getSshKeyById(id, meta)
 	} else {
-		log.Println("[DEBUG] ID is not a valid env0 id ", id)
-		log.Println("[INFO] Resolving SSH Key by name: ", id)
+		tflog.Info(ctx, "Resolving SSH key by name", map[string]interface{}{"name": id})
 		var sshKey *client.SshKey
 		sshKey, getErr = getSshKeyByName(id, meta)
 		d.SetId(sshKey.Id)
