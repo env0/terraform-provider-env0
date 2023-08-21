@@ -162,7 +162,9 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			SetRetryWaitTime(time.Second).
 			SetRetryMaxWaitTime(time.Second * 5).
 			OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
-				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
+				if r != nil {
+					tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
+				}
 				return nil
 			}).
 			OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
@@ -173,7 +175,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			AddRetryCondition(func(r *resty.Response, err error) bool {
 				if r == nil {
 					// No response. Possiblly a networking issue (E.g. DNS lookup failure).
-					tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+					tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request")
 					return true
 				}
 
