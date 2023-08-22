@@ -49,11 +49,11 @@ data "env0_custom_roles" "all_roles" {
   depends_on = [env0_custom_role.custom_role1, env0_custom_role.custom_role2]
 }
 
-data "env0_team" "team_resource1" {
+data "env0_custom_role" "team_resource1" {
   name = data.env0_custom_roles.all_roles.names[index(data.env0_custom_roles.all_roles.names, env0_custom_role.custom_role1.name)]
 }
 
-data "env0_team" "team_resource2" {
+data "env0_custom_role" "team_resource2" {
   name = data.env0_custom_roles.all_roles.names[index(data.env0_custom_roles.all_roles.names, env0_custom_role.custom_role2.name)]
 }
 
