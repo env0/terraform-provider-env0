@@ -49,7 +49,7 @@ type Template struct {
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId,omitempty" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
-	TerraformVersion     string           `json:"terraformVersion,omitempty"`
+	TerraformVersion     string           `json:"terraformVersion" tfschema:",omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty" tfschema:",omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
@@ -78,7 +78,7 @@ type TemplateCreatePayload struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
-	TerraformVersion     string           `json:"terraformVersion"`
+	TerraformVersion     string           `json:"terraformVersion,omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
