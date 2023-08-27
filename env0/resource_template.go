@@ -384,7 +384,7 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
 	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
 
-	if err := payload.Validate(); err != nil {
+	if err := payload.Invalidate(); err != nil {
 		return payload, diag.Errorf(err.Error())
 	}
 
