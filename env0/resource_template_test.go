@@ -600,6 +600,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
 				HelmChartName:        templateUseCase.template.HelmChartName,
 			}
+
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
 				Name:                 templateUseCase.updatedTemplate.Name,
 				Repository:           templateUseCase.updatedTemplate.Repository,
@@ -623,6 +624,11 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
 				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
 				HelmChartName:        templateUseCase.template.HelmChartName,
+			}
+
+			if templateUseCase.template.Type != "terraform" && templateUseCase.template.Type != "terragrunt" {
+				templateCreatePayload.TerraformVersion = ""
+				updateTemplateCreateTemplate.TerraformVersion = ""
 			}
 
 			if templateUseCase.vcs == "Cloudformation" {

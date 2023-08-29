@@ -49,7 +49,7 @@ type Template struct {
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId,omitempty" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
-	TerraformVersion     string           `json:"terraformVersion"`
+	TerraformVersion     string           `json:"terraformVersion" tfschema:",omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty" tfschema:",omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
@@ -78,7 +78,7 @@ type TemplateCreatePayload struct {
 	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
-	TerraformVersion     string           `json:"terraformVersion"`
+	TerraformVersion     string           `json:"terraformVersion,omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
@@ -111,7 +111,7 @@ type VariablesFromRepositoryPayload struct {
 	Repository           string   `json:"repository"`
 }
 
-func (payload TemplateCreatePayload) Validate() error {
+func (payload *TemplateCreatePayload) Invalidate() error {
 	if payload.OrganizationId != "" {
 		return errors.New("must not specify organizationId")
 	}
@@ -157,6 +157,10 @@ func (payload TemplateCreatePayload) Validate() error {
 		if !payload.IsHelmRepository {
 			return errors.New(`is_helm_repositroy set to "true" is required with "helm_chart_name"`)
 		}
+	}
+
+	if payload.Type != "terragrunt" && payload.Type != "terraform" {
+		payload.TerraformVersion = ""
 	}
 
 	return nil
