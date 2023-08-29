@@ -3,7 +3,7 @@
     "github_template_name": "Github Test-",
     "github_template_repository": "https://github.com/env0/templates",
     "gitlab_template_repository": "https://gitlab.com/env0/gitlab-vcs-integration-tests.git",
-    "github_template_path": "second",
+    "github_template_path": "/second",
     "tg_tg_version" : "0.35.0",
     "data_github_template_type": "terraform",
     "github_variables_name": "email",
