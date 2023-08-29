@@ -393,8 +393,20 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 
 // Reads template and writes to the resource data.
 func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
+	pathPrefix := "path"
+	if prefix != "" {
+		pathPrefix = prefix + ".0.path"
+	}
+
+	path, pathOk := d.GetOk(pathPrefix)
+
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	// https://github.com/env0/terraform-provider-env0/issues/699 - backend removes the "/".
+	if pathOk && path.(string) == "/"+template.Path {
+		d.Set(pathPrefix, path.(string))
 	}
 
 	templateReadRetryOnHelper(prefix, d, "deploy", template.Retry.OnDeploy)

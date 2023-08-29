@@ -1012,6 +1012,84 @@ func TestUnitTemplateResource(t *testing.T) {
 		})
 	})
 
+	// https://github.com/env0/terraform-provider-env0/issues/699
+	t.Run("path drift", func(t *testing.T) {
+		pathTemplate := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Path:             "path/zero",
+			Repository:       "repo",
+			TerraformVersion: string(defaultVersion),
+			Type:             string(defaultType),
+		}
+
+		updatedPathTemplate := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Path:             "path/one",
+			Repository:       "repo",
+			TerraformVersion: string(defaultVersion),
+			Type:             string(defaultType),
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":       pathTemplate.Name,
+						"path":       "/" + pathTemplate.Path,
+						"repository": pathTemplate.Repository,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", pathTemplate.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", pathTemplate.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", pathTemplate.Repository),
+						resource.TestCheckResourceAttr(resourceFullName, "type", pathTemplate.Type),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", pathTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(resourceFullName, "path", "/"+pathTemplate.Path),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":       updatedPathTemplate.Name,
+						"path":       "/" + updatedPathTemplate.Path,
+						"repository": updatedPathTemplate.Repository,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", updatedPathTemplate.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", updatedPathTemplate.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "repository", updatedPathTemplate.Repository),
+						resource.TestCheckResourceAttr(resourceFullName, "type", updatedPathTemplate.Type),
+						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", updatedPathTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(resourceFullName, "path", "/"+updatedPathTemplate.Path),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+					Path:             "/" + pathTemplate.Path,
+					Name:             pathTemplate.Name,
+					Type:             pathTemplate.Type,
+					TerraformVersion: pathTemplate.TerraformVersion,
+					Repository:       pathTemplate.Repository,
+				}).Times(1).Return(pathTemplate, nil),
+				mock.EXPECT().Template(pathTemplate.Id).Times(2).Return(pathTemplate, nil),
+				mock.EXPECT().TemplateUpdate(updatedPathTemplate.Id, client.TemplateCreatePayload{
+					Path:             "/" + updatedPathTemplate.Path,
+					Name:             updatedPathTemplate.Name,
+					Type:             updatedPathTemplate.Type,
+					TerraformVersion: updatedPathTemplate.TerraformVersion,
+					Repository:       updatedPathTemplate.Repository,
+				}).Times(1).Return(updatedPathTemplate, nil),
+				mock.EXPECT().Template(pathTemplate.Id).Times(1).Return(updatedPathTemplate, nil),
+				mock.EXPECT().TemplateDelete(pathTemplate.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
 	t.Run("Invalid Terraform Version", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
