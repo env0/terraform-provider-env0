@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -1618,6 +1619,28 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		})
 	}
+
+	t.Run("Failure in delete", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+			mock.EXPECT().EnvironmentDeploy(updatedEnvironment.Id, client.DeployRequest{
+				BlueprintId:       updatedEnvironment.LatestDeploymentLog.BlueprintId,
+				BlueprintRevision: updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
+			}).Times(1).Return(client.EnvironmentDeployResponse{}, errors.New("error"))
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil)
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(environment, http.NewMockFailedResponseError(400))
+		})
+	})
 
 	testSuccess()
 	testTTL()
