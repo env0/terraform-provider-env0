@@ -13,3 +13,7 @@ func (e *FailedResponseError) Error() string {
 func (e *FailedResponseError) NotFound() bool {
 	return e.res.StatusCode() == 404
 }
+
+func (e *FailedResponseError) BadRequest() bool {
+	return e.res.StatusCode() == 400
+}

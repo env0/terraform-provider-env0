@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -756,6 +757,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
+		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
+			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
+			return nil
+		}
 		return diag.Errorf("could not delete environment: %v", err)
 	}
 	return nil
