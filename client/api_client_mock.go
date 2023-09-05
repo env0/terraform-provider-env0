@@ -1129,6 +1129,50 @@ func (mr *MockApiClientInterfaceMockRecorder) Project(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Project", reflect.TypeOf((*MockApiClientInterface)(nil).Project), arg0)
 }
 
+// ProjectBudget mocks base method.
+func (m *MockApiClientInterface) ProjectBudget(arg0 string) (*ProjectBudget, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectBudget", arg0)
+	ret0, _ := ret[0].(*ProjectBudget)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProjectBudget indicates an expected call of ProjectBudget.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudget(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudget", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudget), arg0)
+}
+
+// ProjectBudgetDelete mocks base method.
+func (m *MockApiClientInterface) ProjectBudgetDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectBudgetDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProjectBudgetDelete indicates an expected call of ProjectBudgetDelete.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetDelete), arg0)
+}
+
+// ProjectBudgetUpdate mocks base method.
+func (m *MockApiClientInterface) ProjectBudgetUpdate(arg0 string, arg1 *ProjectBudgetUpdatePayload) (*ProjectBudget, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProjectBudgetUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*ProjectBudget)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProjectBudgetUpdate indicates an expected call of ProjectBudgetUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetUpdate), arg0, arg1)
+}
+
 // ProjectCreate mocks base method.
 func (m *MockApiClientInterface) ProjectCreate(arg0 ProjectCreatePayload) (Project, error) {
 	m.ctrl.T.Helper()
