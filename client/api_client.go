@@ -140,6 +140,9 @@ type ApiClientInterface interface {
 	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
 	ApprovalPolicyUnassign(scope string, scopeId string) error
 	ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error)
+	ProjectBudget(projectId string) (*ProjectBudget, error)
+	ProjectBudgetUpdate(projectId string, payload *ProjectBudgetUpdatePayload) (*ProjectBudget, error)
+	ProjectBudgetDelete(projectId string) error
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
