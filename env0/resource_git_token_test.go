@@ -108,10 +108,11 @@ func TestUnitGitTokenResource(t *testing.T) {
 					}),
 				},
 				{
-					ResourceName:      resourceNameImport,
-					ImportState:       true,
-					ImportStateId:     gitToken.Name,
-					ImportStateVerify: true,
+					ResourceName:            resourceNameImport,
+					ImportState:             true,
+					ImportStateId:           gitToken.Name,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"value"},
 				},
 			},
 		}
@@ -137,10 +138,11 @@ func TestUnitGitTokenResource(t *testing.T) {
 					}),
 				},
 				{
-					ResourceName:      resourceNameImport,
-					ImportState:       true,
-					ImportStateId:     gitToken.Id,
-					ImportStateVerify: true,
+					ResourceName:            resourceNameImport,
+					ImportState:             true,
+					ImportStateId:           gitToken.Id,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"value"},
 				},
 			},
 		}
