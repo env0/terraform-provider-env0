@@ -6,34 +6,30 @@ on:
       - main
 
 env:
-  GO_VERSION: 1.19
+  GO_VERSION: 1.20
 
 jobs:
   generate-docs:
     name: Generate Docs
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.ENV0_BOT_PAT }}
 
       - name: Unshallow
         run: git fetch --prune --unshallow
-      -
-        name: Set up Go
-        uses: actions/setup-go@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
-      -
-        name: Update generated docs
+      - name: Update generated docs
         run: ./generate-docs.sh
-      -
-        name: Commit changes
+      - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
           author_name: update generated docs action
           author_email: mail@example.com
-          message: 'Update docs'
-          add: 'docs/*'
+          message: "Update docs"
+          add: "docs/*"
