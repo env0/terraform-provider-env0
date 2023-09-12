@@ -8,7 +8,7 @@ env:
   ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
-  GO_VERSION: 1.20
+  GO_VERSION: "1.20"
   TERRAFORM_VERSION: 1.1.7
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
         with:
-          go-version: "${{ env.GO_VERSION }}"
+          go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Generate mocks
