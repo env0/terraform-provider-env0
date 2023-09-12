@@ -7,7 +7,7 @@ package client
 import (
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockApiClientInterface is a mock of ApiClientInterface interface.

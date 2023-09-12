@@ -7,7 +7,7 @@ package http
 import (
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockHttpClientInterface is a mock of HttpClientInterface interface.
