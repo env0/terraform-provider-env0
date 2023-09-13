@@ -50,7 +50,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	}
 
 	updateReturnValues := client.Credentials{
-		Id:             "id2",
+		Id:             "id",
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           "AWS_ASSUMED_ROLE",
@@ -114,8 +114,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CredentialsCreate(&awsCredCreatePayload).Times(1).Return(returnValues, nil),
-				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
-				mock.EXPECT().CredentialsCreate(&updateAwsCredCreatePayload).Times(1).Return(updateReturnValues, nil),
+				mock.EXPECT().CredentialsUpdate(returnValues.Id, &updateAwsCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil),
@@ -183,7 +182,7 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 	}
 
 	updateReturnValues := client.Credentials{
-		Id:             "id2",
+		Id:             "id",
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           string(client.AzureCostCredentialsType),
@@ -244,8 +243,7 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CredentialsCreate(&azureCredCreatePayload).Times(1).Return(returnValues, nil),
-				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
-				mock.EXPECT().CredentialsCreate(&updateAzureCredCreatePayload).Times(1).Return(updateReturnValues, nil),
+				mock.EXPECT().CredentialsUpdate(returnValues.Id, &updateAzureCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil),
@@ -318,7 +316,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 	}
 
 	updateReturnValues := client.Credentials{
-		Id:             "id2",
+		Id:             "id",
 		Name:           "update",
 		OrganizationId: "id",
 		Type:           string(client.GoogleCostCredentialsType),
@@ -373,8 +371,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 		runUnitTest(t, testCaseForUpdate, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().CredentialsCreate(&googleCostCredCreatePayload).Times(1).Return(returnValues, nil),
-				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
-				mock.EXPECT().CredentialsCreate(&updateGoogleCostCredCreatePayload).Times(1).Return(updateReturnValues, nil),
+				mock.EXPECT().CredentialsUpdate(returnValues.Id, &updateGoogleCostCredCreatePayload).Times(1).Return(updateReturnValues, nil),
 			)
 			gomock.InOrder(
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil),

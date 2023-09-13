@@ -2,7 +2,6 @@ package env0
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -15,104 +14,152 @@ const AZURE = "azure"
 const GOOGLE = "google"
 
 func resourceCostCredentials(providerName string) *schema.Resource {
-
-	awsSchema := map[string]*schema.Schema{
-		"arn": {
-			Type:        schema.TypeString,
-			Description: "the aws role arn",
-			ForceNew:    true,
-			Required:    true,
-		},
+	getSchema := func() map[string]*schema.Schema {
+		switch providerName {
+		case AWS:
+			return map[string]*schema.Schema{
+				"arn": {
+					Type:        schema.TypeString,
+					Description: "the aws role arn",
+					Required:    true,
+				},
+			}
+		case AZURE:
+			return map[string]*schema.Schema{
+				"client_id": {
+					Type:        schema.TypeString,
+					Description: "the azure client id",
+					Required:    true,
+				},
+				"client_secret": {
+					Type:        schema.TypeString,
+					Description: "the azure client secret",
+					Sensitive:   true,
+					Required:    true,
+				},
+				"tenant_id": {
+					Type:        schema.TypeString,
+					Description: "the azure tenant id",
+					Required:    true,
+				},
+				"subscription_id": {
+					Type:        schema.TypeString,
+					Description: "the azure subscription id",
+					Required:    true,
+				},
+			}
+		case GOOGLE:
+			return map[string]*schema.Schema{
+				"table_id": {
+					Type:        schema.TypeString,
+					Description: "the full BigQuery table id of the exported billing data",
+					Required:    true,
+				},
+				"secret": {
+					Type:        schema.TypeString,
+					Description: "the GCP service account key",
+					Sensitive:   true,
+					Required:    true,
+				},
+			}
+		default:
+			panic(fmt.Sprintf("unhandled provider name: %s", providerName))
+		}
 	}
 
-	azureSchema := map[string]*schema.Schema{
-		"client_id": {
-			Type:        schema.TypeString,
-			Description: "the azure client id",
-			ForceNew:    true,
-			Required:    true,
-		},
-		"client_secret": {
-			Type:        schema.TypeString,
-			Description: "the azure client secret",
-			Sensitive:   true,
-			ForceNew:    true,
-			Required:    true,
-		},
-		"tenant_id": {
-			Type:        schema.TypeString,
-			Description: "the azure tenant id",
-			ForceNew:    true,
-			Required:    true,
-		},
-		"subscription_id": {
-			Type:        schema.TypeString,
-			Description: "the azure subscription id",
-			ForceNew:    true,
-			Required:    true,
-		},
+	getPayload := func(d *schema.ResourceData) (client.CredentialCreatePayload, error) {
+		var payload client.CredentialCreatePayload
+		var value interface{}
+
+		switch providerName {
+		case AWS:
+			payload = &client.AwsCredentialsCreatePayload{
+				Type: client.AwsCostCredentialsType,
+			}
+			value = &payload.(*client.AwsCredentialsCreatePayload).Value
+		case AZURE:
+			payload = &client.AzureCredentialsCreatePayload{
+				Type: client.AzureCostCredentialsType,
+			}
+			value = &payload.(*client.AzureCredentialsCreatePayload).Value
+		case GOOGLE:
+			payload = &client.GoogleCostCredentialsCreatePayload{
+				Type: client.GoogleCostCredentialsType,
+			}
+			value = &payload.(*client.GoogleCostCredentialsCreatePayload).Value
+		default:
+			panic(fmt.Sprintf("unhandled provider name: %s", providerName))
+		}
+
+		if err := readResourceData(value, d); err != nil {
+			return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
+		}
+
+		if err := readResourceData(payload, d); err != nil {
+			return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
+		}
+
+		return payload, nil
 	}
 
-	googleSchema := map[string]*schema.Schema{
-		"table_id": {
-			Type:        schema.TypeString,
-			Description: "the full BigQuery table id of the exported billing data",
-			ForceNew:    true,
-			Required:    true,
-		},
-		"secret": {
-			Type:        schema.TypeString,
-			Description: "the GCP service account key",
-			Sensitive:   true,
-			ForceNew:    true,
-			Required:    true,
-		},
+	getResourceCreate := func() func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+		return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+			payload, err := getPayload(d)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			apiClient := meta.(client.ApiClientInterface)
+
+			res, err := apiClient.CredentialsCreate(payload)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			d.SetId(res.Id)
+
+			return nil
+		}
 	}
 
-	schemaMap := map[string]map[string]*schema.Schema{AWS: awsSchema, AZURE: azureSchema, GOOGLE: googleSchema}
+	getResourceUpdate := func() func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+		return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+			payload, err := getPayload(d)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			apiClient := meta.(client.ApiClientInterface)
+
+			if _, err := apiClient.CredentialsUpdate(d.Id(), payload); err != nil {
+				return diag.FromErr(err)
+			}
+
+			return nil
+		}
+	}
+
+	resourceSchema := getSchema()
+
+	resourceSchema["name"] = &schema.Schema{
+		Type:        schema.TypeString,
+		Description: "the name for the credentials",
+		Required:    true,
+	}
 
 	return &schema.Resource{
-		CreateContext: resourceCostCredentialsCreate,
+		CreateContext: getResourceCreate(),
+		UpdateContext: getResourceUpdate(),
 		ReadContext:   resourceCostCredentialsRead,
 		DeleteContext: resourceCostCredentialsDelete,
-		Schema:        extendSchema(schemaMap[providerName]),
+		Schema:        resourceSchema,
 	}
-}
-
-func extendSchema(schemaToReadFrom map[string]*schema.Schema) map[string]*schema.Schema {
-
-	resultsSchema := map[string]*schema.Schema{
-		"name": {
-			Type:        schema.TypeString,
-			Description: "the name for the credentials",
-			Required:    true,
-			ForceNew:    true,
-		},
-	}
-
-	for index, element := range schemaToReadFrom {
-		resultsSchema[index] = element
-	}
-
-	return resultsSchema
-}
-
-func resourceCostCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-
-	apiKey, err := sendApiCallToCreateCred(d, meta)
-	if err != nil {
-		return diag.Errorf("Cost credential failed: %v", err)
-	}
-	d.SetId(apiKey.Id)
-	return nil
 }
 
 func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	id := d.Id()
-	_, err := apiClient.CloudCredentials(id)
-	if err != nil {
+	if _, err := apiClient.CloudCredentials(d.Id()); err != nil {
 		return ResourceGetFailure(ctx, "cost credentials", d, err)
 	}
 	return nil
@@ -127,48 +174,4 @@ func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	return nil
-}
-
-func sendApiCallToCreateCred(d *schema.ResourceData, meta interface{}) (client.Credentials, error) {
-	apiClient := meta.(client.ApiClientInterface)
-	_, awsOk := d.GetOk("arn")
-	_, azureOk := d.GetOk("client_id")
-	_, googleOk := d.GetOk("table_id")
-	switch {
-	case awsOk:
-		var value client.AwsCredentialsValuePayload
-		if err := readResourceData(&value, d); err != nil {
-			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
-		}
-
-		return apiClient.CredentialsCreate(&client.AwsCredentialsCreatePayload{
-			Name:  d.Get("name").(string),
-			Type:  client.AwsCostCredentialsType,
-			Value: value,
-		})
-	case azureOk:
-		var value client.AzureCredentialsValuePayload
-		if err := readResourceData(&value, d); err != nil {
-			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
-		}
-
-		return apiClient.CredentialsCreate(&client.AzureCredentialsCreatePayload{
-			Name:  d.Get("name").(string),
-			Type:  client.AzureCostCredentialsType,
-			Value: value,
-		})
-	case googleOk:
-		var value client.GoogleCostCredentialsValuePayload
-		if err := readResourceData(&value, d); err != nil {
-			return client.Credentials{}, fmt.Errorf("schema resource data deserialization failed: %v", err)
-		}
-
-		return apiClient.CredentialsCreate(&client.GoogleCostCredentialsCreatePayload{
-			Name:  d.Get("name").(string),
-			Type:  client.GoogleCostCredentialsType,
-			Value: value,
-		})
-	default:
-		return client.Credentials{}, errors.New("error in schema, no required value defined")
-	}
 }

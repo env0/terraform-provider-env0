@@ -42,6 +42,7 @@ type ApiClientInterface interface {
 	SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error)
 	SshKeyDelete(id string) error
 	CredentialsCreate(request CredentialCreatePayload) (Credentials, error)
+	CredentialsUpdate(id string, request CredentialCreatePayload) (Credentials, error)
 	CloudCredentials(id string) (Credentials, error)
 	CloudCredentialsList() ([]Credentials, error)
 	CloudCredentialsDelete(id string) error

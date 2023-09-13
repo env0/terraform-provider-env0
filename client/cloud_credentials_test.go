@@ -115,6 +115,46 @@ var _ = Describe("CloudCredentials", func() {
 		})
 	})
 
+	Describe("AwsCredentialsUpdate", func() {
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
+			payloadValue := AwsCredentialsValuePayload{
+				RoleArn: "role",
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Patch("/credentials/"+mockCredentials.Id, &AwsCredentialsCreatePayload{
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+					Value:          payloadValue,
+				},
+					gomock.Any()).
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockCredentials
+				})
+
+			credentials, _ = apiClient.CredentialsUpdate(credentials.Id, &AwsCredentialsCreatePayload{
+				Name:  credentialsName,
+				Value: payloadValue,
+				Type:  "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+			})
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send PATCH request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(credentials).To(Equal(mockCredentials))
+		})
+	})
+
 	Describe("GcpCredentialsCreate", func() {
 		const gcpRequestType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
 		mockGcpCredentials := mockCredentials
