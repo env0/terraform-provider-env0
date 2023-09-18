@@ -143,10 +143,27 @@ func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Cre
 	request.SetOrganizationId(organizationId)
 
 	var result Credentials
-	err = client.http.Post("/credentials", request, &result)
+	if err := client.http.Post("/credentials", request, &result); err != nil {
+		return Credentials{}, err
+	}
+
+	return result, nil
+}
+
+func (client *ApiClient) CredentialsUpdate(id string, request CredentialCreatePayload) (Credentials, error) {
+	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
+
+	request.SetOrganizationId(organizationId)
+
+	var result Credentials
+
+	if err := client.http.Patch("/credentials/"+id, request, &result); err != nil {
+		return Credentials{}, err
+	}
+
 	return result, nil
 }
 

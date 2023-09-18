@@ -7,7 +7,7 @@ package client
 import (
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockApiClientInterface is a mock of ApiClientInterface interface.
@@ -432,6 +432,21 @@ func (m *MockApiClientInterface) CredentialsCreate(arg0 CredentialCreatePayload)
 func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsCreate), arg0)
+}
+
+// CredentialsUpdate mocks base method.
+func (m *MockApiClientInterface) CredentialsUpdate(arg0 string, arg1 CredentialCreatePayload) (Credentials, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CredentialsUpdate", arg0, arg1)
+	ret0, _ := ret[0].(Credentials)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CredentialsUpdate indicates an expected call of CredentialsUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) CredentialsUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsUpdate), arg0, arg1)
 }
 
 // CustomFlow mocks base method.

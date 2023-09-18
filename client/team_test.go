@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	. "github.com/env0/terraform-provider-env0/client"
-	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"go.uber.org/mock/gomock"
 )
 
 var _ = Describe("Teams Client", func() {

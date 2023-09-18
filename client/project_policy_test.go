@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	. "github.com/env0/terraform-provider-env0/client"
-	gomock "github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	gomock "go.uber.org/mock/gomock"
 )
 
 const (
