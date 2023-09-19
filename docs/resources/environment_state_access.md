@@ -42,7 +42,8 @@ resource "env0_environment_state_access" "example_entire_organization" {
 ### Optional
 
 - `accessible_from_entire_organization` (Boolean) when this parameter is 'false', allowed_project_ids should be provided. Defaults to 'false'
-- `allowed_project_ids` (List of String) list of allowed project_ids. Used when 'accessible_from_entire_organization' is 'false'
+- `allowed_project_ids` (List of String) list of allowed project_ids. Used when 'accessible_from_entire_organization' is 'false'. To disallow remote state access for env0 backend, fill the allowed_project_id list with string "none". Skipping allowed_project_ids or setting to [] yields a 400 error. (e.g. ```accessible_from_entire_organization = false
+  allowed_project_ids = ["none"]```)
 
 ### Read-Only
 
