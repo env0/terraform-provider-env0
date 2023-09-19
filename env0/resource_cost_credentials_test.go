@@ -2,6 +2,7 @@ package env0
 
 import (
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -22,8 +23,9 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	}
 
 	updatedAwsCredentialResource := map[string]interface{}{
-		"name": "update",
-		"arn":  "33333",
+		"name":     "update",
+		"arn":      "33333",
+		"duration": 3600,
 	}
 
 	awsCredCreatePayload := client.AwsCredentialsCreatePayload{
@@ -37,7 +39,8 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	updateAwsCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: updatedAwsCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn: updatedAwsCredentialResource["arn"].(string),
+			RoleArn:  updatedAwsCredentialResource["arn"].(string),
+			Duration: updatedAwsCredentialResource["duration"].(int),
 		},
 		Type: client.AwsCostCredentialsType,
 	}
@@ -64,6 +67,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", "id"),
+					resource.TestCheckNoResourceAttr(accessor, "duration"),
 				),
 			},
 		},
@@ -77,6 +81,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
+					resource.TestCheckNoResourceAttr(accessor, "duration"),
 				),
 			},
 			{
@@ -85,6 +90,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", updatedAwsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", updatedAwsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "duration", strconv.Itoa(updatedAwsCredentialResource["duration"].(int))),
 				),
 			},
 		},
