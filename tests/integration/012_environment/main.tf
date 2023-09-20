@@ -76,11 +76,13 @@ resource "env0_team_environment_assignment" "team_role_environment_assignment" {
   role_id        = var.second_run ? env0_custom_role.custom_role1.id : env0_custom_role.custom_role2.id
 }
 
+/* TODO
 resource "env0_environment_state_access" "disallow" {
   environment_id                      = env0_environment.example.id
   accessible_from_entire_organization = false
   allowed_project_ids                 = []
 }
+*/
 
 resource "env0_template" "terragrunt_template" {
   name               = "Terragrunt template for environment resource-${random_string.random.result}"
