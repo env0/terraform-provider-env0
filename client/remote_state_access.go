@@ -22,6 +22,7 @@ func (client *ApiClient) RemoteStateAccessConfiguration(environmentId string) (*
 }
 
 func (client *ApiClient) RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
+	// The API doesn't accept "null". If the array isn't set, pass "[]" instead.
 	if payload.AllowedProjectIds == nil {
 		payload.AllowedProjectIds = []string{}
 	}
