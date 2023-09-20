@@ -8,7 +8,7 @@ type RemoteStateAccessConfiguration struct {
 
 type RemoteStateAccessConfigurationCreate struct {
 	AccessibleFromEntireOrganization bool     `json:"accessibleFromEntireOrganization"`
-	AllowedProjectIds                []string `json:"allowedProjectIds,omitempty"`
+	AllowedProjectIds                []string `json:"allowedProjectIds"`
 }
 
 func (client *ApiClient) RemoteStateAccessConfiguration(environmentId string) (*RemoteStateAccessConfiguration, error) {
