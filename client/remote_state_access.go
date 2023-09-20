@@ -22,6 +22,10 @@ func (client *ApiClient) RemoteStateAccessConfiguration(environmentId string) (*
 }
 
 func (client *ApiClient) RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
+	if payload.AllowedProjectIds == nil {
+		payload.AllowedProjectIds = []string{}
+	}
+
 	var result RemoteStateAccessConfiguration
 	if err := client.http.Put("/remote-backend/states/"+environmentId+"/access-control", payload, &result); err != nil {
 		return nil, err
