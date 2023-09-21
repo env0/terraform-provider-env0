@@ -8,7 +8,7 @@ type RemoteStateAccessConfiguration struct {
 
 type RemoteStateAccessConfigurationCreate struct {
 	AccessibleFromEntireOrganization bool     `json:"accessibleFromEntireOrganization"`
-	AllowedProjectIds                []string `json:"allowedProjectIds,omitempty"`
+	AllowedProjectIds                []string `json:"allowedProjectIds"`
 }
 
 func (client *ApiClient) RemoteStateAccessConfiguration(environmentId string) (*RemoteStateAccessConfiguration, error) {
@@ -22,6 +22,11 @@ func (client *ApiClient) RemoteStateAccessConfiguration(environmentId string) (*
 }
 
 func (client *ApiClient) RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
+	// The API doesn't accept "null". If the array isn't set, pass "[]" instead.
+	if payload.AllowedProjectIds == nil {
+		payload.AllowedProjectIds = []string{}
+	}
+
 	var result RemoteStateAccessConfiguration
 	if err := client.http.Put("/remote-backend/states/"+environmentId+"/access-control", payload, &result); err != nil {
 		return nil, err
