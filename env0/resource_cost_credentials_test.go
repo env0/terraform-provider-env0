@@ -2,6 +2,7 @@ package env0
 
 import (
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -17,19 +18,28 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	awsCredentialResource := map[string]interface{}{
-		"name": "test",
-		"arn":  "11111",
+		"name":     "test",
+		"arn":      "11111",
+		"duration": 7200,
 	}
 
 	updatedAwsCredentialResource := map[string]interface{}{
-		"name": "update",
-		"arn":  "33333",
+		"name":     "update",
+		"arn":      "33333",
+		"duration": 3600,
+	}
+
+	invalidDurationAwsCredentialResource := map[string]interface{}{
+		"name":     "update",
+		"arn":      "33333",
+		"duration": 1234,
 	}
 
 	awsCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: awsCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn: awsCredentialResource["arn"].(string),
+			RoleArn:  awsCredentialResource["arn"].(string),
+			Duration: awsCredentialResource["duration"].(int),
 		},
 		Type: client.AwsCostCredentialsType,
 	}
@@ -37,7 +47,8 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	updateAwsCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: updatedAwsCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn: updatedAwsCredentialResource["arn"].(string),
+			RoleArn:  updatedAwsCredentialResource["arn"].(string),
+			Duration: updatedAwsCredentialResource["duration"].(int),
 		},
 		Type: client.AwsCostCredentialsType,
 	}
@@ -64,6 +75,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", "id"),
+					resource.TestCheckResourceAttr(accessor, "duration", strconv.Itoa(awsCredentialResource["duration"].(int))),
 				),
 			},
 		},
@@ -77,6 +89,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "duration", strconv.Itoa(awsCredentialResource["duration"].(int))),
 				),
 			},
 			{
@@ -85,6 +98,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", updatedAwsCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", updatedAwsCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "duration", strconv.Itoa(updatedAwsCredentialResource["duration"].(int))),
 				),
 			},
 		},
@@ -126,6 +140,18 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 
 	t.Run("throw error when don't enter any valid options", func(t *testing.T) {
 		runUnitTest(t, testCaseFormMissingValidInputError, func(mock *client.MockApiClientInterface) {
+		})
+	})
+
+	t.Run("throw error when don't enter duration valid values", func(t *testing.T) {
+		runUnitTest(t, resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      resourceConfigCreate(resourceType, resourceName, invalidDurationAwsCredentialResource),
+					ExpectError: regexp.MustCompile("Error: must be one of"),
+				},
+			},
+		}, func(mock *client.MockApiClientInterface) {
 		})
 	})
 

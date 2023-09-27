@@ -91,6 +91,19 @@ func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc 
 	}
 }
 
+func NewIntInValidator(allowedValues []int) schema.SchemaValidateDiagFunc {
+	return func(i interface{}, p cty.Path) diag.Diagnostics {
+		value := i.(int)
+		for _, allowedValue := range allowedValues {
+			if value == allowedValue {
+				return nil
+			}
+		}
+
+		return diag.Errorf("must be one of: %s", fmt.Sprint(allowedValues))
+	}
+}
+
 func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
 	return func(i interface{}, p cty.Path) diag.Diagnostics {
 		value := i.(int)

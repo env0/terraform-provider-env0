@@ -23,6 +23,12 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 					Description: "the aws role arn",
 					Required:    true,
 				},
+				"duration": {
+					Type:             schema.TypeInt,
+					Description:      "the session duration in seconds. If set must be one of the following: 3600 (1h), 7200 (2h), 14400 (4h), 18000 (5h default), 28800 (8h), 43200 (12h)",
+					Optional:         true,
+					ValidateDiagFunc: NewIntInValidator([]int{3600, 7200, 14400, 18000, 28800, 43200}),
+				},
 			}
 		case AZURE:
 			return map[string]*schema.Schema{
