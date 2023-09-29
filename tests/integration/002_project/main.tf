@@ -11,7 +11,7 @@ resource "env0_project" "test_project" {
   description = "Test Description ${var.second_run ? "after update" : ""}"
 }
 
-resource "env_project_budget" "test_project_budget" {
+resource "env0_project_budget" "test_project_budget" {
   project_id = env0_project.test_project.id
   amount     = var.second_run ? 10 : 20
   timeframe  = var.second_run ? "WEEKLY" : "MONTHLY"
