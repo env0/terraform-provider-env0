@@ -11,7 +11,7 @@ type ProjectBudget struct {
 type ProjectBudgetUpdatePayload struct {
 	Amount     int    `json:"amount"`
 	Timeframe  string `json:"timeframe"`
-	Thresholds []int  `json:"thresholds,omitempty"`
+	Thresholds []int  `json:"thresholds"`
 }
 
 func (client *ApiClient) ProjectBudget(projectId string) (*ProjectBudget, error) {
