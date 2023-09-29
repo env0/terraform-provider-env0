@@ -43,23 +43,30 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 	for key, value := range fields {
 		intValue, intOk := value.(int)
 		boolValue, boolOk := value.(bool)
-		arrayValues, arrayOk := value.([]string)
+		arrayStrValues, arrayStrOk := value.([]string)
+		arrayIntValues, arrayIntOk := value.([]int)
+
 		if intOk {
 			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
-		}
-		if boolOk {
+		} else if boolOk {
 			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
-		}
-		if arrayOk {
+		} else if arrayStrOk {
 			arrayValueString := ""
-			for _, arrayValue := range arrayValues {
+			for _, arrayValue := range arrayStrValues {
 				arrayValueString += "\"" + arrayValue + "\","
 			}
 			arrayValueString = arrayValueString[:len(arrayValueString)-1]
 
 			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
-		}
-		if !intOk && !boolOk && !arrayOk {
+		} else if arrayIntOk {
+			arrayValueString := ""
+			for _, arrayValue := range arrayIntValues {
+				arrayValueString += fmt.Sprintf("%d,", arrayValue)
+			}
+			arrayValueString = arrayValueString[:len(arrayValueString)-1]
+
+			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
+		} else {
 			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
 		}
 	}
