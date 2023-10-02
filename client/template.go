@@ -51,6 +51,7 @@ type Template struct {
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion" tfschema:",omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty" tfschema:",omitempty"`
+	OpentofuVersion      string           `json:"opentofuVersion,omitempty" tfschema:",omitempty"`
 	IsDeleted            bool             `json:"isDeleted,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
@@ -80,6 +81,7 @@ type TemplateCreatePayload struct {
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion,omitempty"`
 	TerragruntVersion    string           `json:"terragruntVersion,omitempty"`
+	OpentofuVersion      string           `json:"opentofuVersion,omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
@@ -122,6 +124,9 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
 		return errors.New("must supply terragrunt version")
 	}
+	if payload.Type == "opentofu" && payload.OpentofuVersion == "" {
+		return errors.New("must supply opentofu version")
+	}
 
 	if payload.IsTerragruntRunAll {
 		if payload.Type != "terragrunt" {
@@ -161,6 +166,10 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 
 	if payload.Type != "terragrunt" && payload.Type != "terraform" {
 		payload.TerraformVersion = ""
+	}
+
+	if payload.Type != "opentofu" {
+		payload.OpentofuVersion = ""
 	}
 
 	return nil
