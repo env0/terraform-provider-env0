@@ -27,6 +27,10 @@ func (client *ApiClient) ProjectBudget(projectId string) (*ProjectBudget, error)
 func (client *ApiClient) ProjectBudgetUpdate(projectId string, payload *ProjectBudgetUpdatePayload) (*ProjectBudget, error) {
 	var result ProjectBudget
 
+	if payload.Thresholds == nil {
+		payload.Thresholds = []int{}
+	}
+
 	err := client.http.Put("/costs/project/"+projectId+"/budget", payload, &result)
 	if err != nil {
 		return nil, err

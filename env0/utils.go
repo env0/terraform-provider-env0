@@ -201,6 +201,8 @@ func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error
 		switch elemType.Kind() {
 		case reflect.String:
 			val = reflect.ValueOf(resource.(string))
+		case reflect.Int:
+			val = reflect.ValueOf(resource.(int))
 		case reflect.Struct:
 			val = reflect.New(elemType)
 			if err := readResourceDataSliceStructHelper(val, resource); err != nil {
