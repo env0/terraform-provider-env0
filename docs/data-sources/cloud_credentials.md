@@ -37,4 +37,4 @@ output "credentials_name" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `names` (List of String) list of all cloud credentials (by name), optionaly filtered by credential_type
+- `names` (List of String) list of all cloud credentials (by name), optionally filtered by credential_type
