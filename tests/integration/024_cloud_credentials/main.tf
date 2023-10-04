@@ -33,5 +33,5 @@ data "env0_aws_credentials" "aws_credentials2" {
 }
 
 output "credentials_name" {
-  value = var.second_run ? replace(data.env0_aws_credentials.aws_credentials["Test Role arn1 ${random_string.random.result}"].name, random_string.random.result, "") : ""
+  value = var.second_run ? replace(data.env0_aws_credentials.aws_credentials1.name, random_string.random.result, "") : ""
 }
