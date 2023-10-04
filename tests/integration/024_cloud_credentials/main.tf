@@ -21,7 +21,7 @@ resource "env0_gcp_credentials" "gcp_cred" {
 }
 
 data "env0_cloud_credentials" "all_aws_credentials" {
-  depends_on = [env0_aws_credentials.aws_cred1, aws_cred2,env0_gcp_credentials.gcp_cred]
+  depends_on = [env0_aws_credentials.aws_cred1, env0_aws_credentials.aws_cred2, env0_gcp_credentials.gcp_cred]
   credential_type = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 }
 
