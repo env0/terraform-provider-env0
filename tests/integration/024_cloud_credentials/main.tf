@@ -24,18 +24,14 @@ data "env0_cloud_credentials" "all_aws_credentials" {
   credential_type = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 }
 
-//data "env0_aws_credentials" "aws_credentials1" {
-//  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred1.name)]
-//}
-//
-//data "env0_aws_credentials" "aws_credentials2" {
-//  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred2.name)]
-//}
-//
-//output "credentials_name" {
-//  value = var.second_run ? replace(data.env0_aws_credentials.aws_credentials1.name, random_string.random.result, "") : ""
-//}
+data "env0_aws_credentials" "aws_credentials1" {
+  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred1.name)]
+}
 
-output "credentials_names" {
-  value = data.env0_cloud_credentials.all_aws_credentials.names[*]
+data "env0_aws_credentials" "aws_credentials2" {
+  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred2.name)]
+}
+
+output "credentials_name" {
+  value = var.second_run ? replace(data.env0_aws_credentials.aws_credentials1.name, random_string.random.result, "") : ""
 }
