@@ -11,13 +11,17 @@ resource "env0_project" "test_project" {
   force_destroy = true
 }
 
+data "env0_template" "github_template_for_environment" {
+  name = "Github Integrated Template"
+}
+
 resource "env0_template" "template" {
+  repository             = data.env0_template.github_template_for_environment.repository
+  github_installation_id = data.env0_template.github_template_for_environment.github_installation_id
   name                   = "Template for environment resource-${random_string.random.result}"
   type                   = "terraform"
-  repository             = "https://github.com/env0/templates"
   path                   = "misc/null-resource"
   terraform_version      = "0.15.1"
-  github_installation_id = 12223344
 }
 
 resource "env0_template_project_assignment" "assignment" {
