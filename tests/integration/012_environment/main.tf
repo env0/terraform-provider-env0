@@ -38,6 +38,7 @@ resource "env0_environment" "auto_glob_envrironment" {
   auto_deploy_on_path_changes_only = true
   approve_plan_automatically       = true
   deploy_on_push                   = true
+  force_destroy                    = true
 }
 
 resource "env0_environment" "example" {
