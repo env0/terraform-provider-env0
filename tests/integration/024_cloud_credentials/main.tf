@@ -37,6 +37,5 @@ data "env0_cloud_credentials" "all_aws_credentials" {
 //}
 
 output "credentials_names" {
-  for_each = data.env0_cloud_credentials.all_aws_credentials.names
-  value = each.value
+  value = data.env0_cloud_credentials.all_aws_credentials.names[*]
 }
