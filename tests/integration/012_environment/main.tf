@@ -12,11 +12,12 @@ resource "env0_project" "test_project" {
 }
 
 resource "env0_template" "template" {
-  name              = "Template for environment resource-${random_string.random.result}"
-  type              = "terraform"
-  repository        = "https://github.com/env0/templates"
-  path              = "misc/null-resource"
-  terraform_version = "0.15.1"
+  name                   = "Template for environment resource-${random_string.random.result}"
+  type                   = "terraform"
+  repository             = "https://github.com/env0/templates"
+  path                   = "misc/null-resource"
+  terraform_version      = "0.15.1"
+  github_installation_id = 12223344
 }
 
 resource "env0_template_project_assignment" "assignment" {
