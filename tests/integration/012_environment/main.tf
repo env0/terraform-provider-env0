@@ -24,6 +24,16 @@ resource "env0_template_project_assignment" "assignment" {
   project_id  = env0_project.test_project.id
 }
 
+resource "env0_environment" "auto_glob_envrironment" {
+  name                             = "environment-auto-glob-${random_string.random.result}"
+  project_id                       = env0_project.test_project.id
+  template_id                      = env0_template.template.id
+  auto_deploy_by_custom_glob       = var.second_run ? "" : "//*"
+  auto_deploy_on_path_changes_only = true
+  approve_plan_automatically       = true
+  deploy_on_push                   = true
+}
+
 resource "env0_environment" "example" {
   depends_on    = [env0_template_project_assignment.assignment]
   force_destroy = true
