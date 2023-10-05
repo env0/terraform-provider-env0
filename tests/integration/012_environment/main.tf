@@ -11,17 +11,34 @@ resource "env0_project" "test_project" {
   force_destroy = true
 }
 
+data "env0_template" "github_template_for_environment" {
+  name = "Github Integrated Template"
+}
+
 resource "env0_template" "template" {
-  name              = "Template for environment resource-${random_string.random.result}"
-  type              = "terraform"
-  repository        = "https://github.com/env0/templates"
-  path              = "misc/null-resource"
-  terraform_version = "0.15.1"
+  repository             = data.env0_template.github_template_for_environment.repository
+  github_installation_id = data.env0_template.github_template_for_environment.github_installation_id
+  name                   = "Template for environment resource-${random_string.random.result}"
+  type                   = "terraform"
+  path                   = "misc/null-resource"
+  terraform_version      = "0.15.1"
 }
 
 resource "env0_template_project_assignment" "assignment" {
   template_id = env0_template.template.id
   project_id  = env0_project.test_project.id
+}
+
+resource "env0_environment" "auto_glob_envrironment" {
+  depends_on                       = [env0_template_project_assignment.assignment]
+  name                             = "environment-auto-glob-${random_string.random.result}"
+  project_id                       = env0_project.test_project.id
+  template_id                      = env0_template.template.id
+  auto_deploy_by_custom_glob       = var.second_run ? "" : "//*"
+  auto_deploy_on_path_changes_only = true
+  approve_plan_automatically       = true
+  deploy_on_push                   = true
+  force_destroy                    = true
 }
 
 resource "env0_environment" "example" {
