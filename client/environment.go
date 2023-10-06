@@ -129,7 +129,7 @@ type EnvironmentCreate struct {
 	ContinuousDeployment        *bool                  `json:"continuousDeployment,omitempty" tfschema:"-"`
 	PullRequestPlanDeployments  *bool                  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
 	AutoDeployOnPathChangesOnly *bool                  `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
-	AutoDeployByCustomGlob      string                 `json:"autoDeployByCustomGlob,omitempty"`
+	AutoDeployByCustomGlob      string                 `json:"autoDeployByCustomGlob"`
 	ConfigurationChanges        *ConfigurationChanges  `json:"configurationChanges,omitempty" tfschema:"-"`
 	TTL                         *TTL                   `json:"ttl,omitempty" tfschema:"-"`
 	TerragruntWorkingDirectory  string                 `json:"terragruntWorkingDirectory,omitempty"`

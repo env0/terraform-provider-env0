@@ -29,7 +29,7 @@ func dataCloudCredentials() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"names": {
 				Type:        schema.TypeList,
-				Description: "list of all cloud credentials (by name), optionaly filtered by credential_type",
+				Description: "list of all cloud credentials (by name), optionally filtered by credential_type",
 				Computed:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
