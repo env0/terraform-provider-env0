@@ -17,6 +17,7 @@ resource "env0_project_policy" "test_policy" {
   skip_apply_when_plan_is_empty = false
   disable_destroy_environments  = false
   skip_redundant_deployments    = false
+  drift_detection_cron          = var.second_run ? "0 4 * * *" : "0 3 * * *"
 }
 
 resource "env0_project_policy" "test_policy_2" {
