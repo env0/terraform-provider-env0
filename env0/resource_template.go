@@ -21,6 +21,7 @@ var allowedTemplateTypes = []string{
 	"workflow",
 	"cloudformation",
 	"helm",
+	"opentofu",
 }
 
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
@@ -170,6 +171,12 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Description:      "the Terragrunt version to use (example: 0.36.5)",
 			ValidateDiagFunc: NewRegexValidator(`^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}$`),
+			Optional:         true,
+		},
+		"opentofu_version": {
+			Type:             schema.TypeString,
+			Description:      "the Opentofu version to use (example: 0.36.5)",
+			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|1\.6\.0-alpha$`),
 			Optional:         true,
 		},
 		"is_gitlab_enterprise": {
