@@ -407,6 +407,45 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerraformVersion: "0.12.24",
 	}
 
+	opentofuTemplate := client.Template{
+		Id:               "opentofu",
+		Name:             "template0",
+		Description:      "description0",
+		Repository:       "env0/repo",
+		Type:             "opentofu",
+		OpentofuVersion:  "1.6.0-alpha",
+		TerraformVersion: "0.15.1",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+	}
+	opentofuUpdatedTemplate := client.Template{
+		Id:               opentofuTemplate.Id,
+		Name:             "new-name",
+		Description:      "new-description",
+		Repository:       "env0/repo-new",
+		Type:             "opentofu",
+		OpentofuVersion:  "1.7.0",
+		TerraformVersion: "0.15.1",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+	}
+
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -439,6 +478,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 		if template.TerraformVersion != "" {
 			templateAsDictionary["terraform_version"] = template.TerraformVersion
+		}
+		if template.OpentofuVersion != "" {
+			templateAsDictionary["opentofu_version"] = template.OpentofuVersion
 		}
 		if template.TokenId != "" {
 			templateAsDictionary["token_id"] = template.TokenId
@@ -516,6 +558,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			terragruntVersionAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "terragrunt_version")
 		}
 
+		opentofuVersionAssertion := resource.TestCheckResourceAttr(resourceFullName, "opentofu_version", template.OpentofuVersion)
+		if template.OpentofuVersion == "" {
+			opentofuVersionAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "opentofu_version")
+		}
+
 		githubInstallationIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "github_installation_id", strconv.Itoa(template.GithubInstallationId))
 		if template.GithubInstallationId == 0 {
 			githubInstallationIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id")
@@ -544,6 +591,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			githubInstallationIdAssertion,
 			helmChartNameAssertion,
 			pathAssertion,
+			opentofuVersionAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
@@ -565,6 +613,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Cloudformation", cloudformationTemplate, cloudformationUpdatedTemplate},
 		{"Azure DevOps", azureDevOpsTemplate, azureDevOpsUpdatedTemplate},
 		{"Helm Chart", helmTemplate, helmUpdatedTemplate},
+		{"Opentofu", opentofuTemplate, opentofuUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -599,6 +648,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsAzureDevOps:        templateUseCase.template.IsAzureDevOps,
 				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
 				HelmChartName:        templateUseCase.template.HelmChartName,
+				OpentofuVersion:      templateUseCase.template.OpentofuVersion,
 			}
 
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
@@ -622,8 +672,9 @@ func TestUnitTemplateResource(t *testing.T) {
 				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
 				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
 				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
-				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
-				HelmChartName:        templateUseCase.template.HelmChartName,
+				IsHelmRepository:     templateUseCase.updatedTemplate.IsHelmRepository,
+				HelmChartName:        templateUseCase.updatedTemplate.HelmChartName,
+				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
 			}
 
 			if templateUseCase.template.Type != "terraform" && templateUseCase.template.Type != "terragrunt" {
@@ -1103,6 +1154,45 @@ func TestUnitTemplateResource(t *testing.T) {
 						"terraform_version": "v0.15.1",
 					}),
 					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Invalid Opentofu Version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "opentofu",
+						"gitlab_project_id": 123456,
+						"token_id":          "abcdefg",
+						"opentofu_version":  "v0.20.1",
+					}),
+					ExpectError: regexp.MustCompile("must match pattern"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Opentofu type with no Opentofu version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "opentofu",
+						"gitlab_project_id": 123456,
+						"token_id":          "abcdefg",
+					}),
+					ExpectError: regexp.MustCompile("must supply opentofu version"),
 				},
 			},
 		}
