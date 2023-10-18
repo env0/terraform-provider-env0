@@ -177,7 +177,7 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 
 type EnvironmentUpdate struct {
 	Name                        string `json:"name,omitempty"`
-	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob,omitempty"`
+	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
 	RequiresApproval            *bool  `json:"requiresApproval,omitempty" tfschema:"-"`
