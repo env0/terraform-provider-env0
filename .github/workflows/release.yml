@@ -20,6 +20,7 @@ env:
 
 jobs:
   goreleaser:
+    environment: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

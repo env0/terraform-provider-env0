@@ -54,6 +54,19 @@ resource "env0_template" "template_tg" {
   terragrunt_version = "0.35.0"
 }
 
+resource "env0_template" "template_opentofu" {
+  name                                    = "Opentofu-${random_string.random.result}"
+  description                             = "Template description - OpenTofu and GitHub"
+  type                                    = "opentofu"
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
+  path                                    = "/misc/null-resource"
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
+  opentofu_version                        = "1.6.0"
+}
+
 resource "env0_configuration_variable" "in_a_template" {
   name        = "fake_key"
   value       = "fake value"
