@@ -27,6 +27,7 @@ func resourceNotificationProjectAssignment() *schema.Resource {
 		"driftDetected",
 		"driftUndetected",
 		"driftFailed",
+		"budgetExceeded",
 	}
 
 	return &schema.Resource{
