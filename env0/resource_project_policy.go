@@ -10,14 +10,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePolicy() *schema.Resource {
+func resourceProjectPolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePolicyCreate,
-		ReadContext:   resourcePolicyRead,
-		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: resourcePolicyDelete,
+		CreateContext: resourceProjectPolicyCreate,
+		ReadContext:   resourceProjectPolicyRead,
+		UpdateContext: resourceProjectPolicyUpdate,
+		DeleteContext: resourceProjectPolicyDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourcePolicyImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceProjectPolicyImport},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -105,12 +105,18 @@ func resourcePolicy() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"drift_detection_cron": {
+				Type:             schema.TypeString,
+				Description:      "default cron expression for new environments",
+				Optional:         true,
+				ValidateDiagFunc: ValidateCronExpression,
+			},
 		},
 	}
 }
 
-func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if err := resourcePolicyUpdate(ctx, d, meta); err != nil {
+func resourceProjectPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if err := resourceProjectPolicyUpdate(ctx, d, meta); err != nil {
 		return err
 	}
 
@@ -120,7 +126,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()
@@ -139,7 +145,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	payload := client.PolicyUpdatePayload{}
@@ -165,6 +171,10 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		payload.MaxTtl = ""
 	}
 
+	if payload.DriftDetectionCron != "" {
+		payload.DriftDetectionEnabled = true
+	}
+
 	if _, err := apiClient.PolicyUpdate(payload); err != nil {
 		return diag.Errorf("could not update policy: %v", err)
 	}
@@ -172,7 +182,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()
@@ -195,7 +205,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourcePolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceProjectPolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	projectId := d.Id()
 
 	policy, err := getPolicyByProjectId(projectId, meta)

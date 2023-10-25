@@ -10,7 +10,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestUnitPolicyResource(t *testing.T) {
+func TestUnitProjectPolicyResource(t *testing.T) {
 	resourceType := "env0_project_policy"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -28,6 +28,8 @@ func TestUnitPolicyResource(t *testing.T) {
 		MaxTtl:                     stringPtr("inherit"),
 		DefaultTtl:                 stringPtr("inherit"),
 		ForceRemoteBackend:         true,
+		DriftDetectionCron:         "0 4 * * *",
+		DriftDetectionEnabled:      true,
 	}
 
 	updatedPolicy := client.Policy{
@@ -67,6 +69,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						"run_pull_request_plan_default": policy.RunPullRequestPlanDefault,
 						"continuous_deployment_default": policy.ContinuousDeploymentDefault,
 						"force_remote_backend":          policy.ForceRemoteBackend,
+						"drift_detection_cron":          policy.DriftDetectionCron,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
@@ -82,6 +85,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "max_ttl", "inherit"),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", "inherit"),
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(policy.ForceRemoteBackend)),
+						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", policy.DriftDetectionCron),
 					),
 				},
 				{
@@ -107,6 +111,7 @@ func TestUnitPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "max_ttl", "Infinite"),
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *updatedPolicy.DefaultTtl),
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(updatedPolicy.ForceRemoteBackend)),
+						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", updatedPolicy.DriftDetectionCron),
 					),
 				},
 			},
@@ -127,6 +132,8 @@ func TestUnitPolicyResource(t *testing.T) {
 					MaxTtl:                     "inherit",
 					DefaultTtl:                 "inherit",
 					ForceRemoteBackend:         true,
+					DriftDetectionEnabled:      true,
+					DriftDetectionCron:         policy.DriftDetectionCron,
 				}).Times(1).Return(policy, nil),
 				mock.EXPECT().Policy(gomock.Any()).Times(2).Return(policy, nil), // 1 after create, 1 before update
 				// Update
