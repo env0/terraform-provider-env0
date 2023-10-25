@@ -18,9 +18,14 @@ resource "env0_notification" "test_notification_2" {
   value = "https://someurl2.com"
 }
 
-data "env0_notifications" "all_notifications" {}
+data "env0_notifications" "all_notifications" {
+  depends_on = [env0_notification.test_notification_1, env0_notification.test_notification_2]
+}
 
-data "env0_notification" "notification" {
-  for_each = toset(data.env0_notifications.all_notifications.names)
-  name     = each.value
+data "env0_notification" "test_notification_1" {
+  name = data.env0_notifications.all_notifications.names[index(data.env0_notifications.all_notifications.names, env0_notification.test_notification_1.name)]
+}
+
+data "env0_notification" "test_notification_2" {
+  name = data.env0_notifications.all_notifications.names[index(data.env0_notifications.all_notifications.names, env0_notification.test_notification_2.name)]
 }
