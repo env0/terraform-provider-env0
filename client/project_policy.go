@@ -16,6 +16,8 @@ type Policy struct {
 	MaxTtl                      *string `json:"maxTtl,omitempty" tfschema:",omitempty"`
 	DefaultTtl                  *string `json:"defaultTtl,omitempty" tfschema:",omitempty"`
 	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
+	DriftDetectionCron          string  `json:"driftDetectionCron"`
+	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
 }
 
 type PolicyUpdatePayload struct {
@@ -32,6 +34,8 @@ type PolicyUpdatePayload struct {
 	MaxTtl                      string `json:"maxTtl,omitempty"`
 	DefaultTtl                  string `json:"defaultTtl,omitempty"`
 	ForceRemoteBackend          bool   `json:"forceRemoteBackend"`
+	DriftDetectionCron          string `json:"driftDetectionCron"`
+	DriftDetectionEnabled       bool   `json:"driftDetectionEnabled"`
 }
 
 // Policy retrieves a policy from the API

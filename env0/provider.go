@@ -94,7 +94,7 @@ func Provider(version string) plugin.ProviderFunc {
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
-				"env0_project_policy":                       resourcePolicy(),
+				"env0_project_policy":                       resourceProjectPolicy(),
 				"env0_configuration_variable":               resourceConfigurationVariable(),
 				"env0_template":                             resourceTemplate(),
 				"env0_ssh_key":                              resourceSshKey(),
