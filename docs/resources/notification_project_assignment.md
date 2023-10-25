@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `event_names` (List of String) a list of notification events (allowed values: environmentDeployStarted, environmentDestroyStarted, deploySucceeded, destroySucceeded, deployFailed, destroyFailed, deploymentWaitingForUser, deploymentCancelled, environmentDeployResumed, environmentDestroyResumed, environmentMarkedForAutoDestroy, driftDetected, driftUndetected, driftFailed)
+- `event_names` (List of String) a list of notification events (allowed values: environmentDeployStarted, environmentDestroyStarted, deploySucceeded, destroySucceeded, deployFailed, destroyFailed, deploymentWaitingForUser, deploymentCancelled, environmentDeployResumed, environmentDestroyResumed, environmentMarkedForAutoDestroy, driftDetected, driftUndetected, driftFailed, budgetExceeded)
 - `notification_endpoint_id` (String) id of the notification endpoint
 - `project_id` (String) id of the project
 
