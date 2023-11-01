@@ -74,12 +74,12 @@ func testMissingEnvVar(t *testing.T, envVars map[string]string, expectedKey stri
 		defer os.Setenv(key, "")
 	}
 
-	diags := Provider("TEST")().Validate(&terraform.ResourceConfig{})
+	diags := Provider("TEST")().Configure(context.Background(), &terraform.ResourceConfig{})
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
 func testMissingConfig(t *testing.T, config map[string]interface{}, expectedKey string) {
-	diags := Provider("TEST")().Validate(terraform.NewResourceConfigRaw(config))
+	diags := Provider("TEST")().Configure(context.Background(), terraform.NewResourceConfigRaw(config))
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
