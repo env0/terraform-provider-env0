@@ -5,8 +5,9 @@ resource "random_string" "random" {
 }
 
 resource "env0_aws_credentials" "my_role_by_arn" {
-  name = "Test Role arn ${random_string.random.result}"
-  arn  = "Role ARN"
+  name     = "Test Role arn ${random_string.random.result}"
+  arn      = "Role ARN"
+  duration = 7200
 }
 
 data "env0_aws_credentials" "my_role_by_arn" {

@@ -36,7 +36,7 @@ func resourceAwsCredentials() *schema.Resource {
 				Optional:      true,
 				Sensitive:     true,
 				ForceNew:      true,
-				ConflictsWith: []string{"arn"},
+				ConflictsWith: []string{"arn", "duration"},
 				RequiredWith:  []string{"secret_access_key"},
 			},
 			"secret_access_key": {
@@ -47,6 +47,14 @@ func resourceAwsCredentials() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"arn"},
 				RequiredWith:  []string{"access_key_id"},
+			},
+			"duration": {
+				Type:             schema.TypeInt,
+				Description:      "the session duration in seconds for AWS_ASSUMED_ROLE_FOR_DEPLOYMENT. If set must be one of the following: 3600 (1h), 7200 (2h), 14400 (4h), 18000 (5h default), 28800 (8h), 43200 (12h)",
+				Optional:         true,
+				ValidateDiagFunc: NewIntInValidator([]int{3600, 7200, 14400, 18000, 28800, 43200}),
+				ForceNew:         true,
+				ConflictsWith:    []string{"access_key_id"},
 			},
 		},
 	}
@@ -71,6 +79,8 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	requestType := client.AwsAssumedRoleCredentialsType
 	if _, ok := d.GetOk("access_key_id"); ok {
 		requestType = client.AwsAccessKeysCredentialsType
+		// Duration applies only for "ASSUME ROLE"
+		value.Duration = 0
 	}
 
 	request := client.AwsCredentialsCreatePayload{

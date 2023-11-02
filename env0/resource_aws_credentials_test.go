@@ -3,6 +3,7 @@ package env0
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -18,9 +19,12 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
+	duration := 3600
+
 	awsArnCredentialResource := map[string]interface{}{
-		"name": "test",
-		"arn":  "11111",
+		"name":     "test",
+		"arn":      "11111",
+		"duration": strconv.Itoa(duration),
 	}
 
 	updatedAwsAccessKeyCredentialResource := map[string]interface{}{
@@ -32,7 +36,8 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 	awsArnCredCreatePayload := client.AwsCredentialsCreatePayload{
 		Name: awsArnCredentialResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn: awsArnCredentialResource["arn"].(string),
+			RoleArn:  awsArnCredentialResource["arn"].(string),
+			Duration: duration,
 		},
 		Type: client.AwsAssumedRoleCredentialsType,
 	}
@@ -75,6 +80,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "duration", awsArnCredentialResource["duration"].(string)),
 				),
 			},
 		},
@@ -88,6 +94,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", awsArnCredentialResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "arn", awsArnCredentialResource["arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "duration", awsArnCredentialResource["duration"].(string)),
 				),
 			},
 			{
