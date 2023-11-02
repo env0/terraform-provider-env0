@@ -38,16 +38,16 @@ func Provider(version string) plugin.ProviderFunc {
 				},
 				"api_key": {
 					Type:        schema.TypeString,
-					Description: "env0 API key. This can also be set via the ENV0_API_KEY environment variable.",
+					Description: "env0 API key. Instead of this field, it can also be set via the ENV0_API_KEY environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiKeyEnv, nil),
-					Required:    true,
+					Optional:    true,
 					Sensitive:   true,
 				},
 				"api_secret": {
 					Type:        schema.TypeString,
-					Description: "env0 API secret. This can also be set via the ENV0_API_SECRET environment variable.",
+					Description: "env0 API secret. Instead of this field, it can also be set via the ENV0_API_SECRET environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiSecretEnv, nil),
-					Required:    true,
+					Optional:    true,
 					Sensitive:   true,
 				},
 				"organization_id": {
@@ -195,9 +195,19 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 				return false
 			})
 
+		apiKey, ok := d.GetOk("api_key")
+		if !ok {
+			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Detail: `The argument "api_key" is required, but no definition was found.`}}
+		}
+
+		apiSecret, ok := d.GetOk("api_secret")
+		if !ok {
+			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Detail: `The argument "api_secret" is required, but no definition was found.`}}
+		}
+
 		httpClient, err := http.NewHttpClient(http.HttpClientConfig{
-			ApiKey:      d.Get("api_key").(string),
-			ApiSecret:   d.Get("api_secret").(string),
+			ApiKey:      apiKey.(string),
+			ApiSecret:   apiSecret.(string),
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
 			RestClient:  restyClient,
