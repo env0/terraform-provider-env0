@@ -36,6 +36,7 @@ func dataEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "project id of the environment",
 				Computed:    true,
+				Optional:    true,
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
@@ -105,6 +106,8 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	var err diag.Diagnostics
 	var environment client.Environment
 
+	projectId := d.Get("project_id").(string)
+
 	id, ok := d.GetOk("id")
 	if ok {
 		environment, err = getEnvironmentById(id.(string), meta)
@@ -112,9 +115,9 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 			return err
 		}
 	} else {
-		name := d.Get("name")
+		name := d.Get("name").(string)
 		excludeArchived := d.Get("exclude_archived")
-		environment, err = getEnvironmentByName(name.(string), meta, excludeArchived.(bool))
+		environment, err = getEnvironmentByName(meta, name, projectId, excludeArchived.(bool))
 		if err != nil {
 			return err
 		}

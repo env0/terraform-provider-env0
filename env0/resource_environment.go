@@ -1058,7 +1058,7 @@ func getConfigurationVariableFromSchema(variable map[string]interface{}) client.
 	return configurationVariable
 }
 
-func getEnvironmentByName(name interface{}, meta interface{}, excludeArchived bool) (client.Environment, diag.Diagnostics) {
+func getEnvironmentByName(meta interface{}, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	environments, err := apiClient.Environments()
 	if err != nil {
@@ -1068,6 +1068,10 @@ func getEnvironmentByName(name interface{}, meta interface{}, excludeArchived bo
 	var environmentsByName []client.Environment
 	for _, candidate := range environments {
 		if excludeArchived && candidate.IsArchived != nil && *candidate.IsArchived {
+			continue
+		}
+
+		if projectId != "" && candidate.ProjectId != projectId {
 			continue
 		}
 
@@ -1107,7 +1111,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	} else {
 		tflog.Info(ctx, "Resolving environment by name", map[string]interface{}{"name": id})
 
-		environment, getErr = getEnvironmentByName(id, meta, false)
+		environment, getErr = getEnvironmentByName(meta, id, "", false)
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)

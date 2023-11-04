@@ -40,6 +40,12 @@ func TestEnvironmentDataSource(t *testing.T) {
 		Name: "other-name",
 	}
 
+	environmentWithSameName := client.Environment{
+		Id:        "other-id",
+		Name:      environment.Name,
+		ProjectId: "other-project-id",
+	}
+
 	archivedEnvironment := client.Environment{
 		Id:         "id-archived",
 		Name:       environment.Name,
@@ -48,6 +54,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 
 	environmentFieldsByName := map[string]interface{}{"name": environment.Name}
 	environmentFieldsByNameWithExclude := map[string]interface{}{"name": environment.Name, "exclude_archived": "true"}
+	environmentFieldByNameWithProjectId := map[string]interface{}{"name": environment.Name, "project_id": environment.ProjectId}
 	environmentFieldsById := map[string]interface{}{"id": environment.Id}
 
 	resourceType := "env0_environment"
@@ -127,6 +134,13 @@ func TestEnvironmentDataSource(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsByNameWithExclude),
 			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}, &template),
+		)
+	})
+
+	t.Run("By Name with Different Project Id", func(t *testing.T) {
+		runUnitTest(t,
+			getValidTestCase(environmentFieldByNameWithProjectId),
+			mockListEnvironmentsCall([]client.Environment{environment, environmentWithSameName, otherEnvironment}, &template),
 		)
 	})
 
