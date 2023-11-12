@@ -38,6 +38,7 @@ output "environment_name" {
 - `exclude_archived` (Boolean) set to 'true' to exclude archived environments when getting an environment by name
 - `id` (String) the environment's id
 - `name` (String) name of the environment
+- `project_id` (String) project id of the environment
 
 ### Read-Only
 
@@ -48,7 +49,6 @@ output "environment_name" {
 - `deployment_id` (String) the id of the latest deployment
 - `github_installation_id` (Number) Github installation id
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
-- `project_id` (String) project id of the environment
 - `revision` (String) the last deployed revision
 - `run_plan_on_pull_requests` (Boolean) does pr plan enable
 - `status` (String) the status of the environment
