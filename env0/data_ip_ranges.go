@@ -44,7 +44,7 @@ func dataIpRangesRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		"54.68.137.240",
 		"54.88.50.2",
 		"54.149.16.114",
-		"54.165.19.49"
+		"54.165.19.49",
 	}
 
 	d.Set("ipv4", ipv4s)
