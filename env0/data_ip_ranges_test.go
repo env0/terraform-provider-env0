@@ -18,8 +18,8 @@ func TestIpRangesDataSource(t *testing.T) {
 				{
 					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "ipv4.0", "18.214.210.123/32"),
-						resource.TestCheckResourceAttr(accessor, "ipv4.1", "44.195.170.230/32"),
+						resource.TestCheckResourceAttr(accessor, "ipv4.0", "3.209.36.240/32"),
+						resource.TestCheckResourceAttr(accessor, "ipv4.1", "3.222.51.117/32"),
 					),
 				},
 			},
