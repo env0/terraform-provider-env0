@@ -23,7 +23,7 @@ resource "env0_custom_flow" "test" {
 }
 
 data "env0_custom_flow" "test" {
-  name       = "Custom Flow Github Test ${random_string.random.result}"
+  name       = env0_custom_flow.test.name
   depends_on = [env0_custom_flow.test]
 }
 
