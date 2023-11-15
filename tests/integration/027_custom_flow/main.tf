@@ -23,11 +23,12 @@ resource "env0_custom_flow" "test" {
 }
 
 data "env0_custom_flow" "test" {
-  name       = env0_custom_flow.test.name
   depends_on = [env0_custom_flow.test]
+  name       = env0_custom_flow.test.name
 }
 
 resource "env0_custom_flow_assignment" "assignment" {
+  depends_on  = [data.env0_custom_flow.test]
   scope_id    = env0_project.project.id
   template_id = data.env0_custom_flow.test.id
 }
