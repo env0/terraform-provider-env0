@@ -22,7 +22,12 @@ resource "env0_custom_flow" "test" {
   path                   = "custom-flows/opa.yaml"
 }
 
+data "env0_custom_flow" "test" {
+  name       = "Custom Flow Github Test ${random_string.random.result}"
+  depends_on = [env0_custom_flow.test]
+}
+
 resource "env0_custom_flow_assignment" "assignment" {
   scope_id    = env0_project.project.id
-  template_id = env0_custom_flow.test.id
+  template_id = data.env0_custom_flow.test.id
 }

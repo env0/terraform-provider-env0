@@ -91,6 +91,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_custom_roles":              dataCustomRoles(),
 				"env0_gpg_key":                   dataGpgKey(),
 				"env0_provider":                  dataProvider(),
+				"env0_custom_flow":               dataCustomFlow(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
