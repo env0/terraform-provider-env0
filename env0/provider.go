@@ -38,14 +38,14 @@ func Provider(version string) plugin.ProviderFunc {
 				},
 				"api_key": {
 					Type:        schema.TypeString,
-					Description: "env0 API key. Instead of this field, it can also be set via the ENV0_API_KEY environment variable.",
+					Description: "env0 API key. This field can be removed from the provider block; instead of the field, you can set the value via the ENV0_API_KEY environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiKeyEnv, nil),
 					Optional:    true,
 					Sensitive:   true,
 				},
 				"api_secret": {
 					Type:        schema.TypeString,
-					Description: "env0 API secret. Instead of this field, it can also be set via the ENV0_API_SECRET environment variable.",
+					Description: "env0 API secret. This field can be removed from the provider block; instead of the field, you can set the value via the ENV0_API_SECRET environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiSecretEnv, nil),
 					Optional:    true,
 					Sensitive:   true,
