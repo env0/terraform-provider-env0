@@ -85,16 +85,6 @@ func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVar
 	return result, nil
 }
 
-func filterOutConfigurationVariables(variables []ConfigurationVariable, scope Scope) []ConfigurationVariable {
-	filteredVariables := []ConfigurationVariable{}
-	for _, variable := range variables {
-		if variable.Scope != scope {
-			filteredVariables = append(filteredVariables, variable)
-		}
-	}
-	return filteredVariables
-}
-
 func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -120,15 +110,15 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 		return []ConfigurationVariable{}, err
 	}
 
-	// The API returns global and template scopes for environment (and other) scopes. Filter them out.
-	if scope != ScopeGlobal {
-		result = filterOutConfigurationVariables(result, ScopeGlobal)
-		if scope != ScopeTemplate {
-			result = filterOutConfigurationVariables(result, ScopeTemplate)
+	// The API returns variables of upper scopes. Filter them out.
+	var filteredVariables []ConfigurationVariable
+	for _, variable := range result {
+		if scope == variable.Scope {
+			filteredVariables = append(filteredVariables, variable)
 		}
 	}
 
-	return result, nil
+	return filteredVariables, nil
 }
 
 func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {

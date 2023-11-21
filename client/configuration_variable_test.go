@@ -38,23 +38,6 @@ var _ = Describe("Configuration Variable", func() {
 		Regex:          "regex",
 	}
 
-	mockGlobalConfigurationVariable := ConfigurationVariable{
-		Id:             "config-var-id-789",
-		Name:           "configName",
-		Description:    "configDescription",
-		Value:          "configValue",
-		OrganizationId: organizationId,
-		IsSensitive:    &isSensitive,
-		Scope:          ScopeGlobal,
-		Type:           &varType,
-		ScopeId:        "project-123",
-		UserId:         "user|123",
-		Schema:         &schema,
-		IsReadOnly:     &isReadOnly,
-		IsRequired:     &isRequired,
-		Regex:          "regex",
-	}
-
 	mockTemplateConfigurationVariable := ConfigurationVariable{
 		Id:             "config-var-id-1111",
 		Name:           "ignore",
@@ -277,9 +260,11 @@ var _ = Describe("Configuration Variable", func() {
 	})
 
 	Describe("ConfigurationVariablesByScope", func() {
+		scopeId := "scope-id"
+
 		var returnedVariables []ConfigurationVariable
-		mockVariables := []ConfigurationVariable{mockConfigurationVariable, mockGlobalConfigurationVariable, mockTemplateConfigurationVariable}
-		expectedParams := map[string]string{"organizationId": organizationId}
+		mockVariables := []ConfigurationVariable{mockTemplateConfigurationVariable}
+		expectedParams := map[string]string{"organizationId": organizationId, "blueprintId": scopeId}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId)
@@ -289,7 +274,7 @@ var _ = Describe("Configuration Variable", func() {
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = mockVariables
 				})
-			returnedVariables, _ = apiClient.ConfigurationVariablesByScope(ScopeGlobal, "")
+			returnedVariables, _ = apiClient.ConfigurationVariablesByScope(ScopeTemplate, scopeId)
 		})
 
 		It("Should send GET request with expected params", func() {
@@ -303,32 +288,5 @@ var _ = Describe("Configuration Variable", func() {
 		It("Should return variables", func() {
 			Expect(returnedVariables).To(Equal(mockVariables))
 		})
-
-		DescribeTable("Different Scopes",
-			func(scope string, expectedFieldName string) {
-				scopeId := expectedFieldName + "-id"
-				expectedParams := map[string]string{
-					"organizationId":  organizationId,
-					expectedFieldName: scopeId,
-				}
-
-				httpCall = mockHttpClient.EXPECT().
-					Get("/configuration", expectedParams, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
-						*response = mockVariables
-					})
-				returnedVariables, _ = apiClient.ConfigurationVariablesByScope(Scope(scope), scopeId)
-				if scope == string(ScopeTemplate) {
-					Expect(returnedVariables).To((Equal([]ConfigurationVariable{mockConfigurationVariable, mockTemplateConfigurationVariable})))
-				} else {
-					Expect(returnedVariables).To((Equal([]ConfigurationVariable{mockConfigurationVariable})))
-				}
-				httpCall.Times(1)
-			},
-			Entry("Template Scope", string(ScopeTemplate), "blueprintId"),
-			Entry("Project Scope", string(ScopeProject), "projectId"),
-			Entry("Environment Scope", string(ScopeEnvironment), "environmentId"),
-			Entry("Project Scope", string(ScopeDeploymentLog), "deploymentLogId"),
-		)
 	})
 })
