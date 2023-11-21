@@ -1596,6 +1596,21 @@ func (mr *MockApiClientInterfaceMockRecorder) SshKeyDelete(arg0 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyDelete), arg0)
 }
 
+// SshKeyUpdate mocks base method.
+func (m *MockApiClientInterface) SshKeyUpdate(arg0 string, arg1 *SshKeyUpdatePayload) (*SshKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SshKeyUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*SshKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SshKeyUpdate indicates an expected call of SshKeyUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) SshKeyUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyUpdate), arg0, arg1)
+}
+
 // SshKeys mocks base method.
 func (m *MockApiClientInterface) SshKeys() ([]SshKey, error) {
 	m.ctrl.T.Helper()

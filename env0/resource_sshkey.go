@@ -14,6 +14,7 @@ func resourceSshKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSshKeyCreate,
 		ReadContext:   resourceSshKeyRead,
+		UpdateContext: resourceSshKeyUpdate,
 		DeleteContext: resourceSshKeyDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceSshKeyImport},
@@ -29,7 +30,6 @@ func resourceSshKey() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "value is a private key in PEM format (first line usually looks like -----BEGIN OPENSSH PRIVATE KEY-----)",
 				Required:    true,
-				ForceNew:    true,
 				Sensitive:   true,
 			},
 		},
@@ -50,6 +50,21 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(sshKey.Id)
+
+	return nil
+}
+
+func resourceSshKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	var payload client.SshKeyUpdatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if _, err := apiClient.SshKeyUpdate(d.Id(), &payload); err != nil {
+		return diag.Errorf("could not update ssh key: %v", err)
+	}
 
 	return nil
 }
