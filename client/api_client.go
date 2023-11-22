@@ -40,6 +40,7 @@ type ApiClientInterface interface {
 	VariablesFromRepository(payload *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error)
 	SshKeys() ([]SshKey, error)
 	SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error)
+	SshKeyUpdate(id string, payload *SshKeyUpdatePayload) (*SshKey, error)
 	SshKeyDelete(id string) error
 	CredentialsCreate(request CredentialCreatePayload) (Credentials, error)
 	CredentialsUpdate(id string, request CredentialCreatePayload) (Credentials, error)

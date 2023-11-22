@@ -80,4 +80,37 @@ var _ = Describe("SshKey", func() {
 			Expect(sshKeys).Should(ContainElement(mockSshKey))
 		})
 	})
+
+	Describe("SshKetUpdate", func() {
+		Describe("Success", func() {
+			updateMockSshKey := mockSshKey
+			updateMockSshKey.Value = "new-value"
+			var updatedSshKey *SshKey
+			var err error
+
+			BeforeEach(func() {
+				updateSshKeyPayload := SshKeyUpdatePayload{Value: updateMockSshKey.Value}
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/ssh-keys/"+mockSshKey.Id, &updateSshKeyPayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *SshKey) {
+						*response = updateMockSshKey
+					})
+
+				updatedSshKey, err = apiClient.SshKeyUpdate(mockSshKey.Id, &updateSshKeyPayload)
+			})
+
+			It("Should send Put request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return ssh key received from API", func() {
+				Expect(*updatedSshKey).To(Equal(updateMockSshKey))
+			})
+		})
+	})
 })
