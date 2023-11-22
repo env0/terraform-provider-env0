@@ -95,7 +95,7 @@ func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, err
 	}
 
 	if len(customFlows) > 1 {
-		return nil, fmt.Errorf("found multiple custom flows with name: %s. Use id instead or make sure custom flow names are unique %v", name, customFlows)
+		return nil, fmt.Errorf("found multiple custom flows with name '%s'. Use id instead or make sure custom flow names are unique %v", name, customFlows)
 	}
 
 	return &customFlows[0], nil
