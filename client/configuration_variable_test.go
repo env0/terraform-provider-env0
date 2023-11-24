@@ -45,6 +45,7 @@ var _ = Describe("Configuration Variable", func() {
 		Value:          "ignore",
 		OrganizationId: organizationId,
 		Scope:          ScopeTemplate,
+		ScopeId:        "scope-id",
 	}
 
 	Describe("ConfigurationVariable", func() {
@@ -260,7 +261,7 @@ var _ = Describe("Configuration Variable", func() {
 	})
 
 	Describe("ConfigurationVariablesByScope", func() {
-		scopeId := "scope-id"
+		scopeId := mockTemplateConfigurationVariable.ScopeId
 
 		var returnedVariables []ConfigurationVariable
 		mockVariables := []ConfigurationVariable{mockTemplateConfigurationVariable}

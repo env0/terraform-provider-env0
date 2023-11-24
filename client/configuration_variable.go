@@ -113,7 +113,7 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 	// The API returns variables of upper scopes. Filter them out.
 	var filteredVariables []ConfigurationVariable
 	for _, variable := range result {
-		if scope == variable.Scope {
+		if scopeId == variable.ScopeId {
 			filteredVariables = append(filteredVariables, variable)
 		}
 	}
