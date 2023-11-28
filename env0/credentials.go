@@ -21,6 +21,7 @@ const (
 	GCP_COST_TYPE   CloudType = "google_cost"
 	AZURE_COST_TYPE CloudType = "azure_cost"
 	AWS_COST_TYPE   CloudType = "aws_cost"
+	AWS_OIDC_TYPE   CloudType = "aws_oidc"
 )
 
 var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
@@ -30,6 +31,7 @@ var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
 	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
 	AZURE_COST_TYPE: {string(client.AzureCostCredentialsType)},
 	AWS_COST_TYPE:   {string(client.AwsCostCredentialsType)},
+	AWS_OIDC_TYPE:   {string(client.AwsOidcCredentialsType)},
 }
 
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
