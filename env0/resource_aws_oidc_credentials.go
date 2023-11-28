@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -40,15 +41,25 @@ func resourceAwsOidcCredentials() *schema.Resource {
 	}
 }
 
-func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-
+func awsOidcCredentialsGetValue(d *schema.ResourceData) (client.AwsCredentialsValuePayload, error) {
 	value := client.AwsCredentialsValuePayload{}
+
 	if err := readResourceData(&value, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
+		return value, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
 
 	value.RoleArn = d.Get("role_arn").(string) // tfschema is set (for older resources) need to manually set the role arn.
+
+	return value, nil
+}
+
+func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	value, err := awsOidcCredentialsGetValue(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	request := client.AwsCredentialsCreatePayload{
 		Name:  d.Get("name").(string),
@@ -69,12 +80,10 @@ func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 func resourceAwsOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	value := client.AwsCredentialsValuePayload{}
-	if err := readResourceData(&value, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	value, err := awsOidcCredentialsGetValue(d)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-
-	value.RoleArn = d.Get("role_arn").(string) // tfschema is set (for older resources) need to manually set the role arn.
 
 	request := client.AwsCredentialsCreatePayload{
 		Value: value,
