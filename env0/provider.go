@@ -91,6 +91,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_custom_roles":              dataCustomRoles(),
 				"env0_gpg_key":                   dataGpgKey(),
 				"env0_provider":                  dataProvider(),
+				"env0_custom_flow":               dataCustomFlow(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),
@@ -99,6 +100,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_template":                             resourceTemplate(),
 				"env0_ssh_key":                              resourceSshKey(),
 				"env0_aws_credentials":                      resourceAwsCredentials(),
+				"env0_aws_oidc_credentials":                 resourceAwsOidcCredentials(),
 				"env0_aws_cost_credentials":                 resourceCostCredentials("aws"),
 				"env0_azure_cost_credentials":               resourceCostCredentials("azure"),
 				"env0_gcp_cost_credentials":                 resourceCostCredentials("google"),

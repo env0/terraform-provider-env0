@@ -18,6 +18,10 @@ type SshKeyCreatePayload struct {
 	Value          string `json:"value"`
 }
 
+type SshKeyUpdatePayload struct {
+	Value string `json:"value"`
+}
+
 func (client *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -27,6 +31,15 @@ func (client *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, err
 
 	var result SshKey
 	if err := client.http.Post("/ssh-keys", payload, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (client *ApiClient) SshKeyUpdate(id string, payload *SshKeyUpdatePayload) (*SshKey, error) {
+	var result SshKey
+
+	if err := client.http.Put("/ssh-keys/"+id, payload, &result); err != nil {
 		return nil, err
 	}
 	return &result, nil

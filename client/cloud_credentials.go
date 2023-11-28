@@ -42,8 +42,8 @@ type AzureCredentialsValuePayload struct {
 }
 
 type AwsCredentialsCreatePayload struct {
-	Name           string                     `json:"name"`
-	OrganizationId string                     `json:"organizationId"`
+	Name           string                     `json:"name,omitempty"`
+	OrganizationId string                     `json:"organizationId,omitempty"`
 	Type           AwsCredentialsType         `json:"type"`
 	Value          AwsCredentialsValuePayload `json:"value"`
 }
@@ -51,8 +51,8 @@ type AwsCredentialsCreatePayload struct {
 type AwsCredentialsValuePayload struct {
 	RoleArn         string `json:"roleArn" tfschema:"arn"`
 	Duration        int    `json:"duration,omitempty"`
-	AccessKeyId     string `json:"accessKeyId"`
-	SecretAccessKey string `json:"secretAccessKey"`
+	AccessKeyId     string `json:"accessKeyId,omitempty"`
+	SecretAccessKey string `json:"secretAccessKey,omitempty"`
 }
 
 type GoogleCostCredentialsCreatePayload struct {
@@ -101,6 +101,7 @@ const (
 	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	AwsAccessKeysCredentialsType         AwsCredentialsType   = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
+	AwsOidcCredentialsType               AwsCredentialsType   = "AWS_OIDC"
 	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 )

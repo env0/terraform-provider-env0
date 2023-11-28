@@ -22,7 +22,11 @@ resource "env0_custom_flow" "test" {
   path                   = "custom-flows/opa.yaml"
 }
 
+data "env0_custom_flow" "test111" {
+  name = env0_custom_flow.test.name
+}
+
 resource "env0_custom_flow_assignment" "assignment" {
   scope_id    = env0_project.project.id
-  template_id = env0_custom_flow.test.id
+  template_id = var.second_run ? data.env0_custom_flow.test111.id : env0_custom_flow.test.id
 }
