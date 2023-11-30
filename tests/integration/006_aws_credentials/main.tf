@@ -26,10 +26,15 @@ data "env0_aws_credentials" "my_role_by_access_key" {
   depends_on = [env0_aws_credentials.my_role_by_access_key]
 }
 
+resource "env0_organization_policy" "org_policy" {
+  enable_oidc = true
+}
+
 resource "env0_aws_oidc_credentials" "oidc_credentials" {
-  name     = "Test Oidc Credentials ${random_string.random.result}"
-  role_arn = "Role ARN"
-  duration = 7200
+  name       = "Test Oidc Credentials ${random_string.random.result}"
+  role_arn   = "Role ARN"
+  duration   = 7200
+  depends_on = [env0_organization_policy.org_policy]
 }
 
 data "env0_aws_oidc_credentials" "by_id" {
