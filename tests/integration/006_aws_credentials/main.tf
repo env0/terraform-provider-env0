@@ -32,6 +32,14 @@ resource "env0_aws_oidc_credentials" "oidc_credentials" {
   duration = 7200
 }
 
+data "env0_aws_oidc_credentials" "by_id" {
+  id = env0_aws_oidc_credentials.oidc_credentials.id
+}
+
+data "env0_aws_oidc_credentials" "by_name" {
+  name = env0_aws_oidc_credentials.oidc_credentials.name
+}
+
 output "name_by_arn" {
   value = replace(data.env0_aws_credentials.my_role_by_arn.name, random_string.random.result, "")
 }

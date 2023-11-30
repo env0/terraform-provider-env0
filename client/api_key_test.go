@@ -94,4 +94,36 @@ var _ = Describe("ApiKey Client", func() {
 			httpCall.Times(1)
 		})
 	})
+
+	Describe("Get Oidc Sub", func() {
+		var returnedOidcSub string
+		var err error
+		mockedOidcSub := "oidc sub 1234"
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			httpCall = mockHttpClient.EXPECT().
+				Get("/api-keys/oidc-sub", map[string]string{"organizationId": organizationId}, gomock.Any()).
+				Do(func(path string, request interface{}, response *string) {
+					*response = mockedOidcSub
+				})
+			returnedOidcSub, err = apiClient.OidcSub()
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send GET request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return Oidc sub", func() {
+			Expect(returnedOidcSub).To(Equal(mockedOidcSub))
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
 })
