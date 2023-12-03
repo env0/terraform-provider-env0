@@ -144,6 +144,7 @@ func TestProjectDataSource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "role", projectWithParent.Role),
 							resource.TestCheckResourceAttr(accessor, "description", projectWithParent.Description),
 							resource.TestCheckResourceAttr(accessor, "parent_project_id", projectWithParent.ParentProjectId),
+							resource.TestCheckResourceAttr(accessor, "parent_project_name", parentProject.Name),
 						),
 					},
 				},
@@ -152,6 +153,30 @@ func TestProjectDataSource(t *testing.T) {
 				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{projectWithParent, otherProjectWithParent}, nil)
 				mock.EXPECT().Project(projectWithParent.ParentProjectId).AnyTimes().Return(parentProject, nil)
 				mock.EXPECT().Project(otherProjectWithParent.ParentProjectId).AnyTimes().Return(otherParentProject, nil)
+			},
+		)
+	})
+
+	t.Run("By Name with Parent Id", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": projectWithParent.Name, "parent_project_id": parentProject.Id}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", projectWithParent.Id),
+							resource.TestCheckResourceAttr(accessor, "name", projectWithParent.Name),
+							resource.TestCheckResourceAttr(accessor, "created_by", projectWithParent.CreatedBy),
+							resource.TestCheckResourceAttr(accessor, "role", projectWithParent.Role),
+							resource.TestCheckResourceAttr(accessor, "description", projectWithParent.Description),
+							resource.TestCheckResourceAttr(accessor, "parent_project_id", projectWithParent.ParentProjectId),
+							resource.TestCheckNoResourceAttr(accessor, "parent_project_name"),
+						),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{projectWithParent, otherProjectWithParent}, nil)
 			},
 		)
 	})
