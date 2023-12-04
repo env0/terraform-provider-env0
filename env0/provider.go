@@ -69,6 +69,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_azure_cost_credentials":    dataCredentials(AZURE_COST_TYPE),
 				"env0_google_cost_credentials":   dataCredentials(GCP_COST_TYPE),
 				"env0_aws_credentials":           dataCredentials(AWS_TYPE),
+				"env0_aws_oidc_credentials":      dataAwsOidcCredentials(),
 				"env0_gcp_credentials":           dataCredentials(GCP_TYPE),
 				"env0_azure_credentials":         dataCredentials(AZURE_TYPE),
 				"env0_team":                      dataTeam(),
