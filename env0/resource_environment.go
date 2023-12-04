@@ -323,6 +323,12 @@ func resourceEnvironment() *schema.Resource {
 				Optional:         true,
 				ValidateDiagFunc: ValidateCronExpression,
 			},
+			"is_remote_apply_enabled": {
+				Type:        schema.TypeBool,
+				Description: "enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled. Can only enabled for an existing environment",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 
 		CustomizeDiff: customdiff.ForceNewIf("template_id", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
@@ -519,6 +525,11 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	isRemoteApplyEnabled := d.Get("is_remote_apply_enabled").(bool)
+	if isRemoteApplyEnabled {
+		return diag.Errorf("is_remote_apply_enabled cannot be set when creating a new environment. Set this value after the environment is created")
+	}
+
 	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 	if createEnvPayloadErr != nil {
 		return createEnvPayloadErr
@@ -642,7 +653,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend", "is_inactive")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -798,7 +809,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.IsRemoteBackend = boolPtr(val.(bool))
 	}
 
-	if err := assertDeploymentTriggers(d); err != nil {
+	if err := assertEnvironment(d); err != nil {
 		return client.EnvironmentCreate{}, err
 	}
 
@@ -844,7 +855,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	return payload, nil
 }
 
-func assertDeploymentTriggers(d *schema.ResourceData) diag.Diagnostics {
+func assertEnvironment(d *schema.ResourceData) diag.Diagnostics {
 	continuousDeployment := d.Get("deploy_on_push").(bool)
 	pullRequestPlanDeployments := d.Get("run_plan_on_pull_requests").(bool)
 	autoDeployOnPathChangesOnly := d.Get("auto_deploy_on_path_changes_only").(bool)
@@ -857,6 +868,13 @@ func assertDeploymentTriggers(d *schema.ResourceData) diag.Diagnostics {
 		if !autoDeployOnPathChangesOnly {
 			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
+	}
+
+	isRemoteApplyEnabled := d.Get("is_remote_apply_enabled").(bool)
+	isRemotedBackend := d.Get("is_remote_backend").(bool)
+	approvePlanAutomatically := d.Get("approve_plan_automatically").(bool)
+	if isRemoteApplyEnabled && (!isRemotedBackend || !approvePlanAutomatically) {
+		return diag.Errorf("cannot set is_remote_apply_enabled when approve_plan_automatically or is_remote_backend are disabled")
 	}
 
 	return nil
@@ -893,7 +911,7 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		payload.IsArchived = boolPtr(d.Get("is_inactive").(bool))
 	}
 
-	if err := assertDeploymentTriggers(d); err != nil {
+	if err := assertEnvironment(d); err != nil {
 		return client.EnvironmentUpdate{}, err
 	}
 

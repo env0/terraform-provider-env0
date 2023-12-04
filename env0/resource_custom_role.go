@@ -45,6 +45,7 @@ func resourceCustomRole() *schema.Resource {
 		"VIEW_PROVIDERS",
 		"VIEW_ENVIRONMENT",
 		"ASSIGN_ROLE_ON_ENVIRONMENT",
+		"EDIT_ALLOW_REMOTE_APPLY",
 	}
 
 	allowedCustomRoleTypesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedCustomRoleTypes, ", "))
