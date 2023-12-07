@@ -208,6 +208,11 @@ resource "env0_environment" "workflow-environment" {
   template_id                = env0_template.workflow_template.id
   approve_plan_automatically = true
 
+  configuration {
+    name  = "n1"
+    value = "v1"
+  }
+
   sub_environment_configuration {
     alias    = "rootService1"
     revision = "master"
