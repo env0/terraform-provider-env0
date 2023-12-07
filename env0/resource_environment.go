@@ -267,7 +267,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"configuration": {
 				Type:        schema.TypeList,
-				Description: "terraform and environment variables for the environment",
+				Description: "terraform and environment variables for the environment. Note: do not use with 'env0_configuration_variable' resource",
 				Optional:    true,
 				Elem:        configurationSchema,
 			},
@@ -310,7 +310,7 @@ func resourceEnvironment() *schema.Resource {
 						},
 						"configuration": {
 							Type:        schema.TypeList,
-							Description: "sub environment configuration variables",
+							Description: "sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource",
 							Optional:    true,
 							Elem:        configurationSchema,
 						},
