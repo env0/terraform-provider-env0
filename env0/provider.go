@@ -104,6 +104,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_aws_oidc_credentials":                 resourceAwsOidcCredentials(),
 				"env0_aws_cost_credentials":                 resourceCostCredentials("aws"),
 				"env0_azure_cost_credentials":               resourceCostCredentials("azure"),
+				"env0_azure_oidc_credentials":               resourceAzureOidcCredentials(),
 				"env0_gcp_cost_credentials":                 resourceCostCredentials("google"),
 				"env0_gcp_credentials":                      resourceGcpCredentials(),
 				"env0_azure_credentials":                    resourceAzureCredentials(),
