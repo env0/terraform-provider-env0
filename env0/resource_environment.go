@@ -586,7 +586,12 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
+	scope := client.ScopeEnvironment
+	if _, ok := d.GetOk("sub_environment_configuration"); ok {
+		scope = client.ScopeWorkflow
+	}
+
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -711,7 +716,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		for i, subEnvironment := range subEnvironments {
 			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]interface{})
 			configurationChanges := getConfigurationVariablesFromSchema(configuration)
-			configurationChanges = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, apiClient)
+			configurationChanges = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeWorkflow, apiClient)
 
 			for i := range configurationChanges {
 				configurationChanges[i].Scope = client.ScopeEnvironment
@@ -936,7 +941,11 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
-		configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), apiClient)
+		scope := client.ScopeEnvironment
+		if _, ok := d.GetOk("sub_environment_configuration"); ok {
+			scope = client.ScopeWorkflow
+		}
+		configurationChanges = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), scope, apiClient)
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -961,8 +970,8 @@ func getTTl(date string) client.TTL {
 	}
 }
 
-func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, apiClient client.ApiClientInterface) client.ConfigurationChanges {
-	existVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environmentId)
+func getUpdateConfigurationVariables(configurationChanges client.ConfigurationChanges, environmentId string, scope client.Scope, apiClient client.ApiClientInterface) client.ConfigurationChanges {
+	existVariables, err := apiClient.ConfigurationVariablesByScope(scope, environmentId)
 	if err != nil {
 		diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -1133,7 +1142,13 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id)
+
+	scope := client.ScopeEnvironment
+	if environment.LatestDeploymentLog.WorkflowFile != nil && len(environment.LatestDeploymentLog.WorkflowFile.Environments) > 0 {
+		scope = client.ScopeWorkflow
+	}
+
+	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
 	}
