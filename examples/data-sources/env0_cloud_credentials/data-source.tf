@@ -8,5 +8,5 @@ data "env0_aws_credentials" "aws_credentials" {
 }
 
 output "credentials_name" {
-  value = var.second_run ? data.env0_aws_credentials.aws_credentials["Test Role arn1"].name : ""
+  value = data.env0_aws_credentials.aws_credentials["Test Role arn1"].name
 }
