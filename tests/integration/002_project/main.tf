@@ -59,6 +59,11 @@ data "env0_project" "data_by_name_with_parent_name" {
   parent_project_name = env0_project.test_project_other.name
 }
 
+data "env0_project" "data_by_name_with_parent_id" {
+  name              = env0_project.test_sub_project_other.name
+  parent_project_id = env0_project.test_project_other.id
+}
+
 output "test_project_name" {
   value = replace(env0_project.test_project.name, random_string.random.result, "")
 }
