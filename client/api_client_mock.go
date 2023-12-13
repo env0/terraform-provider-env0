@@ -1040,6 +1040,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Notifications() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notifications", reflect.TypeOf((*MockApiClientInterface)(nil).Notifications))
 }
 
+// OidcSub mocks base method.
+func (m *MockApiClientInterface) OidcSub() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OidcSub")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OidcSub indicates an expected call of OidcSub.
+func (mr *MockApiClientInterfaceMockRecorder) OidcSub() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OidcSub", reflect.TypeOf((*MockApiClientInterface)(nil).OidcSub))
+}
+
 // Organization mocks base method.
 func (m *MockApiClientInterface) Organization() (Organization, error) {
 	m.ctrl.T.Helper()

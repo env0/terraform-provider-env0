@@ -63,3 +63,17 @@ func (client *ApiClient) ApiKeys() ([]ApiKey, error) {
 
 	return result, err
 }
+
+func (client *ApiClient) OidcSub() (string, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return "", err
+	}
+
+	var result string
+	if err := client.http.Get("/api-keys/oidc-sub", map[string]string{"organizationId": organizationId}, &result); err != nil {
+		return "", err
+	}
+
+	return result, nil
+}

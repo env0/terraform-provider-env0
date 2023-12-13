@@ -118,6 +118,7 @@ type Environment struct {
 	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
 	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"-"`
 	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
+	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
 }
 
 type EnvironmentCreate struct {
@@ -186,6 +187,7 @@ type EnvironmentUpdate struct {
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
 	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty" tfschema:"-"`
 	IsArchived                  *bool  `json:"isArchived,omitempty" tfschema:"-"`
+	IsRemoteApplyEnabled        bool   `json:"isRemoteApplyEnabled"`
 }
 
 type EnvironmentDeployResponse struct {
