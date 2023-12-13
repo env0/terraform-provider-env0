@@ -13,6 +13,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Updated Paths
-        uses: actions/labeler@main # Reads from .github/labeler.yml
+        uses: actions/labeler@v4 # Reads from .github/labeler.yml
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
