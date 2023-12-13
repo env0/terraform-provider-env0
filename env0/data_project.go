@@ -31,8 +31,14 @@ func dataProject() *schema.Resource {
 			},
 			"parent_project_name": {
 				Type:        schema.TypeString,
-				Description: "the name of the parent project. Can be used when there are multiple subprojects with the same name under different parent projects",
+				Description: "the name of the parent project. Can be used as a filter when there are multiple subprojects with the same name under different parent projects",
 				Optional:    true,
+			},
+			"parent_project_id": {
+				Type:        schema.TypeString,
+				Description: "the id of the parent project. Can be used as a filter when there are multiple subprojects with the same name under different parent projects",
+				Optional:    true,
+				Computed:    true,
 			},
 			"created_by": {
 				Type:        schema.TypeString,
@@ -47,11 +53,6 @@ func dataProject() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Description: "textual description of the project",
-				Computed:    true,
-			},
-			"parent_project_id": {
-				Type:        schema.TypeString,
-				Description: "if the project is a sub-project, returns the parent of this sub-project",
 				Computed:    true,
 			},
 		},
@@ -73,7 +74,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 		if !ok {
 			return diag.Errorf("either 'name' or 'id' must be specified")
 		}
-		project, err = getProjectByName(name.(string), d.Get("parent_project_name").(string), meta)
+		project, err = getProjectByName(name.(string), d.Get("parent_project_id").(string), d.Get("parent_project_name").(string), meta)
 		if err != nil {
 			return diag.Errorf("%v", err)
 		}
@@ -84,6 +85,21 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func filterByParentProjectId(name string, parentId string, projects []client.Project) ([]client.Project, error) {
+	filteredProjects := make([]client.Project, 0)
+	for _, project := range projects {
+		if len(project.ParentProjectId) == 0 {
+			continue
+		}
+
+		if project.ParentProjectId == parentId {
+			filteredProjects = append(filteredProjects, project)
+		}
+	}
+
+	return filteredProjects, nil
 }
 
 func filterByParentProjectName(name string, parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
@@ -106,7 +122,7 @@ func filterByParentProjectName(name string, parentName string, projects []client
 	return filteredProjects, nil
 }
 
-func getProjectByName(name string, parentName string, meta interface{}) (client.Project, error) {
+func getProjectByName(name string, parentId string, parentName string, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
 	if err != nil {
@@ -119,9 +135,14 @@ func getProjectByName(name string, parentName string, meta interface{}) (client.
 			projectsByName = append(projectsByName, candidate)
 		}
 	}
-
-	if len(parentName) > 0 {
-		// Too many results. Use parentName filter to reduce the results.
+	if len(parentId) > 0 {
+		// Use parentId filter to reduce the results.
+		projectsByName, err = filterByParentProjectId(name, parentId, projectsByName)
+		if err != nil {
+			return client.Project{}, err
+		}
+	} else if len(parentName) > 0 {
+		// Use parentName filter to reduce the results.
 		projectsByName, err = filterByParentProjectName(name, parentName, projectsByName, meta)
 		if err != nil {
 			return client.Project{}, err

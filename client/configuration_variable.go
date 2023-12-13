@@ -13,6 +13,7 @@ const (
 	ScopeEnvironment   Scope = "ENVIRONMENT"
 	ScopeDeployment    Scope = "DEPLOYMENT"
 	ScopeDeploymentLog Scope = "DEPLOYMENT_LOG"
+	ScopeWorkflow      Scope = "WORKFLOW"
 )
 
 type Format string
@@ -104,6 +105,8 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 		return nil, errors.New("no api to fetch configuration variables by deployment")
 	case scope == ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
+	case scope == ScopeWorkflow:
+		params["workflowEnvironmentId"] = scopeId
 	}
 	err = client.http.Get("/configuration", params, &result)
 	if err != nil {

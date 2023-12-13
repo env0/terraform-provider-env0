@@ -2179,9 +2179,32 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		},
 	}
 
+	configurationVariable := client.ConfigurationVariable{
+		Value: "v1",
+		Name:  "n1",
+		Type:  (*client.ConfigurationVariableType)(intPtr(0)),
+		Schema: &client.ConfigurationVariableSchema{
+			Type: "string",
+		},
+	}
+
 	environmentCreatePayload := client.EnvironmentCreate{
 		Name:      environment.Name,
 		ProjectId: environment.ProjectId,
+		ConfigurationChanges: &client.ConfigurationChanges{
+			{
+				Name:        "n1",
+				Value:       "v1",
+				Scope:       client.ScopeDeployment,
+				IsSensitive: boolPtr(false),
+				IsReadOnly:  boolPtr(false),
+				IsRequired:  boolPtr(false),
+				Schema: &client.ConfigurationVariableSchema{
+					Type: "string",
+				},
+				Type: (*client.ConfigurationVariableType)(intPtr(0)),
+			},
+		},
 		DeployRequest: &client.DeployRequest{
 			BlueprintId: environment.BlueprintId,
 			SubEnvironments: map[string]client.SubEnvironment{
@@ -2220,6 +2243,10 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						project_id = "%s"
 						template_id = "%s"
 						force_destroy = true
+						configuration {
+							name = "n1"
+							value = "v1"
+						}
 						sub_environment_configuration {
 							alias = "%s"
 							revision = "%s"
@@ -2309,15 +2336,15 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				mock.EXPECT().Template(environmentCreatePayload.DeployRequest.BlueprintId).Times(1).Return(template, nil),
 				mock.EXPECT().EnvironmentCreate(environmentCreatePayload).Times(1).Return(environment, nil),
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
 				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: environment.Id,
 				}, nil),
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
