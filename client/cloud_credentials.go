@@ -96,14 +96,15 @@ func (c *AzureCredentialsCreatePayload) SetOrganizationId(organizationId string)
 }
 
 const (
-	GoogleCostCredentialsType            GcpCredentialsType   = "GCP_CREDENTIALS"
-	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 	AwsAccessKeysCredentialsType         AwsCredentialsType   = "AWS_ACCESS_KEYS_FOR_DEPLOYMENT"
 	AwsOidcCredentialsType               AwsCredentialsType   = "AWS_OIDC"
+	GoogleCostCredentialsType            GcpCredentialsType   = "GCP_CREDENTIALS"
 	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+	AzureOidcCredentialsType             AzureCredentialsType = "AZURE_OIDC"
 )
 
 func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {

@@ -15,23 +15,25 @@ import (
 type CloudType string
 
 const (
-	GCP_TYPE        CloudType = "gcp"
-	AZURE_TYPE      CloudType = "azure"
 	AWS_TYPE        CloudType = "aws"
-	GCP_COST_TYPE   CloudType = "google_cost"
-	AZURE_COST_TYPE CloudType = "azure_cost"
 	AWS_COST_TYPE   CloudType = "aws_cost"
 	AWS_OIDC_TYPE   CloudType = "aws_oidc"
+	AZURE_TYPE      CloudType = "azure"
+	AZURE_COST_TYPE CloudType = "azure_cost"
+	AZURE_OIDC_TYPE CloudType = "azure_oidc"
+	GCP_TYPE        CloudType = "gcp"
+	GCP_COST_TYPE   CloudType = "google_cost"
 )
 
 var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
-	GCP_TYPE:        {string(client.GcpServiceAccountCredentialsType)},
-	AZURE_TYPE:      {string(client.AzureServicePrincipalCredentialsType)},
 	AWS_TYPE:        {string(client.AwsAssumedRoleCredentialsType), string(client.AwsAccessKeysCredentialsType)},
-	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
-	AZURE_COST_TYPE: {string(client.AzureCostCredentialsType)},
 	AWS_COST_TYPE:   {string(client.AwsCostCredentialsType)},
 	AWS_OIDC_TYPE:   {string(client.AwsOidcCredentialsType)},
+	AZURE_TYPE:      {string(client.AzureServicePrincipalCredentialsType)},
+	AZURE_COST_TYPE: {string(client.AzureCostCredentialsType)},
+	AZURE_OIDC_TYPE: {string(client.AzureOidcCredentialsType)},
+	GCP_TYPE:        {string(client.GcpServiceAccountCredentialsType)},
+	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
 }
 
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
