@@ -62,7 +62,7 @@ resource "env0_environment" "example_with_hcl_configuration" {
 - `auto_deploy_by_custom_glob` (String) redeploy on file filter pattern.
 When used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.
 - `auto_deploy_on_path_changes_only` (Boolean) redeploy only on path changes only
-- `configuration` (Block List) terraform and environment variables for the environment (see [below for nested schema](#nestedblock--configuration))
+- `configuration` (Block List) terraform and environment variables for the environment. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--configuration))
 - `deploy_on_push` (Boolean) should run terraform deploy on push events.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `drift_detection_cron` (String) cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)
@@ -119,7 +119,7 @@ Required:
 
 Optional:
 
-- `configuration` (Block List) sub environment configuration variables (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
+- `configuration` (Block List) sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
 - `workspace` (String) sub environment workspace (overrides the configurtion in the yml file)
 
 Read-Only:

@@ -18,6 +18,7 @@ func resourceConfigurationVariable() *schema.Resource {
 		ReadContext:   resourceConfigurationVariableRead,
 		UpdateContext: resourceConfigurationVariableUpdate,
 		DeleteContext: resourceConfigurationVariableDelete,
+		Description:   "Note: do not use with an environment resource that has it's configuration variables defined in it's 'configuration' field (see env0_environment_resource -> configuration)",
 
 		Importer: &schema.ResourceImporter{StateContext: resourceConfigurationVariableImport},
 
