@@ -185,6 +185,68 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("avoid modifying template id", func(t *testing.T) {
+			templateId := "template-id"
+			newTemplateId := "new-template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "name",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: templateId,
+				},
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":          environment.Name,
+							"project_id":    environment.ProjectId,
+							"template_id":   templateId,
+							"force_destroy": true,
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						),
+					},
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":          environment.Name,
+							"project_id":    environment.ProjectId,
+							"template_id":   newTemplateId,
+							"force_destroy": true,
+						}),
+						PlanOnly:    true,
+						ExpectError: regexp.MustCompile("template_id may not be modified, create a new environment instead"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				gomock.InOrder(
+					mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+					mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+						Name:      environment.Name,
+						ProjectId: environment.ProjectId,
+
+						DeployRequest: &client.DeployRequest{
+							BlueprintId: templateId,
+						},
+					}).Times(1).Return(environment, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
+				)
+			})
+		})
+
 		t.Run("remote apply is enabled", func(t *testing.T) {
 			templateId := "template-id"
 
