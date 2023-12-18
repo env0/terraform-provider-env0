@@ -170,7 +170,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.\nImportant note: After the environment is created, this field cannot be modified.",
 				Optional:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
@@ -330,14 +330,12 @@ func resourceEnvironment() *schema.Resource {
 				Default:     false,
 			},
 		},
-
-		CustomizeDiff: customdiff.ForceNewIf("template_id", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-			// For templateless: any changes in template_id, no need to do anything (template id can't change).
-			// This is done due to historical bugs/issues.
-			if _, ok := d.GetOk("without_template_settings.0"); ok {
-				return false
+		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
+			if oldValue != "" && oldValue != newValue {
+				return errors.New("template_id may not be modified, create a new environment instead")
 			}
-			return true
+
+			return nil
 		}),
 	}
 }
