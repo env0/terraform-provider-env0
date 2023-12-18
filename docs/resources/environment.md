@@ -78,6 +78,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `sub_environment_configuration` (Block List) the subenvironments for a workflow enviornment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.
+Important note: After the environment is created, this field cannot be modified.
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used.
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
