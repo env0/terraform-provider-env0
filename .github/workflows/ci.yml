@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Generate mocks
         run: |
-          go install go.uber.org/mock/mockgen@v0.2.0
+          go install go.uber.org/mock/mockgen@v0.3.0
           go generate client/api_client.go
       - name: Go fmt
         run: |
