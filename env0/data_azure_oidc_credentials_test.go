@@ -10,30 +10,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAwsOidcCredentialDataSource(t *testing.T) {
+func TestAzureOidcCredentialDataSource(t *testing.T) {
 	credentials := client.Credentials{
 		Id:   "id0",
 		Name: "name0",
-		Type: string(client.AwsOidcCredentialsType),
+		Type: string(client.AzureOidcCredentialsType),
 	}
 
 	credentialsOther1 := client.Credentials{
 		Id:   "id1",
 		Name: "name1",
-		Type: string(client.AwsOidcCredentialsType),
+		Type: string(client.AzureOidcCredentialsType),
 	}
 
 	credentialsOther2 := client.Credentials{
 		Id:   "id2",
 		Name: "name2",
-		Type: string(client.AwsAssumedRoleCredentialsType),
+		Type: string(client.AzureServicePrincipalCredentialsType),
 	}
 
 	byName := map[string]interface{}{"name": credentials.Name}
 	byId := map[string]interface{}{"id": credentials.Id}
 
-	resourceType := "env0_aws_oidc_credentials"
-	resourceName := "test_aws_oidc_credentials"
+	resourceType := "env0_azure_oidc_credentials"
+	resourceName := "test_azure_oidc_credentials"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
 	getValidTestCase := func(input map[string]interface{}) resource.TestCase {

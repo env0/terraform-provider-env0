@@ -33,6 +33,11 @@ func dataOrganization() *schema.Resource {
 				Description: "is the organization self hosted",
 				Computed:    true,
 			},
+			"oidc_sub": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "the jwt oidc sub",
+			},
 		},
 	}
 }
@@ -47,6 +52,11 @@ func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	if err := writeResourceData(&organization, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	oidcSub, err := apiClient.OidcSub()
+	if err == nil {
+		d.Set("oidc_sub", oidcSub)
 	}
 
 	return nil

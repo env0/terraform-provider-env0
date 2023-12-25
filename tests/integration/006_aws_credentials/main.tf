@@ -32,6 +32,11 @@ resource "env0_aws_oidc_credentials" "oidc_credentials" {
   duration = 7200
 }
 
+data "env0_aws_oidc_credentials" "oidc_credentials" {
+  name       = "Test Oidc Credentials ${random_string.random.result}"
+  depends_on = [env0_aws_oidc_credentials.oidc_credentials]
+}
+
 output "name_by_arn" {
   value = replace(data.env0_aws_credentials.my_role_by_arn.name, random_string.random.result, "")
 }

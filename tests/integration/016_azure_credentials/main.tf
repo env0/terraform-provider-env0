@@ -19,6 +19,11 @@ resource "env0_azure_oidc_credentials" "oidc_credentials" {
   tenant_id       = "tenant_id"
 }
 
+data "env0_azure_oidc_credentials" "oidc_credentials" {
+  name       = "test azure oidc credentials ${random_string.random.result}"
+  depends_on = [env0_azure_oidc_credentials.oidc_credentials]
+}
+
 data "env0_azure_credentials" "azure_cred" {
   name = env0_azure_credentials.azure_cred.name
 }
