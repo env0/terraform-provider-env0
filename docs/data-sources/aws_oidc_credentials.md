@@ -36,9 +36,5 @@ output "oidc_sub" {
 
 ### Optional
 
-- `id` (String) the id of the aws oidc credentials
-- `name` (String) the name of the aws oidc credentials
-
-### Read-Only
-
-- `oidc_sub` (String) the jwt oidc sub
+- `id` (String) the id of the aws_oidc oidc credentials
+- `name` (String) the name of the aws_oidc oidc credentials

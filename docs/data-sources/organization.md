@@ -29,4 +29,5 @@ output "organization_name" {
 - `id` (String) The ID of this resource.
 - `is_self_hosted` (Boolean) is the organization self hosted
 - `name` (String) the name of the organization
+- `oidc_sub` (String) the jwt oidc sub
 - `role` (String) role of the authenticated user (through api key) in the organization
