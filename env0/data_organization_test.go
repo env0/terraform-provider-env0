@@ -20,6 +20,8 @@ func TestUnitOrganizationData(t *testing.T) {
 		IsSelfHostedK8s: true,
 	}
 
+	oidcSub := "sub"
+
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
@@ -30,6 +32,7 @@ func TestUnitOrganizationData(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "created_by", organization.CreatedBy),
 					resource.TestCheckResourceAttr(accessor, "role", organization.Role),
 					resource.TestCheckResourceAttr(accessor, "is_self_hosted", strconv.FormatBool(organization.IsSelfHostedK8s)),
+					resource.TestCheckResourceAttr(accessor, "oidc_sub", oidcSub),
 				),
 			},
 		},
@@ -37,5 +40,6 @@ func TestUnitOrganizationData(t *testing.T) {
 
 	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 		mock.EXPECT().Organization().AnyTimes().Return(organization, nil)
+		mock.EXPECT().OidcSub().AnyTimes().Return(oidcSub, nil)
 	})
 }
