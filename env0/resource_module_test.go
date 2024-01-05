@@ -34,6 +34,7 @@ func TestUnitModuleResource(t *testing.T) {
 		AuthorId:       "author1",
 		Id:             uuid.NewString(),
 		Path:           "path1",
+		TagPrefix:      "prefix1",
 	}
 
 	updatedModule := client.Module{
@@ -47,6 +48,7 @@ func TestUnitModuleResource(t *testing.T) {
 		AuthorId:           "author1",
 		Id:                 module.Id,
 		Path:               "path2",
+		TagPrefix:          "prefix2",
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -61,6 +63,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"token_id":        module.TokenId,
 						"token_name":      module.TokenName,
 						"path":            module.Path,
+						"tag_prefix":      module.TagPrefix,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", module.Id),
@@ -71,6 +74,7 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "token_id", module.TokenId),
 						resource.TestCheckResourceAttr(accessor, "token_name", module.TokenName),
 						resource.TestCheckResourceAttr(accessor, "path", module.Path),
+						resource.TestCheckResourceAttr(accessor, "tag_prefix", module.TagPrefix),
 					),
 				},
 				{
@@ -81,6 +85,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"description":          updatedModule.Description,
 						"bitbucket_client_key": *updatedModule.BitbucketClientKey,
 						"path":                 updatedModule.Path,
+						"tag_prefix":           updatedModule.TagPrefix,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedModule.Id),
@@ -92,6 +97,7 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "token_name", ""),
 						resource.TestCheckResourceAttr(accessor, "bitbucket_client_key", *updatedModule.BitbucketClientKey),
 						resource.TestCheckResourceAttr(accessor, "path", updatedModule.Path),
+						resource.TestCheckResourceAttr(accessor, "tag_prefix", updatedModule.TagPrefix),
 					),
 				},
 			},
@@ -106,6 +112,7 @@ func TestUnitModuleResource(t *testing.T) {
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
 				Path:           module.Path,
+				TagPrefix:      module.TagPrefix,
 			}).Times(1).Return(&module, nil)
 
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
@@ -119,6 +126,7 @@ func TestUnitModuleResource(t *testing.T) {
 				GithubInstallationId: nil,
 				BitbucketClientKey:   *updatedModule.BitbucketClientKey,
 				Path:                 updatedModule.Path,
+				TagPrefix:            updatedModule.TagPrefix,
 			}).Times(1).Return(&updatedModule, nil)
 
 			gomock.InOrder(
@@ -211,6 +219,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"token_id":        module.TokenId,
 						"token_name":      module.TokenName,
 						"path":            module.Path,
+						"tag_prefix":      module.TagPrefix,
 					}),
 				},
 				{
@@ -236,6 +245,7 @@ func TestUnitModuleResource(t *testing.T) {
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
 				Path:           module.Path,
+				TagPrefix:      module.TagPrefix,
 			}).Times(1).Return(&module, nil)
 
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
@@ -268,6 +278,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"token_id":        module.TokenId,
 						"token_name":      module.TokenName,
 						"path":            module.Path,
+						"tag_prefix":      module.TagPrefix,
 					}),
 				},
 				{
@@ -288,6 +299,7 @@ func TestUnitModuleResource(t *testing.T) {
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
 				Path:           module.Path,
+				TagPrefix:      module.TagPrefix,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Modules().Times(1).Return([]client.Module{module}, nil)
 			mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil)
@@ -307,6 +319,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"token_id":        module.TokenId,
 						"token_name":      module.TokenName,
 						"path":            module.Path,
+						"tag_prefix":      module.TagPrefix,
 					}),
 				},
 				{
@@ -327,6 +340,7 @@ func TestUnitModuleResource(t *testing.T) {
 				TokenId:        module.TokenId,
 				TokenName:      module.TokenName,
 				Path:           module.Path,
+				TagPrefix:      module.TagPrefix,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Module(module.Id).Times(3).Return(&module, nil)
 			mock.EXPECT().ModuleDelete(module.Id).Times(1)
