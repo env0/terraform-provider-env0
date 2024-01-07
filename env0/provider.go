@@ -174,7 +174,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 				return nil
 			}).
 			OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
-				tflog.SubsystemInfo(subCtx, "env0_api_client", "Received respose", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
+				tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
 				return nil
 			}).
 			AddRetryAfterErrorCondition().
