@@ -22,6 +22,7 @@ const (
 	AZURE_COST_TYPE CloudType = "azure_cost"
 	AZURE_OIDC_TYPE CloudType = "azure_oidc"
 	GCP_TYPE        CloudType = "gcp"
+	GCP_OIDC_TYPE   CloudType = "gcp_oidc"
 	GCP_COST_TYPE   CloudType = "google_cost"
 )
 
@@ -34,6 +35,7 @@ var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
 	AZURE_OIDC_TYPE: {string(client.AzureOidcCredentialsType)},
 	GCP_TYPE:        {string(client.GcpServiceAccountCredentialsType)},
 	GCP_COST_TYPE:   {string(client.GoogleCostCredentialsType)},
+	GCP_OIDC_TYPE:   {string(client.GcpOidcCredentialsType)},
 }
 
 func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {

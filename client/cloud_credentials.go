@@ -75,8 +75,9 @@ type GcpCredentialsCreatePayload struct {
 }
 
 type GcpCredentialsValuePayload struct {
-	ProjectId         string `json:"projectId"`
-	ServiceAccountKey string `json:"serviceAccountKey"`
+	ProjectId                          string `json:"projectId,omitempty"`
+	ServiceAccountKey                  string `json:"serviceAccountKey,omitempty"`
+	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent"`
 }
 
 func (c *GoogleCostCredentialsCreatePayload) SetOrganizationId(organizationId string) {
@@ -102,6 +103,7 @@ const (
 	AwsOidcCredentialsType               AwsCredentialsType   = "AWS_OIDC"
 	GoogleCostCredentialsType            GcpCredentialsType   = "GCP_CREDENTIALS"
 	GcpServiceAccountCredentialsType     GcpCredentialsType   = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+	GcpOidcCredentialsType               GcpCredentialsType   = "GCP_OIDC"
 	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 	AzureOidcCredentialsType             AzureCredentialsType = "AZURE_OIDC"
