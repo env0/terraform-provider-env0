@@ -77,7 +77,7 @@ type GcpCredentialsCreatePayload struct {
 type GcpCredentialsValuePayload struct {
 	ProjectId                          string `json:"projectId,omitempty"`
 	ServiceAccountKey                  string `json:"serviceAccountKey,omitempty"`
-	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent"`
+	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent,omitempty"`
 }
 
 func (c *GoogleCostCredentialsCreatePayload) SetOrganizationId(organizationId string) {
