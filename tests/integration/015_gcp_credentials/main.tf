@@ -25,7 +25,7 @@ data "env0_gcp_credentials" "gcp_cred_with_project_id" {
   name = env0_gcp_credentials.gcp_cred_with_project_id.name
 }
 
-resource "env0_gcp_oidc_credentials" "gcp_credentials" {
+resource "env0_gcp_oidc_credentials" "oidc_credentials" {
   name = "test azure oidc credentials ${random_string.random.result}"
   credential_configuration_file_content = jsonencode({
     "key" : "value"
