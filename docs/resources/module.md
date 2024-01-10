@@ -38,6 +38,7 @@ resource "env0_module" "example" {
 - `module_provider` (String) the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)
 - `path` (String) the folder in the repository to create the module from
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
+- `tag_prefix` (String) a tag prefix for the module
 - `token_id` (String) the git token id to be used
 - `token_name` (String) the token name used for integration with GitLab
 
