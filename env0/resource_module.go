@@ -87,6 +87,11 @@ func resourceModule() *schema.Resource {
 				Description: "the folder in the repository to create the module from",
 				Optional:    true,
 			},
+			"tag_prefix": {
+				Type:        schema.TypeString,
+				Description: "a tag prefix for the module",
+				Optional:    true,
+			},
 		},
 	}
 }

@@ -14,4 +14,5 @@ resource "env0_module" "test_module" {
   repository             = "https://gitlab.com/moooo/moooo-docs-aws-functions.git"
   github_installation_id = var.second_run ? 32112 : null
   path                   = var.second_run ? "/cool1" : "/cool2"
+  tag_prefix             = var.second_run ? "t2" : "t1"
 }

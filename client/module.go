@@ -26,6 +26,7 @@ type Module struct {
 	UpdatedAt            string         `json:"updatedAt"`
 	IsDeleted            bool           `json:"isDeleted"`
 	Path                 string         `json:"path"`
+	TagPrefix            string         `json:"tagPrefix"`
 }
 
 type ModuleCreatePayload struct {
@@ -41,6 +42,7 @@ type ModuleCreatePayload struct {
 	IsGitlab             *bool          `json:"isGitLab,omitempty"`
 	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
 	Path                 string         `json:"path,omitempty"`
+	TagPrefix            string         `json:"tagPrefix,omitempty"`
 }
 
 type ModuleCreatePayloadWith struct {
@@ -62,6 +64,7 @@ type ModuleUpdatePayload struct {
 	IsGitlab             bool           `json:"isGitLab"`
 	SshKeys              []ModuleSshKey `json:"sshkeys"`
 	Path                 string         `json:"path"`
+	TagPrefix            string         `json:"tagPrefix,omitempty"`
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {
