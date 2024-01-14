@@ -15,6 +15,7 @@ func TestOidcCredentialDataSource(t *testing.T) {
 		{"env0_aws_oidc_credentials", string(client.AwsOidcCredentialsType)},
 		{"env0_azure_oidc_credentials", string(client.AzureOidcCredentialsType)},
 		{"env0_gcp_oidc_credentials", string(client.GcpOidcCredentialsType)},
+		{"env0_vault_oidc_credentials", string(client.VaultOidcCredentialsType)},
 	}
 
 	for _, test := range tests {

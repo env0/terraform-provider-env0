@@ -5,6 +5,7 @@ import "strings"
 type AwsCredentialsType string
 type GcpCredentialsType string
 type AzureCredentialsType string
+type VaultCrednetialsType string
 
 type Credentials struct {
 	Id             string `json:"id"`
@@ -80,6 +81,21 @@ type GcpCredentialsValuePayload struct {
 	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent,omitempty"`
 }
 
+type VaultCredentialsValuePayload struct {
+	Address            string `json:"address"`
+	JwtAuthBackendPath string `json:"jwtAuthBackendPath"`
+	RoleName           string `json:"roleName"`
+	Version            string `json:"version"`
+	Namespace          string `json:"namespace,omitempty"`
+}
+
+type VaultCredentialsCreatePayload struct {
+	Name           string                       `json:"name"`
+	OrganizationId string                       `json:"organizationId"`
+	Type           VaultCrednetialsType         `json:"type"`
+	Value          VaultCredentialsValuePayload `json:"value"`
+}
+
 func (c *GoogleCostCredentialsCreatePayload) SetOrganizationId(organizationId string) {
 	c.OrganizationId = organizationId
 }
@@ -96,6 +112,10 @@ func (c *AzureCredentialsCreatePayload) SetOrganizationId(organizationId string)
 	c.OrganizationId = organizationId
 }
 
+func (c *VaultCredentialsCreatePayload) SetOrganizationId(organizationId string) {
+	c.OrganizationId = organizationId
+}
+
 const (
 	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
@@ -107,6 +127,7 @@ const (
 	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 	AzureOidcCredentialsType             AzureCredentialsType = "AZURE_OIDC"
+	VaultOidcCredentialsType             VaultCrednetialsType = "VAULT_OIDC"
 )
 
 func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {
