@@ -10,7 +10,3 @@ data "env0_aws_oidc_credentials" "by_id" {
 data "env0_aws_oidc_credentials" "by_name" {
   name = env0_aws_oidc_credentials.example.name
 }
-
-output "oidc_sub" {
-  value = data.env0_aws_oidc_credentials.by_name.oidc_sub
-}
