@@ -6,10 +6,10 @@ resource "random_string" "random" {
 
 resource "env0_vault_oidc_credentials" "oidc_credentials" {
   name                  = "test vault oidc credentials ${random_string.random.result}"
-  address               = "http://fake1.com:80"
+  address               = var.second_run ? "http://fake2.com:80" : "http://fake1.com:80"
   version               = "version"
   role_name             = "role_name"
-  jwt_auth_backend_path = "path"
+  jwt_auth_backend_path = var.second_run ? "path2" : "path1"
   namespace             = "namespace"
 }
 
