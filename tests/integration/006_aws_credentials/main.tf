@@ -18,7 +18,7 @@ data "env0_aws_credentials" "my_role_by_arn" {
 resource "env0_aws_credentials" "my_role_by_access_key" {
   name              = "Test Role access key ${random_string.random.result}"
   access_key_id     = "Access id"
-  secret_access_key = "Secret Access id"
+  secret_access_key = var.second_run ? "Secret Access id2" : "secret1"
 }
 
 data "env0_aws_credentials" "my_role_by_access_key" {
@@ -28,7 +28,7 @@ data "env0_aws_credentials" "my_role_by_access_key" {
 
 resource "env0_aws_oidc_credentials" "oidc_credentials" {
   name     = "Test Oidc Credentials ${random_string.random.result}"
-  role_arn = "Role ARN"
+  role_arn = var.second_run ? "Role ARN2" : "Role ARN1"
   duration = 7200
 }
 

@@ -17,7 +17,7 @@ data "env0_gcp_credentials" "gcp_cred" {
 
 resource "env0_gcp_credentials" "gcp_cred_with_project_id" {
   name                = "Test GCP credentials with project_id 2-${random_string.random.result}"
-  service_account_key = "example service_account_key"
+  service_account_key = var.second_run ? "example service_account_key2" : "example service_account_key1"
   project_id          = "example project id"
 }
 
@@ -26,14 +26,14 @@ data "env0_gcp_credentials" "gcp_cred_with_project_id" {
 }
 
 resource "env0_gcp_oidc_credentials" "oidc_credentials" {
-  name = "test azure oidc credentials ${random_string.random.result}"
+  name = "test gcp oidc credentials ${random_string.random.result}"
   credential_configuration_file_content = jsonencode({
     "key" : "value"
   })
 }
 
 data "env0_gcp_oidc_credentials" "gcp_credentials" {
-  name       = "test azure oidc credentials ${random_string.random.result}"
+  name       = "test gcp oidc credentials ${random_string.random.result}"
   depends_on = [env0_gcp_oidc_credentials.oidc_credentials]
 }
 
