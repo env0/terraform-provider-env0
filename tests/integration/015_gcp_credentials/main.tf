@@ -25,6 +25,19 @@ data "env0_gcp_credentials" "gcp_cred_with_project_id" {
   name = env0_gcp_credentials.gcp_cred_with_project_id.name
 }
 
+resource "env0_gcp_oidc_credentials" "oidc_credentials" {
+  name = "test gcp oidc credentials ${random_string.random.result}"
+  credential_configuration_file_content = jsonencode({
+    "key" : "value"
+  })
+}
+
+data "env0_gcp_oidc_credentials" "gcp_credentials" {
+  name       = "test gcp oidc credentials ${random_string.random.result}"
+  depends_on = [env0_gcp_oidc_credentials.oidc_credentials]
+}
+
+
 
 output "gcp_cred_name" {
   value = data.env0_gcp_credentials.gcp_cred.name
