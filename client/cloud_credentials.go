@@ -29,8 +29,8 @@ type CredentialCreatePayload interface {
 }
 
 type AzureCredentialsCreatePayload struct {
-	Name           string                       `json:"name"`
-	OrganizationId string                       `json:"organizationId"`
+	Name           string                       `json:"name,omitempty"`
+	OrganizationId string                       `json:"organizationId,omitempty"`
 	Type           AzureCredentialsType         `json:"type"`
 	Value          AzureCredentialsValuePayload `json:"value"`
 }
@@ -57,8 +57,8 @@ type AwsCredentialsValuePayload struct {
 }
 
 type GoogleCostCredentialsCreatePayload struct {
-	Name           string                            `json:"name"`
-	OrganizationId string                            `json:"organizationId"`
+	Name           string                            `json:"name,omitempty"`
+	OrganizationId string                            `json:"organizationId,omitempty"`
 	Type           GcpCredentialsType                `json:"type"`
 	Value          GoogleCostCredentialsValuePayload `json:"value"`
 }
@@ -69,8 +69,8 @@ type GoogleCostCredentialsValuePayload struct {
 }
 
 type GcpCredentialsCreatePayload struct {
-	Name           string                     `json:"name"`
-	OrganizationId string                     `json:"organizationId"`
+	Name           string                     `json:"name,omitempty"`
+	OrganizationId string                     `json:"organizationId,omitempty"`
 	Type           GcpCredentialsType         `json:"type"`
 	Value          GcpCredentialsValuePayload `json:"value"`
 }
@@ -90,8 +90,8 @@ type VaultCredentialsValuePayload struct {
 }
 
 type VaultCredentialsCreatePayload struct {
-	Name           string                       `json:"name"`
-	OrganizationId string                       `json:"organizationId"`
+	Name           string                       `json:"name,omitempty"`
+	OrganizationId string                       `json:"organizationId,omitempty"`
 	Type           VaultCrednetialsType         `json:"type"`
 	Value          VaultCredentialsValuePayload `json:"value"`
 }
