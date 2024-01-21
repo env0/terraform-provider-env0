@@ -239,6 +239,12 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			ConflictsWith: allVCSAttributesBut("helm_chart_name", "is_helm_repository"),
 			RequiredWith:  requiredWith("helm_chart_name"),
 		},
+		"terragrunt_tf_binary": {
+			Type:             schema.TypeString,
+			Optional:         true,
+			Description:      "the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. For new templates defaults to 'opentofu'",
+			ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
+		},
 	}
 
 	if prefix == "" {
@@ -373,12 +379,30 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
+	isNew := d.IsNewResource()
+
 	tokenIdKey := "token_id"
 	isAzureDevOpsKey := "is_azure_devops"
+	terragruntTfBinaryKey := "terragrunt_tf_binary"
+	templateTypeKey := "type"
 
 	if prefix != "" {
 		tokenIdKey = prefix + "." + tokenIdKey
 		isAzureDevOpsKey = prefix + "." + isAzureDevOpsKey
+		terragruntTfBinaryKey = prefix + "." + terragruntTfBinaryKey
+		templateTypeKey = prefix + "." + templateTypeKey
+	}
+
+	templateType := d.Get(templateTypeKey).(string)
+
+	// If the user has set a value - use it.
+	if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
+		payload.TerragruntTfBinary = terragruntTfBinary
+	} else {
+		// No value was set - if it's a new template resource of type 'terragrunt' - default to 'opentofu'
+		if templateType == "terragrunt" && isNew {
+			payload.TerragruntTfBinary = "opentofu"
+		}
 	}
 
 	// IsGitLab is implicitly assumed to be true if tokenId is non-empty. Unless AzureDevOps is explicitly used.
@@ -401,11 +425,22 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 // Reads template and writes to the resource data.
 func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
 	pathPrefix := "path"
+	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
+
 	if prefix != "" {
-		pathPrefix = prefix + ".0.path"
+		pathPrefix = prefix + ".0." + pathPrefix
+		terragruntTfBinaryPrefix = prefix + ".0." + terragruntTfBinaryPrefix
 	}
 
 	path, pathOk := d.GetOk(pathPrefix)
+	terragruntTfBinary := d.Get(terragruntTfBinaryPrefix).(string)
+
+	// If this value isn't set, ignore whatever is returned from the response.
+	// This helps avoid drifts when defaulting to 'opentofu' for new 'terragrunt' templates, and 'terraform' for existing 'terragrunt' templates.
+	// 'template.TerragruntTfBinary' field is set to 'omitempty'. Therefore, the state isn't modified if `template.TerragruntTfBinary` is an empty string.
+	if terragruntTfBinary == "" {
+		template.TerragruntTfBinary = ""
+	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)

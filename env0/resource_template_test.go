@@ -35,9 +35,11 @@ func TestUnitTemplateResource(t *testing.T) {
 				ErrorRegex: "RetryMeForDestroy.*",
 			},
 		},
-		Type:               "terraform",
+		Type:               "terragrunt",
 		IsGitlabEnterprise: true,
 		TerraformVersion:   "0.12.24",
+		TerragruntVersion:  "0.35.1",
+		TerragruntTfBinary: "opentofu",
 	}
 	gleeUpdatedTemplate := client.Template{
 		Id:          gleeTemplate.Id,
@@ -677,6 +679,10 @@ func TestUnitTemplateResource(t *testing.T) {
 				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
 			}
 
+			if templateUseCase.template.Type == "terragrunt" {
+				templateCreatePayload.TerragruntTfBinary = templateUseCase.template.TerragruntTfBinary
+			}
+
 			if templateUseCase.template.Type != "terraform" && templateUseCase.template.Type != "terragrunt" {
 				templateCreatePayload.TerraformVersion = ""
 				updateTemplateCreateTemplate.TerraformVersion = ""
@@ -1287,6 +1293,25 @@ func TestUnitTemplateResource(t *testing.T) {
 						"is_terragrunt_run_all": "true",
 					}),
 					ExpectError: regexp.MustCompile(`can't set is_terragrunt_run_all to "true" for terragrunt versions lower than 0.28.1`),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("terragrunt_tf_binary set with a non terragrunt template type", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                 "template0",
+						"repository":           "env0/repo",
+						"type":                 "terraform",
+						"terraform_version":    "0.15.1",
+						"terragrunt_tf_binary": "opentofu",
+					}),
+					ExpectError: regexp.MustCompile(`terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is 'terraform'`),
 				},
 			},
 		}
