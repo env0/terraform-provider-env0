@@ -393,15 +393,15 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		templateTypeKey = prefix + "." + templateTypeKey
 	}
 
-	templateType := d.Get(templateTypeKey).(string)
-
-	// If the user has set a value - use it.
-	if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
-		payload.TerragruntTfBinary = terragruntTfBinary
-	} else {
-		// No value was set - if it's a new template resource of type 'terragrunt' - default to 'opentofu'
-		if templateType == "terragrunt" && isNew {
-			payload.TerragruntTfBinary = "opentofu"
+	if templateType, ok := d.GetOk(templateTypeKey); ok {
+		// If the user has set a value - use it.
+		if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
+			payload.TerragruntTfBinary = terragruntTfBinary
+		} else {
+			// No value was set - if it's a new template resource of type 'terragrunt' - default to 'opentofu'
+			if templateType.(string) == "terragrunt" && isNew {
+				payload.TerragruntTfBinary = "opentofu"
+			}
 		}
 	}
 
