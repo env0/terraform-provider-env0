@@ -603,6 +603,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.Errorf("could not get template: %v", err)
 		}
+
 		if err := templateRead("without_template_settings", template, d); err != nil {
 			return diag.Errorf("schema resource data serialization failed: %v", err)
 		}

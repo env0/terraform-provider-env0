@@ -37,7 +37,7 @@ type Template struct {
 	Name                 string           `json:"name"`
 	Description          string           `json:"description"`
 	OrganizationId       string           `json:"organizationId"`
-	Path                 string           `json:"path,omitempty" tfschema:",omitempty"`
+	Path                 string           `json:"path" tfschema:",omitempty"`
 	Revision             string           `json:"revision"`
 	ProjectId            string           `json:"projectId"`
 	ProjectIds           []string         `json:"projectIds"`
@@ -47,21 +47,22 @@ type Template struct {
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
-	TokenId              string           `json:"tokenId,omitempty" tfschema:",omitempty"`
+	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
 	TerraformVersion     string           `json:"terraformVersion" tfschema:",omitempty"`
-	TerragruntVersion    string           `json:"terragruntVersion,omitempty" tfschema:",omitempty"`
-	OpentofuVersion      string           `json:"opentofuVersion,omitempty" tfschema:",omitempty"`
-	IsDeleted            bool             `json:"isDeleted,omitempty"`
+	TerragruntVersion    string           `json:"terragruntVersion" tfschema:",omitempty"`
+	OpentofuVersion      string           `json:"opentofuVersion" tfschema:",omitempty"`
+	IsDeleted            bool             `json:"isDeleted"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	FileName             string           `json:"fileName,omitempty" tfschema:",omitempty"`
+	FileName             string           `json:"fileName" tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
-	HelmChartName        string           `json:"helmChartName,omitempty" tfschema:",omitempty"`
+	HelmChartName        string           `json:"helmChartName" tfschema:",omitempty"`
 	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
+	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -91,6 +92,7 @@ type TemplateCreatePayload struct {
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName,omitempty"`
+	TerragruntTfBinary   string           `json:"terragruntTfBinary,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -126,6 +128,10 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 	}
 	if payload.Type == "opentofu" && payload.OpentofuVersion == "" {
 		return errors.New("must supply opentofu version")
+	}
+
+	if payload.TerragruntTfBinary != "" && payload.Type != "terragrunt" {
+		return fmt.Errorf("terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is '%s'", payload.Type)
 	}
 
 	if payload.IsTerragruntRunAll {

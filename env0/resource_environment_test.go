@@ -1899,9 +1899,11 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				ErrorRegex: "RetryMeForDestroy.*",
 			},
 		},
-		Type:                 "terraform",
+		Type:                 "terragrunt",
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.12.25",
+		TerragruntVersion:    "0.26.1",
+		TerragruntTfBinary:   "terraform",
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
@@ -1946,7 +1948,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TokenId:              updatedTemplate.TokenId,
 		Path:                 updatedTemplate.Path,
 		Revision:             updatedTemplate.Revision,
-		Type:                 "terraform",
+		Type:                 "terragrunt",
 		Retry:                updatedTemplate.Retry,
 		TerraformVersion:     updatedTemplate.TerraformVersion,
 		BitbucketClientKey:   updatedTemplate.BitbucketClientKey,
@@ -1956,6 +1958,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		TerragruntVersion:    updatedTemplate.TerragruntVersion,
 		IsTerragruntRunAll:   updatedTemplate.IsTerragruntRunAll,
 		OrganizationId:       updatedTemplate.OrganizationId,
+		TerragruntTfBinary:   updatedTemplate.TerragruntTfBinary,
 	}
 
 	createPayload := client.EnvironmentCreateWithoutTemplate{
@@ -1964,6 +1967,16 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment, template client.Template) string {
+		terragruntVersion := ""
+		if template.TerragruntVersion != "" {
+			terragruntVersion = "terragrunt_version = \"" + template.TerragruntVersion + "\""
+		}
+
+		terragruntTfBinary := ""
+		if template.TerragruntTfBinary != "" {
+			terragruntTfBinary = "terragrunt_tf_binary = \"" + template.TerragruntTfBinary + "\""
+		}
+
 		return fmt.Sprintf(`
 		resource "%s" "%s" {
 			name = "%s"
@@ -1984,6 +1997,8 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				retry_on_destroy_only_when_matches_regex = "%s"
 				description = "%s"
 				github_installation_id = %d
+				%s
+				%s
 			}
 		}`,
 			resourceType, resourceName,
@@ -2003,6 +2018,8 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			template.Retry.OnDestroy.ErrorRegex,
 			template.Description,
 			template.GithubInstallationId,
+			terragruntVersion,
+			terragruntTfBinary,
 		)
 	}
 
@@ -2047,6 +2064,8 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terragrunt_version", updatedTemplate.TerragruntVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terragrunt_tf_binary", updatedTemplate.TerragruntTfBinary),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
