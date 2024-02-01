@@ -60,7 +60,7 @@ func dataProjects() *schema.Resource {
 func dataProjectsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	includedArchivedProjects := d.Get("include_archived_projects").(bool)
+	includeArchivedProjects := d.Get("include_archived_projects").(bool)
 
 	projects, err := apiClient.Projects()
 	if err != nil {
@@ -69,7 +69,7 @@ func dataProjectsRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	filteredProjects := []client.Project{}
 	for _, project := range projects {
-		if includedArchivedProjects || !project.IsArchived {
+		if includeArchivedProjects || !project.IsArchived {
 			filteredProjects = append(filteredProjects, project)
 		}
 	}
