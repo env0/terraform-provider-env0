@@ -12,6 +12,7 @@ type Project struct {
 	CreatedByUser   User   `json:"createdByUser"`
 	Description     string `json:"description"`
 	ParentProjectId string `json:"parentProjectId,omitempty" tfschema:",omitempty"`
+	Hierarchy       string `json:"hierarchy"`
 }
 
 type ProjectCreatePayload struct {
