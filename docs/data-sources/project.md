@@ -42,4 +42,5 @@ data "env0_project" "with_parent_id_filter" {
 
 - `created_by` (String) textual description of the entity who created the project
 - `description` (String) textual description of the project
+- `hierarchy` (String) the hierarchy of the project
 - `role` (String) role of the authenticated user (through api key) in the project
