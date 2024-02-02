@@ -55,6 +55,11 @@ func dataProject() *schema.Resource {
 				Description: "textual description of the project",
 				Computed:    true,
 			},
+			"hierarchy": {
+				Type:        schema.TypeString,
+				Description: "the hierarchy of the project",
+				Computed:    true,
+			},
 		},
 	}
 }
