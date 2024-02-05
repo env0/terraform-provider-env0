@@ -6,43 +6,49 @@ type ModuleSshKey struct {
 }
 
 type Module struct {
-	ModuleName           string         `json:"moduleName"`
-	ModuleProvider       string         `json:"moduleProvider"`
-	Repository           string         `json:"repository"`
-	Description          string         `json:"description"`
-	LogoUrl              string         `json:"logoUrl"`
-	TokenId              string         `json:"tokenId"`
-	TokenName            string         `json:"tokenName"`
-	GithubInstallationId *int           `json:"githubInstallationId" tfschema:",omitempty"`
-	BitbucketClientKey   *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
-	IsGitlab             bool           `json:"isGitLab"`
-	SshKeys              []ModuleSshKey `json:"sshkeys"`
-	Type                 string         `json:"type"`
-	Id                   string         `json:"id"`
-	OrganizationId       string         `json:"organizationId"`
-	Author               User           `json:"author"`
-	AuthorId             string         `json:"authorId"`
-	CreatedAt            string         `json:"createdAt"`
-	UpdatedAt            string         `json:"updatedAt"`
-	IsDeleted            bool           `json:"isDeleted"`
-	Path                 string         `json:"path"`
-	TagPrefix            string         `json:"tagPrefix"`
+	ModuleName            string         `json:"moduleName"`
+	ModuleProvider        string         `json:"moduleProvider"`
+	Repository            string         `json:"repository"`
+	Description           string         `json:"description"`
+	LogoUrl               string         `json:"logoUrl"`
+	TokenId               string         `json:"tokenId"`
+	TokenName             string         `json:"tokenName"`
+	GithubInstallationId  *int           `json:"githubInstallationId" tfschema:",omitempty"`
+	BitbucketClientKey    *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
+	IsGitlab              bool           `json:"isGitLab"`
+	SshKeys               []ModuleSshKey `json:"sshkeys"`
+	Type                  string         `json:"type"`
+	Id                    string         `json:"id"`
+	OrganizationId        string         `json:"organizationId"`
+	Author                User           `json:"author"`
+	AuthorId              string         `json:"authorId"`
+	CreatedAt             string         `json:"createdAt"`
+	UpdatedAt             string         `json:"updatedAt"`
+	IsDeleted             bool           `json:"isDeleted"`
+	Path                  string         `json:"path"`
+	TagPrefix             string         `json:"tagPrefix"`
+	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
+	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
+	OpentofuVersion       string         `json:"opentofuVersion"`
 }
 
 type ModuleCreatePayload struct {
-	ModuleName           string         `json:"moduleName"`
-	ModuleProvider       string         `json:"moduleProvider"`
-	Repository           string         `json:"repository"`
-	Description          string         `json:"description,omitempty"`
-	LogoUrl              string         `json:"logoUrl,omitempty"`
-	TokenId              string         `json:"tokenId,omitempty"`
-	TokenName            string         `json:"tokenName,omitempty"`
-	GithubInstallationId *int           `json:"githubInstallationId,omitempty"`
-	BitbucketClientKey   string         `json:"bitbucketClientKey,omitempty"`
-	IsGitlab             *bool          `json:"isGitLab,omitempty"`
-	SshKeys              []ModuleSshKey `json:"sshkeys,omitempty"`
-	Path                 string         `json:"path,omitempty"`
-	TagPrefix            string         `json:"tagPrefix,omitempty"`
+	ModuleName            string         `json:"moduleName"`
+	ModuleProvider        string         `json:"moduleProvider"`
+	Repository            string         `json:"repository"`
+	Description           string         `json:"description,omitempty"`
+	LogoUrl               string         `json:"logoUrl,omitempty"`
+	TokenId               string         `json:"tokenId,omitempty"`
+	TokenName             string         `json:"tokenName,omitempty"`
+	GithubInstallationId  *int           `json:"githubInstallationId,omitempty"`
+	BitbucketClientKey    string         `json:"bitbucketClientKey,omitempty"`
+	IsGitlab              *bool          `json:"isGitLab,omitempty"`
+	SshKeys               []ModuleSshKey `json:"sshkeys,omitempty"`
+	Path                  string         `json:"path,omitempty"`
+	TagPrefix             string         `json:"tagPrefix,omitempty"`
+	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
+	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
+	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
 }
 
 type ModuleCreatePayloadWith struct {
@@ -52,19 +58,22 @@ type ModuleCreatePayloadWith struct {
 }
 
 type ModuleUpdatePayload struct {
-	ModuleName           string         `json:"moduleName,omitempty"`
-	ModuleProvider       string         `json:"moduleProvider,omitempty"`
-	Repository           string         `json:"repository,omitempty"`
-	Description          string         `json:"description,omitempty"`
-	LogoUrl              string         `json:"logoUrl,omitempty"`
-	TokenId              string         `json:"tokenId"`
-	TokenName            string         `json:"tokenName"`
-	GithubInstallationId *int           `json:"githubInstallationId"`
-	BitbucketClientKey   string         `json:"bitbucketClientKey"`
-	IsGitlab             bool           `json:"isGitLab"`
-	SshKeys              []ModuleSshKey `json:"sshkeys"`
-	Path                 string         `json:"path"`
-	TagPrefix            string         `json:"tagPrefix,omitempty"`
+	ModuleName            string         `json:"moduleName,omitempty"`
+	ModuleProvider        string         `json:"moduleProvider,omitempty"`
+	Repository            string         `json:"repository,omitempty"`
+	Description           string         `json:"description,omitempty"`
+	LogoUrl               string         `json:"logoUrl,omitempty"`
+	TokenId               string         `json:"tokenId"`
+	TokenName             string         `json:"tokenName"`
+	GithubInstallationId  *int           `json:"githubInstallationId"`
+	BitbucketClientKey    string         `json:"bitbucketClientKey"`
+	IsGitlab              bool           `json:"isGitLab"`
+	SshKeys               []ModuleSshKey `json:"sshkeys"`
+	Path                  string         `json:"path"`
+	TagPrefix             string         `json:"tagPrefix,omitempty"`
+	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
+	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
+	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {

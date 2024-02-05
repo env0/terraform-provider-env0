@@ -22,33 +22,39 @@ func TestUnitModuleResource(t *testing.T) {
 	}
 
 	module := client.Module{
-		ModuleName:     "name1",
-		ModuleProvider: "provider1",
-		Repository:     "repository1",
-		Description:    "description1",
-		TokenId:        "tokenid",
-		TokenName:      "tokenname",
-		IsGitlab:       false,
-		OrganizationId: "org1",
-		Author:         author,
-		AuthorId:       "author1",
-		Id:             uuid.NewString(),
-		Path:           "path1",
-		TagPrefix:      "prefix1",
+		ModuleName:            "name1",
+		ModuleProvider:        "provider1",
+		Repository:            "repository1",
+		Description:           "description1",
+		TokenId:               "tokenid",
+		TokenName:             "tokenname",
+		IsGitlab:              false,
+		OrganizationId:        "org1",
+		Author:                author,
+		AuthorId:              "author1",
+		Id:                    uuid.NewString(),
+		Path:                  "path1",
+		TagPrefix:             "prefix1",
+		ModuleTestEnabled:     true,
+		OpentofuVersion:       "1.7.0",
+		RunTestsOnPullRequest: true,
 	}
 
 	updatedModule := client.Module{
-		ModuleName:         "name2",
-		ModuleProvider:     "provider1",
-		Repository:         "repository1",
-		Description:        "description1",
-		BitbucketClientKey: stringPtr("1234"),
-		OrganizationId:     "org1",
-		Author:             author,
-		AuthorId:           "author1",
-		Id:                 module.Id,
-		Path:               "path2",
-		TagPrefix:          "prefix2",
+		ModuleName:            "name2",
+		ModuleProvider:        "provider1",
+		Repository:            "repository1",
+		Description:           "description1",
+		BitbucketClientKey:    stringPtr("1234"),
+		OrganizationId:        "org1",
+		Author:                author,
+		AuthorId:              "author1",
+		Id:                    module.Id,
+		Path:                  "path2",
+		TagPrefix:             "prefix2",
+		ModuleTestEnabled:     true,
+		OpentofuVersion:       "1.8.0",
+		RunTestsOnPullRequest: false,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -56,14 +62,17 @@ func TestUnitModuleResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"module_name":     module.ModuleName,
-						"module_provider": module.ModuleProvider,
-						"repository":      module.Repository,
-						"description":     module.Description,
-						"token_id":        module.TokenId,
-						"token_name":      module.TokenName,
-						"path":            module.Path,
-						"tag_prefix":      module.TagPrefix,
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", module.Id),
@@ -75,6 +84,9 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "token_name", module.TokenName),
 						resource.TestCheckResourceAttr(accessor, "path", module.Path),
 						resource.TestCheckResourceAttr(accessor, "tag_prefix", module.TagPrefix),
+						resource.TestCheckResourceAttr(accessor, "module_test_enabled", "true"),
+						resource.TestCheckResourceAttr(accessor, "run_tests_on_pull_request", "true"),
+						resource.TestCheckResourceAttr(accessor, "opentofu_version", module.OpentofuVersion),
 					),
 				},
 				{
@@ -86,6 +98,8 @@ func TestUnitModuleResource(t *testing.T) {
 						"bitbucket_client_key": *updatedModule.BitbucketClientKey,
 						"path":                 updatedModule.Path,
 						"tag_prefix":           updatedModule.TagPrefix,
+						"module_test_enabled":  updatedModule.ModuleTestEnabled,
+						"opentofu_version":     updatedModule.OpentofuVersion,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedModule.Id),
@@ -98,6 +112,9 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "bitbucket_client_key", *updatedModule.BitbucketClientKey),
 						resource.TestCheckResourceAttr(accessor, "path", updatedModule.Path),
 						resource.TestCheckResourceAttr(accessor, "tag_prefix", updatedModule.TagPrefix),
+						resource.TestCheckResourceAttr(accessor, "module_test_enabled", "true"),
+						resource.TestCheckResourceAttr(accessor, "run_tests_on_pull_request", "false"),
+						resource.TestCheckResourceAttr(accessor, "opentofu_version", updatedModule.OpentofuVersion),
 					),
 				},
 			},
@@ -105,14 +122,17 @@ func TestUnitModuleResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
-				ModuleName:     module.ModuleName,
-				ModuleProvider: module.ModuleProvider,
-				Repository:     module.Repository,
-				Description:    module.Description,
-				TokenId:        module.TokenId,
-				TokenName:      module.TokenName,
-				Path:           module.Path,
-				TagPrefix:      module.TagPrefix,
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
@@ -127,6 +147,8 @@ func TestUnitModuleResource(t *testing.T) {
 				BitbucketClientKey:   *updatedModule.BitbucketClientKey,
 				Path:                 updatedModule.Path,
 				TagPrefix:            updatedModule.TagPrefix,
+				ModuleTestEnabled:    updatedModule.ModuleTestEnabled,
+				OpentofuVersion:      updatedModule.OpentofuVersion,
 			}).Times(1).Return(&updatedModule, nil)
 
 			gomock.InOrder(
@@ -207,19 +229,70 @@ func TestUnitModuleResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 
+	t.Run("Create Failure - module test not enabled - opentofu_version set", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":         module.ModuleName,
+						"module_provider":     module.ModuleProvider,
+						"repository":          module.Repository,
+						"description":         module.Description,
+						"token_id":            module.TokenId,
+						"token_name":          module.TokenName,
+						"path":                module.Path,
+						"tag_prefix":          module.TagPrefix,
+						"module_test_enabled": false,
+						"opentofu_version":    module.OpentofuVersion,
+					}),
+					ExpectError: regexp.MustCompile("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("Create Failure - module test not enabled - run_tests_on_pull_request set", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       false,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+					}),
+					ExpectError: regexp.MustCompile("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("Update Failure", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"module_name":     module.ModuleName,
-						"module_provider": module.ModuleProvider,
-						"repository":      module.Repository,
-						"description":     module.Description,
-						"token_id":        module.TokenId,
-						"token_name":      module.TokenName,
-						"path":            module.Path,
-						"tag_prefix":      module.TagPrefix,
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
 					}),
 				},
 				{
@@ -238,14 +311,17 @@ func TestUnitModuleResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
-				ModuleName:     module.ModuleName,
-				ModuleProvider: module.ModuleProvider,
-				Repository:     module.Repository,
-				Description:    module.Description,
-				TokenId:        module.TokenId,
-				TokenName:      module.TokenName,
-				Path:           module.Path,
-				TagPrefix:      module.TagPrefix,
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
@@ -266,19 +342,76 @@ func TestUnitModuleResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Update Failure - module test not enabled", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
+					}),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               updatedModule.ModuleName,
+						"module_provider":           updatedModule.ModuleProvider,
+						"repository":                updatedModule.Repository,
+						"description":               updatedModule.Description,
+						"bitbucket_client_key":      *updatedModule.BitbucketClientKey,
+						"path":                      updatedModule.Path,
+						"module_test_enabled":       false,
+						"run_tests_on_pull_request": true,
+					}),
+					ExpectError: regexp.MustCompile("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
+			}).Times(1).Return(&module, nil)
+
+			mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+		})
+	})
+
 	t.Run("Import By Name", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"module_name":     module.ModuleName,
-						"module_provider": module.ModuleProvider,
-						"repository":      module.Repository,
-						"description":     module.Description,
-						"token_id":        module.TokenId,
-						"token_name":      module.TokenName,
-						"path":            module.Path,
-						"tag_prefix":      module.TagPrefix,
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
 					}),
 				},
 				{
@@ -292,14 +425,17 @@ func TestUnitModuleResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
-				ModuleName:     module.ModuleName,
-				ModuleProvider: module.ModuleProvider,
-				Repository:     module.Repository,
-				Description:    module.Description,
-				TokenId:        module.TokenId,
-				TokenName:      module.TokenName,
-				Path:           module.Path,
-				TagPrefix:      module.TagPrefix,
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Modules().Times(1).Return([]client.Module{module}, nil)
 			mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil)
@@ -312,14 +448,17 @@ func TestUnitModuleResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"module_name":     module.ModuleName,
-						"module_provider": module.ModuleProvider,
-						"repository":      module.Repository,
-						"description":     module.Description,
-						"token_id":        module.TokenId,
-						"token_name":      module.TokenName,
-						"path":            module.Path,
-						"tag_prefix":      module.TagPrefix,
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
 					}),
 				},
 				{
@@ -333,14 +472,17 @@ func TestUnitModuleResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
-				ModuleName:     module.ModuleName,
-				ModuleProvider: module.ModuleProvider,
-				Repository:     module.Repository,
-				Description:    module.Description,
-				TokenId:        module.TokenId,
-				TokenName:      module.TokenName,
-				Path:           module.Path,
-				TagPrefix:      module.TagPrefix,
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 			mock.EXPECT().Module(module.Id).Times(3).Return(&module, nil)
 			mock.EXPECT().ModuleDelete(module.Id).Times(1)

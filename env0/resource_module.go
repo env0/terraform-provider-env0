@@ -92,6 +92,27 @@ func resourceModule() *schema.Resource {
 				Description: "a tag prefix for the module",
 				Optional:    true,
 			},
+			"module_test_enabled": {
+				Type:        schema.TypeBool,
+				Description: "set to 'true' to enable module test (defaults to 'false')",
+				Optional:    true,
+				Default:     false,
+			},
+			"run_tests_on_pull_request": {
+				Type:         schema.TypeBool,
+				Description:  "set to 'true' to run tests on pull request (defaults to 'false'). Can only be enabled if 'module_test_enabled' is enabled",
+				Optional:     true,
+				Default:      false,
+				RequiredWith: []string{"module_test_enabled"},
+			},
+			"opentofu_version": {
+				Type:             schema.TypeString,
+				Description:      "the opentofu version to use, Can only be set if 'module_test_enabled' is enabled",
+				Optional:         true,
+				Default:          "",
+				RequiredWith:     []string{"module_test_enabled"},
+				ValidateDiagFunc: NewOpenTofuVersionValidator(),
+			},
 		},
 	}
 }
@@ -102,6 +123,10 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	var payload client.ModuleCreatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if !payload.ModuleTestEnabled && (payload.RunTestsOnPullRequest || payload.OpentofuVersion != "") {
+		return diag.Errorf("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set if 'module_test_enabled' is enabled (set to 'true')")
 	}
 
 	module, err := apiClient.ModuleCreate(payload)
@@ -135,6 +160,10 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	var payload client.ModuleUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if !payload.ModuleTestEnabled && (payload.RunTestsOnPullRequest || payload.OpentofuVersion != "") {
+		return diag.Errorf("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set if 'module_test_enabled' is enabled (set to 'true')")
 	}
 
 	if _, err := apiClient.ModuleUpdate(d.Id(), payload); err != nil {
