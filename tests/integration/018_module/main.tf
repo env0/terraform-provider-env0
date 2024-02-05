@@ -28,5 +28,5 @@ resource "env0_module" "test_module_with_test_enabled" {
   tag_prefix                = var.second_run ? "t2" : "t1"
   module_test_enabled       = var.second_run ? false : true
   run_tests_on_pull_request = var.second_run ? false : true
-  opentofu_version          = var.second_run ? "" : "1.6.0"
+  opentofu_version          = var.second_run ? null : "1.6.0"
 }
