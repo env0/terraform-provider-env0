@@ -36,7 +36,10 @@ resource "env0_module" "example" {
 - `description` (String) description of the module
 - `github_installation_id` (Number) the env0 application installation id on the relevant Github repository
 - `module_provider` (String) the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)
+- `module_test_enabled` (Boolean) set to 'true' to enable module test (defaults to 'false')
+- `opentofu_version` (String) the opentofu version to use, Can only be set if 'module_test_enabled' is enabled
 - `path` (String) the folder in the repository to create the module from
+- `run_tests_on_pull_request` (Boolean) set to 'true' to run tests on pull request (defaults to 'false'). Can only be enabled if 'module_test_enabled' is enabled
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - `tag_prefix` (String) a tag prefix for the module
 - `token_id` (String) the git token id to be used
