@@ -115,6 +115,10 @@ func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
 	}
 }
 
+func NewOpenTofuVersionValidator() schema.SchemaValidateDiagFunc {
+	return NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|1\.6\.0-alpha$`)
+}
+
 func ValidateTtl(i interface{}, path cty.Path) diag.Diagnostics {
 	ttl := i.(string)
 
