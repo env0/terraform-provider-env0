@@ -925,6 +925,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ModuleDelete(arg0 any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleDelete), arg0)
 }
 
+// ModuleTestingProject mocks base method.
+func (m *MockApiClientInterface) ModuleTestingProject() (*ModuleTestingProject, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModuleTestingProject")
+	ret0, _ := ret[0].(*ModuleTestingProject)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ModuleTestingProject indicates an expected call of ModuleTestingProject.
+func (mr *MockApiClientInterfaceMockRecorder) ModuleTestingProject() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleTestingProject", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleTestingProject))
+}
+
 // ModuleUpdate mocks base method.
 func (m *MockApiClientInterface) ModuleUpdate(arg0 string, arg1 ModuleUpdatePayload) (*Module, error) {
 	m.ctrl.T.Helper()
