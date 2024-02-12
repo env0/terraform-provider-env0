@@ -13,11 +13,17 @@ const parentProjectId = "parent_project_id"
 
 var _ = Describe("Project", func() {
 	var project Project
+	var moduleTestingProject *ModuleTestingProject
 	mockProject := Project{
 		Id:             "idX",
 		Name:           "projectX",
 		Description:    "descriptionX",
 		OrganizationId: organizationId,
+	}
+
+	mockModuleTestingProject := ModuleTestingProject{
+		Id:   "idx",
+		Name: "namex",
 	}
 
 	Describe("ProjectCreate", func() {
@@ -179,5 +185,26 @@ var _ = Describe("Project", func() {
 		})
 
 		It("Should send POST request with project id and nil target project id", func() {})
+	})
+
+	Describe("ModuleTestingProject", func() {
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
+			httpCall = mockHttpClient.EXPECT().
+				Get("/projects/modules/testing/"+organizationId, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *ModuleTestingProject) {
+					*response = mockModuleTestingProject
+				})
+			moduleTestingProject, _ = apiClient.ModuleTestingProject()
+		})
+
+		It("Should send GET request", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return module testing project", func() {
+			Expect(mockModuleTestingProject).To(Equal(*moduleTestingProject))
+		})
 	})
 })

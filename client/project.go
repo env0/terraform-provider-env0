@@ -26,6 +26,11 @@ type ProjectUpdatePayload struct {
 	Description string `json:"description"`
 }
 
+type ModuleTestingProject struct {
+	Name string `json:"name"`
+	Id   string `json:"id"`
+}
+
 func (client *ApiClient) Projects() ([]Project, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -98,4 +103,18 @@ func (client *ApiClient) ProjectMove(id string, targetProjectId string) error {
 	}
 
 	return client.http.Post("/projects/"+id+"/move", payload, nil)
+}
+
+func (client *ApiClient) ModuleTestingProject() (*ModuleTestingProject, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, err
+	}
+
+	var result ModuleTestingProject
+	if err := client.http.Get("/projects/modules/testing/"+organizationId, nil, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
