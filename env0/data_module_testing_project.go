@@ -24,11 +24,6 @@ func dataModuleTestingProject() *schema.Resource {
 				Description: "the module testing project id",
 				Computed:    true,
 			},
-			"parent_project_id": {
-				Type:        schema.TypeString,
-				Description: "the module testing parent project id",
-				Computed:    true,
-			},
 		},
 	}
 }

@@ -27,9 +27,8 @@ type ProjectUpdatePayload struct {
 }
 
 type ModuleTestingProject struct {
-	Name            string `json:"name"`
-	ParentProjectId string `json:"parentProjectId"`
-	Id              string `json:"id"`
+	Name string `json:"name"`
+	Id   string `json:"id"`
 }
 
 func (client *ApiClient) Projects() ([]Project, error) {

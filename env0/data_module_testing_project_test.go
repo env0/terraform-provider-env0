@@ -15,9 +15,8 @@ func TestModuleTestingProjectDataSource(t *testing.T) {
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
 	moduleTestingProject := client.ModuleTestingProject{
-		Name:            "namex",
-		ParentProjectId: "pidx",
-		Id:              "idx",
+		Name: "namex",
+		Id:   "idx",
 	}
 
 	getTestCase := func() resource.TestCase {
@@ -28,7 +27,6 @@ func TestModuleTestingProjectDataSource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "name", moduleTestingProject.Name),
 						resource.TestCheckResourceAttr(accessor, "id", moduleTestingProject.Id),
-						resource.TestCheckResourceAttr(accessor, "parent_project_id", moduleTestingProject.ParentProjectId),
 					),
 				},
 			},

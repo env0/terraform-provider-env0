@@ -22,9 +22,8 @@ var _ = Describe("Project", func() {
 	}
 
 	mockModuleTestingProject := ModuleTestingProject{
-		Id:              "idx",
-		Name:            "namex",
-		ParentProjectId: "parentProjectIdx",
+		Id:   "idx",
+		Name: "namex",
 	}
 
 	Describe("ProjectCreate", func() {
