@@ -251,7 +251,8 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
-				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used.",
+				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one",
+				ForceNew:    true,
 				Optional:    true,
 			},
 			"vcs_commands_alias": {
@@ -657,7 +658,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "terragrunt_working_directory", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
