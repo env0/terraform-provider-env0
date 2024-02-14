@@ -251,7 +251,8 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
-				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used.",
+				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one",
+				ForceNew:    true,
 				Optional:    true,
 			},
 			"vcs_commands_alias": {

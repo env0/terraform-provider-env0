@@ -55,7 +55,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			BlueprintRevision: "revision",
 			Output:            []byte(`{"a": "b"}`),
 		},
-		TerragruntWorkingDirectory: "/terragrunt/directory2/",
+		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias2",
 		IsRemoteBackend:            &isRemoteBackendTrue,
 		IsArchived:                 boolPtr(true),
