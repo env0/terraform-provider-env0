@@ -30,11 +30,11 @@ func resourceNotification() *schema.Resource {
 			},
 			"type": {
 				Type:        schema.TypeString,
-				Description: "'Slack' or 'Teams'",
+				Description: "'Slack', 'Teams' or 'Email'",
 				Required:    true,
 				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
 					notificationType := client.NotificationType(i.(string))
-					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams {
+					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams && notificationType != client.NotificationTypeEmail {
 						return diag.Errorf("Invalid notification type")
 					}
 					return nil

@@ -8,6 +8,12 @@ resource "env0_notification" "test_notification" {
   value = var.second_run ? "https://someotherurl.com" : "https://someurl.com"
 }
 
+resource "env0_notification" "test_email_notification" {
+  name  = "email notification ${random_string.random_name.result}"
+  type  = "Email"
+  value = "john.doe@acme.com"
+}
+
 resource "env0_project" "test_project" {
   name        = "Test-Project-For-Notification ${random_string.random_name.result}"
   description = "Test Description"
