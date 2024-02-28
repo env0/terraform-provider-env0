@@ -5,6 +5,7 @@ type NotificationType string
 const (
 	NotificationTypeSlack NotificationType = "Slack"
 	NotificationTypeTeams NotificationType = "Teams"
+	NotificationTypeEmail NotificationType = "Email"
 )
 
 type Notification struct {
