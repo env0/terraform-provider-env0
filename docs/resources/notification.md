@@ -36,7 +36,7 @@ resource "env0_notification_project_assignment" "test_assignment" {
 ### Required
 
 - `name` (String) the name of the notification
-- `type` (String) 'Slack' or 'Teams'
+- `type` (String) 'Slack', 'Teams' or 'Email'
 - `value` (String) the target url of the notification
 
 ### Read-Only
