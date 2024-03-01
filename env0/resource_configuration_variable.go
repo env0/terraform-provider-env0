@@ -86,7 +86,7 @@ func resourceConfigurationVariable() *schema.Resource {
 			},
 			"format": {
 				Type:         schema.TypeString,
-				Description:  "specifies the format of the configuration value (HCL/JSON)",
+				Description:  "specifies the format of the configuration value ('HCL' or 'JSON'). If none is specified, 'JSON' and 'HCL' values will be considered to be a 'string' (text) type",
 				Default:      "",
 				Optional:     true,
 				ValidateFunc: ValidateConfigurationPropertySchema,
