@@ -48,7 +48,7 @@ resource "env0_configuration_variable" "json_variable" {
 - `description` (String) a description of the variables
 - `enum` (List of String) limit possible values to values from this list
 - `environment_id` (String) create the variable under this environment, not globally. Make sure to 'ignore changes' on environment.configuration to prevent drifts
-- `format` (String) specifies the format of the configuration value (HCL/JSON)
+- `format` (String) specifies the format of the configuration value ('HCL' or 'JSON'). If none is specified, 'JSON' and 'HCL' values will be considered to be a 'string' (text) type
 - `is_read_only` (Boolean) the value of this variable cannot be edited by lower scopes
 - `is_required` (Boolean) the value of this variable must be set by lower scopes
 - `is_sensitive` (Boolean) is the variable sensitive, defaults to false
