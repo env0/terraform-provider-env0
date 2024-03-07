@@ -13,15 +13,12 @@ description: |-
 ## Example Usage
 
 ```terraform
-resource "env0_project" "project" {
-  name = "project"
+data "env0_agent_values" "agent_values" {
+  agent_key = "pr12"
 }
 
-data "env0_agents" "agents" {}
-
-resource "env0_agent_project_assignment" "gent_project_assignment" {
-  agent_id   = data.env0_agents.agents.0.agent_key
-  project_id = env0_project.project.id
+output "values" {
+  value = data.env0_agent_values.agent_values.values
 }
 ```
 
