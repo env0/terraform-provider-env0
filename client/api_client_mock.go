@@ -570,6 +570,35 @@ func (mr *MockApiClientInterfaceMockRecorder) CustomFlows(arg0 any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlows", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlows), arg0)
 }
 
+// DeleteEnvironmentDiscovery mocks base method.
+func (m *MockApiClientInterface) DeleteEnvironmentDiscovery(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteEnvironmentDiscovery", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteEnvironmentDiscovery indicates an expected call of DeleteEnvironmentDiscovery.
+func (mr *MockApiClientInterfaceMockRecorder) DeleteEnvironmentDiscovery(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).DeleteEnvironmentDiscovery), arg0)
+}
+
+// EnableUpdateEnvironmentDiscovery mocks base method.
+func (m *MockApiClientInterface) EnableUpdateEnvironmentDiscovery(arg0 string, arg1 *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnableUpdateEnvironmentDiscovery", arg0, arg1)
+	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnableUpdateEnvironmentDiscovery indicates an expected call of EnableUpdateEnvironmentDiscovery.
+func (mr *MockApiClientInterfaceMockRecorder) EnableUpdateEnvironmentDiscovery(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnableUpdateEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).EnableUpdateEnvironmentDiscovery), arg0, arg1)
+}
+
 // Environment mocks base method.
 func (m *MockApiClientInterface) Environment(arg0 string) (Environment, error) {
 	m.ctrl.T.Helper()
@@ -776,6 +805,21 @@ func (m *MockApiClientInterface) Environments() ([]Environment, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
+}
+
+// GetEnvironmentDiscovery mocks base method.
+func (m *MockApiClientInterface) GetEnvironmentDiscovery(arg0 string) (*EnvironmentDiscoveryPayload, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetEnvironmentDiscovery", arg0)
+	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentDiscovery indicates an expected call of GetEnvironmentDiscovery.
+func (mr *MockApiClientInterfaceMockRecorder) GetEnvironmentDiscovery(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).GetEnvironmentDiscovery), arg0)
 }
 
 // GitToken mocks base method.
