@@ -54,12 +54,14 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Description:      "the environment placement strategy with the project (default: 'topProject')",
 				Default:          "topProject",
 				ValidateDiagFunc: NewStringInValidator([]string{"existingSubProject", "topProject"}),
+				Optional:         true,
 			},
 			"workspace_naming": {
 				Type:             schema.TypeString,
 				Description:      "the Workspace namimg strategy (default: 'default')",
 				Default:          "default",
 				ValidateDiagFunc: NewStringInValidator([]string{"default", "environmentName"}),
+				Optional:         true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
