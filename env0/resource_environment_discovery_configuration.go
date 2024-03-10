@@ -1,13 +1,28 @@
 package env0
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
 
 func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
+	vcsAttributes := []string{
+		"github_installation_id",
+		"bitbucket_client_key",
+		"gitlab_project_id",
+		"is_azure_devops",
+	}
+
 	return &schema.Resource{
-		CreateContext: resourceEnvironmentDriftCreateOrUpdate,
+		CreateContext: resourceEnvironmentDiscoveryConfigurationPut,
 		ReadContext:   resourceEnvironmentDriftRead,
-		UpdateContext: resourceEnvironmentDriftCreateOrUpdate,
-		DeleteContext: resourceEnvironmentDriftDelete,
+		UpdateContext: resourceEnvironmentDiscoveryConfigurationPut,
+		DeleteContext: resourceEnvironmentDiscoveryConfigurationDelete,
 
 		Description: "See https://docs.env0.com/docs/environment-discovery for additional details",
 
@@ -30,21 +45,19 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"type": {
 				Type:             schema.TypeString,
-				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow'",
-				Required:         true,
+				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')",
+				Default:          "opentofu",
 				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform", "terragrunt", "workflow"}),
 			},
 			"environment_placement": {
 				Type:             schema.TypeString,
 				Description:      "the environment placement strategy with the project (default: 'topProject')",
-				Required:         true,
 				Default:          "topProject",
 				ValidateDiagFunc: NewStringInValidator([]string{"existingSubProject", "topProject"}),
 			},
 			"workspace_naming": {
 				Type:             schema.TypeString,
 				Description:      "the Workspace namimg strategy (default: 'default')",
-				Optional:         true,
 				Default:          "default",
 				ValidateDiagFunc: NewStringInValidator([]string{"default", "environmentName"}),
 			},
@@ -74,9 +87,9 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			"terragrunt_tf_binary": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				Description:      "The binary to use with Terragrunt. Valid values: 'opentofu' and 'terraform'",
+				Description:      "The binary to use with Terragrunt. Valid values: 'opentofu' and 'terraform' (default: 'opentofu')",
 				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
-				RequiredWith:     []string{"terragrunt_version"},
+				Default:          "opentofu",
 			},
 			"is_terragrunt_run_all": {
 				Type:        schema.TypeBool,
@@ -121,20 +134,23 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				RequiredWith: []string{"retries_on_destroy"},
 			},
 			"github_installation_id": {
-				Type:        schema.TypeInt,
-				Description: "github repository id",
-				Optional:    true,
+				Type:         schema.TypeInt,
+				Description:  "github repository id",
+				Optional:     true,
+				ExactlyOneOf: vcsAttributes,
 			},
 			"bitbucket_client_key": {
-				Type:        schema.TypeString,
-				Description: "bitbucket client",
-				Optional:    true,
+				Type:         schema.TypeString,
+				Description:  "bitbucket client",
+				Optional:     true,
+				ExactlyOneOf: vcsAttributes,
 			},
 			"gitlab_project_id": {
 				Type:         schema.TypeInt,
 				Description:  "gitlab project id",
 				Optional:     true,
 				RequiredWith: []string{"token_id"},
+				ExactlyOneOf: vcsAttributes,
 			},
 			"is_azure_devops": {
 				Type:         schema.TypeBool,
@@ -142,13 +158,97 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Description:  "set to true if azure devops is used",
 				Default:      "false",
 				RequiredWith: []string{"token_id"},
+				ExactlyOneOf: vcsAttributes,
 			},
 			"token_id": {
 				Type:        schema.TypeString,
 				Description: "a token id to be used with 'gitlab' or 'azure_devops'",
 				Optional:    true,
 			},
-			// TODO test - and conflicts with...
 		},
 	}
+}
+
+func discoveryReadSshKeyHelper(putPayload *client.EnvironmentDiscoveryPutPayload, d *schema.ResourceData) {
+	sshKeyId := d.Get("ssh_key_id").(string)
+	if sshKeyId != "" {
+		sshKeyName := d.Get("ssh_key_name").(string)
+		putPayload.SshKeys = append(putPayload.SshKeys, client.TemplateSshKey{
+			Id:   sshKeyId,
+			Name: sshKeyName,
+		})
+	}
+}
+
+func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPayload) error {
+	opentofuVersionSet := putPayload.OpentofuVersion != ""
+	terraformVersionSet := putPayload.TerraformVersion != ""
+	terragruntVersionSet := putPayload.TerragruntVersion != ""
+
+	switch putPayload.Type {
+	case "opentofu":
+		if !opentofuVersionSet {
+			return errors.New("'opentofu_version' not set")
+		}
+	case "terraform":
+		if !terraformVersionSet {
+			return errors.New("'terraform_version' not set")
+		}
+	case "terragrunt":
+		if !terragruntVersionSet {
+			return errors.New("'terragrunt_version' not set")
+		}
+
+		if putPayload.TerragruntTfBinary == "opentofu" && !opentofuVersionSet {
+			return errors.New("'terragrunt_tf_binary' is set to 'opentofu', but 'opentofu_version' not set")
+		}
+
+		if putPayload.TerragruntTfBinary == "terraform" && !terraformVersionSet {
+			return errors.New("'terragrunt_tf_binary' is set to 'terraform', but 'terraform_version' not set")
+		}
+	case "workflow":
+	default:
+		return fmt.Errorf("unhandled type %s", putPayload.Type)
+	}
+
+	return nil
+}
+
+func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	var putPayload client.EnvironmentDiscoveryPutPayload
+	if err := readResourceData(&putPayload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	discoveryReadSshKeyHelper(&putPayload, d)
+
+	templateReadRetryOnHelper("", d, "deploy", putPayload.Retry.OnDeploy)
+	templateReadRetryOnHelper("", d, "destroy", putPayload.Retry.OnDestroy)
+
+	if err := discoveryValidatePutPayload(&putPayload); err != nil {
+		return diag.Errorf("validation error: %s", err.Error())
+	}
+
+	res, err := apiClient.EnableUpdateEnvironmentDiscovery(d.Get("project_id").(string), &putPayload)
+	if err != nil {
+		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
+	}
+
+	d.SetId(res.Id)
+
+	return nil
+}
+
+func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	projectId := d.Get("project_id").(string)
+
+	if err := apiClient.DeleteEnvironmentDiscovery(projectId); err != nil {
+		return diag.Errorf("delete environment discovery configuration request failed: %s", err.Error())
+	}
+
+	return nil
 }
