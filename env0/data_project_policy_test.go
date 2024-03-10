@@ -29,7 +29,7 @@ func TestPolicyDataSource(t *testing.T) {
 	resourceName := "test_policy"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func() resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -57,7 +57,7 @@ func TestPolicyDataSource(t *testing.T) {
 	}
 
 	t.Run("valid", func(t *testing.T) {
-		runUnitTest(t, getValidTestCase(map[string]interface{}{}), func(mock *client.MockApiClientInterface) {
+		runUnitTest(t, getValidTestCase(), func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().Policy(policy.ProjectId).AnyTimes().Return(policy, nil)
 		})
 	})

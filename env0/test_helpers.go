@@ -88,7 +88,7 @@ func missingArgumentTestCase(resourceType string, resourceName string, errorReso
 	return testCaseFormMissingValidInputError
 }
 
-func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]interface{}, missingArgumentKey string) resource.TestCase {
+func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]interface{}) resource.TestCase {
 	testCaseFormMissingValidInputError := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
