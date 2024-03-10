@@ -48,6 +48,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')",
 				Default:          "opentofu",
 				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform", "terragrunt", "workflow"}),
+				Optional:         true,
 			},
 			"environment_placement": {
 				Type:             schema.TypeString,
