@@ -25,19 +25,19 @@ type EnvironmentDiscoveryPayload struct {
 	GlobPattern            string           `json:"globPattern"`
 	EnvironmentPlacement   string           `json:"environmentPlacement"`
 	WorkspaceNaming        string           `json:"workspaceNaming"`
-	AutoDeployByCustomGlob string           `json:"autoDeployByCustomGlob" tfschema:",omitempty"`
+	AutoDeployByCustomGlob string           `json:"autoDeployByCustomGlob"`
 	Repository             string           `json:"repository"`
-	TerraformVersion       string           `json:"terraformVersion" tfschema:",omitempty"`
-	OpentofuVersion        string           `json:"opentofuVersion" tfschema:",omitempty"`
-	TerragruntVersion      string           `json:"terragruntVersion" tfschema:",omitempty"`
-	TerragruntTfBinary     string           `json:"terragruntTfBinary" tfschema:",omitempty"`
+	TerraformVersion       string           `json:"terraformVersion"`
+	OpentofuVersion        string           `json:"opentofuVersion"`
+	TerragruntVersion      string           `json:"terragruntVersion"`
+	TerragruntTfBinary     string           `json:"terragruntTfBinary"`
 	Type                   string           `json:"type"`
-	GitlabProjectId        int              `json:"gitlabProjectId" tfschema:",omitempty"`
-	TokenId                string           `json:"tokenId" tfschema:",omitempty"`
+	GitlabProjectId        int              `json:"gitlabProjectId"`
+	TokenId                string           `json:"tokenId"`
 	SshKeys                []TemplateSshKey `json:"sshKeys" tfschema:"-"`
-	GithubInstallationId   int              `json:"githubInstallationId" tfschema:",omitempty"`
-	BitbucketClientKey     string           `json:"bitbucketClientKey" tfschema:",omitempty"`
-	IsAzureDevops          bool             `json:"isAzureDevOps" tfschema:",omitempty"`
+	GithubInstallationId   int              `json:"githubInstallationId"`
+	BitbucketClientKey     string           `json:"bitbucketClientKey"`
+	IsAzureDevops          bool             `json:"isAzureDevOps"`
 	Retry                  TemplateRetry    `json:"retry" tfschema:"-"`
 }
 

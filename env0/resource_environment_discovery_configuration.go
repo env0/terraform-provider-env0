@@ -11,16 +11,9 @@ import (
 )
 
 func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
-	vcsAttributes := []string{
-		"github_installation_id",
-		"bitbucket_client_key",
-		"gitlab_project_id",
-		"is_azure_devops",
-	}
-
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentDiscoveryConfigurationPut,
-		ReadContext:   resourceEnvironmentDriftRead,
+		ReadContext:   resourceEnvironmentDiscoveryConfigurationGet,
 		UpdateContext: resourceEnvironmentDiscoveryConfigurationPut,
 		DeleteContext: resourceEnvironmentDiscoveryConfigurationDelete,
 
@@ -98,7 +91,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "If set to 'true', execute terragrunt commands with 'run all'",
-				Default:     "false",
+				Default:     false,
 			},
 			"ssh_key_id": {
 				Type:         schema.TypeString,
@@ -137,31 +130,27 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				RequiredWith: []string{"retries_on_destroy"},
 			},
 			"github_installation_id": {
-				Type:         schema.TypeInt,
-				Description:  "github repository id",
-				Optional:     true,
-				ExactlyOneOf: vcsAttributes,
+				Type:        schema.TypeInt,
+				Description: "github repository id",
+				Optional:    true,
 			},
 			"bitbucket_client_key": {
-				Type:         schema.TypeString,
-				Description:  "bitbucket client",
-				Optional:     true,
-				ExactlyOneOf: vcsAttributes,
+				Type:        schema.TypeString,
+				Description: "bitbucket client",
+				Optional:    true,
 			},
 			"gitlab_project_id": {
 				Type:         schema.TypeInt,
 				Description:  "gitlab project id",
 				Optional:     true,
 				RequiredWith: []string{"token_id"},
-				ExactlyOneOf: vcsAttributes,
 			},
 			"is_azure_devops": {
 				Type:         schema.TypeBool,
 				Optional:     true,
 				Description:  "set to true if azure devops is used",
-				Default:      "false",
+				Default:      false,
 				RequiredWith: []string{"token_id"},
-				ExactlyOneOf: vcsAttributes,
 			},
 			"token_id": {
 				Type:        schema.TypeString,
@@ -181,6 +170,17 @@ func discoveryReadSshKeyHelper(putPayload *client.EnvironmentDiscoveryPutPayload
 			Name: sshKeyName,
 		})
 	}
+}
+
+func discoveryWriteSshKeyHelper(getPayload *client.EnvironmentDiscoveryPayload, d *schema.ResourceData) {
+	var sshKey client.TemplateSshKey
+
+	if len(getPayload.SshKeys) > 0 {
+		sshKey = getPayload.SshKeys[0]
+	}
+
+	d.Set("ssh_key_id", sshKey.Id)
+	d.Set("ssh_key_name", sshKey.Name)
 }
 
 func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPayload) error {
@@ -214,6 +214,16 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 		return fmt.Errorf("unhandled type %s", putPayload.Type)
 	}
 
+	// TODO --- !!!TODO
+	/*
+			vcsAttributes := []string{
+			"github_installation_id",
+			"bitbucket_client_key",
+			"gitlab_project_id",
+			"is_azure_devops",
+		}
+	*/
+
 	return nil
 }
 
@@ -227,8 +237,8 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 
 	discoveryReadSshKeyHelper(&putPayload, d)
 
-	templateReadRetryOnHelper("", d, "deploy", putPayload.Retry.OnDeploy)
-	templateReadRetryOnHelper("", d, "destroy", putPayload.Retry.OnDestroy)
+	templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
+	templateCreatePayloadRetryOnHelper("", d, "destroy", &putPayload.Retry.OnDestroy)
 
 	if err := discoveryValidatePutPayload(&putPayload); err != nil {
 		return diag.Errorf("validation error: %s", err.Error())
@@ -252,6 +262,28 @@ func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *sch
 	if err := apiClient.DeleteEnvironmentDiscovery(projectId); err != nil {
 		return diag.Errorf("delete environment discovery configuration request failed: %s", err.Error())
 	}
+
+	return nil
+}
+
+func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	projectId := d.Get("project_id").(string)
+
+	getPayload, err := apiClient.GetEnvironmentDiscovery(projectId)
+	if err != nil {
+		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
+	}
+
+	if err := writeResourceData(getPayload, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	discoveryWriteSshKeyHelper(getPayload, d)
+
+	templateReadRetryOnHelper("", d, "deploy", getPayload.Retry.OnDeploy)
+	templateReadRetryOnHelper("", d, "destroy", getPayload.Retry.OnDestroy)
 
 	return nil
 }
