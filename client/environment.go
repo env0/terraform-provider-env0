@@ -138,7 +138,7 @@ type EnvironmentCreate struct {
 	IsRemoteBackend             *bool                  `json:"isRemoteBackend,omitempty" tfschema:"-"`
 	Type                        string                 `json:"type,omitempty"`
 	DriftDetectionRequest       *DriftDetectionRequest `json:"driftDetectionRequest,omitempty" tfschema:"-"`
-	PreventAutoDeploy           *bool                  `json:"preventAutoDeploy,omitempty" tfschema:"-"`
+	PreventAutoDeploy           bool                   `json:"preventAutoDeploy"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
