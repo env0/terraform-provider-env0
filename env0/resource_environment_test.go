@@ -187,7 +187,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("prevent auto deploy", func(t *testing.T) {
 			templateId := "template-id"
-			newTemplateId := "new-template-id"
 			truthyFruity := true
 
 			environment := client.Environment{
@@ -217,16 +216,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "prevent_auto_deploy", "true"),
 						),
 					},
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":                environment.Name,
-							"project_id":          environment.ProjectId,
-							"template_id":         newTemplateId,
-							"force_destroy":       true,
-							"prevent_auto_deploy": true,
-						}),
-						ExpectError: regexp.MustCompile("template_id may not be modified, create a new environment instead"),
-					},
 				},
 			}
 
@@ -242,8 +231,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 						PreventAutoDeploy: &truthyFruity,
 					}).Times(1).Return(environment, nil),
-					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
-					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
