@@ -253,7 +253,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "use this flag to prevent auto deploy on environment creation",
 				Optional:    true,
-				Default:     false,
 			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
@@ -803,6 +802,11 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
 		payload.PullRequestPlanDeployments = boolPtr(val.(bool))
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("prevent_auto_deploy"); exists {
+		payload.PreventAutoDeploy = boolPtr(val.(bool))
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817

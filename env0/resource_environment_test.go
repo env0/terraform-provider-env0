@@ -187,6 +187,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		t.Run("prevent auto deploy", func(t *testing.T) {
 			templateId := "template-id"
+			truthyFruity := true
 
 			environment := client.Environment{
 				Id:        uuid.New().String(),
@@ -228,7 +229,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							BlueprintId: templateId,
 						},
 
-						PreventAutoDeploy: true,
+						PreventAutoDeploy: &truthyFruity,
 					}).Times(1).Return(environment, nil),
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
