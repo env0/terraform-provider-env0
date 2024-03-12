@@ -251,7 +251,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"prevent_auto_deploy": {
 				Type:        schema.TypeBool,
-				Description: "prevent auto deploy",
+				Description: "use this flag to prevent auto deploy on environment creation",
 				Optional:    true,
 			},
 			"terragrunt_working_directory": {
