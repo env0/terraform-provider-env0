@@ -30,7 +30,7 @@ type EnvironmentDiscoveryPayload struct {
 	TerraformVersion       string           `json:"terraformVersion"`
 	OpentofuVersion        string           `json:"opentofuVersion"`
 	TerragruntVersion      string           `json:"terragruntVersion"`
-	TerragruntTfBinary     string           `json:"terragruntTfBinary"`
+	TerragruntTfBinary     string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	Type                   string           `json:"type"`
 	GitlabProjectId        int              `json:"gitlabProjectId"`
 	TokenId                string           `json:"tokenId"`

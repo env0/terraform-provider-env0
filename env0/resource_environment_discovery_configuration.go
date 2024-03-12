@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -214,15 +215,36 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 		return fmt.Errorf("unhandled type %s", putPayload.Type)
 	}
 
-	// TODO --- !!!TODO
-	/*
-			vcsAttributes := []string{
-			"github_installation_id",
-			"bitbucket_client_key",
-			"gitlab_project_id",
-			"is_azure_devops",
-		}
-	*/
+	vcsCounter := 0
+	vcsEnabledAttributes := []string{}
+
+	if putPayload.GithubInstallationId != 0 {
+		vcsCounter++
+		vcsEnabledAttributes = append(vcsEnabledAttributes, "github_installation_id")
+	}
+
+	if putPayload.BitbucketClientKey != "" {
+		vcsCounter++
+		vcsEnabledAttributes = append(vcsEnabledAttributes, "bitbucket_client_key")
+	}
+
+	if putPayload.GitlabProjectId != 0 {
+		vcsCounter++
+		vcsEnabledAttributes = append(vcsEnabledAttributes, "gitlab_project_id")
+	}
+
+	if putPayload.IsAzureDevops {
+		vcsCounter++
+		vcsEnabledAttributes = append(vcsEnabledAttributes, "is_azure_devops")
+	}
+
+	if vcsCounter == 0 {
+		return errors.New("must set exactly one vcs, none were configured: github_installation_id, bitbucket_client_key, gitlab_project_id, or is_azure_devops")
+	}
+
+	if vcsCounter > 1 {
+		return fmt.Errorf("must set exactly one vcs, but more were configured: %s", strings.Join(vcsEnabledAttributes, ", "))
+	}
 
 	return nil
 }
@@ -242,6 +264,11 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 
 	if err := discoveryValidatePutPayload(&putPayload); err != nil {
 		return diag.Errorf("validation error: %s", err.Error())
+	}
+
+	if putPayload.Type != "terragrunt" {
+		// Remove the default terragrunt_tf_binary if terragrunt isn't used.
+		putPayload.TerragruntTfBinary = ""
 	}
 
 	res, err := apiClient.EnableUpdateEnvironmentDiscovery(d.Get("project_id").(string), &putPayload)
