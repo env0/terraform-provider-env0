@@ -20,7 +20,7 @@ resource "env0_template_project_assignment" "assignment" {
 }
 
 resource "env0_environment_discovery_configuration" "example" {
-  project_id             = data.env0_project.project.id
+  project_id             = env0_project.project.id
   glob_pattern           = var.second_run ? "**" : "**/**"
   opentofu_version       = "1.6.2"
   repository             = data.env0_template.github_template.repository
