@@ -13,6 +13,7 @@ import (
 func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 	resourceType := "env0_environment_discovery_configuration"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 
 	accessor := resourceAccessor(resourceType, resourceName)
 
@@ -739,5 +740,56 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("import", func(t *testing.T) {
+		putPayload := client.EnvironmentDiscoveryPutPayload{
+			GlobPattern:          "**",
+			Repository:           "https://re.po",
+			Type:                 "opentofu",
+			EnvironmentPlacement: "topProject",
+			WorkspaceNaming:      "default",
+			OpentofuVersion:      "1.6.2",
+			GithubInstallationId: 12345,
+		}
+
+		getPayload := client.EnvironmentDiscoveryPayload{
+			Id:                   id,
+			GlobPattern:          putPayload.GlobPattern,
+			Repository:           putPayload.Repository,
+			Type:                 putPayload.Type,
+			EnvironmentPlacement: putPayload.EnvironmentPlacement,
+			WorkspaceNaming:      putPayload.WorkspaceNaming,
+			OpentofuVersion:      putPayload.OpentofuVersion,
+			GithubInstallationId: putPayload.GithubInstallationId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"project_id":             projectId,
+						"glob_pattern":           putPayload.GlobPattern,
+						"repository":             putPayload.Repository,
+						"opentofu_version":       putPayload.OpentofuVersion,
+						"github_installation_id": putPayload.GithubInstallationId,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     projectId,
+					ImportStateVerify: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(3).Return(&getPayload, nil),
+				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
+			)
+		})
 	})
 }

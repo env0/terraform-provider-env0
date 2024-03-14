@@ -10,6 +10,7 @@ type EnvironmentDiscoveryPutPayload struct {
 	OpentofuVersion        string           `json:"opentofuVersion,omitempty"`
 	TerragruntVersion      string           `json:"terragruntVersion,omitempty"`
 	TerragruntTfBinary     string           `json:"terragruntTfBinary,omitempty"`
+	IsTerragruntRunAll     bool             `json:"is_terragrunt_run_all"`
 	Type                   string           `json:"type"`
 	GitlabProjectId        int              `json:"gitlabProjectId,omitempty"`
 	TokenId                string           `json:"tokenId,omitempty"`
@@ -31,6 +32,7 @@ type EnvironmentDiscoveryPayload struct {
 	OpentofuVersion        string           `json:"opentofuVersion"`
 	TerragruntVersion      string           `json:"terragruntVersion"`
 	TerragruntTfBinary     string           `json:"terragruntTfBinary" tfschema:",omitempty"`
+	IsTerragruntRunAll     bool             `json:"is_terragrunt_run_all"`
 	Type                   string           `json:"type"`
 	GitlabProjectId        int              `json:"gitlabProjectId"`
 	TokenId                string           `json:"tokenId"`

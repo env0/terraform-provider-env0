@@ -18,6 +18,8 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 		UpdateContext: resourceEnvironmentDiscoveryConfigurationPut,
 		DeleteContext: resourceEnvironmentDiscoveryConfigurationDelete,
 
+		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentDiscoveryConfigurationImport},
+
 		Description: "See https://docs.env0.com/docs/environment-discovery for additional details",
 
 		Schema: map[string]*schema.Schema{
@@ -293,6 +295,19 @@ func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *sch
 	return nil
 }
 
+func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPayload *client.EnvironmentDiscoveryPayload) error {
+	if err := writeResourceData(getPayload, d); err != nil {
+		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	discoveryWriteSshKeyHelper(getPayload, d)
+
+	templateReadRetryOnHelper("", d, "deploy", getPayload.Retry.OnDeploy)
+	templateReadRetryOnHelper("", d, "destroy", getPayload.Retry.OnDestroy)
+
+	return nil
+}
+
 func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
@@ -303,14 +318,32 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
 	}
 
-	if err := writeResourceData(getPayload, d); err != nil {
-		return diag.Errorf("schema resource data serialization failed: %v", err)
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {
+		return diag.FromErr(err)
 	}
 
-	discoveryWriteSshKeyHelper(getPayload, d)
-
-	templateReadRetryOnHelper("", d, "deploy", getPayload.Retry.OnDeploy)
-	templateReadRetryOnHelper("", d, "destroy", getPayload.Retry.OnDestroy)
-
 	return nil
+}
+
+func resourceEnvironmentDiscoveryConfigurationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	apiClient := meta.(client.ApiClientInterface)
+
+	projectId := d.Id()
+
+	getPayload, err := apiClient.GetEnvironmentDiscovery(projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {
+		return nil, err
+	}
+
+	d.Set("project_id", projectId)
+
+	if _, ok := d.GetOk("terragrunt_tf_binary"); !ok {
+		d.Set("terragrunt_tf_binary", "opentofu")
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
