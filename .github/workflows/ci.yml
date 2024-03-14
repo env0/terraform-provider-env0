@@ -45,7 +45,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-20.04
-    container: golang:1.21-alpine
+    container: golang:1.21-alpine3.18
     timeout-minutes: 20
     steps:
       - name: Install Terraform
