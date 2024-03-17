@@ -584,21 +584,6 @@ func (mr *MockApiClientInterfaceMockRecorder) DeleteEnvironmentDiscovery(arg0 an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).DeleteEnvironmentDiscovery), arg0)
 }
 
-// EnableUpdateEnvironmentDiscovery mocks base method.
-func (m *MockApiClientInterface) EnableUpdateEnvironmentDiscovery(arg0 string, arg1 *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnableUpdateEnvironmentDiscovery", arg0, arg1)
-	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// EnableUpdateEnvironmentDiscovery indicates an expected call of EnableUpdateEnvironmentDiscovery.
-func (mr *MockApiClientInterfaceMockRecorder) EnableUpdateEnvironmentDiscovery(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnableUpdateEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).EnableUpdateEnvironmentDiscovery), arg0, arg1)
-}
-
 // Environment mocks base method.
 func (m *MockApiClientInterface) Environment(arg0 string) (Environment, error) {
 	m.ctrl.T.Helper()
@@ -1441,6 +1426,21 @@ func (m *MockApiClientInterface) Providers() ([]Provider, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Providers() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Providers", reflect.TypeOf((*MockApiClientInterface)(nil).Providers))
+}
+
+// PutEnvironmentDiscovery mocks base method.
+func (m *MockApiClientInterface) PutEnvironmentDiscovery(arg0 string, arg1 *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutEnvironmentDiscovery", arg0, arg1)
+	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutEnvironmentDiscovery indicates an expected call of PutEnvironmentDiscovery.
+func (mr *MockApiClientInterfaceMockRecorder) PutEnvironmentDiscovery(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).PutEnvironmentDiscovery), arg0, arg1)
 }
 
 // RemoteStateAccessConfiguration mocks base method.

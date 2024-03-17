@@ -115,9 +115,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(2).Return(&getPayload, nil),
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &updatePutPayload).Times(1).Return(&updateGetPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &updatePutPayload).Times(1).Return(&updateGetPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&updateGetPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -173,7 +173,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -225,7 +225,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -289,7 +289,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -349,7 +349,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -405,7 +405,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -476,7 +476,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -597,9 +597,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(2).Return(&getPayload, nil),
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &updatePutPayload).Times(1).Return(&updateGetPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &updatePutPayload).Times(1).Return(&updateGetPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&updateGetPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)
@@ -786,7 +786,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().EnableUpdateEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(3).Return(&getPayload, nil),
 				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
 			)

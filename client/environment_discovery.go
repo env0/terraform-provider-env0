@@ -43,7 +43,7 @@ type EnvironmentDiscoveryPayload struct {
 	Retry                  TemplateRetry    `json:"retry" tfschema:"-"`
 }
 
-func (client *ApiClient) EnableUpdateEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
+func (client *ApiClient) PutEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
 	var result EnvironmentDiscoveryPayload
 
 	if err := client.http.Put("/environment-discovery/projects/"+projectId, payload, &result); err != nil {

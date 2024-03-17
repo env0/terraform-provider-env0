@@ -47,7 +47,7 @@ var _ = Describe("Environment Discovery", func() {
 					Do(func(path string, request interface{}, response *EnvironmentDiscoveryPayload) {
 						*response = mockEnvironmentDiscovery
 					}).Times(1)
-				ret, _ = apiClient.EnableUpdateEnvironmentDiscovery(projectId, &putPayload)
+				ret, _ = apiClient.PutEnvironmentDiscovery(projectId, &putPayload)
 			})
 
 			It("Should return environment discovery", func() {
@@ -61,7 +61,7 @@ var _ = Describe("Environment Discovery", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/environment-discovery/projects/"+projectId, &putPayload, gomock.Any()).Return(mockError).Times(1)
-				_, err = apiClient.EnableUpdateEnvironmentDiscovery(projectId, &putPayload)
+				_, err = apiClient.PutEnvironmentDiscovery(projectId, &putPayload)
 			})
 
 			It("Should return error", func() {

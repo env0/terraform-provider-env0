@@ -273,7 +273,7 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		putPayload.TerragruntTfBinary = ""
 	}
 
-	res, err := apiClient.EnableUpdateEnvironmentDiscovery(d.Get("project_id").(string), &putPayload)
+	res, err := apiClient.PutEnvironmentDiscovery(d.Get("project_id").(string), &putPayload)
 	if err != nil {
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
 	}

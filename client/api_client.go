@@ -147,7 +147,7 @@ type ApiClientInterface interface {
 	ProjectBudget(projectId string) (*ProjectBudget, error)
 	ProjectBudgetUpdate(projectId string, payload *ProjectBudgetUpdatePayload) (*ProjectBudget, error)
 	ProjectBudgetDelete(projectId string) error
-	EnableUpdateEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error)
+	PutEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error)
 	GetEnvironmentDiscovery(projectId string) (*EnvironmentDiscoveryPayload, error)
 	DeleteEnvironmentDiscovery(projectId string) error
 }
