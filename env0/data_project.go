@@ -92,7 +92,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
-func filterByParentProjectId(name string, parentId string, projects []client.Project) ([]client.Project, error) {
+func filterByParentProjectId(parentId string, projects []client.Project) ([]client.Project, error) {
 	filteredProjects := make([]client.Project, 0)
 	for _, project := range projects {
 		if len(project.ParentProjectId) == 0 {
@@ -107,7 +107,7 @@ func filterByParentProjectId(name string, parentId string, projects []client.Pro
 	return filteredProjects, nil
 }
 
-func filterByParentProjectName(name string, parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
+func filterByParentProjectName(parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
 	filteredProjects := make([]client.Project, 0)
 	for _, project := range projects {
 		if len(project.ParentProjectId) == 0 {
@@ -142,13 +142,13 @@ func getProjectByName(name string, parentId string, parentName string, meta inte
 	}
 	if len(parentId) > 0 {
 		// Use parentId filter to reduce the results.
-		projectsByName, err = filterByParentProjectId(name, parentId, projectsByName)
+		projectsByName, err = filterByParentProjectId(parentId, projectsByName)
 		if err != nil {
 			return client.Project{}, err
 		}
 	} else if len(parentName) > 0 {
 		// Use parentName filter to reduce the results.
-		projectsByName, err = filterByParentProjectName(name, parentName, projectsByName, meta)
+		projectsByName, err = filterByParentProjectName(parentName, projectsByName, meta)
 		if err != nil {
 			return client.Project{}, err
 		}

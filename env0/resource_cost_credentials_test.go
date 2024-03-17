@@ -281,11 +281,11 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 
 	t.Run("validate missing arguments", func(t *testing.T) {
 		missingArgumentsTestCases := []resource.TestCase{
-			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "client_id"),
-			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "client_secret"),
-			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "subscription_id"),
-			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "tenant_id"),
-			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}, "name"),
+			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}),
+			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}),
+			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}),
+			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}),
+			missingArgumentTestCaseForCostCred(resourceType, resourceName, map[string]interface{}{}),
 		}
 		for _, testCase := range missingArgumentsTestCases {
 			tc := testCase

@@ -92,7 +92,7 @@ resource "env0_template" "example" {
 
 ## Development Setup
 
-> **Supported Go Version: 1.20**
+> **Supported Go Version: 1.21**
 
 ### Build
 
