@@ -27,19 +27,17 @@ func resourceApprovalPolicy() *schema.Resource {
 func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	var payload client.TemplateCreatePayload
+	var payload client.ApprovalPolicyCreatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	payload.Type = string(ApprovalPolicy)
-
-	template, err := apiClient.TemplateCreate(payload)
+	approvalPolicy, err := apiClient.ApprovalPolicyCreate(&payload)
 	if err != nil {
-		return diag.Errorf("could not create approval policy template: %v", err)
+		return diag.Errorf("failed to create approval policy: %v", err)
 	}
 
-	d.SetId(template.Id)
+	d.SetId(approvalPolicy.Id)
 
 	return nil
 }
@@ -68,16 +66,13 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	request, problem := templateCreatePayloadFromParameters("", d)
-	if problem != nil {
-		return problem
+	var payload client.ApprovalPolicyUpdatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	request.Type = string(ApprovalPolicy)
-
-	_, err := apiClient.TemplateUpdate(d.Id(), request)
-	if err != nil {
-		return diag.Errorf("could not update approval policy template: %v", err)
+	if _, err := apiClient.ApprovalPolicyUpdate(&payload); err != nil {
+		return diag.Errorf("failed to update approval policy: %v", err)
 	}
 
 	return nil

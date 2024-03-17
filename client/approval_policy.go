@@ -26,6 +26,37 @@ type ApprovalPolicyByScope struct {
 	ApprovalPolicy *ApprovalPolicy `json:"blueprint"`
 }
 
+type ApprovalPolicyCreatePayload struct {
+	Name                 string `json:"name"`
+	Repository           string `json:"repository"`
+	Revision             string `json:"revision,omitempty"`
+	Path                 string `json:"path,omitempty"`
+	TokenId              string `json:"tokenId,omitempty"`
+	GithubInstallationId int    `json:"githubInstallationId,omitempty"`
+	BitbucketClientKey   string `json:"bitbucketClientKey,omitempty"`
+	IsBitbucketServer    bool   `json:"isBitbucketServer,omitempty"`
+	IsGitlabEnterprise   bool   `json:"isGitLabEnterprise"`
+	IsGithubEnterprise   bool   `json:"isGitHubEnterprise"`
+	IsGitLab             bool   `json:"isGitLab" tfschema:"is_gitlab"`
+	IsAzureDevOps        bool   `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+}
+
+type ApprovalPolicyUpdatePayload struct {
+	Id                   string `json:"id"`
+	Name                 string `json:"name"`
+	Repository           string `json:"repository"`
+	Revision             string `json:"revision,omitempty"`
+	Path                 string `json:"path,omitempty"`
+	TokenId              string `json:"tokenId,omitempty"`
+	GithubInstallationId int    `json:"githubInstallationId,omitempty"`
+	BitbucketClientKey   string `json:"bitbucketClientKey,omitempty"`
+	IsBitbucketServer    bool   `json:"isBitbucketServer,omitempty"`
+	IsGitlabEnterprise   bool   `json:"isGitLabEnterprise"`
+	IsGithubEnterprise   bool   `json:"isGitHubEnterprise"`
+	IsGitLab             bool   `json:"isGitLab" tfschema:"is_gitlab"`
+	IsAzureDevOps        bool   `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+}
+
 type ApprovalPolicyAssignmentScope string
 
 const (
@@ -36,6 +67,37 @@ type ApprovalPolicyAssignment struct {
 	Scope       ApprovalPolicyAssignmentScope `json:"scope"`
 	ScopeId     string                        `json:"scopeId"`
 	BlueprintId string                        `json:"blueprintId"`
+}
+
+func (client *ApiClient) ApprovalPolicyCreate(payload *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, err
+	}
+
+	payloadWithOrganizationId := struct {
+		ApprovalPolicyCreatePayload
+		OrganizationId string `json:"organizationId"`
+	}{
+		*payload,
+		organizationId,
+	}
+
+	var result ApprovalPolicy
+	if err := client.http.Post("/approval-policy", &payloadWithOrganizationId, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (client *ApiClient) ApprovalPolicyUpdate(payload *ApprovalPolicyUpdatePayload) (*ApprovalPolicy, error) {
+	var result ApprovalPolicy
+	if err := client.http.Put("/approval-policy", payload, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 func (client *ApiClient) ApprovalPolicies(name string) ([]ApprovalPolicy, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	. "github.com/env0/terraform-provider-env0/client"
+	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -115,6 +116,68 @@ var _ = Describe("Approval Policy Client", func() {
 
 		It("Should return approval policy assignment", func() {
 			Expect(ret).To(Equal(mockApprovalPolicyByScopeArr))
+		})
+	})
+
+	Describe("Create ApprovalPolicy", func() {
+		var result *ApprovalPolicy
+		var err error
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId).Times(1)
+
+			createApprovalPolicyPayload := ApprovalPolicyCreatePayload{}
+			copier.Copy(&createApprovalPolicyPayload, &mockApprovalPolicy)
+
+			expectedCreateRequest := struct {
+				ApprovalPolicyCreatePayload
+				OrganizationId string `json:"organizationId"`
+			}{
+				createApprovalPolicyPayload,
+				organizationId,
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/approval-policy", &expectedCreateRequest, gomock.Any()).
+				Do(func(path string, request interface{}, response *ApprovalPolicy) {
+					*response = mockApprovalPolicy
+				}).Times(1)
+
+			result, err = apiClient.ApprovalPolicyCreate(&createApprovalPolicyPayload)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return created Approval Policy", func() {
+			Expect(*result).To(Equal(mockApprovalPolicy))
+		})
+	})
+
+	Describe("Update ApprovalPolicy", func() {
+		var result *ApprovalPolicy
+		var err error
+
+		BeforeEach(func() {
+			updateApprovalPolicyPayload := ApprovalPolicyUpdatePayload{}
+			copier.Copy(&updateApprovalPolicyPayload, &mockApprovalPolicy)
+
+			httpCall = mockHttpClient.EXPECT().
+				Put("/approval-policy", &updateApprovalPolicyPayload, gomock.Any()).
+				Do(func(path string, request interface{}, response *ApprovalPolicy) {
+					*response = mockApprovalPolicy
+				}).Times(1)
+
+			result, err = apiClient.ApprovalPolicyUpdate(&updateApprovalPolicyPayload)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return updated Approval Policy", func() {
+			Expect(*result).To(Equal(mockApprovalPolicy))
 		})
 	})
 })
