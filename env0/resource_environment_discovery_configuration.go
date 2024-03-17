@@ -62,7 +62,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
-				Description: "if configured, deploy/plan on changes matching the given pattern (glob). Otherwise, deploy/plan on changes in directories matching the main glob pattern",
+				Description: "If specified, deploy/plan on changes matching the given pattern (glob). Otherwise, deploy on template folder changes only",
 				Optional:    true,
 			},
 			"terraform_version": {
