@@ -41,13 +41,20 @@ resource "env0_user_project_assignment" "api_key_project_assignment" {
   role       = var.second_run ? "Viewer" : "Planner"
 }
 
+resource "time_sleep" "wait_15_seconds" {
+  depends_on = [env0_api_key.test_api_key]
+
+  create_duration = "15s"
+}
+
 data "env0_api_key" "test_api_key1" {
   name       = env0_api_key.test_api_key.name
-  depends_on = [env0_api_key.test_api_key]
+  depends_on = [time_sleep.wait_15_seconds]
 }
 
 data "env0_api_key" "test_api_key2" {
-  id = env0_api_key.test_api_key.id
+  id         = env0_api_key.test_api_key.id
+  depends_on = [time_sleep.wait_15_seconds]
 }
 
 resource "env0_api_key" "test_api_key_omitted" {

@@ -146,6 +146,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_approval_policy":                      resourceApprovalPolicy(),
 				"env0_approval_policy_assignment":           resourceApprovalPolicyAssignment(),
 				"env0_project_budget":                       resourceProjectBudget(),
+				"env0_environment_discovery_configuration":  resourceEnvironmentDiscoveryConfiguration(),
 			},
 		}
 

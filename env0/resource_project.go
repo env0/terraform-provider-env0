@@ -130,7 +130,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func resourceProjectAssertCanDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+func resourceProjectAssertCanDelete(d *schema.ResourceData, meta interface{}) error {
 	forceDestroy := d.Get("force_destroy").(bool)
 	if forceDestroy {
 		return nil
@@ -179,7 +179,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 					done <- true
 					return
 				case <-ticker.C:
-					err := resourceProjectAssertCanDelete(ctx, d, meta)
+					err := resourceProjectAssertCanDelete(d, meta)
 
 					if err != nil {
 						if aeerr, ok := err.(*ActiveEnvironmentError); ok {
@@ -198,7 +198,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 		<-done
 	}
 
-	if err := resourceProjectAssertCanDelete(ctx, d, meta); err != nil {
+	if err := resourceProjectAssertCanDelete(d, meta); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
 	}
 
