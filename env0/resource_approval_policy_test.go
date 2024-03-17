@@ -54,9 +54,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 	var updatedTemplate client.Template
 	copier.Copy(&updatedTemplate, &updatedApprovalPolicy)
-	template.Type = string(ApprovalPolicy)
+	updatedTemplate.Type = string(ApprovalPolicy)
 
-	createPayload := client.TemplateCreatePayload{
+	createPayload := client.ApprovalPolicyCreatePayload{
 		Name:                 approvalPolicy.Name,
 		Repository:           approvalPolicy.Repository,
 		Path:                 approvalPolicy.Path,
@@ -64,17 +64,16 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		TokenId:              approvalPolicy.TokenId,
 		GithubInstallationId: approvalPolicy.GithubInstallationId,
 		IsGithubEnterprise:   approvalPolicy.IsGithubEnterprise,
-		Type:                 string(ApprovalPolicy),
 	}
 
-	updatePayload := client.TemplateCreatePayload{
+	updatePayload := client.ApprovalPolicyUpdatePayload{
 		Name:          updatedApprovalPolicy.Name,
 		Repository:    updatedApprovalPolicy.Repository,
 		Path:          updatedApprovalPolicy.Path,
 		Revision:      updatedApprovalPolicy.Revision,
 		TokenId:       updatedApprovalPolicy.TokenId,
 		IsAzureDevOps: updatedApprovalPolicy.IsAzureDevOps,
-		Type:          string(ApprovalPolicy),
+		Id:            approvalPolicy.Id,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -127,9 +126,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(2).Return(template, nil),
-				mock.EXPECT().TemplateUpdate(approvalPolicy.Id, updatePayload).Times(1).Return(updatedTemplate, nil),
+				mock.EXPECT().ApprovalPolicyUpdate(&updatePayload).Times(1).Return(&updatedApprovalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(updatedTemplate, nil),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),
 			)
@@ -189,7 +188,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(template.Id).Times(2).Return(deletedTemplate, nil),
 			)
 		})
@@ -248,7 +247,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(template.Id).Times(2).Return(client.Template{}, http.NewMockFailedResponseError(404)),
 			)
 		})
@@ -267,13 +266,13 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 						"github_installation_id": approvalPolicy.GithubInstallationId,
 						"is_github_enterprise":   "true",
 					}),
-					ExpectError: regexp.MustCompile("could not create approval policy template: error"),
+					ExpectError: regexp.MustCompile("failed to create approval policy: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(client.Template{}, errors.New("error"))
+			mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(nil, errors.New("error"))
 		})
 	})
 
@@ -300,16 +299,16 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 						"token_id":        updatedApprovalPolicy.TokenId,
 						"is_azure_devops": "true",
 					}),
-					ExpectError: regexp.MustCompile("could not update approval policy template: error"),
+					ExpectError: regexp.MustCompile("failed to update approval policy: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(2).Return(template, nil),
-				mock.EXPECT().TemplateUpdate(approvalPolicy.Id, updatePayload).Times(1).Return(client.Template{}, errors.New("error")),
+				mock.EXPECT().ApprovalPolicyUpdate(&updatePayload).Times(1).Return(nil, errors.New("error")),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),
 			)
 		})
@@ -340,7 +339,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(3).Return(template, nil),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),
 			)
@@ -373,7 +372,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(notApprovalPolicyTemplate, nil),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),
@@ -406,7 +405,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
 				mock.EXPECT().ApprovalPolicies(approvalPolicy.Name).Times(1).Return([]client.ApprovalPolicy{approvalPolicy}, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
@@ -441,7 +440,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
 				mock.EXPECT().ApprovalPolicies(approvalPolicy.Name).Times(1).Return([]client.ApprovalPolicy{}, nil),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),
@@ -475,7 +474,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TemplateCreate(createPayload).Times(1).Return(template, nil),
+				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
 				mock.EXPECT().ApprovalPolicies(approvalPolicy.Name).Times(1).Return([]client.ApprovalPolicy{approvalPolicy, approvalPolicy}, nil),
 				mock.EXPECT().TemplateDelete(approvalPolicy.Id).Times(1).Return(nil),

@@ -156,6 +156,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyByScope(arg0, arg1 a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyByScope), arg0, arg1)
 }
 
+// ApprovalPolicyCreate mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicyCreate(arg0 *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicyCreate", arg0)
+	ret0, _ := ret[0].(*ApprovalPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApprovalPolicyCreate indicates an expected call of ApprovalPolicyCreate.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyCreate(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyCreate), arg0)
+}
+
 // ApprovalPolicyUnassign mocks base method.
 func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
@@ -168,6 +183,21 @@ func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0, arg1 string) error
 func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), arg0, arg1)
+}
+
+// ApprovalPolicyUpdate mocks base method.
+func (m *MockApiClientInterface) ApprovalPolicyUpdate(arg0 *ApprovalPolicyUpdatePayload) (*ApprovalPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApprovalPolicyUpdate", arg0)
+	ret0, _ := ret[0].(*ApprovalPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApprovalPolicyUpdate indicates an expected call of ApprovalPolicyUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUpdate(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUpdate), arg0)
 }
 
 // AssignAgentsToProjects mocks base method.
