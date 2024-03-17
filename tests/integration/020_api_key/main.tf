@@ -47,7 +47,8 @@ data "env0_api_key" "test_api_key1" {
 }
 
 data "env0_api_key" "test_api_key2" {
-  id = env0_api_key.test_api_key.id
+  id         = env0_api_key.test_api_key.id
+  depends_on = [env0_api_key.test_api_key]
 }
 
 resource "env0_api_key" "test_api_key_omitted" {
