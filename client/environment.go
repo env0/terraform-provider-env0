@@ -270,6 +270,14 @@ func (client *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate)
 	return result, nil
 }
 
+func (client *ApiClient) EnvironmentMarkAsArchived(id string) error {
+	payload := struct {
+		IsArchived bool `json:"isArchived"`
+	}{true}
+
+	return client.http.Put("/environments/"+id, &payload, nil)
+}
+
 func (client *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
 	var result Environment
 	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)

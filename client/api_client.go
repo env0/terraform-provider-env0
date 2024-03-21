@@ -70,6 +70,7 @@ type ApiClientInterface interface {
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)
 	EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error)
 	EnvironmentDestroy(id string) (Environment, error)
+	EnvironmentMarkAsArchived(id string) error
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
 	EnvironmentUpdateTTL(id string, payload TTL) (Environment, error)
