@@ -38,12 +38,12 @@ func resourceTeamOrganizationAssignment() *schema.Resource {
 func resourceTeamOrganizationAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	api_client := meta.(client.ApiClientInterface)
 
-	var newAssignment client.AssignTeamRoleToOrganizationPayload
+	var newAssignment client.AssignOrganizationRoleToTeamPayload
 	if err := readResourceData(&newAssignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	assignment, err := api_client.AssignTeamRoleToOrganization(&newAssignment)
+	assignment, err := api_client.AssignOrganizationRoleToTeam(&newAssignment)
 	if err != nil {
 		return diag.Errorf("could not create assignment: %v", err)
 	}
@@ -56,7 +56,7 @@ func resourceTeamOrganizationAssignmentCreate(ctx context.Context, d *schema.Res
 func resourceTeamOrganizationAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	api_client := meta.(client.ApiClientInterface)
 
-	assignments, err := api_client.TeamRoleOrganizationAssignments()
+	assignments, err := api_client.OrganizationRoleTeamAssignments()
 	if err != nil {
 		return diag.Errorf("could not get assignments: %v", err)
 	}
@@ -84,12 +84,12 @@ func resourceTeamOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 func resourceTeamOrganizationAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	api_client := meta.(client.ApiClientInterface)
 
-	var payload client.AssignTeamRoleToOrganizationPayload
+	var payload client.AssignOrganizationRoleToTeamPayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	assignment, err := api_client.AssignTeamRoleToOrganization(&payload)
+	assignment, err := api_client.AssignOrganizationRoleToTeam(&payload)
 	if err != nil {
 		return diag.Errorf("could not update assignment: %v", err)
 	}
@@ -104,7 +104,7 @@ func resourceTeamOrganizationAssignmentDelete(ctx context.Context, d *schema.Res
 
 	teamId := d.Get("team_id").(string)
 
-	if err := api_client.RemoveTeamRoleFromOrganization(teamId); err != nil {
+	if err := api_client.RemoveOrganizationRoleFromTeam(teamId); err != nil {
 		return diag.Errorf("could not delete assignment: %v", err)
 	}
 

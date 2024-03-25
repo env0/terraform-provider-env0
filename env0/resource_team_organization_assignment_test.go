@@ -17,29 +17,29 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 	role := "rid1"
 	updatedRole := "rid2"
 
-	createPayload := client.AssignTeamRoleToOrganizationPayload{
+	createPayload := client.AssignOrganizationRoleToTeamPayload{
 		TeamId: teamId,
 		Role:   role,
 	}
 
-	updatePayload := client.AssignTeamRoleToOrganizationPayload{
+	updatePayload := client.AssignOrganizationRoleToTeamPayload{
 		TeamId: teamId,
 		Role:   updatedRole,
 	}
 
-	createResponse := client.TeamRoleOrganizationAssignment{
+	createResponse := client.OrganizationRoleTeamAssignment{
 		Id:     id,
 		TeamId: teamId,
 		Role:   role,
 	}
 
-	updateResponse := client.TeamRoleOrganizationAssignment{
+	updateResponse := client.OrganizationRoleTeamAssignment{
 		Id:     id,
 		TeamId: teamId,
 		Role:   updatedRole,
 	}
 
-	otherResponse := client.TeamRoleOrganizationAssignment{
+	otherResponse := client.OrganizationRoleTeamAssignment{
 		Id:     "id2",
 		TeamId: "teamId2",
 		Role:   "dasdasd",
@@ -79,11 +79,11 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToOrganization(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleOrganizationAssignments().Times(2).Return([]client.TeamRoleOrganizationAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().AssignTeamRoleToOrganization(&updatePayload).Times(1).Return(&updateResponse, nil),
-				mock.EXPECT().TeamRoleOrganizationAssignments().Times(1).Return([]client.TeamRoleOrganizationAssignment{otherResponse, updateResponse}, nil),
-				mock.EXPECT().RemoveTeamRoleFromOrganization(teamId).Times(1).Return(nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().OrganizationRoleTeamAssignments().Times(2).Return([]client.OrganizationRoleTeamAssignment{otherResponse, createResponse}, nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&updatePayload).Times(1).Return(&updateResponse, nil),
+				mock.EXPECT().OrganizationRoleTeamAssignments().Times(1).Return([]client.OrganizationRoleTeamAssignment{otherResponse, updateResponse}, nil),
+				mock.EXPECT().RemoveOrganizationRoleFromTeam(teamId).Times(1).Return(nil),
 			)
 		})
 	})
@@ -121,8 +121,8 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToOrganization(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleOrganizationAssignments().Times(1).Return([]client.TeamRoleOrganizationAssignment{otherResponse}, nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().OrganizationRoleTeamAssignments().Times(1).Return([]client.OrganizationRoleTeamAssignment{otherResponse}, nil),
 			)
 		})
 	})
@@ -142,7 +142,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToOrganization(&createPayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&createPayload).Times(1).Return(nil, errors.New("error")),
 			)
 		})
 	})
@@ -162,9 +162,9 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToOrganization(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleOrganizationAssignments().Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveTeamRoleFromOrganization(teamId).Times(1).Return(nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().OrganizationRoleTeamAssignments().Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().RemoveOrganizationRoleFromTeam(teamId).Times(1).Return(nil),
 			)
 		})
 	})
@@ -195,10 +195,10 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToOrganization(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleOrganizationAssignments().Times(2).Return([]client.TeamRoleOrganizationAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().AssignTeamRoleToOrganization(&updatePayload).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveTeamRoleFromOrganization(teamId).Times(1).Return(nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().OrganizationRoleTeamAssignments().Times(2).Return([]client.OrganizationRoleTeamAssignment{otherResponse, createResponse}, nil),
+				mock.EXPECT().AssignOrganizationRoleToTeam(&updatePayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().RemoveOrganizationRoleFromTeam(teamId).Times(1).Return(nil),
 			)
 		})
 	})

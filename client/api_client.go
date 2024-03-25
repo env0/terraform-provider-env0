@@ -140,9 +140,9 @@ type ApiClientInterface interface {
 	AssignTeamRoleToEnvironment(payload *AssignTeamRoleToEnvironmentPayload) (*TeamRoleEnvironmentAssignment, error)
 	RemoveTeamRoleFromEnvironment(environmentId string, teamId string) error
 	TeamRoleEnvironmentAssignments(environmentId string) ([]TeamRoleEnvironmentAssignment, error)
-	AssignTeamRoleToOrganization(payload *AssignTeamRoleToOrganizationPayload) (*TeamRoleOrganizationAssignment, error)
-	RemoveTeamRoleFromOrganization(teamId string) error
-	TeamRoleOrganizationAssignments() ([]TeamRoleOrganizationAssignment, error)
+	AssignOrganizationRoleToTeam(payload *AssignOrganizationRoleToTeamPayload) (*OrganizationRoleTeamAssignment, error)
+	RemoveOrganizationRoleFromTeam(teamId string) error
+	OrganizationRoleTeamAssignments() ([]OrganizationRoleTeamAssignment, error)
 	ApprovalPolicies(name string) ([]ApprovalPolicy, error)
 	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
 	ApprovalPolicyUnassign(scope string, scopeId string) error

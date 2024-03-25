@@ -13,20 +13,20 @@ var _ = Describe("Team Orgnization Assignment", func() {
 	organizationId := "organizationId"
 	teamId := "teamId"
 
-	assignPayload := &AssignTeamRoleToOrganizationPayload{
+	assignPayload := &AssignOrganizationRoleToTeamPayload{
 		TeamId: teamId,
 		Role:   "role1",
 	}
 
 	assignPayloadWithOrganizationId := struct {
-		*AssignTeamRoleToOrganizationPayload
+		*AssignOrganizationRoleToTeamPayload
 		OrganizationId string `json:"organizationId"`
 	}{
 		assignPayload,
 		organizationId,
 	}
 
-	expectedResponse := &TeamRoleOrganizationAssignment{
+	expectedResponse := &OrganizationRoleTeamAssignment{
 		Id: "id",
 	}
 
@@ -35,17 +35,17 @@ var _ = Describe("Team Orgnization Assignment", func() {
 	Describe("AssignTeamToOrganization", func() {
 
 		Describe("Successful", func() {
-			var actualResult *TeamRoleOrganizationAssignment
+			var actualResult *OrganizationRoleTeamAssignment
 			var err error
 
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId).Times(1)
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/teams", assignPayloadWithOrganizationId, gomock.Any()).
-					Do(func(path string, request interface{}, response *TeamRoleOrganizationAssignment) {
+					Do(func(path string, request interface{}, response *OrganizationRoleTeamAssignment) {
 						*response = *expectedResponse
 					}).Times(1)
-				actualResult, err = apiClient.AssignTeamRoleToOrganization(assignPayload)
+				actualResult, err = apiClient.AssignOrganizationRoleToTeam(assignPayload)
 
 			})
 
@@ -61,14 +61,14 @@ var _ = Describe("Team Orgnization Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult *TeamRoleOrganizationAssignment
+			var actualResult *OrganizationRoleTeamAssignment
 			var err error
 
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId).Times(1)
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/teams", gomock.Any(), gomock.Any()).Return(errorMock).Times(1)
-				actualResult, err = apiClient.AssignTeamRoleToOrganization(assignPayload)
+				actualResult, err = apiClient.AssignOrganizationRoleToTeam(assignPayload)
 			})
 
 			It("Should fail if API call fails", func() {
@@ -85,7 +85,7 @@ var _ = Describe("Team Orgnization Assignment", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall(organizationId).Times(1)
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/assignments/teams", map[string]string{"organizationId": organizationId, "teamId": teamId}).Times(1)
-			apiClient.RemoveTeamRoleFromOrganization(teamId)
+			apiClient.RemoveOrganizationRoleFromTeam(teamId)
 		})
 
 		It("Should send DELETE request with assignment id", func() {})
@@ -94,24 +94,24 @@ var _ = Describe("Team Orgnization Assignment", func() {
 	Describe("TeamOrganizationAssignments", func() {
 
 		Describe("Successful", func() {
-			var actualResult []TeamRoleOrganizationAssignment
+			var actualResult []OrganizationRoleTeamAssignment
 			var err error
 
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId).Times(1)
 				httpCall = mockHttpClient.EXPECT().
 					Get("/roles/assignments/teams", map[string]string{"organizationId": organizationId}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]TeamRoleOrganizationAssignment) {
-						*response = []TeamRoleOrganizationAssignment{*expectedResponse}
+					Do(func(path string, request interface{}, response *[]OrganizationRoleTeamAssignment) {
+						*response = []OrganizationRoleTeamAssignment{*expectedResponse}
 					}).Times(1)
-				actualResult, err = apiClient.TeamRoleOrganizationAssignments()
+				actualResult, err = apiClient.OrganizationRoleTeamAssignments()
 
 			})
 
 			It("Should send GET request with params", func() {})
 
 			It("should return the GET result", func() {
-				Expect(actualResult).To(Equal([]TeamRoleOrganizationAssignment{*expectedResponse}))
+				Expect(actualResult).To(Equal([]OrganizationRoleTeamAssignment{*expectedResponse}))
 			})
 
 			It("Should not return error", func() {
@@ -120,14 +120,14 @@ var _ = Describe("Team Orgnization Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult []TeamRoleOrganizationAssignment
+			var actualResult []OrganizationRoleTeamAssignment
 			var err error
 
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId).Times(1)
 				httpCall = mockHttpClient.EXPECT().
 					Get("/roles/assignments/teams", map[string]string{"organizationId": organizationId}, gomock.Any()).Return(errorMock).Times(1)
-				actualResult, err = apiClient.TeamRoleOrganizationAssignments()
+				actualResult, err = apiClient.OrganizationRoleTeamAssignments()
 			})
 
 			It("Should fail if API call fails", func() {

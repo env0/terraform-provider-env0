@@ -1,18 +1,18 @@
 package client
 
-type AssignTeamRoleToOrganizationPayload struct {
+type AssignOrganizationRoleToTeamPayload struct {
 	TeamId string `json:"teamId"`
 	Role   string `json:"role" tfschema:"role_id"`
 }
 
-type TeamRoleOrganizationAssignment struct {
+type OrganizationRoleTeamAssignment struct {
 	TeamId string `json:"teamId"`
 	Role   string `json:"role" tfschema:"role_id"`
 	Id     string `json:"id"`
 }
 
-func (client *ApiClient) AssignTeamRoleToOrganization(payload *AssignTeamRoleToOrganizationPayload) (*TeamRoleOrganizationAssignment, error) {
-	var result TeamRoleOrganizationAssignment
+func (client *ApiClient) AssignOrganizationRoleToTeam(payload *AssignOrganizationRoleToTeamPayload) (*OrganizationRoleTeamAssignment, error) {
+	var result OrganizationRoleTeamAssignment
 
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -20,7 +20,7 @@ func (client *ApiClient) AssignTeamRoleToOrganization(payload *AssignTeamRoleToO
 	}
 
 	payloadWithOrganizationId := struct {
-		*AssignTeamRoleToOrganizationPayload
+		*AssignOrganizationRoleToTeamPayload
 		OrganizationId string `json:"organizationId"`
 	}{
 		payload,
@@ -34,7 +34,7 @@ func (client *ApiClient) AssignTeamRoleToOrganization(payload *AssignTeamRoleToO
 	return &result, nil
 }
 
-func (client *ApiClient) RemoveTeamRoleFromOrganization(teamId string) error {
+func (client *ApiClient) RemoveOrganizationRoleFromTeam(teamId string) error {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return err
@@ -43,13 +43,13 @@ func (client *ApiClient) RemoveTeamRoleFromOrganization(teamId string) error {
 	return client.http.Delete("/roles/assignments/teams", map[string]string{"organizationId": organizationId, "teamId": teamId})
 }
 
-func (client *ApiClient) TeamRoleOrganizationAssignments() ([]TeamRoleOrganizationAssignment, error) {
+func (client *ApiClient) OrganizationRoleTeamAssignments() ([]OrganizationRoleTeamAssignment, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
 	}
 
-	var result []TeamRoleOrganizationAssignment
+	var result []OrganizationRoleTeamAssignment
 
 	if err := client.http.Get("/roles/assignments/teams", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return nil, err
