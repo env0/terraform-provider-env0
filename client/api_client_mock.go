@@ -245,6 +245,21 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignCostCredentialsToProject(arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCostCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCostCredentialsToProject), arg0, arg1)
 }
 
+// AssignOrganizationRoleToTeam mocks base method.
+func (m *MockApiClientInterface) AssignOrganizationRoleToTeam(arg0 *AssignOrganizationRoleToTeamPayload) (*OrganizationRoleTeamAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignOrganizationRoleToTeam", arg0)
+	ret0, _ := ret[0].(*OrganizationRoleTeamAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssignOrganizationRoleToTeam indicates an expected call of AssignOrganizationRoleToTeam.
+func (mr *MockApiClientInterfaceMockRecorder) AssignOrganizationRoleToTeam(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignOrganizationRoleToTeam", reflect.TypeOf((*MockApiClientInterface)(nil).AssignOrganizationRoleToTeam), arg0)
+}
+
 // AssignTeamRoleToEnvironment mocks base method.
 func (m *MockApiClientInterface) AssignTeamRoleToEnvironment(arg0 *AssignTeamRoleToEnvironmentPayload) (*TeamRoleEnvironmentAssignment, error) {
 	m.ctrl.T.Helper()
@@ -1192,6 +1207,21 @@ func (mr *MockApiClientInterfaceMockRecorder) OrganizationPolicyUpdate(arg0 any)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationPolicyUpdate), arg0)
 }
 
+// OrganizationRoleTeamAssignments mocks base method.
+func (m *MockApiClientInterface) OrganizationRoleTeamAssignments() ([]OrganizationRoleTeamAssignment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationRoleTeamAssignments")
+	ret0, _ := ret[0].([]OrganizationRoleTeamAssignment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrganizationRoleTeamAssignments indicates an expected call of OrganizationRoleTeamAssignments.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationRoleTeamAssignments() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationRoleTeamAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationRoleTeamAssignments))
+}
+
 // OrganizationUserUpdateRole mocks base method.
 func (m *MockApiClientInterface) OrganizationUserUpdateRole(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
@@ -1557,6 +1587,20 @@ func (m *MockApiClientInterface) RemoveCostCredentialsFromProject(arg0, arg1 str
 func (mr *MockApiClientInterfaceMockRecorder) RemoveCostCredentialsFromProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCostCredentialsFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveCostCredentialsFromProject), arg0, arg1)
+}
+
+// RemoveOrganizationRoleFromTeam mocks base method.
+func (m *MockApiClientInterface) RemoveOrganizationRoleFromTeam(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveOrganizationRoleFromTeam", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveOrganizationRoleFromTeam indicates an expected call of RemoveOrganizationRoleFromTeam.
+func (mr *MockApiClientInterfaceMockRecorder) RemoveOrganizationRoleFromTeam(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveOrganizationRoleFromTeam", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveOrganizationRoleFromTeam), arg0)
 }
 
 // RemoveTeamRoleFromEnvironment mocks base method.

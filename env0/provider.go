@@ -143,6 +143,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_provider":                             resourceProvider(),
 				"env0_user_environment_assignment":          resourceUserEnvironmentAssignment(),
 				"env0_team_environment_assignment":          resourceTeamEnvironmentAssignment(),
+				"env0_team_organization_assignment":         resourceTeamOrganizationAssignment(),
 				"env0_approval_policy":                      resourceApprovalPolicy(),
 				"env0_approval_policy_assignment":           resourceApprovalPolicyAssignment(),
 				"env0_project_budget":                       resourceProjectBudget(),
