@@ -704,6 +704,20 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDriftDetection(arg0 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDriftDetection), arg0)
 }
 
+// EnvironmentMarkAsArchived mocks base method.
+func (m *MockApiClientInterface) EnvironmentMarkAsArchived(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentMarkAsArchived", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentMarkAsArchived indicates an expected call of EnvironmentMarkAsArchived.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMarkAsArchived(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMarkAsArchived", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMarkAsArchived), arg0)
+}
+
 // EnvironmentScheduling mocks base method.
 func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
 	m.ctrl.T.Helper()

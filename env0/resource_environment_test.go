@@ -412,6 +412,54 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("Mark as archived", func(t *testing.T) {
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "name",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: templateId,
+				},
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":             environment.Name,
+							"project_id":       environment.ProjectId,
+							"template_id":      templateId,
+							"force_destroy":    false,
+							"removal_strategy": "mark_as_archived",
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				gomock.InOrder(
+					mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+					mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+						Name:      environment.Name,
+						ProjectId: environment.ProjectId,
+
+						DeployRequest: &client.DeployRequest{
+							BlueprintId: templateId,
+						},
+					}).Times(1).Return(environment, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().EnvironmentMarkAsArchived(environment.Id).Times(1).Return(nil),
+				)
+			})
+		})
+
 		t.Run("Import By Id", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{

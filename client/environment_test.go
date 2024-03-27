@@ -277,6 +277,26 @@ var _ = Describe("Environment Client", func() {
 		})
 	})
 
+	Describe("EnvironmentMarkAsArchived", func() {
+		payload := struct {
+			IsArchived bool `json:"isArchived"`
+		}{true}
+
+		var err error
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Put("/environments/"+mockEnvironment.Id, &payload, nil).Return(nil).Times(1)
+			err = apiClient.EnvironmentMarkAsArchived(mockEnvironment.Id)
+		})
+
+		It("Should send an archive put request", func() {})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+	})
+
 	Describe("EnvironmentUpdate", func() {
 		Describe("Success", func() {
 			var updatedEnvironment Environment
