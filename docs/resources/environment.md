@@ -73,6 +73,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `is_remote_backend` (Boolean) should use remote backend
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 - `prevent_auto_deploy` (Boolean) use this flag to prevent auto deploy on environment creation
+- `removal_strategy` (String) by default when removing an environment, it gets destroyed. Setting this value to 'mark_as_archived' will force the environment to be archived instead of tying to destroy it ('Mark as inactive' in the UI)
 - `revision` (String) the revision the environment is to be run against
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
