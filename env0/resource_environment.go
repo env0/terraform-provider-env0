@@ -335,6 +335,13 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"removal_strategy": {
+				Type:             schema.TypeString,
+				Description:      "by default when removing an environment, it gets destroyed. Setting this value to 'mark_as_archived' will force the environment to be archived instead of tying to destroy it ('Mark as inactive' in the UI)",
+				Optional:         true,
+				Default:          "destroy",
+				ValidateDiagFunc: NewStringInValidator([]string{"destroy", "mark_as_archived"}),
+			},
 		},
 		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
 			if oldValue != "" && oldValue != newValue {
@@ -768,13 +775,23 @@ func updateTTL(d *schema.ResourceData, apiClient client.ApiClientInterface) diag
 }
 
 func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	markAsArchived := d.Get("removal_strategy").(string) == "mark_as_archived"
+
+	if markAsArchived {
+		if err := apiClient.EnvironmentMarkAsArchived(d.Id()); err != nil {
+			return diag.Errorf("could not archive the environment: %v", err)
+		}
+
+		return nil
+	}
+
 	canDestroy := d.Get("force_destroy")
 
 	if canDestroy != true {
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
-
-	apiClient := meta.(client.ApiClientInterface)
 
 	_, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
@@ -1180,6 +1197,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("force_destroy", false)
+	d.Set("removal_strategy", "destroy")
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
