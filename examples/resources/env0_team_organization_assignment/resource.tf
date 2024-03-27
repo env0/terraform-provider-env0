@@ -5,7 +5,8 @@ resource "env0_team" "team" {
 resource "env0_custom_role" "custom_role" {
   name = "custom-role-sample"
   permissions = [
-    "VIEW_ENVIRONMENT"
+    "VIEW_ORGANIZATION",
+    "VIEW_DASHBOARD"
   ]
 }
 
