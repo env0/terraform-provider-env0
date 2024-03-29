@@ -64,7 +64,7 @@ resource "env0_template" "template_opentofu" {
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
-  opentofu_version                        = "1.6.0"
+  opentofu_version                        = var.second_run ? "1.6.0" : "RESOLVE_FROM_CODE"
 }
 
 resource "env0_configuration_variable" "in_a_template" {
