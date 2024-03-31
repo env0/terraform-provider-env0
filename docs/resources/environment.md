@@ -172,7 +172,7 @@ Optional:
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
 - `is_helm_repository` (Boolean) true if this template integrates with a helm repository
 - `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
-- `opentofu_version` (String) the Opentofu version to use (example: 0.36.5)
+- `opentofu_version` (String) the Opentofu version to use (example: 1.6.2). Setting to 'RESOLVE_FROM_CODE' extracts the version from the Opentofu code during runtime. Setting to `latest`, the version used will be the most recent one available for Opentofu.
 - `path` (String) terraform / terragrunt file folder inside source code
 - `retries_on_deploy` (Number) number of times to retry when deploying an environment based on this template
 - `retries_on_destroy` (Number) number of times to retry when destroying an environment based on this template
