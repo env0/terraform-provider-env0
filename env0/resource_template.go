@@ -175,7 +175,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"opentofu_version": {
 			Type:             schema.TypeString,
-			Description:      "the Opentofu version to use (example: 0.36.5)",
+			Description:      "the Opentofu version to use (example: 1.6.2). Setting to 'RESOLVE_FROM_CODE' extracts the version from the Opentofu code during runtime. Setting to `latest`, the version used will be the most recent one available for Opentofu.",
 			ValidateDiagFunc: NewOpenTofuVersionValidator(),
 			Optional:         true,
 		},

@@ -434,7 +434,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		Description:      "new-description",
 		Repository:       "env0/repo-new",
 		Type:             "opentofu",
-		OpentofuVersion:  "1.7.0",
+		OpentofuVersion:  "RESOLVE_FROM_CODE",
 		TerraformVersion: "0.15.1",
 		Retry: client.TemplateRetry{
 			OnDeploy: &client.TemplateRetryOn{
