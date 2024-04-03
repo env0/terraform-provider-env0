@@ -39,7 +39,7 @@ func main() {
 			} else {
 				success, err := runTest(testName, destroyMode != "NO_DESTROY")
 				if !success {
-					log.Fatalln("Halting due to test failure:", err)
+					log.Fatalf("Halting due to test '%s' failure: %s\n", testName, err.Error())
 				}
 			}
 
