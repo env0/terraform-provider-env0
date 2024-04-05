@@ -426,20 +426,27 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
 	pathPrefix := "path"
 	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
+	terraformVersionPrefix := "terraform_version"
 
 	if prefix != "" {
 		pathPrefix = prefix + ".0." + pathPrefix
 		terragruntTfBinaryPrefix = prefix + ".0." + terragruntTfBinaryPrefix
+		terraformVersionPrefix = prefix + ".0." + terraformVersionPrefix
 	}
 
 	path, pathOk := d.GetOk(pathPrefix)
 	terragruntTfBinary := d.Get(terragruntTfBinaryPrefix).(string)
+	terraformVersion := d.Get(terraformVersionPrefix).(string)
 
 	// If this value isn't set, ignore whatever is returned from the response.
 	// This helps avoid drifts when defaulting to 'opentofu' for new 'terragrunt' templates, and 'terraform' for existing 'terragrunt' templates.
 	// 'template.TerragruntTfBinary' field is set to 'omitempty'. Therefore, the state isn't modified if `template.TerragruntTfBinary` is an empty string.
 	if terragruntTfBinary == "" {
 		template.TerragruntTfBinary = ""
+	}
+	// Same explanation as above.
+	if terraformVersion == "" {
+		template.TerraformVersion = ""
 	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
