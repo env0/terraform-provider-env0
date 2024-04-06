@@ -27,7 +27,7 @@ func resourceTeamOrganizationAssignment() *schema.Resource {
 			},
 			"role_id": {
 				Type:             schema.TypeString,
-				Description:      "id of the assigned role",
+				Description:      "id of the assigned custom role. The following built-in roles can be passed as well: User, Admin",
 				Required:         true,
 				ValidateDiagFunc: ValidateNotEmptyString,
 			},
