@@ -1,9 +1,5 @@
 package client
 
-import (
-	"errors"
-)
-
 type ProjectRole string
 
 const (
@@ -18,40 +14,35 @@ func IsBuiltinProjectRole(role string) bool {
 }
 
 type TeamProjectAssignmentPayload struct {
-	TeamId      string `json:"teamId"`
-	ProjectId   string `json:"projectId"`
-	ProjectRole string `json:"projectRole" tfschema:"-"`
+	TeamId    string `json:"teamId"`
+	ProjectId string `json:"projectId"`
+	Role      string `json:"role" tfschema:"-"`
 }
 
 type TeamProjectAssignment struct {
-	Id          string `json:"id"`
-	TeamId      string `json:"teamId"`
-	ProjectId   string `json:"projectId"`
-	ProjectRole string `json:"projectRole" tfschema:"-"`
+	Id        string `json:"id"`
+	TeamId    string `json:"teamId"`
+	ProjectId string `json:"projectId"`
+	Role      string `json:"role" tfschema:"-"`
 }
 
-func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload TeamProjectAssignmentPayload) (TeamProjectAssignment, error) {
+func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload *TeamProjectAssignmentPayload) (*TeamProjectAssignment, error) {
 	var result TeamProjectAssignment
 
-	var err = client.http.Post("/teams/assignments", payload, &result)
-
-	if err != nil {
-		return TeamProjectAssignment{}, err
+	if err := client.http.Post("/roles/assignments/teams", payload, &result); err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	return &result, nil
 }
 
-func (client *ApiClient) TeamProjectAssignmentDelete(assignmentId string) error {
-	if assignmentId == "" {
-		return errors.New("empty assignmentId")
-	}
-	return client.http.Delete("/teams/assignments/"+assignmentId, nil)
+func (client *ApiClient) TeamProjectAssignmentDelete(projectId string, teamId string) error {
+	return client.http.Delete("/roles/assignments/teams", map[string]string{"projectId": projectId, "teamId": teamId})
 }
 
 func (client *ApiClient) TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error) {
-
 	var result []TeamProjectAssignment
-	err := client.http.Get("/teams/assignments", map[string]string{"projectId": projectId}, &result)
+	err := client.http.Get("/roles/assignments/teams", map[string]string{"projectId": projectId}, &result)
 
 	if err != nil {
 		return []TeamProjectAssignment{}, err
