@@ -68,10 +68,10 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 				return diag.Errorf("schema resource data serialization failed: %v", err)
 			}
 
-			if client.IsBuiltinProjectRole(assignment.ProjectRole) {
-				d.Set("role", assignment.ProjectRole)
+			if client.IsBuiltinProjectRole(assignment.Role) {
+				d.Set("role", assignment.Role)
 			} else {
-				d.Set("custom_role_id", assignment.ProjectRole)
+				d.Set("custom_role_id", assignment.Role)
 			}
 
 			return nil
@@ -96,14 +96,14 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 	if !ok {
 		role = d.Get("custom_role_id")
 	}
-	payload.ProjectRole = role.(string)
+	payload.Role = role.(string)
 
-	response, err := apiClient.TeamProjectAssignmentCreateOrUpdate(payload)
+	assignment, err := apiClient.TeamProjectAssignmentCreateOrUpdate(&payload)
 	if err != nil {
 		return diag.Errorf("could not Create or Update TeamProjectAssignment: %v", err)
 	}
 
-	d.SetId(response.Id)
+	d.SetId(assignment.Id)
 
 	return nil
 }
@@ -111,7 +111,10 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	err := apiClient.TeamProjectAssignmentDelete(d.Id())
+	projectId := d.Get("project_id").(string)
+	teamId := d.Get("team_id").(string)
+
+	err := apiClient.TeamProjectAssignmentDelete(projectId, teamId)
 	if err != nil {
 		return diag.Errorf("could not delete TeamProjectAssignment: %v", err)
 	}
@@ -141,10 +144,10 @@ func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.Resource
 				return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 			}
 
-			if client.IsBuiltinProjectRole(assignment.ProjectRole) {
-				d.Set("role", assignment.ProjectRole)
+			if client.IsBuiltinProjectRole(assignment.Role) {
+				d.Set("role", assignment.Role)
 			} else {
-				d.Set("custom_role_id", assignment.ProjectRole)
+				d.Set("custom_role_id", assignment.Role)
 			}
 			return []*schema.ResourceData{d}, nil
 		}
