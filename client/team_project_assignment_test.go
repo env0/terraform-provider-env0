@@ -30,7 +30,7 @@ var _ = Describe("TeamProjectAssignment", func() {
 					Role:      dummyProjectRole,
 				}
 				httpCall = mockHttpClient.EXPECT().
-					Post("/roles/assignments/teams", &expectedPayload, gomock.Any()).
+					Put("/roles/assignments/teams", &expectedPayload, gomock.Any()).
 					Do(func(path string, request interface{}, response *TeamProjectAssignment) {
 						*response = mockTeamProjectAssignment
 					}).Times(1)
@@ -38,7 +38,7 @@ var _ = Describe("TeamProjectAssignment", func() {
 
 			})
 
-			It("Should send POST request with params", func() {})
+			It("Should send PUT request with params", func() {})
 
 			It("Should return a new resource with id", func() {
 				Expect(*teamProjectAssignment).To(Equal(mockTeamProjectAssignment))

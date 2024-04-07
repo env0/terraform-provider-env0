@@ -29,7 +29,7 @@ type TeamProjectAssignment struct {
 func (client *ApiClient) TeamProjectAssignmentCreateOrUpdate(payload *TeamProjectAssignmentPayload) (*TeamProjectAssignment, error) {
 	var result TeamProjectAssignment
 
-	if err := client.http.Post("/roles/assignments/teams", payload, &result); err != nil {
+	if err := client.http.Put("/roles/assignments/teams", payload, &result); err != nil {
 		return nil, err
 	}
 
