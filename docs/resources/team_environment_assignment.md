@@ -38,10 +38,16 @@ resource "env0_custom_role" "custom_role" {
   ]
 }
 
-resource "env0_team_environment_assignment" "assignment" {
+resource "env0_team_environment_assignment" "custom_role_assignment" {
   team_id        = env0_team.team.id
   environment_id = env0_environment.environment.id
   role_id        = env0_custom_role.custom_role.id
+}
+
+resource "env0_team_environment_assignment" "builtin_role_assignment" {
+  team_id        = env0_team.team.id
+  environment_id = env0_environment.environment.id
+  role_id        = "Viewer"
 }
 ```
 
@@ -51,7 +57,7 @@ resource "env0_team_environment_assignment" "assignment" {
 ### Required
 
 - `environment_id` (String) id of the environment
-- `role_id` (String) id of the assigned role
+- `role_id` (String) id of the assigned custom role. The following built-in roles can be passed as well: `Viewer`, `Planner`, `Deployer`, `Admin`
 - `team_id` (String) id of the team
 
 ### Read-Only

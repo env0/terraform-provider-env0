@@ -25,9 +25,14 @@ resource "env0_custom_role" "custom_role" {
   ]
 }
 
-resource "env0_team_organization_assignment" "assignment" {
+resource "env0_team_organization_assignment" "custom_role_assignment" {
   team_id = env0_team.team.id
   role_id = env0_custom_role.custom_role.id
+}
+
+resource "env0_team_organization_assignment" "builtin_role_assignment" {
+  team_id = env0_team.team.id
+  role_id = "Admin"
 }
 ```
 
@@ -36,7 +41,7 @@ resource "env0_team_organization_assignment" "assignment" {
 
 ### Required
 
-- `role_id` (String) id of the assigned role
+- `role_id` (String) id of the assigned custom role. The following built-in roles can be passed as well: `User`, `Admin`
 - `team_id` (String) id of the team
 
 ### Read-Only
