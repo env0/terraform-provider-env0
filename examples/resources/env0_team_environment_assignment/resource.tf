@@ -23,8 +23,14 @@ resource "env0_custom_role" "custom_role" {
   ]
 }
 
-resource "env0_team_environment_assignment" "assignment" {
+resource "env0_team_environment_assignment" "custom_role_assignment" {
   team_id        = env0_team.team.id
   environment_id = env0_environment.environment.id
   role_id        = env0_custom_role.custom_role.id
+}
+
+resource "env0_team_environment_assignment" "builtin_role_assignment" {
+  team_id        = env0_team.team.id
+  environment_id = env0_environment.environment.id
+  role_id        = "Viewer"
 }
