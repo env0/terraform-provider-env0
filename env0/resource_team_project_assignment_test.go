@@ -19,32 +19,30 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 	customRole := "id1"
 	updatedCustomRole := "id2"
 
-	assignment := client.TeamProjectAssignment{
-		Id:        "assignmentId",
-		TeamId:    "teamId0",
-		ProjectId: "projectId0",
-		Role:      string(client.Admin),
+	projectId := "projectId0"
+
+	assignment := client.TeamRoleAssignmentPayload{
+		Id:     "assignmentId",
+		TeamId: "teamId0",
+		Role:   string(client.Admin),
 	}
 
-	updateAssignment := client.TeamProjectAssignment{
-		Id:        "assignmentIdupdate",
-		TeamId:    "teamIdUupdate",
-		ProjectId: "projectId0",
-		Role:      string(client.Admin),
+	updateAssignment := client.TeamRoleAssignmentPayload{
+		Id:     "assignmentIdupdate",
+		TeamId: "teamIdUupdate",
+		Role:   string(client.Admin),
 	}
 
-	assignmentCustom := client.TeamProjectAssignment{
-		Id:        "assignmentId",
-		TeamId:    "teamId0",
-		ProjectId: "projectId0",
-		Role:      customRole,
+	assignmentCustom := client.TeamRoleAssignmentPayload{
+		Id:     "assignmentId",
+		TeamId: "teamId0",
+		Role:   customRole,
 	}
 
-	updateAssignmentCustom := client.TeamProjectAssignment{
-		Id:        "assignmentIdupdate",
-		TeamId:    "teamIdUupdate",
-		ProjectId: "projectId0",
-		Role:      updatedCustomRole,
+	updateAssignmentCustom := client.TeamRoleAssignmentPayload{
+		Id:     "assignmentIdupdate",
+		TeamId: "teamIdUupdate",
+		Role:   updatedCustomRole,
 	}
 
 	t.Run("create", func(t *testing.T) {
@@ -53,12 +51,12 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    assignment.TeamId,
-						"project_id": assignment.ProjectId,
+						"project_id": projectId,
 						"role":       assignment.Role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", assignment.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", assignment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "role", assignment.Role),
 					),
 				},
@@ -66,9 +64,9 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
-			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{assignment}, nil)
-			mock.EXPECT().TeamProjectAssignmentDelete(assignment.ProjectId, assignment.TeamId).Times(1).Return(nil)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignment.TeamId, ProjectId: projectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
+			mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{assignment}, nil)
+			mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: assignment.TeamId, ProjectId: projectId}).Times(1).Return(nil)
 		})
 	})
 
@@ -78,24 +76,24 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    assignment.TeamId,
-						"project_id": assignment.ProjectId,
+						"project_id": projectId,
 						"role":       assignment.Role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", assignment.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", assignment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "role", assignment.Role),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    updateAssignment.TeamId,
-						"project_id": assignment.ProjectId,
+						"project_id": projectId,
 						"role":       assignment.Role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", updateAssignment.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", assignment.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "role", string(assignment.Role)),
 					),
 				},
@@ -103,14 +101,14 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		}
 
 		runUnitTest(t, driftTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: updateAssignment.TeamId, ProjectId: assignment.ProjectId, Role: assignment.Role}).Times(1).Return(&updateAssignment, nil)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignment.TeamId, ProjectId: projectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: updateAssignment.TeamId, ProjectId: projectId, Role: assignment.Role}).Times(1).Return(&updateAssignment, nil)
 			gomock.InOrder(
-				mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{assignment}, nil),
-				mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{updateAssignment}, nil),
-				mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{updateAssignment}, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{assignment}, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{updateAssignment}, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{updateAssignment}, nil),
 			)
-			mock.EXPECT().TeamProjectAssignmentDelete(updateAssignment.ProjectId, updateAssignment.TeamId).Times(1).Return(nil)
+			mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: updateAssignment.TeamId, ProjectId: projectId}).Times(1).Return(nil)
 		})
 	})
 
@@ -120,36 +118,36 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":        assignmentCustom.TeamId,
-						"project_id":     assignmentCustom.ProjectId,
+						"project_id":     projectId,
 						"custom_role_id": customRole,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", assignmentCustom.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", assignmentCustom.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "custom_role_id", customRole),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":        updateAssignmentCustom.TeamId,
-						"project_id":     updateAssignmentCustom.ProjectId,
+						"project_id":     projectId,
 						"custom_role_id": updatedCustomRole,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", updateAssignmentCustom.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", updateAssignmentCustom.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "custom_role_id", updatedCustomRole),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    updateAssignmentCustom.TeamId,
-						"project_id": updateAssignmentCustom.ProjectId,
+						"project_id": projectId,
 						"role":       updateAssignment.Role,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "team_id", updateAssignmentCustom.TeamId),
-						resource.TestCheckResourceAttr(accessor, "project_id", updateAssignmentCustom.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
 						resource.TestCheckResourceAttr(accessor, "role", updateAssignment.Role),
 					),
 				},
@@ -158,14 +156,14 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignmentCustom.TeamId, ProjectId: assignmentCustom.ProjectId, Role: assignmentCustom.Role}).Times(1).Return(&assignmentCustom, nil),
-				mock.EXPECT().TeamProjectAssignments(assignmentCustom.ProjectId).Times(2).Return([]client.TeamProjectAssignment{assignmentCustom}, nil),
-				mock.EXPECT().TeamProjectAssignmentDelete(assignmentCustom.ProjectId, assignmentCustom.TeamId).Times(1).Return(nil),
-				mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: updateAssignmentCustom.TeamId, ProjectId: updateAssignmentCustom.ProjectId, Role: updateAssignmentCustom.Role}).Times(1).Return(&updateAssignmentCustom, nil),
-				mock.EXPECT().TeamProjectAssignments(assignmentCustom.ProjectId).Times(2).Return([]client.TeamProjectAssignment{updateAssignmentCustom}, nil),
-				mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: updateAssignmentCustom.TeamId, ProjectId: updateAssignmentCustom.ProjectId, Role: updateAssignment.Role}).Times(1).Return(&updateAssignment, nil),
-				mock.EXPECT().TeamProjectAssignments(assignmentCustom.ProjectId).Times(1).Return([]client.TeamProjectAssignment{updateAssignment}, nil),
-				mock.EXPECT().TeamProjectAssignmentDelete(updateAssignment.ProjectId, updateAssignment.TeamId).Times(1).Return(nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignmentCustom.TeamId, ProjectId: projectId, Role: assignmentCustom.Role}).Times(1).Return(&assignmentCustom, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(2).Return([]client.TeamRoleAssignmentPayload{assignmentCustom}, nil),
+				mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: assignmentCustom.TeamId, ProjectId: projectId}).Times(1).Return(nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: updateAssignmentCustom.TeamId, ProjectId: projectId, Role: updateAssignmentCustom.Role}).Times(1).Return(&updateAssignmentCustom, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(2).Return([]client.TeamRoleAssignmentPayload{updateAssignmentCustom}, nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: updateAssignmentCustom.TeamId, ProjectId: projectId, Role: updateAssignment.Role}).Times(1).Return(&updateAssignment, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{updateAssignment}, nil),
+				mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: updateAssignment.TeamId, ProjectId: projectId}).Times(1).Return(nil),
 			)
 		})
 	})
@@ -176,23 +174,23 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    assignment.TeamId,
-						"project_id": assignment.ProjectId,
+						"project_id": projectId,
 						"role":       assignment.Role,
 					}),
 				},
 				{
 					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     assignment.TeamId + "_" + assignment.ProjectId,
+					ImportStateId:     assignment.TeamId + "_" + projectId,
 					ImportStateVerify: true,
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
-			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(3).Return([]client.TeamProjectAssignment{assignment}, nil)
-			mock.EXPECT().TeamProjectAssignmentDelete(assignment.ProjectId, assignment.TeamId).Times(1).Return(nil)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignment.TeamId, ProjectId: projectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
+			mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(3).Return([]client.TeamRoleAssignmentPayload{assignment}, nil)
+			mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: assignment.TeamId, ProjectId: projectId}).Times(1).Return(nil)
 		})
 	})
 
@@ -202,23 +200,23 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":        assignmentCustom.TeamId,
-						"project_id":     assignmentCustom.ProjectId,
+						"project_id":     projectId,
 						"custom_role_id": assignmentCustom.Role,
 					}),
 				},
 				{
 					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     assignmentCustom.TeamId + "_" + assignmentCustom.ProjectId,
+					ImportStateId:     assignmentCustom.TeamId + "_" + projectId,
 					ImportStateVerify: true,
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignmentCustom.TeamId, ProjectId: assignmentCustom.ProjectId, Role: assignmentCustom.Role}).Times(1).Return(&assignmentCustom, nil)
-			mock.EXPECT().TeamProjectAssignments(assignmentCustom.ProjectId).Times(3).Return([]client.TeamProjectAssignment{assignmentCustom}, nil)
-			mock.EXPECT().TeamProjectAssignmentDelete(assignmentCustom.ProjectId, assignmentCustom.TeamId).Times(1).Return(nil)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignmentCustom.TeamId, ProjectId: projectId, Role: assignmentCustom.Role}).Times(1).Return(&assignmentCustom, nil)
+			mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(3).Return([]client.TeamRoleAssignmentPayload{assignmentCustom}, nil)
+			mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: assignmentCustom.TeamId, ProjectId: projectId}).Times(1).Return(nil)
 		})
 	})
 
@@ -228,14 +226,14 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 						"team_id":    assignment.TeamId,
-						"project_id": assignment.ProjectId,
+						"project_id": projectId,
 						"role":       assignment.Role,
 					}),
 				},
 				{
 					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     assignment.TeamId + "_" + assignment.ProjectId,
+					ImportStateId:     assignment.TeamId + "_" + projectId,
 					ImportStateVerify: true,
 					ExpectError:       regexp.MustCompile("not found"),
 				},
@@ -243,10 +241,10 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().TeamProjectAssignmentCreateOrUpdate(&client.TeamProjectAssignmentPayload{TeamId: assignment.TeamId, ProjectId: assignment.ProjectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
-			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{assignment}, nil)
-			mock.EXPECT().TeamProjectAssignments(assignment.ProjectId).Times(1).Return([]client.TeamProjectAssignment{}, nil)
-			mock.EXPECT().TeamProjectAssignmentDelete(assignment.ProjectId, assignment.TeamId).Times(1)
+			mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&client.TeamRoleAssignmentCreateOrUpdatePayload{TeamId: assignment.TeamId, ProjectId: projectId, Role: assignment.Role}).Times(1).Return(&assignment, nil)
+			mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{assignment}, nil)
+			mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{ProjectId: projectId}).Times(1).Return([]client.TeamRoleAssignmentPayload{}, nil)
+			mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: assignment.TeamId, ProjectId: projectId}).Times(1)
 		})
 	})
 }

@@ -56,7 +56,7 @@ func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
 }
 
 func ValidateRole(i interface{}, path cty.Path) diag.Diagnostics {
-	role := client.ProjectRole(i.(string))
+	role := i.(string)
 	if role == "" ||
 		role != client.Admin &&
 			role != client.Deployer &&

@@ -11,8 +11,8 @@ import (
 
 func resourceTeamEnvironmentAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTeamEnvironmentAssignmentCreate,
-		UpdateContext: resourceTeamEnvironmentAssignmentUpdate,
+		CreateContext: resourceTeamEnvironmentAssignmentCreateOrUpdate,
+		UpdateContext: resourceTeamEnvironmentAssignmentCreateOrUpdate,
 		ReadContext:   resourceTeamEnvironmentAssignmentRead,
 		DeleteContext: resourceTeamEnvironmentAssignmentDelete,
 
@@ -39,15 +39,15 @@ func resourceTeamEnvironmentAssignment() *schema.Resource {
 	}
 }
 
-func resourceTeamEnvironmentAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var newAssignment client.AssignTeamRoleToEnvironmentPayload
-	if err := readResourceData(&newAssignment, d); err != nil {
+func resourceTeamEnvironmentAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	var payload client.TeamRoleAssignmentCreateOrUpdatePayload
+	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	client := meta.(client.ApiClientInterface)
-
-	assignment, err := client.AssignTeamRoleToEnvironment(&newAssignment)
+	assignment, err := apiClient.TeamRoleAssignmentCreateOrUpdate(&payload)
 	if err != nil {
 		return diag.Errorf("could not create assignment: %v", err)
 	}
@@ -58,12 +58,14 @@ func resourceTeamEnvironmentAssignmentCreate(ctx context.Context, d *schema.Reso
 }
 
 func resourceTeamEnvironmentAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(client.ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
+
+	var payload client.TeamRoleAssignmentListPayload
 
 	id := d.Id()
-	environmentId := d.Get("environment_id").(string)
+	payload.EnvironmentId = d.Get("environment_id").(string)
 
-	assignments, err := client.TeamRoleEnvironmentAssignments(environmentId)
+	assignments, err := apiClient.TeamRoleAssignments(&payload)
 	if err != nil {
 		return diag.Errorf("could not get assignments: %v", err)
 	}
@@ -86,31 +88,15 @@ func resourceTeamEnvironmentAssignmentRead(ctx context.Context, d *schema.Resour
 	return nil
 }
 
-func resourceTeamEnvironmentAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var payload client.AssignTeamRoleToEnvironmentPayload
-	if err := readResourceData(&payload, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
-	}
-
-	client := meta.(client.ApiClientInterface)
-
-	assignment, err := client.AssignTeamRoleToEnvironment(&payload)
-	if err != nil {
-		return diag.Errorf("could not update assignment: %v", err)
-	}
-
-	d.SetId(assignment.Id)
-
-	return nil
-}
-
 func resourceTeamEnvironmentAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	environmentId := d.Get("environment_id").(string)
-	teamId := d.Get("team_id").(string)
+	apiClient := meta.(client.ApiClientInterface)
 
-	client := meta.(client.ApiClientInterface)
+	var payload client.TeamRoleAssignmentDeletePayload
 
-	if err := client.RemoveTeamRoleFromEnvironment(environmentId, teamId); err != nil {
+	payload.EnvironmentId = d.Get("environment_id").(string)
+	payload.TeamId = d.Get("team_id").(string)
+
+	if err := apiClient.TeamRoleAssignmentDelete(&payload); err != nil {
 		return diag.Errorf("could not delete assignment: %v", err)
 	}
 
