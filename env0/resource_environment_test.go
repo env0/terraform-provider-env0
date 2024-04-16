@@ -42,6 +42,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
 		IsRemoteBackend:            &isRemoteBackendFalse,
+		K8sNamespace:               "namespace",
 	}
 
 	updatedEnvironment := client.Environment{
@@ -59,6 +60,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		VcsCommandsAlias:           "alias2",
 		IsRemoteBackend:            &isRemoteBackendTrue,
 		IsArchived:                 boolPtr(true),
+		K8sNamespace:               "namespace",
 	}
 
 	template := client.Template{
@@ -79,6 +81,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
 			"is_remote_backend":            *(environment.IsRemoteBackend),
+			"k8s_namespace":                environment.K8sNamespace,
 		}
 
 		if environment.IsArchived != nil {
@@ -98,6 +101,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
 			"is_remote_backend":            *(environment.IsRemoteBackend),
+			"k8s_namespace":                environment.K8sNamespace,
 		}
 
 		if environment.IsArchived != nil {
@@ -128,6 +132,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "false"),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "k8s_namespace", environment.K8sNamespace),
 							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
 							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
@@ -146,6 +151,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
 							resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+							resource.TestCheckResourceAttr(accessor, "k8s_namespace", updatedEnvironment.K8sNamespace),
 							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
 							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
 						),
@@ -166,6 +172,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintId: templateId,
 					},
 					IsRemoteBackend: &isRemoteBackendFalse,
+					K8sNamespace:    environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 					Name:                       updatedEnvironment.Name,
@@ -489,6 +496,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintId: templateId,
 					},
 					IsRemoteBackend: &isRemoteBackendFalse,
+					K8sNamespace:    environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(environment.Id).Times(3).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -556,6 +564,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						Enabled: true,
 						Cron:    driftDetectionCron,
 					},
+					K8sNamespace: environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 					Name:                       updatedEnvironment.Name,
@@ -636,6 +645,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						Enabled: true,
 						Cron:    driftDetectionCron,
 					},
+					K8sNamespace: environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 					Name:                       updatedEnvironment.Name,
@@ -1787,6 +1797,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendFalse,
+					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 			})
 
@@ -1818,6 +1829,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendFalse,
+					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
@@ -1859,6 +1871,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"force_destroy":                true,
 							"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 							"vcs_commands_alias":           environment.VcsCommandsAlias,
+							"k8s_namespace":                environment.K8sNamespace,
 						}),
 						ExpectError: regexp.MustCompile("failed deploying environment: error"),
 					},
@@ -1902,6 +1915,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendFalse,
+					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
