@@ -61,9 +61,6 @@ type ApiClientInterface interface {
 	TeamCreate(payload TeamCreatePayload) (Team, error)
 	TeamUpdate(id string, payload TeamUpdatePayload) (Team, error)
 	TeamDelete(id string) error
-	TeamProjectAssignmentCreateOrUpdate(payload *TeamProjectAssignmentPayload) (*TeamProjectAssignment, error)
-	TeamProjectAssignmentDelete(projectId string, teamId string) error
-	TeamProjectAssignments(projectId string) ([]TeamProjectAssignment, error)
 	Environments() ([]Environment, error)
 	ProjectEnvironments(projectId string) ([]Environment, error)
 	Environment(id string) (Environment, error)
@@ -138,12 +135,6 @@ type ApiClientInterface interface {
 	AssignUserRoleToEnvironment(payload *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error)
 	RemoveUserRoleFromEnvironment(environmentId string, userId string) error
 	UserRoleEnvironmentAssignments(environmentId string) ([]UserRoleEnvironmentAssignment, error)
-	AssignTeamRoleToEnvironment(payload *AssignTeamRoleToEnvironmentPayload) (*TeamRoleEnvironmentAssignment, error)
-	RemoveTeamRoleFromEnvironment(environmentId string, teamId string) error
-	TeamRoleEnvironmentAssignments(environmentId string) ([]TeamRoleEnvironmentAssignment, error)
-	AssignOrganizationRoleToTeam(payload *AssignOrganizationRoleToTeamPayload) (*OrganizationRoleTeamAssignment, error)
-	RemoveOrganizationRoleFromTeam(teamId string) error
-	OrganizationRoleTeamAssignments() ([]OrganizationRoleTeamAssignment, error)
 	ApprovalPolicies(name string) ([]ApprovalPolicy, error)
 	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
 	ApprovalPolicyUnassign(scope string, scopeId string) error
@@ -156,6 +147,9 @@ type ApiClientInterface interface {
 	PutEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error)
 	GetEnvironmentDiscovery(projectId string) (*EnvironmentDiscoveryPayload, error)
 	DeleteEnvironmentDiscovery(projectId string) error
+	TeamRoleAssignmentCreateOrUpdate(payload *TeamRoleAssignmentCreateOrUpdatePayload) (*TeamRoleAssignmentPayload, error)
+	TeamRoleAssignmentDelete(payload *TeamRoleAssignmentDeletePayload) error
+	TeamRoleAssignments(payload *TeamRoleAssignmentListPayload) ([]TeamRoleAssignmentPayload, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

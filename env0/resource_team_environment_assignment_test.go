@@ -17,31 +17,31 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 	role := "rid1"
 	updatedRole := "rid2"
 
-	createPayload := client.AssignTeamRoleToEnvironmentPayload{
+	createPayload := client.TeamRoleAssignmentCreateOrUpdatePayload{
 		TeamId:        teamId,
 		Role:          role,
 		EnvironmentId: environmentId,
 	}
 
-	updatePayload := client.AssignTeamRoleToEnvironmentPayload{
+	updatePayload := client.TeamRoleAssignmentCreateOrUpdatePayload{
 		TeamId:        teamId,
 		Role:          updatedRole,
 		EnvironmentId: environmentId,
 	}
 
-	createResponse := client.TeamRoleEnvironmentAssignment{
+	createResponse := client.TeamRoleAssignmentPayload{
 		Id:     id,
 		TeamId: teamId,
 		Role:   role,
 	}
 
-	updateResponse := client.TeamRoleEnvironmentAssignment{
+	updateResponse := client.TeamRoleAssignmentPayload{
 		Id:     id,
 		TeamId: teamId,
 		Role:   updatedRole,
 	}
 
-	otherResponse := client.TeamRoleEnvironmentAssignment{
+	otherResponse := client.TeamRoleAssignmentPayload{
 		Id:     "id2",
 		TeamId: "teamId2",
 		Role:   "dasdasd",
@@ -85,11 +85,11 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleEnvironmentAssignments(environmentId).Times(2).Return([]client.TeamRoleEnvironmentAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().AssignTeamRoleToEnvironment(&updatePayload).Times(1).Return(&updateResponse, nil),
-				mock.EXPECT().TeamRoleEnvironmentAssignments(environmentId).Times(1).Return([]client.TeamRoleEnvironmentAssignment{otherResponse, updateResponse}, nil),
-				mock.EXPECT().RemoveTeamRoleFromEnvironment(environmentId, teamId).Times(1).Return(nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{EnvironmentId: environmentId}).Times(2).Return([]client.TeamRoleAssignmentPayload{otherResponse, createResponse}, nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&updatePayload).Times(1).Return(&updateResponse, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{EnvironmentId: environmentId}).Times(1).Return([]client.TeamRoleAssignmentPayload{otherResponse, updateResponse}, nil),
+				mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: teamId, EnvironmentId: environmentId}).Times(1).Return(nil),
 			)
 		})
 	})
@@ -131,8 +131,8 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleEnvironmentAssignments(environmentId).Times(1).Return([]client.TeamRoleEnvironmentAssignment{otherResponse}, nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{EnvironmentId: environmentId}).Times(1).Return([]client.TeamRoleAssignmentPayload{otherResponse}, nil),
 			)
 		})
 	})
@@ -153,7 +153,7 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToEnvironment(&createPayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&createPayload).Times(1).Return(nil, errors.New("error")),
 			)
 		})
 	})
@@ -174,9 +174,9 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleEnvironmentAssignments(environmentId).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveTeamRoleFromEnvironment(environmentId, teamId).Times(1).Return(nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{EnvironmentId: environmentId}).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: teamId, EnvironmentId: environmentId}).Times(1).Return(nil),
 			)
 		})
 	})
@@ -203,17 +203,17 @@ func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
 						"environment_id": environmentId,
 						"role_id":        updatedRole,
 					}),
-					ExpectError: regexp.MustCompile("could not update assignment: error"),
+					ExpectError: regexp.MustCompile("could not create assignment: error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().AssignTeamRoleToEnvironment(&createPayload).Times(1).Return(&createResponse, nil),
-				mock.EXPECT().TeamRoleEnvironmentAssignments(environmentId).Times(2).Return([]client.TeamRoleEnvironmentAssignment{otherResponse, createResponse}, nil),
-				mock.EXPECT().AssignTeamRoleToEnvironment(&updatePayload).Times(1).Return(nil, errors.New("error")),
-				mock.EXPECT().RemoveTeamRoleFromEnvironment(environmentId, teamId).Times(1).Return(nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&createPayload).Times(1).Return(&createResponse, nil),
+				mock.EXPECT().TeamRoleAssignments(&client.TeamRoleAssignmentListPayload{EnvironmentId: environmentId}).Times(2).Return([]client.TeamRoleAssignmentPayload{otherResponse, createResponse}, nil),
+				mock.EXPECT().TeamRoleAssignmentCreateOrUpdate(&updatePayload).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().TeamRoleAssignmentDelete(&client.TeamRoleAssignmentDeletePayload{TeamId: teamId, EnvironmentId: environmentId}).Times(1).Return(nil),
 			)
 		})
 	})

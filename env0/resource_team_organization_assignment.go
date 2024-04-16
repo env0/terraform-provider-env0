@@ -11,8 +11,8 @@ import (
 
 func resourceTeamOrganizationAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTeamOrganizationAssignmentCreate,
-		UpdateContext: resourceTeamOrganizationAssignmentUpdate,
+		CreateContext: resourceTeamOrganizationAssignmentCreateOrUpdate,
+		UpdateContext: resourceTeamOrganizationAssignmentCreateOrUpdate,
 		ReadContext:   resourceTeamOrganizationAssignmentRead,
 		DeleteContext: resourceTeamOrganizationAssignmentDelete,
 
@@ -35,15 +35,22 @@ func resourceTeamOrganizationAssignment() *schema.Resource {
 	}
 }
 
-func resourceTeamOrganizationAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	api_client := meta.(client.ApiClientInterface)
+func resourceTeamOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
 
-	var newAssignment client.AssignOrganizationRoleToTeamPayload
-	if err := readResourceData(&newAssignment, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	organizationId, err := apiClient.OrganizationId()
+	if err != nil {
+		return diag.Errorf("could not get organization id: %v", err)
+
 	}
 
-	assignment, err := api_client.AssignOrganizationRoleToTeam(&newAssignment)
+	var payload client.TeamRoleAssignmentCreateOrUpdatePayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+	payload.OrganizationId = organizationId
+
+	assignment, err := apiClient.TeamRoleAssignmentCreateOrUpdate(&payload)
 	if err != nil {
 		return diag.Errorf("could not create assignment: %v", err)
 	}
@@ -54,14 +61,23 @@ func resourceTeamOrganizationAssignmentCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceTeamOrganizationAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	api_client := meta.(client.ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
-	assignments, err := api_client.OrganizationRoleTeamAssignments()
+	organizationId, err := apiClient.OrganizationId()
+	if err != nil {
+		return diag.Errorf("could not get organization id: %v", err)
+
+	}
+
+	var payload client.TeamRoleAssignmentListPayload
+	payload.OrganizationId = organizationId
+
+	id := d.Id()
+
+	assignments, err := apiClient.TeamRoleAssignments(&payload)
 	if err != nil {
 		return diag.Errorf("could not get assignments: %v", err)
 	}
-
-	id := d.Id()
 
 	for _, assignment := range assignments {
 		if assignment.Id == id {
@@ -81,30 +97,21 @@ func resourceTeamOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceTeamOrganizationAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	api_client := meta.(client.ApiClientInterface)
-
-	var payload client.AssignOrganizationRoleToTeamPayload
-	if err := readResourceData(&payload, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
-	}
-
-	assignment, err := api_client.AssignOrganizationRoleToTeam(&payload)
-	if err != nil {
-		return diag.Errorf("could not update assignment: %v", err)
-	}
-
-	d.SetId(assignment.Id)
-
-	return nil
-}
-
 func resourceTeamOrganizationAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	api_client := meta.(client.ApiClientInterface)
+	apiClient := meta.(client.ApiClientInterface)
 
-	teamId := d.Get("team_id").(string)
+	var payload client.TeamRoleAssignmentDeletePayload
 
-	if err := api_client.RemoveOrganizationRoleFromTeam(teamId); err != nil {
+	organizationId, err := apiClient.OrganizationId()
+	if err != nil {
+		return diag.Errorf("could not get organization id: %v", err)
+
+	}
+
+	payload.OrganizationId = organizationId
+	payload.TeamId = d.Get("team_id").(string)
+
+	if err := apiClient.TeamRoleAssignmentDelete(&payload); err != nil {
 		return diag.Errorf("could not delete assignment: %v", err)
 	}
 
