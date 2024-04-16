@@ -14,7 +14,7 @@ resource "env0_template" "test_template" {
   description = "test template"
   type        = "terraform"
   repository  = "https://github.com/env0/templates"
-  terraform_version = "1.7.1"
+  terraform_version = "1.5.1"
 }
 
 resource "env0_project" "test_project" {
