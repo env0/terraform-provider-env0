@@ -24,7 +24,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 	mockTeamRoleAssignments := []TeamRoleAssignmentPayload{mockTeamRoleAssignment}
 
 	Describe("CreateOrUpdate", func() {
-		Describe("Success", func() {
+		Describe("ProjectId", func() {
 			var assignment *TeamRoleAssignmentPayload
 			BeforeEach(func() {
 				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
@@ -39,6 +39,53 @@ var _ = Describe("TeamRoleAssignment", func() {
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
 
+			})
+
+			It("Should send PUT request with params", func() {})
+
+			It("Should return a new resource with id", func() {
+				Expect(*assignment).To(Equal(mockTeamRoleAssignment))
+			})
+		})
+
+		Describe("EnvironmentId", func() {
+			var assignment *TeamRoleAssignmentPayload
+			BeforeEach(func() {
+				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
+					TeamId:        dummyTeamId,
+					EnvironmentId: dummyEnvironmentId,
+					Role:          dummyProjectRole,
+				}
+				httpCall = mockHttpClient.EXPECT().
+					Put("/roles/assignments/teams", &createPayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *TeamRoleAssignmentPayload) {
+						*response = mockTeamRoleAssignment
+					}).Times(1)
+				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
+
+			})
+
+			It("Should send PUT request with params", func() {})
+
+			It("Should return a new resource with id", func() {
+				Expect(*assignment).To(Equal(mockTeamRoleAssignment))
+			})
+		})
+
+		Describe("OrganizationId", func() {
+			var assignment *TeamRoleAssignmentPayload
+			BeforeEach(func() {
+				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
+					TeamId:         dummyTeamId,
+					OrganizationId: dummyOrganizationId,
+					Role:           dummyProjectRole,
+				}
+				httpCall = mockHttpClient.EXPECT().
+					Put("/roles/assignments/teams", &createPayload, gomock.Any()).
+					Do(func(path string, request interface{}, response *TeamRoleAssignmentPayload) {
+						*response = mockTeamRoleAssignment
+					}).Times(1)
+				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
 			})
 
 			It("Should send PUT request with params", func() {})
