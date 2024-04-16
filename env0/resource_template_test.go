@@ -734,8 +734,9 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-				"name":       template.Name,
-				"repository": template.Repository,
+				"name":              template.Name,
+				"repository":        template.Repository,
+				"terraform_version": defaultVersion,
 			})
 		}
 
@@ -1014,8 +1015,9 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-				"name":       template.Name,
-				"repository": template.Repository,
+				"name":              template.Name,
+				"repository":        template.Repository,
+				"terraform_version": defaultVersion,
 			})
 		}
 
@@ -1093,9 +1095,10 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":       pathTemplate.Name,
-						"path":       "/" + pathTemplate.Path,
-						"repository": pathTemplate.Repository,
+						"name":              pathTemplate.Name,
+						"path":              "/" + pathTemplate.Path,
+						"repository":        pathTemplate.Repository,
+						"terraform_version": pathTemplate.TerraformVersion,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(resourceFullName, "id", pathTemplate.Id),
@@ -1108,9 +1111,10 @@ func TestUnitTemplateResource(t *testing.T) {
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":       updatedPathTemplate.Name,
-						"path":       "/" + updatedPathTemplate.Path,
-						"repository": updatedPathTemplate.Repository,
+						"name":              updatedPathTemplate.Name,
+						"path":              "/" + updatedPathTemplate.Path,
+						"repository":        updatedPathTemplate.Repository,
+						"terraform_version": updatedPathTemplate.TerraformVersion,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(resourceFullName, "id", updatedPathTemplate.Id),
