@@ -35,4 +35,5 @@ resource "env0_template" "usage" {
   type        = "terraform"
   repository  = "https://github.com/env0/templates"
   ssh_keys    = [env0_ssh_key.tested]
+  terraform_version = "1.3.1"
 }
