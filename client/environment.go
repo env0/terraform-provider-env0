@@ -119,6 +119,7 @@ type Environment struct {
 	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"-"`
 	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
 	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
+	K8sNamespace                string        `json:"k8s_namespace"`
 }
 
 type EnvironmentCreate struct {
@@ -139,6 +140,7 @@ type EnvironmentCreate struct {
 	Type                        string                 `json:"type,omitempty"`
 	DriftDetectionRequest       *DriftDetectionRequest `json:"driftDetectionRequest,omitempty" tfschema:"-"`
 	PreventAutoDeploy           *bool                  `json:"preventAutoDeploy,omitempty" tfschema:"-"`
+	K8sNamespace                string                 `json:"k8s_namespace,omitempty"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.

@@ -342,6 +342,12 @@ func resourceEnvironment() *schema.Resource {
 				Default:          "destroy",
 				ValidateDiagFunc: NewStringInValidator([]string{"destroy", "mark_as_archived"}),
 			},
+			"k8s_namespace": {
+				Type:        schema.TypeString,
+				Description: "kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
 			if oldValue != "" && oldValue != newValue {
