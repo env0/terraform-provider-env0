@@ -57,16 +57,15 @@ type ApprovalPolicyUpdatePayload struct {
 	IsAzureDevOps        bool   `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 }
 
-type ApprovalPolicyAssignmentScope string
-
 const (
-	ApprovalPolicyProjectScope ApprovalPolicyAssignmentScope = "PROJECT"
+	ApprovalPolicyProjectScope  string = "PROJECT"
+	ApprovalPolicyTemplateScope string = "BLUEPRINT"
 )
 
 type ApprovalPolicyAssignment struct {
-	Scope       ApprovalPolicyAssignmentScope `json:"scope"`
-	ScopeId     string                        `json:"scopeId"`
-	BlueprintId string                        `json:"blueprintId"`
+	Scope       string `json:"scope"`
+	ScopeId     string `json:"scopeId"`
+	BlueprintId string `json:"blueprintId"`
 }
 
 func (client *ApiClient) ApprovalPolicyCreate(payload *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {

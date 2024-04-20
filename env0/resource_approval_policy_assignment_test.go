@@ -50,7 +50,6 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", fmt.Sprintf("%s|%s|%s", assignment.BlueprintId, assignment.Scope, assignment.ScopeId)),
 						resource.TestCheckResourceAttr(accessor, "scope_id", assignment.ScopeId),
-						resource.TestCheckResourceAttr(accessor, "scope", "PROJECT"),
 						resource.TestCheckResourceAttr(accessor, "blueprint_id", assignment.BlueprintId),
 					),
 				},

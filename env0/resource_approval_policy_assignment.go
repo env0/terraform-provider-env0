@@ -22,15 +22,16 @@ func resourceApprovalPolicyAssignment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"scope": {
-				Type:        schema.TypeString,
-				Description: "the type of the scope. Valid values: PROJECT. Default value: PROJECT",
-				Optional:    true,
-				Default:     client.ApprovalPolicyProjectScope,
-				ForceNew:    true,
+				Type:             schema.TypeString,
+				Description:      "the type of the scope. Valid values: PROJECT or BLUEPRINT. Default value: PROJECT",
+				Optional:         true,
+				Default:          client.ApprovalPolicyProjectScope,
+				ForceNew:         true,
+				ValidateDiagFunc: NewStringInValidator([]string{"PROJECT", "TEMPLATE"}),
 			},
 			"scope_id": {
 				Type:        schema.TypeString,
-				Description: "the id of the scope (E.g. project id)",
+				Description: "the id of the scope (E.g. project id or template id)",
 				Required:    true,
 				ForceNew:    true,
 			},
@@ -47,27 +48,22 @@ func resourceApprovalPolicyAssignment() *schema.Resource {
 func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	scope := d.Get("scope").(string)
-	scopeId := d.Get("scope_id").(string)
-	blueprintId := d.Get("blueprint_id").(string)
+	var assignment client.ApprovalPolicyAssignment
+	if err := readResourceData(&assignment, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
-	template, err := apiClient.Template(blueprintId)
+	template, err := apiClient.Template(assignment.BlueprintId)
 	if err != nil {
-		return diag.Errorf("unable to get template with id %s: %v", blueprintId, err)
+		return diag.Errorf("unable to get template with id %s: %v", assignment.BlueprintId, err)
 	}
 
 	if template.Type != string(ApprovalPolicy) {
-		return diag.Errorf("template with id %s is of type %s, but %s type is required", blueprintId, template.Type, ApprovalPolicy)
-	}
-
-	assignment := client.ApprovalPolicyAssignment{
-		Scope:       client.ApprovalPolicyAssignmentScope(scope),
-		ScopeId:     scopeId,
-		BlueprintId: blueprintId,
+		return diag.Errorf("template with id %s is of type %s, but %s type is required", assignment.BlueprintId, template.Type, ApprovalPolicy)
 	}
 
 	if _, err := apiClient.ApprovalPolicyAssign(&assignment); err != nil {
-		return diag.Errorf("could not assign approval policy %s to scope %s %s: %v", blueprintId, scope, scopeId, err)
+		return diag.Errorf("could not assign approval policy %s to scope %s %s: %v", assignment.BlueprintId, assignment.Scope, assignment.ScopeId, err)
 	}
 
 	setApprovalPolicyAssignmentId(d, &assignment)
@@ -78,18 +74,19 @@ func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.Resou
 func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	scope := d.Get("scope").(string)
-	scopeId := d.Get("scope_id").(string)
-	blueprintId := d.Get("blueprint_id").(string)
+	var assignment client.ApprovalPolicyAssignment
+	if err := readResourceData(&assignment, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
-	approvalPolicyByScopeArr, err := apiClient.ApprovalPolicyByScope(scope, scopeId)
+	approvalPolicyByScopeArr, err := apiClient.ApprovalPolicyByScope(assignment.Scope, assignment.ScopeId)
 	if err != nil {
 		return ResourceGetFailure(ctx, "approval policy assignment", d, err)
 	}
 
 	found := false
 	for _, approvalPolicyByScope := range approvalPolicyByScopeArr {
-		if approvalPolicyByScope.ApprovalPolicy.Id == blueprintId {
+		if approvalPolicyByScope.ApprovalPolicy.Id == assignment.BlueprintId {
 			found = true
 			break
 		}
@@ -100,14 +97,6 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 		d.SetId("")
 		return nil
 	}
-
-	assignment := client.ApprovalPolicyAssignment{
-		Scope:       client.ApprovalPolicyAssignmentScope(scope),
-		ScopeId:     scopeId,
-		BlueprintId: blueprintId,
-	}
-
-	setApprovalPolicyAssignmentId(d, &assignment)
 
 	return nil
 }
