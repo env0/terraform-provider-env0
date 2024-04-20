@@ -7,6 +7,6 @@ const (
 	Viewer   string = "Viewer"
 )
 
-func IsBuiltinProjectRole(role string) bool {
+func IsBuiltinRole(role string) bool {
 	return role == Admin || role == Deployer || role == Planner || role == Viewer
 }

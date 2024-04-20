@@ -37,7 +37,7 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "the assigned built-in role (Admin, Planner, Viewer, Deployer)",
 				Optional:         true,
-				ValidateDiagFunc: ValidateRole,
+				ValidateDiagFunc: NewRoleValidator([]string{"Admin", "Planner", "Viewer", "Deployer"}),
 				ExactlyOneOf:     []string{"custom_role_id", "role"},
 			},
 			"custom_role_id": {
@@ -94,7 +94,7 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 				return diag.Errorf("schema resource data serialization failed: %v", err)
 			}
 
-			if client.IsBuiltinProjectRole(assignment.Role) {
+			if client.IsBuiltinRole(assignment.Role) {
 				d.Set("role", assignment.Role)
 			} else {
 				d.Set("custom_role_id", assignment.Role)
@@ -150,7 +150,7 @@ func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.Resource
 				return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 			}
 
-			if client.IsBuiltinProjectRole(assignment.Role) {
+			if client.IsBuiltinRole(assignment.Role) {
 				d.Set("role", assignment.Role)
 			} else {
 				d.Set("custom_role_id", assignment.Role)
