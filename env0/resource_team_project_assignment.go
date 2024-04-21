@@ -37,7 +37,7 @@ func resourceTeamProjectAssignment() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "the assigned built-in role (Admin, Planner, Viewer, Deployer)",
 				Optional:         true,
-				ValidateDiagFunc: NewRoleValidator([]string{"Admin", "Planner", "Viewer", "Deployer"}),
+				ValidateDiagFunc: NewRoleValidator(client.ProjectBuiltinRoles),
 				ExactlyOneOf:     []string{"custom_role_id", "role"},
 			},
 			"custom_role_id": {

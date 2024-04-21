@@ -33,7 +33,7 @@ func resourceTeamEnvironmentAssignment() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "id of the assigned custom role. The following built-in roles can be passed as well: `Viewer`, `Planner`, `Deployer`, `Admin`",
 				Required:         true,
-				ValidateDiagFunc: NewRoleValidator([]string{"Admin", "Planner", "Viewer", "Deployer"}),
+				ValidateDiagFunc: NewRoleValidator(client.EnvironmentBuiltinRoles),
 			},
 		},
 	}

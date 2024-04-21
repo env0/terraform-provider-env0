@@ -126,7 +126,7 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 			return diag.Errorf("may not be empty")
 		}
 
-		if !client.IsBuiltinRole(role) {
+		if client.IsCustomRole(role) {
 			// Custom role.
 			return nil
 		}
