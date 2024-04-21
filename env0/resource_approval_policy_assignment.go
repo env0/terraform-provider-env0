@@ -27,7 +27,7 @@ func resourceApprovalPolicyAssignment() *schema.Resource {
 				Optional:         true,
 				Default:          client.ApprovalPolicyProjectScope,
 				ForceNew:         true,
-				ValidateDiagFunc: NewStringInValidator([]string{"PROJECT", "TEMPLATE"}),
+				ValidateDiagFunc: NewStringInValidator([]string{"PROJECT", "BLUEPRINT"}),
 			},
 			"scope_id": {
 				Type:        schema.TypeString,
