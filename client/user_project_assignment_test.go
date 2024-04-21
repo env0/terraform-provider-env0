@@ -15,11 +15,11 @@ var _ = Describe("Agent Project Assignment", func() {
 
 	assignPayload := &AssignUserToProjectPayload{
 		UserId: userId,
-		Role:   string(Admin),
+		Role:   string(AdminRole),
 	}
 
 	updatePayload := &UpdateUserProjectAssignmentPayload{
-		Role: string(Admin),
+		Role: string(AdminRole),
 	}
 
 	expectedResponse := &UserProjectAssignment{

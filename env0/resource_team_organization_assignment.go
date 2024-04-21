@@ -29,7 +29,7 @@ func resourceTeamOrganizationAssignment() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "id of the assigned custom role. The following built-in roles can be passed as well: `User`, `Admin`",
 				Required:         true,
-				ValidateDiagFunc: ValidateNotEmptyString,
+				ValidateDiagFunc: NewRoleValidator(client.OrganizationBuiltinRoles),
 			},
 		},
 	}

@@ -55,18 +55,6 @@ func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
 	return nil
 }
 
-func ValidateRole(i interface{}, path cty.Path) diag.Diagnostics {
-	role := i.(string)
-	if role == "" ||
-		role != client.Admin &&
-			role != client.Deployer &&
-			role != client.Viewer &&
-			role != client.Planner {
-		return diag.Errorf("must be one of [Admin, Deployer, Viewer, Planner], got: %v", role)
-	}
-	return nil
-}
-
 func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 	cr := regexp.MustCompile(r)
 
@@ -128,4 +116,30 @@ func ValidateTtl(i interface{}, path cty.Path) diag.Diagnostics {
 	}
 
 	return nil
+}
+
+func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagFunc {
+	return func(i interface{}, p cty.Path) diag.Diagnostics {
+		role := i.(string)
+
+		if role == "" {
+			return diag.Errorf("may not be empty")
+		}
+
+		if client.IsCustomRole(role) {
+			// Custom role.
+			return nil
+		}
+
+		// Built-in role. Verify it's in the supported list.
+		for _, supportedRole := range supportedBuiltInRoles {
+			if role == supportedRole {
+				// supported.
+				return nil
+			}
+		}
+
+		// not supported.
+		return diag.Errorf("the following built-in role '%s' is not supported for this resource, must be one of %s", role, "["+strings.Join(supportedBuiltInRoles, ",")+"]")
+	}
 }

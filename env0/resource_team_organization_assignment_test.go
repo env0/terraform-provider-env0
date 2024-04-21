@@ -210,4 +210,20 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("unsupported built-in role", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"team_id": teamId,
+						"role_id": "Planner",
+					}),
+					ExpectError: regexp.MustCompile(`the following built-in role 'Planner' is not supported for this resource, must be one of \[User,Admin\]`),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }
