@@ -78,11 +78,12 @@ var _ = Describe("Approval Policy Client", func() {
 
 	Describe("Unassign Custom Flow", func() {
 		var err error
+		id := fmt.Sprintf("%s#%s#%s", mockAssignment.Scope, mockAssignment.ScopeId, mockAssignment.BlueprintId)
 
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete(fmt.Sprintf("/approval-policy/assignment/%s/%s", ApprovalPolicyProjectScope, "scope_id"), nil)
+			httpCall = mockHttpClient.EXPECT().Delete("/approval-policy/assignment", map[string]string{"id": id})
 			httpCall.Times(1)
-			err = apiClient.ApprovalPolicyUnassign(string(ApprovalPolicyProjectScope), "scope_id")
+			err = apiClient.ApprovalPolicyUnassign(id)
 		})
 
 		It("Should not return an error", func() {

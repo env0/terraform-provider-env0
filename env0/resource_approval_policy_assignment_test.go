@@ -22,6 +22,8 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 		BlueprintId: "blueprint_id",
 	}
 
+	id := fmt.Sprintf("%s#%s#%s", assignment.Scope, assignment.ScopeId, assignment.BlueprintId)
+
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 		"scope_id":     assignment.ScopeId,
 		"blueprint_id": assignment.BlueprintId,
@@ -61,7 +63,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
 				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return([]client.ApprovalPolicyByScope{approvalPolicyByScope}, nil),
-				mock.EXPECT().ApprovalPolicyUnassign(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil),
+				mock.EXPECT().ApprovalPolicyUnassign(id).Times(1).Return(nil),
 			)
 		})
 	})
@@ -142,7 +144,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
 				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil, &client.NotFoundError{}),
-				mock.EXPECT().ApprovalPolicyUnassign(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil),
+				mock.EXPECT().ApprovalPolicyUnassign(id).Times(1).Return(nil),
 			)
 		})
 	})
@@ -177,7 +179,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
 				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return([]client.ApprovalPolicyByScope{approvalPolicyByScopeMismatch}, nil),
-				mock.EXPECT().ApprovalPolicyUnassign(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil),
+				mock.EXPECT().ApprovalPolicyUnassign(id).Times(1).Return(nil),
 			)
 		})
 	})

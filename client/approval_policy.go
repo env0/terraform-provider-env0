@@ -123,8 +123,8 @@ func (client *ApiClient) ApprovalPolicyAssign(assignment *ApprovalPolicyAssignme
 	return &result, nil
 }
 
-func (client *ApiClient) ApprovalPolicyUnassign(scope string, scopeId string) error {
-	return client.http.Delete(fmt.Sprintf("/approval-policy/assignment/%s/%s", scope, scopeId), nil)
+func (client *ApiClient) ApprovalPolicyUnassign(id string) error {
+	return client.http.Delete("/approval-policy/assignment", map[string]string{"id": id})
 }
 
 func (client *ApiClient) ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error) {

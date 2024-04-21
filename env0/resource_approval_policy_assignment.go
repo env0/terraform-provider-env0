@@ -106,9 +106,12 @@ func resourceApprovalPolicyAssignmentDelete(ctx context.Context, d *schema.Resou
 
 	scope := d.Get("scope").(string)
 	scopeId := d.Get("scope_id").(string)
+	bluePrintId := d.Get("blueprint_id").(string)
 
-	if err := apiClient.ApprovalPolicyUnassign(scope, scopeId); err != nil {
-		return diag.Errorf("failed to unassign approval policy from scope %s %s: %v", scope, scopeId, err)
+	id := fmt.Sprintf("%s#%s#%s", scope, scopeId, bluePrintId)
+
+	if err := apiClient.ApprovalPolicyUnassign(id); err != nil {
+		return diag.Errorf("failed to unassign approval policy %s: %v", id, err)
 	}
 
 	return nil
