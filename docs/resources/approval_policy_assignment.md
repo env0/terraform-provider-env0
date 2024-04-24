@@ -38,11 +38,11 @@ resource "env0_approval_policy_assignment" "approval_policy_assignment" {
 ### Required
 
 - `blueprint_id` (String) the id of the approval policy
-- `scope_id` (String) the id of the scope (E.g. project id)
+- `scope_id` (String) the id of the scope (E.g. project id or template id)
 
 ### Optional
 
-- `scope` (String) the type of the scope. Valid values: PROJECT. Default value: PROJECT
+- `scope` (String) the type of the scope. Valid values: PROJECT or BLUEPRINT. Default value: PROJECT
 
 ### Read-Only
 
