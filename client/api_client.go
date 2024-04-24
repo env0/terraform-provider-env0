@@ -137,7 +137,7 @@ type ApiClientInterface interface {
 	UserRoleEnvironmentAssignments(environmentId string) ([]UserRoleEnvironmentAssignment, error)
 	ApprovalPolicies(name string) ([]ApprovalPolicy, error)
 	ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error)
-	ApprovalPolicyUnassign(scope string, scopeId string) error
+	ApprovalPolicyUnassign(id string) error
 	ApprovalPolicyByScope(scope string, scopeId string) ([]ApprovalPolicyByScope, error)
 	ApprovalPolicyCreate(payload *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error)
 	ApprovalPolicyUpdate(payload *ApprovalPolicyUpdatePayload) (*ApprovalPolicy, error)

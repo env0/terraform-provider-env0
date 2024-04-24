@@ -172,17 +172,17 @@ func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyCreate(arg0 any) *go
 }
 
 // ApprovalPolicyUnassign mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0, arg1 string) error {
+func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyUnassign", arg0, arg1)
+	ret := m.ctrl.Call(m, "ApprovalPolicyUnassign", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ApprovalPolicyUnassign indicates an expected call of ApprovalPolicyUnassign.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(arg0, arg1 any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), arg0)
 }
 
 // ApprovalPolicyUpdate mocks base method.
