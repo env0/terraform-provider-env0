@@ -14,8 +14,8 @@ func TestUnitUserProjectAssignmentResource(t *testing.T) {
 	userId := "uid"
 	projectId := "pid"
 	id := "id"
-	role := client.Deployer
-	updatedRole := client.Viewer
+	role := client.DeployerRole
+	updatedRole := client.ViewerRole
 	customRole := "id1"
 	updatedCustomRole := "id2"
 

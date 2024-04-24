@@ -24,13 +24,13 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 	assignment := client.TeamRoleAssignmentPayload{
 		Id:     "assignmentId",
 		TeamId: "teamId0",
-		Role:   string(client.Admin),
+		Role:   string(client.AdminRole),
 	}
 
 	updateAssignment := client.TeamRoleAssignmentPayload{
 		Id:     "assignmentIdupdate",
 		TeamId: "teamIdUupdate",
-		Role:   string(client.Admin),
+		Role:   string(client.AdminRole),
 	}
 
 	assignmentCustom := client.TeamRoleAssignmentPayload{
