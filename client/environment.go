@@ -60,7 +60,7 @@ const (
 
 type SubEnvironment struct {
 	Revision             string               `json:"revision,omitempty"`
-	Workspace            string               `json:"workspace,omitempty"`
+	Workspace            string               `json:"workspaceName,omitempty"`
 	ConfigurationChanges ConfigurationChanges `json:"configurationChanges"`
 }
 
