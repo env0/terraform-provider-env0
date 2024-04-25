@@ -884,6 +884,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 			deployPayload.SubEnvironments[subEnvironment.Alias] = client.SubEnvironment{
 				Revision:             subEnvironment.Revision,
 				ConfigurationChanges: subEnvironment.Configuration,
+				Workspace:            subEnvironment.Workspace,
 			}
 		}
 	}
