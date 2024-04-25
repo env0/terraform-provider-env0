@@ -2357,6 +2357,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		Type: (*client.ConfigurationVariableType)(intPtr(0)),
 	})
 
+	updatedSubEnvironment.Workspace = "workspace2"
+
 	subEnvrionmentWithId := subEnvironment
 	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
@@ -2405,6 +2407,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			BlueprintId: environment.BlueprintId,
 			SubEnvironments: map[string]client.SubEnvironment{
 				subEnvironment.Alias: {
+					Workspace:            subEnvironment.Workspace,
 					Revision:             subEnvironment.Revision,
 					ConfigurationChanges: subEnvironment.Configuration,
 				},
@@ -2423,7 +2426,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,
-				Workspace:            subEnvironment.Workspace,
+				Workspace:            updatedSubEnvironment.Workspace,
 				ConfigurationChanges: updatedSubEnvironment.Configuration,
 			},
 		},
@@ -2501,11 +2504,11 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						environmentCreatePayload.Name,
 						environmentCreatePayload.ProjectId,
 						environment.BlueprintId,
-						subEnvironment.Alias,
-						subEnvironment.Revision,
-						subEnvironment.Workspace,
-						subEnvironment.Configuration[0].Name,
-						subEnvironment.Configuration[0].Value,
+						updatedSubEnvironment.Alias,
+						updatedSubEnvironment.Revision,
+						updatedSubEnvironment.Workspace,
+						updatedSubEnvironment.Configuration[0].Name,
+						updatedSubEnvironment.Configuration[0].Value,
 						updatedSubEnvironment.Configuration[1].Name,
 						updatedSubEnvironment.Configuration[1].Value,
 					),
@@ -2515,11 +2518,11 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
 						resource.TestCheckResourceAttr(accessor, "template_id", environment.BlueprintId),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", workflowSubEnvironment.EnvironmentId),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", subEnvironment.Alias),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", subEnvironment.Revision),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.workspace", subEnvironment.Workspace),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", subEnvironment.Configuration[0].Name),
-						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", subEnvironment.Configuration[0].Value),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", updatedSubEnvironment.Alias),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", updatedSubEnvironment.Revision),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.workspace", updatedSubEnvironment.Workspace),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", updatedSubEnvironment.Configuration[0].Name),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", updatedSubEnvironment.Configuration[0].Value),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.name", updatedSubEnvironment.Configuration[1].Name),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.value", updatedSubEnvironment.Configuration[1].Value),
 					),
