@@ -106,6 +106,7 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 	case scope == ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
 	case scope == ScopeWorkflow:
+		params["environmentId"] = scopeId // temporary mitigation
 		params["workflowEnvironmentId"] = scopeId
 	}
 	err = client.http.Get("/configuration", params, &result)
