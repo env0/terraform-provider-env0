@@ -69,6 +69,14 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if payload.Deploy != nil && !payload.Deploy.Enabled {
+		payload.Deploy = nil
+	}
+
+	if payload.Destroy != nil && !payload.Destroy.Enabled {
+		payload.Destroy = nil
+	}
+
 	if _, err := apiClient.EnvironmentSchedulingUpdate(environmentId, payload); err != nil {
 		return diag.Errorf("could not create or update environment scheduling: %v", err)
 	}
