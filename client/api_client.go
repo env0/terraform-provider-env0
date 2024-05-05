@@ -150,6 +150,7 @@ type ApiClientInterface interface {
 	TeamRoleAssignmentCreateOrUpdate(payload *TeamRoleAssignmentCreateOrUpdatePayload) (*TeamRoleAssignmentPayload, error)
 	TeamRoleAssignmentDelete(payload *TeamRoleAssignmentDeletePayload) error
 	TeamRoleAssignments(payload *TeamRoleAssignmentListPayload) ([]TeamRoleAssignmentPayload, error)
+	KubernetesCredentialsCreate(payload *KubernetesCredentialsCreatePayload) (*Credentials, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

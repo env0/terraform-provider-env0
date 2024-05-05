@@ -21,18 +21,42 @@ resource "env0_gcp_credentials" "gcp_cred" {
 }
 
 data "env0_cloud_credentials" "all_aws_credentials" {
-  depends_on = [env0_aws_credentials.aws_cred1, env0_aws_credentials.aws_cred2, env0_gcp_credentials.gcp_cred]
+  depends_on      = [env0_aws_credentials.aws_cred1, env0_aws_credentials.aws_cred2, env0_gcp_credentials.gcp_cred]
   credential_type = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
 }
 
 data "env0_aws_credentials" "aws_credentials1" {
-  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred1.name)]
+  name = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred1.name)]
 }
 
 data "env0_aws_credentials" "aws_credentials2" {
-  name     = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred2.name)]
+  name = data.env0_cloud_credentials.all_aws_credentials.names[index(data.env0_cloud_credentials.all_aws_credentials.names, env0_aws_credentials.aws_cred2.name)]
 }
 
 output "credentials_name" {
   value = var.second_run ? replace(data.env0_aws_credentials.aws_credentials1.name, random_string.random.result, "") : ""
+}
+
+resource "env0_kubeconfig_credentials" "kubeconfig_credentials" {
+  name        = "kubeconfig-${random_string.random.result}"
+  kube_config = <<EOT
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: <ca-data-here>
+        server: https://your-k8s-cluster.com
+      name: <cluster-name>
+    contexts:
+    - context:
+        cluster:  <cluster-name>
+        user:  <cluster-name-user>
+      name:  <cluster-name>
+    current-context:  <cluster-name>
+    kind: Config
+    preferences: {}
+    users:
+    - name:  <cluster-name-user>
+      user:
+        token: <secret-token-here>
+    EOT
 }
