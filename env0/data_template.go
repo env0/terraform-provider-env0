@@ -126,6 +126,12 @@ func dataTemplate() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"is_azure_devops": {
+				Type:        schema.TypeBool,
+				Description: "true if this template integrates with azure dev ops",
+				Optional:    true,
+				Computed:    true,
+			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
 				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",

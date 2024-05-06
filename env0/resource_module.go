@@ -113,6 +113,12 @@ func resourceModule() *schema.Resource {
 				RequiredWith:     []string{"module_test_enabled"},
 				ValidateDiagFunc: NewOpenTofuVersionValidator(),
 			},
+			"is_azure_devops": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with azure dev ops",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
