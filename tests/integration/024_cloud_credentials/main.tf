@@ -72,3 +72,9 @@ resource "env0_azure_aks_credentials" "azure_aks_credentials" {
   cluster_name   = "my-cluster"
   resource_group = "rg1"
 }
+
+resource "env0_gcp_gke_credentials" "gcp_gke_credentials" {
+  name           = "gcp-gke-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  compute_region = "us-west1"
+}
