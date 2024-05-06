@@ -66,3 +66,9 @@ resource "env0_aws_eks_credentials" "aws_eks_credentials" {
   cluster_name   = "my-cluster"
   cluster_region = "us-east-2"
 }
+
+resource "env0_azure_aks_credentials" "azure_aks_credentials" {
+  name           = "azure-aks-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  resource_group = "rg1"
+}
