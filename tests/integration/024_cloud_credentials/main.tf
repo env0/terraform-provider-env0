@@ -60,3 +60,9 @@ resource "env0_kubeconfig_credentials" "kubeconfig_credentials" {
         token: <secret-token-here>
     EOT
 }
+
+resource "env0_aws_eks_credentials" "aws_eks_credentials" {
+  name           = "aws-eks-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  cluster_region = "us-east-2"
+}

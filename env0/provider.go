@@ -149,6 +149,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_project_budget":                       resourceProjectBudget(),
 				"env0_environment_discovery_configuration":  resourceEnvironmentDiscoveryConfiguration(),
 				"env0_kubeconfig_credentials":               resourceKubeconfigCredentials(),
+				"env0_aws_eks_credentials":                  resourceAwsEksCredentials(),
 			},
 		}
 
