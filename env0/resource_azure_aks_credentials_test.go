@@ -12,42 +12,46 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestUnitKubeconfigCredentialsResource(t *testing.T) {
-	resourceType := "env0_kubeconfig_credentials"
+func TestUnitAzureAksCredentialsResource(t *testing.T) {
+	resourceType := "env0_azure_aks_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	credentialsResource := map[string]interface{}{
-		"name":        "test",
-		"kube_config": "file content...",
+		"name":           "test",
+		"cluster_name":   "my-cluster",
+		"resource_group": "rg1",
 	}
 
 	updatedCredentialsResource := map[string]interface{}{
-		"name":        "test",
-		"kube_config": "new file content...",
+		"name":           "test",
+		"cluster_name":   "my-cluster2",
+		"resource_group": "rg1",
 	}
 
 	createPayload := client.KubernetesCredentialsCreatePayload{
 		Name: credentialsResource["name"].(string),
-		Value: client.KubeconfigFileValue{
-			KubeConfig: credentialsResource["kube_config"].(string),
+		Value: client.AzureAksValue{
+			ClusterName:   credentialsResource["cluster_name"].(string),
+			ResourceGroup: credentialsResource["resource_group"].(string),
 		},
-		Type: client.KubeconfigCredentialsType,
+		Type: client.AzureAksCredentialsType,
 	}
 
 	updatePayload := client.KubernetesCredentialsUpdatePayload{
-		Value: client.KubeconfigFileValue{
-			KubeConfig: updatedCredentialsResource["kube_config"].(string),
+		Value: client.AzureAksValue{
+			ClusterName:   updatedCredentialsResource["cluster_name"].(string),
+			ResourceGroup: updatedCredentialsResource["resource_group"].(string),
 		},
-		Type: client.KubeconfigCredentialsType,
+		Type: client.AzureAksCredentialsType,
 	}
 
 	returnValues := client.Credentials{
 		Id:             "f595c4b6-0a24-4c22-89f7-7030045de30f",
 		Name:           "test",
 		OrganizationId: "id",
-		Type:           string(client.KubeconfigCredentialsType),
+		Type:           string(client.AzureAksCredentialsType),
 	}
 
 	otherTypeReturnValues := client.Credentials{
@@ -63,7 +67,8 @@ func TestUnitKubeconfigCredentialsResource(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, credentialsResource),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", credentialsResource["name"].(string)),
-					resource.TestCheckResourceAttr(accessor, "kube_config", credentialsResource["kube_config"].(string)),
+					resource.TestCheckResourceAttr(accessor, "cluster_name", credentialsResource["cluster_name"].(string)),
+					resource.TestCheckResourceAttr(accessor, "resource_group", credentialsResource["resource_group"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
@@ -71,7 +76,8 @@ func TestUnitKubeconfigCredentialsResource(t *testing.T) {
 				Config: resourceConfigCreate(resourceType, resourceName, updatedCredentialsResource),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "name", updatedCredentialsResource["name"].(string)),
-					resource.TestCheckResourceAttr(accessor, "kube_config", updatedCredentialsResource["kube_config"].(string)),
+					resource.TestCheckResourceAttr(accessor, "cluster_name", updatedCredentialsResource["cluster_name"].(string)),
+					resource.TestCheckResourceAttr(accessor, "resource_group", updatedCredentialsResource["resource_group"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
@@ -127,7 +133,7 @@ func TestUnitKubeconfigCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           credentialsResource["name"].(string),
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"kube_config"},
+					ImportStateVerifyIgnore: []string{"cluster_name", "resource_group"},
 				},
 			},
 		}
@@ -154,7 +160,7 @@ func TestUnitKubeconfigCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           returnValues.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"kube_config"},
+					ImportStateVerifyIgnore: []string{"cluster_name", "resource_group"},
 				},
 			},
 		}

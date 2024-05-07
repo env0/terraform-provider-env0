@@ -60,3 +60,21 @@ resource "env0_kubeconfig_credentials" "kubeconfig_credentials" {
         token: <secret-token-here>
     EOT
 }
+
+resource "env0_aws_eks_credentials" "aws_eks_credentials" {
+  name           = "aws-eks-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  cluster_region = "us-east-2"
+}
+
+resource "env0_azure_aks_credentials" "azure_aks_credentials" {
+  name           = "azure-aks-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  resource_group = "rg1"
+}
+
+resource "env0_gcp_gke_credentials" "gcp_gke_credentials" {
+  name           = "gcp-gke-${random_string.random.result}"
+  cluster_name   = "my-cluster"
+  compute_region = "us-west1"
+}

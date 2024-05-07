@@ -15,6 +15,11 @@ type KubernetesCredentialsCreatePayload struct {
 	Value interface{}               `json:"value"`
 }
 
+type KubernetesCredentialsUpdatePayload struct {
+	Type  KubernetesCrednetialsType `json:"type"`
+	Value interface{}               `json:"value"`
+}
+
 // K8S_KUBECONFIG_FILE
 type KubeconfigFileValue struct {
 	KubeConfig string `json:"kubeConfig"`
@@ -58,6 +63,15 @@ func (client *ApiClient) KubernetesCredentialsCreate(payload *KubernetesCredenti
 
 	var result Credentials
 	if err := client.http.Post("/credentials", payloadWithOrganizatioId, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (client *ApiClient) KubernetesCredentialsUpdate(id string, payload *KubernetesCredentialsUpdatePayload) (*Credentials, error) {
+	var result Credentials
+	if err := client.http.Patch("/credentials/"+id, payload, &result); err != nil {
 		return nil, err
 	}
 

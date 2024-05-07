@@ -8,14 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKubeconfigCredentials() *schema.Resource {
+func resourceAwsEksCredentials() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceKubeconfigCredentialsCreate,
-		UpdateContext: resourceKubeconfigCredentialsUpdate,
-		ReadContext:   resourceCredentialsRead(KUBECONFIG_TYPE),
+		CreateContext: resourceAwsEksCredentialsCreate,
+		UpdateContext: resourceAwsEksCredentialsUpdate,
+		ReadContext:   resourceCredentialsRead(AWS_EKS_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(KUBECONFIG_TYPE)},
+		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(AWS_EKS_TYPE)},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -24,17 +24,22 @@ func resourceKubeconfigCredentials() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"kube_config": {
+			"cluster_name": {
 				Type:        schema.TypeString,
-				Description: "A valid kubeconfig file content",
+				Description: "eks cluster name",
+				Required:    true,
+			},
+			"cluster_region": {
+				Type:        schema.TypeString,
+				Description: "the AWS region of the eks cluster",
 				Required:    true,
 			},
 		},
 	}
 }
 
-func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	value := client.KubeconfigFileValue{}
+func resourceAwsEksCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AwsEksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
@@ -44,7 +49,7 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	request := client.KubernetesCredentialsCreatePayload{
 		Name:  d.Get("name").(string),
 		Value: value,
-		Type:  client.KubeconfigCredentialsType,
+		Type:  client.AwsEksCredentialsType,
 	}
 
 	credentials, err := apiClient.KubernetesCredentialsCreate(&request)
@@ -57,8 +62,8 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	value := client.KubeconfigFileValue{}
+func resourceAwsEksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AwsEksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
@@ -67,7 +72,7 @@ func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.Resource
 
 	request := client.KubernetesCredentialsUpdatePayload{
 		Value: value,
-		Type:  client.KubeconfigCredentialsType,
+		Type:  client.AwsEksCredentialsType,
 	}
 
 	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {

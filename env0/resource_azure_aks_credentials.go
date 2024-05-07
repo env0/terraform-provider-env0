@@ -8,14 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKubeconfigCredentials() *schema.Resource {
+func resourceAzureAksCredentials() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceKubeconfigCredentialsCreate,
-		UpdateContext: resourceKubeconfigCredentialsUpdate,
-		ReadContext:   resourceCredentialsRead(KUBECONFIG_TYPE),
+		CreateContext: resourceAzureAksCredentialsCreate,
+		UpdateContext: resourceAzureAksCredentialsUpdate,
+		ReadContext:   resourceCredentialsRead(AZURE_AKS_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(KUBECONFIG_TYPE)},
+		Importer: &schema.ResourceImporter{StateContext: resourceCredentialsImport(AZURE_AKS_TYPE)},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -24,17 +24,22 @@ func resourceKubeconfigCredentials() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"kube_config": {
+			"cluster_name": {
 				Type:        schema.TypeString,
-				Description: "A valid kubeconfig file content",
+				Description: "aks cluster name",
+				Required:    true,
+			},
+			"resource_group": {
+				Type:        schema.TypeString,
+				Description: "the resource group of the aks",
 				Required:    true,
 			},
 		},
 	}
 }
 
-func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	value := client.KubeconfigFileValue{}
+func resourceAzureAksCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AzureAksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
@@ -44,7 +49,7 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	request := client.KubernetesCredentialsCreatePayload{
 		Name:  d.Get("name").(string),
 		Value: value,
-		Type:  client.KubeconfigCredentialsType,
+		Type:  client.AzureAksCredentialsType,
 	}
 
 	credentials, err := apiClient.KubernetesCredentialsCreate(&request)
@@ -57,8 +62,8 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	value := client.KubeconfigFileValue{}
+func resourceAzureAksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AzureAksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
@@ -67,7 +72,7 @@ func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.Resource
 
 	request := client.KubernetesCredentialsUpdatePayload{
 		Value: value,
-		Type:  client.KubeconfigCredentialsType,
+		Type:  client.AzureAksCredentialsType,
 	}
 
 	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {
