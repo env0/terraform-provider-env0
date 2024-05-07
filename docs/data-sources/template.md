@@ -26,6 +26,7 @@ data "env0_template" "example" {
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
 - `github_installation_id` (Number) The env0 application installation id on the relevant github repository
 - `id` (String) id of the template
+- `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
 - `is_gitlab_enterprise` (Boolean) Does this template use gitlab enterprise repository?

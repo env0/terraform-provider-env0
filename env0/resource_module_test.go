@@ -55,6 +55,7 @@ func TestUnitModuleResource(t *testing.T) {
 		ModuleTestEnabled:     true,
 		OpentofuVersion:       "1.8.0",
 		RunTestsOnPullRequest: false,
+		IsAzureDevOps:         true,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -87,6 +88,7 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "module_test_enabled", "true"),
 						resource.TestCheckResourceAttr(accessor, "run_tests_on_pull_request", "true"),
 						resource.TestCheckResourceAttr(accessor, "opentofu_version", module.OpentofuVersion),
+						resource.TestCheckResourceAttr(accessor, "is_azure_devops", "false"),
 					),
 				},
 				{
@@ -100,6 +102,7 @@ func TestUnitModuleResource(t *testing.T) {
 						"tag_prefix":           updatedModule.TagPrefix,
 						"module_test_enabled":  updatedModule.ModuleTestEnabled,
 						"opentofu_version":     updatedModule.OpentofuVersion,
+						"is_azure_devops":      updatedModule.IsAzureDevOps,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", updatedModule.Id),
@@ -115,6 +118,7 @@ func TestUnitModuleResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "module_test_enabled", "true"),
 						resource.TestCheckResourceAttr(accessor, "run_tests_on_pull_request", "false"),
 						resource.TestCheckResourceAttr(accessor, "opentofu_version", updatedModule.OpentofuVersion),
+						resource.TestCheckResourceAttr(accessor, "is_azure_devops", "true"),
 					),
 				},
 			},
@@ -149,6 +153,7 @@ func TestUnitModuleResource(t *testing.T) {
 				TagPrefix:            updatedModule.TagPrefix,
 				ModuleTestEnabled:    updatedModule.ModuleTestEnabled,
 				OpentofuVersion:      updatedModule.OpentofuVersion,
+				IsAzureDevOps:        updatedModule.IsAzureDevOps,
 			}).Times(1).Return(&updatedModule, nil)
 
 			gomock.InOrder(

@@ -18,6 +18,7 @@ func TestModuleDataSource(t *testing.T) {
 		TokenId:        "t0",
 		TokenName:      "n0",
 		Repository:     "r0",
+		IsAzureDevOps:  true,
 	}
 
 	otherModule := client.Module{
@@ -48,6 +49,7 @@ func TestModuleDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "token_id", module.TokenId),
 						resource.TestCheckResourceAttr(accessor, "token_name", module.TokenName),
 						resource.TestCheckResourceAttr(accessor, "repository", module.Repository),
+						resource.TestCheckResourceAttr(accessor, "is_azure_devops", "true"),
 					),
 				},
 			},

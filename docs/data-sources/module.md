@@ -26,6 +26,7 @@ data "env0_module" "some_name" {
 - `bitbucket_client_key` (String) the client key used for integration with Bitbucket
 - `github_installation_id` (Number) the env0 application installation id on the relevant github repository
 - `id` (String) id of the module
+- `is_azure_devops` (Boolean) true if this module integrates with azure dev ops
 - `module_name` (String) the name of the module
 - `token_id` (String) the token id used for integration with GitLab
 - `token_name` (String) the token name used for integration with GitLab

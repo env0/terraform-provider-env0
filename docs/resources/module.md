@@ -35,6 +35,7 @@ resource "env0_module" "example" {
 - `bitbucket_client_key` (String) the client key used for integration with Bitbucket
 - `description` (String) description of the module
 - `github_installation_id` (Number) the env0 application installation id on the relevant Github repository
+- `is_azure_devops` (Boolean) true if this module integrates with azure dev ops
 - `module_provider` (String) the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)
 - `module_test_enabled` (Boolean) set to 'true' to enable module test (defaults to 'false')
 - `opentofu_version` (String) the opentofu version to use, Can only be set if 'module_test_enabled' is enabled

@@ -30,6 +30,7 @@ type Module struct {
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 }
 
 type ModuleCreatePayload struct {
@@ -49,6 +50,7 @@ type ModuleCreatePayload struct {
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 }
 
 type ModuleCreatePayloadWith struct {
@@ -74,6 +76,7 @@ type ModuleUpdatePayload struct {
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {

@@ -39,21 +39,31 @@ func dataModule() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the token id used for integration with GitLab",
 				Optional:    true,
+				Computed:    true,
 			},
 			"token_name": {
 				Type:        schema.TypeString,
 				Description: "the token name used for integration with GitLab",
 				Optional:    true,
+				Computed:    true,
 			},
 			"github_installation_id": {
 				Type:        schema.TypeInt,
 				Description: "the env0 application installation id on the relevant github repository",
 				Optional:    true,
+				Computed:    true,
 			},
 			"bitbucket_client_key": {
 				Type:        schema.TypeString,
 				Description: "the client key used for integration with Bitbucket",
 				Optional:    true,
+				Computed:    true,
+			},
+			"is_azure_devops": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with azure dev ops",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
