@@ -954,6 +954,21 @@ func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsCreate(arg0 a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsCreate), arg0)
 }
 
+// KubernetesCredentialsUpdate mocks base method.
+func (m *MockApiClientInterface) KubernetesCredentialsUpdate(arg0 string, arg1 *KubernetesCredentialsUpdatePayload) (*Credentials, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "KubernetesCredentialsUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*Credentials)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// KubernetesCredentialsUpdate indicates an expected call of KubernetesCredentialsUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsUpdate(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsUpdate), arg0, arg1)
+}
+
 // Module mocks base method.
 func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
 	m.ctrl.T.Helper()

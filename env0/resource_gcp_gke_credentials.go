@@ -11,6 +11,7 @@ import (
 func resourceGcpGkeCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGcpGkeCredentialsCreate,
+		UpdateContext: resourceGcpGkeCredentialsUpdate,
 		ReadContext:   resourceCredentialsRead(GCP_GKE_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
@@ -27,13 +28,11 @@ func resourceGcpGkeCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "gke cluster name",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"compute_region": {
 				Type:        schema.TypeString,
 				Description: "the GCP gke compute region",
 				Required:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -59,6 +58,26 @@ func resourceGcpGkeCredentialsCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(credentials.Id)
+
+	return nil
+}
+
+func resourceGcpGkeCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.GcpGkeValue{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	request := client.KubernetesCredentialsUpdatePayload{
+		Value: value,
+		Type:  client.GcpGkeCredentialsType,
+	}
+
+	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {
+		return diag.Errorf("could not create credentials: %v", err)
+	}
 
 	return nil
 }

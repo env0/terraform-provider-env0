@@ -10,12 +10,16 @@ import (
 var _ = Describe("Kubernetes Credentials", func() {
 	var credentials *Credentials
 
-	Describe("KubernetesCredentialsCreate", func() {
-		value := AzureAksValue{
-			ClusterName:   "cc11",
-			ResourceGroup: "rg11",
-		}
+	mockCredentials := Credentials{
+		Id: "id111",
+	}
 
+	value := AzureAksValue{
+		ClusterName:   "cc11",
+		ResourceGroup: "rg11",
+	}
+
+	Describe("KubernetesCredentialsCreate", func() {
 		createPayload := KubernetesCredentialsCreatePayload{
 			Name:  "n1",
 			Type:  "K8S_AZURE_AKS_AUTH",
@@ -32,10 +36,6 @@ var _ = Describe("Kubernetes Credentials", func() {
 			Name:           createPayload.Name,
 			Type:           string(createPayload.Type),
 			Value:          createPayload.Value,
-		}
-
-		mockCredentials := Credentials{
-			Id: "id111",
 		}
 
 		BeforeEach(func() {
@@ -55,6 +55,31 @@ var _ = Describe("Kubernetes Credentials", func() {
 		})
 
 		It("Should send POST request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(credentials).To(Equal(&mockCredentials))
+		})
+	})
+
+	Describe("KubernetesCredentialsUpdate", func() {
+		updatePayload := KubernetesCredentialsUpdatePayload{
+			Type:  "K8S_AZURE_AKS_AUTH",
+			Value: value,
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Patch("/credentials/"+mockCredentials.Id, &updatePayload, gomock.Any()).
+				Do(func(path string, request interface{}, response *Credentials) {
+					*response = mockCredentials
+				})
+
+			credentials, _ = apiClient.KubernetesCredentialsUpdate(mockCredentials.Id, &updatePayload)
+		})
+
+		It("Should send PATCH request with params", func() {
 			httpCall.Times(1)
 		})
 

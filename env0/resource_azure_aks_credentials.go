@@ -11,6 +11,7 @@ import (
 func resourceAzureAksCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAzureAksCredentialsCreate,
+		UpdateContext: resourceAzureAksCredentialsUpdate,
 		ReadContext:   resourceCredentialsRead(AZURE_AKS_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
@@ -27,13 +28,11 @@ func resourceAzureAksCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "aks cluster name",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"resource_group": {
 				Type:        schema.TypeString,
 				Description: "the resource group of the aks",
 				Required:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -59,6 +58,26 @@ func resourceAzureAksCredentialsCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	d.SetId(credentials.Id)
+
+	return nil
+}
+
+func resourceAzureAksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AzureAksValue{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	request := client.KubernetesCredentialsUpdatePayload{
+		Value: value,
+		Type:  client.AzureAksCredentialsType,
+	}
+
+	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {
+		return diag.Errorf("could not create credentials: %v", err)
+	}
 
 	return nil
 }

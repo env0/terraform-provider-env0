@@ -11,6 +11,7 @@ import (
 func resourceKubeconfigCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKubeconfigCredentialsCreate,
+		UpdateContext: resourceKubeconfigCredentialsUpdate,
 		ReadContext:   resourceCredentialsRead(KUBECONFIG_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
@@ -27,7 +28,6 @@ func resourceKubeconfigCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "A valid kubeconfig file content",
 				Required:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -53,6 +53,26 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	}
 
 	d.SetId(credentials.Id)
+
+	return nil
+}
+
+func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.KubeconfigFileValue{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	request := client.KubernetesCredentialsUpdatePayload{
+		Value: value,
+		Type:  client.KubeconfigCredentialsType,
+	}
+
+	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {
+		return diag.Errorf("could not create credentials: %v", err)
+	}
 
 	return nil
 }

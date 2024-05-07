@@ -11,6 +11,7 @@ import (
 func resourceAwsEksCredentials() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAwsEksCredentialsCreate,
+		UpdateContext: resourceAwsEksCredentialsUpdate,
 		ReadContext:   resourceCredentialsRead(AWS_EKS_TYPE),
 		DeleteContext: resourceCredentialsDelete,
 
@@ -27,13 +28,11 @@ func resourceAwsEksCredentials() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "eks cluster name",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"cluster_region": {
 				Type:        schema.TypeString,
 				Description: "the AWS region of the eks cluster",
 				Required:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -59,6 +58,26 @@ func resourceAwsEksCredentialsCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(credentials.Id)
+
+	return nil
+}
+
+func resourceAwsEksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	value := client.AwsEksValue{}
+	if err := readResourceData(&value, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	request := client.KubernetesCredentialsUpdatePayload{
+		Value: value,
+		Type:  client.AwsEksCredentialsType,
+	}
+
+	if _, err := apiClient.KubernetesCredentialsUpdate(d.Id(), &request); err != nil {
+		return diag.Errorf("could not create credentials: %v", err)
+	}
 
 	return nil
 }

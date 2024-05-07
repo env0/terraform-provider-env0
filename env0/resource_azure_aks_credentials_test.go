@@ -39,8 +39,7 @@ func TestUnitAzureAksCredentialsResource(t *testing.T) {
 		Type: client.AzureAksCredentialsType,
 	}
 
-	updatePayload := client.KubernetesCredentialsCreatePayload{
-		Name: updatedCredentialsResource["name"].(string),
+	updatePayload := client.KubernetesCredentialsUpdatePayload{
 		Value: client.AzureAksValue{
 			ClusterName:   updatedCredentialsResource["cluster_name"].(string),
 			ResourceGroup: updatedCredentialsResource["resource_group"].(string),
@@ -62,13 +61,6 @@ func TestUnitAzureAksCredentialsResource(t *testing.T) {
 		Type:           "AWS_....",
 	}
 
-	updateReturnValues := client.Credentials{
-		Id:             "dsdsdsd-0a24-4c22-89f7-7030045de30f",
-		Name:           returnValues.Name,
-		OrganizationId: "id",
-		Type:           string(client.AzureAksCredentialsType),
-	}
-
 	testCaseForCreateAndUpdate := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
@@ -86,7 +78,7 @@ func TestUnitAzureAksCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "name", updatedCredentialsResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "cluster_name", updatedCredentialsResource["cluster_name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "resource_group", updatedCredentialsResource["resource_group"].(string)),
-					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
+					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 				),
 			},
 		},
@@ -97,10 +89,9 @@ func TestUnitAzureAksCredentialsResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().KubernetesCredentialsCreate(&createPayload).Times(1).Return(&returnValues, nil),
 				mock.EXPECT().CloudCredentials(returnValues.Id).Times(2).Return(returnValues, nil),
+				mock.EXPECT().KubernetesCredentialsUpdate(returnValues.Id, &updatePayload).Times(1).Return(&returnValues, nil),
+				mock.EXPECT().CloudCredentials(returnValues.Id).Times(1).Return(returnValues, nil),
 				mock.EXPECT().CloudCredentialsDelete(returnValues.Id).Times(1).Return(nil),
-				mock.EXPECT().KubernetesCredentialsCreate(&updatePayload).Times(1).Return(&updateReturnValues, nil),
-				mock.EXPECT().CloudCredentials(updateReturnValues.Id).Times(1).Return(updateReturnValues, nil),
-				mock.EXPECT().CloudCredentialsDelete(updateReturnValues.Id).Times(1).Return(nil),
 			)
 		})
 	})
