@@ -3,7 +3,9 @@ package env0
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -62,26 +64,28 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
-	sshKeys, err := apiClient.SshKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	var sshKeysByName []client.SshKey
-	for _, candidate := range sshKeys {
-		if candidate.Name == name {
-			sshKeysByName = append(sshKeysByName, candidate)
+	return backoff.RetryWithData(func() (*client.SshKey, error) {
+		sshKeys, err := apiClient.SshKeys()
+		if err != nil {
+			return nil, err
 		}
-	}
 
-	if len(sshKeysByName) > 1 {
-		return nil, fmt.Errorf("found multiple ssh keys with name: %s. Use id instead or make sure ssh key names are unique %v", name, sshKeysByName)
-	}
-	if len(sshKeysByName) == 0 {
-		return nil, fmt.Errorf("ssh key with name %v not found", name)
-	}
+		var sshKeysByName []client.SshKey
+		for _, candidate := range sshKeys {
+			if candidate.Name == name {
+				sshKeysByName = append(sshKeysByName, candidate)
+			}
+		}
 
-	return &sshKeysByName[0], nil
+		if len(sshKeysByName) > 1 {
+			return nil, backoff.Permanent(fmt.Errorf("found multiple ssh keys with name: %s. Use id instead or make sure ssh key names are unique %v", name, sshKeysByName))
+		}
+		if len(sshKeysByName) == 0 {
+			return nil, fmt.Errorf("ssh key with name %v not found", name)
+		}
+
+		return &sshKeysByName[0], nil
+	}, backoff.NewExponentialBackOff(backoff.WithMaxElapsedTime(time.Minute*1), backoff.WithMaxInterval(time.Second*10)))
 }
 
 func getSshKeyById(id interface{}, meta interface{}) (*client.SshKey, error) {
