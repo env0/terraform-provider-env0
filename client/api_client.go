@@ -155,6 +155,11 @@ type ApiClientInterface interface {
 	EnvironmentImportCreate(payload *EnvironmentImportCreatePayload) (*EnvironmentImport, error)
 	EnvironmentImportUpdate(id string, payload *EnvironmentImportUpdatePayload) (*EnvironmentImport, error)
 	EnvironmentImportGet(id string) (*EnvironmentImport, error)
+	ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error)
+	ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error)
+	ConfigurationSet(id string) (*ConfigurationSet, error)
+	ConfigurationSetDelete(id string) error
+	ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
