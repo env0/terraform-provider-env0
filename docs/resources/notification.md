@@ -37,7 +37,11 @@ resource "env0_notification_project_assignment" "test_assignment" {
 
 - `name` (String) the name of the notification
 - `type` (String) 'Slack', 'Teams' or 'Email'
-- `value` (String) the target url of the notification
+- `value` (String) URL for Slack, Teams or Webhooks endpoint. Coma separated list of email addresses for email endpoint, you can use `$ENVIRONMENT_CREATOR$`, and `$DEPLOYER$` to resolve emails dynamically.
+
+### Optional
+
+- `webhook_secret` (String, Sensitive) the webhook secret to use for signing the webhook payload
 
 ### Read-Only
 

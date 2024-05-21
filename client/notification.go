@@ -19,9 +19,10 @@ type Notification struct {
 }
 
 type NotificationCreatePayload struct {
-	Name  string           `json:"name"`
-	Type  NotificationType `json:"type"`
-	Value string           `json:"value"`
+	Name          string           `json:"name"`
+	Type          NotificationType `json:"type"`
+	Value         string           `json:"value"`
+	WebhookSecret string           `json:"webhookSecret,omitempty"`
 }
 
 type NotificationCreatePayloadWith struct {
@@ -30,9 +31,10 @@ type NotificationCreatePayloadWith struct {
 }
 
 type NotificationUpdatePayload struct {
-	Name  string           `json:"name,omitempty"`
-	Type  NotificationType `json:"type,omitempty"`
-	Value string           `json:"value,omitempty"`
+	Name          string           `json:"name,omitempty"`
+	Type          NotificationType `json:"type,omitempty"`
+	Value         string           `json:"value,omitempty"`
+	WebhookSecret **string         `json:"webhookSecret,omitempty" tfschema:"-"`
 }
 
 func (client *ApiClient) Notifications() ([]Notification, error) {
