@@ -35,11 +35,7 @@ var _ = Describe("Environment Import Client", func() {
 			result, _ = apiClient.EnvironmentImportGet(mockEnvironmentImport.Id)
 		})
 
-		It("Should get organization id", func() {
-			organizationIdCall.Times(1)
-		})
-
-		It("Should return GpgKeys", func() {
+		It("Should return the environment import", func() {
 			Expect(*result).To(Equal(mockEnvironmentImport))
 		})
 	})
@@ -79,10 +75,6 @@ var _ = Describe("Environment Import Client", func() {
 				})
 
 			result, err = apiClient.EnvironmentImportCreate(&payload)
-		})
-
-		It("Should get organization id", func() {
-			organizationIdCall.Times(1)
 		})
 
 		It("Should not return error", func() {
