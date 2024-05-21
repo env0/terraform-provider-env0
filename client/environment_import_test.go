@@ -45,7 +45,7 @@ var _ = Describe("Environment Import Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall(organizationId).Times(1)
 
 			payload := EnvironmentImportCreatePayload{
 				Name:       "name",
@@ -90,7 +90,7 @@ var _ = Describe("Environment Import Client", func() {
 		var result *EnvironmentImport
 		var mockedResponse EnvironmentImport
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall(organizationId).Times(1)
 			payload := EnvironmentImportUpdatePayload{
 				Name: "new name",
 			}
