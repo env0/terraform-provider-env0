@@ -31,7 +31,7 @@ var _ = Describe("Environment Import Client", func() {
 				Get("/staging-environments/"+mockEnvironmentImport.Id, nil, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockEnvironmentImport
-				})
+				}).Times(1)
 			result, _ = apiClient.EnvironmentImportGet(mockEnvironmentImport.Id)
 		})
 
@@ -72,7 +72,7 @@ var _ = Describe("Environment Import Client", func() {
 				Post("/staging-environments", expectedPayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockEnvironmentImport
-				})
+				}).Times(1)
 
 			result, err = apiClient.EnvironmentImportCreate(&payload)
 		})
@@ -110,12 +110,9 @@ var _ = Describe("Environment Import Client", func() {
 				Put("/staging-environments/"+mockEnvironmentImport.Id, expectedPayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockedResponse
-				})
-			result, _ = apiClient.EnvironmentImportUpdate(mockEnvironmentImport.Id, &payload)
-		})
+				}).Times(1)
 
-		It("Should send PUT request with environment import ID and expected payload", func() {
-			httpCall.Times(1)
+			result, _ = apiClient.EnvironmentImportUpdate(mockEnvironmentImport.Id, &payload)
 		})
 
 		It("Should return environment import received from API", func() {
