@@ -46,6 +46,12 @@ func resourceNotification() *schema.Resource {
 				Required:         true,
 				ValidateDiagFunc: ValidateNotEmptyString,
 			},
+			"webhook_secret": {
+				Type:        schema.TypeString,
+				Description: "the webhook secret to use for signing the webhook payload",
+				Optional:    true,
+				Sensitive:   true,
+			},
 		},
 	}
 }
@@ -136,8 +142,20 @@ func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	_, err := apiClient.NotificationUpdate(d.Id(), payload)
-	if err != nil {
+	if d.HasChanges("webhook_secret") {
+		webhookSecret := d.Get("webhook_secret").(string)
+		var strPtr *string
+		if webhookSecret == "" {
+			// webhook secret was removed - pass 'null pointer' (will pass 'null' in json).
+			// see https://docs.env0.com/reference/notifications-update-notification-endpoint
+			payload.WebhookSecret = &strPtr
+		} else {
+			strPtr = &webhookSecret
+			payload.WebhookSecret = &strPtr
+		}
+	}
+
+	if _, err := apiClient.NotificationUpdate(d.Id(), payload); err != nil {
 		return diag.Errorf("could not update notification: %v", err)
 	}
 
