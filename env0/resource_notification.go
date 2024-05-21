@@ -42,7 +42,7 @@ func resourceNotification() *schema.Resource {
 			},
 			"value": {
 				Type:             schema.TypeString,
-				Description:      "the target url of the notification",
+				Description:      "URL for Slack, Teams or Webhooks endpoint. Coma separated list of email addresses for email endpoint, you can use `$ENVIRONMENT_CREATOR$`, and `$DEPLOYER$` to resolve emails dynamically.",
 				Required:         true,
 				ValidateDiagFunc: ValidateNotEmptyString,
 			},
