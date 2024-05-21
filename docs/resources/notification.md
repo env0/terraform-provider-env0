@@ -39,6 +39,10 @@ resource "env0_notification_project_assignment" "test_assignment" {
 - `type` (String) 'Slack', 'Teams' or 'Email'
 - `value` (String) the target url of the notification
 
+### Optional
+
+- `webhook_secret` (String, Sensitive) the webhook secret to use for signing the webhook payload
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.
