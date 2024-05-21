@@ -43,7 +43,7 @@ func TestUnitNotificationResource(t *testing.T) {
 
 	updatedNotification := client.Notification{
 		Id:             notification.Id,
-		Type:           client.NotificationTypeTeams,
+		Type:           client.NotificationTypeWebhook,
 		Name:           "name0-updated",
 		Value:          "https://some.updated.url.1.com",
 		OrganizationId: notification.OrganizationId,

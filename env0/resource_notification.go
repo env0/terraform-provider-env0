@@ -34,7 +34,7 @@ func resourceNotification() *schema.Resource {
 				Required:    true,
 				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
 					notificationType := client.NotificationType(i.(string))
-					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams && notificationType != client.NotificationTypeEmail {
+					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams && notificationType != client.NotificationTypeEmail && notificationType != client.NotificationTypeWebhook {
 						return diag.Errorf("Invalid notification type")
 					}
 					return nil
