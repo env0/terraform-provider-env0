@@ -3,9 +3,10 @@ package client
 type NotificationType string
 
 const (
-	NotificationTypeSlack NotificationType = "Slack"
-	NotificationTypeTeams NotificationType = "Teams"
-	NotificationTypeEmail NotificationType = "Email"
+	NotificationTypeSlack   NotificationType = "Slack"
+	NotificationTypeTeams   NotificationType = "Teams"
+	NotificationTypeEmail   NotificationType = "Email"
+	NotificationTypeWebhook NotificationType = "Webhook"
 )
 
 type Notification struct {
