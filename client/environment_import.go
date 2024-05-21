@@ -2,13 +2,13 @@ package client
 
 type EnvironmentImport struct {
 	Id             string     `json:"id"`
-	Name           string     `json:"name,omitempty"`
+	Name           string     `json:"name"`
 	OrganizationId string     `json:"organizationId"`
-	Workspace      string     `json:"workspace,omitempty"`
-	Variables      []Variable `json:"variables,omitempty"`
-	GitConfig      GitConfig  `json:"gitConfig,omitempty"`
-	IacType        string     `json:"iacType,omitempty"` // opentofu or terraform
-	IacVersion     string     `json:"iacVersion,omitempty"`
+	Workspace      string     `json:"workspace"`
+	Variables      []Variable `json:"variables"`
+	GitConfig      GitConfig  `json:"gitConfig"`
+	IacType        string     `json:"iacType"` // opentofu or terraform
+	IacVersion     string     `json:"iacVersion"`
 }
 
 type Variable struct {
