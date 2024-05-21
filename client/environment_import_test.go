@@ -27,8 +27,6 @@ var _ = Describe("Environment Import Client", func() {
 		var result *EnvironmentImport
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
-
 			mockHttpClient.EXPECT().
 				Get("/staging-environments/"+mockEnvironmentImport.Id, nil, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
