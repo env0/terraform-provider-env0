@@ -30,7 +30,7 @@ func resourceNotification() *schema.Resource {
 			},
 			"type": {
 				Type:        schema.TypeString,
-				Description: "'Slack', 'Teams' or 'Email'",
+				Description: "'Slack', 'Teams', 'Email' or 'Webhook'",
 				Required:    true,
 				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
 					notificationType := client.NotificationType(i.(string))
