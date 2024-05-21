@@ -14,6 +14,7 @@ const (
 	ScopeDeployment    Scope = "DEPLOYMENT"
 	ScopeDeploymentLog Scope = "DEPLOYMENT_LOG"
 	ScopeWorkflow      Scope = "WORKFLOW"
+	ScopeSet           Scope = "SET"
 )
 
 type Format string
