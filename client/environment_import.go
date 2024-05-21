@@ -2,44 +2,44 @@ package client
 
 type EnvironmentImport struct {
 	Id             string     `json:"id"`
-	Name           string     `json:"name"`
+	Name           string     `json:"name,omitempty"`
 	OrganizationId string     `json:"organizationId"`
-	Workspace      string     `json:"workspace"`
-	Variables      []Variable `json:"variables"`
-	GitConfig      GitConfig  `json:"gitConfig"`
-	IacType        string     `json:"iacType"` // opentofu or terraform
-	IacVersion     string     `json:"iacVersion"`
+	Workspace      string     `json:"workspace,omitempty"`
+	Variables      []Variable `json:"variables,omitempty"`
+	GitConfig      GitConfig  `json:"gitConfig,omitempty"`
+	IacType        string     `json:"iacType,omitempty"` // opentofu or terraform
+	IacVersion     string     `json:"iacVersion,omitempty"`
 }
 
 type Variable struct {
 	Name        string `json:"name"`
-	Value       string `json:"value"`
+	Value       string `json:"value,omitempty"`
 	IsSensitive bool   `json:"isSensitive"`
-	Type        string `json:"tyoe"` // string or JSON
+	Type        string `json:"type"` // string or JSON
 }
 
 type GitConfig struct {
-	Path       string `json:"path"`
-	Revision   string `json:"revision"`
-	Repository string `json:"repository"`
-	Provider   string `json:"provider"`
+	Path       string `json:"path,omitempty"`
+	Revision   string `json:"revision,omitempty"`
+	Repository string `json:"repository,omitempty"`
+	Provider   string `json:"provider,omitempty"`
 }
 
 type EnvironmentImportCreatePayload struct {
-	Name       string     `json:"name"`
-	Workspace  string     `json:"workspace"`
-	Variables  []Variable `json:"variables"`
-	GitConfig  GitConfig  `json:"gitConfig"`
-	IacType    string     `json:"iacType"`
-	IacVersion string     `json:"iacVersion"`
+	Name       string     `json:"name,omitempty"`
+	Workspace  string     `json:"workspace,omitempty"`
+	Variables  []Variable `json:"variables,omitempty"`
+	GitConfig  GitConfig  `json:"gitConfig,omitempty"`
+	IacType    string     `json:"iacType,omitempty"`
+	IacVersion string     `json:"iacVersion,omitempty"`
 }
 
 type EnvironmentImportUpdatePayload struct {
-	Name       string     `json:"name"`
-	Variables  []Variable `json:"variables"`
-	GitConfig  GitConfig  `json:"gitConfig"`
-	IacType    string     `json:"iacType"`
-	IacVersion string     `json:"iacVersion"`
+	Name       string     `json:"name,omitempty"`
+	Variables  []Variable `json:"variables,omitempty"`
+	GitConfig  GitConfig  `json:"gitConfig,omitempty"`
+	IacType    string     `json:"iacType,omitempty"`
+	IacVersion string     `json:"iacVersion,omitempty"`
 }
 
 func (client *ApiClient) EnvironmentImportCreate(payload *EnvironmentImportCreatePayload) (*EnvironmentImport, error) {
