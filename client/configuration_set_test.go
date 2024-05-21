@@ -12,13 +12,12 @@ var _ = Describe("Configuration Set", func() {
 	projectId := "projectId123"
 
 	mockConfigurationSet := ConfigurationSet{
-		Id: id,
+		Id:          id,
+		Name:        "name",
+		Description: "description",
 	}
 
-	mockConfigurationSetList := []ConfigurationSet{mockConfigurationSet}
-
 	var configurationSet *ConfigurationSet
-	var configurationSetList []ConfigurationSet
 
 	Describe("create organization configuration set", func() {
 		BeforeEach(func() {
@@ -95,48 +94,6 @@ var _ = Describe("Configuration Set", func() {
 		})
 	})
 
-	Describe("list organization scope configuration sets", func() {
-		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
-
-			httpCall = mockHttpClient.EXPECT().
-				Get("/configuration-sets", map[string]string{
-					"scope":               "organization",
-					"scopeId":             organizationId,
-					"includeHigherScopes": "false",
-				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
-					*response = mockConfigurationSetList
-				}).Times(1)
-
-			configurationSetList, _ = apiClient.ConfigurationSets("organization", "")
-		})
-
-		It("Should return configuration set list", func() {
-			Expect(configurationSetList).To(Equal(mockConfigurationSetList))
-		})
-	})
-
-	Describe("list project scope configuration sets", func() {
-		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().
-				Get("/configuration-sets", map[string]string{
-					"scope":               "project",
-					"scopeId":             projectId,
-					"includeHigherScopes": "false",
-				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
-					*response = mockConfigurationSetList
-				}).Times(1)
-
-			configurationSetList, _ = apiClient.ConfigurationSets("project", projectId)
-		})
-
-		It("Should return configuration set list", func() {
-			Expect(configurationSetList).To(Equal(mockConfigurationSetList))
-		})
-	})
-
 	Describe("get configuration set by id", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
@@ -179,12 +136,9 @@ var _ = Describe("Configuration Set", func() {
 		var variables []ConfigurationVariable
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
-
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration", map[string]string{
-					"setId":          id,
-					"organizationId": organizationId,
+					"setId": id,
 				}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = mockVariables

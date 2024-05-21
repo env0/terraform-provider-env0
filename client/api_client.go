@@ -154,7 +154,6 @@ type ApiClientInterface interface {
 	KubernetesCredentialsUpdate(id string, payload *KubernetesCredentialsUpdatePayload) (*Credentials, error)
 	ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error)
-	ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error)
 	ConfigurationSet(id string) (*ConfigurationSet, error)
 	ConfigurationSetDelete(id string) error
 	ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error)

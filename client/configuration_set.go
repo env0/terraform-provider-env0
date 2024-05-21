@@ -16,7 +16,9 @@ type UpdateConfigurationSetPayload struct {
 }
 
 type ConfigurationSet struct {
-	Id string `json:"id"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func (client *ApiClient) ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
@@ -47,28 +49,6 @@ func (client *ApiClient) ConfigurationSetUpdate(id string, payload *UpdateConfig
 	return &result, nil
 }
 
-func (client *ApiClient) ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error) {
-	var result []ConfigurationSet
-	var err error
-
-	if scope == "organization" {
-		scopeId, err = client.OrganizationId()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if err := client.http.Get("/configuration-sets", map[string]string{
-		"scope":               scope,
-		"scopeId":             scopeId,
-		"includeHigherScopes": "false",
-	}, &result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
 func (client *ApiClient) ConfigurationSet(id string) (*ConfigurationSet, error) {
 	var result ConfigurationSet
 
@@ -86,14 +66,8 @@ func (client *ApiClient) ConfigurationSetDelete(id string) error {
 func (client *ApiClient) ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error) {
 	var result []ConfigurationVariable
 
-	organizationId, err := client.OrganizationId()
-	if err != nil {
-		return nil, err
-	}
-
 	if err := client.http.Get("/configuration", map[string]string{
-		"setId":          setId,
-		"organizationId": organizationId,
+		"setId": setId,
 	}, &result); err != nil {
 		return nil, err
 	}
