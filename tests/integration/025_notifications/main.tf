@@ -11,9 +11,10 @@ locals {
 }
 
 resource "env0_notification" "test_notification_1" {
-  name  = "${local.notification_name_prefix}-1-${random_string.random.result}"
-  type  = "Slack"
-  value = "https://someurl1.com"
+  name           = "${local.notification_name_prefix}-1-${random_string.random.result}"
+  type           = "Slack"
+  value          = "https://someurl1.com"
+  webhook_secret = "my_little_secret"
 }
 
 resource "env0_notification" "test_notification_2" {

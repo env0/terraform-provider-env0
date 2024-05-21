@@ -51,20 +51,25 @@ func TestUnitNotificationResource(t *testing.T) {
 		CreatedByUser:  notification.CreatedByUser,
 	}
 
+	webhookSecret := "my-little-secret"
+	var nullString *string
+
 	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":  notification.Name,
-						"type":  notification.Type,
-						"value": notification.Value,
+						"name":           notification.Name,
+						"type":           notification.Type,
+						"value":          notification.Value,
+						"webhook_secret": webhookSecret,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", notification.Id),
 						resource.TestCheckResourceAttr(accessor, "name", notification.Name),
 						resource.TestCheckResourceAttr(accessor, "value", notification.Value),
 						resource.TestCheckResourceAttr(accessor, "type", string(notification.Type)),
+						resource.TestCheckResourceAttr(accessor, "webhook_secret", webhookSecret),
 					),
 				},
 				{
@@ -85,15 +90,17 @@ func TestUnitNotificationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().NotificationCreate(client.NotificationCreatePayload{
-				Name:  notification.Name,
-				Type:  notification.Type,
-				Value: notification.Value,
+				Name:          notification.Name,
+				Type:          notification.Type,
+				Value:         notification.Value,
+				WebhookSecret: webhookSecret,
 			}).Times(1).Return(&notification, nil)
 
 			mock.EXPECT().NotificationUpdate(updatedNotification.Id, client.NotificationUpdatePayload{
-				Name:  updatedNotification.Name,
-				Type:  updatedNotification.Type,
-				Value: updatedNotification.Value,
+				Name:          updatedNotification.Name,
+				Type:          updatedNotification.Type,
+				Value:         updatedNotification.Value,
+				WebhookSecret: &nullString,
 			}).Times(1).Return(&updatedNotification, nil)
 
 			gomock.InOrder(
