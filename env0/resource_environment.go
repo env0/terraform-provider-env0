@@ -148,7 +148,7 @@ func resourceEnvironment() *schema.Resource {
 		UpdateContext: resourceEnvironmentUpdate,
 		DeleteContext: resourceEnvironmentDelete,
 
-		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
+		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImporter},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -1161,7 +1161,8 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 	return environment, nil
 }
 
-func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+// a function to import an environment resource not to be consufed with the "environment import" resource (which is a different resource)
+func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	var getErr diag.Diagnostics
 	var environment client.Environment
