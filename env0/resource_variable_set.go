@@ -101,7 +101,7 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 	res.Scope = "SET"
 	res.Name = d["name"].(string)
 
-	isSensitive, ok := d["is_senstive"].(bool)
+	isSensitive, ok := d["is_sensitive"].(bool)
 	if !ok {
 		isSensitive = false
 	}
@@ -124,21 +124,21 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 	switch format := d["format"].(string); format {
 	case "text":
 		if len(value) == 0 {
-			return nil, fmt.Errorf("free text variable %s must have a value: ", res.Name)
+			return nil, fmt.Errorf("free text variable '%s' must have a value", res.Name)
 		}
 		res.Schema = &client.ConfigurationVariableSchema{
 			Type: "string",
 		}
 	case "hcl":
 		if len(value) == 0 {
-			return nil, fmt.Errorf("HCL variable %s must have a value: ", res.Name)
+			return nil, fmt.Errorf("hcl variable '%s' must have a value", res.Name)
 		}
 		res.Schema = &client.ConfigurationVariableSchema{
 			Format: "HCL",
 		}
 	case "json":
 		if len(value) == 0 {
-			return nil, fmt.Errorf("JSON variable %s must have a value: ", res.Name)
+			return nil, fmt.Errorf("json variable '%s' must have a value", res.Name)
 		}
 		res.Schema = &client.ConfigurationVariableSchema{
 			Format: "JSON",
@@ -146,12 +146,12 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 		// validate JSON.
 		var js json.RawMessage
 		if err := json.Unmarshal([]byte(value), &js); err != nil {
-			return nil, fmt.Errorf("JSON variable %s is not a valid json value: %w", res.Name, err)
+			return nil, fmt.Errorf("json variable '%s' is not a valid json value: %w", res.Name, err)
 		}
 	case "dropdown":
 		ivalues, ok := d["dropdown_values"].([]interface{})
 		if !ok || len(ivalues) == 0 {
-			return nil, fmt.Errorf("dropdown variables %s must have dropdown_values", res.Name)
+			return nil, fmt.Errorf("dropdown variable '%s' must have dropdown_values", res.Name)
 		}
 
 		var values []string
@@ -197,10 +197,10 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (interface
 			if len(variable.Schema.Enum) > 0 {
 				ivariable["format"] = "dropdown"
 				ivalues := make([]interface{}, 0)
-				ivariable["dropdown_values"] = ivalues
 				for _, value := range variable.Schema.Enum {
 					ivalues = append(ivalues, value)
 				}
+				ivariable["dropdown_values"] = ivalues
 			} else {
 				ivariable["format"] = "text"
 				ivariable["value"] = variable.Value
@@ -298,7 +298,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 		found := false
 
 		for _, avariable := range api {
-			if svariable.Name == avariable.Name {
+			if svariable.Name == avariable.Name && *svariable.Type == *avariable.Type {
 				found = true
 				if avariable.IsSensitive != nil && *avariable.IsSensitive {
 					// Senstive - to avoid drift use the value from the schema
@@ -307,11 +307,11 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 				res.currentVariables = append(res.currentVariables, avariable)
 				break
 			}
+		}
 
-			if !found {
-				// found a variable in the schema but not in the api - this is a new variable.
-				res.newVariables = append(res.newVariables, svariable)
-			}
+		if !found {
+			// found a variable in the schema but not in the api - this is a new variable.
+			res.newVariables = append(res.newVariables, svariable)
 		}
 	}
 
@@ -319,7 +319,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 		found := false
 
 		for _, svariable := range schema {
-			if svariable.Name == avariable.Name {
+			if svariable.Name == avariable.Name && *svariable.Type == *avariable.Type {
 				found = true
 				break
 			}
