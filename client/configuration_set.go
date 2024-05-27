@@ -6,7 +6,7 @@ type CreateConfigurationSetPayload struct {
 	// if Scope is "organization", scopeId will be calculated in the functions.
 	Scope                   string                  `json:"scope"`   // "project" or "organization".
 	ScopeId                 string                  `json:"scopeId"` // project id or organization id.
-	ConfigurationProperties []ConfigurationVariable `json:"configurationProperties"`
+	ConfigurationProperties []ConfigurationVariable `json:"configurationProperties" tfschema:"-"`
 }
 
 type UpdateConfigurationSetPayload struct {
@@ -25,7 +25,7 @@ func (client *ApiClient) ConfigurationSetCreate(payload *CreateConfigurationSetP
 	var result ConfigurationSet
 	var err error
 
-	if payload.Scope == "organization" {
+	if payload.Scope == "organization" && payload.ScopeId == "" {
 		payload.ScopeId, err = client.OrganizationId()
 		if err != nil {
 			return nil, err
