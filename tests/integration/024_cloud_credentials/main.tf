@@ -4,6 +4,10 @@ resource "random_string" "random" {
   min_lower = 8
 }
 
+resource "env0_project" "project" {
+  name = "credentials-project-${random_string.random.result}"
+}
+
 resource "env0_aws_credentials" "aws_cred1" {
   name = "Test Role arn1 ${random_string.random.result}"
   arn  = "Role ARN1"
@@ -66,6 +70,12 @@ resource "env0_aws_eks_credentials" "aws_eks_credentials" {
   cluster_name   = "my-cluster"
   cluster_region = "us-east-2"
 }
+
+resource "env0_cloud_credentials_project_assignment" "eks_to_project_assignment" {
+  credential_id = env0_aws_eks_credentials.aws_eks_credentials.id
+  project_id    = env0_project.project.id
+}
+
 
 resource "env0_azure_aks_credentials" "azure_aks_credentials" {
   name           = "azure-aks-${random_string.random.result}"
