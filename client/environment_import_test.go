@@ -14,13 +14,6 @@ var _ = Describe("Environment Import Client", func() {
 		IacType:    "tofu",
 		IacVersion: "1.0",
 		Workspace:  "workspace",
-		Variables: []Variable{{
-			Name:        "name",
-			Value:       "value",
-			IsSensitive: false,
-			Type:        "string",
-		},
-		},
 	}
 
 	Describe("EnvironmentImportGet", func() {
@@ -52,13 +45,7 @@ var _ = Describe("Environment Import Client", func() {
 				IacType:    "tofu",
 				IacVersion: "1.0",
 				Workspace:  "workspace",
-				Variables: []Variable{{
-					Name:        "name",
-					Value:       "value",
-					IsSensitive: false,
-					Type:        "string",
-				},
-				}}
+			}
 
 			expectedPayload := struct {
 				OrganizationId string `json:"organizationId"`
