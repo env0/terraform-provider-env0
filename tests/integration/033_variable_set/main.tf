@@ -11,7 +11,7 @@ resource "env0_project" "project" {
 }
 
 resource "env0_variable_set" "org_scope" {
-  name        = "variable-set-${random_string.random.result}"
+  name        = "variable-set-org-${random_string.random.result}"
   description = "description123"
 
   variable {
@@ -48,5 +48,19 @@ resource "env0_variable_set" "org_scope" {
     dropdown_values = ["o1", "o2"]
     type            = "terraform"
     format          = "dropdown"
+  }
+}
+
+resource "env0_variable_set" "project_scope" {
+  name        = "variable-set-project-${random_string.random.result}"
+  description = "description123"
+  scope       = "project"
+  scope_id    = data.env0_project.project.id
+
+  variable {
+    name   = "n1"
+    value  = "v1"
+    type   = "terraform"
+    format = "text"
   }
 }

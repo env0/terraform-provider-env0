@@ -1,5 +1,7 @@
 package client
 
+import "fmt"
+
 type CreateConfigurationSetPayload struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -64,10 +66,16 @@ func (client *ApiClient) ConfigurationSetDelete(id string) error {
 }
 
 func (client *ApiClient) ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organization id: %w", err)
+	}
+
 	var result []ConfigurationVariable
 
 	if err := client.http.Get("/configuration", map[string]string{
-		"setId": setId,
+		"setId":          setId,
+		"organizationId": organizationId,
 	}, &result); err != nil {
 		return nil, err
 	}
