@@ -76,6 +76,10 @@ resource "env0_cloud_credentials_project_assignment" "eks_to_project_assignment"
   project_id    = env0_project.project.id
 }
 
+data "env0_aws_eks_credentials" "aws_eks_credentials" {
+  depends_on = env0_aws_eks_credentials.aws_eks_credentials
+  name       = "aws-eks-${random_string.random.result}"
+}
 
 resource "env0_azure_aks_credentials" "azure_aks_credentials" {
   name           = "azure-aks-${random_string.random.result}"
