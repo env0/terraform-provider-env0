@@ -55,7 +55,7 @@ resource "env0_variable_set" "project_scope" {
   name        = "variable-set-project-${random_string.random.result}"
   description = "description123"
   scope       = "project"
-  scope_id    = data.env0_project.project.id
+  scope_id    = env0_project.project.id
 
   variable {
     name   = "n1"
