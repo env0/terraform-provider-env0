@@ -13,7 +13,7 @@ func resourceEnvironmentImport() *schema.Resource {
 		CreateContext: resourceEnvironmentImportCreate,
 		ReadContext:   resourceEnvironmentImportRead,
 		UpdateContext: resourceEnvironmentImportUpdate,
-		DeleteContext: resourceProjectDelete,
+		DeleteContext: resourceEnvironmentImportDelete,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -25,34 +25,6 @@ func resourceEnvironmentImport() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "name to give the environment",
 				Optional:    true,
-			},
-			"variables": {
-				Type:        schema.TypeList,
-				Description: "key value pairs to set as environment variables",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:        schema.TypeString,
-							Description: "the variable name",
-							Required:    true,
-						},
-						"value": {
-							Type:        schema.TypeString,
-							Description: "the variable value",
-						},
-						"isSensitive": {
-							Type:        schema.TypeBool,
-							Description: "is the variable sensitive",
-						},
-						"type": {
-							Type:        schema.TypeString,
-							Description: "the variable type \"string\" | \"JSON\"",
-							Optional:    true,
-							Default:     "string",
-						},
-					},
-				},
 			},
 			"path": {
 				Type:        schema.TypeString,
@@ -69,22 +41,24 @@ func resourceEnvironmentImport() *schema.Resource {
 				Description: "repository of the environment",
 				Optional:    true,
 			},
-			"provider": {
-				Type:        schema.TypeString,
-				Description: "vcs provider of the environment ( one of \"github\" | \"gitlab\" | \"bitbucket\" )",
-				Optional:    true,
+			"git_provider": {
+				Type:             schema.TypeString,
+				Description:      "vcs provider of the environment ( one of \"github\" | \"gitlab\" | \"bitbucket\" | \"azure\" | \"other\" )",
+				Optional:         true,
+				ValidateDiagFunc: NewStringInValidator([]string{"github", "gitlab", "bitbucket", "azure", "other"}),
 			},
 			"workspace": {
 				Type:        schema.TypeString,
 				Description: "workspace of the environment",
 				Optional:    true,
 			},
-			"iacType": {
-				Type:        schema.TypeString,
-				Description: "iac type of the environment ( one of \"opentofu\" | \"terraform\" )",
-				Optional:    true,
+			"iac_type": {
+				Type:             schema.TypeString,
+				Description:      "iac type of the environment ( one of \"opentofu\" | \"terraform\" )",
+				Optional:         true,
+				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
 			},
-			"iacVersion": {
+			"iac_version": {
 				Type:        schema.TypeString,
 				Description: "iac version of the environment",
 				Optional:    true,
@@ -101,15 +75,26 @@ func resourceEnvironmentImportCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if d.Get("git_provider").(string) != "" {
+		readGitFields(&payload.GitConfig, d)
+	}
+
 	environmentImport, err := apiClient.EnvironmentImportCreate(&payload)
 	if err != nil {
-		return diag.Errorf("could not create project: %v", err)
+		return diag.Errorf("could not create environment import: %v", err)
 	}
 
 	// how are the other fields set?
 	d.SetId(environmentImport.Id)
 
 	return nil
+}
+
+func readGitFields(gitConfig *client.GitConfig, d *schema.ResourceData) {
+	gitConfig.Path = d.Get("path").(string)
+	gitConfig.Revision = d.Get("revision").(string)
+	gitConfig.Repository = d.Get("repository").(string)
+	gitConfig.Provider = d.Get("git_provider").(string)
 }
 
 func resourceEnvironmentImportRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -120,9 +105,14 @@ func resourceEnvironmentImportRead(ctx context.Context, d *schema.ResourceData, 
 		return ResourceGetFailure(ctx, "environment import", d, err)
 	}
 
-	if err := writeResourceData(&environmentImport, d); err != nil {
+	if err := writeResourceData(environmentImport, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	d.Set("path", environmentImport.GitConfig.Path)
+	d.Set("revision", environmentImport.GitConfig.Revision)
+	d.Set("repository", environmentImport.GitConfig.Repository)
+	d.Set("git_provider", environmentImport.GitConfig.Provider)
 
 	return nil
 }
@@ -136,6 +126,8 @@ func resourceEnvironmentImportUpdate(ctx context.Context, d *schema.ResourceData
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
+	readGitFields(&payload.GitConfig, d)
 
 	if _, err := apiClient.EnvironmentImportUpdate(id, &payload); err != nil {
 		return diag.Errorf("could not update environment import: %v", err)

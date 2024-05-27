@@ -48,7 +48,7 @@ func (client *ApiClient) EnvironmentImportCreate(payload *EnvironmentImportCreat
 		return nil, err
 	}
 
-	payloadWithOrganzationId := struct {
+	payloadWithOrganizationId := struct {
 		OrganizationId string `json:"organizationId"`
 		EnvironmentImportCreatePayload
 	}{
@@ -57,7 +57,7 @@ func (client *ApiClient) EnvironmentImportCreate(payload *EnvironmentImportCreat
 	}
 
 	var result EnvironmentImport
-	if err := client.http.Post("/staging-environments", payloadWithOrganzationId, &result); err != nil {
+	if err := client.http.Post("/environment-imports", payloadWithOrganizationId, &result); err != nil {
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func (client *ApiClient) EnvironmentImportUpdate(id string, payload *Environment
 	}
 
 	var result EnvironmentImport
-	if err := client.http.Put("/staging-environments/"+id, payloadWithOrganzationId, &result); err != nil {
+	if err := client.http.Put("/environment-imports/"+id, payloadWithOrganzationId, &result); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func (client *ApiClient) EnvironmentImportUpdate(id string, payload *Environment
 
 func (client *ApiClient) EnvironmentImportGet(id string) (*EnvironmentImport, error) {
 	var result EnvironmentImport
-	if err := client.http.Get("/staging-environments/"+id, nil, &result); err != nil {
+	if err := client.http.Get("/environment-imports/"+id, nil, &result); err != nil {
 		return nil, err
 	}
 
