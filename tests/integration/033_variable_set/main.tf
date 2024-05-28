@@ -51,7 +51,7 @@ resource "env0_variable_set" "org_scope" {
 
   variable {
     name   = "n55555"
-    values = "abcdef"
+    value  = "abcdef"
     type   = var.second_run ? "terraform" : "environment"
     format = "text"
   }
