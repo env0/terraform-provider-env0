@@ -438,6 +438,11 @@ func resourceVariableSetUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	// Make sure all changes have a scopeId (otherwise the update request will fail).
+	for i := range payload.ConfigurationPropertiesChanges {
+		payload.ConfigurationPropertiesChanges[i].ScopeId = id
+	}
+
 	if _, err := apiClient.ConfigurationSetUpdate(id, &payload); err != nil {
 		return diag.Errorf("failed to update a variable set: %v", err)
 	}
