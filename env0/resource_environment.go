@@ -183,7 +183,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"revision": {
 				Type:          schema.TypeString,
-				Description:   "the revision the environment is to be run against",
+				Description:   "the revision the environment is to be run against. Please note that changing this attribute will require environment redeploy",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"without_template_settings"},
