@@ -7,14 +7,15 @@ import (
 type Scope string
 
 const (
-	ScopeGlobal        Scope = "GLOBAL"
-	ScopeTemplate      Scope = "BLUEPRINT"
-	ScopeProject       Scope = "PROJECT"
-	ScopeEnvironment   Scope = "ENVIRONMENT"
-	ScopeDeployment    Scope = "DEPLOYMENT"
-	ScopeDeploymentLog Scope = "DEPLOYMENT_LOG"
-	ScopeWorkflow      Scope = "WORKFLOW"
-	ScopeSet           Scope = "SET"
+	ScopeGlobal            Scope = "GLOBAL"
+	ScopeTemplate          Scope = "BLUEPRINT"
+	ScopeProject           Scope = "PROJECT"
+	ScopeEnvironment       Scope = "ENVIRONMENT"
+	ScopeDeployment        Scope = "DEPLOYMENT"
+	ScopeDeploymentLog     Scope = "DEPLOYMENT_LOG"
+	ScopeWorkflow          Scope = "WORKFLOW"
+	ScopeSet               Scope = "SET"
+	ScopeEnvironmentImport Scope = "ENVIRONMENT_IMPORT"
 )
 
 type Format string

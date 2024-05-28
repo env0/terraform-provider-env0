@@ -145,6 +145,10 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
 	}
+	if environmentImportId, ok := d.GetOk("environment_import_id"); ok {
+		scope = client.ScopeEnvironmentImport
+		scopeId = environmentImportId.(string)
+	}
 
 	return scope, scopeId
 }
