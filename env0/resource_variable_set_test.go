@@ -40,7 +40,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 	textVariableWithScopeId.Id = "idtextvariable"
 	textVariableWithScopeId.ScopeId = configurationSet.Id
 
-	senstiveTextVariable := client.ConfigurationVariable{
+	sensitiveTextVariable := client.ConfigurationVariable{
 		Name:           "nv1",
 		Value:          "v2",
 		OrganizationId: organizationId,
@@ -52,10 +52,10 @@ func TestUnitVariableSetResource(t *testing.T) {
 		},
 	}
 
-	senstiveTextVariableWithScopeId := senstiveTextVariable
-	senstiveTextVariableWithScopeId.Id = "idsentivetextvariable"
-	senstiveTextVariableWithScopeId.ScopeId = configurationSet.Id
-	senstiveTextVariableWithScopeId.Value = "OMITTED"
+	sensitiveTextVariableWithScopeId := sensitiveTextVariable
+	sensitiveTextVariableWithScopeId.Id = "idsentivetextvariable"
+	sensitiveTextVariableWithScopeId.ScopeId = configurationSet.Id
+	sensitiveTextVariableWithScopeId.Value = "OMITTED"
 
 	hclVariable := client.ConfigurationVariable{
 		Name:           "hcl1",
@@ -115,7 +115,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 			Scope:       "organization",
 			ConfigurationProperties: []client.ConfigurationVariable{
 				textVariable,
-				senstiveTextVariable,
+				sensitiveTextVariable,
 				hclVariable,
 				jsonVariable,
 				dropdownVariable,
@@ -140,7 +140,6 @@ func TestUnitVariableSetResource(t *testing.T) {
 						variable {
 							name = "%s"
 							value = "%s"
-							type = "environment"
 							format = "text"
 							is_sensitive = true
 						}
@@ -167,7 +166,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 						}
 					}`, resourceType, resourceName, createPayload.Name, createPayload.Description,
 						textVariable.Name, textVariable.Value,
-						senstiveTextVariable.Name, senstiveTextVariable.Value,
+						sensitiveTextVariable.Name, sensitiveTextVariable.Value,
 						hclVariable.Name, hclVariable.Value,
 						jsonVariable.Name, jsonVariable.Value,
 						dropdownVariable.Name,
@@ -181,8 +180,8 @@ func TestUnitVariableSetResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "variable.0.name", textVariable.Name),
 						resource.TestCheckResourceAttr(accessor, "variable.0.type", "terraform"),
 						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
-						resource.TestCheckResourceAttr(accessor, "variable.1.value", senstiveTextVariable.Value),
-						resource.TestCheckResourceAttr(accessor, "variable.1.name", senstiveTextVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.1.value", sensitiveTextVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.1.name", sensitiveTextVariable.Name),
 						resource.TestCheckResourceAttr(accessor, "variable.1.type", "environment"),
 						resource.TestCheckResourceAttr(accessor, "variable.1.format", "text"),
 						resource.TestCheckResourceAttr(accessor, "variable.1.is_sensitive", "true"),
@@ -212,7 +211,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSet(configurationSet.Id).Times(1).Return(&configurationSet, nil),
 				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{
 					textVariableWithScopeId,
-					senstiveTextVariableWithScopeId,
+					sensitiveTextVariableWithScopeId,
 					hclVariableWithScopeId,
 					jsonVariableWithScopeId,
 					dropdownVariableWithScopeId,
@@ -297,6 +296,23 @@ func TestUnitVariableSetResource(t *testing.T) {
 		updatedTextVariableWithScopeId := textVariableWithScopeId
 		updatedTextVariableWithScopeId.Value = updatedTextVariable.Value
 
+		updatedDropDownVariable := dropdownVariable
+		updatedDropDownVariable.Name = updatedTextVariable.Name
+		updatedDropDownVariable.Id = ""
+		updatedDropDownVariable.ScopeId = configurationSet.Id
+
+		updatedDropDownVariableRes := dropdownVariableWithScopeId
+		updatedDropDownVariableRes.Name = updatedDropDownVariable.Name
+
+		dropdownVariable2 := updatedDropDownVariableRes
+		dropdownVariable2.Value = "o3"
+		schema := *dropdownVariable2.Schema
+		dropdownVariable2.Schema = &schema
+		dropdownVariable2.Schema.Enum = []string{"o3", "o2"}
+
+		deleteDropdownVariable2 := dropdownVariable2
+		deleteDropdownVariable2.ToDelete = boolPtr(true)
+
 		updateTestCase := resource.TestCase{
 			// Create a text variable.
 			Steps: []resource.TestStep{
@@ -353,6 +369,77 @@ func TestUnitVariableSetResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
 					),
 				},
+				// Switch the variable format - will update without an id.
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							dropdown_values = ["o1", "o2"]
+							type = "terraform"
+							format = "dropdown"
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						updatedDropDownVariable.Name,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.dropdown_values.0", dropdownVariable.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "variable.0.dropdown_values.1", dropdownVariable.Schema.Enum[1]),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", textVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "terraform"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "dropdown"),
+					),
+				},
+				// Update the dropdown values.
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							dropdown_values = ["o3", "o2"]
+							type = "terraform"
+							format = "dropdown"
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						textVariable.Name,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.dropdown_values.0", dropdownVariable2.Schema.Enum[0]),
+						resource.TestCheckResourceAttr(accessor, "variable.0.dropdown_values.1", dropdownVariable2.Schema.Enum[1]),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", textVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "terraform"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "dropdown"),
+					),
+				},
+				// remove variable.
+				{
+					Config: fmt.Sprintf(`
+						resource "%s" "%s" {
+							name = "%s"
+							description = "%s"
+						}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+					),
+				},
 			},
 		}
 
@@ -369,9 +456,128 @@ func TestUnitVariableSetResource(t *testing.T) {
 					Name:                           configurationSet.Name,
 					Description:                    configurationSet.Description,
 					ConfigurationPropertiesChanges: []client.ConfigurationVariable{updatedTextVariableWithScopeId},
-				}),
-				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{
 					updatedTextVariableWithScopeId,
+				}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{updatedDropDownVariable},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{
+					updatedDropDownVariableRes,
+				}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{dropdownVariable2},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{
+					dropdownVariable2,
+				}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{deleteDropdownVariable2},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{}, nil),
+				mock.EXPECT().ConfigurationSetDelete(configurationSet.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("update sensitive variable", func(t *testing.T) {
+		createPayload := client.CreateConfigurationSetPayload{
+			Name:        configurationSet.Name,
+			Description: configurationSet.Description,
+			Scope:       "organization",
+			ConfigurationProperties: []client.ConfigurationVariable{
+				sensitiveTextVariable,
+			},
+		}
+
+		updatedSensitiveTextVariable := sensitiveTextVariableWithScopeId
+		updatedSensitiveTextVariable.Value = "some new value 1234 sensitive"
+
+		updateTestCase := resource.TestCase{
+			// Create a text variable.
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							value = "%s"
+							type = "environment"
+							format = "text"
+							is_sensitive = true
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						sensitiveTextVariable.Name, sensitiveTextVariable.Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.value", sensitiveTextVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", sensitiveTextVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "environment"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.is_sensitive", "true"),
+					),
+				},
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							value = "%s"
+							type = "environment"
+							format = "text"
+							is_sensitive = true
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						sensitiveTextVariable.Name, updatedSensitiveTextVariable.Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.value", updatedSensitiveTextVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", sensitiveTextVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "environment"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.is_sensitive", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().OrganizationId().AnyTimes().Return(organizationId, nil)
+			mock.EXPECT().ConfigurationSet(configurationSet.Id).AnyTimes().Return(&configurationSet, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationSetCreate(&createPayload).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{
+					sensitiveTextVariableWithScopeId,
+				}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{updatedSensitiveTextVariable},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{
+					sensitiveTextVariableWithScopeId,
 				}, nil),
 				mock.EXPECT().ConfigurationSetDelete(configurationSet.Id).Times(1).Return(nil),
 			)

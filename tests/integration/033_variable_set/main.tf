@@ -16,22 +16,21 @@ resource "env0_variable_set" "org_scope" {
 
   variable {
     name   = "n1"
-    value  = "v1"
+    value  = var.second_run ? "v2" : "v1"
     type   = "terraform"
     format = "text"
   }
 
   variable {
     name         = "n1"
-    value        = "v2"
-    type         = "environment"
+    value        = var.second_run ? "v22" : "v2"
     format       = "text"
     is_sensitive = true
   }
 
   variable {
     name   = "n3"
-    value  = "v3"
+    value  = var.second_run ? "v32" : "v3"
     type   = "terraform"
     format = "hcl"
   }
@@ -45,9 +44,16 @@ resource "env0_variable_set" "org_scope" {
 
   variable {
     name            = "n5"
-    dropdown_values = ["o1", "o2"]
+    dropdown_values = var.second_run ? ["o3", "o2"] : ["o1", "o2"]
     type            = "terraform"
     format          = "dropdown"
+  }
+
+  variable {
+    name            = "n55555"
+    dropdown_values = "abcdef"
+    type            = var.second_run ? "terraform" : "environment"
+    format          = "text"
   }
 }
 
