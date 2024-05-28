@@ -68,6 +68,13 @@ func resourceConfigurationVariable() *schema.Resource {
 				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
 				ForceNew:      true,
 			},
+			"environment_import_id": {
+				Type:          schema.TypeString,
+				Description:   "create the variable under this environment import, not globally.",
+				Optional:      true,
+				ConflictsWith: []string{"template_id", "project_id", "environment_id", "is_required", "is_read_only"},
+				ForceNew:      true,
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "default 'environment'. set to 'terraform' to create a terraform variable",
@@ -237,6 +244,10 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// if environment import id is set don't actually delete the variable
+	if _, ok := d.GetOk("environment_import_id"); ok {
+		return nil
+	}
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
