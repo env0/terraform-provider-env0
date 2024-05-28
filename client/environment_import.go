@@ -14,7 +14,7 @@ type GitConfig struct {
 	Path       string `json:"path,omitempty"`
 	Revision   string `json:"revision,omitempty"`
 	Repository string `json:"repository,omitempty"`
-	Provider   string `json:"provider,omitempty"`
+	Provider   string `json:"provider,omitempty" tfschema:"git_provider"`
 }
 
 type EnvironmentImportCreatePayload struct {

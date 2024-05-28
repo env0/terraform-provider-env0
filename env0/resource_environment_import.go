@@ -16,11 +16,6 @@ func resourceEnvironmentImport() *schema.Resource {
 		DeleteContext: resourceEnvironmentImportDelete,
 
 		Schema: map[string]*schema.Schema{
-			"id": {
-				Type:        schema.TypeString,
-				Description: "id of the environment import",
-				Computed:    true,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: "name to give the environment",
@@ -76,7 +71,9 @@ func resourceEnvironmentImportCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.Get("git_provider").(string) != "" {
-		readGitFields(&payload.GitConfig, d)
+		if err := readResourceData(&payload.GitConfig, d); err != nil {
+			return diag.Errorf("schema resource data deserialization failed: %v", err)
+		}
 	}
 
 	environmentImport, err := apiClient.EnvironmentImportCreate(&payload)
@@ -84,17 +81,9 @@ func resourceEnvironmentImportCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("could not create environment import: %v", err)
 	}
 
-	// how are the other fields set?
 	d.SetId(environmentImport.Id)
 
 	return nil
-}
-
-func readGitFields(gitConfig *client.GitConfig, d *schema.ResourceData) {
-	gitConfig.Path = d.Get("path").(string)
-	gitConfig.Revision = d.Get("revision").(string)
-	gitConfig.Repository = d.Get("repository").(string)
-	gitConfig.Provider = d.Get("git_provider").(string)
 }
 
 func resourceEnvironmentImportRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -102,17 +91,16 @@ func resourceEnvironmentImportRead(ctx context.Context, d *schema.ResourceData, 
 
 	environmentImport, err := apiClient.EnvironmentImportGet(d.Id())
 	if err != nil {
-		return ResourceGetFailure(ctx, "environment import", d, err)
+		return ResourceGetFailure(ctx, "environment_import", d, err)
 	}
 
 	if err := writeResourceData(environmentImport, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	d.Set("path", environmentImport.GitConfig.Path)
-	d.Set("revision", environmentImport.GitConfig.Revision)
-	d.Set("repository", environmentImport.GitConfig.Repository)
-	d.Set("git_provider", environmentImport.GitConfig.Provider)
+	if err := writeResourceData(&environmentImport.GitConfig, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
 	return nil
 }
@@ -127,7 +115,9 @@ func resourceEnvironmentImportUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	readGitFields(&payload.GitConfig, d)
+	if err := readResourceData(&payload.GitConfig, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
 	if _, err := apiClient.EnvironmentImportUpdate(id, &payload); err != nil {
 		return diag.Errorf("could not update environment import: %v", err)
