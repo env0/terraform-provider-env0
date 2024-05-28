@@ -14,7 +14,7 @@ type CreateConfigurationSetPayload struct {
 type UpdateConfigurationSetPayload struct {
 	Name                           string                  `json:"name"`
 	Description                    string                  `json:"description"`
-	ConfigurationPropertiesChanges []ConfigurationVariable `json:"configurationPropertiesChanges"` // delta changes.
+	ConfigurationPropertiesChanges []ConfigurationVariable `json:"configurationPropertiesChanges" tfschema:"-"` // delta changes.
 }
 
 type ConfigurationSet struct {

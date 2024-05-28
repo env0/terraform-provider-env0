@@ -281,6 +281,103 @@ func TestUnitVariableSetResource(t *testing.T) {
 		})
 	})
 
+	t.Run("update", func(t *testing.T) {
+		createPayload := client.CreateConfigurationSetPayload{
+			Name:        configurationSet.Name,
+			Description: configurationSet.Description,
+			Scope:       "organization",
+			ConfigurationProperties: []client.ConfigurationVariable{
+				textVariable,
+			},
+		}
+
+		updatedTextVariable := textVariable
+		updatedTextVariable.Value = "new-value"
+
+		updatedTextVariableWithScopeId := textVariableWithScopeId
+		updatedTextVariableWithScopeId.Value = updatedTextVariable.Value
+
+		updateTestCase := resource.TestCase{
+			// Create a text variable.
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							value = "%s"
+							type = "terraform"
+							format = "text"
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						textVariable.Name, textVariable.Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.value", textVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", textVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "terraform"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
+					),
+				},
+				// Update the value of a text variable.
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						description = "%s"
+
+						variable {
+							name = "%s"
+							value = "%s"
+							type = "terraform"
+							format = "text"
+						}
+					}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description,
+						updatedTextVariable.Name, updatedTextVariable.Value,
+					),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configurationSet.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configurationSet.Description),
+						resource.TestCheckResourceAttr(accessor, "scope", "organization"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.value", updatedTextVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.0.name", textVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.0.type", "terraform"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "text"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, updateTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().OrganizationId().AnyTimes().Return(organizationId, nil)
+			mock.EXPECT().ConfigurationSet(configurationSet.Id).AnyTimes().Return(&configurationSet, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationSetCreate(&createPayload).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{
+					textVariableWithScopeId,
+				}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{updatedTextVariableWithScopeId},
+				}),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{
+					updatedTextVariableWithScopeId,
+				}, nil),
+				mock.EXPECT().ConfigurationSetDelete(configurationSet.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
 	t.Run("failures", func(t *testing.T) {
 		runFailure := func(testName string, config string, errorMessage string) {
 			t.Run(testName, func(t *testing.T) {

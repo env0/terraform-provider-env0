@@ -57,7 +57,7 @@ func resourceVariableSet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVariableSetCreate,
 		ReadContext:   resourceVariableSetRead,
-		UpdateContext: resourceSshKeyUpdate, // TODO - update
+		UpdateContext: resourceVariableSetUpdate,
 		DeleteContext: resourceVariableSetDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -370,6 +370,76 @@ func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	if err := d.Set("variable", ivariables); err != nil {
 		return diag.Errorf("failed to set variables in schema: %v", err)
+	}
+
+	return nil
+}
+
+func resourceVariableSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var err error
+
+	id := d.Id()
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	organizationId, err := apiClient.OrganizationId()
+	if err != nil {
+		return diag.Errorf("failed to get organization id")
+	}
+
+	var payload client.UpdateConfigurationSetPayload
+	if err := readResourceData(&payload, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	variablesFromApi, err := apiClient.ConfigurationVariablesBySetId(id)
+	if err != nil {
+		return diag.Errorf("failed to get variables from the variables set: %v", err)
+	}
+
+	variablesFromSchema, err := getVariablesFromSchema(d, organizationId)
+	if err != nil {
+		return diag.Errorf("failed to get variables from schema: %v", err)
+	}
+
+	mergedVariables := mergeVariables(variablesFromSchema, variablesFromApi)
+
+	// Any new variables should be added to the delta.
+	payload.ConfigurationPropertiesChanges = append(payload.ConfigurationPropertiesChanges, mergedVariables.newVariables...)
+
+	// Any deleted variables should be added to the delta.
+	for _, deletedVariable := range mergedVariables.deletedVariables {
+		deletedVariable.ToDelete = boolPtr(true)
+		payload.ConfigurationPropertiesChanges = append(payload.ConfigurationPropertiesChanges, deletedVariable)
+	}
+
+	// Check if existing variables have changed. If they have add them to the delta as well.
+	for i, svariable := range variablesFromSchema {
+		if !d.HasChange(fmt.Sprintf("variable.%d", i)) {
+			continue
+		}
+
+		for _, cvariable := range mergedVariables.currentVariables {
+			if svariable.Name == cvariable.Name && *svariable.Type == *cvariable.Type {
+				// an existing variable has changed - add it the delta.
+				svariable.OrganizationId = organizationId
+				svariable.ScopeId = id
+				svariable.Scope = "SET"
+
+				// if the format hasn't changed - use existing id. Otherwise, keep id empty.
+				if !d.HasChange(fmt.Sprintf("variable.%d.format", i)) {
+					svariable.Id = cvariable.Id
+				}
+
+				payload.ConfigurationPropertiesChanges = append(payload.ConfigurationPropertiesChanges, svariable)
+
+				break
+			}
+		}
+	}
+
+	if _, err := apiClient.ConfigurationSetUpdate(id, &payload); err != nil {
+		return diag.Errorf("failed to update a variable set: %v", err)
 	}
 
 	return nil
