@@ -36,7 +36,7 @@ resource "env0_variable_set" "organization_scope_example" {
 
   variable {
     name            = "n5"
-    dropdown_values = var.second_run ? ["o3", "o2"] : ["o1", "o2"]
+    dropdown_values = "o3", "o2"]
     type            = "terraform"
     format          = "dropdown"
   }
