@@ -21,3 +21,6 @@ attic
 .vscode/
 .idea/
 tf
+
+# macosx
+.DS_Store

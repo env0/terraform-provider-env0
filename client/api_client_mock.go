@@ -230,6 +230,20 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignCloudCredentialsToProject(ar
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCloudCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCloudCredentialsToProject), arg0, arg1)
 }
 
+// AssignConfigurationSets mocks base method.
+func (m *MockApiClientInterface) AssignConfigurationSets(arg0, arg1 string, arg2 []string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignConfigurationSets", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AssignConfigurationSets indicates an expected call of AssignConfigurationSets.
+func (mr *MockApiClientInterfaceMockRecorder) AssignConfigurationSets(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).AssignConfigurationSets), arg0, arg1, arg2)
+}
+
 // AssignCostCredentialsToProject mocks base method.
 func (m *MockApiClientInterface) AssignCostCredentialsToProject(arg0, arg1 string) (CostCredentialProjectAssignment, error) {
 	m.ctrl.T.Helper()
@@ -2087,6 +2101,20 @@ func (m *MockApiClientInterface) Templates() ([]Template, error) {
 func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
+}
+
+// UnassignConfigurationSets mocks base method.
+func (m *MockApiClientInterface) UnassignConfigurationSets(arg0, arg1 string, arg2 []string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnassignConfigurationSets", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UnassignConfigurationSets indicates an expected call of UnassignConfigurationSets.
+func (mr *MockApiClientInterfaceMockRecorder) UnassignConfigurationSets(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnassignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).UnassignConfigurationSets), arg0, arg1, arg2)
 }
 
 // UnsubscribeWorkflowTrigger mocks base method.
