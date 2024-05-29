@@ -773,4 +773,65 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("Delete environment import variable should not actually delete", func(t *testing.T) {
+		isReadonly := false
+		isRequired := false
+		envImportId := "environment-import-id"
+
+		configVar := client.ConfigurationVariable{
+			Id:          "id0",
+			Name:        "name0",
+			Description: "desc0",
+			Value:       "Variable",
+			Scope:       client.ScopeEnvironmentImport,
+			ScopeId:     envImportId,
+
+			IsReadOnly: &isReadonly,
+			IsRequired: &isRequired,
+		}
+
+		configurationVariableCreateParams := client.ConfigurationVariableCreateParams{
+			Name:        configVar.Name,
+			Value:       configVar.Value,
+			IsSensitive: false,
+			Scope:       client.ScopeEnvironmentImport,
+			ScopeId:     envImportId,
+			Type:        client.ConfigurationVariableTypeEnvironment,
+			EnumValues:  nil,
+			Description: configVar.Description,
+			Format:      client.Text,
+			IsRequired:  *configVar.IsRequired,
+			IsReadOnly:  *configVar.IsReadOnly,
+		}
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                  configVar.Name,
+						"description":           configVar.Description,
+						"value":                 configVar.Value,
+						"environment_import_id": envImportId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadOnly)),
+						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
+						resource.TestCheckResourceAttr(accessor, "environment_import_id", envImportId),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(0)
+		})
+	})
+
 }

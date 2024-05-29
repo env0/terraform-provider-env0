@@ -249,6 +249,8 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// if environment import id is set don't actually delete the variable
+	// these varialbes are used to populate the environment import wizard in the UI
+	// we don't want to delete them outside the UI
 	if _, ok := d.GetOk("environment_import_id"); ok {
 		return nil
 	}
