@@ -136,9 +136,12 @@ var _ = Describe("Configuration Set", func() {
 		var variables []ConfigurationVariable
 
 		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration", map[string]string{
-					"setId": id,
+					"setId":          id,
+					"organizationId": organizationId,
 				}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
 					*response = mockVariables
@@ -152,3 +155,5 @@ var _ = Describe("Configuration Set", func() {
 		})
 	})
 })
+
+// TODO add more tests...
