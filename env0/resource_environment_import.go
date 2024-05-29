@@ -127,6 +127,8 @@ func resourceEnvironmentImportUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 // should not actually delete the environment import
+// this resource is used to populate the environment import wizard data
+// we don't want to delete the environment import after it's been created outside the wizard
 func resourceEnvironmentImportDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	return nil
 }
