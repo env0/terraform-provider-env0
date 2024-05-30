@@ -174,7 +174,7 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		payload.TerraformVersion = ""
 	}
 
-	if payload.Type != "opentofu" {
+	if payload.Type != "opentofu" && payload.TerragruntTfBinary != "opentofu" {
 		payload.OpentofuVersion = ""
 	}
 
