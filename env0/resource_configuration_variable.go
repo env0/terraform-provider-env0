@@ -242,7 +242,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// don't delete the configuration variable if it's a soft delete
+	// don't delete if soft delete is set
 	if softDelete, ok := d.GetOk("soft_delete"); ok && softDelete.(bool) {
 		return nil
 	}

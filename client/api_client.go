@@ -155,6 +155,7 @@ type ApiClientInterface interface {
 	EnvironmentImportCreate(payload *EnvironmentImportCreatePayload) (*EnvironmentImport, error)
 	EnvironmentImportUpdate(id string, payload *EnvironmentImportUpdatePayload) (*EnvironmentImport, error)
 	EnvironmentImportGet(id string) (*EnvironmentImport, error)
+	EnvironmentImportDelete(id string) error
 	ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSet(id string) (*ConfigurationSet, error)
