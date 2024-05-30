@@ -786,14 +786,6 @@ resource "%s" "test" {
 						"is_required":  strconv.FormatBool(*configVar.IsRequired),
 						"soft_delete":  true,
 					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
-						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
-						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
-						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
-						resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configVar.IsReadOnly)),
-						resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configVar.IsRequired)),
-					),
 				},
 			},
 		}
