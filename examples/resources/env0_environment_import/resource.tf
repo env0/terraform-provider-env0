@@ -5,7 +5,7 @@ resource "env0_environment_import" "new_environment_import" {
   repository   = "reponame"
   revision     = "revision"
   workspace    = "workspace"
-  tfversion    = "1.7.1"
+  iac_version  = "1.7.1"
   iac_type     = "opentofu"
 }
 

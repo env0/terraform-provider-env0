@@ -36,7 +36,7 @@ resource "env0_environment_import" "environment_import" {
   repository   = data.env0_template.github_template_for_environment.repository
   revision     = "revision"
   workspace    = "workspace"
-  tfversion    = "1.7.1"
+  iac_version  = "1.7.1"
   iac_type     = "opentofu"
 }
 
