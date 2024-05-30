@@ -122,30 +122,24 @@ func TestEnvironmentImportResource(t *testing.T) {
 	})
 
 	t.Run("Environment Import soft delete", func(t *testing.T) {
+		environmentImport := client.EnvironmentImport{
+			Id:   "id0",
+			Name: "name0",
+		}
+
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":         environmentImport.Name,
-						"iac_type":     environmentImport.IacType,
-						"workspace":    environmentImport.Workspace,
-						"repository":   environmentImport.GitConfig.Repository,
-						"path":         environmentImport.GitConfig.Path,
-						"revision":     environmentImport.GitConfig.Revision,
-						"git_provider": environmentImport.GitConfig.Provider,
-						"iac_version":  environmentImport.IacVersion,
-						"soft_delete":  true,
+						"name":        environmentImport.Name,
+						"soft_delete": true,
 					})},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentImportCreate(&client.EnvironmentImportCreatePayload{
-				Name:       environmentImport.Name,
-				IacType:    environmentImport.IacType,
-				Workspace:  environmentImport.Workspace,
-				GitConfig:  environmentImport.GitConfig,
-				IacVersion: environmentImport.IacVersion,
+				Name: environmentImport.Name,
 			}).Times(1).Return(&environmentImport, nil)
 
 			gomock.InOrder(
