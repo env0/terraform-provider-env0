@@ -110,6 +110,11 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
 				Optional:    true,
 			},
+			"soft_delete": {
+				Type:        schema.TypeBool,
+				Description: "soft delete the configuration variable, once removed from the configuration it won't be deleted from env0",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -237,6 +242,11 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// don't delete the configuration variable if it's a soft delete
+	if softDelete, ok := d.GetOk("soft_delete"); ok && softDelete.(bool) {
+		return nil
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
