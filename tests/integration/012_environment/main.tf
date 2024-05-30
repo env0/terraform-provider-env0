@@ -29,6 +29,17 @@ resource "env0_template_project_assignment" "assignment" {
   project_id  = env0_project.test_project.id
 }
 
+resource "env0_environment_import" "environment_import" {
+  name         = "environment-import-${random_string.random.result}"
+  git_provider = "github"
+  path         = "misc/null-resource"
+  repository   = data.env0_template.github_template_for_environment.repository
+  revision     = "revision"
+  workspace    = "workspace"
+  tfversion    = "1.7.1"
+  iac_type     = "opentofu"
+}
+
 resource "env0_environment" "auto_glob_envrironment" {
   depends_on                       = [env0_template_project_assignment.assignment]
   name                             = "environment-auto-glob-${random_string.random.result}"
