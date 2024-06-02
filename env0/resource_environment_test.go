@@ -2018,7 +2018,8 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.12.25",
 		TerragruntVersion:    "0.26.1",
-		TerragruntTfBinary:   "terraform",
+		OpentofuVersion:      "1.7.1",
+		TerragruntTfBinary:   "opentofu",
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
@@ -2074,6 +2075,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		IsTerragruntRunAll:   updatedTemplate.IsTerragruntRunAll,
 		OrganizationId:       updatedTemplate.OrganizationId,
 		TerragruntTfBinary:   updatedTemplate.TerragruntTfBinary,
+		OpentofuVersion:      updatedTemplate.OpentofuVersion,
 	}
 
 	createPayload := client.EnvironmentCreateWithoutTemplate{
@@ -2090,6 +2092,11 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		terragruntTfBinary := ""
 		if template.TerragruntTfBinary != "" {
 			terragruntTfBinary = "terragrunt_tf_binary = \"" + template.TerragruntTfBinary + "\""
+		}
+
+		openTofuVersion := ""
+		if template.OpentofuVersion != "" {
+			openTofuVersion = "opentofu_version = \"" + template.OpentofuVersion + "\""
 		}
 
 		return fmt.Sprintf(`
@@ -2114,6 +2121,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				github_installation_id = %d
 				%s
 				%s
+				%s
 			}
 		}`,
 			resourceType, resourceName,
@@ -2135,6 +2143,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			template.GithubInstallationId,
 			terragruntVersion,
 			terragruntTfBinary,
+			openTofuVersion,
 		)
 	}
 
@@ -2176,7 +2185,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
 						resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.repository", updatedTemplate.Repository),
-						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terraform_version", updatedTemplate.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.opentofu_version", updatedTemplate.OpentofuVersion),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terragrunt_version", updatedTemplate.TerragruntVersion),
