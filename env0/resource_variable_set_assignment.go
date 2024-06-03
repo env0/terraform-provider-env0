@@ -24,9 +24,9 @@ func resourceVariableSetAssignment() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"scope": {
 				Type:             schema.TypeString,
-				Description:      "the resource(scope) type to assign to. Valid values: 'template', 'environment', 'workflow', 'organization', 'project'",
+				Description:      "the resource(scope) type to assign to. Valid values: 'template', 'environment', 'module', 'organization', 'project', 'deployment'",
 				Required:         true,
-				ValidateDiagFunc: NewStringInValidator([]string{"template", "environment", "workflow", "organization", "project"}),
+				ValidateDiagFunc: NewStringInValidator([]string{"template", "environment", "module", "organization", "project", "deployment"}),
 				ForceNew:         true,
 			},
 			"scope_id": {
@@ -59,7 +59,7 @@ func resourceVariableSetAssignmentCreate(ctx context.Context, d *schema.Resource
 
 	if len(assignmentSchema.SetIds) > 0 {
 		if err := apiClient.AssignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, assignmentSchema.SetIds); err != nil {
-			return diag.Errorf("failed to assign configuration sets to the scope: %v", err)
+			return diag.Errorf("failed to assign variable sets to the scope: %v", err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 
 	apiConfigurationSets, err := apiClient.ConfigurationSetsAssignments(assignmentSchema.Scope, assignmentSchema.ScopeId)
 	if err != nil {
-		return diag.Errorf("failed to get configuration sets assignments: %v", err)
+		return diag.Errorf("failed to get variable sets assignments: %v", err)
 	}
 
 	// Compare between apiSetIds and schemaSetIds to find what to set ids to delete and what set ids to add.
@@ -117,17 +117,17 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 		if !found {
 			toAdd = append(toAdd, schemaSetId)
 		}
+	}
 
-		if len(toDelete) > 0 {
-			if err := apiClient.UnassignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, toDelete); err != nil {
-				return diag.Errorf("failed to unassign configuration sets: %v", err)
-			}
+	if len(toDelete) > 0 {
+		if err := apiClient.UnassignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, toDelete); err != nil {
+			return diag.Errorf("failed to unassign variable sets: %v", err)
 		}
+	}
 
-		if len(toAdd) > 0 {
-			if err := apiClient.AssignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, toAdd); err != nil {
-				return diag.Errorf("failed to assign configuration sets: %v", err)
-			}
+	if len(toAdd) > 0 {
+		if err := apiClient.AssignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, toAdd); err != nil {
+			return diag.Errorf("failed to assign variable sets: %v", err)
 		}
 	}
 
@@ -145,7 +145,7 @@ func resourceVariableSetAssignmentDelete(ctx context.Context, d *schema.Resource
 
 	if len(assignmentSchema.SetIds) > 0 {
 		if err := apiClient.UnassignConfigurationSets(assignmentSchema.Scope, assignmentSchema.ScopeId, assignmentSchema.SetIds); err != nil {
-			return diag.Errorf("failed to unassign configuration sets: %v", err)
+			return diag.Errorf("failed to unassign variable sets: %v", err)
 		}
 	}
 
@@ -163,7 +163,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 
 	apiConfigurationSets, err := apiClient.ConfigurationSetsAssignments(assignmentSchema.Scope, assignmentSchema.ScopeId)
 	if err != nil {
-		return diag.Errorf("failed to get configuration sets assignments: %v", err)
+		return diag.Errorf("failed to get variable sets assignments: %v", err)
 	}
 
 	newSchemaSetIds := []string{}
