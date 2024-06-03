@@ -74,5 +74,5 @@ resource "env0_variable_set" "project_scope" {
 resource "env0_variable_set_assignment" "assignment" {
   scope    = "project"
   scope_id = env0_project.project.id
-  set_ids  = env0_variable_set.org_scope.id
+  set_ids  = [env0_variable_set.org_scope.id]
 }
