@@ -18,3 +18,15 @@ func (client *ApiClient) UnassignConfigurationSets(scope string, scopeId string,
 
 	return client.http.Delete(url, map[string]string{"setIds": setIds})
 }
+
+func (client *ApiClient) ConfigurationSetsAssignments(scope string, scopeId string) ([]ConfigurationSet, error) {
+	var result []ConfigurationSet
+
+	url := fmt.Sprintf("/configuration-sets/assignments/%s/%s", scope, scopeId)
+
+	if err := client.http.Get(url, nil, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
