@@ -62,6 +62,7 @@ type SubEnvironment struct {
 	Revision             string               `json:"revision,omitempty"`
 	Workspace            string               `json:"workspaceName,omitempty"`
 	ConfigurationChanges ConfigurationChanges `json:"configurationChanges"`
+	UserRequiresApproval bool                 `json:"userRequiresApproval"`
 }
 
 type DeployRequest struct {
@@ -120,6 +121,7 @@ type Environment struct {
 	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
 	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
 	K8sNamespace                string        `json:"k8s_namespace"`
+	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint" tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
