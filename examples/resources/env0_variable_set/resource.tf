@@ -2,6 +2,10 @@ data "env0_project" "project" {
   name = "project"
 }
 
+data "env0_environment" "environment" {
+  name = "environment"
+}
+
 resource "env0_variable_set" "organization_scope_example" {
   name        = "variable-set-example1"
   description = "description123"
@@ -53,4 +57,13 @@ resource "env0_variable_set" "project_scope_example" {
     value  = "v1"
     format = "text"
   }
+}
+
+resource "env0_variable_set_assignment" "assignment" {
+  scope    = "environment"
+  scope_id = data.env0_environment.id
+  set_ids = [
+    env0_variable_set.project_scope_example.id,
+    env0_variable_set.organization_scope_example.id,
+  ]
 }

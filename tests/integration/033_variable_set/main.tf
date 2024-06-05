@@ -70,3 +70,9 @@ resource "env0_variable_set" "project_scope" {
     format = "text"
   }
 }
+
+resource "env0_variable_set_assignment" "assignment" {
+  scope    = "project"
+  scope_id = env0_project.project.id
+  set_ids  = var.second_run ? [env0_variable_set.org_scope.id] : [env0_variable_set.project_scope.id]
+}
