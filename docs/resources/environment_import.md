@@ -37,6 +37,7 @@ resource "env0_environment_import" "new_environment_import" {
 - `path` (String) path to the tofu configuration
 - `repository` (String) repository of the environment
 - `revision` (String) revision of the environment
+- `soft_delete` (Boolean) soft delete the configuration variable, once removed from the configuration it won't be deleted from env0
 - `workspace` (String) workspace of the environment
 
 ### Read-Only
