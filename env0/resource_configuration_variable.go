@@ -261,6 +261,8 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 	inputData := d.Id()
+	// soft delete isn't part of the configuration variable, so we need to set it
+	d.Set("soft_delete", false)
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
 	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
 	if string(configurationParams.Scope) == "TEMPLATE" {
