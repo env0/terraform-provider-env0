@@ -62,7 +62,6 @@ type SubEnvironment struct {
 	Revision             string               `json:"revision,omitempty"`
 	Workspace            string               `json:"workspaceName,omitempty"`
 	ConfigurationChanges ConfigurationChanges `json:"configurationChanges"`
-	UserRequiresApproval bool                 `json:"userRequiresApproval"`
 }
 
 type DeployRequest struct {
