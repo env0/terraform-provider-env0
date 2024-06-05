@@ -279,7 +279,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"without_template_settings": {
 				Type:         schema.TypeList,
-				Description:  "settings for creating an environment without a template. Is not imported when running the import command",
+				Description:  "settings for creating an environment without a template",
 				Optional:     true,
 				MinItems:     1,
 				MaxItems:     1,
