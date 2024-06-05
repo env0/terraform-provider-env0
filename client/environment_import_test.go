@@ -107,4 +107,16 @@ var _ = Describe("Environment Import Client", func() {
 		})
 	})
 
+	Describe("EnvironmentImportDelete", func() {
+		var err error
+
+		BeforeEach(func() {
+			mockHttpClient.EXPECT().Delete("/environment-imports/"+mockEnvironmentImport.Id, nil).Times(1)
+			err = apiClient.EnvironmentImportDelete(mockEnvironmentImport.Id)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
 })

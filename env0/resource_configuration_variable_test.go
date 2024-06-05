@@ -773,4 +773,27 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("When soft delete is on, it should not actually delete", func(t *testing.T) {
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":         configVar.Name,
+						"description":  configVar.Description,
+						"value":        configVar.Value,
+						"is_read_only": strconv.FormatBool(*configVar.IsReadOnly),
+						"is_required":  strconv.FormatBool(*configVar.IsRequired),
+						"soft_delete":  true,
+					}),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(0)
+		})
+	})
 }

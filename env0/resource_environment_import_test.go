@@ -116,7 +116,37 @@ func TestEnvironmentImportResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().EnvironmentImportGet(gomock.Any()).Times(2).Return(&environmentImport, nil),        // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentImportGet(gomock.Any()).Times(1).Return(&updatedEnvironmentImport, nil), // 1 after update
+				mock.EXPECT().EnvironmentImportDelete(environmentImport.Id).Times(1),                             // 1 after update
 			)
 		})
 	})
+
+	t.Run("Environment Import soft delete", func(t *testing.T) {
+		environmentImport := client.EnvironmentImport{
+			Id:   "id0",
+			Name: "name0",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":        environmentImport.Name,
+						"soft_delete": true,
+					})},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentImportCreate(&client.EnvironmentImportCreatePayload{
+				Name: environmentImport.Name,
+			}).Times(1).Return(&environmentImport, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().EnvironmentImportGet(gomock.Any()).Times(2).Return(&environmentImport, nil),
+				mock.EXPECT().EnvironmentImportDelete(environmentImport.Id).Times(0),
+			)
+		})
+	})
+
 }

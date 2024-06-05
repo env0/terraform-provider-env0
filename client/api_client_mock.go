@@ -807,6 +807,20 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentImportCreate(arg0 any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentImportCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentImportCreate), arg0)
 }
 
+// EnvironmentImportDelete mocks base method.
+func (m *MockApiClientInterface) EnvironmentImportDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentImportDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentImportDelete indicates an expected call of EnvironmentImportDelete.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentImportDelete(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentImportDelete", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentImportDelete), arg0)
+}
+
 // EnvironmentImportGet mocks base method.
 func (m *MockApiClientInterface) EnvironmentImportGet(arg0 string) (*EnvironmentImport, error) {
 	m.ctrl.T.Helper()

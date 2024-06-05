@@ -58,6 +58,12 @@ func resourceEnvironmentImport() *schema.Resource {
 				Description: "iac version of the environment",
 				Optional:    true,
 			},
+			"soft_delete": {
+				Type:        schema.TypeBool,
+				Description: "soft delete the configuration variable, once removed from the configuration it won't be deleted from env0",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -126,9 +132,17 @@ func resourceEnvironmentImportUpdate(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-// should not actually delete the environment import
-// this resource is used to populate the environment import wizard data
-// we don't want to delete the environment import after it's been created outside the wizard
 func resourceEnvironmentImportDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// don't delete if soft delete is set
+	if softDelete := d.Get("soft_delete"); softDelete.(bool) {
+		return nil
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	if err := apiClient.EnvironmentImportDelete(d.Id()); err != nil {
+		return diag.Errorf("could not delete environment import: %v", err)
+	}
+
 	return nil
 }

@@ -110,6 +110,12 @@ func resourceConfigurationVariable() *schema.Resource {
 				Description: "the value of this variable must match provided regular expression (enforced only in env0 UI)",
 				Optional:    true,
 			},
+			"soft_delete": {
+				Type:        schema.TypeBool,
+				Description: "soft delete the configuration variable, once removed from the configuration it won't be deleted from env0",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -237,6 +243,11 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// don't delete if soft delete is set
+	if softDelete := d.Get("soft_delete"); softDelete.(bool) {
+		return nil
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -250,6 +261,8 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 	inputData := d.Id()
+	// soft delete isn't part of the configuration variable, so we need to set it
+	d.Set("soft_delete", false)
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
 	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
 	if string(configurationParams.Scope) == "TEMPLATE" {

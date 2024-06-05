@@ -84,3 +84,7 @@ func (client *ApiClient) EnvironmentImportGet(id string) (*EnvironmentImport, er
 
 	return &result, nil
 }
+
+func (client *ApiClient) EnvironmentImportDelete(id string) error {
+	return client.http.Delete("/environment-imports/"+id, nil)
+}
