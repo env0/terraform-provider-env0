@@ -301,7 +301,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := templateRead("", template, d); err != nil {
+	if err := templateRead("", template, d, false); err != nil {
 		return diag.Errorf("%v", err)
 	}
 
@@ -422,7 +422,7 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 }
 
 // Reads template and writes to the resource data.
-func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
+func templateRead(prefix string, template client.Template, d *schema.ResourceData, isImport bool) error {
 	pathPrefix := "path"
 	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
 	terraformVersionPrefix := "terraform_version"
@@ -440,12 +440,15 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 	// If this value isn't set, ignore whatever is returned from the response.
 	// This helps avoid drifts when defaulting to 'opentofu' for new 'terragrunt' templates, and 'terraform' for existing 'terragrunt' templates.
 	// 'template.TerragruntTfBinary' field is set to 'omitempty'. Therefore, the state isn't modified if `template.TerragruntTfBinary` is an empty string.
-	if terragruntTfBinary == "" {
-		template.TerragruntTfBinary = ""
-	}
-	// Same explanation as above.
-	if terraformVersion == "" {
-		template.TerraformVersion = ""
+	// This is not true for imports - because the shcema is empty irrespective in that case.
+	if !isImport {
+		if terragruntTfBinary == "" {
+			template.TerragruntTfBinary = ""
+		}
+		// Same explanation as above.
+		if terraformVersion == "" {
+			template.TerraformVersion = ""
+		}
 	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
