@@ -62,6 +62,7 @@ func resourceEnvironmentImport() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "soft delete the configuration variable, once removed from the configuration it won't be deleted from env0",
 				Optional:    true,
+				Default:     false,
 			},
 		},
 	}
@@ -133,7 +134,7 @@ func resourceEnvironmentImportUpdate(ctx context.Context, d *schema.ResourceData
 
 func resourceEnvironmentImportDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// don't delete if soft delete is set
-	if softDelete, ok := d.GetOk("soft_delete"); ok && softDelete.(bool) {
+	if softDelete := d.Get("soft_delete"); softDelete.(bool) {
 		return nil
 	}
 
