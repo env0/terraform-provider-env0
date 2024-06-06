@@ -395,7 +395,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						ProjectId: environment.ProjectId,
 
 						DeployRequest: &client.DeployRequest{
-							BlueprintId: templateId,
+							BlueprintId:          templateId,
+							UserRequiresApproval: boolPtr(false),
 						},
 						IsRemoteBackend:  environment.IsRemoteBackend,
 						RequiresApproval: environment.RequiresApproval,

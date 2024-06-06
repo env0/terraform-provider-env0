@@ -992,9 +992,9 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
-	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
-		userRequiresApproval := userRequiresApproval.(bool)
-		payload.UserRequiresApproval = &userRequiresApproval
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
+		payload.UserRequiresApproval = boolPtr(!val.(bool))
 	}
 
 	return payload
