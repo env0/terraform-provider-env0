@@ -120,6 +120,7 @@ type Environment struct {
 	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
 	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
 	K8sNamespace                string        `json:"k8s_namespace"`
+	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint" tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
