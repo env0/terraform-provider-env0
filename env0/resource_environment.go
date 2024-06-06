@@ -280,7 +280,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"without_template_settings": {
 				Type:         schema.TypeList,
-				Description:  "settings for creating an environment without a template. Is not imported when running the import command",
+				Description:  "settings for creating an environment without a template",
 				Optional:     true,
 				MinItems:     1,
 				MaxItems:     1,
@@ -630,7 +630,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("could not get template: %v", err)
 		}
 
-		if err := templateRead("without_template_settings", template, d); err != nil {
+		if err := templateRead("without_template_settings", template, d, false); err != nil {
 			return diag.Errorf("schema resource data serialization failed: %v", err)
 		}
 	}
@@ -1198,6 +1198,23 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
+
+	if environment.IsSingleUseBlueprint {
+		templateId := environment.BlueprintId
+		if templateId == "" {
+			templateId = environment.LatestDeploymentLog.BlueprintId
+		}
+
+		template, err := apiClient.Template(templateId)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get template with id %s: %w", templateId, err)
+		}
+
+		if err := templateRead("without_template_settings", template, d, true); err != nil {
+			return nil, fmt.Errorf("failed to write template to schema: %w", err)
+		}
+	}
+
 	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables)
 
 	if environment.IsRemoteBackend != nil {

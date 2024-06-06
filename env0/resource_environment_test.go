@@ -1959,9 +1959,10 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
+	resourceNameImport := resourceType + "." + resourceName
 
 	environment := client.Environment{
-		Id:                         "id0",
+		Id:                         uuid.New().String(),
 		Name:                       "my-environment",
 		ProjectId:                  "project-id",
 		WorkspaceName:              "workspace-name",
@@ -1970,6 +1971,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: "id-template-0",
 		},
+		IsSingleUseBlueprint: true,
 	}
 
 	environmentWithBluePrint := environment
@@ -2259,6 +2261,50 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 				mock.EXPECT().Template(template.Id).Times(1).Return(updatedTemplate, nil),
 
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
+			)
+		})
+
+	})
+
+	t.Run("Import By Id", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment, template),
+				},
+				{
+					ResourceName:            resourceNameImport,
+					ImportState:             true,
+					ImportStateId:           environment.Id,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"force_destroy"},
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+
+			gomock.InOrder(
+				// Create
+				mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environmentWithBluePrint, nil),
+
+				// Read
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().Template(template.Id).Times(1).Return(template, nil),
+
+				// Import
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().Template(template.Id).Times(1).Return(template, nil),
+
+				// Read
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().Template(template.Id).Times(1).Return(template, nil),
+
+				// Destroy
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
