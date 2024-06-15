@@ -734,7 +734,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		for i, subEnvironment := range subEnvironments {
 			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]interface{})
 			configurationChanges := getConfigurationVariablesFromSchema(configuration)
-			configurationChanges = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeWorkflow, apiClient)
+			configurationChanges = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeEnvironment, apiClient)
 
 			for i := range configurationChanges {
 				configurationChanges[i].Scope = client.ScopeEnvironment

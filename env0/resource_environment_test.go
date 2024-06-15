@@ -2593,7 +2593,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
 				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: environment.Id,
 				}, nil),
