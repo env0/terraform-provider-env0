@@ -368,7 +368,7 @@ func resourceEnvironment() *schema.Resource {
 	}
 }
 
-func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, VariableSetsIds []string) error {
+func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
@@ -426,8 +426,10 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
-	if err := d.Set("variable_sets", VariableSetsIds); err != nil {
-		return fmt.Errorf("failed to set variable_sets value: %w", err)
+	if d.Get("variable_sets") != nil {
+		if err := d.Set("variable_sets", variableSetsIds); err != nil {
+			return fmt.Errorf("failed to set variable_sets value: %w", err)
+		}
 	}
 
 	return nil
