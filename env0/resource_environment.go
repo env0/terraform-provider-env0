@@ -616,12 +616,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient client.ApiClientInterface) ([]string, error) {
-	scope := "ENVIRONMENT"
-	if _, ok := d.GetOk("sub_environment_configuration"); ok {
-		scope = "WORKFLOW"
-	}
-
-	environmentVariableSets, err := apiClient.ConfigurationSetsAssignments(scope, d.Id())
+	environmentVariableSets, err := apiClient.ConfigurationSetsAssignments("ENVIRONMENT", d.Id())
 	if err != nil {
 		return nil, err
 	}
