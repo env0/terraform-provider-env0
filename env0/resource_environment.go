@@ -1069,6 +1069,10 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 		}
 	}
 
+	if assignVariableSets == nil && unassignVariableSets == nil {
+		return nil, nil
+	}
+
 	return &client.ConfigurationSetChanges{
 		Assign:   assignVariableSets,
 		Unassign: unassignVariableSets,
