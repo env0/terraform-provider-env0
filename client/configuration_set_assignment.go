@@ -22,7 +22,7 @@ func (client *ApiClient) UnassignConfigurationSets(scope string, scopeId string,
 func (client *ApiClient) ConfigurationSetsAssignments(scope string, scopeId string) ([]ConfigurationSet, error) {
 	var result []ConfigurationSet
 
-	url := fmt.Sprintf("/configuration-sets/assignments/%s/%s", scope, scopeId)
+	url := fmt.Sprintf("/configuration-sets/assignments/%s/%s", strings.ToLower(scope), scopeId)
 
 	if err := client.http.Get(url, nil, &result); err != nil {
 		return nil, err
