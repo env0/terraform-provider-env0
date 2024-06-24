@@ -66,14 +66,15 @@ type SubEnvironment struct {
 }
 
 type DeployRequest struct {
-	BlueprintId          string                    `json:"blueprintId,omitempty"`
-	BlueprintRevision    string                    `json:"blueprintRevision,omitempty"`
-	BlueprintRepository  string                    `json:"blueprintRepository,omitempty"`
-	ConfigurationChanges *ConfigurationChanges     `json:"configurationChanges,omitempty"`
-	TTL                  *TTL                      `json:"ttl,omitempty"`
-	EnvName              string                    `json:"envName,omitempty"`
-	UserRequiresApproval *bool                     `json:"userRequiresApproval,omitempty"`
-	SubEnvironments      map[string]SubEnvironment `json:"subEnvironments,omitempty"`
+	BlueprintId             string                    `json:"blueprintId,omitempty"`
+	BlueprintRevision       string                    `json:"blueprintRevision,omitempty"`
+	BlueprintRepository     string                    `json:"blueprintRepository,omitempty"`
+	ConfigurationChanges    *ConfigurationChanges     `json:"configurationChanges,omitempty"`
+	TTL                     *TTL                      `json:"ttl,omitempty"`
+	EnvName                 string                    `json:"envName,omitempty"`
+	UserRequiresApproval    *bool                     `json:"userRequiresApproval,omitempty"`
+	SubEnvironments         map[string]SubEnvironment `json:"subEnvironments,omitempty"`
+	ConfigurationSetChanges *ConfigurationSetChanges  `json:"configurationSetChanges,omitempty" tfschema:"-"`
 }
 
 type WorkflowSubEnvironment struct {
@@ -100,6 +101,11 @@ type DriftDetectionRequest struct {
 	Cron    string `json:"cron"`
 }
 
+type ConfigurationSetChanges struct {
+	Assign   []string `json:"assign,omitempty"`
+	Unassign []string `json:"unassign,omitempty"`
+}
+
 type Environment struct {
 	Id                          string        `json:"id"`
 	Name                        string        `json:"name"`
@@ -120,29 +126,30 @@ type Environment struct {
 	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"-"`
 	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
 	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
-	K8sNamespace                string        `json:"k8s_namespace"`
+	K8sNamespace                string        `json:"k8sNamespace"`
 	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint" tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
-	Name                        string                 `json:"name"`
-	ProjectId                   string                 `json:"projectId"`
-	DeployRequest               *DeployRequest         `json:"deployRequest" tfschema:"-"`
-	WorkspaceName               string                 `json:"workspaceName,omitempty" tfschema:"workspace"`
-	RequiresApproval            *bool                  `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool                  `json:"continuousDeployment,omitempty" tfschema:"-"`
-	PullRequestPlanDeployments  *bool                  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
-	AutoDeployOnPathChangesOnly *bool                  `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
-	AutoDeployByCustomGlob      string                 `json:"autoDeployByCustomGlob"`
-	ConfigurationChanges        *ConfigurationChanges  `json:"configurationChanges,omitempty" tfschema:"-"`
-	TTL                         *TTL                   `json:"ttl,omitempty" tfschema:"-"`
-	TerragruntWorkingDirectory  string                 `json:"terragruntWorkingDirectory,omitempty"`
-	VcsCommandsAlias            string                 `json:"vcsCommandsAlias"`
-	IsRemoteBackend             *bool                  `json:"isRemoteBackend,omitempty" tfschema:"-"`
-	Type                        string                 `json:"type,omitempty"`
-	DriftDetectionRequest       *DriftDetectionRequest `json:"driftDetectionRequest,omitempty" tfschema:"-"`
-	PreventAutoDeploy           *bool                  `json:"preventAutoDeploy,omitempty" tfschema:"-"`
-	K8sNamespace                string                 `json:"k8s_namespace,omitempty"`
+	Name                        string                   `json:"name"`
+	ProjectId                   string                   `json:"projectId"`
+	DeployRequest               *DeployRequest           `json:"deployRequest" tfschema:"-"`
+	WorkspaceName               string                   `json:"workspaceName,omitempty" tfschema:"workspace"`
+	RequiresApproval            *bool                    `json:"requiresApproval,omitempty" tfschema:"-"`
+	ContinuousDeployment        *bool                    `json:"continuousDeployment,omitempty" tfschema:"-"`
+	PullRequestPlanDeployments  *bool                    `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	AutoDeployOnPathChangesOnly *bool                    `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
+	AutoDeployByCustomGlob      string                   `json:"autoDeployByCustomGlob"`
+	ConfigurationChanges        *ConfigurationChanges    `json:"configurationChanges,omitempty" tfschema:"-"`
+	TTL                         *TTL                     `json:"ttl,omitempty" tfschema:"-"`
+	TerragruntWorkingDirectory  string                   `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string                   `json:"vcsCommandsAlias"`
+	IsRemoteBackend             *bool                    `json:"isRemoteBackend,omitempty" tfschema:"-"`
+	Type                        string                   `json:"type,omitempty"`
+	DriftDetectionRequest       *DriftDetectionRequest   `json:"driftDetectionRequest,omitempty" tfschema:"-"`
+	PreventAutoDeploy           *bool                    `json:"preventAutoDeploy,omitempty" tfschema:"-"`
+	K8sNamespace                string                   `json:"k8sNamespace,omitempty"`
+	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty" tfschema:"-"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.

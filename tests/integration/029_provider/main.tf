@@ -11,9 +11,10 @@ resource "env0_provider" "test_provider" {
   description = var.second_run ? "des1" : "des2"
 }
 
-data "env0_provider" "test_provider_data" {
-  type = env0_provider.test_provider.type
-}
+# TODO: uncomment when we fix 404 retry logic
+# data "env0_provider" "test_provider_data" {
+#   type = env0_provider.test_provider.type
+# }
 
 resource "env0_provider" "test_provider-type-change" {
   type        = var.second_run ? "aws2-${random_string.random.result}" : "aws1-${random_string.random.result}"

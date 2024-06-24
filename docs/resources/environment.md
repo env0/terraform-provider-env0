@@ -84,6 +84,7 @@ Important note: the template must first be assigned to the same project as the e
 Important note: After the environment is created, this field cannot be modified.
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
+- `variable_sets` (List of String) a list of variable set to assign to this environment
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
 - `workspace` (String) the terraform workspace of the environment

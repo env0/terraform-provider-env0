@@ -211,6 +211,35 @@ resource "env0_template_project_assignment" "assignment_workflow" {
   project_id  = env0_project.test_project.id
 }
 
+
+resource "env0_variable_set" "variable_set1" {
+  name        = "variable-set-project-${random_string.random.result}"
+  description = "description123"
+  scope       = "project"
+  scope_id    = env0_project.test_project.id
+
+  variable {
+    name   = "n1"
+    value  = "v1"
+    type   = "terraform"
+    format = "text"
+  }
+}
+
+resource "env0_variable_set" "variable_set2" {
+  name        = "variable-set-project2-${random_string.random.result}"
+  description = "description123"
+  scope       = "project"
+  scope_id    = env0_project.test_project.id
+
+  variable {
+    name   = "n2"
+    value  = "v2"
+    type   = "terraform"
+    format = "text"
+  }
+}
+
 resource "env0_environment" "workflow-environment" {
   depends_on                 = [env0_template_project_assignment.assignment_workflow, env0_template_project_assignment.assignment_sub_environment_null_template]
   force_destroy              = true
@@ -223,6 +252,8 @@ resource "env0_environment" "workflow-environment" {
     name  = "n1"
     value = "v1"
   }
+
+  variable_sets = var.second_run ? [env0_variable_set.variable_set2.id] : [env0_variable_set.variable_set1.id]
 
   sub_environment_configuration {
     alias                      = "rootService1"
