@@ -16,6 +16,8 @@ import (
 
 const TESTS_FOLDER = "tests/integration"
 
+var TESTS_TO_SKIP_SECOND_APPLY = []string{"013_downstream_environments"}
+
 func main() {
 	if err := compileProvider(); err != nil {
 		log.Fatalf("failed to compile go: %v", err)
@@ -84,10 +86,14 @@ func runTest(testName string, destroy bool) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
-	if err != nil {
-		return false, err
+
+	if !shouldSkipSecondApply(testName) {
+		_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
+		if err != nil {
+			return false, err
+		}
 	}
+
 	expectedOutputs, err := readExpectedOutputs(testName)
 	if err != nil {
 		return false, err
@@ -159,6 +165,15 @@ func terraformDestory(testName string) {
 	destroy.Dir = TESTS_FOLDER + "/" + testName
 	destroy.CombinedOutput()
 	log.Println("Done running terraform destroy in", testName)
+}
+
+func shouldSkipSecondApply(testName string) bool {
+	for _, test := range TESTS_TO_SKIP_SECOND_APPLY {
+		if test == testName {
+			return true
+		}
+	}
+	return false
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {

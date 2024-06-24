@@ -33,6 +33,6 @@ resource "env0_environment" "environment" {
 
 resource "env0_environment_scheduling" "scheduling" {
   environment_id = env0_environment.environment.id
-  deploy_cron    = "5 * * * *"
+  deploy_cron    = "15 * * * *"
   destroy_cron   = var.second_run ? null : "10 * * * *"
 }
