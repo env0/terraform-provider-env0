@@ -14,10 +14,34 @@ resource "env0_configuration_variable" "region_in_project_resource" {
   value      = "il-tnuvot-1"
 }
 
+resource "env0_configuration_variable" "tested1" {
+  name  = "tested1-${random_string.random.result}"
+  value = "fake value 1 ${var.second_run ? "after update" : ""}"
+}
+
+resource "env0_configuration_variable" "tested3" {
+  name  = "tested3-${random_string.random.result}"
+  value = "First"
+  enum  = ["First", "Second"]
+}
+
+resource "env0_configuration_variable" "regex_var" {
+  project_id = env0_project.test_project.id
+  name       = "regex_var"
+  regex      = "^test-\\d+$"
+}
+
+resource "time_sleep" "wait_5_seconds" {
+  create_duration = "5s"
+
+  depends_on = [env0_configuration_variable.region_in_project_resource, env0_configuration_variable.tested1, env0_configuration_variable.tested3, env0_configuration_variable.regex_var]
+}
+
 data "env0_configuration_variable" "region_in_project" {
   name       = "AWS_DEFAULT_REGION"
   project_id = env0_project.test_project.id
-  depends_on = [env0_configuration_variable.region_in_project_resource]
+
+  depends_on = [time_sleep.wait_5_seconds]
 }
 output "region_in_project_value" {
   value     = data.env0_configuration_variable.region_in_project.value
@@ -27,13 +51,11 @@ output "region_in_project_id" {
   value = data.env0_configuration_variable.region_in_project.id
 }
 
-resource "env0_configuration_variable" "tested1" {
-  name  = "tested1-${random_string.random.result}"
-  value = "fake value 1 ${var.second_run ? "after update" : ""}"
-}
+
 data "env0_configuration_variable" "tested1" {
-  name       = "tested1-${random_string.random.result}"
-  depends_on = [env0_configuration_variable.tested1]
+  name = "tested1-${random_string.random.result}"
+
+  depends_on = [time_sleep.wait_5_seconds]
 }
 
 output "tested1_value" {
@@ -43,18 +65,16 @@ output "tested1_value" {
 
 data "env0_configuration_variable" "tested2" {
   id = env0_configuration_variable.tested1.id
+
+  depends_on = [time_sleep.wait_5_seconds]
 }
 
-resource "env0_configuration_variable" "tested3" {
-  name  = "tested3-${random_string.random.result}"
-  value = "First"
-  enum  = ["First", "Second"]
-}
+
 data "env0_configuration_variable" "tested3" {
-  name       = "tested3-${random_string.random.result}"
-  depends_on = [env0_configuration_variable.tested3]
-}
+  name = "tested3-${random_string.random.result}"
 
+  depends_on = [time_sleep.wait_5_seconds]
+}
 
 output "tested3_enum_1" {
   value     = data.env0_configuration_variable.tested3.enum[0]
@@ -65,16 +85,11 @@ output "tested3_enum_2" {
   sensitive = true
 }
 
-resource "env0_configuration_variable" "regex_var" {
-  project_id = env0_project.test_project.id
-  name       = "regex_var"
-  regex      = "^test-\\d+$"
-}
-
 data "env0_configuration_variable" "regex_var" {
   project_id = env0_project.test_project.id
   name       = "regex_var"
-  depends_on = [env0_configuration_variable.regex_var]
+
+  depends_on = [time_sleep.wait_5_seconds]
 }
 
 output "regex" {
