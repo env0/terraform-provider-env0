@@ -55,7 +55,7 @@ output "region_in_project_id" {
 data "env0_configuration_variable" "tested1" {
   name = "tested1-${random_string.random.result}"
 
-  depends_on = [time_sleep.wait_5_seconds]
+  depends_on = [time_sleep.wait_5_seconds, env0_configuration_variable.tested1]
 }
 
 output "tested1_value" {
