@@ -8,6 +8,7 @@ resource "env0_project" "test_project" {
   name        = "Test-Project-${random_string.random.result}"
   description = "Test Description ${var.second_run ? "after update" : ""}"
   wait        = true
+  force_destroy = true
 }
 
 resource "env0_template" "template" {
