@@ -343,14 +343,16 @@ func TestWriteResourceDataOmitEmpty(t *testing.T) {
 func TestReadSubEnvironment(t *testing.T) {
 	expectedSubEnvironments := []SubEnvironment{
 		{
-			Id:       "id1",
-			Alias:    "alias1",
-			Revision: "revision1",
+			Id:                       "id1",
+			Alias:                    "alias1",
+			Revision:                 "revision1",
+			ApprovePlanAutomatically: true,
 		},
 		{
-			Id:       "id2",
-			Alias:    "alias2",
-			Revision: "revision2",
+			Id:                       "id2",
+			Alias:                    "alias2",
+			Revision:                 "revision2",
+			ApprovePlanAutomatically: false,
 			Configuration: client.ConfigurationChanges{
 				{
 					Name:        "name1",
@@ -388,9 +390,10 @@ func TestReadSubEnvironment(t *testing.T) {
 				"revision": expectedSubEnvironments[0].Revision,
 			},
 			map[string]interface{}{
-				"id":       expectedSubEnvironments[1].Id,
-				"alias":    expectedSubEnvironments[1].Alias,
-				"revision": expectedSubEnvironments[1].Revision,
+				"id":                         expectedSubEnvironments[1].Id,
+				"alias":                      expectedSubEnvironments[1].Alias,
+				"revision":                   expectedSubEnvironments[1].Revision,
+				"approve_plan_automatically": expectedSubEnvironments[1].ApprovePlanAutomatically,
 				"configuration": []interface{}{
 					map[string]interface{}{
 						"name":  expectedSubEnvironments[1].Configuration[0].Name,

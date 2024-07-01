@@ -9,7 +9,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-var _ = Describe("User Envrionment Assignment", func() {
+var _ = Describe("User Environment Assignment", func() {
 	environmentId := "environmentId"
 	userId := "userId"
 

@@ -39,7 +39,7 @@ var variableSetVariableSchema *schema.Resource = &schema.Resource{
 		},
 		"is_sensitive": {
 			Type:        schema.TypeBool,
-			Description: "is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be senstive.",
+			Description: "is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be sensitive.",
 			Optional:    true,
 			Default:     false,
 		},
@@ -293,7 +293,7 @@ type mergedVariables struct {
 func mergeVariables(schema []client.ConfigurationVariable, api []client.ConfigurationVariable) *mergedVariables {
 	var res mergedVariables
 
-	// To avoid false drifts, keep the order of the 'currentVariables' list similiar to the schema as much as possible.
+	// To avoid false drifts, keep the order of the 'currentVariables' list similar to the schema as much as possible.
 	for _, svariable := range schema {
 		found := false
 
@@ -301,7 +301,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 			if svariable.Name == avariable.Name && *svariable.Type == *avariable.Type {
 				found = true
 				if avariable.IsSensitive != nil && *avariable.IsSensitive {
-					// Senstive - to avoid drift use the value from the schema
+					// Sensitive - to avoid drift use the value from the schema
 					avariable.Value = svariable.Value
 				}
 				res.currentVariables = append(res.currentVariables, avariable)

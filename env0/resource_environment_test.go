@@ -520,7 +520,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						ProjectId: environment.ProjectId,
 
 						DeployRequest: &client.DeployRequest{
-							BlueprintId: templateId,
+							BlueprintId:          templateId,
+							UserRequiresApproval: boolPtr(false),
 						},
 						IsRemoteBackend:  environment.IsRemoteBackend,
 						RequiresApproval: environment.RequiresApproval,
@@ -2554,6 +2555,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	updatedSubEnvironment := subEnvironment
+	updatedSubEnvironment.ApprovePlanAutomatically = false
 	updatedSubEnvironment.Configuration = append(updatedSubEnvironment.Configuration, client.ConfigurationVariable{
 		Name:        "name2",
 		Value:       "value2",
@@ -2638,6 +2640,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				Revision:             subEnvironment.Revision,
 				Workspace:            updatedSubEnvironment.Workspace,
 				ConfigurationChanges: updatedSubEnvironment.Configuration,
+				UserRequiresApproval: true,
 			},
 		},
 	}
@@ -2700,6 +2703,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 							alias = "%s"
 							revision = "%s"
 							workspace = "%s"
+							approve_plan_automatically = false
 							configuration {
 								name = "%s"
 								value = "%s"
@@ -2731,6 +2735,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", updatedSubEnvironment.Alias),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.revision", updatedSubEnvironment.Revision),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.workspace", updatedSubEnvironment.Workspace),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.approve_plan_automatically", "false"),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.name", updatedSubEnvironment.Configuration[0].Name),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", updatedSubEnvironment.Configuration[0].Value),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.1.name", updatedSubEnvironment.Configuration[1].Name),
