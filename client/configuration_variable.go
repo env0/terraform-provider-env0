@@ -20,9 +20,10 @@ const (
 type Format string
 
 const (
-	Text Format = ""
-	HCL  Format = "HCL"
-	JSON Format = "JSON"
+	Text               Format = ""
+	HCL                Format = "HCL"
+	JSON               Format = "JSON"
+	ENVIRONMENT_OUTPUT Format = "ENVIRONMENT_OUTPUT"
 )
 
 type ConfigurationVariableSchema struct {
@@ -171,6 +172,7 @@ func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} 
 	if params.Format != Text {
 		schema["format"] = params.Format
 	}
+
 	return schema
 }
 
