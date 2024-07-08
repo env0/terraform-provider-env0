@@ -8,7 +8,7 @@ import (
 )
 
 var _ = Describe("RemoteStateAccess", func() {
-	environmentId := "environmnet_id"
+	environmentId := "environment_id"
 
 	remoteStateAccess := RemoteStateAccessConfiguration{
 		EnvironmentId:                    environmentId,

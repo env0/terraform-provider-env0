@@ -170,7 +170,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		Name: "name1",
 	}
 
-	t.Run("Success With Force Destory", func(t *testing.T) {
+	t.Run("Success With Force Destroy", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -199,7 +199,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		})
 	})
 
-	t.Run("Failure Without Force Destory", func(t *testing.T) {
+	t.Run("Failure Without Force Destroy", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{

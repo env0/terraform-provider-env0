@@ -200,7 +200,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			AddRetryAfterErrorCondition().
 			AddRetryCondition(func(r *resty.Response, err error) bool {
 				if r == nil {
-					// No response. Possiblly a networking issue (E.g. DNS lookup failure).
+					// No response. Possibly a networking issue (E.g. DNS lookup failure).
 					tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request")
 					return true
 				}

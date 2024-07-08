@@ -78,7 +78,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `revision` (String) the revision the environment is to be run against. Please note that changing this attribute will require environment redeploy
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
-- `sub_environment_configuration` (Block List) the subenvironments for a workflow enviornment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
+- `sub_environment_configuration` (Block List) the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.
 Important note: After the environment is created, this field cannot be modified.
@@ -124,6 +124,7 @@ Required:
 
 Optional:
 
+- `approve_plan_automatically` (Boolean) when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval
 - `configuration` (Block List) sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
 - `workspace` (String) sub environment workspace (overrides the configurtion in the yml file)
 

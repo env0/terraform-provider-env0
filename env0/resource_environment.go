@@ -16,12 +16,13 @@ import (
 )
 
 type SubEnvironment struct {
-	Id            string
-	Alias         string
-	Revision      string
-	Workflow      string
-	Workspace     string
-	Configuration client.ConfigurationChanges `tfschema:"-"`
+	Id                       string
+	Alias                    string
+	Revision                 string
+	Workflow                 string
+	Workspace                string
+	Configuration            client.ConfigurationChanges `tfschema:"-"`
+	ApprovePlanAutomatically bool
 }
 
 func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
@@ -290,7 +291,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"sub_environment_configuration": {
 				Type:        schema.TypeList,
-				Description: "the subenvironments for a workflow enviornment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'",
+				Description: "the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -319,6 +320,12 @@ func resourceEnvironment() *schema.Resource {
 							Description: "sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource",
 							Optional:    true,
 							Elem:        configurationSchema,
+						},
+						"approve_plan_automatically": {
+							Type:        schema.TypeBool,
+							Description: "when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval",
+							Optional:    true,
+							Default:     true,
 						},
 					},
 				},
@@ -408,16 +415,16 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 			var newSubEnvironments []interface{}
 
 			for i, iSubEnvironment := range iSubEnvironments.([]interface{}) {
-				subEnviornment := iSubEnvironment.(map[string]interface{})
+				subEnvironment := iSubEnvironment.(map[string]interface{})
 
 				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
 
 				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[alias]
 				if ok {
-					subEnviornment["id"] = workkflowSubEnvironment.EnvironmentId
+					subEnvironment["id"] = workkflowSubEnvironment.EnvironmentId
 				}
 
-				newSubEnvironments = append(newSubEnvironments, subEnviornment)
+				newSubEnvironments = append(newSubEnvironments, subEnvironment)
 			}
 
 			d.Set("sub_environment_configuration", newSubEnvironments)
@@ -789,6 +796,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 				Revision:             subEnvironment.Revision,
 				Workspace:            subEnvironment.Workspace,
 				ConfigurationChanges: configurationChanges,
+				UserRequiresApproval: !subEnvironment.ApprovePlanAutomatically,
 			}
 		}
 	}
@@ -952,6 +960,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 				Revision:             subEnvironment.Revision,
 				ConfigurationChanges: subEnvironment.Configuration,
 				Workspace:            subEnvironment.Workspace,
+				UserRequiresApproval: !subEnvironment.ApprovePlanAutomatically,
 			}
 		}
 	}
@@ -1111,9 +1120,9 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 	}
 
-	if userRequiresApproval, ok := d.GetOk("requires_approval"); ok {
-		userRequiresApproval := userRequiresApproval.(bool)
-		payload.UserRequiresApproval = &userRequiresApproval
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
+		payload.UserRequiresApproval = boolPtr(!val.(bool))
 	}
 
 	return payload, nil
