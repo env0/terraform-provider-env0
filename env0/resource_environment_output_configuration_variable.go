@@ -311,7 +311,7 @@ func resourceEnvironmentOutputConfigurationVariableImport(ctx context.Context, d
 		return nil, fmt.Errorf("failed to get params from configuration variable: %w", err)
 	}
 
-	if err := writeResourceData(&params, d); err != nil {
+	if err := writeResourceData(params, d); err != nil {
 		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
