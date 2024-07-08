@@ -113,6 +113,6 @@ Optional:
 
 - `dropdown_values` (List of String) a list of variable values for 'dropdown' format
 - `format` (String) the value format: 'text' (free text), 'dropdown' (dropdown list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.
-- `is_sensitive` (Boolean) is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be senstive.
+- `is_sensitive` (Boolean) is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be sensitive.
 - `type` (String) variable type: terraform or environment (defaults to 'environment')
 - `value` (String) variable value for 'hcl', 'json', or 'text' format
