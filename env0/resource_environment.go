@@ -357,7 +357,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"variable_sets": {
 				Type:        schema.TypeList,
-				Description: "a list of variable set to assign to this environment",
+				Description: "a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
@@ -433,7 +433,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
-	if d.Get("variable_sets") != nil {
+	if variableSets, ok := d.GetOk("variable_sets"); variableSets != nil && ok {
 		if err := d.Set("variable_sets", variableSetsIds); err != nil {
 			return fmt.Errorf("failed to set variable_sets value: %w", err)
 		}
@@ -630,7 +630,9 @@ func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient clien
 
 	var environmentVariableSetIds []string
 	for _, variableSet := range environmentVariableSets {
-		environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
+		if variableSet.AssignmentScope == "ENVIRONMENT" {
+			environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
+		}
 	}
 
 	return environmentVariableSetIds, nil

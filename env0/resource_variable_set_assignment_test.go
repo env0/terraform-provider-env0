@@ -20,29 +20,35 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		setIds := []string{"a1", "a2"}
 		configurationSetIds := []client.ConfigurationSet{
 			{
-				Id: "a1",
+				Id:              "a1",
+				AssignmentScope: scope,
 			},
 			{
-				Id: "a2",
+				Id:              "a2",
+				AssignmentScope: scope,
 			},
 		}
 		// Validates that drifts do not occur due to ordering.
 		flippedConfigurationSetIds := []client.ConfigurationSet{
 			{
-				Id: "a2",
+				Id:              "a2",
+				AssignmentScope: scope,
 			},
 			{
-				Id: "a1",
+				Id:              "a1",
+				AssignmentScope: scope,
 			},
 		}
 
 		updatedSetIds := []string{"a1", "a3"}
 		updatedConfigurationSetIds := []client.ConfigurationSet{
 			{
-				Id: "a3",
+				Id:              "a3",
+				AssignmentScope: scope,
 			},
 			{
-				Id: "a1",
+				Id:              "a1",
+				AssignmentScope: scope,
 			},
 		}
 
@@ -97,10 +103,12 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		setIds := []string{"a1"}
 		configurationSetIds := []client.ConfigurationSet{
 			{
-				Id: "a1",
+				Id:              "a1",
+				AssignmentScope: scope,
 			},
 			{
-				Id: "a2",
+				Id:              "a2",
+				AssignmentScope: scope,
 			},
 		}
 
