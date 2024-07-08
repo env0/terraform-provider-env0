@@ -1,3 +1,17 @@
+terraform {
+  required_providers {
+    env0 = {
+      source = "env0/env0"
+    }
+  }
+}
+
+provider "env0" {
+  api_key      = "z0xvwofqbwcb3d2h"
+  api_secret   = "aMsEmqxekLnragNDWFYRLIOhyaEhEy0D"
+  api_endpoint = "https://api-dev.dev.env0.com"
+}
+
 data "env0_project" "project" {
   name = "project"
 }
