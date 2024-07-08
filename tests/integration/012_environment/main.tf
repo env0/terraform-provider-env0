@@ -256,8 +256,9 @@ resource "env0_environment" "workflow-environment" {
   variable_sets = var.second_run ? [env0_variable_set.variable_set2.id] : [env0_variable_set.variable_set1.id]
 
   sub_environment_configuration {
-    alias    = "rootService1"
-    revision = "master"
+    alias                      = "rootService1"
+    revision                   = "master"
+    approve_plan_automatically = var.second_run ? true : false
     configuration {
       name  = "sub_env1_var1"
       value = "hello"
