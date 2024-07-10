@@ -386,7 +386,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if val := d.Get("vcs_pr_comments_enabled").(bool); !val && environment.VcsPrCommentsEnabled {
+	if val := d.Get("vcs_pr_comments_enabled"); val == nil || (!val.(bool) && environment.VcsPrCommentsEnabled) {
 		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore the drift.
 	} else {
 		d.Set("vcs_pr_comments_enabled", environment.VcsPrCommentsEnabled)
