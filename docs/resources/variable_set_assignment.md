@@ -3,12 +3,12 @@
 page_title: "env0_variable_set_assignment Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  
+  note: avoid assigning to environments using 'variable_sets' (see environment schema).
 ---
 
 # env0_variable_set_assignment (Resource)
 
-
+note: avoid assigning to environments using 'variable_sets' (see environment schema).
 
 
 

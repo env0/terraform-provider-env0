@@ -363,19 +363,23 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 			configurationSets := []client.ConfigurationSet{
 				{
-					Id: "id1",
+					Id:              "id1",
+					AssignmentScope: "ENVIRONMENT",
 				},
 				{
-					Id: "id2",
+					Id:              "id2",
+					AssignmentScope: "ENVIRONMENT",
 				},
 			}
 
 			updatedConfigurationSets := []client.ConfigurationSet{
 				{
-					Id: "id3",
+					Id:              "id3",
+					AssignmentScope: "ENVIRONMENT",
 				},
 				{
-					Id: "id2",
+					Id:              "id2",
+					AssignmentScope: "ENVIRONMENT",
 				},
 			}
 
