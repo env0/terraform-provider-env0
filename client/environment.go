@@ -145,7 +145,7 @@ type EnvironmentCreate struct {
 	TTL                         *TTL                     `json:"ttl,omitempty" tfschema:"-"`
 	TerragruntWorkingDirectory  string                   `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                   `json:"vcsCommandsAlias"`
-	VcsPrCommentsEnabled        bool                     `json:"vcsPrCommentsEnabled"`
+	VcsPrCommentsEnabled        *bool                    `json:"vcsPrCommentsEnabled,omitempty" tfschema:"-"`
 	IsRemoteBackend             *bool                    `json:"isRemoteBackend,omitempty" tfschema:"-"`
 	Type                        string                   `json:"type,omitempty"`
 	DriftDetectionRequest       *DriftDetectionRequest   `json:"driftDetectionRequest,omitempty" tfschema:"-"`
@@ -195,7 +195,7 @@ type EnvironmentUpdate struct {
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
-	VcsPrCommentsEnabled        bool   `json:"vcsPrCommentsEnabled"`
+	VcsPrCommentsEnabled        *bool  `json:"vcsPrCommentsEnabled,omitempty" tfschema:"-"`
 	RequiresApproval            *bool  `json:"requiresApproval,omitempty" tfschema:"-"`
 	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty" tfschema:"-"`
 	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`

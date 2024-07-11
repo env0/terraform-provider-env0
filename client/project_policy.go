@@ -13,12 +13,12 @@ type Policy struct {
 	UpdatedBy                   string  `json:"updatedBy"`
 	RunPullRequestPlanDefault   bool    `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
+	VcsPrCommentsEnabledDefault bool    `json:"vcsPrCommentsEnabledDefault"`
 	MaxTtl                      *string `json:"maxTtl,omitempty" tfschema:",omitempty"`
 	DefaultTtl                  *string `json:"defaultTtl,omitempty" tfschema:",omitempty"`
 	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
 	DriftDetectionCron          string  `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
-	VcsPrCommentsEnabledDefault bool    `json:"vcsPrCommentsEnabledDefault"`
 }
 
 type PolicyUpdatePayload struct {

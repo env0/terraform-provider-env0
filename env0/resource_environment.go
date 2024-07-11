@@ -268,9 +268,8 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"vcs_pr_comments_enabled": {
 				Type:        schema.TypeBool,
-				Description: "set to 'true' to enable running VCS PR commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'.",
+				Description: "set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration",
 				Optional:    true,
-				Default:     false,
 			},
 			"is_inactive": {
 				Type:        schema.TypeBool,
@@ -734,7 +733,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled")
+	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled", "vcs_pr_comments_enabled")
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -894,9 +893,9 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		return client.EnvironmentCreate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	if val := d.Get("vcs_commands_alias").(string); len(val) > 0 {
-		// if alias is set - VcsPrCommentsEnabled must be true.
-		payload.VcsPrCommentsEnabled = true
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
@@ -1019,9 +1018,12 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		return client.EnvironmentUpdate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	if val := d.Get("vcs_commands_alias").(string); len(val) > 0 {
-		// if alias is set - VcsPrCommentsEnabled must be true.
-		payload.VcsPrCommentsEnabled = true
+	b := d.State().Attributes
+
+	fmt.Println(b)
+
+	if d.HasChange("vcs_pr_comments_enabled") {
+		payload.VcsPrCommentsEnabled = boolPtr(d.Get("vcs_pr_comments_enabled").(bool))
 	}
 
 	if d.HasChange("approve_plan_automatically") {
