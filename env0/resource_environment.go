@@ -433,7 +433,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
-	if variableSets, ok := d.GetOk("variable_sets"); variableSets != nil && ok {
+	if d.Get("variable_sets") != nil {
 		if err := d.Set("variable_sets", variableSetsIds); err != nil {
 			return fmt.Errorf("failed to set variable_sets value: %w", err)
 		}
