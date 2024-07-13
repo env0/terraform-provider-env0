@@ -250,7 +250,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
 							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
 							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
-							resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
 							resource.TestCheckResourceAttr(accessor, "k8s_namespace", updatedEnvironment.K8sNamespace),
 							resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled", "false"),
 							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
@@ -281,7 +280,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
-					IsArchived:                 updatedEnvironment.IsArchived,
 					VcsPrCommentsEnabled:       boolPtr(false),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)

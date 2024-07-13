@@ -385,8 +385,9 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if val := d.Get("vcs_pr_comments_enabled"); val == nil || (!val.(bool) && environment.VcsPrCommentsEnabled) {
-		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore the drift.
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("vcs_pr_comments_enabled"); !exists {
+		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore any drifts if not explicitly configured in the environment resource.
 	} else {
 		d.Set("vcs_pr_comments_enabled", environment.VcsPrCommentsEnabled)
 	}
@@ -735,7 +736,20 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled", "vcs_pr_comments_enabled")
+	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled", "vcs_pr_comments_enabled") {
+		return true
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		// if this field is set to 'false' will return that there is change each time.
+		// this is because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation).
+		if !val.(bool) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -1020,12 +1034,10 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 		return client.EnvironmentUpdate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	b := d.State().Attributes
-
-	fmt.Println(b)
-
-	if d.HasChange("vcs_pr_comments_enabled") {
-		payload.VcsPrCommentsEnabled = boolPtr(d.Get("vcs_pr_comments_enabled").(bool))
+	// Because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation): always set a value here (even if there's no change).
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
 	}
 
 	if d.HasChange("approve_plan_automatically") {
