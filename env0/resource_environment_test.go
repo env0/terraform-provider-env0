@@ -41,6 +41,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
+		VcsPrCommentsEnabled:       true,
 		IsRemoteBackend:            &isRemoteBackendFalse,
 		K8sNamespace:               "namespace",
 	}
@@ -58,6 +59,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias2",
+		VcsPrCommentsEnabled:       false,
 		IsRemoteBackend:            &isRemoteBackendTrue,
 		IsArchived:                 boolPtr(true),
 		K8sNamespace:               "namespace",
@@ -86,6 +88,26 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		if environment.IsArchived != nil {
 			config["is_inactive"] = *(environment.IsArchived)
+		}
+
+		return resourceConfigCreate(resourceType, resourceName, config)
+	}
+
+	createEnvironmentResourceConfigWithVcsPrCommentsEnabled := func(environment client.Environment, vcsPrCommentsEnabled *bool) string {
+		config := map[string]interface{}{
+			"name":                         environment.Name,
+			"project_id":                   environment.ProjectId,
+			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
+			"workspace":                    environment.WorkspaceName,
+			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
+			"force_destroy":                true,
+			"vcs_commands_alias":           environment.VcsCommandsAlias,
+			"is_remote_backend":            *(environment.IsRemoteBackend),
+			"k8s_namespace":                environment.K8sNamespace,
+		}
+
+		if vcsPrCommentsEnabled != nil {
+			config["vcs_pr_comments_enabled"] = *vcsPrCommentsEnabled
 		}
 
 		return resourceConfigCreate(resourceType, resourceName, config)
@@ -181,6 +203,84 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
+				}).Times(1).Return(updatedEnvironment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("vcs pr comments enabled", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfigWithVcsPrCommentsEnabled(environment, nil),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", environment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", environment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", environment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "false"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "k8s_namespace", environment.K8sNamespace),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+							resource.TestCheckNoResourceAttr(accessor, "vcs_pr_comments_enabled"),
+						),
+					},
+					{
+						Config: createEnvironmentResourceConfigWithVcsPrCommentsEnabled(updatedEnvironment, boolPtr(false)),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", updatedEnvironment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "workspace", environment.WorkspaceName),
+							resource.TestCheckResourceAttr(accessor, "terragrunt_working_directory", updatedEnvironment.TerragruntWorkingDirectory),
+							resource.TestCheckResourceAttr(accessor, "vcs_commands_alias", updatedEnvironment.VcsCommandsAlias),
+							resource.TestCheckResourceAttr(accessor, "revision", updatedEnvironment.LatestDeploymentLog.BlueprintRevision),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
+							resource.TestCheckResourceAttr(accessor, "output", string(updatedEnvironment.LatestDeploymentLog.Output)),
+							resource.TestCheckResourceAttr(accessor, "k8s_namespace", updatedEnvironment.K8sNamespace),
+							resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled", "false"),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+					K8sNamespace:    environment.K8sNamespace,
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
+					Name:                       updatedEnvironment.Name,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					IsRemoteBackend:            &isRemoteBackendTrue,
+					VcsPrCommentsEnabled:       boolPtr(false),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
@@ -613,7 +713,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						ImportState:             true,
 						ImportStateId:           environment.Id,
 						ImportStateVerify:       true,
-						ImportStateVerifyIgnore: []string{"force_destroy"},
+						ImportStateVerifyIgnore: []string{"force_destroy", "vcs_pr_comments_enabled"},
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled", "true"),
+							resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
+						),
 					},
 				},
 			}
@@ -2120,6 +2224,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		WorkspaceName:              "workspace-name",
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
+		VcsPrCommentsEnabled:       false,
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: "id-template-0",
 		},
@@ -2435,7 +2540,11 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           environment.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"force_destroy"},
+					ImportStateVerifyIgnore: []string{"force_destroy", "vcs_pr_comments_enabled"},
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled", "true"),
+						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
+					),
 				},
 			},
 		}
