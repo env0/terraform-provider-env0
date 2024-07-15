@@ -111,6 +111,12 @@ func resourceProjectPolicy() *schema.Resource {
 				Optional:         true,
 				ValidateDiagFunc: ValidateCronExpression,
 			},
+			"vcs_pr_comments_enabled_default": {
+				Type:        schema.TypeBool,
+				Description: "if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }

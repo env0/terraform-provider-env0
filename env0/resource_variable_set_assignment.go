@@ -21,6 +21,8 @@ func resourceVariableSetAssignment() *schema.Resource {
 		ReadContext:   resourceVariableSetAssignmentRead,
 		DeleteContext: resourceVariableSetAssignmentDelete,
 
+		Description: "note: avoid assigning to environments using 'variable_sets' (see environment schema).",
+
 		Schema: map[string]*schema.Schema{
 			"scope": {
 				Type:             schema.TypeString,
@@ -87,6 +89,10 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 
 	// In API but not in Schema - delete.
 	for _, apiConfigurationSet := range apiConfigurationSets {
+		if apiConfigurationSet.AssignmentScope != assignmentSchema.Scope {
+			continue
+		}
+
 		found := false
 
 		apiSetId := apiConfigurationSet.Id
@@ -181,6 +187,10 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	}
 
 	for _, apiConfigurationSet := range apiConfigurationSets {
+		if apiConfigurationSet.AssignmentScope != assignmentSchema.Scope {
+			continue
+		}
+
 		apiSetId := apiConfigurationSet.Id
 		found := false
 

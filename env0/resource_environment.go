@@ -266,6 +266,11 @@ func resourceEnvironment() *schema.Resource {
 				Description: "set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments",
 				Optional:    true,
 			},
+			"vcs_pr_comments_enabled": {
+				Type:        schema.TypeBool,
+				Description: "set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration",
+				Optional:    true,
+			},
 			"is_inactive": {
 				Type:        schema.TypeBool,
 				Description: "If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.",
@@ -357,7 +362,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"variable_sets": {
 				Type:        schema.TypeList,
-				Description: "a list of variable set to assign to this environment",
+				Description: "a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
@@ -378,6 +383,13 @@ func resourceEnvironment() *schema.Resource {
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("vcs_pr_comments_enabled"); !exists {
+		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore any drifts if not explicitly configured in the environment resource.
+	} else {
+		d.Set("vcs_pr_comments_enabled", environment.VcsPrCommentsEnabled)
 	}
 
 	if !isTemplateless(d) {
@@ -630,7 +642,9 @@ func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient clien
 
 	var environmentVariableSetIds []string
 	for _, variableSet := range environmentVariableSets {
-		environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
+		if variableSet.AssignmentScope == "ENVIRONMENT" {
+			environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
+		}
 	}
 
 	return environmentVariableSetIds, nil
@@ -722,7 +736,20 @@ func shouldDeploy(d *schema.ResourceData) bool {
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled")
+	if d.HasChanges("name", "approve_plan_automatically", "deploy_on_push", "run_plan_on_pull_requests", "auto_deploy_by_custom_glob", "auto_deploy_on_path_changes_only", "vcs_commands_alias", "is_remote_backend", "is_inactive", "is_remote_apply_enabled", "vcs_pr_comments_enabled") {
+		return true
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		// if this field is set to 'false' will return that there is change each time.
+		// this is because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation).
+		if !val.(bool) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func shouldUpdateTTL(d *schema.ResourceData) bool {
@@ -883,6 +910,11 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
+	}
+
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = boolPtr(val.(bool))
 	}
@@ -1000,6 +1032,12 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 
 	if err := readResourceData(&payload, d); err != nil {
 		return client.EnvironmentUpdate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	// Because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation): always set a value here (even if there's no change).
+	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
+		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
 	}
 
 	if d.HasChange("approve_plan_automatically") {
@@ -1365,6 +1403,8 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 
 	d.Set("force_destroy", false)
 	d.Set("removal_strategy", "destroy")
+
+	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)
 
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)

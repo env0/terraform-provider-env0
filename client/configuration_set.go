@@ -18,9 +18,10 @@ type UpdateConfigurationSetPayload struct {
 }
 
 type ConfigurationSet struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Id              string `json:"id"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	AssignmentScope string `json:"assignmentScope"`
 }
 
 func (client *ApiClient) ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
