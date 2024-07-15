@@ -53,6 +53,7 @@ Omitting removes the restriction.
 - `run_pull_request_plan_default` (Boolean) Run Terraform Plan on Pull Requests for new environments targeting their branch default value
 - `skip_apply_when_plan_is_empty` (Boolean) Skip apply when plan has no changes
 - `skip_redundant_deployments` (Boolean) Automatically skip queued deployments when a newer deployment is triggered
+- `vcs_pr_comments_enabled_default` (Boolean) if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments
 
 ### Read-Only
 

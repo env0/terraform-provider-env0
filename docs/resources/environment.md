@@ -86,6 +86,7 @@ Important note: After the environment is created, this field cannot be modified.
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - `variable_sets` (List of String) a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
+- `vcs_pr_comments_enabled` (Boolean) set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
 - `workspace` (String) the terraform workspace of the environment
 
