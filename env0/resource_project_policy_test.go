@@ -31,6 +31,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		DriftDetectionCron:          "0 4 * * *",
 		DriftDetectionEnabled:       true,
 		VcsPrCommentsEnabledDefault: true,
+		OutputsAsInputsEnabled:      true,
 	}
 
 	updatedPolicy := client.Policy{
@@ -72,6 +73,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						"force_remote_backend":            policy.ForceRemoteBackend,
 						"drift_detection_cron":            policy.DriftDetectionCron,
 						"vcs_pr_comments_enabled_default": policy.VcsPrCommentsEnabledDefault,
+						"outputs_as_inputs_enabled":       policy.OutputsAsInputsEnabled,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", policy.ProjectId),
@@ -89,6 +91,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(policy.ForceRemoteBackend)),
 						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", policy.DriftDetectionCron),
 						resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled_default", strconv.FormatBool(policy.VcsPrCommentsEnabledDefault)),
+						resource.TestCheckResourceAttr(accessor, "outputs_as_inputs_enabled", strconv.FormatBool(policy.OutputsAsInputsEnabled)),
 					),
 				},
 				{
@@ -116,6 +119,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(updatedPolicy.ForceRemoteBackend)),
 						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", updatedPolicy.DriftDetectionCron),
 						resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled_default", strconv.FormatBool(updatedPolicy.VcsPrCommentsEnabledDefault)),
+						resource.TestCheckResourceAttr(accessor, "outputs_as_inputs_enabled", strconv.FormatBool(updatedPolicy.OutputsAsInputsEnabled)),
 					),
 				},
 			},
@@ -139,6 +143,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					DriftDetectionEnabled:       true,
 					DriftDetectionCron:          policy.DriftDetectionCron,
 					VcsPrCommentsEnabledDefault: policy.VcsPrCommentsEnabledDefault,
+					OutputsAsInputsEnabled:      policy.OutputsAsInputsEnabled,
 				}).Times(1).Return(policy, nil),
 				mock.EXPECT().Policy(gomock.Any()).Times(2).Return(policy, nil), // 1 after create, 1 before update
 				// Update

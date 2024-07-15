@@ -758,13 +758,6 @@ resource "%s" "test" {
 			createParams := configurationVariableCreateParams
 			createParams.IsReadOnly = true
 			createParams.IsRequired = true
-			updateParams := createParams
-			updateParams.Name = newConfigVar.Name
-			updateParams.Value = ""
-			updateParams.Description = newConfigVar.Description
-			updateParams.Format = client.HCL
-			updateParams.IsReadOnly = *newConfigVar.IsReadOnly
-			updateParams.IsRequired = *newConfigVar.IsRequired
 
 			mock.EXPECT().ConfigurationVariableCreate(createParams).Times(1).Return(newConfigVar, nil)
 			gomock.InOrder(
