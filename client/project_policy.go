@@ -19,6 +19,7 @@ type Policy struct {
 	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
 	DriftDetectionCron          string  `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
+	OutputsAsInputsEnabled      bool    `json:"outputsAsInputsEnabled"`
 }
 
 type PolicyUpdatePayload struct {
@@ -38,6 +39,7 @@ type PolicyUpdatePayload struct {
 	DriftDetectionCron          string `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool   `json:"driftDetectionEnabled"`
 	VcsPrCommentsEnabledDefault bool   `json:"vcsPrCommentsEnabledDefault"`
+	OutputsAsInputsEnabled      bool   `json:"outputsAsInputsEnabled"`
 }
 
 // Policy retrieves a policy from the API
