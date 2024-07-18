@@ -159,6 +159,7 @@ type ApiClientInterface interface {
 	ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSet(id string) (*ConfigurationSet, error)
+	ConfigurationSets(organizationId string, projectId string) ([]ConfigurationSet, error)
 	ConfigurationSetDelete(id string) error
 	ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error)
 	AssignConfigurationSets(scope string, scopeId string, sets []string) error

@@ -41,7 +41,6 @@ func resourceTeamOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *sc
 	organizationId, err := apiClient.OrganizationId()
 	if err != nil {
 		return diag.Errorf("could not get organization id: %v", err)
-
 	}
 
 	var payload client.TeamRoleAssignmentCreateOrUpdatePayload

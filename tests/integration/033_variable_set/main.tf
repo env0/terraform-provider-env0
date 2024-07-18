@@ -71,6 +71,21 @@ resource "env0_variable_set" "project_scope" {
   }
 }
 
+data "env0_variable_set" "variable_set_project_scope" {
+  name       = env0_variable_set.project_scope.name
+  scope      = "PROJECT"
+  project_id = env0_project.project.id
+
+  depends_on = [env0_variable_set.project_scope]
+}
+
+data "env0_variable_set" "variable_set_organization_scope" {
+  name  = env0_variable_set.org_scope.name
+  scope = "ORGANIZATION"
+
+  depends_on = [env0_variable_set.org_scope]
+}
+
 resource "env0_variable_set_assignment" "assignment" {
   scope    = "project"
   scope_id = env0_project.project.id
