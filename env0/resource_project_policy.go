@@ -113,7 +113,13 @@ func resourceProjectPolicy() *schema.Resource {
 			},
 			"vcs_pr_comments_enabled_default": {
 				Type:        schema.TypeBool,
-				Description: "if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments",
+				Description: "if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments. Default is 'false'",
+				Optional:    true,
+				Default:     false,
+			},
+			"outputs_as_inputs_enabled": {
+				Type:        schema.TypeBool,
+				Description: "if 'true' enables 'environment outputs'. Default is 'false'",
 				Optional:    true,
 				Default:     false,
 			},

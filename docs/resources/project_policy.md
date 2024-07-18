@@ -49,11 +49,12 @@ resource "env0_project_policy" "example" {
 Omitting removes the restriction.
 - `number_of_environments_total` (Number) Max number of environments in this project.
 Omitting removes the restriction.
+- `outputs_as_inputs_enabled` (Boolean) if 'true' enables 'environment outputs'. Default is 'false'
 - `requires_approval_default` (Boolean) Requires approval default value when creating a new environment in the project
 - `run_pull_request_plan_default` (Boolean) Run Terraform Plan on Pull Requests for new environments targeting their branch default value
 - `skip_apply_when_plan_is_empty` (Boolean) Skip apply when plan has no changes
 - `skip_redundant_deployments` (Boolean) Automatically skip queued deployments when a newer deployment is triggered
-- `vcs_pr_comments_enabled_default` (Boolean) if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments
+- `vcs_pr_comments_enabled_default` (Boolean) if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments. Default is 'false'
 
 ### Read-Only
 

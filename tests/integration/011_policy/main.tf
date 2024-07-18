@@ -31,6 +31,7 @@ resource "env0_project_policy" "test_policy_2" {
   disable_destroy_environments    = true
   skip_redundant_deployments      = true
   vcs_pr_comments_enabled_default = true
+  outputs_as_inputs_enabled       = true
 }
 
 resource "env0_project_policy" "test_policy_ttl" {
