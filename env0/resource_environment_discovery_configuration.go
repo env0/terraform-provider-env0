@@ -160,6 +160,11 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Description: "a token id to be used with 'gitlab' or 'azure_devops'",
 				Optional:    true,
 			},
+			"root_path": {
+				Type:        schema.TypeString,
+				Description: "start files Glob matching from this folder only",
+				Optional:    true,
+			},
 		},
 	}
 }
