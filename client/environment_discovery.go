@@ -19,6 +19,7 @@ type EnvironmentDiscoveryPutPayload struct {
 	BitbucketClientKey     string           `json:"bitbucketClientKey,omitempty"`
 	IsAzureDevops          bool             `json:"isAzureDevOps"`
 	Retry                  TemplateRetry    `json:"retry"`
+	RootPath               string           `json:"rootPath"`
 }
 
 type EnvironmentDiscoveryPayload struct {
@@ -41,6 +42,7 @@ type EnvironmentDiscoveryPayload struct {
 	BitbucketClientKey     string           `json:"bitbucketClientKey"`
 	IsAzureDevops          bool             `json:"isAzureDevOps"`
 	Retry                  TemplateRetry    `json:"retry" tfschema:"-"`
+	RootPath               string           `json:"rootPath"`
 }
 
 func (client *ApiClient) PutEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {

@@ -29,6 +29,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			OpentofuVersion:      "1.6.2",
 			GithubInstallationId: 12345,
+			RootPath:             "/path",
 		}
 
 		getPayload := client.EnvironmentDiscoveryPayload{
@@ -40,6 +41,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      putPayload.WorkspaceNaming,
 			OpentofuVersion:      putPayload.OpentofuVersion,
 			GithubInstallationId: putPayload.GithubInstallationId,
+			RootPath:             putPayload.RootPath,
 		}
 
 		updatePutPayload := client.EnvironmentDiscoveryPutPayload{
@@ -52,6 +54,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			TerragruntVersion:    "0.63.0",
 			GithubInstallationId: 3213,
 			TerragruntTfBinary:   "opentofu",
+			RootPath:             "/path2",
 		}
 
 		updateGetPayload := client.EnvironmentDiscoveryPayload{
@@ -65,6 +68,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			TerragruntVersion:    updatePutPayload.TerragruntVersion,
 			GithubInstallationId: updatePutPayload.GithubInstallationId,
 			TerragruntTfBinary:   "opentofu",
+			RootPath:             updatePutPayload.RootPath,
 		}
 
 		testCase := resource.TestCase{
@@ -76,6 +80,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						"repository":             putPayload.Repository,
 						"opentofu_version":       putPayload.OpentofuVersion,
 						"github_installation_id": putPayload.GithubInstallationId,
+						"root_path":              putPayload.RootPath,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
@@ -86,6 +91,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "workspace_naming", putPayload.WorkspaceNaming),
 						resource.TestCheckResourceAttr(accessor, "opentofu_version", putPayload.OpentofuVersion),
 						resource.TestCheckResourceAttr(accessor, "github_installation_id", strconv.Itoa(putPayload.GithubInstallationId)),
+						resource.TestCheckResourceAttr(accessor, "root_path", putPayload.RootPath),
 					),
 				},
 				{
@@ -97,6 +103,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						"github_installation_id": updatePutPayload.GithubInstallationId,
 						"type":                   updatePutPayload.Type,
 						"terragrunt_version":     updatePutPayload.TerragruntVersion,
+						"root_path":              updatePutPayload.RootPath,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
@@ -108,6 +115,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "opentofu_version", updatePutPayload.OpentofuVersion),
 						resource.TestCheckResourceAttr(accessor, "github_installation_id", strconv.Itoa(updatePutPayload.GithubInstallationId)),
 						resource.TestCheckResourceAttr(accessor, "terragrunt_version", updatePutPayload.TerragruntVersion),
+						resource.TestCheckResourceAttr(accessor, "root_path", updatePutPayload.RootPath),
 					),
 				},
 			},

@@ -64,6 +64,7 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
 - `retries_on_destroy` (Number) number of times to retry when destroy fails (between 1 and 3)
 - `retry_on_deploy_only_when_matches_regex` (String) retry (on deploy) if error matches the specified regex
 - `retry_on_destroy_only_when_matches_regex` (String) retry (on destroy) if error matches the specified regex
+- `root_path` (String) start files Glob matching from this folder only
 - `ssh_key_id` (String) The ssh key id that will be available during deployment
 - `ssh_key_name` (String) The ssh key name that will be available during deployment
 - `terraform_version` (String) the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.
