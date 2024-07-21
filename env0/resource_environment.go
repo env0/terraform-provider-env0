@@ -1340,6 +1340,7 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	var getErr diag.Diagnostics
+
 	var environment client.Environment
 	_, err := uuid.Parse(id)
 	if err == nil {
@@ -1350,6 +1351,11 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 
 		environment, getErr = getEnvironmentByName(meta, id, "", false)
 	}
+
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
 
@@ -1406,9 +1412,5 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 
 	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)
 
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
-	}
+	return []*schema.ResourceData{d}, nil
 }
