@@ -1,6 +1,9 @@
 package client
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type CreateConfigurationSetPayload struct {
 	Name        string `json:"name"`
@@ -67,7 +70,7 @@ func (client *ApiClient) ConfigurationSets(scope string, scopeId string) ([]Conf
 	var result []ConfigurationSet
 
 	params := map[string]string{
-		"scope":   scope,
+		"scope":   strings.ToLower(scope),
 		"scopeId": scopeId,
 	}
 

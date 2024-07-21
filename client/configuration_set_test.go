@@ -170,7 +170,7 @@ var _ = Describe("Configuration Set", func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration-sets", map[string]string{
 					"scopeId": mockVariables[0].CreationScopeId,
-					"scope":   "PROJECT",
+					"scope":   "project",
 				}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
 					*response = mockVariables
@@ -199,7 +199,7 @@ var _ = Describe("Configuration Set", func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration-sets", map[string]string{
 					"scopeId": mockVariables[0].CreationScopeId,
-					"scope":   "ORGANIZATION",
+					"scope":   "organization",
 				}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
 					*response = mockVariables
