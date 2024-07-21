@@ -49,12 +49,12 @@ func TestVariableSetDataSource(t *testing.T) {
 		return dataSourceConfigCreate(resourceType, resourceName, fields)
 	}
 
-	mockVariableSetsCall := func(organizationId string, projectId string, returnValue []client.ConfigurationSet) func(mockFunc *client.MockApiClientInterface) {
+	mockVariableSetsCall := func(scope string, scopeId string, returnValue []client.ConfigurationSet) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			if organizationId != "" {
 				mock.EXPECT().OrganizationId().AnyTimes().Return(organizationId, nil)
 			}
-			mock.EXPECT().ConfigurationSets(organizationId, projectId).AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().ConfigurationSets(scope, scopeId).AnyTimes().Return(returnValue, nil)
 		}
 	}
 
@@ -70,7 +70,7 @@ func TestVariableSetDataSource(t *testing.T) {
 					},
 				},
 			},
-			mockVariableSetsCall("", projectId, []client.ConfigurationSet{
+			mockVariableSetsCall("PROJECT", projectId, []client.ConfigurationSet{
 				v4, v1, v2,
 			}),
 		)
@@ -88,7 +88,7 @@ func TestVariableSetDataSource(t *testing.T) {
 					},
 				},
 			},
-			mockVariableSetsCall(organizationId, "", []client.ConfigurationSet{
+			mockVariableSetsCall("ORGANIZATION", organizationId, []client.ConfigurationSet{
 				v4, v3,
 			}),
 		)
@@ -104,7 +104,7 @@ func TestVariableSetDataSource(t *testing.T) {
 					},
 				},
 			},
-			mockVariableSetsCall("", projectId, []client.ConfigurationSet{
+			mockVariableSetsCall("PROJECT", projectId, []client.ConfigurationSet{
 				v4, v1, v2, v3,
 			}),
 		)
@@ -121,7 +121,7 @@ func TestVariableSetDataSource(t *testing.T) {
 				},
 			},
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().ConfigurationSets("", projectId).AnyTimes().Return(nil, errors.New("error"))
+				mock.EXPECT().ConfigurationSets("PROJECT", projectId).AnyTimes().Return(nil, errors.New("error"))
 			},
 		)
 	})

@@ -51,12 +51,12 @@ func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	apiClient := meta.(client.ApiClientInterface)
 
-	organizationId := ""
+	var scopeId string
 
 	switch resource.Scope {
 	case "ORGANIZATION":
 		var err error
-		organizationId, err = apiClient.OrganizationId()
+		scopeId, err = apiClient.OrganizationId()
 		if err != nil {
 			return diag.Errorf("could not get organization id: %v", err)
 		}
@@ -64,9 +64,10 @@ func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta inter
 		if resource.ProjectId == "" {
 			return diag.Errorf("'project_id' is required")
 		}
+		scopeId = resource.ProjectId
 	}
 
-	variableSets, err := apiClient.ConfigurationSets(organizationId, resource.ProjectId)
+	variableSets, err := apiClient.ConfigurationSets(resource.Scope, scopeId)
 	if err != nil {
 		return diag.Errorf("could not get variable sets: %v", err)
 	}

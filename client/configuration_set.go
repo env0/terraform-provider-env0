@@ -63,17 +63,12 @@ func (client *ApiClient) ConfigurationSet(id string) (*ConfigurationSet, error) 
 	return &result, nil
 }
 
-func (client *ApiClient) ConfigurationSets(organizationId string, projectId string) ([]ConfigurationSet, error) {
+func (client *ApiClient) ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error) {
 	var result []ConfigurationSet
 
-	params := map[string]string{}
-
-	if organizationId != "" {
-		params["organizationId"] = organizationId
-	}
-
-	if projectId != "" {
-		params["projectId"] = projectId
+	params := map[string]string{
+		"scope":   scope,
+		"scopeId": scopeId,
 	}
 
 	if err := client.http.Get("/configuration-sets", params, &result); err != nil {
