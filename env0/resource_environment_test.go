@@ -744,6 +744,44 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("Import By Id - not found", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfig(environment),
+					},
+					{
+						ResourceName:  resourceNameImport,
+						ImportState:   true,
+						ImportStateId: environment.Id,
+						ExpectError:   regexp.MustCompile("Could not find environment: error"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+					K8sNamespace:    environment.K8sNamespace,
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(client.Environment{}, errors.New("error"))
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
 		t.Run("Success create and remove drift cron", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
