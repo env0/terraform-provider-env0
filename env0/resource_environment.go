@@ -362,7 +362,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"variable_sets": {
 				Type:        schema.TypeList,
-				Description: "a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
+				Description: "a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
