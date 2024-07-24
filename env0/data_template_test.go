@@ -42,6 +42,7 @@ func TestUnitTemplateData(t *testing.T) {
 		},
 		IsBitbucketServer: true,
 		IsAzureDevOps:     true,
+		TokenName:         "tokenname",
 	}
 
 	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
@@ -69,6 +70,7 @@ func TestUnitTemplateData(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "ssh_keys.0.name", template.SshKeys[0].Name),
 						resource.TestCheckResourceAttr(resourceFullName, "is_bitbucket_server", "true"),
 						resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", "true"),
+						resource.TestCheckResourceAttr(resourceFullName, "token_name", template.TokenName),
 					),
 				},
 			},
