@@ -2541,6 +2541,13 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 
 				// Update
 				mock.EXPECT().TemplateUpdate(template.Id, templateUpdatePayload).Times(1).Return(updatedTemplate, nil),
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
+					BlueprintId:       template.Id,
+					BlueprintRevision: updatedTemplate.Revision,
+				}).Times(1).Return(client.EnvironmentDeployResponse{
+					Id: environment.Id,
+				}, nil),
 
 				// Read
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
