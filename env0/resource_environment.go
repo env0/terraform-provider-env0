@@ -732,6 +732,12 @@ func shouldUpdateTemplate(d *schema.ResourceData) bool {
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
+	if _, ok := d.GetOk("without_template_settings.0"); ok {
+		if d.HasChange("without_template_settings.0.revision") {
+			return true
+		}
+	}
+
 	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets")
 }
 
@@ -1126,8 +1132,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	var err error
 
 	if isTemplateless(d) {
-		templateId, ok := d.GetOk("without_template_settings.0.id")
-		if ok {
+		if templateId, ok := d.GetOk("without_template_settings.0.id"); ok {
 			payload.BlueprintId = templateId.(string)
 		}
 	} else {
@@ -1139,6 +1144,10 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if isRedeploy {
+		if revision, ok := d.GetOk("without_template_settings.0.revision"); ok {
+			payload.BlueprintRevision = revision.(string)
+		}
+
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 			scope := client.ScopeEnvironment
