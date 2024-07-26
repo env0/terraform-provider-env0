@@ -63,6 +63,7 @@ type Template struct {
 	HelmChartName        string           `json:"helmChartName" tfschema:",omitempty"`
 	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
+	TokenName            string           `json:"tokenName"`
 }
 
 type TemplateCreatePayload struct {
