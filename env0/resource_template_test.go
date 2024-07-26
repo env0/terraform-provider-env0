@@ -84,6 +84,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		Type:             "terraform",
 		TokenId:          "1",
 		TerraformVersion: "0.12.24",
+		TokenName:        "token_name",
 	}
 	gitlabTemplateProjectId := 10
 	gitlabUpdatedTemplate := client.Template{
@@ -107,6 +108,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerragruntVersion: "0.26.1",
 		TokenId:           "2",
 		TerraformVersion:  "0.15.1",
+		TokenName:         "token_name2",
 	}
 	gitlabTemplateUpdatedProjectId := 15
 	githubTemplate := client.Template{
@@ -487,6 +489,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.TokenId != "" {
 			templateAsDictionary["token_id"] = template.TokenId
 		}
+		if template.TokenName != "" {
+			templateAsDictionary["token_name"] = template.TokenName
+		}
 		if template.Id == gitlabTemplate.Id {
 			if template.Name == gitlabUpdatedTemplate.Name {
 				templateAsDictionary["gitlab_project_id"] = gitlabTemplateUpdatedProjectId
@@ -575,6 +580,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			pathAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "path")
 		}
 
+		tokenNameAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_name", template.TokenName)
+		if template.TokenName == "" {
+			tokenNameAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_name")
+		}
+
 		return resource.ComposeAggregateTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 			resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
@@ -598,6 +608,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_helm_repository", strconv.FormatBool(template.IsHelmRepository)),
+			tokenNameAssertion,
 		)
 	}
 
@@ -651,6 +662,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsHelmRepository:     templateUseCase.template.IsHelmRepository,
 				HelmChartName:        templateUseCase.template.HelmChartName,
 				OpentofuVersion:      templateUseCase.template.OpentofuVersion,
+				TokenName:            templateUseCase.template.TokenName,
 			}
 
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
@@ -677,6 +689,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				IsHelmRepository:     templateUseCase.updatedTemplate.IsHelmRepository,
 				HelmChartName:        templateUseCase.updatedTemplate.HelmChartName,
 				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
+				TokenName:            templateUseCase.updatedTemplate.TokenName,
 			}
 
 			if templateUseCase.template.Type == "terragrunt" {
