@@ -362,7 +362,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"variable_sets": {
 				Type:        schema.TypeList,
-				Description: "a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
+				Description: "a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
@@ -732,6 +732,12 @@ func shouldUpdateTemplate(d *schema.ResourceData) bool {
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
+	if _, ok := d.GetOk("without_template_settings.0"); ok {
+		if d.HasChange("without_template_settings.0.revision") {
+			return true
+		}
+	}
+
 	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets")
 }
 
@@ -1126,8 +1132,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	var err error
 
 	if isTemplateless(d) {
-		templateId, ok := d.GetOk("without_template_settings.0.id")
-		if ok {
+		if templateId, ok := d.GetOk("without_template_settings.0.id"); ok {
 			payload.BlueprintId = templateId.(string)
 		}
 	} else {
@@ -1139,6 +1144,10 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if isRedeploy {
+		if revision, ok := d.GetOk("without_template_settings.0.revision"); ok {
+			payload.BlueprintRevision = revision.(string)
+		}
+
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 			scope := client.ScopeEnvironment
