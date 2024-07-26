@@ -23,21 +23,18 @@ data "env0_template" "example" {
 
 ### Optional
 
-- `bitbucket_client_key` (String) the bitbucket client key used for integration
-- `github_installation_id` (Number) The env0 application installation id on the relevant github repository
 - `id` (String) id of the template
+- `name` (String) the name of the template
+
+### Read-Only
+
+- `bitbucket_client_key` (String) the bitbucket client key used for integration
+- `description` (String) description for the template
+- `github_installation_id` (Number) The env0 application installation id on the relevant github repository
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
 - `is_gitlab_enterprise` (Boolean) Does this template use gitlab enterprise repository?
-- `name` (String) the name of the template
-- `ssh_keys` (Block List) an array of references to 'data_ssh_key' to use when accessing git over ssh (see [below for nested schema](#nestedblock--ssh_keys))
-- `terragrunt_version` (String) terragrunt version to use
-- `token_id` (String) The token id used for private git repos or for integration with GitLab
-
-### Read-Only
-
-- `description` (String) description for the template
 - `path` (String) terraform / terrgrunt folder inside source code repository
 - `project_ids` (List of String) which projects may access this template (id of project)
 - `repository` (String) template source code repository url
@@ -46,13 +43,17 @@ data "env0_template" "example" {
 - `retry_on_deploy_only_when_matches_regex` (String) if specified, will only retry (on deploy) if error matches specified regex
 - `retry_on_destroy_only_when_matches_regex` (String) if specified, will only retry (on destroy) if error matches specified regex
 - `revision` (String) source code revision (branch / tag) to use
+- `ssh_keys` (List of Object) an array of references to 'data_ssh_key' to use when accessing git over ssh (see [below for nested schema](#nestedatt--ssh_keys))
 - `terraform_version` (String) terraform version to use
+- `terragrunt_version` (String) terragrunt version to use
+- `token_id` (String) The token id used for private git repos or for integration with GitLab
+- `token_name` (String) the token name used for integration with GitLab
 - `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu)
 
-<a id="nestedblock--ssh_keys"></a>
+<a id="nestedatt--ssh_keys"></a>
 ### Nested Schema for `ssh_keys`
 
-Required:
+Read-Only:
 
-- `id` (String) ssh key id
-- `name` (String) ssh key name
+- `id` (String)
+- `name` (String)
