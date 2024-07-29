@@ -372,6 +372,18 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 			updatedConfigurationSets := []client.ConfigurationSet{
 				{
+					Id:              "id2",
+					AssignmentScope: "ENVIRONMENT",
+				},
+				{
+					Id:              "id3",
+					AssignmentScope: "ENVIRONMENT",
+				},
+			}
+
+			// Same as updatedConfigurationSets, but in a different order.
+			updatedConfigurationSets2 := []client.ConfigurationSet{
+				{
 					Id:              "id3",
 					AssignmentScope: "ENVIRONMENT",
 				},
@@ -398,7 +410,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			environmentDeployRequest := client.DeployRequest{
 				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 				ConfigurationSetChanges: &client.ConfigurationSetChanges{
-					Assign:   []string{updatedConfigurationSets[0].Id},
+					Assign:   []string{updatedConfigurationSets[1].Id},
 					Unassign: []string{configurationSets[0].Id},
 				},
 			}
@@ -465,7 +477,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
-					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(updatedConfigurationSets, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(updatedConfigurationSets2, nil),
 
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
