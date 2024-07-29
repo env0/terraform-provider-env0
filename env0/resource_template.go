@@ -244,6 +244,11 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:      "the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. For new templates defaults to 'opentofu'",
 			ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
 		},
+		"token_name": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "token name for Gitlab",
+		},
 	}
 
 	if prefix == "" {

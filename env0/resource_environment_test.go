@@ -372,6 +372,18 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 			updatedConfigurationSets := []client.ConfigurationSet{
 				{
+					Id:              "id2",
+					AssignmentScope: "ENVIRONMENT",
+				},
+				{
+					Id:              "id3",
+					AssignmentScope: "ENVIRONMENT",
+				},
+			}
+
+			// Same as updatedConfigurationSets, but in a different order.
+			updatedConfigurationSets2 := []client.ConfigurationSet{
+				{
 					Id:              "id3",
 					AssignmentScope: "ENVIRONMENT",
 				},
@@ -398,7 +410,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			environmentDeployRequest := client.DeployRequest{
 				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
 				ConfigurationSetChanges: &client.ConfigurationSetChanges{
-					Assign:   []string{updatedConfigurationSets[0].Id},
+					Assign:   []string{updatedConfigurationSets[1].Id},
 					Unassign: []string{configurationSets[0].Id},
 				},
 			}
@@ -465,7 +477,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
-					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(updatedConfigurationSets, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(updatedConfigurationSets2, nil),
 
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
@@ -741,6 +753,44 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(3).Return(nil, nil)
+			})
+		})
+
+		t.Run("Import By Id - not found", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: createEnvironmentResourceConfig(environment),
+					},
+					{
+						ResourceName:  resourceNameImport,
+						ImportState:   true,
+						ImportStateId: environment.Id,
+						ExpectError:   regexp.MustCompile("Could not find environment: error"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:                       environment.Name,
+					ProjectId:                  environment.ProjectId,
+					WorkspaceName:              environment.WorkspaceName,
+					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
+					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
+					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+					IsRemoteBackend: &isRemoteBackendFalse,
+					K8sNamespace:    environment.K8sNamespace,
+				}).Times(1).Return(environment, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(client.Environment{}, errors.New("error"))
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
 
@@ -2503,6 +2553,13 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 
 				// Update
 				mock.EXPECT().TemplateUpdate(template.Id, templateUpdatePayload).Times(1).Return(updatedTemplate, nil),
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().EnvironmentDeploy(environment.Id, client.DeployRequest{
+					BlueprintId:       template.Id,
+					BlueprintRevision: updatedTemplate.Revision,
+				}).Times(1).Return(client.EnvironmentDeployResponse{
+					Id: environment.Id,
+				}, nil),
 
 				// Read
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
