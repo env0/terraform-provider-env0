@@ -188,6 +188,7 @@ Optional:
 - `terragrunt_tf_binary` (String) the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. For new templates defaults to 'opentofu'
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
+- `token_name` (String) token name for Gitlab
 - `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu)
 
 Read-Only:
