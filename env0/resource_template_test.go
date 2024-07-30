@@ -85,8 +85,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		TokenId:          "1",
 		TerraformVersion: "0.12.24",
 		TokenName:        "token_name",
+		GitlabProjectId:  1234,
 	}
-	gitlabTemplateProjectId := 10
 	gitlabUpdatedTemplate := client.Template{
 		Id:          gitlabTemplate.Id,
 		Name:        "new-name",
@@ -109,8 +109,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		TokenId:           "2",
 		TerraformVersion:  "0.15.1",
 		TokenName:         "token_name2",
+		GitlabProjectId:   5678,
 	}
-	gitlabTemplateUpdatedProjectId := 15
 	githubTemplate := client.Template{
 		Id:          "id0",
 		Name:        "template0",
@@ -492,12 +492,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.TokenName != "" {
 			templateAsDictionary["token_name"] = template.TokenName
 		}
-		if template.Id == gitlabTemplate.Id {
-			if template.Name == gitlabUpdatedTemplate.Name {
-				templateAsDictionary["gitlab_project_id"] = gitlabTemplateUpdatedProjectId
-			} else {
-				templateAsDictionary["gitlab_project_id"] = gitlabTemplateProjectId
-			}
+		if template.GitlabProjectId != 0 {
+			templateAsDictionary["gitlab_project_id"] = template.GitlabProjectId
 		}
 		if template.GithubInstallationId != 0 {
 			templateAsDictionary["github_installation_id"] = template.GithubInstallationId
@@ -536,13 +532,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
 	fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
-		gitlabProjectIdAssertion := resource.TestCheckNoResourceAttr(resourceFullName, "gitlab_project_id")
-		if template.Id == gitlabTemplate.Id {
-			if template.Name == gitlabUpdatedTemplate.Name {
-				gitlabProjectIdAssertion = resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(gitlabTemplateUpdatedProjectId))
-			} else {
-				gitlabProjectIdAssertion = resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(gitlabTemplateProjectId))
-			}
+		gitlabProjectIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId))
+		if template.GitlabProjectId == 0 {
+			gitlabProjectIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "gitlab_project_id")
 		}
 
 		tokenIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId)
@@ -630,14 +622,6 @@ func TestUnitTemplateResource(t *testing.T) {
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
-			gitlabProjectId := 0
-			gitlabUpdatedProjectId := 0
-
-			if templateUseCase.vcs == "GitLab" {
-				gitlabProjectId = gitlabTemplateProjectId
-				gitlabUpdatedProjectId = gitlabTemplateUpdatedProjectId
-			}
-
 			templateCreatePayload := client.TemplateCreatePayload{
 				Name:                 templateUseCase.template.Name,
 				Repository:           templateUseCase.template.Repository,
@@ -645,7 +629,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				GithubInstallationId: templateUseCase.template.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.template.IsGitlabEnterprise,
 				IsGitLab:             templateUseCase.template.TokenId != "" && !templateUseCase.template.IsAzureDevOps,
-				GitlabProjectId:      gitlabProjectId,
+				GitlabProjectId:      templateUseCase.template.GitlabProjectId,
 				TokenId:              templateUseCase.template.TokenId,
 				Path:                 templateUseCase.template.Path,
 				Revision:             templateUseCase.template.Revision,
@@ -672,7 +656,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
 				IsGitLab:             templateUseCase.updatedTemplate.TokenId != "" && !templateUseCase.updatedTemplate.IsAzureDevOps,
-				GitlabProjectId:      gitlabUpdatedProjectId,
+				GitlabProjectId:      templateUseCase.updatedTemplate.GitlabProjectId,
 				TokenId:              templateUseCase.updatedTemplate.TokenId,
 				Path:                 templateUseCase.updatedTemplate.Path,
 				Revision:             templateUseCase.updatedTemplate.Revision,
