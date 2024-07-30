@@ -37,7 +37,7 @@ resource "env0_template" "gitlab_template" {
   type                                    = "terraform"
   repository                              = data.env0_template.gitlab_template.repository
   token_id                                = data.env0_template.gitlab_template.token_id
-  gitlab_project_id                       = var.second_run ? 32315446 : 434343
+  gitlab_project_id                       = 32315446
   path                                    = var.second_run ? "second" : "misc/null-resource"
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
