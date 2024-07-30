@@ -7,8 +7,8 @@ resource "random_string" "random" {
 }
 
 resource "env0_project" "project" {
-  name = "project-environment-output-${random_string.random.result}"
-  wait = true
+  name          = "project-environment-output-${random_string.random.result}"
+  force_destroy = true
 }
 
 data "env0_environment" "output_environment" {
