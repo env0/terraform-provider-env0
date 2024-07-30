@@ -84,12 +84,12 @@ func dataTemplate() *schema.Resource {
 			"github_installation_id": {
 				Type:        schema.TypeInt,
 				Description: "The env0 application installation id on the relevant github repository",
-				Optional:    true,
+				Computed:    true,
 			},
 			"token_id": {
 				Type:        schema.TypeString,
 				Description: "The token id used for private git repos or for integration with GitLab",
-				Optional:    true,
+				Computed:    true,
 			},
 			"terraform_version": {
 				Type:        schema.TypeString,
@@ -100,57 +100,55 @@ func dataTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "terragrunt version to use",
 				Computed:    true,
-				Optional:    true,
 			},
 			"is_gitlab_enterprise": {
 				Type:        schema.TypeBool,
 				Description: "Does this template use gitlab enterprise repository?",
-				Optional:    true,
 				Computed:    true,
 			},
 			"bitbucket_client_key": {
 				Type:        schema.TypeString,
 				Description: "the bitbucket client key used for integration",
-				Optional:    true,
 				Computed:    true,
 			},
 			"is_bitbucket_server": {
 				Type:        schema.TypeBool,
 				Description: "true if this template uses bitbucket server repository",
-				Optional:    true,
 				Computed:    true,
 			},
 			"is_github_enterprise": {
 				Type:        schema.TypeBool,
 				Description: "true if this template uses github enterprise repository",
-				Optional:    true,
 				Computed:    true,
 			},
 			"is_azure_devops": {
 				Type:        schema.TypeBool,
 				Description: "true if this template integrates with azure dev ops",
-				Optional:    true,
 				Computed:    true,
 			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
 				Description: "an array of references to 'data_ssh_key' to use when accessing git over ssh",
-				Optional:    true,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Description: "ssh key id",
-							Required:    true,
+							Computed:    true,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Description: "ssh key name",
-							Required:    true,
+							Computed:    true,
 						},
 					},
 				},
+			},
+			"token_name": {
+				Type:        schema.TypeString,
+				Description: "the token name used for integration with GitLab",
+				Computed:    true,
 			},
 		},
 	}

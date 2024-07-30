@@ -36,7 +36,7 @@ func resourceModule() *schema.Resource {
 			"module_provider": {
 				Type:             schema.TypeString,
 				Description:      "the provider name in the module source (Match pattern: ^[0-9a-z]{0,64}$)",
-				Optional:         true,
+				Required:         true,
 				ValidateDiagFunc: NewRegexValidator(`^[0-9a-z]{0,64}$`),
 			},
 			"repository": {

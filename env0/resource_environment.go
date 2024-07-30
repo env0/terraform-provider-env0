@@ -362,7 +362,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"variable_sets": {
 				Type:        schema.TypeList,
-				Description: "a list of variable set to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
+				Description: "a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
@@ -446,7 +446,34 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
 	if d.Get("variable_sets") != nil {
-		if err := d.Set("variable_sets", variableSetsIds); err != nil {
+		// To avoid drifts keep the schema order as much as possible.
+		variableSetsFromSchema := getEnvironmentVariableSetIdsFromSchema(d)
+		sortedVariablesSet := []string{}
+
+		for _, schemav := range variableSetsFromSchema {
+			for _, newv := range variableSetsIds {
+				if schemav == newv {
+					sortedVariablesSet = append(sortedVariablesSet, schemav)
+					break
+				}
+			}
+		}
+
+		for _, newv := range variableSetsIds {
+			found := false
+			for _, sortedv := range sortedVariablesSet {
+				if newv == sortedv {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				sortedVariablesSet = append(sortedVariablesSet, newv)
+			}
+		}
+
+		if err := d.Set("variable_sets", sortedVariablesSet); err != nil {
 			return fmt.Errorf("failed to set variable_sets value: %w", err)
 		}
 	}
@@ -732,6 +759,12 @@ func shouldUpdateTemplate(d *schema.ResourceData) bool {
 }
 
 func shouldDeploy(d *schema.ResourceData) bool {
+	if _, ok := d.GetOk("without_template_settings.0"); ok {
+		if d.HasChange("without_template_settings.0.revision") {
+			return true
+		}
+	}
+
 	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets")
 }
 
@@ -1126,8 +1159,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	var err error
 
 	if isTemplateless(d) {
-		templateId, ok := d.GetOk("without_template_settings.0.id")
-		if ok {
+		if templateId, ok := d.GetOk("without_template_settings.0.id"); ok {
 			payload.BlueprintId = templateId.(string)
 		}
 	} else {
@@ -1139,6 +1171,10 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if isRedeploy {
+		if revision, ok := d.GetOk("without_template_settings.0.revision"); ok {
+			payload.BlueprintRevision = revision.(string)
+		}
+
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 			scope := client.ScopeEnvironment
@@ -1340,6 +1376,7 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	var getErr diag.Diagnostics
+
 	var environment client.Environment
 	_, err := uuid.Parse(id)
 	if err == nil {
@@ -1350,6 +1387,11 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 
 		environment, getErr = getEnvironmentByName(meta, id, "", false)
 	}
+
+	if getErr != nil {
+		return nil, errors.New(getErr[0].Summary)
+	}
+
 	apiClient := meta.(client.ApiClientInterface)
 	d.SetId(environment.Id)
 
@@ -1406,9 +1448,5 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 
 	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)
 
-	if getErr != nil {
-		return nil, errors.New(getErr[0].Summary)
-	} else {
-		return []*schema.ResourceData{d}, nil
-	}
+	return []*schema.ResourceData{d}, nil
 }
