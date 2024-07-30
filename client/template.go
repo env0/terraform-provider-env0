@@ -64,6 +64,7 @@ type Template struct {
 	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	TokenName            string           `json:"tokenName" tfschema:",omitempty"`
+	GitlabProjectId      int              `json:"gitlabProjectId" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
