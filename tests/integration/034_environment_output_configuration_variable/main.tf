@@ -11,7 +11,7 @@ resource "env0_project" "project" {
 }
 
 data "env0_environment" "output_environment" {
-  name = "Environment Output Integration Project"
+  name = "Output Environment Integration"
 }
 
 resource "env0_environment_output_configuration_variable" "to_project" {
