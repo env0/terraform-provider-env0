@@ -102,6 +102,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_custom_flow":               dataCustomFlow(),
 				"env0_projects":                  dataProjects(),
 				"env0_module_testing_project":    dataModuleTestingProject(),
+				"env0_variable_set":              dataVariableSet(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                              resourceProject(),

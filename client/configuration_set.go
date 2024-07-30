@@ -1,6 +1,9 @@
 package client
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type CreateConfigurationSetPayload struct {
 	Name        string `json:"name"`
@@ -22,6 +25,7 @@ type ConfigurationSet struct {
 	Name            string `json:"name"`
 	Description     string `json:"description"`
 	AssignmentScope string `json:"assignmentScope"`
+	CreationScopeId string `json:"creationScopeId"`
 }
 
 func (client *ApiClient) ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
@@ -60,6 +64,21 @@ func (client *ApiClient) ConfigurationSet(id string) (*ConfigurationSet, error) 
 	}
 
 	return &result, nil
+}
+
+func (client *ApiClient) ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error) {
+	var result []ConfigurationSet
+
+	params := map[string]string{
+		"scope":   strings.ToLower(scope),
+		"scopeId": scopeId,
+	}
+
+	if err := client.http.Get("/configuration-sets", params, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (client *ApiClient) ConfigurationSetDelete(id string) error {
