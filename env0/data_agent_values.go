@@ -37,7 +37,10 @@ func dataAgentValuesRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("could not get agent values: %v", err)
 	}
 
-	d.Set("values", values)
+	if err := d.Set("values", values); err != nil {
+		return diag.FromErr(err)
+	}
+
 	d.SetId(agentKey)
 
 	return nil

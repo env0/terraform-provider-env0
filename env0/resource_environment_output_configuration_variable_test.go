@@ -2,7 +2,6 @@ package env0
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -22,7 +21,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 
 	value := EnvironmentOutputConfigurationVariableValue{
 		OutputName:    "output_name",
-		ProjectId:     "output_project_id",
 		EnvironmentId: "output_environment_id",
 	}
 
@@ -31,7 +29,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 
 	updatedValue := EnvironmentOutputConfigurationVariableValue{
 		OutputName:    "output_name2",
-		ProjectId:     "output_project_id2",
 		EnvironmentId: "output_environment_id2",
 	}
 
@@ -54,16 +51,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 	updatedConfigurationVariable := configurationVariable
 	updatedConfigurationVariable.Description = "desc1"
 	updatedConfigurationVariable.Value = updatedValueStr
-
-	environment := client.Environment{
-		ProjectId: value.ProjectId,
-		Id:        value.EnvironmentId,
-	}
-
-	updatedEnvironmentId := client.Environment{
-		ProjectId: updatedValue.ProjectId,
-		Id:        updatedValue.ProjectId,
-	}
 
 	t.Run("create and update", func(t *testing.T) {
 
@@ -122,7 +109,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().Environment(value.EnvironmentId).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
 					Name:        configurationVariable.Name,
 					Value:       valueStr,
@@ -135,7 +121,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 					IsRequired:  *configurationVariable.IsRequired,
 				}).Times(1).Return(configurationVariable, nil),
 				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).Times(2).Return(configurationVariable, nil),
-				mock.EXPECT().Environment(updatedValue.EnvironmentId).Times(1).Return(updatedEnvironmentId, nil),
 				mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: client.ConfigurationVariableCreateParams{
 					Name:        configurationVariable.Name,
 					Value:       updatedValueStr,
@@ -176,31 +161,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 
-	t.Run("failed to get output environment details", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":                  configurationVariable.Name,
-						"description":           configurationVariable.Description,
-						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),
-						"is_required":           strconv.FormatBool(*configurationVariable.IsRequired),
-						"output_environment_id": value.EnvironmentId,
-						"output_name":           value.OutputName,
-						"scope":                 configurationVariable.Scope,
-						"scope_id":              configurationVariable.ScopeId,
-						"type":                  "terraform",
-					}),
-					ExpectError: regexp.MustCompile(`failed to get output environment details: error!!!`),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().Environment(value.EnvironmentId).Times(1).Return(client.Environment{}, errors.New("error!!!"))
-		})
-	})
-
 	importById := fmt.Sprintf(`{  "Scope": "%s",  "ScopeId": "%s", "Id": "%s"}`, configurationVariable.Scope, configurationVariable.ScopeId, configurationVariable.Id)
 	importByName := fmt.Sprintf(`{  "Scope": "%s",  "ScopeId": "%s", "Name": "%s"}`, configurationVariable.Scope, configurationVariable.ScopeId, configurationVariable.Name)
 
@@ -231,7 +191,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().Environment(value.EnvironmentId).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
 					Name:        configurationVariable.Name,
 					Value:       valueStr,
@@ -276,7 +235,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 
 		runUnitTest(t, createTestCaseForImport, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().Environment(value.EnvironmentId).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
 					Name:        configurationVariable.Name,
 					Value:       valueStr,

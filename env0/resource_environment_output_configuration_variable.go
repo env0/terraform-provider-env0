@@ -22,13 +22,10 @@ type EnvironmentOutputConfigurationVariableParams struct {
 	Type                      string
 	IsReadOnly                bool
 	IsRequired                bool
-
-	outputEnvironmentProjectId string
 }
 
 type EnvironmentOutputConfigurationVariableValue struct {
 	OutputName          string `json:"outputName"`
-	ProjectId           string `json:"projectId"`
 	EnvironmentId       string `json:"environmentId,omitempty"`
 	SubEnvironmentAlias string `json:"subEnvironmentAlias,omitempty"`
 }
@@ -106,7 +103,6 @@ func serializeEnvironmentOutputConfigurationVariableValue(params *EnvironmentOut
 	value := EnvironmentOutputConfigurationVariableValue{
 		OutputName:    params.OutputName,
 		EnvironmentId: params.OutputEnvironmentId,
-		ProjectId:     params.outputEnvironmentProjectId,
 	}
 
 	b, err := json.Marshal(&value)
@@ -126,10 +122,6 @@ func deserializeEnvironmentOutputConfigurationVariableValue(valueStr string) (*E
 
 	if value.OutputName == "" {
 		return nil, fmt.Errorf("after unmarshal 'outputName' is empty")
-	}
-
-	if value.ProjectId == "" {
-		return nil, fmt.Errorf("after unmarshal 'projectId' is empty")
 	}
 
 	if value.EnvironmentId == "" && value.SubEnvironmentAlias == "" {
@@ -181,14 +173,13 @@ func getEnvironmentOutputConfigurationVariableParamsFromVariable(d *schema.Resou
 	}
 
 	params.OutputEnvironmentId = value.EnvironmentId
-	params.outputEnvironmentProjectId = value.ProjectId
 	params.OutputSubEnvironmentAlias = value.SubEnvironmentAlias
 	params.OutputName = value.OutputName
 
 	return &params, nil
 }
 
-func getEnvironmentOutputCreateParams(d *schema.ResourceData, apiClient client.ApiClientInterface) (*client.ConfigurationVariableCreateParams, error) {
+func getEnvironmentOutputCreateParams(d *schema.ResourceData) (*client.ConfigurationVariableCreateParams, error) {
 	var params EnvironmentOutputConfigurationVariableParams
 	if err := readResourceData(&params, d); err != nil {
 		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
@@ -197,13 +188,6 @@ func getEnvironmentOutputCreateParams(d *schema.ResourceData, apiClient client.A
 	if params.Scope != string(client.ScopeProject) && params.IsReadOnly {
 		return nil, errors.New("'is_read_only' can only be set to 'true' for the 'PROJECT' scope")
 	}
-
-	environment, err := apiClient.Environment(params.OutputEnvironmentId)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get output environment details: %w", err)
-	}
-
-	params.outputEnvironmentProjectId = environment.ProjectId
 
 	value, err := serializeEnvironmentOutputConfigurationVariableValue(&params)
 	if err != nil {
@@ -233,7 +217,7 @@ func getEnvironmentOutputCreateParams(d *schema.ResourceData, apiClient client.A
 func resourceEnvironmentOutputConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	createParams, err := getEnvironmentOutputCreateParams(d, apiClient)
+	createParams, err := getEnvironmentOutputCreateParams(d)
 	if err != nil {
 		return diag.Errorf(err.Error())
 	}
@@ -271,7 +255,7 @@ func resourceEnvironmentOutputConfigurationVariableRead(ctx context.Context, d *
 func resourceEnvironmentOutputConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	createParams, err := getEnvironmentOutputCreateParams(d, apiClient)
+	createParams, err := getEnvironmentOutputCreateParams(d)
 	if err != nil {
 		return diag.Errorf(err.Error())
 	}

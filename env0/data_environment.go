@@ -123,7 +123,9 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	setEnvironmentSchema(ctx, d, environment, client.ConfigurationChanges{}, nil)
+	if err := setEnvironmentSchema(ctx, d, environment, client.ConfigurationChanges{}, nil); err != nil {
+		return diag.FromErr(err)
+	}
 
 	templateId := environment.LatestDeploymentLog.BlueprintId
 

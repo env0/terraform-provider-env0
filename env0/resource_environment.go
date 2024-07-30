@@ -656,7 +656,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		environmentVariableSetIds = environmentPayload.ConfigurationSetChanges.Assign
 	}
 
-	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds)
+	if err := setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return nil
 }
@@ -700,7 +702,9 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment variable sets: %v", err)
 	}
 
-	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds)
+	if err := setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds); err != nil {
+		return diag.FromErr(err)
+	}
 
 	if isTemplateless(d) {
 		// envrionment with no template.
@@ -1428,7 +1432,9 @@ func resourceEnvironmentImporter(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds)
+	if err := setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds); err != nil {
+		return nil, err
+	}
 
 	if environment.IsRemoteBackend != nil {
 		d.Set("is_remote_backend", *environment.IsRemoteBackend)
