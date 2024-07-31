@@ -446,34 +446,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
 	if d.Get("variable_sets") != nil {
-		// To avoid drifts keep the schema order as much as possible.
-		variableSetsFromSchema := getEnvironmentVariableSetIdsFromSchema(d)
-		sortedVariablesSet := []string{}
-
-		for _, schemav := range variableSetsFromSchema {
-			for _, newv := range variableSetsIds {
-				if schemav == newv {
-					sortedVariablesSet = append(sortedVariablesSet, schemav)
-					break
-				}
-			}
-		}
-
-		for _, newv := range variableSetsIds {
-			found := false
-			for _, sortedv := range sortedVariablesSet {
-				if newv == sortedv {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				sortedVariablesSet = append(sortedVariablesSet, newv)
-			}
-		}
-
-		if err := d.Set("variable_sets", sortedVariablesSet); err != nil {
+		if err := d.Set("variable_sets", variableSetsIds); err != nil {
 			return fmt.Errorf("failed to set variable_sets value: %w", err)
 		}
 	}
