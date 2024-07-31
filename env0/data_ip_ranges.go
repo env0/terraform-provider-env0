@@ -47,7 +47,9 @@ func dataIpRangesRead(ctx context.Context, d *schema.ResourceData, meta interfac
 		"54.165.19.49/32",
 	}
 
-	d.Set("ipv4", ipv4s)
+	if err := d.Set("ipv4", ipv4s); err != nil {
+		return diag.FromErr(err)
+	}
 
 	d.SetId("ip_ranges")
 

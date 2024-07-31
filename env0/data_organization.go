@@ -56,7 +56,9 @@ func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta inte
 
 	oidcSub, err := apiClient.OidcSub()
 	if err == nil {
-		d.Set("oidc_sub", oidcSub)
+		if err := d.Set("oidc_sub", oidcSub); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return nil
