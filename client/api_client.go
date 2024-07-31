@@ -158,6 +158,9 @@ type ApiClientInterface interface {
 	ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error)
 	ConfigurationSetDelete(id string) error
 	ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error)
+	AssignConfigurationSets(scope string, scopeId string, sets []string) error
+	UnassignConfigurationSets(scope string, scopeId string, sets []string) error
+	ConfigurationSetsAssignments(scope string, scopeId string) ([]ConfigurationSet, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
