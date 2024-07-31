@@ -14,9 +14,9 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.31.0
 	github.com/jarcoal/httpmock v1.0.8
 	github.com/jinzhu/copier v0.3.2
-	github.com/onsi/ginkgo v1.16.2
-	github.com/onsi/gomega v1.12.0
-	github.com/stretchr/testify v1.7.2
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.27.10
+	github.com/stretchr/testify v1.8.4
 	go.uber.org/mock v0.3.0
 )
 
@@ -83,6 +83,5 @@ require (
 	google.golang.org/grpc v1.60.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

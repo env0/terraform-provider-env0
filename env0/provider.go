@@ -157,7 +157,6 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_aws_eks_credentials":                       resourceAwsEksCredentials(),
 				"env0_azure_aks_credentials":                     resourceAzureAksCredentials(),
 				"env0_gcp_gke_credentials":                       resourceGcpGkeCredentials(),
-				"env0_environment_import":                        resourceEnvironmentImport(),
 				"env0_variable_set":                              resourceVariableSet(),
 				"env0_variable_set_assignment":                   resourceVariableSetAssignment(),
 				"env0_environment_output_configuration_variable": resourceEnvironmentOutputConfigurationVariable(),
