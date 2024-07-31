@@ -671,7 +671,7 @@ func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient clien
 
 	var environmentVariableSetIds []string
 	for _, variableSet := range environmentVariableSets {
-		if variableSet.AssignmentScope == "ENVIRONMENT" {
+		if variableSet.AssignmentScope == "environment" {
 			environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
 		}
 	}
