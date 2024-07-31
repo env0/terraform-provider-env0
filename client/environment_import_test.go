@@ -14,6 +14,13 @@ var _ = Describe("Environment Import Client", func() {
 		IacType:    "tofu",
 		IacVersion: "1.0",
 		Workspace:  "workspace",
+		Variables: []Variable{{
+			Name:        "name",
+			Value:       "value",
+			IsSensitive: false,
+			Type:        "string",
+		},
+		},
 	}
 
 	Describe("EnvironmentImportGet", func() {
@@ -21,7 +28,7 @@ var _ = Describe("Environment Import Client", func() {
 
 		BeforeEach(func() {
 			mockHttpClient.EXPECT().
-				Get("/environment-imports/"+mockEnvironmentImport.Id, nil, gomock.Any()).
+				Get("/staging-environments/"+mockEnvironmentImport.Id, nil, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockEnvironmentImport
 				}).Times(1)
@@ -45,7 +52,13 @@ var _ = Describe("Environment Import Client", func() {
 				IacType:    "tofu",
 				IacVersion: "1.0",
 				Workspace:  "workspace",
-			}
+				Variables: []Variable{{
+					Name:        "name",
+					Value:       "value",
+					IsSensitive: false,
+					Type:        "string",
+				},
+				}}
 
 			expectedPayload := struct {
 				OrganizationId string `json:"organizationId"`
@@ -56,7 +69,7 @@ var _ = Describe("Environment Import Client", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Post("/environment-imports", expectedPayload, gomock.Any()).
+				Post("/staging-environments", expectedPayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockEnvironmentImport
 				}).Times(1)
@@ -94,7 +107,7 @@ var _ = Describe("Environment Import Client", func() {
 			}
 
 			httpCall = mockHttpClient.EXPECT().
-				Put("/environment-imports/"+mockEnvironmentImport.Id, expectedPayload, gomock.Any()).
+				Put("/staging-environments/"+mockEnvironmentImport.Id, expectedPayload, gomock.Any()).
 				Do(func(path string, request interface{}, response *EnvironmentImport) {
 					*response = mockedResponse
 				}).Times(1)
