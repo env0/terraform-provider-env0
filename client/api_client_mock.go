@@ -482,6 +482,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetsAssignments(arg0,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetsAssignments), arg0, arg1)
 }
 
+// ConfigurationVariableCreate mocks base method.
+func (m *MockApiClientInterface) ConfigurationVariableCreate(arg0 ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfigurationVariableCreate", arg0)
+	ret0, _ := ret[0].(ConfigurationVariable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConfigurationVariableCreate indicates an expected call of ConfigurationVariableCreate.
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableCreate(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableCreate), arg0)
+}
+
 // ConfigurationVariableDelete mocks base method.
 func (m *MockApiClientInterface) ConfigurationVariableDelete(arg0 string) error {
 	m.ctrl.T.Helper()
