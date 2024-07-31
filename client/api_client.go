@@ -152,19 +152,12 @@ type ApiClientInterface interface {
 	TeamRoleAssignments(payload *TeamRoleAssignmentListPayload) ([]TeamRoleAssignmentPayload, error)
 	KubernetesCredentialsCreate(payload *KubernetesCredentialsCreatePayload) (*Credentials, error)
 	KubernetesCredentialsUpdate(id string, payload *KubernetesCredentialsUpdatePayload) (*Credentials, error)
-	EnvironmentImportCreate(payload *EnvironmentImportCreatePayload) (*EnvironmentImport, error)
-	EnvironmentImportUpdate(id string, payload *EnvironmentImportUpdatePayload) (*EnvironmentImport, error)
-	EnvironmentImportGet(id string) (*EnvironmentImport, error)
-	EnvironmentImportDelete(id string) error
 	ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error)
 	ConfigurationSet(id string) (*ConfigurationSet, error)
 	ConfigurationSets(scope string, scopeId string) ([]ConfigurationSet, error)
 	ConfigurationSetDelete(id string) error
 	ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error)
-	AssignConfigurationSets(scope string, scopeId string, sets []string) error
-	UnassignConfigurationSets(scope string, scopeId string, sets []string) error
-	ConfigurationSetsAssignments(scope string, scopeId string) ([]ConfigurationSet, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
