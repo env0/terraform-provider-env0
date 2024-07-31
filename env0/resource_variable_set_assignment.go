@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -89,7 +90,7 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 
 	// In API but not in Schema - delete.
 	for _, apiConfigurationSet := range apiConfigurationSets {
-		if apiConfigurationSet.AssignmentScope != assignmentSchema.Scope {
+		if !strings.EqualFold(apiConfigurationSet.AssignmentScope, assignmentSchema.Scope) {
 			continue
 		}
 
@@ -187,7 +188,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	}
 
 	for _, apiConfigurationSet := range apiConfigurationSets {
-		if apiConfigurationSet.AssignmentScope != assignmentSchema.Scope {
+		if !strings.EqualFold(apiConfigurationSet.AssignmentScope, assignmentSchema.Scope) {
 			continue
 		}
 
