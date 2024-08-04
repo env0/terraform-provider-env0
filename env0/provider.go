@@ -160,6 +160,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_variable_set":                              resourceVariableSet(),
 				"env0_variable_set_assignment":                   resourceVariableSetAssignment(),
 				"env0_environment_output_configuration_variable": resourceEnvironmentOutputConfigurationVariable(),
+				"env0_aws_cloud_configuration":                   resourceAwsCloudConfiguration(),
 			},
 		}
 

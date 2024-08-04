@@ -304,6 +304,80 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignUserToProject(arg0, arg1 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserToProject), arg0, arg1)
 }
 
+// CloudAccount mocks base method.
+func (m *MockApiClientInterface) CloudAccount(arg0 string) (*CloudAccount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudAccount", arg0)
+	ret0, _ := ret[0].(*CloudAccount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudAccount indicates an expected call of CloudAccount.
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccount(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccount", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccount), arg0)
+}
+
+// CloudAccountCreate mocks base method.
+func (m *MockApiClientInterface) CloudAccountCreate(arg0 *CloudAccountCreatePayload) (*CloudAccount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudAccountCreate", arg0)
+	ret0, _ := ret[0].(*CloudAccount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudAccountCreate indicates an expected call of CloudAccountCreate.
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountCreate(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountCreate), arg0)
+}
+
+// CloudAccountDelete mocks base method.
+func (m *MockApiClientInterface) CloudAccountDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudAccountDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CloudAccountDelete indicates an expected call of CloudAccountDelete.
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountDelete(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountDelete), arg0)
+}
+
+// CloudAccountUpdate mocks base method.
+func (m *MockApiClientInterface) CloudAccountUpdate(arg0 string, arg1 *CloudAccountUpdatePayload) (*CloudAccount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudAccountUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*CloudAccount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudAccountUpdate indicates an expected call of CloudAccountUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountUpdate(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountUpdate), arg0, arg1)
+}
+
+// CloudAccounts mocks base method.
+func (m *MockApiClientInterface) CloudAccounts() ([]CloudAccount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloudAccounts")
+	ret0, _ := ret[0].([]CloudAccount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloudAccounts indicates an expected call of CloudAccounts.
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccounts() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccounts", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccounts))
+}
+
 // CloudCredentialIdsInProject mocks base method.
 func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]string, error) {
 	m.ctrl.T.Helper()
