@@ -72,6 +72,14 @@ func (client *ApiClient) OrganizationPolicyUpdate(payload OrganizationPolicyUpda
 		return nil, err
 	}
 
+	if payload.DefaultTtl != nil && *payload.DefaultTtl == "" {
+		payload.DefaultTtl = nil
+	}
+
+	if payload.MaxTtl != nil && *payload.MaxTtl == "" {
+		payload.MaxTtl = nil
+	}
+
 	var result Organization
 	if err := client.http.Post("/organizations/"+id+"/policies", payload, &result); err != nil {
 		return nil, err
