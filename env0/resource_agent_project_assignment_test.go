@@ -1,7 +1,7 @@
 package env0
 
 import (
-	"fmt"
+	"errors"
 	"regexp"
 	"testing"
 
@@ -11,141 +11,146 @@ import (
 )
 
 func TestUnitAgentProjectAssignmentResource(t *testing.T) {
-
-	// helper functions that receives a variadic list of key value items and returns a ProjectsAgentsAssignments instance.
-
-	GenerateProjectsAgentsAssignmentsMap := func(items ...string) map[string]interface{} {
-		res := make(map[string]interface{})
-
-		for i := 0; i < len(items)-1; i += 2 {
-			res[items[i]] = items[i+1]
-		}
-
-		return res
-	}
-
-	GenerateProjectsAgentsAssignments := func(items ...string) *client.ProjectsAgentsAssignments {
-		return &client.ProjectsAgentsAssignments{
-			ProjectsAgents: GenerateProjectsAgentsAssignmentsMap(items...),
-		}
-	}
-
 	resourceType := "env0_agent_project_assignment"
 	resourceName := "test"
+	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	projectId := "pid"
-	agentId := "aid"
+	assignment := AgentProjectAssignment{
+		ProjectId: "pid",
+		AgentId:   "aid1",
+	}
 
-	t.Run("Create assignment", func(t *testing.T) {
+	updatedAssignment := AgentProjectAssignment{
+		ProjectId: "pid",
+		AgentId:   "aid2",
+	}
+
+	otherAssignment := AgentProjectAssignment{
+		ProjectId: "pid_other",
+		AgentId:   "aid_other",
+	}
+
+	defaultAssignment := AgentProjectAssignment{
+		ProjectId: "pid",
+		AgentId:   "default_aid",
+	}
+
+	getConfig := func(a *AgentProjectAssignment) string {
+		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			"project_id": a.ProjectId,
+			"agent_id":   a.AgentId,
+		})
+	}
+
+	getCheck := func(a *AgentProjectAssignment) resource.TestCheckFunc {
+		return resource.ComposeAggregateTestCheckFunc(
+			resource.TestCheckResourceAttr(accessor, "project_id", a.ProjectId),
+			resource.TestCheckResourceAttr(accessor, "agent_id", a.AgentId),
+		)
+	}
+
+	getAssignmentPayload := func(a *AgentProjectAssignment) client.AssignProjectsAgentsAssignmentsPayload {
+		return client.AssignProjectsAgentsAssignmentsPayload{
+			a.ProjectId: a.AgentId,
+		}
+	}
+
+	getAssignmentsResponse := func(as []AgentProjectAssignment) *client.ProjectsAgentsAssignments {
+		assignments := client.ProjectsAgentsAssignments{
+			DefaultAgent: defaultAssignment.AgentId,
+		}
+
+		if len(as) > 0 {
+			assignments.ProjectsAgents = map[string]interface{}{}
+
+			for _, a := range as {
+				assignments.ProjectsAgents[a.ProjectId] = a.AgentId
+			}
+		}
+
+		return &assignments
+	}
+
+	t.Run("create and update", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", agentId+"_"+projectId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "agent_id", agentId),
-					),
+					Config: getConfig(&assignment),
+					Check:  getCheck(&assignment),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
+					Config: getConfig(&updatedAssignment),
+					Check:  getCheck(&updatedAssignment),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments("p111", "a222"), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
-					"p111",
-					"a222",
-					projectId,
-					agentId,
-				)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(4).Return(GenerateProjectsAgentsAssignments("p111", "a222", projectId, agentId), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
-					"p111",
-					"a222",
-				)).Times(1).Return(nil, nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&updatedAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, updatedAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
 
-	t.Run("Create assignment with Drift", func(t *testing.T) {
+	t.Run("default agent when assignment not found - validate no drift", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
-					ExpectNonEmptyPlan: true,
+					Config: getConfig(&defaultAssignment),
+					Check:  getCheck(&defaultAssignment),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+			)
+		})
+	})
+
+	t.Run("drift", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: getConfig(&assignment),
+					Check:  getCheck(&assignment),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
-					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(accessor, "id", agentId+"_"+projectId),
-						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
-						resource.TestCheckResourceAttr(accessor, "agent_id", agentId),
-					),
+					Config:             getConfig(&assignment),
+					ExpectNonEmptyPlan: true,
 					PlanOnly:           true,
-					ExpectNonEmptyPlan: true,
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(projectId, agentId)),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{assignment}), nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
 
-	t.Run("Assignment already exist", func(t *testing.T) {
+	t.Run("import", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
-					ExpectError: regexp.MustCompile(fmt.Sprintf("assignment for project id %v and agent id %v already exist", projectId, agentId)),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments("p111", "a222", projectId, agentId), nil),
-			)
-		})
-	})
-
-	t.Run("Import Assignment", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
+					Config: getConfig(&assignment),
 				},
 				{
-					ResourceName:      resourceType + "." + resourceName,
+					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     agentId + "_" + projectId,
+					ImportStateId:     assignment.ProjectId,
 					ImportStateVerify: true,
 				},
 			},
@@ -153,77 +158,64 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
-					projectId,
-					agentId,
-				)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(4).Return(GenerateProjectsAgentsAssignments(projectId, agentId), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap()).Times(1).Return(nil, nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
 
-	t.Run("Import Assignment with invalid id", func(t *testing.T) {
+	t.Run("import for unassigned project is default", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
+					Config: getConfig(&defaultAssignment),
 				},
 				{
-					ResourceName:      resourceType + "." + resourceName,
+					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     "invalid",
+					ImportStateId:     defaultAssignment.ProjectId,
 					ImportStateVerify: true,
-					ExpectError:       regexp.MustCompile("the id invalid is invalid must be <agent_id>_<project_id>"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
-					projectId,
-					agentId,
-				)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(GenerateProjectsAgentsAssignments(projectId, agentId), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap()).Times(1).Return(nil, nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, defaultAssignment}), nil),
+				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
 
-	t.Run("Import Assignment id not found", func(t *testing.T) {
+	t.Run("import error - project not found", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id": projectId,
-						"agent_id":   agentId,
-					}),
+					Config: getConfig(&assignment),
 				},
 				{
-					ResourceName:      resourceType + "." + resourceName,
+					ResourceName:      resourceNameImport,
 					ImportState:       true,
-					ImportStateId:     "pid22_aid22",
+					ImportStateId:     defaultAssignment.ProjectId,
 					ImportStateVerify: true,
-					ExpectError:       regexp.MustCompile("assignment with id pid22_aid22 not found"),
+					ExpectError:       regexp.MustCompile("unable to get or find a project with id 'pid': error"),
 				},
 			},
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(GenerateProjectsAgentsAssignments(), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap(
-					projectId,
-					agentId,
-				)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(GenerateProjectsAgentsAssignments(projectId, agentId), nil),
-				mock.EXPECT().AssignAgentsToProjects(GenerateProjectsAgentsAssignmentsMap()).Times(1).Return(nil, nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, errors.New("error")),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})

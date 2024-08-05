@@ -3,49 +3,33 @@ package env0
 import (
 	"context"
 	"fmt"
-	"strings"
-	"sync"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Updating an agent project assignment overrides all project organization assignments.
-// Therefore, must extract all existing assignments and append/remove the created/deleted assignment.
-// Since Terraform may run the assignments in parallel a mutex is required.
-var apaLock sync.Mutex
-
-// id is <agent_id>_<project_id>
-
 type AgentProjectAssignment struct {
-	AgentId   string `json:"agent_id"`
-	ProjectId string `json:"project_id"`
-}
-
-func GetAgentProjectAssignmentId(agentId string, projectId string) string {
-	return agentId + "_" + projectId
-}
-
-func (a *AgentProjectAssignment) GetId() string {
-	return GetAgentProjectAssignmentId(a.AgentId, a.ProjectId)
+	AgentId   string
+	ProjectId string
 }
 
 func resourceAgentProjectAssignment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAgentProjectAssignmentCreate,
+		CreateContext: resourceAgentProjectAssignmentCreateOrUpdate,
+		UpdateContext: resourceAgentProjectAssignmentCreateOrUpdate,
 		ReadContext:   resourceAgentProjectAssignmentRead,
 		DeleteContext: resourceAgentProjectAssignmentDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceAgentProjectAssignmentImport},
+
+		Description: "assign an agent to a project (multiple self-hosted agents). More details here: https://docs.env0.com/docs/multiple-self-hosted-agents",
 
 		Schema: map[string]*schema.Schema{
 			"agent_id": {
 				Type:        schema.TypeString,
 				Description: "id of the agent",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
@@ -57,34 +41,23 @@ func resourceAgentProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceAgentProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var newAssignment AgentProjectAssignment
-	if err := readResourceData(&newAssignment, d); err != nil {
+func resourceAgentProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	var assignment AgentProjectAssignment
+	if err := readResourceData(&assignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	apaLock.Lock()
-	defer apaLock.Unlock()
-
-	apiClient := meta.(client.ApiClientInterface)
-	assignments, err := apiClient.ProjectsAgentsAssignments()
-	if err != nil {
-		return diag.Errorf("could not get project-agent assignments: %v", err)
+	payload := client.AssignProjectsAgentsAssignmentsPayload{
+		assignment.ProjectId: assignment.AgentId,
 	}
 
-	for projectId, agentId := range assignments.ProjectsAgents {
-		if projectId == newAssignment.ProjectId && agentId == newAssignment.AgentId {
-			return diag.Errorf("assignment for project id %v and agent id %v already exist", projectId, agentId)
-		}
+	if _, err := apiClient.AssignAgentsToProjects(payload); err != nil {
+		return diag.Errorf("failed to assign project '%s' to agent '%s': %v", assignment.ProjectId, assignment.AgentId, err)
 	}
 
-	assignments.ProjectsAgents[newAssignment.ProjectId] = newAssignment.AgentId
-
-	if _, err := apiClient.AssignAgentsToProjects(assignments.ProjectsAgents); err != nil {
-		return diag.Errorf("could not update project-agent assignments: %v", err)
-	}
-
-	d.SetId(newAssignment.GetId())
+	d.SetId(assignment.ProjectId)
 
 	return nil
 }
@@ -92,32 +65,26 @@ func resourceAgentProjectAssignmentCreate(ctx context.Context, d *schema.Resourc
 func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	apaLock.Lock()
-	defer apaLock.Unlock()
-
 	assignments, err := apiClient.ProjectsAgentsAssignments()
 	if err != nil {
-		return diag.Errorf("could not get project-agent assignments: %v", err)
+		return diag.Errorf("failed to get project agent assignments: %v", err)
 	}
 
-	var assignment *AgentProjectAssignment
-	for projectId, agentId := range assignments.ProjectsAgents {
-		if d.Id() == GetAgentProjectAssignmentId(agentId.(string), projectId) {
-			assignment = &AgentProjectAssignment{
-				AgentId:   agentId.(string),
-				ProjectId: projectId,
-			}
+	// If there's no assignment for the project, it should default to the default agent.
+
+	assignment := AgentProjectAssignment{
+		AgentId:   assignments.DefaultAgent,
+		ProjectId: d.Id(),
+	}
+
+	for projectId, agent := range assignments.ProjectsAgents {
+		if projectId == assignment.ProjectId {
+			assignment.AgentId = agent.(string)
 			break
 		}
 	}
 
-	if assignment == nil {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
-		d.SetId("")
-		return nil
-	}
-
-	if err := writeResourceData(assignment, d); err != nil {
+	if err := writeResourceData(&assignment, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -125,70 +92,53 @@ func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	projectId := d.Get("project_id").(string)
-	agentId := d.Get("agent_id").(string)
-
-	apaLock.Lock()
-	defer apaLock.Unlock()
-
 	apiClient := meta.(client.ApiClientInterface)
+
+	// When deleting an assignment, revert the project assignment to the default agent.
 
 	assignments, err := apiClient.ProjectsAgentsAssignments()
 	if err != nil {
-		return diag.Errorf("could not get project-agent assignments: %v", err)
+		return diag.Errorf("failed to get project agent assignments: %v", err)
 	}
 
-	newAssignments := make(map[string]interface{})
-
-	// Remove from the assignments the deleted assignment.
-	for projectIdOther, agentIdOther := range assignments.ProjectsAgents {
-		if projectId != projectIdOther || agentId != agentIdOther {
-			newAssignments[projectIdOther] = agentIdOther
-		}
+	payload := client.AssignProjectsAgentsAssignmentsPayload{
+		d.Id(): assignments.DefaultAgent,
 	}
 
-	if _, err := apiClient.AssignAgentsToProjects(newAssignments); err != nil {
-		return diag.Errorf("could not update project-agent assignments: %v", err)
+	if _, err := apiClient.AssignAgentsToProjects(payload); err != nil {
+		return diag.Errorf("failed to assign project '%s' to back to default agent '%s': %v", d.Id(), assignments.DefaultAgent, err)
 	}
 
 	return nil
 }
 
 func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	splitAgentProject := strings.Split(d.Id(), "_")
-	if len(splitAgentProject) != 2 {
-		return nil, fmt.Errorf("the id %v is invalid must be <agent_id>_<project_id>", d.Id())
-	}
-
-	agentId := splitAgentProject[0]
-	projectId := splitAgentProject[1]
-
-	apaLock.Lock()
-	defer apaLock.Unlock()
-
 	apiClient := meta.(client.ApiClientInterface)
+
+	// Validate the project exists.
+	if _, err := apiClient.Project(d.Id()); err != nil {
+		return nil, fmt.Errorf("unable to get or find a project with id '%s': %w", d.Id(), err)
+	}
 
 	assignments, err := apiClient.ProjectsAgentsAssignments()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get project agent assignments: %w", err)
 	}
 
-	var assignment *AgentProjectAssignment
-	for projectIdOther, agentIdOther := range assignments.ProjectsAgents {
-		if projectIdOther == projectId && agentIdOther == agentId {
-			assignment = &AgentProjectAssignment{
-				AgentId:   agentId,
-				ProjectId: projectId,
-			}
+	// Import using the default agnet if there's no assignment for the project.
+
+	assignment := AgentProjectAssignment{
+		AgentId:   assignments.DefaultAgent,
+		ProjectId: d.Id(),
+	}
+
+	for projectId, agent := range assignments.ProjectsAgents {
+		if projectId == assignment.ProjectId {
+			assignment.AgentId = agent.(string)
 			break
 		}
 	}
-
-	if assignment == nil {
-		return nil, fmt.Errorf("assignment with id %v not found", d.Id())
-	}
-
-	if err := writeResourceData(assignment, d); err != nil {
+	if err := writeResourceData(&assignment, d); err != nil {
 		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
