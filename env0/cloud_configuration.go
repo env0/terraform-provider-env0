@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -29,10 +30,35 @@ func getCloudConfigurationFromSchema(d *schema.ResourceData, provider string) (i
 	return configuration, nil
 }
 
-func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string) (*client.CloudAccount, error) {
-	cloudAccount, err := apiClient.CloudAccount(id)
+func getCloudConfigurationByNameFromApi(apiClient client.ApiClientInterface, name string) (*client.CloudAccount, error) {
+	cloudAccounts, err := apiClient.CloudAccounts()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get clound configuration with id '%s': %w", id, err)
+		return nil, err
+	}
+
+	for i, cloudAccount := range cloudAccounts {
+		if cloudAccount.Name == name {
+			return &cloudAccounts[i], nil
+		}
+	}
+
+	return nil, fmt.Errorf("cloud configuration called '%s' was not found", name)
+}
+
+func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string) (*client.CloudAccount, error) {
+	var err error
+	var cloudAccount *client.CloudAccount
+
+	if _, parseErr := uuid.Parse(id); parseErr != nil {
+		// Get by name (used by import).
+		cloudAccount, err = getCloudConfigurationByNameFromApi(apiClient, id)
+	} else {
+		// Get by id.
+		cloudAccount, err = apiClient.CloudAccount(id)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get clound configuration: %w", err)
 	}
 
 	var configuration interface{}
@@ -152,7 +178,7 @@ func importCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta 
 
 	cloudAccount, err := getCloudConfigurationFromApi(apiClient, d.Id())
 	if err != nil {
-		return nil, fmt.Errorf("failed to get cloud configuration with id '%s'", d.Id())
+		return nil, err
 	}
 
 	if err := writeResourceData(cloudAccount, d); err != nil {

@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -11,15 +12,14 @@ import (
 )
 
 func driftDetected(err error) bool {
-	if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
+	var failedResponseError *http.FailedResponseError
+	if errors.As(err, &failedResponseError) && failedResponseError.NotFound() {
 		return true
 	}
 
-	if _, ok := err.(*client.NotFoundError); ok {
-		return true
-	}
+	var notfoundError *client.NotFoundError
 
-	return false
+	return errors.As(err, &notfoundError)
 }
 
 func ResourceGetFailure(ctx context.Context, resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
