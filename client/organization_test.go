@@ -139,55 +139,43 @@ var _ = Describe("Organization", func() {
 		})
 	})
 
-	Describe("OrganizationPolicyUpdate", func() {
-		hour12 := "12-h"
-		t := true
+	Describe("Emtpy string is passed as null", func() {
 		updatedMockOrganization := mockOrganization
-		updatedMockOrganization.DoNotConsiderMergeCommitsForPrPlans = true
-		updatedMockOrganization.EnableOidc = true
-		updatedMockOrganization.EnforcePrCommenterPermissions = true
-		updatedMockOrganization.DefaultTtl = &hour12
+		updatedMockOrganization.DefaultTtl = nil
+		updatedMockOrganization.MaxTtl = nil
 
 		var updatedOrganization *Organization
 		var err error
 
 		emptyString := ""
 
-		Describe("Emtpy string is passed as null", func() {
-			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
-				originalUpdatePayload := OrganizationPolicyUpdatePayload{
-					DefaultTtl:                          &emptyString,
-					MaxTtl:                              &emptyString,
-					DoNotConsiderMergeCommitsForPrPlans: &t,
-					EnableOidc:                          &t,
-					EnforcePrCommenterPermissions:       &t,
-				}
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			originalUpdatePayload := OrganizationPolicyUpdatePayload{
+				DefaultTtl: &emptyString,
+				MaxTtl:     &emptyString,
+			}
 
-				sentUpdatePayload := OrganizationPolicyUpdatePayload{
-					DefaultTtl:                          nil,
-					MaxTtl:                              nil,
-					DoNotConsiderMergeCommitsForPrPlans: &t,
-					EnableOidc:                          &t,
-					EnforcePrCommenterPermissions:       &t,
-				}
+			sentUpdatePayload := OrganizationPolicyUpdatePayload{
+				DefaultTtl: nil,
+				MaxTtl:     nil,
+			}
 
-				httpCall = mockHttpClient.EXPECT().
-					Post("/organizations/"+organizationId+"/policies", sentUpdatePayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Organization) {
-						*response = updatedMockOrganization
-					}).Times(1)
+			httpCall = mockHttpClient.EXPECT().
+				Post("/organizations/"+organizationId+"/policies", sentUpdatePayload, gomock.Any()).
+				Do(func(path string, request interface{}, response *Organization) {
+					*response = updatedMockOrganization
+				}).Times(1)
 
-				updatedOrganization, err = apiClient.OrganizationPolicyUpdate(originalUpdatePayload)
-			})
+			updatedOrganization, err = apiClient.OrganizationPolicyUpdate(originalUpdatePayload)
+		})
 
-			It("Should not return an error", func() {
-				Expect(err).To(BeNil())
-			})
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
 
-			It("Should return organization received from API", func() {
-				Expect(*updatedOrganization).To(Equal(updatedMockOrganization))
-			})
+		It("Should return organization received from API", func() {
+			Expect(*updatedOrganization).To(Equal(updatedMockOrganization))
 		})
 	})
 
