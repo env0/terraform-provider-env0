@@ -14,6 +14,8 @@ type AgentProjectAssignment struct {
 	ProjectId string
 }
 
+const ENV0_DEFAULT = "ENV0_DEFAULT"
+
 func resourceAgentProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAgentProjectAssignmentCreateOrUpdate,
@@ -94,19 +96,14 @@ func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceD
 func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	// When deleting an assignment, revert the project assignment to the default agent.
-
-	assignments, err := apiClient.ProjectsAgentsAssignments()
-	if err != nil {
-		return diag.Errorf("failed to get project agent assignments: %v", err)
-	}
+	// When deleting an assignment, revert the project assignment to the default.
 
 	payload := client.AssignProjectsAgentsAssignmentsPayload{
-		d.Id(): assignments.DefaultAgent,
+		d.Id(): "ENV0_DEFAULT",
 	}
 
 	if _, err := apiClient.AssignAgentsToProjects(payload); err != nil {
-		return diag.Errorf("failed to assign project '%s' to back to default agent '%s': %v", d.Id(), assignments.DefaultAgent, err)
+		return diag.Errorf("failed to assign project '%s' to back to default agent: %v", d.Id(), err)
 	}
 
 	return nil
@@ -125,7 +122,7 @@ func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.Resourc
 		return nil, fmt.Errorf("failed to get project agent assignments: %w", err)
 	}
 
-	// Import using the default agnet if there's no assignment for the project.
+	// Import using the default agent if there's no assignment for the project.
 
 	assignment := AgentProjectAssignment{
 		AgentId:   assignments.DefaultAgent,

@@ -36,6 +36,11 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 		AgentId:   "default_aid",
 	}
 
+	deleteAssignment := AgentProjectAssignment{
+		ProjectId: "pid",
+		AgentId:   ENV0_DEFAULT,
+	}
+
 	getConfig := func(a *AgentProjectAssignment) string {
 		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 			"project_id": a.ProjectId,
@@ -91,8 +96,8 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
 				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&updatedAssignment)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, updatedAssignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, updatedAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
@@ -110,8 +115,8 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
@@ -135,8 +140,8 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
 				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{assignment}), nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
@@ -161,8 +166,8 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
 				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
 				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
@@ -187,8 +192,8 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
 				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, defaultAssignment}), nil),
 				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, nil),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(3).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().ProjectsAgentsAssignments().Times(2).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment}), nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
@@ -214,8 +219,7 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&assignment)).Times(1).Return(nil, nil),
 				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
 				mock.EXPECT().Project(assignment.ProjectId).Times(1).Return(client.Project{}, errors.New("error")),
-				mock.EXPECT().ProjectsAgentsAssignments().Times(1).Return(getAssignmentsResponse([]AgentProjectAssignment{otherAssignment, assignment}), nil),
-				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&defaultAssignment)).Times(1).Return(nil, nil),
+				mock.EXPECT().AssignAgentsToProjects(getAssignmentPayload(&deleteAssignment)).Times(1).Return(nil, nil),
 			)
 		})
 	})
