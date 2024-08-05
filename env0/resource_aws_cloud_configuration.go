@@ -16,6 +16,8 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{StateContext: importCloudConfiguration},
 
+		Description: "configure an AWS cloud account (Cloud Compass)",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
