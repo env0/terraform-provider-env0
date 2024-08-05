@@ -29,7 +29,7 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 			},
 			"bucket_name": {
 				Type:        schema.TypeString,
-				Description: "the AWS bucket name",
+				Description: "the CloudTrail bucket name",
 				Required:    true,
 			},
 			"regions": {
@@ -41,9 +41,10 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 				},
 			},
 			"prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "an optional bucket prefix (folder)",
 			},
 			"health": {
 				Type:        schema.TypeBool,
