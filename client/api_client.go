@@ -161,6 +161,11 @@ type ApiClientInterface interface {
 	AssignConfigurationSets(scope string, scopeId string, sets []string) error
 	UnassignConfigurationSets(scope string, scopeId string, sets []string) error
 	ConfigurationSetsAssignments(scope string, scopeId string) ([]ConfigurationSet, error)
+	CloudAccountCreate(payload *CloudAccountCreatePayload) (*CloudAccount, error)
+	CloudAccountUpdate(id string, payload *CloudAccountUpdatePayload) (*CloudAccount, error)
+	CloudAccountDelete(id string) error
+	CloudAccount(id string) (*CloudAccount, error)
+	CloudAccounts() ([]CloudAccount, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
