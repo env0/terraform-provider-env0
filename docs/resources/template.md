@@ -72,6 +72,7 @@ resource "env0_template_project_assignment" "assignment" {
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
+- `is_gitlab` (Boolean) set to 'true' if the repository is Gitlab
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
 - `is_helm_repository` (Boolean) true if this template integrates with a helm repository
 - `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
