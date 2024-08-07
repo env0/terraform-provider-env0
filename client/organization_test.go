@@ -139,6 +139,46 @@ var _ = Describe("Organization", func() {
 		})
 	})
 
+	Describe("Emtpy string is passed as null", func() {
+		updatedMockOrganization := mockOrganization
+		updatedMockOrganization.DefaultTtl = nil
+		updatedMockOrganization.MaxTtl = nil
+
+		var updatedOrganization *Organization
+		var err error
+
+		emptyString := ""
+
+		BeforeEach(func() {
+			mockOrganizationIdCall(organizationId)
+			originalUpdatePayload := OrganizationPolicyUpdatePayload{
+				DefaultTtl: &emptyString,
+				MaxTtl:     &emptyString,
+			}
+
+			sentUpdatePayload := OrganizationPolicyUpdatePayload{
+				DefaultTtl: nil,
+				MaxTtl:     nil,
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/organizations/"+organizationId+"/policies", sentUpdatePayload, gomock.Any()).
+				Do(func(path string, request interface{}, response *Organization) {
+					*response = updatedMockOrganization
+				}).Times(1)
+
+			updatedOrganization, err = apiClient.OrganizationPolicyUpdate(originalUpdatePayload)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return organization received from API", func() {
+			Expect(*updatedOrganization).To(Equal(updatedMockOrganization))
+		})
+	})
+
 	Describe("OrganizationUserUpdateRole", func() {
 		userId := "userId"
 		roleId := "roleId"
