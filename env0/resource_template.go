@@ -249,6 +249,12 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Optional:    true,
 			Description: "token name for Gitlab",
 		},
+		"is_gitlab": {
+			Type:        schema.TypeBool,
+			Description: "set to 'true' if the repository is Gitlab",
+			Optional:    true,
+			Default:     false,
+		},
 	}
 
 	if prefix == "" {
@@ -385,14 +391,10 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 
 	isNew := d.IsNewResource()
 
-	tokenIdKey := "token_id"
-	isAzureDevOpsKey := "is_azure_devops"
 	terragruntTfBinaryKey := "terragrunt_tf_binary"
 	templateTypeKey := "type"
 
 	if prefix != "" {
-		tokenIdKey = prefix + "." + tokenIdKey
-		isAzureDevOpsKey = prefix + "." + isAzureDevOpsKey
 		terragruntTfBinaryKey = prefix + "." + terragruntTfBinaryKey
 		templateTypeKey = prefix + "." + templateTypeKey
 	}
@@ -406,13 +408,6 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 			if templateType.(string) == "terragrunt" && isNew {
 				payload.TerragruntTfBinary = "opentofu"
 			}
-		}
-	}
-
-	// IsGitLab is implicitly assumed to be true if tokenId is non-empty. Unless AzureDevOps is explicitly used.
-	if tokenId, ok := d.GetOk(tokenIdKey); ok {
-		if isAzureDevOps := d.Get(isAzureDevOpsKey); !isAzureDevOps.(bool) {
-			payload.IsGitLab = tokenId != ""
 		}
 	}
 

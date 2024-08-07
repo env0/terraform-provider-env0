@@ -61,6 +61,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 	apiClient := meta.(client.ApiClientInterface)
 	environmentId := d.Get("environment_id").(string)
 	rawDownstreamIds := d.Get("downstream_environment_ids").([]interface{})
+
 	var requestDownstreamIds []string
 
 	for _, rawId := range rawDownstreamIds {

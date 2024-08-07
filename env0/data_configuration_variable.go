@@ -136,13 +136,10 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	if err := d.Set("enum", variable.Schema.Enum); err != nil {
-		return diag.FromErr(err)
-	}
+	d.Set("enum", variable.Schema.Enum)
+
 	if variable.Schema.Format != client.Text {
-		if err := d.Set("format", string(variable.Schema.Format)); err != nil {
-			return diag.FromErr(err)
-		}
+		d.Set("format", string(variable.Schema.Format))
 	}
 
 	return nil
@@ -151,22 +148,27 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 	scope := client.ScopeGlobal
 	scopeId := ""
+
 	if projectId, ok := d.GetOk("project_id"); ok {
 		scope = client.ScopeProject
 		scopeId = projectId.(string)
 	}
+
 	if templateId, ok := d.GetOk("template_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
+
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
 	}
+
 	if deploymentLogId, ok := d.GetOk("deployment_log_id"); ok {
 		scope = client.ScopeDeploymentLog
 		scopeId = deploymentLogId.(string)
 	}
+
 	return scope, scopeId
 }
 

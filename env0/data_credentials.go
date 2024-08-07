@@ -32,6 +32,7 @@ func dataCredentials(cloudType CloudType) *schema.Resource {
 func dataCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		var err error
+
 		var credentials client.Credentials
 
 		prefixList := credentialsTypeToPrefixList[cloudType]
@@ -47,6 +48,7 @@ func dataCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 			if !ok {
 				return diag.Errorf("either 'name' or 'id' must be specified")
 			}
+
 			credentials, err = getCredentialsByName(name.(string), prefixList, meta)
 			if err != nil {
 				return diag.Errorf("could not query %s credentials by name: %v", cloudType, err)

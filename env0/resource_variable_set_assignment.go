@@ -207,9 +207,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	if err := d.Set("set_ids", newSchemaSetIds); err != nil {
-		return diag.Errorf("failed to set 'set_ids': %v", err)
-	}
+	d.Set("set_ids", newSchemaSetIds)
 
 	return nil
 }

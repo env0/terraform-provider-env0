@@ -65,9 +65,7 @@ func dataCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta 
 		data = append(data, credentials.Name)
 	}
 
-	if err := d.Set("names", data); err != nil {
-		return diag.FromErr(err)
-	}
+	d.Set("names", data)
 
 	// Not really needed. But required by Terraform SDK - https://github.com/hashicorp/terraform-plugin-sdk/issues/541
 	d.SetId("all_cloud_credential_names")
