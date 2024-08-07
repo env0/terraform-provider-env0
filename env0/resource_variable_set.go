@@ -368,9 +368,7 @@ func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("failed to get schema from variables: %v", err)
 	}
 
-	if err := d.Set("variable", ivariables); err != nil {
-		return diag.Errorf("failed to set variables in schema: %v", err)
-	}
+	d.Set("variable", ivariables)
 
 	return nil
 }

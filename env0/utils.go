@@ -92,7 +92,6 @@ func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceD
 func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
 	// TODO: add a mechanism that returns an error if fields were set in the resourceData but not in the struct.
 	// Blocked by: https://github.com/hashicorp/terraform-plugin-sdk/issues/910
-
 	val := reflect.ValueOf(i).Elem()
 	for i := 0; i < val.NumField(); i++ {
 		parsedField := getFieldName(val.Type().Field(i))
@@ -120,9 +119,11 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 				// Init the field a valid value (instead of nil).
 				field.Set(reflect.New(field.Type().Elem()))
 			}
+
 			if err := field.Interface().(CustomResourceDataField).ReadResourceData(fieldName, d); err != nil {
 				return err
 			}
+
 			continue
 		}
 
@@ -131,6 +132,7 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 			if err := customField.ReadResourceData(fieldName, d); err != nil {
 				return err
 			}
+
 			continue
 		}
 
@@ -173,7 +175,6 @@ func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}
 	m := resource.(map[string]interface{})
 
 	for i := 0; i < val.NumField(); i++ {
-
 		parsedField := getFieldName(val.Type().Field(i))
 		if parsedField.skip {
 			continue
@@ -198,6 +199,7 @@ func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error
 
 	for _, resource := range resources {
 		var val reflect.Value
+
 		switch elemType.Kind() {
 		case reflect.String:
 			val = reflect.ValueOf(resource.(string))
@@ -212,6 +214,7 @@ func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error
 		default:
 			return fmt.Errorf("internal error - unhandled slice element kind %v", elemType.Kind())
 		}
+
 		vals = reflect.Append(vals, val)
 	}
 
@@ -233,6 +236,7 @@ func getFieldName(field reflect.StructField) *parsedField {
 	// Assumes golang is CamalCase and Terraform is snake_case.
 	// This behavior can be overrided be used in the 'tfschema' tag.
 	res.name = toSnakeCase(field.Name)
+
 	if tag, ok := field.Tag.Lookup("tfschema"); ok {
 		if tag == "-" {
 			res.skip = true
@@ -274,7 +278,9 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			if len(id) == 0 {
 				return errors.New("id is empty")
 			}
+
 			d.SetId(id)
+
 			continue
 		}
 
@@ -286,6 +292,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			if err := customField.WriteResourceData(fieldName, d); err != nil {
 				return err
 			}
+
 			continue
 		}
 
@@ -399,6 +406,7 @@ func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.R
 			if err := writer.ResourceDataSliceStructValueWrite(value); err != nil {
 				return nil, err
 			}
+
 			continue
 		}
 

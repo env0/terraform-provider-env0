@@ -86,6 +86,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		TerraformVersion: "0.12.24",
 		TokenName:        "token_name",
 		GitlabProjectId:  1234,
+		IsGitlab:         true,
 	}
 	gitlabUpdatedTemplate := client.Template{
 		Id:          gitlabTemplate.Id,
@@ -528,6 +529,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.HelmChartName != "" {
 			templateAsDictionary["helm_chart_name"] = template.HelmChartName
 		}
+		if template.IsGitlab {
+			templateAsDictionary["is_gitlab"] = true
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -601,6 +605,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_helm_repository", strconv.FormatBool(template.IsHelmRepository)),
 			tokenNameAssertion,
+			resource.TestCheckResourceAttr(resourceFullName, "is_gitlab", strconv.FormatBool(template.IsGitlab)),
 		)
 	}
 
@@ -628,7 +633,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Description:          templateUseCase.template.Description,
 				GithubInstallationId: templateUseCase.template.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.template.IsGitlabEnterprise,
-				IsGitLab:             templateUseCase.template.TokenId != "" && !templateUseCase.template.IsAzureDevOps,
+				IsGitlab:             templateUseCase.template.IsGitlab,
 				GitlabProjectId:      templateUseCase.template.GitlabProjectId,
 				TokenId:              templateUseCase.template.TokenId,
 				Path:                 templateUseCase.template.Path,
@@ -655,7 +660,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Description:          templateUseCase.updatedTemplate.Description,
 				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
-				IsGitLab:             templateUseCase.updatedTemplate.TokenId != "" && !templateUseCase.updatedTemplate.IsAzureDevOps,
+				IsGitlab:             templateUseCase.updatedTemplate.IsGitlab,
 				GitlabProjectId:      templateUseCase.updatedTemplate.GitlabProjectId,
 				TokenId:              templateUseCase.updatedTemplate.TokenId,
 				Path:                 templateUseCase.updatedTemplate.Path,

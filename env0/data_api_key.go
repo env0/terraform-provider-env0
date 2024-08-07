@@ -36,14 +36,17 @@ func dataApiKey() *schema.Resource {
 
 func dataApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var apiKey *client.ApiKey
+
 	var err error
 
 	id, ok := d.GetOk("id")
 	if ok {
 		apiKey, err = getApiKeyById(id.(string), meta)
+
 		if err != nil {
 			return diag.Errorf("could not read api key: %v", err)
 		}
+
 		if apiKey == nil {
 			return diag.Errorf("could not read api key: id %v not found", id)
 		}

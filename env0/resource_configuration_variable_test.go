@@ -549,12 +549,9 @@ resource "%s" "test" {
 	})
 
 	t.Run("Update with wrong type", func(t *testing.T) {
-		wrongType := client.ConfigurationVariableType(6)
 		newConfigVar := client.ConfigurationVariable{
-			Id:    configVar.Id,
 			Name:  configVar.Name,
 			Value: "I want to be the config value",
-			Type:  &wrongType,
 		}
 
 		updateTestCase := resource.TestCase{
@@ -682,7 +679,6 @@ resource "%s" "test" {
 	t.Run("cant be empty value when isRequired and isReadOnly are true", func(t *testing.T) {
 		trueVariable := true
 		configVar := client.ConfigurationVariable{
-			Id:          "id0",
 			Name:        "name0",
 			Description: "desc0",
 			Value:       "",

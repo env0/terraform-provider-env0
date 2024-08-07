@@ -92,7 +92,7 @@ func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
-func filterByParentProjectId(parentId string, projects []client.Project) ([]client.Project, error) {
+func filterByParentProjectId(parentId string, projects []client.Project) []client.Project {
 	filteredProjects := make([]client.Project, 0)
 	for _, project := range projects {
 		if len(project.ParentProjectId) == 0 {
@@ -104,7 +104,7 @@ func filterByParentProjectId(parentId string, projects []client.Project) ([]clie
 		}
 	}
 
-	return filteredProjects, nil
+	return filteredProjects
 }
 
 func filterByParentProjectName(parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
@@ -131,7 +131,7 @@ func getProjectByName(name string, parentId string, parentName string, meta inte
 	apiClient := meta.(client.ApiClientInterface)
 	projects, err := apiClient.Projects()
 	if err != nil {
-		return client.Project{}, fmt.Errorf("could not query project by name: %v", err)
+		return client.Project{}, fmt.Errorf("could not query project by name: %w", err)
 	}
 
 	projectsByName := make([]client.Project, 0)
@@ -142,10 +142,7 @@ func getProjectByName(name string, parentId string, parentName string, meta inte
 	}
 	if len(parentId) > 0 {
 		// Use parentId filter to reduce the results.
-		projectsByName, err = filterByParentProjectId(parentId, projectsByName)
-		if err != nil {
-			return client.Project{}, err
-		}
+		projectsByName = filterByParentProjectId(parentId, projectsByName)
 	} else if len(parentName) > 0 {
 		// Use parentName filter to reduce the results.
 		projectsByName, err = filterByParentProjectName(parentName, projectsByName, meta)
@@ -172,7 +169,7 @@ func getProjectById(id string, meta interface{}) (client.Project, error) {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
 			return client.Project{}, fmt.Errorf("could not find a project with id: %s", id)
 		}
-		return client.Project{}, fmt.Errorf("could not query project: %v", err)
+		return client.Project{}, fmt.Errorf("could not query project: %w", err)
 	}
 	return project, nil
 }

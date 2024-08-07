@@ -39,9 +39,7 @@ func dataNotificationsRead(ctx context.Context, d *schema.ResourceData, meta int
 		names = append(names, notification.Name)
 	}
 
-	if err := d.Set("names", names); err != nil {
-		return diag.FromErr(err)
-	}
+	d.Set("names", names)
 
 	d.SetId("all_notification_names")
 

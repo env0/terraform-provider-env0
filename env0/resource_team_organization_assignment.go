@@ -65,10 +65,10 @@ func resourceTeamOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	organizationId, err := apiClient.OrganizationId()
 	if err != nil {
 		return diag.Errorf("could not get organization id: %v", err)
-
 	}
 
 	var payload client.TeamRoleAssignmentListPayload
+
 	payload.OrganizationId = organizationId
 
 	id := d.Id()
@@ -104,10 +104,10 @@ func resourceTeamOrganizationAssignmentDelete(ctx context.Context, d *schema.Res
 	organizationId, err := apiClient.OrganizationId()
 	if err != nil {
 		return diag.Errorf("could not get organization id: %v", err)
-
 	}
 
 	payload.OrganizationId = organizationId
+
 	payload.TeamId = d.Get("team_id").(string)
 
 	if err := apiClient.TeamRoleAssignmentDelete(&payload); err != nil {

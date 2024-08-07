@@ -61,7 +61,7 @@ type Template struct {
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName" tfschema:",omitempty"`
-	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
+	IsGitlab             bool             `json:"isGitLab"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	TokenName            string           `json:"tokenName" tfschema:",omitempty"`
 	GitlabProjectId      int              `json:"gitlabProjectId" tfschema:",omitempty"`
@@ -75,7 +75,7 @@ type TemplateCreatePayload struct {
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
 	Path                 string           `json:"path,omitempty"`
-	IsGitLab             bool             `json:"isGitLab"`
+	IsGitlab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName,omitempty"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`

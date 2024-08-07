@@ -37,7 +37,8 @@ func TestReadResourceDataModule(t *testing.T) {
 
 	var payload client.ModuleCreatePayload
 
-	assert.Nil(t, readResourceData(&payload, d))
+	require.NoError(t, readResourceData(&payload, d))
+
 	assert.Equal(t, expectedPayload, payload)
 }
 
@@ -60,7 +61,7 @@ func TestWriteResourceDataModule(t *testing.T) {
 		},
 	}
 
-	assert.Nil(t, writeResourceData(&m, d))
+	require.NoError(t, writeResourceData(&m, d))
 
 	assert.Equal(t, "id", d.Id())
 	assert.Equal(t, "module_name", d.Get("module_name"))
@@ -90,7 +91,7 @@ func TestReadResourceDataNotification(t *testing.T) {
 
 	var payload client.NotificationCreatePayload
 
-	assert.Nil(t, readResourceData(&payload, d))
+	require.NoError(t, readResourceData(&payload, d))
 	assert.Equal(t, expectedPayload, payload)
 }
 
@@ -106,7 +107,7 @@ func TestReadResourceDataWithTag(t *testing.T) {
 
 	var payload client.AwsCredentialsValuePayload
 
-	assert.Nil(t, readResourceData(&payload, d))
+	require.NoError(t, readResourceData(&payload, d))
 	assert.Equal(t, expectedPayload, payload)
 }
 
@@ -120,7 +121,7 @@ func TestWriteResourceDataNotification(t *testing.T) {
 		Value: "value",
 	}
 
-	assert.Nil(t, writeResourceData(&n, d))
+	require.NoError(t, writeResourceData(&n, d))
 
 	assert.Equal(t, "id", d.Id())
 	assert.Equal(t, "name", d.Get("name"))
@@ -144,7 +145,9 @@ func TestReadResourceDataNotificationProjectAssignment(t *testing.T) {
 	}
 
 	var payload client.NotificationProjectAssignmentUpdatePayload
-	assert.Nil(t, readResourceData(&payload, d))
+
+	require.NoError(t, readResourceData(&payload, d))
+
 	assert.Equal(t, expectedPayload, payload)
 }
 
@@ -159,7 +162,7 @@ func TestWriteResourceDataNotificationProjectAssignment(t *testing.T) {
 		},
 	}
 
-	assert.Nil(t, writeResourceData(&a, d))
+	require.NoError(t, writeResourceData(&a, d))
 
 	assert.Equal(t, "id", d.Id())
 	assert.Equal(t, "nid", d.Get("notification_endpoint_id"))
@@ -187,7 +190,7 @@ func TestWriteCustomResourceData(t *testing.T) {
 		Regex:          "regex",
 	}
 
-	assert.Nil(t, writeResourceData(&configurationVariable, d))
+	require.NoError(t, writeResourceData(&configurationVariable, d))
 
 	assert.Equal(t, configurationVariable.Id, d.Id())
 	assert.Equal(t, configurationVariable.Name, d.Get("name"))
@@ -209,11 +212,11 @@ func TestReadByValueCustomResourceData(t *testing.T) {
 
 	params := client.ConfigurationVariableCreateParams{}
 
-	assert.Nil(t, readResourceData(&params, d))
+	require.NoError(t, readResourceData(&params, d))
 
-	assert.Equal(t, params.Name, "name")
-	assert.Equal(t, int(params.Type), 1)
-	assert.Equal(t, params.Description, "description")
+	assert.Equal(t, "name", params.Name)
+	assert.Equal(t, 1, int(params.Type))
+	assert.Equal(t, "description", params.Description)
 }
 
 func TestReadByPointerCustomResourceData(t *testing.T) {
@@ -225,11 +228,11 @@ func TestReadByPointerCustomResourceData(t *testing.T) {
 
 	params := client.ConfigurationVariable{}
 
-	assert.Nil(t, readResourceData(&params, d))
+	require.NoError(t, readResourceData(&params, d))
 
-	assert.Equal(t, params.Name, "name")
-	assert.Equal(t, int(*params.Type), 1)
-	assert.Equal(t, params.Description, "description")
+	assert.Equal(t, "name", params.Name)
+	assert.Equal(t, 1, int(*params.Type))
+	assert.Equal(t, "description", params.Description)
 }
 
 func TestReadByPointerNilCustomResourceData(t *testing.T) {
@@ -240,11 +243,11 @@ func TestReadByPointerNilCustomResourceData(t *testing.T) {
 
 	params := client.ConfigurationVariable{}
 
-	assert.Nil(t, readResourceData(&params, d))
+	require.NoError(t, readResourceData(&params, d))
 
-	assert.Equal(t, params.Name, "name")
+	assert.Equal(t, "name", params.Name)
 	assert.Nil(t, params.Type)
-	assert.Equal(t, params.Description, "description")
+	assert.Equal(t, "description", params.Description)
 }
 
 func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
@@ -260,7 +263,8 @@ func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
 
 	vars := []client.Agent{agent1, agent2}
 
-	assert.Nil(t, writeResourceDataSlice(vars, "agents", d))
+	require.NoError(t, writeResourceDataSlice(vars, "agents", d))
+
 	assert.Equal(t, agent1.AgentKey, d.Get("agents.0.agent_key"))
 	assert.Equal(t, agent2.AgentKey, d.Get("agents.1.agent_key"))
 }
@@ -297,7 +301,8 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 
 	vars := []client.ConfigurationVariable{var1, var2}
 
-	assert.Nil(t, writeResourceDataSlice(vars, "variables", d))
+	require.NoError(t, writeResourceDataSlice(vars, "variables", d))
+
 	assert.Equal(t, var1.Name, d.Get("variables.0.name"))
 	assert.Equal(t, var2.Name, d.Get("variables.1.name"))
 	assert.Equal(t, var1.Value, d.Get("variables.0.value"))
@@ -317,7 +322,7 @@ func TestWriteResourceDataOmitEmpty(t *testing.T) {
 		Revision:   "branch-zero",
 	}
 
-	assert.Nil(t, writeResourceData(&template, d))
+	require.NoError(t, writeResourceData(&template, d))
 
 	attr := d.State().Attributes
 
@@ -334,7 +339,8 @@ func TestWriteResourceDataOmitEmpty(t *testing.T) {
 
 	template.TokenId = "tokenid"
 
-	assert.Nil(t, writeResourceData(&template, d))
+	require.NoError(t, writeResourceData(&template, d))
+
 	attr = d.State().Attributes
 	_, ok = attr["token_id"]
 	assert.True(t, ok, "token_id should be set")
@@ -410,7 +416,7 @@ func TestReadSubEnvironment(t *testing.T) {
 
 	subEnvironments, err := getSubEnvironments(d)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Len(t, subEnvironments, 2)
 	require.Equal(t, expectedSubEnvironments, subEnvironments)
 }
@@ -418,37 +424,37 @@ func TestReadSubEnvironment(t *testing.T) {
 func TestTTLToDuration(t *testing.T) {
 	t.Run("hours", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("2-h"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(3600*2*1000000000), duration)
 	})
 
 	t.Run("days", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("1-d"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(3600*24*1000000000), duration)
 	})
 
 	t.Run("weeks", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("3-w"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(21*3600*24*1000000000), duration)
 	})
 
 	t.Run("months", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("1-M"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(30*3600*24*1000000000), duration)
 	})
 
 	t.Run("inherit", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("inherit"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(math.MaxInt64), duration)
 	})
 
 	t.Run("Infinite", func(t *testing.T) {
 		duration, err := ttlToDuration(stringPtr("Infinite"))
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, time.Duration(math.MaxInt64), duration)
 	})
 
