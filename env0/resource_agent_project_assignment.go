@@ -16,6 +16,31 @@ type AgentProjectAssignment struct {
 
 const ENV0_DEFAULT = "ENV0_DEFAULT"
 
+func getAgentProjectAssignment(d *schema.ResourceData, meta interface{}) (*AgentProjectAssignment, error) {
+	apiClient := meta.(client.ApiClientInterface)
+
+	assignments, err := apiClient.ProjectsAgentsAssignments()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get project agent assignments: %w", err)
+	}
+
+	// If there's no assignment for the project, it should default to the default agent.
+
+	assignment := AgentProjectAssignment{
+		AgentId:   assignments.DefaultAgent,
+		ProjectId: d.Id(),
+	}
+
+	for projectId, agent := range assignments.ProjectsAgents {
+		if projectId == assignment.ProjectId {
+			assignment.AgentId = agent.(string)
+			break
+		}
+	}
+
+	return &assignment, nil
+}
+
 func resourceAgentProjectAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAgentProjectAssignmentCreateOrUpdate,
@@ -65,28 +90,12 @@ func resourceAgentProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema
 }
 
 func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	apiClient := meta.(client.ApiClientInterface)
-
-	assignments, err := apiClient.ProjectsAgentsAssignments()
+	assignment, err := getAgentProjectAssignment(d, meta)
 	if err != nil {
-		return diag.Errorf("failed to get project agent assignments: %v", err)
+		return diag.FromErr(err)
 	}
 
-	// If there's no assignment for the project, it should default to the default agent.
-
-	assignment := AgentProjectAssignment{
-		AgentId:   assignments.DefaultAgent,
-		ProjectId: d.Id(),
-	}
-
-	for projectId, agent := range assignments.ProjectsAgents {
-		if projectId == assignment.ProjectId {
-			assignment.AgentId = agent.(string)
-			break
-		}
-	}
-
-	if err := writeResourceData(&assignment, d); err != nil {
+	if err := writeResourceData(assignment, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -117,25 +126,12 @@ func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.Resourc
 		return nil, fmt.Errorf("unable to get or find a project with id '%s': %w", d.Id(), err)
 	}
 
-	assignments, err := apiClient.ProjectsAgentsAssignments()
+	assignment, err := getAgentProjectAssignment(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get project agent assignments: %w", err)
+		return nil, err
 	}
 
-	// Import using the default agent if there's no assignment for the project.
-
-	assignment := AgentProjectAssignment{
-		AgentId:   assignments.DefaultAgent,
-		ProjectId: d.Id(),
-	}
-
-	for projectId, agent := range assignments.ProjectsAgents {
-		if projectId == assignment.ProjectId {
-			assignment.AgentId = agent.(string)
-			break
-		}
-	}
-	if err := writeResourceData(&assignment, d); err != nil {
+	if err := writeResourceData(assignment, d); err != nil {
 		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
 	}
 
