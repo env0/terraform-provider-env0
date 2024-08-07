@@ -2,11 +2,11 @@ package client
 
 // Key is project id.
 // Value is agent id.
-type AssignProjectsAgentsAssignmentsPayload map[string]interface{}
+type AssignProjectsAgentsAssignmentsPayload map[string]string
 
 type ProjectsAgentsAssignments struct {
 	DefaultAgent   string                 `json:"defaultAgent"`
-	ProjectsAgents map[string]interface{} `json:"ProjectsAgents"`
+	ProjectsAgents map[string]interface{} `json:"projectsAgents"`
 }
 
 func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {

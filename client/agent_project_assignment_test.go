@@ -10,129 +10,118 @@ import (
 )
 
 var _ = Describe("Agent Project Assignment", func() {
-	psas := map[string]interface{}{
+	mapping := map[string]string{
+		"pid1": "aid1",
+		"pid2": "aid2",
+	}
+
+	imapping := map[string]interface{}{
 		"pid1": "aid1",
 		"pid2": "aid2",
 	}
 
 	expectedResponse := ProjectsAgentsAssignments{
-		ProjectsAgents: psas,
+		DefaultAgent:   "default-agent",
+		ProjectsAgents: imapping,
 	}
 
 	errorMock := errors.New("error")
 
-	Describe("AssignAgentsToProjects", func() {
+	Describe("assign agents to projects", func() {
 
-		Describe("Successful", func() {
-			var actualResult *ProjectsAgentsAssignments
+		Describe("success", func() {
+			var results *ProjectsAgentsAssignments
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall(organizationId).Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
-					Post("/agents/projects-assignments?organizationId="+organizationId, gomock.Any(), gomock.Any()).
+					Post("/agents/projects-assignments?organizationId="+organizationId, mapping, gomock.Any()).Times(1).
 					Do(func(path string, request interface{}, response *ProjectsAgentsAssignments) {
 						*response = expectedResponse
-					}).Times(1)
-				actualResult, err = apiClient.AssignAgentsToProjects(psas)
+					})
+				results, err = apiClient.AssignAgentsToProjects(mapping)
 
 			})
 
-			It("Should get organization id", func() {
-				organizationIdCall.Times(1)
+			It("should return results", func() {
+				Expect(*results).To(Equal(expectedResponse))
 			})
 
-			It("Should send POST request with params", func() {
-				httpCall.Times(1)
-			})
-
-			It("should return the POST result", func() {
-				Expect(*actualResult).To(Equal(expectedResponse))
-			})
-
-			It("Should not return error", func() {
+			It("should not return error", func() {
 				Expect(err).To(BeNil())
 			})
 		})
 
-		Describe("Failure", func() {
-			var actualResult *ProjectsAgentsAssignments
+		Describe("failure", func() {
+			var results *ProjectsAgentsAssignments
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall(organizationId).Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
-					Post("/agents/projects-assignments?organizationId="+organizationId, gomock.Any(), gomock.Any()).
-					Return(errorMock)
+					Post("/agents/projects-assignments?organizationId="+organizationId, mapping, gomock.Any()).Times(1).Return(errorMock)
 
-				actualResult, err = apiClient.AssignAgentsToProjects(psas)
+				results, err = apiClient.AssignAgentsToProjects(mapping)
 			})
 
-			It("Should fail if API call fails", func() {
+			It("should return an error", func() {
 				Expect(err).To(Equal(errorMock))
 			})
 
-			It("Should not return results", func() {
-				Expect(actualResult).To(BeNil())
+			It("should not return results", func() {
+				Expect(results).To(BeNil())
 			})
 		})
 	})
 
 	Describe("ProjectsAgentsAssignments", func() {
-		Describe("Successful", func() {
-			var actualResult *ProjectsAgentsAssignments
+		Describe("success", func() {
+			var results *ProjectsAgentsAssignments
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall(organizationId).Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
-					Get("/agents/projects-assignments", gomock.Any(), gomock.Any()).
+					Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, gomock.Any()).Times(1).
 					Do(func(path string, request interface{}, response *ProjectsAgentsAssignments) {
 						*response = expectedResponse
 					})
-				actualResult, err = apiClient.ProjectsAgentsAssignments()
+				results, err = apiClient.ProjectsAgentsAssignments()
 			})
 
-			It("Should get organization id", func() {
-				organizationIdCall.Times(1)
+			It("should return results", func() {
+				Expect(*results).To(Equal(expectedResponse))
 			})
 
-			It("Should send GET request with params", func() {
-				httpCall.Times(1)
-			})
-
-			It("Should return the GET result", func() {
-				Expect(*actualResult).To(Equal(expectedResponse))
-			})
-
-			It("Should not return error", func() {
+			It("should not return error", func() {
 				Expect(err).To(BeNil())
 			})
 		})
 
-		Describe("Failure", func() {
-			var actualResult *ProjectsAgentsAssignments
+		Describe("failure", func() {
+			var results *ProjectsAgentsAssignments
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall(organizationId).Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
-					Get("/agents/projects-assignments", gomock.Any(), gomock.Any()).
+					Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, gomock.Any()).Times(1).
 					Return(errorMock)
 
-				actualResult, err = apiClient.ProjectsAgentsAssignments()
+				results, err = apiClient.ProjectsAgentsAssignments()
 			})
 
-			It("Should fail if API call fails", func() {
+			It("should return an error", func() {
 				Expect(err).To(Equal(errorMock))
 			})
 
-			It("Should not return results", func() {
-				Expect(actualResult).To(BeNil())
+			It("should not return results", func() {
+				Expect(results).To(BeNil())
 			})
 		})
 	})
