@@ -126,13 +126,15 @@ var _ = Describe("Templates Client", func() {
 	})
 
 	Describe("TemplateDelete", func() {
+		var err error
+
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id, nil)
-			apiClient.TemplateDelete(mockTemplate.Id)
+			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id, nil).Times(1)
+			err = apiClient.TemplateDelete(mockTemplate.Id)
 		})
 
-		It("Should send DELETE request with template id", func() {
-			httpCall.Times(1)
+		It("should not return an error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 
@@ -209,14 +211,16 @@ var _ = Describe("Templates Client", func() {
 	})
 
 	Describe("remove template from project", func() {
+		var err error
+
 		projectId := "project-id"
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/"+projectId, nil)
-			apiClient.RemoveTemplateFromProject(mockTemplate.Id, projectId)
+			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/"+projectId, nil).Times(1)
+			err = apiClient.RemoveTemplateFromProject(mockTemplate.Id, projectId)
 		})
 
-		It("Should send DELETE request with template id and project id", func() {
-			httpCall.Times(1)
+		It("should not return an error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 

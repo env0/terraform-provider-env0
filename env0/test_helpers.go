@@ -2,6 +2,7 @@ package env0
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -40,39 +41,44 @@ func resourceConfigCreate(resourceType string, resourceName string, fields map[s
 
 func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
 	hclFields := ""
-	for key, value := range fields {
-		intValue, intOk := value.(int)
-		boolValue, boolOk := value.(bool)
-		arrayStrValues, arrayStrOk := value.([]string)
-		arrayIntValues, arrayIntOk := value.([]int)
 
-		if intOk {
-			hclFields += fmt.Sprintf("\n\t%s = %d", key, intValue)
-		} else if boolOk {
-			hclFields += fmt.Sprintf("\n\t%s = %t", key, boolValue)
-		} else if arrayStrOk {
+	for key, value := range fields {
+		valueType := reflect.TypeOf(value)
+
+		switch valueType {
+		case reflect.TypeOf(0):
+			hclFields += fmt.Sprintf("\n\t%s = %d", key, value.(int))
+		case reflect.TypeOf(false):
+			hclFields += fmt.Sprintf("\n\t%s = %t", key, value.(bool))
+		case reflect.TypeOf([]string{}):
 			arrayValueString := ""
-			for _, arrayValue := range arrayStrValues {
+
+			for _, arrayValue := range value.([]string) {
 				arrayValueString += "\"" + arrayValue + "\","
 			}
+
 			arrayValueString = arrayValueString[:len(arrayValueString)-1]
 
 			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
-		} else if arrayIntOk {
+		case reflect.TypeOf([]int{}):
 			arrayValueString := ""
-			for _, arrayValue := range arrayIntValues {
+
+			for _, arrayValue := range value.([]int) {
 				arrayValueString += fmt.Sprintf("%d,", arrayValue)
 			}
+
 			arrayValueString = arrayValueString[:len(arrayValueString)-1]
 
 			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
-		} else {
+		default:
 			hclFields += fmt.Sprintf("\n\t%s = \"%s\"", key, value)
 		}
 	}
+
 	if hclFields != "" {
 		hclFields += "\n"
 	}
+
 	return fmt.Sprintf(`%s "%s" "%s" {%s}`, source, resourceType, resourceName, hclFields)
 }
 
