@@ -2,8 +2,6 @@ package env0
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -49,7 +47,7 @@ func dataTemplate() *schema.Resource {
 			},
 			"type": {
 				Type:        schema.TypeString,
-				Description: fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
+				Description: "the template type",
 				Computed:    true,
 			},
 			"project_ids": {
