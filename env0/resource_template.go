@@ -13,17 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var allowedTemplateTypes = []string{
-	"terraform",
-	"terragrunt",
-	"pulumi",
-	"k8s",
-	"workflow",
-	"cloudformation",
-	"helm",
-	"opentofu",
-}
-
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	var allVCSAttributes = []string{
 		"token_id",
@@ -37,6 +26,18 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"helm_chart_name",
 		"is_helm_repository",
 		"path",
+	}
+
+	var allowedTemplateTypes = []string{
+		"terraform",
+		"terragrunt",
+		"pulumi",
+		"k8s",
+		"workflow",
+		"cloudformation",
+		"helm",
+		"opentofu",
+		"ansible",
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
@@ -255,6 +256,13 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Optional:    true,
 			Default:     false,
 		},
+		"ansible_version": {
+			Type:             schema.TypeString,
+			Description:      "the ansible version to use (required when the template type is 'ansible'). Supported versions are 3.0.0 and above",
+			Optional:         true,
+			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})|latest|$`),
+			Default:          "",
+		},
 	}
 
 	if prefix == "" {
@@ -403,11 +411,8 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		// If the user has set a value - use it.
 		if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
 			payload.TerragruntTfBinary = terragruntTfBinary
-		} else {
-			// No value was set - if it's a new template resource of type 'terragrunt' - default to 'opentofu'
-			if templateType.(string) == "terragrunt" && isNew {
-				payload.TerragruntTfBinary = "opentofu"
-			}
+		} else if templateType.(string) == "terragrunt" && isNew {
+			payload.TerragruntTfBinary = "opentofu"
 		}
 	}
 

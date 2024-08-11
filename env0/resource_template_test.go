@@ -451,6 +451,43 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 	}
 
+	ansibleTemplate := client.Template{
+		Id:             "ansible",
+		Name:           "template0",
+		Description:    "description0",
+		Repository:     "env0/repo",
+		Type:           "ansible",
+		AnsibleVersion: "3.5.6",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+	}
+	ansibleUpdatedTemplate := client.Template{
+		Id:             ansibleTemplate.Id,
+		Name:           "new-name",
+		Description:    "new-description",
+		Repository:     "env0/repo-new",
+		Type:           "ansible",
+		AnsibleVersion: "latest",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+	}
+
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]interface{}{
 			"name":       template.Name,
@@ -532,6 +569,9 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.IsGitlab {
 			templateAsDictionary["is_gitlab"] = true
 		}
+		if template.AnsibleVersion != "" {
+			templateAsDictionary["ansible_version"] = template.AnsibleVersion
+		}
 
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
@@ -581,6 +621,16 @@ func TestUnitTemplateResource(t *testing.T) {
 			tokenNameAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_name")
 		}
 
+		ansibleVersionAssertion := resource.TestCheckResourceAttr(resourceFullName, "ansible_version", template.AnsibleVersion)
+		if template.AnsibleVersion == "" {
+			ansibleVersionAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "ansible_version")
+		}
+
+		terraformVersionAssertion := resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion)
+		if template.TerraformVersion == "" {
+			terraformVersionAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "terraform_version")
+		}
+
 		return resource.ComposeAggregateTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 			resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
@@ -600,12 +650,13 @@ func TestUnitTemplateResource(t *testing.T) {
 			helmChartNameAssertion,
 			pathAssertion,
 			opentofuVersionAssertion,
-			resource.TestCheckResourceAttr(resourceFullName, "terraform_version", template.TerraformVersion),
+			terraformVersionAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "is_terragrunt_run_all", strconv.FormatBool(template.IsTerragruntRunAll)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", strconv.FormatBool(template.IsAzureDevOps)),
 			resource.TestCheckResourceAttr(resourceFullName, "is_helm_repository", strconv.FormatBool(template.IsHelmRepository)),
 			tokenNameAssertion,
 			resource.TestCheckResourceAttr(resourceFullName, "is_gitlab", strconv.FormatBool(template.IsGitlab)),
+			ansibleVersionAssertion,
 		)
 	}
 
@@ -624,6 +675,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Azure DevOps", azureDevOpsTemplate, azureDevOpsUpdatedTemplate},
 		{"Helm Chart", helmTemplate, helmUpdatedTemplate},
 		{"Opentofu", opentofuTemplate, opentofuUpdatedTemplate},
+		{"Ansible", ansibleTemplate, ansibleUpdatedTemplate},
 	}
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
@@ -652,6 +704,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				HelmChartName:        templateUseCase.template.HelmChartName,
 				OpentofuVersion:      templateUseCase.template.OpentofuVersion,
 				TokenName:            templateUseCase.template.TokenName,
+				AnsibleVersion:       templateUseCase.template.AnsibleVersion,
 			}
 
 			updateTemplateCreateTemplate := client.TemplateCreatePayload{
@@ -679,6 +732,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				HelmChartName:        templateUseCase.updatedTemplate.HelmChartName,
 				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
 				TokenName:            templateUseCase.updatedTemplate.TokenName,
+				AnsibleVersion:       templateUseCase.updatedTemplate.AnsibleVersion,
 			}
 
 			if templateUseCase.template.Type == "terragrunt" {
@@ -1298,7 +1352,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"terragrunt_version":    "0.27.50",
 						"is_terragrunt_run_all": "true",
 					}),
-					ExpectError: regexp.MustCompile(`can't set is_terragrunt_run_all to "true" for terragrunt versions lower than 0.28.1`),
+					ExpectError: regexp.MustCompile(`can't set is_terragrunt_run_all to 'true' for terragrunt versions lower than 0.28.1`),
 				},
 			},
 		}
@@ -1318,6 +1372,59 @@ func TestUnitTemplateResource(t *testing.T) {
 						"terragrunt_tf_binary": "opentofu",
 					}),
 					ExpectError: regexp.MustCompile(`terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is 'terraform'`),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("invalid ansible version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":            "template",
+						"repository":      "env0/repo",
+						"type":            "ansible",
+						"ansible_version": "not-valid",
+					}),
+					ExpectError: regexp.MustCompile("invalid ansible version 'not-valid'"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("unsupported ansible version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":            "template",
+						"repository":      "env0/repo",
+						"type":            "ansible",
+						"ansible_version": "2.5.6",
+					}),
+					ExpectError: regexp.MustCompile("supported ansible versions are 3.0.0 and above"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("ansible type with no version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":       "template",
+						"repository": "env0/repo",
+						"type":       "ansible",
+					}),
+					ExpectError: regexp.MustCompile("'ansible_version' is required"),
 				},
 			},
 		}

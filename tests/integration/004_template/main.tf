@@ -67,6 +67,19 @@ resource "env0_template" "template_opentofu" {
   opentofu_version                        = var.second_run ? "1.6.0" : "RESOLVE_FROM_CODE"
 }
 
+resource "env0_template" "template_ansible" {
+  name                                    = "Ansible-${random_string.random.result}"
+  description                             = "Template description - Ansible and GitHub"
+  type                                    = "ansible"
+  repository                              = data.env0_template.github_template.repository
+  github_installation_id                  = data.env0_template.github_template.github_installation_id
+  path                                    = "/misc/null-resource"
+  retries_on_deploy                       = 3
+  retry_on_deploy_only_when_matches_regex = "abc"
+  retries_on_destroy                      = 1
+  ansible_version                         = var.second_run ? "3.6.0" : "latest"
+}
+
 resource "env0_configuration_variable" "in_a_template" {
   name        = "fake_key"
   value       = "fake value"
