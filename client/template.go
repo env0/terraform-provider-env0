@@ -158,7 +158,7 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		}
 	}
 
-	if payload.Type == "ansible" {
+	if payload.Type == "ansible" && payload.AnsibleVersion != "latest" {
 		if payload.AnsibleVersion == "" {
 			return errors.New("'ansible_version' is required")
 		}

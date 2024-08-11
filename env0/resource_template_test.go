@@ -475,7 +475,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		Description:    "new-description",
 		Repository:     "env0/repo-new",
 		Type:           "ansible",
-		AnsibleVersion: "11.5.6",
+		AnsibleVersion: "latest",
 		Retry: client.TemplateRetry{
 			OnDeploy: &client.TemplateRetryOn{
 				Times:      2,

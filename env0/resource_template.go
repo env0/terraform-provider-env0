@@ -260,7 +260,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Description:      "the ansible version to use (required when the template type is 'ansible'). Supported versions are 3.0.0 and above",
 			Optional:         true,
-			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})|$`),
+			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})|latest|$`),
 			Default:          "",
 		},
 	}

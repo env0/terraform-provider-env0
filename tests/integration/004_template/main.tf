@@ -77,7 +77,7 @@ resource "env0_template" "template_ansible" {
   retries_on_deploy                       = 3
   retry_on_deploy_only_when_matches_regex = "abc"
   retries_on_destroy                      = 1
-  ansible_version                         = var.second_run ? "3.6.0" : "9.5.0"
+  ansible_version                         = var.second_run ? "3.6.0" : "latest"
 }
 
 resource "env0_configuration_variable" "in_a_template" {
