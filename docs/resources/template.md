@@ -63,6 +63,7 @@ resource "env0_template_project_assignment" "assignment" {
 
 ### Optional
 
+- `ansible_version` (String) the ansible version to use (required when the template type is 'ansible'). Supported versions are 3.0.0 and above
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
 - `description` (String) description for the template
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
@@ -89,7 +90,7 @@ resource "env0_template_project_assignment" "assignment" {
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu)
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 ### Read-Only
 
