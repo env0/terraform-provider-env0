@@ -102,8 +102,8 @@ resource "env0_template" "example" {
 ### Run local version of the provider
 
 - Build - `./build.sh`
-- Create the plugins folder - `mkdir -p ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (for M1 processor, replace `amd64` with `arm64`)
-- Copy the built binary - `cp ./terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_amd64` (Replace `darwin` with `linux` on Linux)
+- Create the plugins folder - `mkdir -p ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_arm64` (for Intel processor, replace `arm64` with `amd64`)
+- Copy the built binary - `cp ./terraform-provider-env0 ~/.terraform.d/plugins/terraform.env0.com/local/env0/6.6.6/darwin_arm64` (Replace `darwin` with `linux` on Linux)
 - Require the local provider in your `main.tf` -
 
 ```
