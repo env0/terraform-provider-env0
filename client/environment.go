@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -213,7 +212,7 @@ func (Environment) getEndpoint() string {
 	return "/environments"
 }
 
-func (client *ApiClient) Environments() ([]Environment, error) {
+func (client *ApiClient) EnvironmentsByName(name string) ([]Environment, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
@@ -221,6 +220,7 @@ func (client *ApiClient) Environments() ([]Environment, error) {
 
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
+		"name":           name,
 	})
 }
 
