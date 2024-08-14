@@ -166,5 +166,5 @@ output "data_github_template_type" {
 }
 
 output "data_github_installation_id" {
-  value = data.data_github_installation_id.github_installation_id.github_installation_id
+  value = data.env_github_installation_id.github_installation_id.github_installation_id
 }
