@@ -32,7 +32,7 @@ resource "env0_template" "github_template" {
 }
 
 data "env0_github_installation_id" "github_installation_id" {
-  repository                              = data.env0_template.github_template.repository
+  repository = data.env0_template.github_template.repository
 }
 
 resource "env0_template" "gitlab_template" {
@@ -163,8 +163,4 @@ output "tg_tg_version" {
 
 output "data_github_template_type" {
   value = data.env0_template.github_template.type
-}
-
-output "data_github_installation_id" {
-  value = data.env0_github_installation_id.github_installation_id.github_installation_id
 }
