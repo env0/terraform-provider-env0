@@ -7,5 +7,5 @@
     "tg_tg_version": "0.35.0",
     "data_github_template_type": "terraform",
     "github_variables_name": "email",
-    "github_variables_value": "default@domain.com",
+    "github_variables_value": "default@domain.com"
 }
