@@ -473,9 +473,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 			}
 		}
 
-		if err := d.Set("variable_sets", sortedVariablesSet); err != nil {
-			return fmt.Errorf("failed to set variable_sets value: %w", err)
-		}
+		d.Set("variable_sets", sortedVariablesSet)
 	}
 
 	return nil
@@ -630,7 +628,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 			EnvironmentCreate: environmentPayload,
 			TemplateCreate:    templatePayload,
 		}
-		// Note: the blueprint id field of the environment is returned only during creation of a template without envrionment.
+		// Note: the blueprint id field of the environment is returned only during creation of a template without environment.
 		// Afterward, it will be omitted from future response.
 		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
 		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
@@ -707,7 +705,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if isTemplateless(d) {
-		// envrionment with no template.
+		// environment with no template.
 		templateId := d.Get("without_template_settings.0.id").(string)
 		template, err := apiClient.Template(templateId)
 		if err != nil {
@@ -870,6 +868,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		return diag.Errorf("failed deploying environment: %v", err)
 	}
 	d.Set("deployment_id", deployResponse.Id)
+
 	return nil
 }
 
@@ -1257,6 +1256,7 @@ func linkToExistConfigurationVariables(configurationChanges client.Configuration
 		if isExist, existVariable := isVariableExist(existVariables, change); isExist {
 			change.Id = existVariable.Id
 		}
+
 		updateConfigurationChanges = append(updateConfigurationChanges, change)
 	}
 	return updateConfigurationChanges
@@ -1336,13 +1336,13 @@ func getConfigurationVariableFromSchema(variable map[string]interface{}) client.
 
 func getEnvironmentByName(meta interface{}, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
-	environments, err := apiClient.Environments()
+	environmentsByName, err := apiClient.EnvironmentsByName(name)
 	if err != nil {
 		return client.Environment{}, diag.Errorf("Could not get Environment: %v", err)
 	}
 
-	var environmentsByName []client.Environment
-	for _, candidate := range environments {
+	var filteredEnvironments []client.Environment
+	for _, candidate := range environmentsByName {
 		if excludeArchived && candidate.IsArchived != nil && *candidate.IsArchived {
 			continue
 		}
@@ -1351,20 +1351,18 @@ func getEnvironmentByName(meta interface{}, name string, projectId string, exclu
 			continue
 		}
 
-		if candidate.Name == name {
-			environmentsByName = append(environmentsByName, candidate)
-		}
+		filteredEnvironments = append(filteredEnvironments, candidate)
 	}
 
-	if len(environmentsByName) > 1 {
+	if len(filteredEnvironments) > 1 {
 		return client.Environment{}, diag.Errorf("Found multiple environments for name: %s. Use ID instead or make sure environment names are unique %v", name, environmentsByName)
 	}
 
-	if len(environmentsByName) == 0 {
+	if len(filteredEnvironments) == 0 {
 		return client.Environment{}, diag.Errorf("Could not find an env0 environment with name %s", name)
 	}
 
-	return environmentsByName[0], nil
+	return filteredEnvironments[0], nil
 }
 
 func getEnvironmentById(environmentId string, meta interface{}) (client.Environment, diag.Diagnostics) {

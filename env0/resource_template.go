@@ -13,17 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var allowedTemplateTypes = []string{
-	"terraform",
-	"terragrunt",
-	"pulumi",
-	"k8s",
-	"workflow",
-	"cloudformation",
-	"helm",
-	"opentofu",
-}
-
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	var allVCSAttributes = []string{
 		"token_id",
@@ -37,6 +26,18 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"helm_chart_name",
 		"is_helm_repository",
 		"path",
+	}
+
+	var allowedTemplateTypes = []string{
+		"terraform",
+		"terragrunt",
+		"pulumi",
+		"k8s",
+		"workflow",
+		"cloudformation",
+		"helm",
+		"opentofu",
+		"ansible",
 	}
 
 	allVCSAttributesBut := func(strs ...string) []string {
@@ -249,6 +250,19 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Optional:    true,
 			Description: "token name for Gitlab",
 		},
+		"is_gitlab": {
+			Type:        schema.TypeBool,
+			Description: "set to 'true' if the repository is Gitlab",
+			Optional:    true,
+			Default:     false,
+		},
+		"ansible_version": {
+			Type:             schema.TypeString,
+			Description:      "the ansible version to use (required when the template type is 'ansible'). Supported versions are 3.0.0 and above",
+			Optional:         true,
+			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})|latest|$`),
+			Default:          "",
+		},
 	}
 
 	if prefix == "" {
@@ -385,14 +399,10 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 
 	isNew := d.IsNewResource()
 
-	tokenIdKey := "token_id"
-	isAzureDevOpsKey := "is_azure_devops"
 	terragruntTfBinaryKey := "terragrunt_tf_binary"
 	templateTypeKey := "type"
 
 	if prefix != "" {
-		tokenIdKey = prefix + "." + tokenIdKey
-		isAzureDevOpsKey = prefix + "." + isAzureDevOpsKey
 		terragruntTfBinaryKey = prefix + "." + terragruntTfBinaryKey
 		templateTypeKey = prefix + "." + templateTypeKey
 	}
@@ -401,18 +411,8 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		// If the user has set a value - use it.
 		if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
 			payload.TerragruntTfBinary = terragruntTfBinary
-		} else {
-			// No value was set - if it's a new template resource of type 'terragrunt' - default to 'opentofu'
-			if templateType.(string) == "terragrunt" && isNew {
-				payload.TerragruntTfBinary = "opentofu"
-			}
-		}
-	}
-
-	// IsGitLab is implicitly assumed to be true if tokenId is non-empty. Unless AzureDevOps is explicitly used.
-	if tokenId, ok := d.GetOk(tokenIdKey); ok {
-		if isAzureDevOps := d.Get(isAzureDevOpsKey); !isAzureDevOps.(bool) {
-			payload.IsGitLab = tokenId != ""
+		} else if templateType.(string) == "terragrunt" && isNew {
+			payload.TerragruntTfBinary = "opentofu"
 		}
 	}
 

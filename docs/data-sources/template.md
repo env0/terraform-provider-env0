@@ -48,7 +48,7 @@ data "env0_template" "example" {
 - `terragrunt_version` (String) terragrunt version to use
 - `token_id` (String) The token id used for private git repos or for integration with GitLab
 - `token_name` (String) the token name used for integration with GitLab
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu)
+- `type` (String) the template type
 
 <a id="nestedatt--ssh_keys"></a>
 ### Nested Schema for `ssh_keys`

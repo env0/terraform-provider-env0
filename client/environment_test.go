@@ -41,12 +41,17 @@ var _ = Describe("Environment Client", func() {
 			BeforeEach(func() {
 				mockOrganizationIdCall(organizationId)
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments", gomock.Any(), gomock.Any()).
+					Get("/environments", map[string]string{
+						"limit":          "100",
+						"offset":         "0",
+						"organizationId": organizationId,
+						"name":           mockEnvironment.Name,
+					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = mockEnvironments
 					})
 
-				environments, err = apiClient.Environments()
+				environments, err = apiClient.EnvironmentsByName(mockEnvironment.Name)
 			})
 
 			It("Should send GET request", func() {
@@ -75,6 +80,7 @@ var _ = Describe("Environment Client", func() {
 						"offset":         "0",
 						"limit":          "100",
 						"organizationId": organizationId,
+						"name":           mockEnvironment.Name,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP1
@@ -85,12 +91,13 @@ var _ = Describe("Environment Client", func() {
 						"offset":         "100",
 						"limit":          "100",
 						"organizationId": organizationId,
+						"name":           mockEnvironment.Name,
 					}, gomock.Any()).
 					Do(func(path string, request interface{}, response *[]Environment) {
 						*response = environmentsP2
 					}).Times(1)
 
-				environments, err = apiClient.Environments()
+				environments, err = apiClient.EnvironmentsByName(mockEnvironment.Name)
 			})
 
 			It("Should return the environments", func() {
@@ -143,10 +150,15 @@ var _ = Describe("Environment Client", func() {
 				expectedErr := errors.New("some error")
 				mockOrganizationIdCall(organizationId)
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments", gomock.Any(), gomock.Any()).
+					Get("/environments", map[string]string{
+						"limit":          "100",
+						"offset":         "0",
+						"organizationId": organizationId,
+						"name":           mockEnvironment.Name,
+					}, gomock.Any()).
 					Return(expectedErr)
 
-				_, err = apiClient.Environments()
+				_, err = apiClient.EnvironmentsByName(mockEnvironment.Name)
 				Expect(expectedErr).Should(Equal(err))
 			})
 		})

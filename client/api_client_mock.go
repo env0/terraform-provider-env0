@@ -998,19 +998,19 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTTL(arg0, arg1 an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTTL", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTTL), arg0, arg1)
 }
 
-// Environments mocks base method.
-func (m *MockApiClientInterface) Environments() ([]Environment, error) {
+// EnvironmentsByName mocks base method.
+func (m *MockApiClientInterface) EnvironmentsByName(arg0 string) ([]Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Environments")
+	ret := m.ctrl.Call(m, "EnvironmentsByName", arg0)
 	ret0, _ := ret[0].([]Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Environments indicates an expected call of Environments.
-func (mr *MockApiClientInterfaceMockRecorder) Environments() *gomock.Call {
+// EnvironmentsByName indicates an expected call of EnvironmentsByName.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentsByName(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environments", reflect.TypeOf((*MockApiClientInterface)(nil).Environments))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentsByName", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentsByName), arg0)
 }
 
 // GetEnvironmentDiscovery mocks base method.

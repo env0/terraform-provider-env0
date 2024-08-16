@@ -43,6 +43,7 @@ func dataProjectCloudCredentialsRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.Set("ids", credentialIds)
+
 	d.SetId(projectId)
 
 	return nil

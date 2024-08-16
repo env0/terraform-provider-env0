@@ -24,7 +24,7 @@ func getCloudConfigurationFromSchema(d *schema.ResourceData, provider string) (i
 	}
 
 	if err := readResourceData(configuration, d); err != nil {
-		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
 
 	return configuration, nil
@@ -47,6 +47,7 @@ func getCloudConfigurationByNameFromApi(apiClient client.ApiClientInterface, nam
 
 func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string) (*client.CloudAccount, error) {
 	var err error
+
 	var cloudAccount *client.CloudAccount
 
 	if _, parseErr := uuid.Parse(id); parseErr != nil {
@@ -108,9 +109,8 @@ func createCloudConfiguration(d *schema.ResourceData, meta interface{}, provider
 		return diag.Errorf("failed to create a cloud configuration: %v", err)
 	}
 
-	if err := d.Set("health", cloudAccount.Health); err != nil {
-		return diag.Errorf("failed to set health: %v", err)
-	}
+	d.Set("health", cloudAccount.Health)
+
 	d.SetId(cloudAccount.Id)
 
 	return nil
@@ -156,9 +156,7 @@ func updateCloudConfiguration(d *schema.ResourceData, meta interface{}, provider
 		return diag.Errorf("failed to update cloud configuration: %v", err)
 	}
 
-	if err := d.Set("health", cloudAccount.Health); err != nil {
-		return diag.Errorf("failed to set health: %v", err)
-	}
+	d.Set("health", cloudAccount.Health)
 
 	return nil
 }

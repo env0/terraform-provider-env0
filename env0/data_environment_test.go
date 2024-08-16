@@ -35,11 +35,6 @@ func TestEnvironmentDataSource(t *testing.T) {
 		},
 	}
 
-	otherEnvironment := client.Environment{
-		Id:   "other-id",
-		Name: "other-name",
-	}
-
 	environmentWithSameName := client.Environment{
 		Id:        "other-id",
 		Name:      environment.Name,
@@ -109,7 +104,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 
 	mockListEnvironmentsCall := func(returnValue []client.Environment, tem *client.Template) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().Environments().AnyTimes().Return(returnValue, nil)
+			mock.EXPECT().EnvironmentsByName(environment.Name).AnyTimes().Return(returnValue, nil)
 			if tem != nil {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).AnyTimes().Return(*tem, nil)
 			}
@@ -126,21 +121,21 @@ func TestEnvironmentDataSource(t *testing.T) {
 	t.Run("By Name", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsByName),
-			mockListEnvironmentsCall([]client.Environment{environment, otherEnvironment}, &template),
+			mockListEnvironmentsCall([]client.Environment{environment}, &template),
 		)
 	})
 
 	t.Run("By Name with Archived", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldsByNameWithExclude),
-			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}, &template),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment}, &template),
 		)
 	})
 
 	t.Run("By Name with Different Project Id", func(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(environmentFieldByNameWithProjectId),
-			mockListEnvironmentsCall([]client.Environment{environment, environmentWithSameName, otherEnvironment}, &template),
+			mockListEnvironmentsCall([]client.Environment{environment, environmentWithSameName}, &template),
 		)
 	})
 
@@ -154,14 +149,14 @@ func TestEnvironmentDataSource(t *testing.T) {
 	t.Run("Throw error when by name and more than one environment exists", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
-			mockListEnvironmentsCall([]client.Environment{environment, environment, otherEnvironment}, nil),
+			mockListEnvironmentsCall([]client.Environment{environment, environment}, nil),
 		)
 	})
 
 	t.Run("Throw error when by name and more than one environment exists (archived use-case)", func(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Found multiple environments for name"),
-			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment, otherEnvironment}, nil),
+			mockListEnvironmentsCall([]client.Environment{environment, archivedEnvironment}, nil),
 		)
 	})
 
@@ -169,13 +164,6 @@ func TestEnvironmentDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(environmentFieldsByName, "Could not find an env0 environment with name"),
 			mockListEnvironmentsCall([]client.Environment{}, nil),
-		)
-	})
-
-	t.Run("Throw error when by name and no environments found with that name", func(t *testing.T) {
-		runUnitTest(t,
-			getErrorTestCase(environmentFieldsByName, "Could not find an env0 environment with name"),
-			mockListEnvironmentsCall([]client.Environment{otherEnvironment}, nil),
 		)
 	})
 }

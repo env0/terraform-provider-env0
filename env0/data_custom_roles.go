@@ -41,9 +41,7 @@ func dataCustomRolesRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	if err := d.Set("names", data); err != nil {
-		return diag.FromErr(err)
-	}
+	d.Set("names", data)
 
 	// Not really needed. But required by Terraform SDK - https://github.com/hashicorp/terraform-plugin-sdk/issues/541
 	d.SetId("all_roles_names")

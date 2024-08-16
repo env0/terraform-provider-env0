@@ -1,8 +1,8 @@
 package client
 
-//templates are actually called "blueprints" in some parts of the API, this layer
-//attempts to abstract this detail away - all the users of api client should
-//only use "template", no mention of blueprint
+// templates are actually called "blueprints" in some parts of the API, this layer
+// attempts to abstract this detail away - all the users of api client should
+// only use "template", no mention of blueprint
 
 import (
 	"errors"
@@ -12,6 +12,9 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 )
+
+const TERRAGRUNT = "terragrunt"
+const OPENTOFU = "opentofu"
 
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`
@@ -61,10 +64,11 @@ type Template struct {
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName" tfschema:",omitempty"`
-	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
+	IsGitlab             bool             `json:"isGitLab"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	TokenName            string           `json:"tokenName" tfschema:",omitempty"`
 	GitlabProjectId      int              `json:"gitlabProjectId" tfschema:",omitempty"`
+	AnsibleVersion       string           `json:"ansibleVersion" tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -75,7 +79,7 @@ type TemplateCreatePayload struct {
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
 	Path                 string           `json:"path,omitempty"`
-	IsGitLab             bool             `json:"isGitLab"`
+	IsGitlab             bool             `json:"isGitLab"`
 	TokenName            string           `json:"tokenName,omitempty"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
@@ -95,6 +99,7 @@ type TemplateCreatePayload struct {
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName,omitempty"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary,omitempty"`
+	AnsibleVersion       string           `json:"ansibleVersion,omitempty"`
 }
 
 type TemplateAssignmentToProjectPayload struct {
@@ -122,32 +127,51 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		return errors.New("must not specify organizationId")
 	}
 
-	if payload.Type != "terragrunt" && payload.TerragruntVersion != "" {
+	if payload.Type != TERRAGRUNT && payload.TerragruntVersion != "" {
 		return errors.New("can't define terragrunt version for non-terragrunt template")
 	}
-	if payload.Type == "terragrunt" && payload.TerragruntVersion == "" {
+	if payload.Type == TERRAGRUNT && payload.TerragruntVersion == "" {
 		return errors.New("must supply terragrunt version")
 	}
-	if payload.Type == "opentofu" && payload.OpentofuVersion == "" {
+	if payload.Type == OPENTOFU && payload.OpentofuVersion == "" {
 		return errors.New("must supply opentofu version")
 	}
 
-	if payload.TerragruntTfBinary != "" && payload.Type != "terragrunt" {
+	if payload.TerragruntTfBinary != "" && payload.Type != TERRAGRUNT {
 		return fmt.Errorf("terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is '%s'", payload.Type)
 	}
 
 	if payload.IsTerragruntRunAll {
-		if payload.Type != "terragrunt" {
+		if payload.Type != TERRAGRUNT {
 			return errors.New(`can't set is_terragrunt_run_all to "true" for non-terragrunt template`)
 		}
 
 		c, _ := semver.NewConstraint(">= 0.28.1")
+
 		v, err := semver.NewVersion(payload.TerragruntVersion)
 		if err != nil {
-			return fmt.Errorf("invalid semver version %s: %s", payload.TerragruntVersion, err.Error())
+			return fmt.Errorf("invalid semver version %s: %w", payload.TerragruntVersion, err)
 		}
+
 		if !c.Check(v) {
-			return fmt.Errorf(`can't set is_terragrunt_run_all to "true" for terragrunt versions lower than 0.28.1`)
+			return errors.New("can't set is_terragrunt_run_all to 'true' for terragrunt versions lower than 0.28.1")
+		}
+	}
+
+	if payload.Type == "ansible" && payload.AnsibleVersion != "latest" {
+		if payload.AnsibleVersion == "" {
+			return errors.New("'ansible_version' is required")
+		}
+
+		c, _ := semver.NewConstraint(">= 3.0.0")
+
+		v, err := semver.NewVersion(payload.AnsibleVersion)
+		if err != nil {
+			return fmt.Errorf("invalid ansible version '%s': %w", payload.AnsibleVersion, err)
+		}
+
+		if !c.Check(v) {
+			return errors.New("supported ansible versions are 3.0.0 and above")
 		}
 	}
 
@@ -172,11 +196,11 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		}
 	}
 
-	if payload.Type != "terragrunt" && payload.Type != "terraform" {
+	if payload.Type != TERRAGRUNT && payload.Type != "terraform" {
 		payload.TerraformVersion = ""
 	}
 
-	if payload.Type != "opentofu" && payload.TerragruntTfBinary != "opentofu" {
+	if payload.Type != OPENTOFU && payload.TerragruntTfBinary != OPENTOFU {
 		payload.OpentofuVersion = ""
 	}
 
@@ -186,7 +210,7 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
-		return Template{}, nil
+		return Template{}, err
 	}
 	payload.OrganizationId = organizationId
 
@@ -262,18 +286,22 @@ func (client *ApiClient) VariablesFromRepository(payload *VariablesFromRepositor
 	}
 
 	params := map[string]string{}
+
 	for key, value := range paramsInterface {
-		if key == "githubInstallationId" {
+		switch key {
+		case "githubInstallationId":
 			params[key] = strconv.Itoa(int(value.(float64)))
-		} else if key == "sshKeyIds" {
+		case "sshKeyIds":
 			sshkeys := []string{}
+
 			if value != nil {
 				for _, sshkey := range value.([]interface{}) {
 					sshkeys = append(sshkeys, "\""+sshkey.(string)+"\"")
 				}
 			}
+
 			params[key] = "[" + strings.Join(sshkeys, ",") + "]"
-		} else {
+		default:
 			params[key] = value.(string)
 		}
 	}

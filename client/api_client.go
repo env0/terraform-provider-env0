@@ -61,7 +61,7 @@ type ApiClientInterface interface {
 	TeamCreate(payload TeamCreatePayload) (Team, error)
 	TeamUpdate(id string, payload TeamUpdatePayload) (Team, error)
 	TeamDelete(id string) error
-	Environments() ([]Environment, error)
+	EnvironmentsByName(name string) ([]Environment, error)
 	ProjectEnvironments(projectId string) ([]Environment, error)
 	Environment(id string) (Environment, error)
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)

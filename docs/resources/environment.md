@@ -164,6 +164,7 @@ Required:
 
 Optional:
 
+- `ansible_version` (String) the ansible version to use (required when the template type is 'ansible'). Supported versions are 3.0.0 and above
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
 - `description` (String) description for the template
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
@@ -173,6 +174,7 @@ Optional:
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this template uses github enterprise repository
+- `is_gitlab` (Boolean) set to 'true' if the repository is Gitlab
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
 - `is_helm_repository` (Boolean) true if this template integrates with a helm repository
 - `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
@@ -189,7 +191,7 @@ Optional:
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu)
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 Read-Only:
 

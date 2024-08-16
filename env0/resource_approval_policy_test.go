@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/jinzhu/copier"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
@@ -33,7 +34,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 	}
 
 	var template client.Template
-	copier.Copy(&template, &approvalPolicy)
+	require.NoError(t, copier.Copy(&template, &approvalPolicy))
 	template.Type = string(ApprovalPolicy)
 
 	deletedTemplate := template
@@ -53,7 +54,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 	}
 
 	var updatedTemplate client.Template
-	copier.Copy(&updatedTemplate, &updatedApprovalPolicy)
+	require.NoError(t, copier.Copy(&updatedTemplate, &updatedApprovalPolicy))
 	updatedTemplate.Type = string(ApprovalPolicy)
 
 	createPayload := client.ApprovalPolicyCreatePayload{
