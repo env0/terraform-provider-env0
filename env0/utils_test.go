@@ -177,7 +177,6 @@ func TestWriteCustomResourceData(t *testing.T) {
 		Name:           "name0",
 		Description:    "desc0",
 		ScopeId:        "scope0",
-		Value:          "value0",
 		OrganizationId: "organization0",
 		UserId:         "user0",
 		IsSensitive:    boolPtr(true),
@@ -196,7 +195,6 @@ func TestWriteCustomResourceData(t *testing.T) {
 	assert.Equal(t, configurationVariable.Name, d.Get("name"))
 	assert.Equal(t, configurationVariable.Description, d.Get("description"))
 	assert.Equal(t, "terraform", d.Get("type"))
-	assert.Equal(t, configurationVariable.Value, d.Get("value"))
 	assert.Equal(t, string(configurationVariable.Scope), d.Get("scope"))
 	assert.Equal(t, *configurationVariable.IsReadOnly, d.Get("is_read_only"))
 	assert.Equal(t, *configurationVariable.IsRequired, d.Get("is_required"))
