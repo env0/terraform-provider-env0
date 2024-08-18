@@ -287,7 +287,6 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 		Id:          "id0",
 		Name:        "name0",
 		Description: "desc0",
-		Value:       "v1",
 		Schema:      &schema1,
 	}
 
@@ -295,7 +294,6 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 		Id:          "id1",
 		Name:        "name1",
 		Description: "desc1",
-		Value:       "v2",
 		Schema:      &schema2,
 	}
 
@@ -305,8 +303,6 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 
 	assert.Equal(t, var1.Name, d.Get("variables.0.name"))
 	assert.Equal(t, var2.Name, d.Get("variables.1.name"))
-	assert.Equal(t, var1.Value, d.Get("variables.0.value"))
-	assert.Equal(t, var2.Value, d.Get("variables.1.value"))
 	assert.Equal(t, string(var1.Schema.Format), d.Get("variables.0.format"))
 	assert.Equal(t, string(var2.Schema.Format), d.Get("variables.1.format"))
 }
