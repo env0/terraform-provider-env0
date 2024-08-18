@@ -11,6 +11,7 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"go.uber.org/mock/gomock"
 )
@@ -50,6 +51,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		IsRequired:  *configVar.IsRequired,
 		IsReadOnly:  *configVar.IsReadOnly,
 	}
+
 	t.Run("Create", func(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -71,6 +73,47 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParams).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Create sensitive", func(t *testing.T) {
+		createSenstiveConfig := client.ConfigurationVariableCreateParams{
+			Name:        "name",
+			Value:       "value",
+			IsSensitive: true,
+			Scope:       client.ScopeGlobal,
+		}
+
+		sensitiveConfig := client.ConfigurationVariable{
+			Id:          uuid.NewString(),
+			Name:        createSenstiveConfig.Name,
+			Value:       "*",
+			IsSensitive: boolPtr(true),
+			Scope:       client.ScopeGlobal,
+		}
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":         createSenstiveConfig.Name,
+						"value":        createSenstiveConfig.Value,
+						"is_sensitive": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", sensitiveConfig.Id),
+						resource.TestCheckResourceAttr(accessor, "name", createSenstiveConfig.Name),
+						resource.TestCheckResourceAttr(accessor, "value", createSenstiveConfig.Value),
+						resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(true)),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(createSenstiveConfig).Times(1).Return(sensitiveConfig, nil)
+			mock.EXPECT().ConfigurationVariablesById(sensitiveConfig.Id).Times(1).Return(sensitiveConfig, nil)
+			mock.EXPECT().ConfigurationVariableDelete(sensitiveConfig.Id).Times(1).Return(nil)
 		})
 	})
 
@@ -286,7 +329,6 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 
 	for _, format := range []client.Format{client.HCL, client.JSON} {
 		t.Run("Create "+string(format)+" Variable", func(t *testing.T) {
-
 			expectedVariable := `{
 A = "A"
 B = "B"
@@ -627,8 +669,8 @@ resource "%s" "test" {
 		IsRequired:  *configVarImport.IsRequired,
 		IsReadOnly:  *configVarImport.IsReadOnly,
 	}
-	t.Run("import by name", func(t *testing.T) {
 
+	t.Run("import by name", func(t *testing.T) {
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -653,7 +695,6 @@ resource "%s" "test" {
 	})
 
 	t.Run("import by id", func(t *testing.T) {
-
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{

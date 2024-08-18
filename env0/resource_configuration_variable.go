@@ -170,7 +170,7 @@ func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.Confi
 func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	params, err := getConfigurationVariableCreateParams(d)
 	if err != nil {
-		return diag.Errorf(err.Error())
+		return diag.FromErr(err)
 	}
 
 	apiClient := meta.(client.ApiClientInterface)
@@ -195,7 +195,9 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 			if enumValue == nil {
 				return nil, fmt.Errorf("an empty enum value is not allowed (at index %d)", i)
 			}
+
 			actualEnumValues = append(actualEnumValues, enumValue.(string))
+
 			if enumValue == selectedValue {
 				valueExists = true
 			}
@@ -223,13 +225,17 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
+	if variable.IsSensitive == nil || !*variable.IsSensitive {
+		d.Set("value", variable.Value)
+	}
+
 	return nil
 }
 
 func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	params, err := getConfigurationVariableCreateParams(d)
 	if err != nil {
-		return diag.Errorf(err.Error())
+		return diag.FromErr(err)
 	}
 
 	apiClient := meta.(client.ApiClientInterface)
@@ -280,7 +286,7 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 		var scopeName string
 
 		if variable.Scope == client.ScopeTemplate {
-			scopeName = strings.ToLower(fmt.Sprintf("%s_id", templateScope))
+			scopeName = strings.ToLower(templateScope + "_id")
 		} else {
 			scopeName = strings.ToLower(fmt.Sprintf("%s_id", variable.Scope))
 		}

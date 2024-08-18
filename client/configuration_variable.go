@@ -41,7 +41,7 @@ func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values m
 
 type ConfigurationVariable struct {
 	ScopeId        string                       `json:"scopeId,omitempty"`
-	Value          string                       `json:"value"`
+	Value          string                       `json:"value" tfschema:"-"`
 	OrganizationId string                       `json:"organizationId,omitempty"`
 	UserId         string                       `json:"userId,omitempty"`
 	IsSensitive    *bool                        `json:"isSensitive,omitempty"`
