@@ -4,7 +4,7 @@ type VscToken struct {
 	Token int `json:"token"`
 }
 
-func (client *ApiClient) VscToken(vcsType string, repository string) (*VscToken, error) {
+func (client *ApiClient) VcsToken(vcsType string, repository string) (*VscToken, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err

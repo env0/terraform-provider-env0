@@ -31,7 +31,7 @@ var _ = Describe("VCSToken", func() {
 					*response = mockVcsToken
 				}).Times(1)
 
-			ret, err = apiClient.VscToken(vcsType, repository)
+			ret, err = apiClient.VcsToken(vcsType, repository)
 		})
 
 		It("should return vcs token", func() {

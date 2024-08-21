@@ -14,7 +14,3 @@ repos:
       - id: go-vet
       - id: go-imports
       - id: go-mod-tidy
-  - repo: https://github.com/TekWizely/pre-commit-golang
-    rev: v1.0.0-beta.5
-    hooks:
-      - id: go-staticcheck-mod

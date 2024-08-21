@@ -34,7 +34,7 @@ func dataGithubInstallationIdRead(ctx context.Context, d *schema.ResourceData, m
 
 	repositroy := d.Get("repository").(string)
 
-	token, err := apiClient.VscToken("github", repositroy)
+	token, err := apiClient.VcsToken("github", repositroy)
 	if err != nil {
 		return diag.Errorf("failed to get github installation id: %v", err)
 	}

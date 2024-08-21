@@ -166,7 +166,7 @@ type ApiClientInterface interface {
 	CloudAccountDelete(id string) error
 	CloudAccount(id string) (*CloudAccount, error)
 	CloudAccounts() ([]CloudAccount, error)
-	VscToken(vcsType string, repository string) (*VscToken, error)
+	VcsToken(vcsType string, repository string) (*VscToken, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

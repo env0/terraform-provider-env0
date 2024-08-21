@@ -53,7 +53,7 @@ func TestGithubInstallationIdDataSource(t *testing.T) {
 		runUnitTest(t,
 			getValidTestCase(mockRepositroy),
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().VscToken("github", mockRepositroy).Return(&mockToken, nil).AnyTimes()
+				mock.EXPECT().VcsToken("github", mockRepositroy).Return(&mockToken, nil).AnyTimes()
 			},
 		)
 	})
@@ -62,7 +62,7 @@ func TestGithubInstallationIdDataSource(t *testing.T) {
 		runUnitTest(t,
 			getErrorTestCase(mockRepositroy, "failed to get github installation id: error"),
 			func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().VscToken("github", mockRepositroy).Return(nil, errors.New("error")).AnyTimes()
+				mock.EXPECT().VcsToken("github", mockRepositroy).Return(nil, errors.New("error")).AnyTimes()
 			},
 		)
 	})

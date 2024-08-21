@@ -2266,19 +2266,19 @@ func (mr *MockApiClientInterfaceMockRecorder) VariablesFromRepository(arg0 any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VariablesFromRepository", reflect.TypeOf((*MockApiClientInterface)(nil).VariablesFromRepository), arg0)
 }
 
-// VscToken mocks base method.
-func (m *MockApiClientInterface) VscToken(arg0, arg1 string) (*VscToken, error) {
+// VcsToken mocks base method.
+func (m *MockApiClientInterface) VcsToken(arg0, arg1 string) (*VscToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VscToken", arg0, arg1)
+	ret := m.ctrl.Call(m, "VcsToken", arg0, arg1)
 	ret0, _ := ret[0].(*VscToken)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VscToken indicates an expected call of VscToken.
-func (mr *MockApiClientInterfaceMockRecorder) VscToken(arg0, arg1 any) *gomock.Call {
+// VcsToken indicates an expected call of VcsToken.
+func (mr *MockApiClientInterfaceMockRecorder) VcsToken(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VscToken", reflect.TypeOf((*MockApiClientInterface)(nil).VscToken), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsToken", reflect.TypeOf((*MockApiClientInterface)(nil).VcsToken), arg0, arg1)
 }
 
 // WorkflowTrigger mocks base method.
