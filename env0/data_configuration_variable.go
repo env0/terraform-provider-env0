@@ -136,6 +136,10 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
+	if variable.IsSensitive == nil || !*variable.IsSensitive {
+		d.Set("value", variable.Value)
+	}
+
 	d.Set("enum", variable.Schema.Enum)
 
 	if variable.Schema.Format != client.Text {
