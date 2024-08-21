@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var ErrNoChanges = errors.New("no changes")
+
 func driftDetected(err error) bool {
 	var failedResponseError *http.FailedResponseError
 	if errors.As(err, &failedResponseError) && failedResponseError.NotFound() {
