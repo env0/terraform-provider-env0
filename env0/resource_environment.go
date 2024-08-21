@@ -601,11 +601,6 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	isRemoteApplyEnabled := d.Get("is_remote_apply_enabled").(bool)
-	if isRemoteApplyEnabled {
-		return diag.Errorf("is_remote_apply_enabled cannot be set when creating a new environment. Set this value after the environment is created")
-	}
-
 	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 	if createEnvPayloadErr != nil {
 		return createEnvPayloadErr
@@ -867,6 +862,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	if err != nil {
 		return diag.Errorf("failed deploying environment: %v", err)
 	}
+
 	d.Set("deployment_id", deployResponse.Id)
 
 	return nil
@@ -1148,7 +1144,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 	}
 
 	if assignVariableSets == nil && unassignVariableSets == nil {
-		return nil, nil
+		return nil, ErrNoChanges
 	}
 
 	return &client.ConfigurationSetChanges{
@@ -1192,7 +1188,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 
 		payload.ConfigurationSetChanges, err = getEnvironmentConfigurationSetChanges(d, apiClient)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrNoChanges) {
 			return client.DeployRequest{}, err
 		}
 	}
@@ -1341,7 +1337,7 @@ func getEnvironmentByName(meta interface{}, name string, projectId string, exclu
 		return client.Environment{}, diag.Errorf("Could not get Environment: %v", err)
 	}
 
-	var filteredEnvironments []client.Environment
+	filteredEnvironments := []client.Environment{}
 	for _, candidate := range environmentsByName {
 		if excludeArchived && candidate.IsArchived != nil && *candidate.IsArchived {
 			continue
@@ -1394,6 +1390,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	apiClient := meta.(client.ApiClientInterface)
+
 	d.SetId(environment.Id)
 
 	scope := client.ScopeEnvironment
