@@ -11,6 +11,11 @@ resource "env0_project" "test_project" {
   force_destroy = true
 }
 
+resource "env0_project" "test_project2" {
+  name          = "Test-Project2-for-environment-${random_string.random.result}"
+  force_destroy = true
+}
+
 data "env0_template" "github_template_for_environment" {
   name = "Github Integrated Template"
 }
@@ -29,6 +34,11 @@ resource "env0_template_project_assignment" "assignment" {
   project_id  = env0_project.test_project.id
 }
 
+resource "env0_template_project_assignment" "assignment2" {
+  template_id = env0_template.template.id
+  project_id  = env0_project.test_project2.id
+}
+
 resource "env0_environment" "auto_glob_envrironment" {
   depends_on                       = [env0_template_project_assignment.assignment]
   name                             = "environment-auto-glob-${random_string.random.result}"
@@ -41,11 +51,11 @@ resource "env0_environment" "auto_glob_envrironment" {
   force_destroy                    = true
 }
 
-resource "env0_environment" "example" {
+resource "env0_environment" "environment" {
   depends_on    = [env0_template_project_assignment.assignment]
   force_destroy = true
   name          = "environment-${random_string.random.result}"
-  project_id    = env0_project.test_project.id
+  project_id    = var.second_run  ? env0_project.test_project2.id : env0_project.test_project.id
   template_id   = env0_template.template.id
   configuration {
     name  = "environment configuration variable"

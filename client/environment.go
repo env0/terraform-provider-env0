@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -10,23 +11,26 @@ type ConfigurationVariableType int
 
 func (c *ConfigurationVariableType) ReadResourceData(fieldName string, d *schema.ResourceData) error {
 	val := d.Get(fieldName).(string)
-	intVal, ok := VariableTypes[val]
-	if !ok {
-		return fmt.Errorf("unknown configuration variable type %s", val)
+
+	intVal, err := GetConfigurationVariableType(val)
+	if err != nil {
+		return err
 	}
+
 	*c = intVal
 
 	return nil
 }
 
 func (c *ConfigurationVariableType) WriteResourceData(fieldName string, d *schema.ResourceData) error {
-	val := *c
-	valStr := ""
-	if val == 0 {
+	var valStr string
+
+	switch val := *c; val {
+	case 0:
 		valStr = "environment"
-	} else if val == 1 {
+	case 1:
 		valStr = "terraform"
-	} else {
+	default:
 		return fmt.Errorf("unknown configuration variable type %d", val)
 	}
 
@@ -39,11 +43,6 @@ const (
 )
 
 type ConfigurationChanges []ConfigurationVariable
-
-var VariableTypes = map[string]ConfigurationVariableType{
-	"terraform":   ConfigurationVariableTypeTerraform,
-	"environment": ConfigurationVariableTypeEnvironment,
-}
 
 type TTL struct {
 	Type  TTLType `json:"type"`
@@ -159,6 +158,21 @@ type EnvironmentCreateWithoutTemplate struct {
 	TemplateCreate    TemplateCreatePayload
 }
 
+type EnvironmentMoveRequest struct {
+	ProjectId string `json:"projectId"`
+}
+
+func GetConfigurationVariableType(variableType string) (ConfigurationVariableType, error) {
+	switch variableType {
+	case "terraform":
+		return ConfigurationVariableTypeTerraform, nil
+	case "environment":
+		return ConfigurationVariableTypeEnvironment, nil
+	default:
+		return 0, fmt.Errorf("unknown configuration variable type %s", variableType)
+	}
+}
+
 // The custom marshalJSON is used to return a flat JSON.
 func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	// 1. Marshal to JSON both structs.
@@ -173,9 +187,11 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 
 	// 2. Unmarshal both JSON byte arrays to two maps.
 	var ecm, tcm map[string]interface{}
+
 	if err := json.Unmarshal(ecb, &ecm); err != nil {
 		return nil, err
 	}
+
 	if err := json.Unmarshal(tcb, &tcm); err != nil {
 		return nil, err
 	}
@@ -254,8 +270,9 @@ func (client *ApiClient) EnvironmentCreateWithoutTemplate(payload EnvironmentCre
 
 	organizationId, err := client.OrganizationId()
 	if err != nil {
-		return result, nil
+		return result, err
 	}
+
 	payload.TemplateCreate.OrganizationId = organizationId
 
 	if err := client.http.Post("/environments/without-template", payload, &result); err != nil {
@@ -310,4 +327,12 @@ func (client *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (En
 		return EnvironmentDeployResponse{}, err
 	}
 	return result, nil
+}
+
+func (client *ApiClient) EnvironmentMove(id string, projectId string) error {
+	payload := &EnvironmentMoveRequest{
+		ProjectId: projectId,
+	}
+
+	return client.http.Post("/environments/"+id+"/move", payload, nil)
 }
