@@ -5,6 +5,7 @@
 //
 //	mockgen -destination=api_client_mock.go -package=client . ApiClientInterface
 //
+
 // Package client is a generated GoMock package.
 package client
 
@@ -2263,6 +2264,21 @@ func (m *MockApiClientInterface) VariablesFromRepository(arg0 *VariablesFromRepo
 func (mr *MockApiClientInterfaceMockRecorder) VariablesFromRepository(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VariablesFromRepository", reflect.TypeOf((*MockApiClientInterface)(nil).VariablesFromRepository), arg0)
+}
+
+// VcsToken mocks base method.
+func (m *MockApiClientInterface) VcsToken(arg0, arg1 string) (*VscToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VcsToken", arg0, arg1)
+	ret0, _ := ret[0].(*VscToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VcsToken indicates an expected call of VcsToken.
+func (mr *MockApiClientInterfaceMockRecorder) VcsToken(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsToken", reflect.TypeOf((*MockApiClientInterface)(nil).VcsToken), arg0, arg1)
 }
 
 // WorkflowTrigger mocks base method.

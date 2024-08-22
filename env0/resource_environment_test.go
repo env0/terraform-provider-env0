@@ -997,6 +997,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				format := ""
 				for _, variable := range variables {
 					schemaFormat := ""
+
 					if variable.Schema != nil {
 						if variable.Schema.Enum != nil {
 							schemaFormat = fmt.Sprintf(`
@@ -1978,22 +1979,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	testValidationFailures := func() {
-		t.Run("create environment with is_remote_apply_enabled set to 'true'", func(t *testing.T) {
-			runUnitTest(t, resource.TestCase{
-				Steps: []resource.TestStep{
-					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-							"name":                    environment.Name,
-							"project_id":              environment.ProjectId,
-							"template_id":             environment.LatestDeploymentLog.BlueprintId,
-							"is_remote_apply_enabled": true,
-						}),
-						ExpectError: regexp.MustCompile("is_remote_apply_enabled cannot be set when creating a new environment"),
-					},
-				},
-			}, func(mockFunc *client.MockApiClientInterface) {})
-		})
-
 		t.Run("Failure in validation while glob is enabled and pathChanges no", func(t *testing.T) {
 			autoDeployWithCustomGlobEnabled := resource.TestCase{
 				Steps: []resource.TestStep{

@@ -5,6 +5,7 @@
 //
 //	mockgen -destination=client_mock.go -package=http . HttpClientInterface
 //
+
 // Package http is a generated GoMock package.
 package http
 

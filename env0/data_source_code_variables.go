@@ -76,9 +76,19 @@ func dataSourceCodeVariablesRead(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("failed to extract variables from repository: %v", err)
 	}
 
-	if err := writeResourceDataSlice(variables, "variables", d); err != nil {
+	ivalues, err := writeResourceDataGetSliceValues(variables, "variables", d)
+	if err != nil {
 		return diag.Errorf("schema slice resource data serialization failed: %v", err)
 	}
+
+	for i, ivalue := range ivalues {
+		if variables[i].IsSensitive == nil || !*variables[i].IsSensitive {
+			ivariable := ivalue.(map[string]interface{})
+			ivariable["value"] = variables[i].Value
+		}
+	}
+
+	d.Set("variables", ivalues)
 
 	d.SetId(templateId)
 
