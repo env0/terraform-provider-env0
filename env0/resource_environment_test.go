@@ -215,6 +215,82 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("move environment", func(t *testing.T) {
+			newProjectId := "new-project-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "name",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: templateId,
+				},
+			}
+
+			environmentCreate := client.EnvironmentCreate{
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: environment.LatestDeploymentLog.BlueprintId,
+				},
+			}
+
+			movedEnvironment := environment
+			movedEnvironment.ProjectId = newProjectId
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":          environment.Name,
+							"project_id":    environment.ProjectId,
+							"template_id":   templateId,
+							"force_destroy": true,
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+						),
+					},
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":          movedEnvironment.Name,
+							"project_id":    movedEnvironment.ProjectId,
+							"template_id":   templateId,
+							"force_destroy": true,
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "project_id", movedEnvironment.ProjectId),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				gomock.InOrder(
+					mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+					mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+
+					mock.EXPECT().EnvironmentMove(environment.Id, newProjectId).Return(nil),
+
+					mock.EXPECT().Environment(movedEnvironment.Id).Times(1).Return(movedEnvironment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, movedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", movedEnvironment.Id).Times(1).Return(nil, nil),
+
+					mock.EXPECT().EnvironmentDestroy(movedEnvironment.Id).Times(1),
+				)
+			})
+		})
+
 		t.Run("vcs pr comments enabled", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{

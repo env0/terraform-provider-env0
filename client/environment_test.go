@@ -279,13 +279,15 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("EnvironmentDelete", func() {
+		var err error
+
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any())
-			apiClient.EnvironmentDestroy(mockEnvironment.Id)
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any()).Times(1)
+			_, err = apiClient.EnvironmentDestroy(mockEnvironment.Id)
 		})
 
-		It("Should send a destroy request", func() {
-			httpCall.Times(1)
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 
@@ -414,6 +416,26 @@ var _ = Describe("Environment Client", func() {
 			It("Should return the deployment id received from API", func() {
 				Expect(updatedEnvironment).To(Equal(mockEnvironment))
 			})
+		})
+	})
+
+	Describe("Environment Move", func() {
+		var err error
+
+		environmentId := "envid"
+		projectId := "projid"
+
+		request := EnvironmentMoveRequest{
+			ProjectId: projectId,
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/move", &request, nil).Times(1)
+			err = apiClient.EnvironmentMove(environmentId, projectId)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 })
