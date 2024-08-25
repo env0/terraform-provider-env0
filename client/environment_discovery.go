@@ -12,7 +12,6 @@ type EnvironmentDiscoveryPutPayload struct {
 	TerragruntTfBinary     string           `json:"terragruntTfBinary,omitempty"`
 	IsTerragruntRunAll     bool             `json:"is_terragrunt_run_all"`
 	Type                   string           `json:"type"`
-	GitlabProjectId        int              `json:"gitlabProjectId,omitempty"`
 	TokenId                string           `json:"tokenId,omitempty"`
 	SshKeys                []TemplateSshKey `json:"sshKeys,omitempty"`
 	GithubInstallationId   int              `json:"githubInstallationId,omitempty"`
@@ -35,7 +34,6 @@ type EnvironmentDiscoveryPayload struct {
 	TerragruntTfBinary     string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	IsTerragruntRunAll     bool             `json:"is_terragrunt_run_all"`
 	Type                   string           `json:"type"`
-	GitlabProjectId        int              `json:"gitlabProjectId"`
 	TokenId                string           `json:"tokenId"`
 	SshKeys                []TemplateSshKey `json:"sshKeys" tfschema:"-"`
 	GithubInstallationId   int              `json:"githubInstallationId"`

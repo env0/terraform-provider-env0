@@ -15,6 +15,8 @@ import (
 
 const TERRAGRUNT = "terragrunt"
 const OPENTOFU = "opentofu"
+const TERRAFORM = "terraform"
+const WORKFLOW = "workflow"
 
 type TemplateRetryOn struct {
 	Times      int    `json:"times,omitempty"`
@@ -67,7 +69,6 @@ type Template struct {
 	IsGitlab             bool             `json:"isGitLab"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
 	TokenName            string           `json:"tokenName" tfschema:",omitempty"`
-	GitlabProjectId      int              `json:"gitlabProjectId" tfschema:",omitempty"`
 	AnsibleVersion       string           `json:"ansibleVersion" tfschema:",omitempty"`
 }
 
@@ -83,7 +84,6 @@ type TemplateCreatePayload struct {
 	TokenName            string           `json:"tokenName,omitempty"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
-	GitlabProjectId      int              `json:"gitlabProjectId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion,omitempty"`

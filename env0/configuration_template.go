@@ -26,7 +26,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 	s := map[string]*schema.Schema{
 		"id": {
 			Type:        schema.TypeString,
-			Description: fmt.Sprintf("id of the %s", text),
+			Description: "id of the " + text,
 			Computed:    true,
 		},
 		"repository": {
@@ -59,10 +59,10 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 			},
 		},
 		"gitlab_project_id": {
-			Type:         schema.TypeInt,
-			Description:  "the project id of the relevant repository",
-			Optional:     true,
-			RequiredWith: []string{"token_id"},
+			Type:        schema.TypeInt,
+			Description: "the project id of the relevant repository (deprecated)",
+			Deprecated:  "'repository' is used instead",
+			Optional:    true,
 		},
 		"github_installation_id": {
 			Type:        schema.TypeInt,
@@ -106,7 +106,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 		},
 		"name": {
 			Type:        schema.TypeString,
-			Description: fmt.Sprintf("name for the %s", text),
+			Description: "name for the " + text,
 			Required:    true,
 		},
 	}
