@@ -40,7 +40,7 @@ resource "env0_template_project_assignment" "assignment2" {
 }
 
 resource "env0_environment" "auto_glob_envrironment" {
-  depends_on = [env0_template_project_assignment.assignment]
+  depends_on                       = [env0_template_project_assignment.assignment]
   name                             = "environment-auto-glob-${random_string.random.result}"
   project_id                       = env0_project.test_project.id
   template_id                      = env0_template.template.id
@@ -52,7 +52,7 @@ resource "env0_environment" "auto_glob_envrironment" {
 }
 
 resource "env0_environment" "example" {
-  depends_on = [env0_template_project_assignment.assignment]
+  depends_on    = [env0_template_project_assignment.assignment]
   force_destroy = true
   name          = "environment-${random_string.random.result}"
   project_id    = env0_project.test_project.id
@@ -68,7 +68,7 @@ resource "env0_environment" "example" {
 }
 
 resource "env0_environment" "move_environment" {
-  depends_on = [env0_template_project_assignment.assignment]
+  depends_on          = [env0_template_project_assignment.assignment]
   force_destroy       = true
   name                = "environment-move-${random_string.random.result}"
   project_id          = var.second_run ? env0_project.test_project2.id : env0_project.test_project.id
@@ -135,7 +135,7 @@ resource "env0_template_project_assignment" "terragrunt_assignment" {
 }
 
 resource "env0_environment" "terragrunt_environment" {
-  depends_on = [env0_template_project_assignment.terragrunt_assignment]
+  depends_on                       = [env0_template_project_assignment.terragrunt_assignment]
   force_destroy                    = true
   name                             = "environment-${random_string.random.result}"
   project_id                       = env0_project.test_project.id
@@ -184,7 +184,7 @@ resource "env0_environment" "environment-without-template" {
 }
 
 resource "env0_environment" "inactive" {
-  depends_on = [env0_template_project_assignment.assignment]
+  depends_on                 = [env0_template_project_assignment.assignment]
   force_destroy              = true
   name                       = "environment-${random_string.random.result}-inactive"
   project_id                 = env0_project.test_project.id
@@ -282,7 +282,7 @@ resource "env0_environment" "workflow-environment" {
 }
 
 resource "env0_environment" "mark_as_archived" {
-  depends_on = [env0_template_project_assignment.assignment]
+  depends_on       = [env0_template_project_assignment.assignment]
   name             = "environment-mark-as-archived-${random_string.random.result}"
   project_id       = env0_project.test_project.id
   template_id      = env0_template.template.id
