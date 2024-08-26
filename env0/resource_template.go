@@ -157,7 +157,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"gitlab_project_id": {
 			Type:        schema.TypeInt,
-			Deprecated:  "'repository' is used instead",
+			Deprecated:  "project id is now auto-fetched from the repository URL",
 			Description: "the project id of the relevant repository (deprecated)",
 			Optional:    true,
 		},

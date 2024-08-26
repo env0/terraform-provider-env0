@@ -61,7 +61,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 		"gitlab_project_id": {
 			Type:        schema.TypeInt,
 			Description: "the project id of the relevant repository (deprecated)",
-			Deprecated:  "'repository' is used instead",
+			Deprecated:  "project id is now auto-fetched from the repository URL",
 			Optional:    true,
 		},
 		"github_installation_id": {

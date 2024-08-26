@@ -145,7 +145,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "gitlab project id (deprecated)",
 				Optional:    true,
-				Deprecated:  "'repository' is used instead",
+				Deprecated:  "project id is now auto-fetched from the repository URL",
 			},
 			"is_azure_devops": {
 				Type:         schema.TypeBool,
