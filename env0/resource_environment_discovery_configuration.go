@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -42,8 +41,8 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			"type": {
 				Type:             schema.TypeString,
 				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')",
-				Default:          "opentofu",
-				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform", "terragrunt", "workflow"}),
+				Default:          client.OPENTOFU,
+				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM, client.TERRAGRUNT, client.WORKFLOW}),
 				Optional:         true,
 			},
 			"environment_placement": {
@@ -87,8 +86,8 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Description:      "The binary to use with Terragrunt. Valid values: 'opentofu' and 'terraform' (default: 'opentofu')",
-				ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
-				Default:          "opentofu",
+				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM}),
+				Default:          client.OPENTOFU,
 			},
 			"is_terragrunt_run_all": {
 				Type:        schema.TypeBool,
@@ -143,10 +142,10 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Optional:    true,
 			},
 			"gitlab_project_id": {
-				Type:         schema.TypeInt,
-				Description:  "gitlab project id",
-				Optional:     true,
-				RequiredWith: []string{"token_id"},
+				Type:        schema.TypeInt,
+				Description: "gitlab project id (deprecated)",
+				Optional:    true,
+				Deprecated:  "project id is now auto-fetched from the repository URL",
 			},
 			"is_azure_devops": {
 				Type:         schema.TypeBool,
@@ -197,60 +196,29 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 	terragruntVersionSet := putPayload.TerragruntVersion != ""
 
 	switch putPayload.Type {
-	case "opentofu":
+	case client.OPENTOFU:
 		if !opentofuVersionSet {
 			return errors.New("'opentofu_version' not set")
 		}
-	case "terraform":
+	case client.TERRAFORM:
 		if !terraformVersionSet {
 			return errors.New("'terraform_version' not set")
 		}
-	case "terragrunt":
+	case client.TERRAGRUNT:
 		if !terragruntVersionSet {
 			return errors.New("'terragrunt_version' not set")
 		}
 
-		if putPayload.TerragruntTfBinary == "opentofu" && !opentofuVersionSet {
+		if putPayload.TerragruntTfBinary == client.OPENTOFU && !opentofuVersionSet {
 			return errors.New("'terragrunt_tf_binary' is set to 'opentofu', but 'opentofu_version' not set")
 		}
 
-		if putPayload.TerragruntTfBinary == "terraform" && !terraformVersionSet {
+		if putPayload.TerragruntTfBinary == client.TERRAFORM && !terraformVersionSet {
 			return errors.New("'terragrunt_tf_binary' is set to 'terraform', but 'terraform_version' not set")
 		}
-	case "workflow":
+	case client.WORKFLOW:
 	default:
 		return fmt.Errorf("unhandled type %s", putPayload.Type)
-	}
-
-	vcsCounter := 0
-	vcsEnabledAttributes := []string{}
-
-	if putPayload.GithubInstallationId != 0 {
-		vcsCounter++
-		vcsEnabledAttributes = append(vcsEnabledAttributes, "github_installation_id")
-	}
-
-	if putPayload.BitbucketClientKey != "" {
-		vcsCounter++
-		vcsEnabledAttributes = append(vcsEnabledAttributes, "bitbucket_client_key")
-	}
-
-	if putPayload.GitlabProjectId != 0 {
-		vcsCounter++
-		vcsEnabledAttributes = append(vcsEnabledAttributes, "gitlab_project_id")
-	}
-
-	if putPayload.IsAzureDevops {
-		vcsCounter++
-		vcsEnabledAttributes = append(vcsEnabledAttributes, "is_azure_devops")
-	}
-
-	if vcsCounter == 0 {
-		return errors.New("must set exactly one vcs, none were configured: github_installation_id, bitbucket_client_key, gitlab_project_id, or is_azure_devops")
-	}
-
-	if vcsCounter > 1 {
-		return fmt.Errorf("must set exactly one vcs, but more were configured: %s", strings.Join(vcsEnabledAttributes, ", "))
 	}
 
 	return nil
@@ -273,7 +241,7 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("validation error: %s", err.Error())
 	}
 
-	if putPayload.Type != "terragrunt" {
+	if putPayload.Type != client.TERRAGRUNT {
 		// Remove the default terragrunt_tf_binary if terragrunt isn't used.
 		putPayload.TerragruntTfBinary = ""
 	}
@@ -347,7 +315,7 @@ func resourceEnvironmentDiscoveryConfigurationImport(ctx context.Context, d *sch
 	d.Set("project_id", projectId)
 
 	if _, ok := d.GetOk("terragrunt_tf_binary"); !ok {
-		d.Set("terragrunt_tf_binary", "opentofu")
+		d.Set("terragrunt_tf_binary", client.OPENTOFU)
 	}
 
 	return []*schema.ResourceData{d}, nil

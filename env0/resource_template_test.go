@@ -85,7 +85,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		TokenId:          "1",
 		TerraformVersion: "0.12.24",
 		TokenName:        "token_name",
-		GitlabProjectId:  1234,
 		IsGitlab:         true,
 	}
 	gitlabUpdatedTemplate := client.Template{
@@ -110,7 +109,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		TokenId:           "2",
 		TerraformVersion:  "0.15.1",
 		TokenName:         "token_name2",
-		GitlabProjectId:   5678,
 	}
 	githubTemplate := client.Template{
 		Id:          "id0",
@@ -530,9 +528,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.TokenName != "" {
 			templateAsDictionary["token_name"] = template.TokenName
 		}
-		if template.GitlabProjectId != 0 {
-			templateAsDictionary["gitlab_project_id"] = template.GitlabProjectId
-		}
 		if template.GithubInstallationId != 0 {
 			templateAsDictionary["github_installation_id"] = template.GithubInstallationId
 		}
@@ -576,11 +571,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
 	fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
-		gitlabProjectIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "gitlab_project_id", strconv.Itoa(template.GitlabProjectId))
-		if template.GitlabProjectId == 0 {
-			gitlabProjectIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "gitlab_project_id")
-		}
-
 		tokenIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "token_id", template.TokenId)
 		if template.TokenId == "" {
 			tokenIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "token_id")
@@ -644,7 +634,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			resource.TestCheckResourceAttr(resourceFullName, "is_gitlab_enterprise", strconv.FormatBool(template.IsGitlabEnterprise)),
 			tokenIdAssertion,
 			filenameAssertion,
-			gitlabProjectIdAssertion,
 			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
 			helmChartNameAssertion,
@@ -686,7 +675,6 @@ func TestUnitTemplateResource(t *testing.T) {
 				GithubInstallationId: templateUseCase.template.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.template.IsGitlabEnterprise,
 				IsGitlab:             templateUseCase.template.IsGitlab,
-				GitlabProjectId:      templateUseCase.template.GitlabProjectId,
 				TokenId:              templateUseCase.template.TokenId,
 				Path:                 templateUseCase.template.Path,
 				Revision:             templateUseCase.template.Revision,
@@ -714,25 +702,25 @@ func TestUnitTemplateResource(t *testing.T) {
 				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
 				IsGitlab:             templateUseCase.updatedTemplate.IsGitlab,
-				GitlabProjectId:      templateUseCase.updatedTemplate.GitlabProjectId,
-				TokenId:              templateUseCase.updatedTemplate.TokenId,
-				Path:                 templateUseCase.updatedTemplate.Path,
-				Revision:             templateUseCase.updatedTemplate.Revision,
-				Type:                 templateUseCase.updatedTemplate.Type,
-				Retry:                templateUseCase.updatedTemplate.Retry,
-				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
-				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
-				IsGithubEnterprise:   templateUseCase.updatedTemplate.IsGithubEnterprise,
-				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
-				FileName:             templateUseCase.updatedTemplate.FileName,
-				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
-				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
-				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
-				IsHelmRepository:     templateUseCase.updatedTemplate.IsHelmRepository,
-				HelmChartName:        templateUseCase.updatedTemplate.HelmChartName,
-				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
-				TokenName:            templateUseCase.updatedTemplate.TokenName,
-				AnsibleVersion:       templateUseCase.updatedTemplate.AnsibleVersion,
+
+				TokenId:            templateUseCase.updatedTemplate.TokenId,
+				Path:               templateUseCase.updatedTemplate.Path,
+				Revision:           templateUseCase.updatedTemplate.Revision,
+				Type:               templateUseCase.updatedTemplate.Type,
+				Retry:              templateUseCase.updatedTemplate.Retry,
+				TerraformVersion:   templateUseCase.updatedTemplate.TerraformVersion,
+				BitbucketClientKey: templateUseCase.updatedTemplate.BitbucketClientKey,
+				IsGithubEnterprise: templateUseCase.updatedTemplate.IsGithubEnterprise,
+				IsBitbucketServer:  templateUseCase.updatedTemplate.IsBitbucketServer,
+				FileName:           templateUseCase.updatedTemplate.FileName,
+				TerragruntVersion:  templateUseCase.updatedTemplate.TerragruntVersion,
+				IsTerragruntRunAll: templateUseCase.updatedTemplate.IsTerragruntRunAll,
+				IsAzureDevOps:      templateUseCase.updatedTemplate.IsAzureDevOps,
+				IsHelmRepository:   templateUseCase.updatedTemplate.IsHelmRepository,
+				HelmChartName:      templateUseCase.updatedTemplate.HelmChartName,
+				OpentofuVersion:    templateUseCase.updatedTemplate.OpentofuVersion,
+				TokenName:          templateUseCase.updatedTemplate.TokenName,
+				AnsibleVersion:     templateUseCase.updatedTemplate.AnsibleVersion,
 			}
 
 			if templateUseCase.template.Type == "terragrunt" {
@@ -1215,7 +1203,6 @@ func TestUnitTemplateResource(t *testing.T) {
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
-						"gitlab_project_id": 123456,
 						"token_id":          "abcdefg",
 						"terraform_version": "v0.15.1",
 					}),
@@ -1232,12 +1219,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":              "template0",
-						"repository":        "env0/repo",
-						"type":              "opentofu",
-						"gitlab_project_id": 123456,
-						"token_id":          "abcdefg",
-						"opentofu_version":  "v0.20.1",
+						"name":             "template0",
+						"repository":       "env0/repo",
+						"type":             "opentofu",
+						"token_id":         "abcdefg",
+						"opentofu_version": "v0.20.1",
 					}),
 					ExpectError: regexp.MustCompile("must match pattern"),
 				},
@@ -1252,11 +1238,10 @@ func TestUnitTemplateResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":              "template0",
-						"repository":        "env0/repo",
-						"type":              "opentofu",
-						"gitlab_project_id": 123456,
-						"token_id":          "abcdefg",
+						"name":       "template0",
+						"repository": "env0/repo",
+						"type":       "opentofu",
+						"token_id":   "abcdefg",
 					}),
 					ExpectError: regexp.MustCompile("must supply opentofu version"),
 				},
