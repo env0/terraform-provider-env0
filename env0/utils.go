@@ -253,7 +253,6 @@ func getFieldName(field reflect.StructField) *parsedField {
 				res.omitEmpty = true
 			}
 		}
-
 	}
 
 	return &res

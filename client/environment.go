@@ -29,7 +29,7 @@ func (c *ConfigurationVariableType) WriteResourceData(fieldName string, d *schem
 	case 0:
 		valStr = "environment"
 	case 1:
-		valStr = "terraform"
+		valStr = TERRAFORM
 	default:
 		return fmt.Errorf("unknown configuration variable type %d", val)
 	}
@@ -150,6 +150,7 @@ type EnvironmentCreate struct {
 	PreventAutoDeploy           *bool                    `json:"preventAutoDeploy,omitempty" tfschema:"-"`
 	K8sNamespace                string                   `json:"k8sNamespace,omitempty"`
 	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty" tfschema:"-"`
+	IsRemoteApplyEnabled        bool                     `json:"isRemoteApplyEnabled"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.

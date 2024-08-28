@@ -624,7 +624,70 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
-		t.Run("remote apply is enabled", func(t *testing.T) {
+		t.Run("remote apply is enabled on create", func(t *testing.T) {
+			templateId := "template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "name",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: templateId,
+				},
+				IsRemoteBackend:      boolPtr(true),
+				RequiresApproval:     boolPtr(false),
+				IsRemoteApplyEnabled: true,
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":                       environment.Name,
+							"project_id":                 environment.ProjectId,
+							"template_id":                templateId,
+							"is_remote_backend":          *environment.IsRemoteBackend,
+							"approve_plan_automatically": !*environment.RequiresApproval,
+							"force_destroy":              true,
+							"is_remote_apply_enabled":    true,
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+							resource.TestCheckResourceAttr(accessor, "is_remote_backend", "true"),
+							resource.TestCheckResourceAttr(accessor, "approve_plan_automatically", "true"),
+							resource.TestCheckResourceAttr(accessor, "is_remote_apply_enabled", "true"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				gomock.InOrder(
+					mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+					mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+						Name:      environment.Name,
+						ProjectId: environment.ProjectId,
+
+						DeployRequest: &client.DeployRequest{
+							BlueprintId:          templateId,
+							UserRequiresApproval: boolPtr(false),
+						},
+						IsRemoteBackend:      environment.IsRemoteBackend,
+						RequiresApproval:     environment.RequiresApproval,
+						IsRemoteApplyEnabled: environment.IsRemoteApplyEnabled,
+					}).Times(1).Return(environment, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
+				)
+			})
+		})
+
+		t.Run("remote apply is enabled on update", func(t *testing.T) {
 			templateId := "template-id"
 
 			environment := client.Environment{
