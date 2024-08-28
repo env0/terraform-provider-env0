@@ -69,7 +69,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
 - `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.
-- `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled. Can only enabled for an existing environment
+- `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled
 - `is_remote_backend` (Boolean) should use remote backend
 - `k8s_namespace` (String) kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
