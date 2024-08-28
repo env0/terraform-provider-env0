@@ -342,7 +342,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"is_remote_apply_enabled": {
 				Type:        schema.TypeBool,
-				Description: "enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled. Can only enabled for an existing environment",
+				Description: "enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled",
 				Optional:    true,
 				Default:     false,
 			},
