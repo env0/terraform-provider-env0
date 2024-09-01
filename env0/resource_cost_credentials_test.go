@@ -12,7 +12,6 @@ import (
 )
 
 func TestUnitAwsCostCredentialsResource(t *testing.T) {
-
 	resourceType := "env0_aws_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -154,11 +153,9 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 		}, func(mock *client.MockApiClientInterface) {
 		})
 	})
-
 }
 
 func TestUnitAzureCostCredentialsResource(t *testing.T) {
-
 	resourceType := "env0_azure_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -289,17 +286,15 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 		}
 		for _, testCase := range missingArgumentsTestCases {
 			tc := testCase
+
 			t.Run("validate specific argument", func(t *testing.T) {
 				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})
-
 		}
 	})
-
 }
 
 func TestUnitGoogleCostCredentialsResource(t *testing.T) {
-
 	resourceType := "env0_gcp_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

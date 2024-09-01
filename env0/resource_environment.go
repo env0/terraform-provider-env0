@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -369,6 +371,12 @@ func resourceEnvironment() *schema.Resource {
 					Description: "variable set id",
 				},
 			},
+			"wait_for_destroy": {
+				Type:        schema.TypeBool,
+				Description: "during destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.",
+				Default:     false,
+				Optional:    true,
+			},
 		},
 		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
 			if oldValue != "" && oldValue != newValue {
@@ -382,7 +390,7 @@ func resourceEnvironment() *schema.Resource {
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
 	if err := writeResourceData(&environment, d); err != nil {
-		return fmt.Errorf("schema resource data serialization failed: %v", err)
+		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
@@ -530,7 +538,7 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 
 	template, err := apiClient.Template(templateId)
 	if err != nil {
-		return fmt.Errorf("could not get template: %v", err)
+		return fmt.Errorf("could not get template: %w", err)
 	}
 
 	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
@@ -876,7 +884,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
-	_, err := apiClient.EnvironmentDestroy(d.Id())
+	environment, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
 			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
@@ -884,7 +892,59 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		}
 		return diag.Errorf("could not delete environment: %v", err)
 	}
+
+	if environment.Status != "INACTIVE" && d.Get("wait_for_destroy").(bool) {
+		if err := waitForEnvironmentDestroy(apiClient, &environment); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return nil
+}
+
+func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, environment *client.Environment) error {
+	waitInteval := time.Second * 10
+	timeout := time.Minute * 30
+	if os.Getenv("TF_ACC") == "1" { // For acceptance tests.
+		waitInteval = time.Second
+		timeout = time.Second * 10
+	}
+
+	ticker := time.NewTicker(waitInteval) // When invoked - check if environment is inactive.
+	timer := time.NewTimer(timeout)       // When invoked - time out
+	results := make(chan error)
+
+	go func() {
+		for {
+			select {
+			case <-timer.C:
+				results <- fmt.Errorf("timed out! last environment status was '%s'", environment.Status)
+				return
+			case <-ticker.C:
+				latestEnvironment, err := apiClient.Environment(environment.Id)
+				if err != nil {
+					results <- fmt.Errorf("failed to get environment status: %w", err)
+					return
+				}
+
+				environment = &latestEnvironment
+
+				if environment.Status == "INACTIVE" {
+					results <- nil
+					return
+				}
+
+				if environment.Status == "DESTROY_IN_PROGRESS" {
+					continue
+				}
+
+				results <- fmt.Errorf("environment destroy failed with status '%s'", environment.Status)
+				return
+			}
+		}
+	}()
+
+	return <-results
 }
 
 func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
@@ -1348,6 +1408,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("force_destroy", false)
+	d.Set("wait_for_destroy", false)
 	d.Set("removal_strategy", "destroy")
 
 	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)

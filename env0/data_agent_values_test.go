@@ -63,5 +63,4 @@ func TestAgentValues(t *testing.T) {
 			},
 		)
 	})
-
 }

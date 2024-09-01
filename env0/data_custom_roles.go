@@ -28,6 +28,7 @@ func dataCustomRoles() *schema.Resource {
 
 func dataCustomRolesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
 	roles, err := apiClient.Roles()
 	if err != nil {
 		return diag.Errorf("Failed to get custom roles: %v", err)

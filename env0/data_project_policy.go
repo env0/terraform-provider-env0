@@ -115,9 +115,11 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 
 func getPolicyByProjectId(projectId string, meta interface{}) (client.Policy, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	policy, err := apiClient.Policy(projectId)
 	if err != nil {
 		return client.Policy{}, diag.Errorf("Could not query policy: %v", err)
 	}
+
 	return policy, nil
 }

@@ -47,7 +47,9 @@ func dataWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	d.SetId(environmentId)
-	var triggerIds []string
+
+	triggerIds := []string{}
+
 	for _, value := range triggers {
 		triggerIds = append(triggerIds, value.Id)
 	}

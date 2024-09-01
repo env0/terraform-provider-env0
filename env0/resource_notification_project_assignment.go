@@ -77,6 +77,7 @@ func resourceNotificationProjectAssignmentCreateOrUpdate(ctx context.Context, d 
 	if err != nil {
 		return diag.Errorf("could not create or update notification project assignment: %v", err)
 	}
+
 	d.SetId(assignment.Id)
 
 	return nil

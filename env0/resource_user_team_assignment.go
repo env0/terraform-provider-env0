@@ -91,6 +91,7 @@ func resourceUserTeamAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 		if user.UserId == newAssignment.UserId {
 			return diag.Errorf("assignment for user id %v and team id %v already exist", newAssignment.UserId, newAssignment.TeamId)
 		}
+
 		userIds = append(userIds, user.UserId)
 	}
 
@@ -166,6 +167,7 @@ func resourceUserTeamAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 		if user.UserId == assignment.UserId {
 			continue
 		}
+
 		userIds = append(userIds, user.UserId)
 	}
 

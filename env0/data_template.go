@@ -205,5 +205,6 @@ func getTemplateById(id interface{}, meta interface{}) (client.Template, diag.Di
 	if err != nil {
 		return client.Template{}, diag.Errorf("Could not query template: %v", err)
 	}
+
 	return template, nil
 }

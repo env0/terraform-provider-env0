@@ -125,5 +125,4 @@ func TestKubernetesCredentialsDataSource(t *testing.T) {
 			)
 		})
 	}
-
 }

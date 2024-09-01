@@ -258,5 +258,4 @@ func TestUnitApiKeyResource(t *testing.T) {
 			mock.EXPECT().ApiKeyDelete(updatedApiKey.Id).Times(1)
 		})
 	})
-
 }
