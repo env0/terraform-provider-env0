@@ -69,7 +69,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
 - `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.
-- `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled. Can only enabled for an existing environment
+- `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled
 - `is_remote_backend` (Boolean) should use remote backend
 - `k8s_namespace` (String) kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
@@ -169,7 +169,7 @@ Optional:
 - `description` (String) description for the template
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
 - `github_installation_id` (Number) the env0 application installation id on the relevant github repository
-- `gitlab_project_id` (Number) the project id of the relevant repository
+- `gitlab_project_id` (Number, Deprecated) the project id of the relevant repository (deprecated)
 - `helm_chart_name` (String) the helm chart name. Required if is_helm_repository is set to 'true'
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
@@ -177,7 +177,7 @@ Optional:
 - `is_gitlab` (Boolean) set to 'true' if the repository is Gitlab
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
 - `is_helm_repository` (Boolean) true if this template integrates with a helm repository
-- `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above
+- `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with 'terragrunt' template type and terragrunt version 0.28.1 and above
 - `opentofu_version` (String) the Opentofu version to use (example: 1.6.2). Setting to 'RESOLVE_FROM_CODE' extracts the version from the Opentofu code during runtime. Setting to `latest`, the version used will be the most recent one available for Opentofu.
 - `path` (String) terraform / terragrunt file folder inside source code
 - `retries_on_deploy` (Number) number of times to retry when deploying an environment based on this template

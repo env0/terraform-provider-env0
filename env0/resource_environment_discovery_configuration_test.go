@@ -312,7 +312,6 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			TerraformVersion:     "1.7.8",
 			EnvironmentPlacement: "topProject",
 			WorkspaceNaming:      "default",
-			GitlabProjectId:      12345,
 			TokenId:              "abcdefg",
 		}
 
@@ -324,7 +323,6 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			TerraformVersion:     putPayload.TerraformVersion,
 			EnvironmentPlacement: putPayload.EnvironmentPlacement,
 			WorkspaceNaming:      putPayload.WorkspaceNaming,
-			GitlabProjectId:      putPayload.GitlabProjectId,
 			TokenId:              putPayload.TokenId,
 		}
 
@@ -336,7 +334,6 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						"type":              putPayload.Type,
 						"glob_pattern":      putPayload.GlobPattern,
 						"repository":        putPayload.Repository,
-						"gitlab_project_id": putPayload.GitlabProjectId,
 						"token_id":          putPayload.TokenId,
 						"terraform_version": putPayload.TerraformVersion,
 					}),
@@ -347,7 +344,6 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "type", putPayload.Type),
 						resource.TestCheckResourceAttr(accessor, "environment_placement", putPayload.EnvironmentPlacement),
 						resource.TestCheckResourceAttr(accessor, "workspace_naming", putPayload.WorkspaceNaming),
-						resource.TestCheckResourceAttr(accessor, "gitlab_project_id", strconv.Itoa(putPayload.GitlabProjectId)),
 						resource.TestCheckResourceAttr(accessor, "token_id", putPayload.TokenId),
 						resource.TestCheckResourceAttr(accessor, "terraform_version", putPayload.TerraformVersion),
 					),
@@ -704,45 +700,6 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 						"terragrunt_tf_binary":   "terraform",
 					}),
 					ExpectError: regexp.MustCompile("'terragrunt_tf_binary' is set to 'terraform', but 'terraform_version' not set"),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-	})
-
-	t.Run("error: no vcs set", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id":   projectId,
-						"glob_pattern": "**",
-						"repository":   "https://re.po",
-						"type":         "workflow",
-					}),
-					ExpectError: regexp.MustCompile("must set exactly one vcs, none were configured"),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-	})
-
-	t.Run("error: more than one vcs set", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"project_id":             projectId,
-						"glob_pattern":           "**",
-						"repository":             "https://re.po",
-						"type":                   "workflow",
-						"github_installation_id": 1234,
-						"gitlab_project_id":      5678,
-						"token_id":               "1345",
-					}),
-					ExpectError: regexp.MustCompile("must set exactly one vcs, but more were configured: github_installation_id, gitlab_project_id"),
 				},
 			},
 		}

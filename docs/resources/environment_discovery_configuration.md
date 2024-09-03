@@ -56,7 +56,7 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
 - `bitbucket_client_key` (String) bitbucket client
 - `environment_placement` (String) the environment placement strategy with the project (default: 'topProject')
 - `github_installation_id` (Number) github repository id
-- `gitlab_project_id` (Number) gitlab project id
+- `gitlab_project_id` (Number, Deprecated) gitlab project id (deprecated)
 - `is_azure_devops` (Boolean) set to true if azure devops is used
 - `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all'
 - `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.

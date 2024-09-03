@@ -167,7 +167,6 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "project id of the environment",
 				Required:    true,
-				ForceNew:    true,
 			},
 			"template_id": {
 				Type:         schema.TypeString,
@@ -343,7 +342,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"is_remote_apply_enabled": {
 				Type:        schema.TypeBool,
-				Description: "enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled. Can only enabled for an existing environment",
+				Description: "enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled",
 				Optional:    true,
 				Default:     false,
 			},
@@ -717,6 +716,13 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
+	if d.HasChange("project_id") {
+		newProjectId := d.Get("project_id").(string)
+		if err := apiClient.EnvironmentMove(d.Id(), newProjectId); err != nil {
+			return diag.Errorf("failed to move environment to project id '%s': %s", newProjectId, err)
+		}
+	}
 
 	if shouldUpdate(d) {
 		if err := update(d, apiClient); err != nil {
@@ -1274,7 +1280,7 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 }
 
 func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
-	varType := client.VariableTypes[variable["type"].(string)]
+	varType, _ := client.GetConfigurationVariableType(variable["type"].(string))
 
 	configurationVariable := client.ConfigurationVariable{
 		Name:  variable["name"].(string),

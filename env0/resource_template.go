@@ -16,7 +16,6 @@ import (
 func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	var allVCSAttributes = []string{
 		"token_id",
-		"gitlab_project_id",
 		"github_installation_id",
 		"bitbucket_client_key",
 		"is_gitlab_enterprise",
@@ -29,14 +28,14 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	}
 
 	var allowedTemplateTypes = []string{
-		"terraform",
-		"terragrunt",
+		client.TERRAFORM,
+		client.TERRAGRUNT,
 		"pulumi",
 		"k8s",
-		"workflow",
+		client.WORKFLOW,
 		"cloudformation",
 		"helm",
-		"opentofu",
+		client.OPENTOFU,
 		"ansible",
 	}
 
@@ -56,6 +55,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 				if prefix != "" {
 					attr = prefix + attr
 				}
+
 				butAttrs = append(butAttrs, attr)
 			}
 		}
@@ -70,6 +70,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			if prefix != "" {
 				str = prefix + str
 			}
+
 			ret = append(ret, str)
 		}
 
@@ -101,7 +102,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
 			Optional:         true,
-			Default:          "terraform",
+			Default:          client.TERRAFORM,
 			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
 		},
 		"revision": {
@@ -152,14 +153,13 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:          schema.TypeString,
 			Description:   "the git token id to be used",
 			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "is_azure_devops", "path"),
+			ConflictsWith: allVCSAttributesBut("token_id", "is_azure_devops", "path"),
 		},
 		"gitlab_project_id": {
-			Type:          schema.TypeInt,
-			Description:   "the project id of the relevant repository",
-			Optional:      true,
-			ConflictsWith: allVCSAttributesBut("token_id", "gitlab_project_id", "path"),
-			RequiredWith:  requiredWith("token_id"),
+			Type:        schema.TypeInt,
+			Deprecated:  "project id is now auto-fetched from the repository URL",
+			Description: "the project id of the relevant repository (deprecated)",
+			Optional:    true,
 		},
 		"terraform_version": {
 			Type:             schema.TypeString,
@@ -214,7 +214,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"is_terragrunt_run_all": {
 			Type:        schema.TypeBool,
 			Optional:    true,
-			Description: `true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with "terragrunt" template type and terragrunt version 0.28.1 and above`,
+			Description: "true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with 'terragrunt' template type and terragrunt version 0.28.1 and above",
 			Default:     "false",
 		},
 		"is_azure_devops": {
@@ -243,7 +243,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Optional:         true,
 			Description:      "the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. For new templates defaults to 'opentofu'",
-			ValidateDiagFunc: NewStringInValidator([]string{"opentofu", "terraform"}),
+			ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM}),
 		},
 		"token_name": {
 			Type:        schema.TypeString,
@@ -411,8 +411,8 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		// If the user has set a value - use it.
 		if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
 			payload.TerragruntTfBinary = terragruntTfBinary
-		} else if templateType.(string) == "terragrunt" && isNew {
-			payload.TerragruntTfBinary = "opentofu"
+		} else if templateType.(string) == client.TERRAGRUNT && isNew {
+			payload.TerragruntTfBinary = client.OPENTOFU
 		}
 	}
 
@@ -420,7 +420,7 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
 
 	if err := payload.Invalidate(); err != nil {
-		return payload, diag.Errorf(err.Error())
+		return payload, diag.FromErr(err)
 	}
 
 	return payload, nil

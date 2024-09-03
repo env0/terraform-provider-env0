@@ -43,7 +43,7 @@ resource "env0_approval_policy_assignment" "assignment" {
 
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
 - `github_installation_id` (Number) the env0 application installation id on the relevant github repository
-- `gitlab_project_id` (Number) the project id of the relevant repository
+- `gitlab_project_id` (Number, Deprecated) the project id of the relevant repository (deprecated)
 - `is_azure_devops` (Boolean) true if this approval policy integrates with azure dev ops repository
 - `is_bitbucket_server` (Boolean) true if this approval policy uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this approval policy uses github enterprise repository

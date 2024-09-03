@@ -11,6 +11,11 @@ resource "env0_project" "test_project" {
   force_destroy = true
 }
 
+resource "env0_project" "test_project2" {
+  name          = "Test-Project2-for-environment-${random_string.random.result}"
+  force_destroy = true
+}
+
 data "env0_template" "github_template_for_environment" {
   name = "Github Integrated Template"
 }
@@ -27,6 +32,11 @@ resource "env0_template" "template" {
 resource "env0_template_project_assignment" "assignment" {
   template_id = env0_template.template.id
   project_id  = env0_project.test_project.id
+}
+
+resource "env0_template_project_assignment" "assignment2" {
+  template_id = env0_template.template.id
+  project_id  = env0_project.test_project2.id
 }
 
 resource "env0_environment" "auto_glob_envrironment" {
@@ -55,6 +65,15 @@ resource "env0_environment" "example" {
   revision                   = "master"
   vcs_commands_alias         = "alias"
   drift_detection_cron       = var.second_run ? "*/5 * * * *" : "*/10 * * * *"
+}
+
+resource "env0_environment" "move_environment" {
+  depends_on          = [env0_template_project_assignment.assignment]
+  force_destroy       = true
+  name                = "environment-move-${random_string.random.result}"
+  project_id          = var.second_run ? env0_project.test_project2.id : env0_project.test_project.id
+  template_id         = env0_template.template.id
+  prevent_auto_deploy = true
 }
 
 resource "env0_custom_role" "custom_role1" {
@@ -230,7 +249,10 @@ resource "env0_variable_set" "variable_set2" {
 }
 
 resource "env0_environment" "workflow-environment" {
-  depends_on                 = [env0_template_project_assignment.assignment_workflow, env0_template_project_assignment.assignment_sub_environment_null_template]
+  depends_on = [
+    env0_template_project_assignment.assignment_workflow,
+    env0_template_project_assignment.assignment_sub_environment_null_template
+  ]
   force_destroy              = true
   name                       = "environment-workflow-${random_string.random.result}"
   project_id                 = env0_project.test_project.id

@@ -896,6 +896,20 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMarkAsArchived(arg0 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMarkAsArchived", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMarkAsArchived), arg0)
 }
 
+// EnvironmentMove mocks base method.
+func (m *MockApiClientInterface) EnvironmentMove(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentMove", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnvironmentMove indicates an expected call of EnvironmentMove.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMove(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMove", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMove), arg0, arg1)
+}
+
 // EnvironmentScheduling mocks base method.
 func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
 	m.ctrl.T.Helper()
