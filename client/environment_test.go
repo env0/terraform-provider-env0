@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/env0/terraform-provider-env0/client"
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
@@ -281,9 +280,9 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("EnvironmentDelete", func() {
 		var err error
-		var res *client.EnvironmentDestroyResponse
+		var res *EnvironmentDestroyResponse
 
-		mockedRes := client.EnvironmentDestroyResponse{
+		mockedRes := EnvironmentDestroyResponse{
 			Id: "id123",
 		}
 
