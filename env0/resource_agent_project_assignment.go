@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -34,6 +35,7 @@ func getAgentProjectAssignment(d *schema.ResourceData, meta interface{}) (*Agent
 	for projectId, agent := range assignments.ProjectsAgents {
 		if projectId == assignment.ProjectId {
 			assignment.AgentId = agent.(string)
+
 			break
 		}
 	}
@@ -107,8 +109,14 @@ func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.Resourc
 
 	// When deleting an assignment, revert the project assignment to the default.
 
+	projectId := d.Id()
+	if split := strings.Split(projectId, "_"); len(split) == 2 {
+		// The implementation has changed This is to derive the project id from older providers where the id was agentId_projectId.
+		projectId = split[1]
+	}
+
 	payload := client.AssignProjectsAgentsAssignmentsPayload{
-		d.Id(): "ENV0_DEFAULT",
+		projectId: "ENV0_DEFAULT",
 	}
 
 	if _, err := apiClient.AssignAgentsToProjects(payload); err != nil {
@@ -132,7 +140,7 @@ func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.Resourc
 	}
 
 	if err := writeResourceData(assignment, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil
