@@ -28,6 +28,7 @@ func ResourceGetFailure(ctx context.Context, resourceName string, d *schema.Reso
 	if driftDetected(err) {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

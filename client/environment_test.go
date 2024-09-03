@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/env0/terraform-provider-env0/client"
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
@@ -280,14 +281,26 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("EnvironmentDelete", func() {
 		var err error
+		var res *client.EnvironmentDestroyResponse
+
+		mockedRes := client.EnvironmentDestroyResponse{
+			Id: "id123",
+		}
 
 		BeforeEach(func() {
-			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any()).Times(1)
-			_, err = apiClient.EnvironmentDestroy(mockEnvironment.Id)
+			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any()).Times(1).
+				Do((func(path string, request interface{}, response *EnvironmentDestroyResponse) {
+					*response = mockedRes
+				}))
+			res, err = apiClient.EnvironmentDestroy(mockEnvironment.Id)
 		})
 
 		It("Should not return error", func() {
 			Expect(err).To(BeNil())
+		})
+
+		It("Should return the expected response", func() {
+			Expect(*res).To(Equal(mockedRes))
 		})
 	})
 
@@ -432,6 +445,34 @@ var _ = Describe("Environment Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/move", &request, nil).Times(1)
 			err = apiClient.EnvironmentMove(environmentId, projectId)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("EnvironmentDeployment", func() {
+		var deployment *DeploymentLog
+		var err error
+
+		mockDeployment := DeploymentLog{
+			Id:     "id12345",
+			Status: "IN_PROGRESS",
+		}
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Get("/environments/deployments/"+mockDeployment.Id, nil, gomock.Any()).
+				Do(func(path string, request interface{}, response *DeploymentLog) {
+					*response = mockDeployment
+				}).Times(1)
+
+			deployment, err = apiClient.EnvironmentDeployment(mockDeployment.Id)
+		})
+
+		It("Should return deployment", func() {
+			Expect(*deployment).To(Equal(mockDeployment))
 		})
 
 		It("Should not return an error", func() {

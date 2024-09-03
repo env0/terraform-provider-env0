@@ -66,7 +66,7 @@ type ApiClientInterface interface {
 	Environment(id string) (Environment, error)
 	EnvironmentCreate(payload EnvironmentCreate) (Environment, error)
 	EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error)
-	EnvironmentDestroy(id string) (Environment, error)
+	EnvironmentDestroy(id string) (*EnvironmentDestroyResponse, error)
 	EnvironmentMarkAsArchived(id string) error
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
@@ -75,6 +75,7 @@ type ApiClientInterface interface {
 	EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error)
 	EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error)
 	EnvironmentSchedulingDelete(environmentId string) error
+	EnvironmentDeployment(id string) (*DeploymentLog, error)
 	WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error)
 	WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error)
 	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)

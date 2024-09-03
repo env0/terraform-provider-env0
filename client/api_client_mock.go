@@ -852,11 +852,26 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploy(arg0, arg1 any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploy), arg0, arg1)
 }
 
+// EnvironmentDeployment mocks base method.
+func (m *MockApiClientInterface) EnvironmentDeployment(arg0 string) (*DeploymentLog, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentDeployment", arg0)
+	ret0, _ := ret[0].(*DeploymentLog)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentDeployment indicates an expected call of EnvironmentDeployment.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeployment(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeployment", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeployment), arg0)
+}
+
 // EnvironmentDestroy mocks base method.
-func (m *MockApiClientInterface) EnvironmentDestroy(arg0 string) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentDestroy(arg0 string) (*EnvironmentDestroyResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EnvironmentDestroy", arg0)
-	ret0, _ := ret[0].(Environment)
+	ret0, _ := ret[0].(*EnvironmentDestroyResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

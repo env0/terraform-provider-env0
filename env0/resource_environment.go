@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -83,7 +84,7 @@ func resourceEnvironment() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Description: "variable type (allowed values are: terraform, environment)",
-				Default:     "environment",
+				Default:     client.ENVIRONMENT,
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					value := val.(string)
@@ -884,7 +885,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
-	environment, err := apiClient.EnvironmentDestroy(d.Id())
+	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
 			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
@@ -893,8 +894,8 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("could not delete environment: %v", err)
 	}
 
-	if environment.Status != "INACTIVE" && d.Get("wait_for_destroy").(bool) {
-		if err := waitForEnvironmentDestroy(apiClient, &environment); err != nil {
+	if d.Get("wait_for_destroy").(bool) {
+		if err := waitForEnvironmentDestroy(apiClient, res.Id); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -902,44 +903,43 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, environment *client.Environment) error {
+func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, deploymentId string) error {
 	waitInteval := time.Second * 10
 	timeout := time.Minute * 30
-	if os.Getenv("TF_ACC") == "1" { // For acceptance tests.
+
+	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and timeout to 10 seconds.
 		waitInteval = time.Second
 		timeout = time.Second * 10
 	}
 
-	ticker := time.NewTicker(waitInteval) // When invoked - check if environment is inactive.
-	timer := time.NewTimer(timeout)       // When invoked - time out
+	ticker := time.NewTicker(waitInteval) // When invoked - check the status.
+	timer := time.NewTimer(timeout)       // When invoked - timeout.
 	results := make(chan error)
 
 	go func() {
 		for {
+			deployment, err := apiClient.EnvironmentDeployment(deploymentId)
+			if err != nil {
+				results <- fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
+				return
+			}
+
+			if slices.Contains([]string{"WAITING_FOR_USER", "TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
+				results <- fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", deployment.Status)
+				return
+			}
+
+			if deployment.Status == "SUCCESS" {
+				results <- nil
+				return
+			}
+
 			select {
 			case <-timer.C:
-				results <- fmt.Errorf("timed out! last environment status was '%s'", environment.Status)
+				results <- fmt.Errorf("timeout! last destroy deployment status was '%s'", deployment.Status)
 				return
 			case <-ticker.C:
-				latestEnvironment, err := apiClient.Environment(environment.Id)
-				if err != nil {
-					results <- fmt.Errorf("failed to get environment status: %w", err)
-					return
-				}
-
-				environment = &latestEnvironment
-
-				if environment.Status == "INACTIVE" {
-					results <- nil
-					return
-				}
-
-				if environment.Status == "DESTROY_IN_PROGRESS" {
-					continue
-				}
-
-				results <- fmt.Errorf("environment destroy failed with status '%s'", environment.Status)
-				return
+				continue
 			}
 		}
 	}()
@@ -1364,7 +1364,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
 	if err != nil {
-		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
+		return nil, fmt.Errorf("could not get environment configuration variables: %w", err)
 	}
 
 	environmentVariableSetIds, err := getEnvironmentVariableSetIdsFromApi(d, apiClient)
