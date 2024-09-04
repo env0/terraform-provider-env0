@@ -3,12 +3,12 @@
 page_title: "env0_agent_project_assignment Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  
+  assign an agent to a project (multiple self-hosted agents). More details here: https://docs.env0.com/docs/multiple-self-hosted-agents
 ---
 
 # env0_agent_project_assignment (Resource)
 
-
+assign an agent to a project (multiple self-hosted agents). More details here: https://docs.env0.com/docs/multiple-self-hosted-agents
 
 ## Example Usage
 
@@ -43,5 +43,5 @@ resource "env0_agent_project_assignment" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import env0_agent_project_assigment.example agent-id_project-id
+terraform import env0_agent_project_assigment.example project_id
 ```
