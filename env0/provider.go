@@ -199,7 +199,6 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 				tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
 				return nil
 			}).
-			AddRetryAfterErrorCondition().
 			AddRetryCondition(func(r *resty.Response, err error) bool {
 				if r == nil {
 					// No response. Possibly a networking issue (E.g. DNS lookup failure).
