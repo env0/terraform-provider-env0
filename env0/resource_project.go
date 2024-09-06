@@ -222,7 +222,7 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 	} else {
 		tflog.Info(ctx, "Resolving project by name", map[string]interface{}{"name": id})
 
-		if project, err = getProjectByName(id, "", "", meta); err != nil {
+		if project, err = getProjectByName(id, "", "", "", meta); err != nil {
 			return nil, err
 		}
 	}
