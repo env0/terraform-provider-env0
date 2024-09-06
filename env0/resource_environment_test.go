@@ -2201,6 +2201,26 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 		})
 
+		t.Run("fail when trying to create an inactive environment", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"name":          updatedEnvironment.Name,
+							"project_id":    updatedEnvironment.ProjectId,
+							"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
+							"is_inactive":   true,
+							"force_destroy": true,
+						}),
+						ExpectError: regexp.MustCompile("cannot create an inactive environment"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+
+		})
+
 		t.Run("Failure in create", func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
