@@ -2218,7 +2218,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-
 		})
 
 		t.Run("Failure in create", func(t *testing.T) {
