@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -139,6 +140,7 @@ func filterByParentProjectName(parentName string, projects []client.Project, met
 
 func getProjectByName(name string, parentId string, parentName string, parentPath string, meta interface{}) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	projects, err := apiClient.Projects()
 	if err != nil {
 		return client.Project{}, fmt.Errorf("could not query project by name: %w", err)
@@ -170,7 +172,7 @@ func getProjectByName(name string, parentId string, parentName string, parentPat
 	}
 
 	if len(projectsByName) > 1 {
-		return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or parent_name or make sure project names are unique %v", name, projectsByName)
+		return client.Project{}, fmt.Errorf("found multiple projects for name: %s. Use id or one of the filters to make sure only one '%v' is returned", name, projectsByName)
 	}
 
 	if len(projectsByName) == 0 {
@@ -180,8 +182,51 @@ func getProjectByName(name string, parentId string, parentName string, parentPat
 	return projectsByName[0], nil
 }
 
+func pathMatches(path, parentIds []string, meta interface{}) (bool, error) {
+	if len(path) != len(parentIds) {
+		return false, nil
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	for i := range path {
+		parentId := parentIds[i]
+
+		parentProject, err := apiClient.Project(parentId)
+		if err != nil {
+			return false, fmt.Errorf("failed to get a parent project with id '%s': %w", parentId, err)
+		}
+
+		if parentProject.Name != path[i] {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func filterByParentProjectPath(parentPath string, projectsByName []client.Project, meta interface{}) ([]client.Project, error) {
-	panic("unimplemented")
+	filteredProjects := make([]client.Project, 0)
+
+	path := strings.Split(parentPath, "|")
+
+	for _, project := range projectsByName {
+		parentIds := strings.Split(project.Hierarchy, "|")
+		// right most element is the project itself, remove it.
+		parentIds = parentIds[:len(parentIds)-1]
+
+		matches, err := pathMatches(path, parentIds, meta)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if matches {
+			filteredProjects = append(filteredProjects, project)
+		}
+	}
+
+	return filteredProjects, nil
 }
 
 func getProjectById(id string, meta interface{}) (client.Project, error) {

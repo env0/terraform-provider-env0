@@ -75,3 +75,22 @@ output "test_project_name" {
 output "test_project_description" {
   value = env0_project.test_project.description
 }
+
+resource "env0_project" "project_by_path1" {
+  name = "project-${random_string.random.result}-p1"
+}
+
+resource "env0_project" "project_by_path2" {
+  name = "project-${random_string.random.result}-p2"
+  parent_project_id = env0_project.project_by_path1.id
+}
+
+resource "env0_project" "project_by_path3" {
+  name = "project-${random_string.random.result}-p3"
+  parent_project_id = env0_project.project_by_path2.id
+}
+
+data "env0_project" "data_by_name_with_parent_name" {
+  name                = env0_project.project_by_path3.name
+  parent_project_path = "project-${random_string.random.result}-p1|project-${random_string.random.result}-p2"
+}

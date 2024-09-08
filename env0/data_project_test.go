@@ -6,6 +6,7 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"go.uber.org/mock/gomock"
 )
@@ -153,6 +154,58 @@ func TestProjectDataSource(t *testing.T) {
 				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{projectWithParent, otherProjectWithParent}, nil)
 				mock.EXPECT().Project(projectWithParent.ParentProjectId).AnyTimes().Return(parentProject, nil)
 				mock.EXPECT().Project(otherProjectWithParent.ParentProjectId).AnyTimes().Return(otherParentProject, nil)
+			},
+		)
+	})
+
+	createProject := func(name string, ancestors []client.Project) *client.Project {
+		p := client.Project{
+			Id:   uuid.NewString(),
+			Name: name,
+		}
+
+		for _, ancestor := range ancestors {
+			p.Hierarchy += ancestor.Id + "|"
+		}
+
+		p.Hierarchy += p.Id
+
+		return &p
+	}
+
+	t.Run("By name with parent path", func(t *testing.T) {
+		p1 := createProject("p1", nil)
+		p2 := createProject("p2", []client.Project{*p1})
+		p3 := createProject("p3", []client.Project{*p1, *p2})
+
+		p3other := createProject("p3", []client.Project{*p1})
+
+		pother1 := createProject("pother1", nil)
+		pother2 := createProject("p2", []client.Project{*pother1})
+		pother3 := createProject("p3", []client.Project{*pother1, *pother2})
+
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "p3", "parent_project_path": "p1|p2"}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", p3.Id),
+							resource.TestCheckResourceAttr(accessor, "name", p3.Name),
+							resource.TestCheckResourceAttr(accessor, "hierarchy", p1.Id+"|"+p2.Id+"|"+p3.Id),
+						),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Projects().AnyTimes().Return([]client.Project{*p3, *p3other, *pother3}, nil)
+				mock.EXPECT().Project(p1.Id).AnyTimes().Return(*p1, nil)
+				mock.EXPECT().Project(p2.Id).AnyTimes().Return(*p2, nil)
+				mock.EXPECT().Project(p3.Id).AnyTimes().Return(*p3, nil)
+				mock.EXPECT().Project(p3other.Id).AnyTimes().Return(*p3other, nil)
+				mock.EXPECT().Project(pother1.Id).AnyTimes().Return(*pother1, nil)
+				mock.EXPECT().Project(pother2.Id).AnyTimes().Return(*pother2, nil)
+				mock.EXPECT().Project(pother3.Id).AnyTimes().Return(*pother3, nil)
 			},
 		)
 	})
