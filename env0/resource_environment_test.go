@@ -2888,10 +2888,11 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
 	environment := client.Environment{
-		Id:          "id",
-		Name:        "environment",
-		ProjectId:   "project-id",
-		BlueprintId: "template-id",
+		Id:               "id",
+		Name:             "environment",
+		ProjectId:        "project-id",
+		BlueprintId:      "template-id",
+		RequiresApproval: boolPtr(false),
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{

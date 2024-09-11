@@ -415,7 +415,8 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
-	if environment.RequiresApproval != nil {
+	// Don't update this value for workflow environments - this value should always be 'false'.
+	if _, isWorkflow := d.GetOk("sub_environment_configuration"); !isWorkflow && environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
 	}
 
