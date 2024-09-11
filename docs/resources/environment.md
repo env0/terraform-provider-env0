@@ -68,7 +68,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `drift_detection_cron` (String) cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)
 - `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
 - `id` (String) the environment's id
-- `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.
+- `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field. Note: it's not allowed to create an inactive environment
 - `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled
 - `is_remote_backend` (Boolean) should use remote backend
 - `k8s_namespace` (String) kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one
