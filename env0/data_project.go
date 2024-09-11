@@ -34,13 +34,13 @@ func dataProject() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "the name of the parent project. Can be used as a filter when there are multiple subprojects with the same name under different parent projects",
 				Optional:      true,
-				ConflictsWith: []string{"parent_project_path"},
+				ConflictsWith: []string{"parent_project_path", "parent_project_id"},
 			},
 			"parent_project_path": {
 				Type:          schema.TypeString,
 				Description:   "a path of ancestors projects divided by the prefix '|'. Can be used as a filter when there are multiple subprojects with the same name under different parent projects. For example: 'App|Dev|us-east-1' will search for a project with the hierarchy 'App -> Dev -> us-east-1' ('us-east-1' being the parent)",
 				Optional:      true,
-				ConflictsWith: []string{"parent_project_name"},
+				ConflictsWith: []string{"parent_project_name", "parent_project_id"},
 			},
 			"parent_project_id": {
 				Type:        schema.TypeString,
@@ -183,7 +183,7 @@ func getProjectByName(name string, parentId string, parentName string, parentPat
 }
 
 func pathMatches(path, parentIds []string, meta interface{}) (bool, error) {
-	if len(path) != len(parentIds) {
+	if len(path) > len(parentIds) {
 		return false, nil
 	}
 

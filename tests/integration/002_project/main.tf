@@ -94,3 +94,8 @@ data "env0_project" "data_by_name_with_parent_path" {
   name                = env0_project.project_by_path3.name
   parent_project_path = "project-${random_string.random.result}-p1|project-${random_string.random.result}-p2"
 }
+
+data "env0_project" "data_by_name_with_parent_prefix_path" {
+  name                = env0_project.project_by_path3.name
+  parent_project_path = "project-${random_string.random.result}-p1"
+}
