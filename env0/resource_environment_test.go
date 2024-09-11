@@ -2892,7 +2892,6 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		Name:        "environment",
 		ProjectId:   "project-id",
 		BlueprintId: "template-id",
-
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{
@@ -2912,8 +2911,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
-		Name:      environment.Name,
-		ProjectId: environment.ProjectId,
+		Name:             environment.Name,
+		ProjectId:        environment.ProjectId,
+		RequiresApproval: boolPtr(false),
 		ConfigurationChanges: &client.ConfigurationChanges{
 			{
 				Name:        "n1",
