@@ -2929,7 +2929,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			},
 		},
 		DeployRequest: &client.DeployRequest{
-			BlueprintId: environment.BlueprintId,
+			BlueprintId:          environment.BlueprintId,
+			UserRequiresApproval: boolPtr(false),
 			SubEnvironments: map[string]client.SubEnvironment{
 				subEnvironment.Alias: {
 					Workspace:            subEnvironment.Workspace,
@@ -2946,8 +2947,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	deployRequest := client.DeployRequest{
-		BlueprintId:       environment.BlueprintId,
-		BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
+		BlueprintId:          environment.BlueprintId,
+		BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
+		UserRequiresApproval: boolPtr(false),
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,

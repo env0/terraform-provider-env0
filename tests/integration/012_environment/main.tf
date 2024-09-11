@@ -257,7 +257,6 @@ resource "env0_environment" "workflow-environment" {
   name                       = "environment-workflow-${random_string.random.result}"
   project_id                 = env0_project.test_project.id
   template_id                = env0_template.workflow_template.id
-  approve_plan_automatically = true
 
   configuration {
     name  = "n1"
@@ -269,7 +268,7 @@ resource "env0_environment" "workflow-environment" {
   sub_environment_configuration {
     alias                      = "rootService1"
     revision                   = "master"
-    approve_plan_automatically = var.second_run ? true : false
+    approve_plan_automatically = var.second_run ? false : true 
     configuration {
       name  = "sub_env1_var1"
       value = "hello"

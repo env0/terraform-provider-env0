@@ -1179,6 +1179,11 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.BlueprintRevision = revision.(string)
 	}
 
+	// For 'Workflows', the 'root' environment should never require a user approval.
+	if _, ok := d.GetOk("sub_environment_configuration"); ok {
+		payload.UserRequiresApproval = boolPtr(false)
+	}
+
 	if isRedeploy {
 		if revision, ok := d.GetOk("without_template_settings.0.revision"); ok {
 			payload.BlueprintRevision = revision.(string)
