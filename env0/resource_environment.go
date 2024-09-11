@@ -272,7 +272,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"is_inactive": {
 				Type:        schema.TypeBool,
-				Description: "If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field.",
+				Description: "If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field. Note: it's not allowed to create an inactive environment",
 				Default:     false,
 				Optional:    true,
 			},
@@ -599,6 +599,10 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
+	if d.Get("is_inactive").(bool) {
+		return diag.Errorf("cannot create an inactive environment (remove 'is_inactive' or set it to 'false')")
+	}
 
 	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
 	if createEnvPayloadErr != nil {
