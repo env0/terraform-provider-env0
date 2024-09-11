@@ -171,56 +171,55 @@ func Provider(version string) plugin.ProviderFunc {
 	}
 }
 
+func createRestyClient(ctx context.Context) *resty.Client {
+	isIntegrationTest := false
+
+	if os.Getenv("INTEGRATION_TESTS") == "1" {
+		isIntegrationTest = true
+	}
+
+	subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
+
+	return resty.New().SetRetryCount(5).
+		SetRetryWaitTime(time.Second).
+		SetRetryMaxWaitTime(time.Second * 5).
+		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+			if r != nil {
+				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
+			}
+			return nil
+		}).
+		OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
+			tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
+			return nil
+		}).
+		AddRetryCondition(func(r *resty.Response, err error) bool {
+			if r == nil {
+				// No response. Possibly a networking issue (E.g. DNS lookup failure).
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request")
+				return true
+			}
+
+			// When running integration tests 404 may occur due to "database eventual consistency".
+			// Retry when there's a 5xx error. Otherwise do not retry.
+			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+				return true
+			}
+
+			if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+				return true
+			}
+
+			return false
+		})
+}
+
 func configureProvider(version string, p *schema.Provider) schema.ConfigureContextFunc {
 	userAgent := p.UserAgent("terraform-provider-env0", version)
 
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		restyClient := resty.New()
-
-		isIntegrationTest := false
-
-		if os.Getenv("INTEGRATION_TESTS") == "1" {
-			isIntegrationTest = true
-		}
-
-		subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
-
-		restyClient = restyClient.
-			SetRetryCount(5).
-			SetRetryWaitTime(time.Second).
-			SetRetryMaxWaitTime(time.Second * 5).
-			OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
-				if r != nil {
-					tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
-				}
-				return nil
-			}).
-			OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
-				tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
-				return nil
-			}).
-			AddRetryCondition(func(r *resty.Response, err error) bool {
-				if r == nil {
-					// No response. Possibly a networking issue (E.g. DNS lookup failure).
-					tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request")
-					return true
-				}
-
-				// When running integration tests 404 may occur due to "database eventual consistency".
-				// Retry when there's a 5xx error. Otherwise do not retry.
-				if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
-					tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
-					return true
-				}
-
-				if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-					tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
-					return true
-				}
-
-				return false
-			})
-
 		apiKey, ok := d.GetOk("api_key")
 		if !ok {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Detail: `The argument "api_key" is required, but no definition was found.`}}
@@ -236,7 +235,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			ApiSecret:   apiSecret.(string),
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
-			RestClient:  restyClient,
+			RestClient:  createRestyClient(ctx),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
@@ -248,6 +247,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 		if _, err := apiClient.OrganizationId(); err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 		}
+
 		return apiClient, nil
 	}
 }
