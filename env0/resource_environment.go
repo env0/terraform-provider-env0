@@ -989,7 +989,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	// For 'Workflows', the 'root' environment should never require an approval.
-	if _, ok := d.GetOk("sub_environment_configuration"); ok {
+	if isWorkflow {
 		payload.RequiresApproval = boolPtr(false)
 	}
 
