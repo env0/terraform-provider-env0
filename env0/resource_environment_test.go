@@ -2888,11 +2888,11 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
 	environment := client.Environment{
-		Id:          "id",
-		Name:        "environment",
-		ProjectId:   "project-id",
-		BlueprintId: "template-id",
-
+		Id:               "id",
+		Name:             "environment",
+		ProjectId:        "project-id",
+		BlueprintId:      "template-id",
+		RequiresApproval: boolPtr(false),
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{
@@ -2912,8 +2912,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	environmentCreatePayload := client.EnvironmentCreate{
-		Name:      environment.Name,
-		ProjectId: environment.ProjectId,
+		Name:             environment.Name,
+		ProjectId:        environment.ProjectId,
+		RequiresApproval: boolPtr(false),
 		ConfigurationChanges: &client.ConfigurationChanges{
 			{
 				Name:        "n1",
@@ -2929,7 +2930,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			},
 		},
 		DeployRequest: &client.DeployRequest{
-			BlueprintId: environment.BlueprintId,
+			BlueprintId:          environment.BlueprintId,
+			UserRequiresApproval: boolPtr(false),
 			SubEnvironments: map[string]client.SubEnvironment{
 				subEnvironment.Alias: {
 					Workspace:            subEnvironment.Workspace,
@@ -2946,8 +2948,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	}
 
 	deployRequest := client.DeployRequest{
-		BlueprintId:       environment.BlueprintId,
-		BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
+		BlueprintId:          environment.BlueprintId,
+		BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
+		UserRequiresApproval: boolPtr(false),
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,
@@ -2957,6 +2960,39 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			},
 		},
 	}
+
+	t.Run("Fail when approve plan automatically is false", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						project_id = "%s"
+						template_id = "%s"
+						force_destroy = true
+						approve_plan_automatically = false
+						sub_environment_configuration {
+							alias = "%s"
+							revision = "%s"
+							workspace = "%s"
+						}
+					}`,
+						resourceType, resourceName,
+						environmentCreatePayload.Name,
+						environmentCreatePayload.ProjectId,
+						environment.BlueprintId,
+						subEnvironment.Alias,
+						subEnvironment.Revision,
+						subEnvironment.Workspace,
+					),
+					ExpectError: regexp.MustCompile("approve_plan_automatically cannot be 'false' for workflows"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{

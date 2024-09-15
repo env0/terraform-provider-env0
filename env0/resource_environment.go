@@ -415,7 +415,8 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
-	if environment.RequiresApproval != nil {
+	// Don't update this value for workflow environments - this value should always be 'false'.
+	if _, isWorkflow := d.GetOk("sub_environment_configuration"); !isWorkflow && environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
 	}
 
@@ -976,9 +977,20 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.AutoDeployOnPathChangesOnly = boolPtr(val.(bool))
 	}
 
+	_, isWorkflow := d.GetOk("sub_environment_configuration")
+
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
 		payload.RequiresApproval = boolPtr(!val.(bool))
+
+		if isWorkflow && *payload.RequiresApproval {
+			return client.EnvironmentCreate{}, diag.Errorf("approve_plan_automatically cannot be 'false' for workflows")
+		}
+	}
+
+	// For 'Workflows', the 'root' environment should never require an approval.
+	if isWorkflow {
+		payload.RequiresApproval = boolPtr(false)
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
@@ -1177,6 +1189,11 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	if revision, ok := d.GetOk("revision"); ok {
 		payload.BlueprintRevision = revision.(string)
+	}
+
+	// For 'Workflows', the 'root' environment should never require a user approval.
+	if _, ok := d.GetOk("sub_environment_configuration"); ok {
+		payload.UserRequiresApproval = boolPtr(false)
 	}
 
 	if isRedeploy {
