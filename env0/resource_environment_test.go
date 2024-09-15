@@ -2961,6 +2961,39 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		},
 	}
 
+	t.Run("Fail when approve plan automatically is false", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "%s"
+						project_id = "%s"
+						template_id = "%s"
+						force_destroy = true
+						approve_plan_automatically = false
+						sub_environment_configuration {
+							alias = "%s"
+							revision = "%s"
+							workspace = "%s"
+						}
+					}`,
+						resourceType, resourceName,
+						environmentCreatePayload.Name,
+						environmentCreatePayload.ProjectId,
+						environment.BlueprintId,
+						subEnvironment.Alias,
+						subEnvironment.Revision,
+						subEnvironment.Workspace,
+					),
+					ExpectError: regexp.MustCompile("approve_plan_automatically cannot be 'false' for workflows"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("Success in create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
