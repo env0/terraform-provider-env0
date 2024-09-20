@@ -185,6 +185,7 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 		if err != nil {
 			return client.ConfigurationVariable{}, diag.Errorf("Could not query variable: %v", err)
 		}
+
 		return variable, nil
 	}
 
@@ -197,37 +198,47 @@ func getConfigurationVariable(params ConfigurationVariableParams, meta interface
 	name, nameOk := params.Name, params.Name != ""
 	typeString, ok := params.ConfigurationType, params.ConfigurationType != ""
 	type_ := -1
+
 	if ok {
 		if !nameOk {
 			return client.ConfigurationVariable{}, diag.Errorf("Specify 'type' only when searching configuration variables by 'name' (not by 'id')")
 		}
+
 		switch typeString {
-		case "environment":
+		case client.ENVIRONMENT:
 			type_ = int(client.ConfigurationVariableTypeEnvironment)
-		case "terraform":
+		case client.TERRAFORM:
 			type_ = int(client.ConfigurationVariableTypeTerraform)
 		default:
 			return client.ConfigurationVariable{}, diag.Errorf("Invalid value for 'type': %s. can be either 'environment' or 'terraform'", typeString)
 		}
 	}
+
 	var variable client.ConfigurationVariable
+
 	for _, candidate := range variables {
 		if idOk && candidate.Id == id {
 			variable = candidate
+
 			break
 		}
+
 		if nameOk && candidate.Name == name {
 			if type_ != -1 {
 				if int(*candidate.Type) != type_ {
 					continue
 				}
 			}
+
 			variable = candidate
+
 			break
 		}
 	}
+
 	if variable.Id == "" {
 		return client.ConfigurationVariable{}, diag.Errorf("Could not find variable")
 	}
+
 	return variable, nil
 }

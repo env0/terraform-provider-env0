@@ -121,11 +121,11 @@ func deserializeEnvironmentOutputConfigurationVariableValue(valueStr string) (*E
 	}
 
 	if value.OutputName == "" {
-		return nil, fmt.Errorf("after unmarshal 'outputName' is empty")
+		return nil, errors.New("after unmarshal 'outputName' is empty")
 	}
 
 	if value.EnvironmentId == "" && value.SubEnvironmentAlias == "" {
-		return nil, fmt.Errorf("after unmarshal both 'environmentId' and 'subEnvironmentAlias' are empty")
+		return nil, errors.New("after unmarshal both 'environmentId' and 'subEnvironmentAlias' are empty")
 	}
 
 	return &value, nil
@@ -219,7 +219,7 @@ func resourceEnvironmentOutputConfigurationVariableCreate(ctx context.Context, d
 
 	createParams, err := getEnvironmentOutputCreateParams(d)
 	if err != nil {
-		return diag.Errorf(err.Error())
+		return diag.FromErr(err)
 	}
 
 	configurationVariable, err := apiClient.ConfigurationVariableCreate(*createParams)
@@ -257,7 +257,7 @@ func resourceEnvironmentOutputConfigurationVariableUpdate(ctx context.Context, d
 
 	createParams, err := getEnvironmentOutputCreateParams(d)
 	if err != nil {
-		return diag.Errorf(err.Error())
+		return diag.FromErr(err)
 	}
 
 	id := d.Id()

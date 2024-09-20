@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -39,22 +40,30 @@ func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values m
 	return nil
 }
 
+type ConfigurationVariableOverwrites struct {
+	Value       string `json:"value"`
+	Regex       string `json:"regex"`
+	IsRequired  bool   `json:"isRequired"`
+	IsSensitive bool   `json:"isSensitive"`
+}
+
 type ConfigurationVariable struct {
-	ScopeId        string                       `json:"scopeId,omitempty"`
-	Value          string                       `json:"value" tfschema:"-"`
-	OrganizationId string                       `json:"organizationId,omitempty"`
-	UserId         string                       `json:"userId,omitempty"`
-	IsSensitive    *bool                        `json:"isSensitive,omitempty"`
-	Scope          Scope                        `json:"scope,omitempty"`
-	Id             string                       `json:"id,omitempty"`
-	Name           string                       `json:"name"`
-	Description    string                       `json:"description,omitempty"`
-	Type           *ConfigurationVariableType   `json:"type,omitempty" tfschema:",omitempty"`
-	Schema         *ConfigurationVariableSchema `json:"schema,omitempty"`
-	ToDelete       *bool                        `json:"toDelete,omitempty"`
-	IsReadOnly     *bool                        `json:"isReadonly,omitempty"`
-	IsRequired     *bool                        `json:"isRequired,omitempty"`
-	Regex          string                       `json:"regex,omitempty"`
+	ScopeId        string                           `json:"scopeId,omitempty"`
+	Value          string                           `json:"value" tfschema:"-"`
+	OrganizationId string                           `json:"organizationId,omitempty"`
+	UserId         string                           `json:"userId,omitempty"`
+	IsSensitive    *bool                            `json:"isSensitive,omitempty"`
+	Scope          Scope                            `json:"scope,omitempty"`
+	Id             string                           `json:"id,omitempty"`
+	Name           string                           `json:"name"`
+	Description    string                           `json:"description,omitempty"`
+	Type           *ConfigurationVariableType       `json:"type,omitempty" tfschema:",omitempty"`
+	Schema         *ConfigurationVariableSchema     `json:"schema,omitempty"`
+	ToDelete       *bool                            `json:"toDelete,omitempty"`
+	IsReadOnly     *bool                            `json:"isReadonly,omitempty"`
+	IsRequired     *bool                            `json:"isRequired,omitempty"`
+	Regex          string                           `json:"regex,omitempty"`
+	Overwrites     *ConfigurationVariableOverwrites `json:"overwrites,omitempty"` // Is removed when marhseling to a JSON.
 }
 
 type ConfigurationVariableCreateParams struct {
@@ -77,6 +86,17 @@ type ConfigurationVariableUpdateParams struct {
 	Id           string
 }
 
+func (v ConfigurationVariable) MarshalJSON() ([]byte, error) {
+	v.Overwrites = nil
+
+	// This is done to prevent an infinite loop.
+	type ConfigurationVariableDummy ConfigurationVariable
+
+	dummy := ConfigurationVariableDummy(v)
+
+	return json.Marshal(&dummy)
+}
+
 func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
 	var result ConfigurationVariable
 
@@ -93,8 +113,11 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 	if err != nil {
 		return nil, err
 	}
+
 	var result []ConfigurationVariable
+
 	params := map[string]string{"organizationId": organizationId}
+
 	switch {
 	case scope == ScopeGlobal:
 	case scope == ScopeTemplate:
@@ -111,6 +134,7 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 		params["environmentId"] = scopeId
 		params["workflowEnvironmentId"] = scopeId
 	}
+
 	err = client.http.Get("/configuration", params, &result)
 	if err != nil {
 		return []ConfigurationVariable{}, err
@@ -118,6 +142,7 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 
 	// The API returns variables of upper scopes. Filter them out.
 	var filteredVariables []ConfigurationVariable
+
 	for _, variable := range result {
 		if scopeId == variable.ScopeId && scope == variable.Scope {
 			filteredVariables = append(filteredVariables, variable)
@@ -131,11 +156,14 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 	if params.Scope == ScopeDeploymentLog || params.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
+
 	var result []ConfigurationVariable
+
 	request := map[string]interface{}{
 		"name":           params.Name,
 		"description":    params.Description,
@@ -148,6 +176,7 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 		"isReadonly":     params.IsReadOnly,
 		"regex":          params.Regex,
 	}
+
 	if params.Scope != ScopeGlobal {
 		request["scopeId"] = params.ScopeId
 	}
@@ -166,9 +195,11 @@ func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} 
 	schema := map[string]interface{}{
 		"type": "string",
 	}
+
 	if params.EnumValues != nil {
 		schema["enum"] = params.EnumValues
 	}
+
 	if params.Format != Text {
 		schema["format"] = params.Format
 	}
@@ -185,11 +216,14 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 	if commonParams.Scope == ScopeDeploymentLog || commonParams.Scope == ScopeDeployment {
 		return ConfigurationVariable{}, errors.New("must not create variable on scope deployment / deploymentLog")
 	}
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
+
 	var result []ConfigurationVariable
+
 	request := map[string]interface{}{
 		"id":             updateParams.Id,
 		"name":           commonParams.Name,
@@ -203,6 +237,7 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 		"isReadonly":     commonParams.IsReadOnly,
 		"regex":          commonParams.Regex,
 	}
+
 	if commonParams.Scope != ScopeGlobal {
 		request["scopeId"] = commonParams.ScopeId
 	}
@@ -210,9 +245,10 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 	request["schema"] = getSchema(updateParams.CommonParams)
 
 	requestInArray := []map[string]interface{}{request}
-	err = client.http.Post("/configuration", requestInArray, &result)
-	if err != nil {
+
+	if err := client.http.Post("/configuration", requestInArray, &result); err != nil {
 		return ConfigurationVariable{}, err
 	}
+
 	return result[0], nil
 }

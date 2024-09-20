@@ -2,12 +2,15 @@ package client_test
 
 import (
 	"encoding/json"
+	"strings"
+	"testing"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -52,14 +55,14 @@ var _ = Describe("Configuration Variable", func() {
 		Describe("Schema", func() {
 			It("On schema type is free text, enum should be nil", func() {
 				var parsedPayload ConfigurationVariable
-				json.Unmarshal([]byte(`{"schema": {"type": "string"}}`), &parsedPayload)
+				_ = json.Unmarshal([]byte(`{"schema": {"type": "string"}}`), &parsedPayload)
 				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
 				Expect(parsedPayload.Schema.Enum).Should(BeNil())
 			})
 
 			It("On schema type is dropdown, enum should be present", func() {
 				var parsedPayload ConfigurationVariable
-				json.Unmarshal([]byte(`{"schema": {"type": "string", "enum": ["hello"]}}`), &parsedPayload)
+				_ = json.Unmarshal([]byte(`{"schema": {"type": "string", "enum": ["hello"]}}`), &parsedPayload)
 				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
 				Expect(parsedPayload.Schema.Enum).Should(BeEquivalentTo([]string{"hello"}))
 			})
@@ -68,7 +71,7 @@ var _ = Describe("Configuration Variable", func() {
 		Describe("Enums", func() {
 			It("Should convert enums correctly", func() {
 				var parsedPayload ConfigurationVariable
-				json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
+				_ = json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
 				Expect(parsedPayload.Scope).Should(Equal(ScopeProject))
 				Expect(*parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
 			})
@@ -187,9 +190,10 @@ var _ = Describe("Configuration Variable", func() {
 	})
 
 	Describe("ConfigurationVariableDelete", func() {
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("configuration/"+mockConfigurationVariable.Id, nil)
-			apiClient.ConfigurationVariableDelete(mockConfigurationVariable.Id)
+			_ = apiClient.ConfigurationVariableDelete(mockConfigurationVariable.Id)
 		})
 
 		It("Should send DELETE request with project id", func() {
@@ -291,3 +295,37 @@ var _ = Describe("Configuration Variable", func() {
 		})
 	})
 })
+
+func TestConfigurationVariableMarshelling(t *testing.T) {
+	str := "this is a string"
+
+	variable := ConfigurationVariable{
+		Value: "a",
+		Overwrites: &ConfigurationVariableOverwrites{
+			Value: str,
+		},
+	}
+
+	b, err := json.Marshal(&variable)
+	if assert.NoError(t, err) {
+		assert.False(t, strings.Contains(string(b), str))
+	}
+
+	type ConfigurationVariableDummy ConfigurationVariable
+
+	dummy := ConfigurationVariableDummy(variable)
+
+	b, err = json.Marshal(&dummy)
+	if assert.NoError(t, err) {
+		assert.True(t, strings.Contains(string(b), str))
+	}
+
+	var variable2 ConfigurationVariable
+
+	err = json.Unmarshal(b, &variable2)
+
+	if assert.NoError(t, err) && assert.NotNil(t, variable2.Overwrites) {
+		assert.Equal(t, str, variable2.Overwrites.Value)
+		assert.Equal(t, variable, variable2)
+	}
+}
