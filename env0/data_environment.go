@@ -98,6 +98,25 @@ func dataEnvironment() *schema.Resource {
 				Description: "The token id used for repo integrations (Used by Gitlab or Azure DevOps)",
 				Computed:    true,
 			},
+			"sub_environment_configuration": {
+				Type:        schema.TypeList,
+				Description: "the sub environments of the workflow environment. (Empty for non workflow environments)",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "the id of the sub environment",
+							Computed:    true,
+						},
+						"alias": {
+							Type:        schema.TypeString,
+							Description: "sub environment alias name",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -126,6 +145,20 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	if err := setEnvironmentSchema(ctx, d, environment, client.ConfigurationChanges{}, nil); err != nil {
 		return diag.FromErr(err)
 	}
+
+	subEnvironments := []interface{}{}
+
+	if environment.LatestDeploymentLog.WorkflowFile != nil {
+		for alias, subenv := range environment.LatestDeploymentLog.WorkflowFile.Environments {
+			subEnvironment := map[string]interface{}{
+				"id":    subenv.EnvironmentId,
+				"alias": alias,
+			}
+			subEnvironments = append(subEnvironments, subEnvironment)
+		}
+	}
+
+	d.Set("sub_environment_configuration", subEnvironments)
 
 	templateId := environment.LatestDeploymentLog.BlueprintId
 
