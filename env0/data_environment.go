@@ -2,6 +2,8 @@ package env0
 
 import (
 	"context"
+	"slices"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -157,6 +159,16 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 			subEnvironments = append(subEnvironments, subEnvironment)
 		}
 	}
+
+	slices.SortFunc(subEnvironments, func(a, b interface{}) int {
+		amap := a.(map[string]interface{})
+		bmap := b.(map[string]interface{})
+
+		aalias := amap["alias"].(string)
+		balias := bmap["alias"].(string)
+
+		return strings.Compare(aalias, balias)
+	})
 
 	d.Set("sub_environment_configuration", subEnvironments)
 
