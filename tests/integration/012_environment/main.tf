@@ -219,7 +219,6 @@ resource "env0_template_project_assignment" "assignment_workflow" {
   project_id  = env0_project.test_project.id
 }
 
-
 resource "env0_variable_set" "variable_set1" {
   name        = "variable-set-project-${random_string.random.result}"
   description = "description123"
@@ -253,10 +252,10 @@ resource "env0_environment" "workflow-environment" {
     env0_template_project_assignment.assignment_workflow,
     env0_template_project_assignment.assignment_sub_environment_null_template
   ]
-  force_destroy              = true
-  name                       = "environment-workflow-${random_string.random.result}"
-  project_id                 = env0_project.test_project.id
-  template_id                = env0_template.workflow_template.id
+  force_destroy = true
+  name          = "environment-workflow-${random_string.random.result}"
+  project_id    = env0_project.test_project.id
+  template_id   = env0_template.workflow_template.id
 
   configuration {
     name  = "n1"
@@ -268,7 +267,7 @@ resource "env0_environment" "workflow-environment" {
   sub_environment_configuration {
     alias                      = "rootService1"
     revision                   = "master"
-    approve_plan_automatically = var.second_run ? false : true 
+    approve_plan_automatically = var.second_run ? false : true
     configuration {
       name  = "sub_env1_var1"
       value = "hello"
@@ -278,6 +277,10 @@ resource "env0_environment" "workflow-environment" {
       value = "world"
     }
   }
+}
+
+data "env0_environment" "test-workflow" {
+  id = env0_environment.workflow-environment.id
 }
 
 resource "env0_environment" "mark_as_archived" {

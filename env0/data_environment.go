@@ -2,6 +2,8 @@ package env0
 
 import (
 	"context"
+	"slices"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -98,6 +100,25 @@ func dataEnvironment() *schema.Resource {
 				Description: "The token id used for repo integrations (Used by Gitlab or Azure DevOps)",
 				Computed:    true,
 			},
+			"sub_environment_configuration": {
+				Type:        schema.TypeList,
+				Description: "the sub environments of the workflow environment. (Empty for non workflow environments)",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "the id of the sub environment",
+							Computed:    true,
+						},
+						"alias": {
+							Type:        schema.TypeString,
+							Description: "sub environment alias name",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -126,6 +147,30 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	if err := setEnvironmentSchema(ctx, d, environment, client.ConfigurationChanges{}, nil); err != nil {
 		return diag.FromErr(err)
 	}
+
+	subEnvironments := []interface{}{}
+
+	if environment.LatestDeploymentLog.WorkflowFile != nil {
+		for alias, subenv := range environment.LatestDeploymentLog.WorkflowFile.Environments {
+			subEnvironment := map[string]interface{}{
+				"id":    subenv.EnvironmentId,
+				"alias": alias,
+			}
+			subEnvironments = append(subEnvironments, subEnvironment)
+		}
+	}
+
+	slices.SortFunc(subEnvironments, func(a, b interface{}) int {
+		amap := a.(map[string]interface{})
+		bmap := b.(map[string]interface{})
+
+		aalias := amap["alias"].(string)
+		balias := bmap["alias"].(string)
+
+		return strings.Compare(aalias, balias)
+	})
+
+	d.Set("sub_environment_configuration", subEnvironments)
 
 	templateId := environment.LatestDeploymentLog.BlueprintId
 
