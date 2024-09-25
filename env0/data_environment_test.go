@@ -32,6 +32,16 @@ func TestEnvironmentDataSource(t *testing.T) {
 			BlueprintId:       template.Id,
 			BlueprintRevision: "revision",
 			Output:            []byte(`{"a": "b"}`),
+			WorkflowFile: &client.WorkflowFile{
+				Environments: map[string]client.WorkflowSubEnvironment{
+					"db": {
+						EnvironmentId: "id_db",
+					},
+					"compute": {
+						EnvironmentId: "id_compute",
+					},
+				},
+			},
 		},
 	}
 
@@ -78,6 +88,10 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "token_id", template.TokenId),
 						resource.TestCheckResourceAttr(accessor, "github_installation_id", strconv.Itoa(template.GithubInstallationId)),
 						resource.TestCheckResourceAttr(accessor, "bitbucket_client_key", template.BitbucketClientKey),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.alias", "compute"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", "id_compute"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.alias", "db"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "id_db"),
 					),
 				},
 			},
