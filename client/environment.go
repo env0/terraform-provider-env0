@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const ENVIRONMENT = "environment"
+
 type ConfigurationVariableType int
 
 func (c *ConfigurationVariableType) ReadResourceData(fieldName string, d *schema.ResourceData) error {

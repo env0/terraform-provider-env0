@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -84,7 +85,7 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					value := val.(string)
-					if value != "environment" && value != "terraform" {
+					if value != client.ENVIRONMENT && value != client.TERRAFORM {
 						errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
 					}
 					return
@@ -454,6 +455,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 			for _, newv := range variableSetsIds {
 				if schemav == newv {
 					sortedVariablesSet = append(sortedVariablesSet, schemav)
+
 					break
 				}
 			}
@@ -464,6 +466,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 			for _, sortedv := range sortedVariablesSet {
 				if newv == sortedv {
 					found = true
+
 					break
 				}
 			}
@@ -486,9 +489,9 @@ func createVariable(configurationVariable *client.ConfigurationVariable) interfa
 	variable["value"] = configurationVariable.Value
 
 	if configurationVariable.Type == nil || *configurationVariable.Type == 0 {
-		variable["type"] = "environment"
+		variable["type"] = client.ENVIRONMENT
 	} else {
-		variable["type"] = "terraform"
+		variable["type"] = client.TERRAFORM
 	}
 
 	if configurationVariable.Description != "" {
@@ -518,67 +521,6 @@ func createVariable(configurationVariable *client.ConfigurationVariable) interfa
 	}
 
 	return variable
-}
-
-func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceData, configurationVariables []client.ConfigurationVariable) {
-	ivariables, ok := d.GetOk("configuration")
-	if !ok {
-		return
-	}
-
-	if ivariables == nil {
-		ivariables = make([]interface{}, 0)
-	}
-
-	variables := ivariables.([]interface{})
-
-	newVariables := make([]interface{}, 0)
-
-	// The goal is to maintain existing state order as much as possible. (The backend response order may vary from state).
-	for _, ivariable := range variables {
-		variable := ivariable.(map[string]interface{})
-		variableName := variable["name"].(string)
-
-		for _, configurationVariable := range configurationVariables {
-			if configurationVariable.Name == variableName {
-				newVariable := createVariable(&configurationVariable)
-
-				if configurationVariable.IsSensitive != nil && *configurationVariable.IsSensitive {
-					// To avoid drift for sensitive variables, don't override with the variable value received from API. Use the one in the schema instead.
-					newVariable.(map[string]interface{})["value"] = variable["value"]
-				}
-
-				newVariables = append(newVariables, newVariable)
-
-				break
-			}
-		}
-	}
-
-	// Check for drifts: add new configuration variables received from the backend.
-	for _, configurationVariable := range configurationVariables {
-		found := false
-
-		for _, ivariable := range variables {
-			variable := ivariable.(map[string]interface{})
-			variableName := variable["name"].(string)
-			if configurationVariable.Name == variableName {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"configuration name": configurationVariable.Name})
-			newVariables = append(newVariables, createVariable(&configurationVariable))
-		}
-	}
-
-	if len(newVariables) > 0 {
-		d.Set("configuration", newVariables)
-	} else {
-		d.Set("configuration", nil)
-	}
 }
 
 // Validate that the template is assigned to the "project_id".
@@ -661,14 +603,14 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient client.ApiClientInterface) ([]string, error) {
-	environmentVariableSets, err := apiClient.ConfigurationSetsAssignments("ENVIRONMENT", d.Id())
+	environmentVariableSets, err := apiClient.ConfigurationSetsAssignments(strings.ToUpper(client.ENVIRONMENT), d.Id())
 	if err != nil {
 		return nil, err
 	}
 
 	var environmentVariableSetIds []string
 	for _, variableSet := range environmentVariableSets {
-		if variableSet.AssignmentScope == "environment" {
+		if variableSet.AssignmentScope == client.ENVIRONMENT {
 			environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
 		}
 	}
@@ -1141,6 +1083,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 		for _, av := range variableSetFromApi {
 			if sv == av {
 				found = true
+
 				break
 			}
 		}
@@ -1156,6 +1099,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 		for _, sv := range variableSetsFromSchema {
 			if sv == av {
 				found = true
+
 				break
 			}
 		}
@@ -1252,16 +1196,6 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	return configurationChanges, nil
 }
 
-func getConfigurationVariablesFromSchema(configuration []interface{}) client.ConfigurationChanges {
-	configurationChanges := client.ConfigurationChanges{}
-	for _, variable := range configuration {
-		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]interface{}))
-		configurationChanges = append(configurationChanges, configurationVariable)
-	}
-
-	return configurationChanges
-}
-
 func deleteUnusedConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) client.ConfigurationChanges {
 	for _, existVariable := range existVariables {
 		if isExist, _ := isVariableExist(configurationChanges, existVariable); !isExist {
@@ -1298,63 +1232,6 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 	return *variable.Type == *search.Type ||
 		variable.Type == nil && *search.Type == client.ConfigurationVariableTypeEnvironment ||
 		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
-}
-
-func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
-	varType, _ := client.GetConfigurationVariableType(variable["type"].(string))
-
-	configurationVariable := client.ConfigurationVariable{
-		Name:  variable["name"].(string),
-		Value: variable["value"].(string),
-		Scope: client.ScopeDeployment,
-		Type:  &varType,
-	}
-
-	if variable["scope_id"] != nil {
-		configurationVariable.ScopeId = variable["scope_id"].(string)
-	}
-
-	if variable["is_sensitive"] != nil {
-		isSensitive := variable["is_sensitive"].(bool)
-		configurationVariable.IsSensitive = &isSensitive
-	}
-
-	if variable["is_read_only"] != nil {
-		isReadOnly := variable["is_read_only"].(bool)
-		configurationVariable.IsReadOnly = &isReadOnly
-	}
-
-	if variable["is_required"] != nil {
-		isRequired := variable["is_required"].(bool)
-		configurationVariable.IsRequired = &isRequired
-	}
-
-	if variable["description"] != nil {
-		configurationVariable.Description = variable["description"].(string)
-	}
-
-	if variable["regex"] != nil {
-		configurationVariable.Regex = variable["regex"].(string)
-	}
-
-	configurationSchema := client.ConfigurationVariableSchema{
-		Format: client.Format(variable["schema_format"].(string)),
-		Enum:   nil,
-		Type:   variable["schema_type"].(string),
-	}
-
-	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
-		enumOfAny := variable["schema_enum"].([]interface{})
-		enum := make([]string, len(enumOfAny))
-		for i := range enum {
-			enum[i] = enumOfAny[i].(string)
-		}
-		configurationSchema.Type = variable["schema_type"].(string)
-		configurationSchema.Enum = enum
-	}
-
-	configurationVariable.Schema = &configurationSchema
-	return configurationVariable
 }
 
 func getEnvironmentByName(meta interface{}, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
