@@ -374,7 +374,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"wait_for_destroy": {
 				Type:        schema.TypeBool,
-				Description: "during destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.",
+				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.",
 				Default:     false,
 				Optional:    true,
 			},
