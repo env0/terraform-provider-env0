@@ -300,11 +300,13 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 		for _, avariable := range api {
 			if svariable.Name == avariable.Name && *svariable.Type == *avariable.Type {
 				found = true
+
 				if avariable.IsSensitive != nil && *avariable.IsSensitive {
 					// Sensitive - to avoid drift use the value from the schema
 					avariable.Value = svariable.Value
 				}
 				res.currentVariables = append(res.currentVariables, avariable)
+
 				break
 			}
 		}

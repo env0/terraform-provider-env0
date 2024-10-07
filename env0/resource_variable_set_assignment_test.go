@@ -22,10 +22,17 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 			{
 				Id:              "a1",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 			{
 				Id:              "a2",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
+			},
+			{
+				Id:              "filtered_out",
+				AssignmentScope: scope,
+				CreationScopeId: "otherCreationScopeId",
 			},
 		}
 		// Validates that drifts do not occur due to ordering.
@@ -33,10 +40,12 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 			{
 				Id:              "a2",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 			{
 				Id:              "a1",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 		}
 
@@ -45,10 +54,12 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 			{
 				Id:              "a3",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 			{
 				Id:              "a1",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 		}
 
@@ -105,10 +116,12 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 			{
 				Id:              "a1",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 			{
 				Id:              "a2",
 				AssignmentScope: scope,
+				CreationScopeId: scopeId,
 			},
 		}
 
