@@ -21,15 +21,17 @@ type UpdateConfigurationSetPayload struct {
 }
 
 type ConfigurationSet struct {
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	AssignmentScope string `json:"assignmentScope"`
-	CreationScopeId string `json:"creationScopeId"`
+	Id                string `json:"id"`
+	Name              string `json:"name"`
+	Description       string `json:"description"`
+	AssignmentScope   string `json:"assignmentScope"`
+	CreationScopeId   string `json:"creationScopeId"`
+	AssignmentScopeId string `json:"assignmentScopeId"`
 }
 
 func (client *ApiClient) ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
 	var result ConfigurationSet
+
 	var err error
 
 	if payload.Scope == "organization" && payload.ScopeId == "" {

@@ -194,7 +194,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 
 		// Filter out inherited assignments (e.g parent project).
-		if apiConfigurationSet.CreationScopeId != assignmentSchema.ScopeId {
+		if apiConfigurationSet.AssignmentScopeId != assignmentSchema.ScopeId {
 			continue
 		}
 

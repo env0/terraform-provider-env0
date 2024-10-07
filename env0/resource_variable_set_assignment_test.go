@@ -20,46 +20,46 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		setIds := []string{"a1", "a2"}
 		configurationSetIds := []client.ConfigurationSet{
 			{
-				Id:              "a1",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a1",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 			{
-				Id:              "a2",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a2",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 			{
-				Id:              "filtered_out",
-				AssignmentScope: scope,
-				CreationScopeId: "otherCreationScopeId",
+				Id:                "filtered_out",
+				AssignmentScope:   scope,
+				AssignmentScopeId: "otherAssignmentScopeId",
 			},
 		}
 		// Validates that drifts do not occur due to ordering.
 		flippedConfigurationSetIds := []client.ConfigurationSet{
 			{
-				Id:              "a2",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a2",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 			{
-				Id:              "a1",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a1",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 		}
 
 		updatedSetIds := []string{"a1", "a3"}
 		updatedConfigurationSetIds := []client.ConfigurationSet{
 			{
-				Id:              "a3",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a3",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 			{
-				Id:              "a1",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a1",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 		}
 
@@ -114,14 +114,14 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		setIds := []string{"a1"}
 		configurationSetIds := []client.ConfigurationSet{
 			{
-				Id:              "a1",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a1",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 			{
-				Id:              "a2",
-				AssignmentScope: scope,
-				CreationScopeId: scopeId,
+				Id:                "a2",
+				AssignmentScope:   scope,
+				AssignmentScopeId: scopeId,
 			},
 		}
 
