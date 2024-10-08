@@ -188,7 +188,8 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 	}
 
 	for _, apiConfigurationSet := range apiConfigurationSets {
-		if !strings.EqualFold(apiConfigurationSet.AssignmentScope, assignmentSchema.Scope) {
+		// Filter out inherited assignments (e.g parent project).
+		if apiConfigurationSet.AssignmentScopeId != assignmentSchema.ScopeId {
 			continue
 		}
 
