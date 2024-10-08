@@ -102,5 +102,4 @@ func TestSourceCodeVariablesDataSource(t *testing.T) {
 			},
 		)
 	})
-
 }

@@ -1,7 +1,6 @@
 package env0
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -47,7 +46,7 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 	})
 
 	for _, key := range cronExprKeys {
-		t.Run(fmt.Sprintf("Failure due to invalid cron expression for %s", key), func(t *testing.T) {
+		t.Run("Failure due to invalid cron expression for "+key, func(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{

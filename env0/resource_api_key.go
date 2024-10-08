@@ -119,11 +119,13 @@ func getApiKeyById(id string, meta interface{}) (*client.ApiKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	for _, apiKey := range apiKeys {
 		if apiKey.Id == id {
 			return &apiKey, nil
 		}
 	}
+
 	return nil, nil
 }
 
@@ -174,7 +176,7 @@ func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(apiKey, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

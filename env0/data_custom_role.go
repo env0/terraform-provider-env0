@@ -31,6 +31,7 @@ func dataCustomRole() *schema.Resource {
 
 func dataCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
+
 	var role *client.Role
 
 	id, ok := d.GetOk("id")

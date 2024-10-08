@@ -88,6 +88,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	for _, approvalPolicyByScope := range approvalPolicyByScopeArr {
 		if approvalPolicyByScope.ApprovalPolicy.Id == assignment.BlueprintId {
 			found = true
+
 			break
 		}
 	}

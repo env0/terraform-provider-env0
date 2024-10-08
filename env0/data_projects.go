@@ -68,6 +68,7 @@ func dataProjectsRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	filteredProjects := []client.Project{}
+
 	for _, project := range projects {
 		if includeArchivedProjects || !project.IsArchived {
 			filteredProjects = append(filteredProjects, project)

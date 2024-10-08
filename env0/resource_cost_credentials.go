@@ -69,7 +69,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 				},
 			}
 		default:
-			panic(fmt.Sprintf("unhandled provider name: %s", providerName))
+			panic("unhandled provider name: " + providerName)
 		}
 	}
 
@@ -94,7 +94,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 			}
 			value = &payload.(*client.GoogleCostCredentialsCreatePayload).Value
 		default:
-			panic(fmt.Sprintf("unhandled provider name: %s", providerName))
+			panic("unhandled provider name: " + providerName)
 		}
 
 		if err := readResourceData(value, d); err != nil {

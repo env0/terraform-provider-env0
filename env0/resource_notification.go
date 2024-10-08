@@ -63,11 +63,13 @@ func getNotificationById(id string, meta interface{}) (*client.Notification, err
 	if err != nil {
 		return nil, err
 	}
+
 	for _, notification := range notifications {
 		if notification.Id == id {
 			return &notification, nil
 		}
 	}
+
 	return nil, nil
 }
 

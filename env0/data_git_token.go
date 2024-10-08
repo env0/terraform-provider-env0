@@ -31,6 +31,7 @@ func dataGitToken() *schema.Resource {
 
 func dataGitTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var gitToken *client.GitToken
+
 	var err error
 
 	id, ok := d.GetOk("id")

@@ -56,6 +56,7 @@ func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta inter
 	switch resource.Scope {
 	case "ORGANIZATION":
 		var err error
+
 		scopeId, err = apiClient.OrganizationId()
 		if err != nil {
 			return diag.Errorf("could not get organization id: %v", err)
@@ -64,6 +65,7 @@ func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta inter
 		if resource.ProjectId == "" {
 			return diag.Errorf("'project_id' is required")
 		}
+
 		scopeId = resource.ProjectId
 	}
 
@@ -75,6 +77,7 @@ func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta inter
 	for _, variableSet := range variableSets {
 		if variableSet.Name == resource.Name {
 			d.SetId(variableSet.Id)
+
 			return nil
 		}
 	}

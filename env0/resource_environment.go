@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -81,7 +84,7 @@ func resourceEnvironment() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Description: "variable type (allowed values are: terraform, environment)",
-				Default:     "environment",
+				Default:     client.ENVIRONMENT,
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					value := val.(string)
@@ -369,6 +372,12 @@ func resourceEnvironment() *schema.Resource {
 					Description: "variable set id",
 				},
 			},
+			"wait_for_destroy": {
+				Type:        schema.TypeBool,
+				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.",
+				Default:     false,
+				Optional:    true,
+			},
 		},
 		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
 			if oldValue != "" && oldValue != newValue {
@@ -382,7 +391,7 @@ func resourceEnvironment() *schema.Resource {
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
 	if err := writeResourceData(&environment, d); err != nil {
-		return fmt.Errorf("schema resource data serialization failed: %v", err)
+		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
@@ -530,7 +539,7 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 
 	template, err := apiClient.Template(templateId)
 	if err != nil {
-		return fmt.Errorf("could not get template: %v", err)
+		return fmt.Errorf("could not get template: %w", err)
 	}
 
 	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
@@ -559,16 +568,20 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
 			return diag.Errorf("%v\n", err)
 		}
+
 		environment, err = apiClient.EnvironmentCreate(environmentPayload)
 	} else {
 		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
+
 		if createTemPayloadErr != nil {
 			return createTemPayloadErr
 		}
+
 		payload := client.EnvironmentCreateWithoutTemplate{
 			EnvironmentCreate: environmentPayload,
 			TemplateCreate:    templatePayload,
 		}
+
 		// Note: the blueprint id field of the environment is returned only during creation of a template without environment.
 		// Afterward, it will be omitted from future response.
 		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
@@ -876,7 +889,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
-	_, err := apiClient.EnvironmentDestroy(d.Id())
+	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
 			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
@@ -884,7 +897,63 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		}
 		return diag.Errorf("could not delete environment: %v", err)
 	}
+
+	if d.Get("wait_for_destroy").(bool) {
+		if err := waitForEnvironmentDestroy(ctx, apiClient, res.Id); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return nil
+}
+
+func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string) error {
+	waitInteval := time.Second * 10
+	timeout := time.Minute * 30
+
+	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and timeout to 10 seconds.
+		waitInteval = time.Second
+		timeout = time.Second * 10
+	}
+
+	ticker := time.NewTicker(waitInteval) // When invoked - check the status.
+	timer := time.NewTimer(timeout)       // When invoked - timeout.
+	results := make(chan error)
+
+	go func() {
+		for {
+			deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
+			if err != nil {
+				results <- fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
+				return
+			}
+
+			if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
+				results <- fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", deployment.Status)
+				return
+			}
+
+			if deployment.Status == "SUCCESS" {
+				results <- nil
+				return
+			}
+
+			tflog.Info(ctx, "current 'destroy' deployment status", map[string]interface{}{"deploymentId": deploymentId, "status": deployment.Status})
+			if deployment.Status == "WAITING_FOR_USER" {
+				tflog.Warn(ctx, "waiting for user approval (Env0 UI) to proceed with 'destroy' deployment")
+			}
+
+			select {
+			case <-timer.C:
+				results <- fmt.Errorf("timeout! last 'destroy' deployment status was '%s'", deployment.Status)
+				return
+			case <-ticker.C:
+				continue
+			}
+		}
+	}()
+
+	return <-results
 }
 
 func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
@@ -1148,13 +1217,16 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 			scope := client.ScopeEnvironment
+
 			if _, ok := d.GetOk("sub_environment_configuration"); ok {
 				scope = client.ScopeWorkflow
 			}
+
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), scope, apiClient)
 			if err != nil {
 				return client.DeployRequest{}, err
 			}
+
 			payload.ConfigurationChanges = &configurationChanges
 		}
 
@@ -1190,6 +1262,7 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	if err != nil {
 		return client.ConfigurationChanges{}, fmt.Errorf("could not get environment configuration variables: %w", err)
 	}
+
 	configurationChanges = linkToExistConfigurationVariables(configurationChanges, existVariables)
 	configurationChanges = deleteUnusedConfigurationVariables(configurationChanges, existVariables)
 
@@ -1279,6 +1352,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	var getErr diag.Diagnostics
 
 	var environment client.Environment
+
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving environment by id", map[string]interface{}{"id": id})
@@ -1304,12 +1378,12 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
 	if err != nil {
-		return nil, fmt.Errorf("could not get environment configuration variables: %v", err)
+		return nil, fmt.Errorf("could not get environment configuration variables: %w", err)
 	}
 
 	environmentVariableSetIds, err := getEnvironmentVariableSetIdsFromApi(d, apiClient)
 	if err != nil {
-		return nil, fmt.Errorf("could not get environment variable sets: %v", err)
+		return nil, fmt.Errorf("could not get environment variable sets: %w", err)
 	}
 
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
@@ -1348,6 +1422,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("force_destroy", false)
+	d.Set("wait_for_destroy", false)
 	d.Set("removal_strategy", "destroy")
 
 	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)

@@ -62,6 +62,7 @@ func dataCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta 
 		if filter && credential_type != credentials.Type {
 			continue
 		}
+
 		data = append(data, credentials.Name)
 	}
 

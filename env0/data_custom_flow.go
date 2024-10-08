@@ -31,6 +31,7 @@ func dataCustomFlow() *schema.Resource {
 
 func dataCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
+
 	var customFlow *client.CustomFlow
 
 	id, ok := d.GetOk("id")
@@ -41,6 +42,7 @@ func dataCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta interf
 		}
 	} else {
 		name := d.Get("name")
+
 		customFlow, err = getCustomFlowByName(name.(string), meta)
 		if err != nil {
 			return diag.Errorf("failed to get custom flow by name: %v", err)

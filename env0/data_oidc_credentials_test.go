@@ -125,5 +125,4 @@ func TestOidcCredentialDataSource(t *testing.T) {
 			)
 		})
 	}
-
 }

@@ -80,6 +80,7 @@ func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error)
 		if len(sshKeysByName) > 1 {
 			return nil, backoff.Permanent(fmt.Errorf("found multiple ssh keys with name: %s. Use id instead or make sure ssh key names are unique %v", name, sshKeysByName))
 		}
+
 		if len(sshKeysByName) == 0 {
 			return nil, fmt.Errorf("ssh key with name %v not found", name)
 		}
@@ -97,6 +98,7 @@ func getSshKeyById(id interface{}, meta interface{}) (*client.SshKey, error) {
 	}
 
 	var sshKey *client.SshKey
+
 	for _, candidate := range sshKeys {
 		if candidate.Id == id.(string) {
 			sshKey = &candidate

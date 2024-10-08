@@ -761,6 +761,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			})
 		})
 	}
+
 	t.Run("Basic template", func(t *testing.T) {
 		template := client.Template{
 			Id:         "id0",
@@ -956,6 +957,7 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		for _, testCase := range testCases {
 			tc := testCase
+
 			t.Run("Invalid retry times field", func(t *testing.T) {
 				runUnitTest(t, tc, func(mockFunc *client.MockApiClientInterface) {})
 			})
@@ -982,6 +984,7 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		for _, testCase := range testCases {
 			tc := testCase
+
 			t.Run("Invalid retry regex field", func(t *testing.T) {
 				runUnitTest(t, tc, func(mockFunc *client.MockApiClientInterface) {})
 			})

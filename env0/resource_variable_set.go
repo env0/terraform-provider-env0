@@ -305,6 +305,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 					// Sensitive - to avoid drift use the value from the schema
 					avariable.Value = svariable.Value
 				}
+
 				res.currentVariables = append(res.currentVariables, avariable)
 
 				break

@@ -482,6 +482,7 @@ func templateReadRetryOnHelper(prefix string, d *schema.ResourceData, retryType 
 			value["retries_on_"+retryType] = 0
 			value["retry_on_"+retryType+"_only_when_matches_regex"] = ""
 		}
+
 		d.Set(prefix, []interface{}{value})
 	} else {
 		if retryOn != nil {

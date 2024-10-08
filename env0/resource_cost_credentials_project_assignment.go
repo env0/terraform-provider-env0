@@ -39,7 +39,9 @@ func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *sche
 	if err != nil {
 		return diag.Errorf("could not assign cost credentials to project: %v", err)
 	}
+
 	d.SetId(getResourceId(result.CredentialsId, result.ProjectId))
+
 	return nil
 }
 
@@ -47,16 +49,20 @@ func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
+
 	credentialsList, err := apiClient.CostCredentialIdsInProject(projectId)
 	if err != nil {
 		return diag.Errorf("could not get cost credentials: %v", err)
 	}
+
 	found := false
+
 	for _, candidate := range credentialsList {
 		if candidate.CredentialsId == credentialId {
 			found = true
 		}
 	}
+
 	if !found && !d.IsNewResource() {
 		d.SetId("")
 		return nil
