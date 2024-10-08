@@ -467,7 +467,7 @@ var _ = Describe("Environment Client", func() {
 					*response = mockDeployment
 				}).Times(1)
 
-			deployment, err = apiClient.EnvironmentDeployment(mockDeployment.Id)
+			deployment, err = apiClient.EnvironmentDeploymentLog(mockDeployment.Id)
 		})
 
 		It("Should return deployment", func() {

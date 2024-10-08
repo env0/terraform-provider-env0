@@ -872,9 +872,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("IN_PROGRESS"), nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
 				})
 			})
@@ -889,7 +889,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						{
 							Config:      config,
 							Destroy:     true,
-							ExpectError: regexp.MustCompile("failed to wait for environment destroy to complete, deployment status is: WAITING_FOR_USER"),
+							ExpectError: regexp.MustCompile("failed to wait for environment destroy to complete, deployment status is: CANCELLED"),
 						},
 					},
 				}
@@ -905,9 +905,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("CANCELLED"), nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
 				})
 			})
@@ -938,9 +938,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(nil, errors.New("error")),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(nil, errors.New("error")),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
 				})
 			})
@@ -955,7 +955,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						{
 							Config:      config,
 							Destroy:     true,
-							ExpectError: regexp.MustCompile("timeout! last destroy deployment status was 'IN_PROGRESS'"),
+							ExpectError: regexp.MustCompile("timeout! last 'destroy' deployment status was 'IN_PROGRESS'"),
 						},
 					},
 				}
@@ -971,10 +971,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
-						mock.EXPECT().EnvironmentDeployment(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
 				})
 			})

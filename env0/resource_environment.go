@@ -568,16 +568,20 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
 			return diag.Errorf("%v\n", err)
 		}
+
 		environment, err = apiClient.EnvironmentCreate(environmentPayload)
 	} else {
 		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
+
 		if createTemPayloadErr != nil {
 			return createTemPayloadErr
 		}
+
 		payload := client.EnvironmentCreateWithoutTemplate{
 			EnvironmentCreate: environmentPayload,
 			TemplateCreate:    templatePayload,
 		}
+
 		// Note: the blueprint id field of the environment is returned only during creation of a template without environment.
 		// Afterward, it will be omitted from future response.
 		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
@@ -895,7 +899,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		if err := waitForEnvironmentDestroy(apiClient, res.Id); err != nil {
+		if err := waitForEnvironmentDestroy(ctx, apiClient, res.Id); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -903,7 +907,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, deploymentId string) error {
+func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string) error {
 	waitInteval := time.Second * 10
 	timeout := time.Minute * 30
 
@@ -918,13 +922,13 @@ func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, deploymentId
 
 	go func() {
 		for {
-			deployment, err := apiClient.EnvironmentDeployment(deploymentId)
+			deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
 			if err != nil {
 				results <- fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
 				return
 			}
 
-			if slices.Contains([]string{"WAITING_FOR_USER", "TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
+			if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
 				results <- fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", deployment.Status)
 				return
 			}
@@ -934,9 +938,14 @@ func waitForEnvironmentDestroy(apiClient client.ApiClientInterface, deploymentId
 				return
 			}
 
+			tflog.Info(ctx, "current 'destroy' deployment status", map[string]interface{}{"deploymentId": deploymentId, "status": deployment.Status})
+			if deployment.Status == "WAITING_FOR_USER" {
+				tflog.Warn(ctx, "waiting for user approval (Env0 UI) to proceed with 'destroy' deployment")
+			}
+
 			select {
 			case <-timer.C:
-				results <- fmt.Errorf("timeout! last destroy deployment status was '%s'", deployment.Status)
+				results <- fmt.Errorf("timeout! last 'destroy' deployment status was '%s'", deployment.Status)
 				return
 			case <-ticker.C:
 				continue
@@ -1208,13 +1217,16 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
 			scope := client.ScopeEnvironment
+
 			if _, ok := d.GetOk("sub_environment_configuration"); ok {
 				scope = client.ScopeWorkflow
 			}
+
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), scope, apiClient)
 			if err != nil {
 				return client.DeployRequest{}, err
 			}
+
 			payload.ConfigurationChanges = &configurationChanges
 		}
 
@@ -1250,6 +1262,7 @@ func getUpdateConfigurationVariables(configurationChanges client.ConfigurationCh
 	if err != nil {
 		return client.ConfigurationChanges{}, fmt.Errorf("could not get environment configuration variables: %w", err)
 	}
+
 	configurationChanges = linkToExistConfigurationVariables(configurationChanges, existVariables)
 	configurationChanges = deleteUnusedConfigurationVariables(configurationChanges, existVariables)
 
@@ -1339,6 +1352,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	var getErr diag.Diagnostics
 
 	var environment client.Environment
+
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving environment by id", map[string]interface{}{"id": id})
@@ -1369,7 +1383,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	environmentVariableSetIds, err := getEnvironmentVariableSetIdsFromApi(d, apiClient)
 	if err != nil {
-		return nil, fmt.Errorf("could not get environment variable sets: %v", err)
+		return nil, fmt.Errorf("could not get environment variable sets: %w", err)
 	}
 
 	d.Set("deployment_id", environment.LatestDeploymentLogId)

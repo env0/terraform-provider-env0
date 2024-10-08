@@ -75,7 +75,7 @@ type ApiClientInterface interface {
 	EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error)
 	EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error)
 	EnvironmentSchedulingDelete(environmentId string) error
-	EnvironmentDeployment(id string) (*DeploymentLog, error)
+	EnvironmentDeploymentLog(id string) (*DeploymentLog, error)
 	WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error)
 	WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error)
 	EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error)

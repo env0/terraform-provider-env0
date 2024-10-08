@@ -263,7 +263,7 @@ func (client *ApiClient) Environment(id string) (Environment, error) {
 	return result, nil
 }
 
-func (client *ApiClient) EnvironmentDeployment(id string) (*DeploymentLog, error) {
+func (client *ApiClient) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
 	var result DeploymentLog
 	err := client.http.Get("/environments/deployments/"+id, nil, &result)
 	if err != nil {
