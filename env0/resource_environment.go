@@ -671,6 +671,12 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if shouldUpdateTemplate(d) {
+		if err := updateTemplate(d, apiClient); err != nil {
+			return err
+		}
+	}
+
 	if shouldUpdate(d) {
 		if err := update(d, apiClient); err != nil {
 			return err
@@ -685,12 +691,6 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	if shouldUpdateDriftDetection(d) {
 		if err := updateDriftDetection(d, apiClient); err != nil {
-			return err
-		}
-	}
-
-	if shouldUpdateTemplate(d) {
-		if err := updateTemplate(d, apiClient); err != nil {
 			return err
 		}
 	}
