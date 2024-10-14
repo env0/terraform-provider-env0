@@ -35,6 +35,7 @@ func TestUnitResourceCostCredentialsProjectAssignmentResource(t *testing.T) {
 		"credential_id": assignment.CredentialsId,
 		"project_id":    assignment.ProjectId,
 	})
+
 	t.Run("Create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

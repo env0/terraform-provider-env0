@@ -47,7 +47,7 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("could not get workflow triggers: %v", err)
 	}
 
-	var triggerIds []string
+	triggerIds := []string{}
 	for _, value := range triggers {
 		triggerIds = append(triggerIds, value.Id)
 	}
@@ -62,7 +62,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 	environmentId := d.Get("environment_id").(string)
 	rawDownstreamIds := d.Get("downstream_environment_ids").([]interface{})
 
-	var requestDownstreamIds []string
+	requestDownstreamIds := []string{}
 
 	for _, rawId := range rawDownstreamIds {
 		requestDownstreamIds = append(requestDownstreamIds, rawId.(string))
@@ -75,7 +75,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("could not Create or Update workflow triggers: %v", err)
 	}
 
-	var downstreamIds []string
+	downstreamIds := []string{}
 	for _, trigger := range triggers {
 		downstreamIds = append(downstreamIds, trigger.Id)
 	}

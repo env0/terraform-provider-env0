@@ -34,6 +34,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 	}
 
 	var template client.Template
+
 	require.NoError(t, copier.Copy(&template, &approvalPolicy))
 	template.Type = string(ApprovalPolicy)
 
@@ -54,6 +55,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 	}
 
 	var updatedTemplate client.Template
+
 	require.NoError(t, copier.Copy(&updatedTemplate, &updatedApprovalPolicy))
 	updatedTemplate.Type = string(ApprovalPolicy)
 

@@ -152,7 +152,7 @@ func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.Confi
 	scope, scopeId := whichScope(d)
 	params := client.ConfigurationVariableCreateParams{Scope: scope, ScopeId: scopeId}
 	if err := readResourceData(&params, d); err != nil {
-		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
 
 	if err := validateNilValue(params.IsReadOnly, params.IsRequired, params.Value); err != nil {
@@ -191,6 +191,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
 		valueExists := false
+
 		for i, enumValue := range enumValues {
 			if enumValue == nil {
 				return nil, fmt.Errorf("an empty enum value is not allowed (at index %d)", i)
@@ -267,8 +268,10 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 	inputData := d.Id()
+
 	// soft delete isn't part of the configuration variable, so we need to set it
 	d.Set("soft_delete", false)
+
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
 	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
 	if string(configurationParams.Scope) == "TEMPLATE" {

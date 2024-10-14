@@ -804,6 +804,182 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("wait for destroy", func(t *testing.T) {
+			templateId := "template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "name",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: templateId,
+				},
+			}
+
+			environmentCreate := client.EnvironmentCreate{
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+
+				DeployRequest: &client.DeployRequest{
+					BlueprintId: templateId,
+				},
+			}
+
+			deploymentLog := client.DeploymentLog{
+				Id: "id12345_deployment",
+			}
+
+			destroyResponse := &client.EnvironmentDestroyResponse{
+				Id: deploymentLog.Id,
+			}
+
+			deploymentWithStatus := func(status string) *client.DeploymentLog {
+				newDeployment := deploymentLog
+				newDeployment.Status = status
+				return &newDeployment
+			}
+
+			config := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				"name":             environment.Name,
+				"project_id":       environment.ProjectId,
+				"template_id":      templateId,
+				"wait_for_destroy": true,
+				"force_destroy":    true,
+			})
+
+			check := resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+				resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+				resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+				resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+			)
+
+			t.Run("becomes inactive", func(t *testing.T) {
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+
+			t.Run("destroy fails", func(t *testing.T) {
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+						{
+							Config:      config,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile("failed to wait for environment destroy to complete, deployment status is: CANCELLED"),
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("CANCELLED"), nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+
+			t.Run("get deployment failed", func(t *testing.T) {
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+						{
+							Config:      config,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile(fmt.Sprintf("failed to get environment deployment '%s': error", deploymentLog.Id)),
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(nil, errors.New("error")),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+
+			t.Run("timeout", func(t *testing.T) {
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+						{
+							Config:      config,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile("timeout! last 'destroy' deployment status was 'IN_PROGRESS'"),
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+		})
+
 		t.Run("Mark as archived", func(t *testing.T) {
 			environment := client.Environment{
 				Id:        uuid.New().String(),
@@ -1257,6 +1433,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				configurationVariables.IsReadOnly = boolPtr(false)
 				configurationVariables.IsRequired = boolPtr(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
+
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(templateInSlice, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
 					Name:                   environment.Name,
@@ -1272,6 +1449,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 				varTrue := true
 				configurationVariables.ToDelete = &varTrue
+
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(4).Return(nil, nil)
 				gomock.InOrder(
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{configurationVariables}, nil), // read after create -> on update
@@ -2392,7 +2570,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil)
-			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(environment, http.NewMockFailedResponseError(400))
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(nil, http.NewMockFailedResponseError(400))
 		})
 	})
 
@@ -2675,7 +2853,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-
 			gomock.InOrder(
 				// Step1
 				// Create
@@ -2750,7 +2927,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-
 			gomock.InOrder(
 				// Create
 				mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environmentWithBluePrint, nil),

@@ -49,6 +49,7 @@ resource "env0_environment" "auto_glob_envrironment" {
   approve_plan_automatically       = true
   deploy_on_push                   = true
   force_destroy                    = true
+  wait_for_destroy                 = true
 }
 
 resource "env0_environment" "example" {

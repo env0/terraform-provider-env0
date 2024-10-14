@@ -125,6 +125,7 @@ func dataEnvironment() *schema.Resource {
 
 func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
+
 	var environment client.Environment
 
 	projectId := d.Get("project_id").(string)
@@ -138,6 +139,7 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 	} else {
 		name := d.Get("name").(string)
 		excludeArchived := d.Get("exclude_archived")
+
 		environment, err = getEnvironmentByName(meta, name, projectId, excludeArchived.(bool))
 		if err != nil {
 			return err

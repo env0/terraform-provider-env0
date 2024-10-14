@@ -23,10 +23,12 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		CredentialId: "cred-it",
 		ProjectId:    "proj-it-update",
 	}
+
 	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 		"credential_id": assignment.CredentialId,
 		"project_id":    assignment.ProjectId,
 	})
+
 	t.Run("Create", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

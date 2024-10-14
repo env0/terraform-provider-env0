@@ -49,6 +49,7 @@ func dataTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{})
 		if !ok {
 			return diag.Errorf("Either 'name' or 'id' must be specified")
 		}
+
 		team, err = getTeamByName(name.(string), meta)
 		if err != nil {
 			return err

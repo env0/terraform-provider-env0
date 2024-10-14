@@ -28,6 +28,7 @@ func dataNotifications() *schema.Resource {
 
 func dataNotificationsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
 	notifications, err := apiClient.Notifications()
 	if err != nil {
 		return diag.Errorf("could not get notifications: %v", err)
