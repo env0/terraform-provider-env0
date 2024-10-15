@@ -54,6 +54,7 @@ func TestVariableSetDataSource(t *testing.T) {
 			if organizationId != "" {
 				mock.EXPECT().OrganizationId().AnyTimes().Return(organizationId, nil)
 			}
+
 			mock.EXPECT().ConfigurationSets(scope, scopeId).AnyTimes().Return(returnValue, nil)
 		}
 	}

@@ -135,7 +135,7 @@ func resourceApprovalPolicyImport(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if err := writeResourceData(approvalPolicy, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

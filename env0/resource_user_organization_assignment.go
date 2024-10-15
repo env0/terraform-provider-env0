@@ -70,7 +70,6 @@ func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
 		return nil
-
 	}
 
 	if isBuiltinOrganizationRole(user.Role) {

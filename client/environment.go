@@ -29,7 +29,7 @@ func (c *ConfigurationVariableType) WriteResourceData(fieldName string, d *schem
 
 	switch val := *c; val {
 	case 0:
-		valStr = "environment"
+		valStr = ENVIRONMENT
 	case 1:
 		valStr = TERRAFORM
 	default:
@@ -93,6 +93,7 @@ type DeploymentLog struct {
 	Output              json.RawMessage `json:"output,omitempty"`
 	Error               json.RawMessage `json:"error,omitempty"`
 	Type                string          `json:"type"`
+	Status              string          `json:"status"`
 	WorkflowFile        *WorkflowFile   `json:"workflowFile,omitempty" tfschema:"-"`
 }
 
@@ -163,6 +164,10 @@ type EnvironmentCreateWithoutTemplate struct {
 
 type EnvironmentMoveRequest struct {
 	ProjectId string `json:"projectId"`
+}
+
+type EnvironmentDestroyResponse struct {
+	Id string `json:"id"`
 }
 
 func GetConfigurationVariableType(variableType string) (ConfigurationVariableType, error) {
@@ -258,6 +263,15 @@ func (client *ApiClient) Environment(id string) (Environment, error) {
 	return result, nil
 }
 
+func (client *ApiClient) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
+	var result DeploymentLog
+	err := client.http.Get("/environments/deployments/"+id, nil, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 func (client *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environment, error) {
 	var result Environment
 
@@ -285,13 +299,13 @@ func (client *ApiClient) EnvironmentCreateWithoutTemplate(payload EnvironmentCre
 	return result, nil
 }
 
-func (client *ApiClient) EnvironmentDestroy(id string) (Environment, error) {
-	var result Environment
+func (client *ApiClient) EnvironmentDestroy(id string) (*EnvironmentDestroyResponse, error) {
+	var result EnvironmentDestroyResponse
 	err := client.http.Post("/environments/"+id+"/destroy", nil, &result)
 	if err != nil {
-		return Environment{}, err
+		return nil, err
 	}
-	return result, nil
+	return &result, nil
 }
 
 func (client *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {

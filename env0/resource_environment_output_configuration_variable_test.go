@@ -53,7 +53,6 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 	updatedConfigurationVariable.Value = updatedValueStr
 
 	t.Run("create and update", func(t *testing.T) {
-
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
