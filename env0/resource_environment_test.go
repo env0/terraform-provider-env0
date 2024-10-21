@@ -59,7 +59,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		},
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias2",
-		VcsPrCommentsEnabled:       false,
+		VcsPrCommentsEnabled:       true,
 		IsRemoteBackend:            &isRemoteBackendTrue,
 		IsArchived:                 boolPtr(true),
 		K8sNamespace:               "namespace",
@@ -82,6 +82,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
+			"vcs_pr_comments_enabled":      true,
 			"is_remote_backend":            *(environment.IsRemoteBackend),
 			"k8s_namespace":                environment.K8sNamespace,
 		}
@@ -122,6 +123,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 			"force_destroy":                true,
 			"vcs_commands_alias":           environment.VcsCommandsAlias,
+			"vcs_pr_comments_enabled":      true,
 			"is_remote_backend":            *(environment.IsRemoteBackend),
 			"k8s_namespace":                environment.K8sNamespace,
 		}
@@ -190,6 +192,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -200,9 +203,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					Name:                       updatedEnvironment.Name,
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
-					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
@@ -335,6 +339,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 			}
 
+			environmentCopy := environment
+			environmentCopy.VcsPrCommentsEnabled = false
+
+			updatedEnvironmentCopy := updatedEnvironment
+			updatedEnvironmentCopy.VcsPrCommentsEnabled = false
+
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
@@ -343,26 +353,24 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					WorkspaceName:              environment.WorkspaceName,
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
-					VcsCommandsAlias:           environment.VcsCommandsAlias,
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
 					IsRemoteBackend: &isRemoteBackendFalse,
 					K8sNamespace:    environment.K8sNamespace,
-				}).Times(1).Return(environment, nil)
+				}).Times(1).Return(environmentCopy, nil)
 				mock.EXPECT().EnvironmentUpdate(updatedEnvironment.Id, client.EnvironmentUpdate{
 					Name:                       updatedEnvironment.Name,
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
-					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					VcsPrCommentsEnabled:       boolPtr(false),
-				}).Times(1).Return(updatedEnvironment, nil)
+				}).Times(1).Return(updatedEnvironmentCopy, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
 				gomock.InOrder(
-					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),        // 1 after create, 1 before update
-					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environmentCopy, nil),        // 1 after create, 1 before update
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironmentCopy, nil), // 1 after update
 				)
 
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -1058,6 +1066,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1095,6 +1104,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1161,6 +1171,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1175,9 +1186,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					Name:                       updatedEnvironment.Name,
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
-					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().EnvironmentStopDriftDetection(environment.Id).Times(1).Return(nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
@@ -1243,6 +1255,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1257,9 +1270,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					Name:                       updatedEnvironment.Name,
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
-					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
+					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().EnvironmentUpdateDriftDetection(environment.Id, client.EnvironmentSchedulingExpression{Cron: updatedDriftDetectionCron, Enabled: true}).Times(1).Return(client.EnvironmentSchedulingExpression{}, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
@@ -2420,6 +2434,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
@@ -2452,6 +2467,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
@@ -2462,6 +2478,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 boolPtr(true),
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
@@ -2496,6 +2513,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"force_destroy":                true,
 							"terragrunt_working_directory": environment.TerragruntWorkingDirectory,
 							"vcs_commands_alias":           environment.VcsCommandsAlias,
+							"vcs_pr_comments_enabled":      true,
 							"k8s_namespace":                environment.K8sNamespace,
 						}),
 						ExpectError: regexp.MustCompile("failed deploying environment: error"),
@@ -2540,6 +2558,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
+					VcsPrCommentsEnabled:       boolPtr(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
@@ -2595,7 +2614,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		WorkspaceName:              "workspace-name",
 		TerragruntWorkingDirectory: "/terragrunt/directory/",
 		VcsCommandsAlias:           "alias",
-		VcsPrCommentsEnabled:       false,
+		VcsPrCommentsEnabled:       true,
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId: "id-template-0",
 		},
@@ -2662,6 +2681,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		PullRequestPlanDeployments: environment.PullRequestPlanDeployments,
 		TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 		VcsCommandsAlias:           environment.VcsCommandsAlias,
+		VcsPrCommentsEnabled:       boolPtr(true),
 	}
 
 	templateCreatePayload := client.TemplateCreatePayload{
@@ -2737,6 +2757,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			terragrunt_working_directory = "%s"
 			force_destroy = true
 			vcs_commands_alias = "%s"
+			vcs_pr_comments_enabled = true
 			without_template_settings {
 				repository = "%s"
 				terraform_version = "%s"

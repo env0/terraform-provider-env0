@@ -1062,6 +1062,11 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 	}
 
+	// Send an empty vcs_commands_alias if vcs_pr_comments_enabled is 'false' or unset - https://github.com/env0/terraform-provider-env0/issues/964
+	if payload.VcsPrCommentsEnabled == nil || !*payload.VcsPrCommentsEnabled {
+		payload.VcsCommandsAlias = ""
+	}
+
 	payload.DeployRequest = &deployPayload
 
 	return payload, nil
@@ -1127,6 +1132,11 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 
 	if d.HasChange("is_inactive") {
 		payload.IsArchived = boolPtr(d.Get("is_inactive").(bool))
+	}
+
+	// Send an empty vcs_commands_alias if vcs_pr_comments_enabled is 'false' or unset - https://github.com/env0/terraform-provider-env0/issues/964
+	if payload.VcsPrCommentsEnabled == nil || !*payload.VcsPrCommentsEnabled {
+		payload.VcsCommandsAlias = ""
 	}
 
 	if err := assertEnvironment(d); err != nil {
