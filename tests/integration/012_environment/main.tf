@@ -189,7 +189,8 @@ data "env0_template" "gitlab_template" {
 }
 
 resource "env0_environment" "environment-without-template-start-with-no-vcs" {
-  name = "start-with-non-vsc-${random_string.random.result}"
+  name       = "start-with-non-vsc-${random_string.random.result}"
+  project_id = env0_project.test_project.id
 
   auto_deploy_on_path_changes_only = var.second_run ? true : false
   deploy_on_push                   = var.second_run ? true : false
