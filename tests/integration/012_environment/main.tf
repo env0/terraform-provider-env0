@@ -184,6 +184,27 @@ resource "env0_environment" "environment-without-template" {
   }
 }
 
+data "env0_template" "gitlab_template" {
+  name = "Gitlab Integrated Template"
+}
+
+resource "env0_environment" "environment-without-template-start-with-no-vcs" {
+  name = "start-with-non-vsc-${random_string.random.result}"
+
+  auto_deploy_on_path_changes_only = var.second_run ? true : false
+  deploy_on_push                   = var.second_run ? true : false
+  run_plan_on_pull_requests        = var.second_run ? true : false
+
+  without_template_settings {
+    type             = "opentofu"
+    is_gitlab        = var.second_run ? true : false
+    repository       = data.env0_template.gitlab_template.repository
+    token_id         = data.env0_template.gitlab_template.token_id
+    token_name       = data.env0_template.gitlab_template.token_name
+    opentofu_version = "latest"
+  }
+}
+
 resource "env0_environment" "inactive" {
   depends_on                 = [env0_template_project_assignment.assignment]
   force_destroy              = true
