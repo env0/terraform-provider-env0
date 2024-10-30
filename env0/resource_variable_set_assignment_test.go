@@ -61,6 +61,11 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 				AssignmentScope:   scope,
 				AssignmentScopeId: scopeId,
 			},
+			{
+				Id:                "a1111",
+				AssignmentScope:   scope,
+				AssignmentScopeId: "some other scope id",
+			},
 		}
 
 		testCase := resource.TestCase{
