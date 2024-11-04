@@ -204,7 +204,7 @@ resource "env0_environment" "environment-without-template-start-with-no-vcs" {
     token_id         = data.env0_template.gitlab_template.token_id
     token_name       = data.env0_template.gitlab_template.token_name
     opentofu_version = "latest"
-    path             = "misc/null-resource"
+    path             = "null-resource"
   }
 }
 
