@@ -158,6 +158,7 @@ func getCustomRoleByName(name string, meta interface{}) (*client.Role, error) {
 	}
 
 	var foundRoles []client.Role
+
 	for _, role := range roles {
 		if role.Name == name {
 			foundRoles = append(foundRoles, role)
@@ -179,24 +180,28 @@ func getCustomRole(ctx context.Context, id string, meta interface{}) (*client.Ro
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving custom role by id", map[string]interface{}{"id": id})
+
 		return getCustomRoleById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving custom role by name", map[string]interface{}{"name": id})
+
 		return getCustomRoleByName(id, meta)
 	}
 }
 
 func resourceCustomRoleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	role, err := getCustomRole(ctx, d.Id(), meta)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if role == nil {
 		return nil, fmt.Errorf("custom role with id %v not found", d.Id())
 	}
 
 	if err := writeResourceData(role, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

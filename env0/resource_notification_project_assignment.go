@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -100,19 +101,21 @@ func getNotificationProjectAssignment(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	return nil, nil
+	return nil, ErrNotFound
 }
 
 func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	assignment, err := getNotificationProjectAssignment(d, meta)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			// Notification endpoint not found.
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+			d.SetId("")
+
+			return nil
+		}
+
 		return ResourceGetFailure(ctx, "notification project assignment", d, err)
-	}
-	if assignment == nil {
-		// Notification endpoint not found.
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
-		d.SetId("")
-		return nil
 	}
 
 	if err := writeResourceData(assignment, d); err != nil {

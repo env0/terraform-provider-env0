@@ -130,9 +130,11 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 	if payload.Type != TERRAGRUNT && payload.TerragruntVersion != "" {
 		return errors.New("can't define terragrunt version for non-terragrunt template")
 	}
+
 	if payload.Type == TERRAGRUNT && payload.TerragruntVersion == "" {
 		return errors.New("must supply terragrunt version")
 	}
+
 	if payload.Type == OPENTOFU && payload.OpentofuVersion == "" {
 		return errors.New("must supply opentofu version")
 	}
@@ -178,6 +180,7 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 	if payload.Type == "cloudformation" && payload.FileName == "" {
 		return errors.New("file_name is required with cloudformation template type")
 	}
+
 	if payload.Type != "cloudformation" && payload.FileName != "" {
 		return fmt.Errorf("file_name cannot be set when template type is: %s", payload.Type)
 	}
@@ -212,22 +215,27 @@ func (client *ApiClient) TemplateCreate(payload TemplateCreatePayload) (Template
 	if err != nil {
 		return Template{}, err
 	}
+
 	payload.OrganizationId = organizationId
 
 	var result Template
+
 	err = client.http.Post("/blueprints", payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
+
 	return result, nil
 }
 
 func (client *ApiClient) Template(id string) (Template, error) {
 	var result Template
+
 	err := client.http.Get("/blueprints/"+id, nil, &result)
 	if err != nil {
 		return Template{}, err
 	}
+
 	return result, nil
 }
 
@@ -240,13 +248,16 @@ func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload
 	if err != nil {
 		return Template{}, err
 	}
+
 	payload.OrganizationId = organizationId
 
 	var result Template
+
 	err = client.http.Put("/blueprints/"+id, payload, &result)
 	if err != nil {
 		return Template{}, err
 	}
+
 	return result, nil
 }
 
@@ -255,11 +266,14 @@ func (client *ApiClient) Templates() ([]Template, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var result []Template
+
 	err = client.http.Get("/blueprints", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return result, err
 }
 
@@ -268,10 +282,12 @@ func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssi
 	if payload.ProjectId == "" {
 		return result, errors.New("must specify projectId on assignment to a template")
 	}
+
 	err := client.http.Patch("/blueprints/"+id+"/projects", payload, &result)
 	if err != nil {
 		return result, err
 	}
+
 	return result, nil
 }
 

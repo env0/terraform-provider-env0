@@ -29,7 +29,7 @@ var _ = Describe("Templates Client", func() {
 				}
 				jsonPayload, _ := json.Marshal(payload)
 				var parsedPayload map[string]interface{}
-				json.Unmarshal(jsonPayload, &parsedPayload)
+				_ = json.Unmarshal(jsonPayload, &parsedPayload)
 				Expect(parsedPayload["githubInstallationId"]).To(expected)
 			},
 			Entry("Has value", 123, BeEquivalentTo(123)),
@@ -63,7 +63,7 @@ var _ = Describe("Templates Client", func() {
 		mockTemplates := []Template{mockTemplate}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			expectedPayload := map[string]string{"organizationId": organizationId}
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints", expectedPayload, gomock.Any()).
@@ -91,10 +91,10 @@ var _ = Describe("Templates Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			createTemplatePayload := TemplateCreatePayload{}
-			copier.Copy(&createTemplatePayload, &mockTemplate)
+			_ = copier.Copy(&createTemplatePayload, &mockTemplate)
 
 			expectedCreateRequest := createTemplatePayload
 			expectedCreateRequest.OrganizationId = organizationId
@@ -143,10 +143,10 @@ var _ = Describe("Templates Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			updateTemplatePayload := TemplateCreatePayload{}
-			copier.Copy(&updateTemplatePayload, &mockTemplate)
+			_ = copier.Copy(&updateTemplatePayload, &mockTemplate)
 
 			expectedUpdateRequest := updateTemplatePayload
 			expectedUpdateRequest.OrganizationId = organizationId

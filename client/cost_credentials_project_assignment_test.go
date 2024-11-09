@@ -38,38 +38,38 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 		})
 		Describe("On Error", func() {
 			errorInfo := "error"
-			var actualError error
+			var err error
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/costs/project/"+projectId+"/credentials", map[string]string{"credentialsId": credentialId}, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
-				_, actualError = apiClient.AssignCostCredentialsToProject(projectId, credentialId)
+				_, err = apiClient.AssignCostCredentialsToProject(projectId, credentialId)
 
 			})
 
 			It("should return the error from the api call", func() {
-				Expect(actualError).ShouldNot(BeNil())
-				Expect(actualError.Error()).Should(Equal(errorInfo))
+				Expect(err).ShouldNot(BeNil())
+				Expect(err.Error()).Should(Equal(errorInfo))
 			})
 		})
 	})
 
 	Describe("RemoveCostCredentialsFromProject", func() {
 		errorInfo := "error"
-		var actualError error
+		var err error
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Delete("/costs/project/"+projectId+"/credentials/"+credentialId, nil).
 				Return(errors.New(errorInfo)).
 				Times(1)
-			actualError = apiClient.RemoveCostCredentialsFromProject(projectId, credentialId)
+			err = apiClient.RemoveCostCredentialsFromProject(projectId, credentialId)
 
 		})
 
 		It("should return the error from the api call", func() {
-			Expect(actualError).ShouldNot(BeNil())
-			Expect(actualError.Error()).Should(Equal(errorInfo))
+			Expect(err).ShouldNot(BeNil())
+			Expect(err.Error()).Should(Equal(errorInfo))
 		})
 	})
 
@@ -107,19 +107,19 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 		})
 		Describe("On Error", func() {
 			errorInfo := "error"
-			var actualError error
+			var err error
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/costs/project/"+projectId+"/credentials", nil, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
-				_, actualError = apiClient.CostCredentialIdsInProject(projectId)
+				_, err = apiClient.CostCredentialIdsInProject(projectId)
 
 			})
 
 			It("should return the error from the api call", func() {
-				Expect(actualError).ShouldNot(BeNil())
-				Expect(actualError.Error()).Should(Equal(errorInfo))
+				Expect(err).ShouldNot(BeNil())
+				Expect(err.Error()).Should(Equal(errorInfo))
 			})
 		})
 

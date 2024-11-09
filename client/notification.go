@@ -45,9 +45,11 @@ func (client *ApiClient) Notifications() ([]Notification, error) {
 	}
 
 	var result []Notification
+
 	if err := client.http.Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }
 
@@ -67,6 +69,7 @@ func (client *ApiClient) NotificationCreate(payload NotificationCreatePayload) (
 	if err = client.http.Post("/notifications/endpoints", payloadWithOrganizationId, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -74,6 +77,7 @@ func (client *ApiClient) NotificationDelete(id string) error {
 	if err := client.http.Delete("/notifications/endpoints/"+id, nil); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -83,5 +87,6 @@ func (client *ApiClient) NotificationUpdate(id string, payload NotificationUpdat
 	if err := client.http.Patch("/notifications/endpoints/"+id, payload, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }

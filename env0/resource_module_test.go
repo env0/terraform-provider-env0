@@ -493,5 +493,4 @@ func TestUnitModuleResource(t *testing.T) {
 			mock.EXPECT().ModuleDelete(module.Id).Times(1)
 		})
 	})
-
 }

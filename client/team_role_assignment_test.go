@@ -151,30 +151,48 @@ var _ = Describe("TeamRoleAssignment", func() {
 	})
 
 	Describe("Delete Project Assignment", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/assignments/teams", map[string]string{"projectId": dummyProjectId, "teamId": dummyTeamId}).Times(1)
-			apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, ProjectId: dummyProjectId})
+			err = apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, ProjectId: dummyProjectId})
 		})
 
 		It("Should send Delete request with correct params", func() {})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
+		})
 	})
 
 	Describe("Delete Environment Assignment", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/assignments/teams", map[string]string{"environmentId": dummyEnvironmentId, "teamId": dummyTeamId}).Times(1)
-			apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, EnvironmentId: dummyEnvironmentId})
+			err = apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, EnvironmentId: dummyEnvironmentId})
 		})
 
 		It("Should send Delete request with correct params", func() {})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
+		})
 	})
 
 	Describe("Delete Organization Assignment", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/assignments/teams", map[string]string{"organizationId": dummyOrganizationId, "teamId": dummyTeamId}).Times(1)
-			apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, OrganizationId: dummyOrganizationId})
+			err = apiClient.TeamRoleAssignmentDelete(&TeamRoleAssignmentDeletePayload{TeamId: dummyTeamId, OrganizationId: dummyOrganizationId})
 		})
 
 		It("Should send Delete request with correct params", func() {})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
+		})
 	})
 
 })

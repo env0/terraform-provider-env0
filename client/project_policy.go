@@ -50,6 +50,7 @@ func (client *ApiClient) Policy(projectId string) (Policy, error) {
 	}
 
 	var result Policy
+
 	err = client.http.Get(u.String(), nil, &result)
 	if err != nil {
 		return Policy{}, err
@@ -61,9 +62,11 @@ func (client *ApiClient) Policy(projectId string) (Policy, error) {
 // PolicyUpdate updates a policy through the API
 func (client *ApiClient) PolicyUpdate(payload PolicyUpdatePayload) (Policy, error) {
 	var result Policy
+
 	err := client.http.Put("/policies", payload, &result)
 	if err != nil {
 		return Policy{}, err
 	}
+
 	return result, nil
 }

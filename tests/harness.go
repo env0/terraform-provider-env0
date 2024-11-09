@@ -23,9 +23,13 @@ func main() {
 
 	printTerraformVersion()
 	makeSureRunningFromProjectRoot()
+
 	testNames := testNamesFromCommandLineArguments()
+
 	log.Println(len(testNames), " tests to run")
+
 	buildFakeTerraformRegistry()
+
 	destroyMode := os.Getenv("DESTROY_MODE")
 
 	var wg sync.WaitGroup
@@ -51,10 +55,12 @@ func main() {
 }
 func compileProvider() error {
 	cmd := exec.Command("go", "build")
+
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 func runTest(testName string, destroy bool) (bool, error) {
@@ -66,16 +72,20 @@ func runTest(testName string, destroy bool) (bool, error) {
 		"terraform.tfstate.backup",
 		"terraform.rc",
 	}
+
 	for _, oneToDelete := range toDelete {
 		os.RemoveAll(path.Join(testDir, oneToDelete))
 	}
 
 	log.Println("Running test ", testName)
+
 	_, err := terraformCommand(testName, "init")
 	if err != nil {
 		return false, err
 	}
-	terraformCommand(testName, "fmt")
+
+	_, _ = terraformCommand(testName, "fmt")
+
 	if destroy {
 		defer terraformDestory(testName)
 	}
@@ -84,41 +94,53 @@ func runTest(testName string, destroy bool) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=1")
 	if err != nil {
 		return false, err
 	}
+
 	expectedOutputs, err := readExpectedOutputs(testName)
 	if err != nil {
 		return false, err
 	}
+
 	outputsBytes, err := terraformCommand(testName, "output", "-json")
 	if err != nil {
 		return false, err
 	}
+
 	outputs, err := bytesOfJsonToStringMap(outputsBytes)
 	if err != nil {
 		return false, err
 	}
+
 	for key, expectedValue := range expectedOutputs {
 		value, ok := outputs[key]
 		if !ok {
 			log.Println("Error: Expected terraform output ", key, " but no such output was created")
+
 			return false, nil
 		}
+
 		if value != expectedValue {
 			log.Printf("Error: Expected output of '%s' to be '%s' but found '%s'\n", key, expectedValue, value)
+
 			return false, nil
 		}
+
 		log.Printf("Verified expected '%s'='%s' in %s", key, value, testName)
 	}
+
 	if destroy {
 		_, err = terraformCommand(testName, "destroy", "-auto-approve", "-var", "second_run=0")
 		if err != nil {
 			return false, err
 		}
 	}
+
 	log.Println("Successfully finished running test ", testName)
+
 	return true, nil
 }
 
@@ -126,22 +148,28 @@ func readExpectedOutputs(testName string) (map[string]string, error) {
 	expectedBytes, err := os.ReadFile(path.Join(TESTS_FOLDER, testName, "expected_outputs.json"))
 	if err != nil {
 		log.Println("Test folder for ", testName, " does not contain expected_outputs.json", err)
+
 		return nil, err
 	}
+
 	return bytesOfJsonToStringMap(expectedBytes)
 }
 
 func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 	var stringMapUncasted map[string]interface{}
+
 	err := json.Unmarshal(data, &stringMapUncasted)
 	if err != nil {
 		log.Println("Unable to parse json:", err)
 		log.Println("** JSON Input **")
-		log.Println(string(data[:]))
+		log.Println(string(data))
 		log.Println("******")
+
 		return nil, err
 	}
+
 	result := map[string]string{}
+
 	for key, valueUncasted := range stringMapUncasted {
 		switch value := valueUncasted.(type) {
 		case string:
@@ -150,14 +178,20 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 			result[key] = value["value"].(string)
 		}
 	}
+
 	return result, nil
 }
 
 func terraformDestory(testName string) {
 	log.Println("Running destroy to clean up in", testName)
+
 	destroy := exec.Command("terraform", "destroy", "-auto-approve", "-var", "second_run=0")
 	destroy.Dir = TESTS_FOLDER + "/" + testName
-	destroy.CombinedOutput()
+
+	if err := destroy.Run(); err != nil {
+		log.Println("WARNING: error running terraform destroy")
+	}
+
 	log.Println("Done running terraform destroy in", testName)
 }
 
@@ -167,26 +201,34 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
 	cmd.Env = append(cmd.Env, "TF_LOG_PROVIDER=info")
+
 	var output, errOutput bytes.Buffer
+
 	cmd.Stderr = bufio.NewWriter(&errOutput)
 	cmd.Stdout = bufio.NewWriter(&output)
+
 	log.Println("Running terraform ", arg, " in ", testName)
+
 	err := cmd.Run()
 
 	log.Println(errOutput.String())
+
 	if err != nil {
 		log.Println("error running terraform ", arg, " in ", testName, " error: ", err)
 	} else {
 		log.Println("Completed successfully terraform", arg, "in", testName)
 	}
+
 	return output.Bytes(), err
 }
 
 func printTerraformVersion() {
 	versionString, err := exec.Command("terraform", "version").Output()
+
 	if err != nil {
 		log.Fatalln("Unable to invoke terraform. Perhaps it's not in PATH?", err)
 	}
+
 	log.Println("Terraform version: ", string(versionString))
 }
 
@@ -198,11 +240,13 @@ func makeSureRunningFromProjectRoot() {
 
 func testNamesFromCommandLineArguments() []string {
 	testNames := []string{}
+
 	if len(os.Args) > 1 {
 		for _, testName := range os.Args[1:] {
 			if strings.HasPrefix(testName, TESTS_FOLDER+"/") {
 				testName = testName[len(TESTS_FOLDER+"/"):]
 			}
+
 			testName = strings.TrimSuffix(testName, "/")
 			testNames = append(testNames, testName)
 		}
@@ -211,26 +255,31 @@ func testNamesFromCommandLineArguments() []string {
 		if err != nil {
 			log.Fatalln("Unable to list 'tests' folder", err)
 		}
+
 		for _, file := range allFilesUnderTests {
 			if strings.HasPrefix(file.Name(), "0") {
 				testNames = append(testNames, file.Name())
 			}
 		}
 	}
+
 	return testNames
 }
 
 func buildFakeTerraformRegistry() {
 	architecture := runtime.GOOS + "_" + runtime.GOARCH
 	registry_dir := "tests/fake_registry/terraform-registry.env0.com/env0/env0/6.6.6/" + architecture
+
 	err := os.MkdirAll(registry_dir, 0755)
 	if err != nil {
 		log.Fatalln("Unable to create registry folder ", registry_dir, " error: ", err)
 	}
+
 	data, err := os.ReadFile("terraform-provider-env0")
 	if err != nil {
 		log.Fatalln("Unable to read provider binary: did you build it?", err)
 	}
+
 	err = os.WriteFile(registry_dir+"/terraform-provider-env0", data, 0755)
 	if err != nil {
 		log.Fatalln("Unable to write: ", err)
@@ -240,6 +289,7 @@ func buildFakeTerraformRegistry() {
 	if err != nil {
 		log.Fatalln("Unable to get current working dir", err)
 	}
+
 	terraformRc := fmt.Sprintf(`
 provider_installation {
   filesystem_mirror {
@@ -250,6 +300,7 @@ provider_installation {
 	exclude = ["terraform-registry.env0.com/*/*"]
   }
 }`, cwd)
+
 	err = os.WriteFile("tests/terraform.rc", []byte(terraformRc), 0644)
 	if err != nil {
 		log.Fatalln("Unable to write: ", err)

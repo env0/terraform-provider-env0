@@ -110,6 +110,7 @@ func getGpgKeyByName(name string, meta interface{}) (*client.GpgKey, error) {
 	}
 
 	var foundGpgKeys []client.GpgKey
+
 	for _, gpgKey := range gpgKeys {
 		if gpgKey.Name == name {
 			foundGpgKeys = append(foundGpgKeys, gpgKey)
@@ -131,9 +132,11 @@ func getGpgKey(ctx context.Context, idOrName string, meta interface{}) (*client.
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
 		tflog.Info(ctx, "Resolving gpg key by id", map[string]interface{}{"id": idOrName})
+
 		return getGpgKeyById(idOrName, meta)
 	} else {
 		tflog.Info(ctx, "Resolving gpg key by name", map[string]interface{}{"name": idOrName})
+
 		return getGpgKeyByName(idOrName, meta)
 	}
 }
@@ -145,7 +148,7 @@ func resourceGpgKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(gpgKey, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

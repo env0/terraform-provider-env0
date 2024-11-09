@@ -94,7 +94,6 @@ func TestUnitTeamResource(t *testing.T) {
 				Description: team.Description,
 			}).Times(1).Return(client.Team{}, errors.New("error"))
 		})
-
 	})
 
 	t.Run("Failure in update", func(t *testing.T) {
@@ -128,7 +127,6 @@ func TestUnitTeamResource(t *testing.T) {
 			mock.EXPECT().Team(gomock.Any()).Times(2).Return(team, nil) // 1 after create, 1 before update
 			mock.EXPECT().TeamDelete(team.Id).Times(1)
 		})
-
 	})
 
 	t.Run("Failure in read", func(t *testing.T) {

@@ -74,6 +74,7 @@ func dataProject() *schema.Resource {
 
 func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
+
 	var project client.Project
 
 	id, ok := d.GetOk("id")

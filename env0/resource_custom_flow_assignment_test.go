@@ -115,5 +115,4 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 			)
 		})
 	})
-
 }

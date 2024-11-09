@@ -12,6 +12,7 @@ import (
 )
 
 var ErrNoChanges = errors.New("no changes")
+var ErrNotFound = errors.New("not found")
 
 func driftDetected(err error) bool {
 	var failedResponseError *http.FailedResponseError

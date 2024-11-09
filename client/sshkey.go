@@ -27,12 +27,14 @@ func (client *ApiClient) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, err
 	if err != nil {
 		return nil, err
 	}
+
 	payload.OrganizationId = organizationId
 
 	var result SshKey
 	if err := client.http.Post("/ssh-keys", payload, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -42,6 +44,7 @@ func (client *ApiClient) SshKeyUpdate(id string, payload *SshKeyUpdatePayload) (
 	if err := client.http.Put("/ssh-keys/"+id, payload, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -54,10 +57,13 @@ func (client *ApiClient) SshKeys() ([]SshKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var result []SshKey
+
 	err = client.http.Get("/ssh-keys", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return result, err
 }

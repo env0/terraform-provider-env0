@@ -46,6 +46,7 @@ func TestVariableSetDataSource(t *testing.T) {
 		if projectId != "" {
 			fields["project_id"] = projectId
 		}
+
 		return dataSourceConfigCreate(resourceType, resourceName, fields)
 	}
 

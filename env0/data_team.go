@@ -36,6 +36,7 @@ func dataTeam() *schema.Resource {
 
 func dataTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
+
 	var team client.Team
 
 	id, ok := d.GetOk("id")

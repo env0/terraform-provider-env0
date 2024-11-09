@@ -36,6 +36,7 @@ func dataSshKey() *schema.Resource {
 
 func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var sshKey *client.SshKey
+
 	var err error
 
 	if name, ok := d.GetOk("name"); ok {
@@ -45,10 +46,12 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		}
 	} else {
 		id := d.Get("id")
+
 		sshKey, err = getSshKeyById(id, meta)
 		if err != nil {
 			return diag.Errorf("could not read ssh key: %v", err)
 		}
+
 		if sshKey == nil {
 			return diag.Errorf("could not read ssh key: id %s not found", id)
 		}
@@ -71,6 +74,7 @@ func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error)
 		}
 
 		var sshKeysByName []client.SshKey
+
 		for _, candidate := range sshKeys {
 			if candidate.Name == name {
 				sshKeysByName = append(sshKeysByName, candidate)

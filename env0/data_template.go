@@ -154,6 +154,7 @@ func dataTemplate() *schema.Resource {
 
 func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var template client.Template
+
 	var err diag.Diagnostics
 
 	if name, ok := d.GetOk("name"); ok {
@@ -176,12 +177,14 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 func getTemplateByName(name interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	templates, err := apiClient.Templates()
 	if err != nil {
 		return client.Template{}, diag.Errorf("Could not query templates: %v", err)
 	}
 
 	var templatesByName []client.Template
+
 	for _, candidate := range templates {
 		if candidate.Name == name && !candidate.IsDeleted {
 			templatesByName = append(templatesByName, candidate)
@@ -201,6 +204,7 @@ func getTemplateByName(name interface{}, meta interface{}) (client.Template, dia
 
 func getTemplateById(id interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	template, err := apiClient.Template(id.(string))
 	if err != nil {
 		return client.Template{}, diag.Errorf("Could not query template: %v", err)

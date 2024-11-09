@@ -46,10 +46,6 @@ func dataApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		if err != nil {
 			return diag.Errorf("could not read api key: %v", err)
 		}
-
-		if apiKey == nil {
-			return diag.Errorf("could not read api key: id %v not found", id)
-		}
 	} else {
 		apiKey, err = getApiKeyByName(d.Get("name").(string), meta)
 		if err != nil {

@@ -108,7 +108,7 @@ var _ = Describe("Organization", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 				updateOrganizationPolicyPayload := OrganizationPolicyUpdatePayload{
 					DefaultTtl:                          &hour12,
 					DoNotConsiderMergeCommitsForPrPlans: &t,
@@ -139,7 +139,7 @@ var _ = Describe("Organization", func() {
 		})
 	})
 
-	Describe("Emtpy string is passed as null", func() {
+	Describe("Empty string is passed as null", func() {
 		updatedMockOrganization := mockOrganization
 		updatedMockOrganization.DefaultTtl = nil
 		updatedMockOrganization.MaxTtl = nil
@@ -150,7 +150,7 @@ var _ = Describe("Organization", func() {
 		emptyString := ""
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			originalUpdatePayload := OrganizationPolicyUpdatePayload{
 				DefaultTtl: &emptyString,
 				MaxTtl:     &emptyString,
@@ -187,7 +187,7 @@ var _ = Describe("Organization", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/organizations/"+organizationId+"/users/"+userId+"/role", roleId, nil)

@@ -36,7 +36,7 @@ var _ = Describe("Provider Client", func() {
 		mockProviders := []Provider{mockProvider}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
+			mockOrganizationIdCall().Times(1)
 			httpCall = mockHttpClient.EXPECT().
 				Get("/providers", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]Provider) {
@@ -54,7 +54,7 @@ var _ = Describe("Provider Client", func() {
 		var createdProvider *Provider
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
+			mockOrganizationIdCall().Times(1)
 
 			createProviderPayload := ProviderCreatePayload{
 				Type:        mockProvider.Type,
@@ -83,12 +83,18 @@ var _ = Describe("Provider Client", func() {
 	})
 
 	Describe("Delete Provider", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/providers/"+mockProvider.Id, nil).Times(1)
-			apiClient.ProviderDelete(mockProvider.Id)
+			err = apiClient.ProviderDelete(mockProvider.Id)
 		})
 
 		It("Should send DELETE request with provider id", func() {})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
+		})
 	})
 
 	Describe("Update Provider", func() {

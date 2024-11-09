@@ -60,7 +60,6 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-
 		})
 	}
 
@@ -77,6 +76,5 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-
 	})
 }

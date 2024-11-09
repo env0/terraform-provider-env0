@@ -24,27 +24,39 @@ var _ = Describe("Configuration Set", func() {
 	}
 
 	Describe("assign configuration sets", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/configuration-sets/assignments/environment/12345?setIds=1,2,3", nil, nil).
 				Do(func(path string, request interface{}, response *interface{}) {}).
 				Times(1)
-			apiClient.AssignConfigurationSets(scope, scopeId, setIds)
+			err = apiClient.AssignConfigurationSets(scope, scopeId, setIds)
 		})
 
 		It("Should send post request", func() {})
+
+		It("should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("unassign configuration sets", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/configuration-sets/assignments/environment/12345", map[string]string{
 				"setIds": "1,2,3",
 			}).
 				Do(func(path string, request interface{}) {}).
 				Times(1)
-			apiClient.UnassignConfigurationSets(scope, scopeId, setIds)
+			err = apiClient.UnassignConfigurationSets(scope, scopeId, setIds)
 		})
 
 		It("Should send delete request", func() {})
+
+		It("should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("get configuration sets by scope and scope id", func() {

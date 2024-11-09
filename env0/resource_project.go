@@ -109,6 +109,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
+
 	var payload client.ProjectUpdatePayload
 
 	if d.HasChange("parent_project_id") {
@@ -177,6 +178,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 				select {
 				case <-timer.C:
 					done <- true
+
 					return
 				case <-ticker.C:
 					err := resourceProjectAssertCanDelete(d, meta)
@@ -190,6 +192,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 					}
 
 					done <- true
+
 					return
 				}
 			}
@@ -205,6 +208,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 	if err := apiClient.ProjectDelete(id); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
 	}
+
 	return nil
 }
 
@@ -216,6 +220,7 @@ func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta int
 
 	if err == nil {
 		tflog.Info(ctx, "Resolving project by id", map[string]interface{}{"id": id})
+
 		if project, err = getProjectById(id, meta); err != nil {
 			return nil, err
 		}

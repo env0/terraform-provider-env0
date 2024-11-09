@@ -104,6 +104,7 @@ func getProviderByName(name string, meta interface{}) (*client.Provider, error) 
 	}
 
 	var foundProviders []client.Provider
+
 	for _, provider := range providers {
 		if provider.Type == name {
 			foundProviders = append(foundProviders, provider)
@@ -125,9 +126,11 @@ func getProvider(ctx context.Context, idOrName string, meta interface{}) (*clien
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
 		tflog.Info(ctx, "Resolving provider by id", map[string]interface{}{"id": idOrName})
+
 		return meta.(client.ApiClientInterface).Provider(idOrName)
 	} else {
 		tflog.Info(ctx, "Resolving provider by name", map[string]interface{}{"name": idOrName})
+
 		return getProviderByName(idOrName, meta)
 	}
 }
@@ -139,7 +142,7 @@ func resourceProviderImport(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if err := writeResourceData(provider, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

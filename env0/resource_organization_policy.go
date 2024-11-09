@@ -74,12 +74,12 @@ func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData,
 func validateTtl(defaultTtl *string, maxTtl *string) error {
 	defaultDuration, err := ttlToDuration(defaultTtl)
 	if err != nil {
-		return fmt.Errorf("invalid default ttl: %v", err)
+		return fmt.Errorf("invalid default ttl: %w", err)
 	}
 
 	maxDuration, err := ttlToDuration(maxTtl)
 	if err != nil {
-		return fmt.Errorf("invalid max ttl: %v", err)
+		return fmt.Errorf("invalid max ttl: %w", err)
 	}
 
 	if maxDuration < defaultDuration {

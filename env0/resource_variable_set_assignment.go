@@ -99,6 +99,7 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 		for _, schemaSetId := range assignmentSchema.SetIds {
 			if apiSetId == schemaSetId {
 				found = true
+
 				break
 			}
 		}
@@ -116,6 +117,7 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 			apiSetId := apiConfigurationSet.Id
 			if schemaSetId == apiSetId {
 				found = true
+
 				break
 			}
 		}
@@ -181,6 +183,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 
 			if schemaSetId == apiSetId {
 				newSchemaSetIds = append(newSchemaSetIds, schemaSetId)
+
 				break
 			}
 		}
@@ -198,6 +201,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		for _, schemaSetId := range assignmentSchema.SetIds {
 			if schemaSetId == apiSetId {
 				found = true
+
 				break
 			}
 		}
