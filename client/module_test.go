@@ -43,7 +43,7 @@ var _ = Describe("Module Client", func() {
 		mockModules := []Module{mockModule}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/modules", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]Module) {
@@ -70,10 +70,10 @@ var _ = Describe("Module Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			createModulePayload := ModuleCreatePayload{}
-			copier.Copy(&createModulePayload, &mockModule)
+			_ = copier.Copy(&createModulePayload, &mockModule)
 
 			expectedCreateRequest := ModuleCreatePayloadWith{
 				ModuleCreatePayload: createModulePayload,
@@ -108,13 +108,19 @@ var _ = Describe("Module Client", func() {
 	})
 
 	Describe("Delete Module", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/modules/"+mockModule.Id, nil)
-			apiClient.ModuleDelete(mockModule.Id)
+			err = apiClient.ModuleDelete(mockModule.Id)
 		})
 
 		It("Should send DELETE request with module id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 

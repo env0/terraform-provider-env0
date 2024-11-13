@@ -134,7 +134,7 @@ func deserializeEnvironmentOutputConfigurationVariableValue(valueStr string) (*E
 func getEnvironmentOutputConfigurationVariableParamsFromVariable(d *schema.ResourceData, variable *client.ConfigurationVariable) (*EnvironmentOutputConfigurationVariableParams, error) {
 	var params EnvironmentOutputConfigurationVariableParams
 	if err := readResourceData(&params, d); err != nil {
-		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
 
 	params.Name = variable.Name
@@ -153,9 +153,9 @@ func getEnvironmentOutputConfigurationVariableParamsFromVariable(d *schema.Resou
 	}
 
 	if variable.Type == nil || *variable.Type == client.ConfigurationVariableTypeEnvironment {
-		params.Type = "environment"
+		params.Type = client.ENVIRONMENT
 	} else {
-		params.Type = "terraform"
+		params.Type = client.TERRAFORM
 	}
 
 	params.ScopeId = variable.ScopeId
@@ -182,7 +182,7 @@ func getEnvironmentOutputConfigurationVariableParamsFromVariable(d *schema.Resou
 func getEnvironmentOutputCreateParams(d *schema.ResourceData) (*client.ConfigurationVariableCreateParams, error) {
 	var params EnvironmentOutputConfigurationVariableParams
 	if err := readResourceData(&params, d); err != nil {
-		return nil, fmt.Errorf("schema resource data deserialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
 
 	if params.Scope != string(client.ScopeProject) && params.IsReadOnly {
@@ -195,7 +195,7 @@ func getEnvironmentOutputCreateParams(d *schema.ResourceData) (*client.Configura
 	}
 
 	variableType := client.ConfigurationVariableTypeEnvironment
-	if params.Type == "terraform" {
+	if params.Type == client.TERRAFORM {
 		variableType = client.ConfigurationVariableTypeTerraform
 	}
 
@@ -274,13 +274,13 @@ func resourceEnvironmentOutputConfigurationVariableImport(ctx context.Context, d
 	inputData := d.Id()
 
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
+	if err != nil {
+		return nil, err
+	}
 
 	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
 	if string(configurationParams.Scope) == "TEMPLATE" {
 		configurationParams.Scope = "BLUEPRINT"
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	variable, getErr := getConfigurationVariable(configurationParams, meta)

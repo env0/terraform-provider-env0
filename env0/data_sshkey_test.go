@@ -50,7 +50,9 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	}
 
 	sshKeyAsJson, _ := json.Marshal(sshKey)
+
 	var jsonData map[string]string
+
 	_ = json.Unmarshal(sshKeyAsJson, &jsonData)
 
 	testCase := resource.TestCase{

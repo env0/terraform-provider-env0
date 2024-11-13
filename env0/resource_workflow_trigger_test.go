@@ -19,7 +19,6 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 	otherTriggerId := "other_trigger_environment_id"
 
 	t.Run("Success", func(t *testing.T) {
-
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -73,7 +72,6 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 				}).Times(1).Return(nil),
 			)
 		})
-
 	})
 
 	t.Run("Failure in Get Triggers", func(t *testing.T) {

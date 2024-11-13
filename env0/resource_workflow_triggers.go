@@ -67,9 +67,11 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 	for _, rawId := range rawDownstreamIds {
 		requestDownstreamIds = append(requestDownstreamIds, rawId.(string))
 	}
+
 	request := client.WorkflowTriggerUpsertPayload{
 		DownstreamEnvironmentIds: requestDownstreamIds,
 	}
+
 	triggers, err := apiClient.WorkflowTriggerUpsert(environmentId, request)
 	if err != nil {
 		return diag.Errorf("could not Create or Update workflow triggers: %v", err)
@@ -82,6 +84,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 
 	d.SetId(environmentId)
 	d.Set("downstream_environment_ids", downstreamIds)
+
 	return nil
 }
 

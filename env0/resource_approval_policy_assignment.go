@@ -85,6 +85,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	}
 
 	found := false
+
 	for _, approvalPolicyByScope := range approvalPolicyByScopeArr {
 		if approvalPolicyByScope.ApprovalPolicy.Id == assignment.BlueprintId {
 			found = true
@@ -96,6 +97,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	if !found {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

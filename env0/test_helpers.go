@@ -28,6 +28,7 @@ func hclAccessor(source TFSource, resourceType string, resourceName string) stri
 	if source == DataSource {
 		return fmt.Sprintf("%s.%s.%s", source, resourceType, resourceName)
 	}
+
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
 
@@ -91,6 +92,7 @@ func missingArgumentTestCase(resourceType string, resourceName string, errorReso
 			},
 		},
 	}
+
 	return testCaseFormMissingValidInputError
 }
 
@@ -103,5 +105,6 @@ func missingArgumentTestCaseForCostCred(resourceType string, resourceName string
 			},
 		},
 	}
+
 	return testCaseFormMissingValidInputError
 }

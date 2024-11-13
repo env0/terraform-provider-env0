@@ -20,7 +20,9 @@ func getCustomFlowAssignmentFromId(d *schema.ResourceData) (client.CustomFlowAss
 	split := strings.Split(id, "|")
 
 	var assignment client.CustomFlowAssignment
+
 	assignment.ScopeId = split[0]
+
 	if len(split) > 1 {
 		assignment.BlueprintId = split[1]
 	} else {
@@ -94,9 +96,11 @@ func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	found := false
+
 	for _, assignment := range assignments {
 		if assignment.BlueprintId == assignmentFromId.BlueprintId {
 			found = true
+
 			break
 		}
 	}
@@ -104,6 +108,7 @@ func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceDat
 	if !found && !d.IsNewResource() {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

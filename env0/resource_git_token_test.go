@@ -156,5 +156,4 @@ func TestUnitGitTokenResource(t *testing.T) {
 			mock.EXPECT().GitTokenDelete(gitToken.Id).Times(1)
 		})
 	})
-
 }

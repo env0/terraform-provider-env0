@@ -53,6 +53,7 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 	if approvalPolicy.IsDeleted && !d.IsNewResource() {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

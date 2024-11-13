@@ -47,7 +47,7 @@ var _ = Describe("CloudAccount", func() {
 
 	Describe("create", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payload := CloudAccountCreatePayload{
 				Provider:      account1.Provider,
@@ -151,7 +151,7 @@ var _ = Describe("CloudAccount", func() {
 		}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/cloud/configurations", map[string]string{"organizationId": organizationId}, gomock.Any()).

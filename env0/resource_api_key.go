@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -85,12 +86,14 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiKey, err := getApiKeyById(d.Id(), meta)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+			d.SetId("")
+
+			return nil
+		}
+
 		return diag.Errorf("could not get api key: %v", err)
-	}
-	if apiKey == nil {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
-		d.SetId("")
-		return nil
 	}
 
 	apiKey.ApiKeySecret = "" // Don't override the api key secret currently in the state.
@@ -126,7 +129,7 @@ func getApiKeyById(id string, meta interface{}) (*client.ApiKey, error) {
 		}
 	}
 
-	return nil, nil
+	return nil, ErrNotFound
 }
 
 func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
@@ -138,6 +141,7 @@ func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
 	}
 
 	var foundApiKeys []client.ApiKey
+
 	for _, apiKey := range apiKeys {
 		if apiKey.Name == name {
 			foundApiKeys = append(foundApiKeys, apiKey)
@@ -159,9 +163,11 @@ func getApiKey(ctx context.Context, id string, meta interface{}) (*client.ApiKey
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving api key by id", map[string]interface{}{"id": id})
+
 		return getApiKeyById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving api key by name", map[string]interface{}{"name": id})
+
 		return getApiKeyByName(id, meta)
 	}
 }
@@ -169,10 +175,11 @@ func getApiKey(ctx context.Context, id string, meta interface{}) (*client.ApiKey
 func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	apiKey, err := getApiKey(ctx, d.Id(), meta)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return nil, fmt.Errorf("api key with id %v not found", d.Id())
+		}
+
 		return nil, err
-	}
-	if apiKey == nil {
-		return nil, fmt.Errorf("api key with id %v not found", d.Id())
 	}
 
 	if err := writeResourceData(apiKey, d); err != nil {

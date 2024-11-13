@@ -34,10 +34,11 @@ func (a *UserTeamAssignment) GetId() string {
 
 func GetUserTeamAssignmentFromId(id string) (*UserTeamAssignment, error) {
 	// lastSplit is used to avoid issues where the user_id has underscores in it.
-	splitUserTeam := lastSplit(id, "_")
+	splitUserTeam := lastUnderscoreSplit(id)
 	if len(splitUserTeam) != 2 {
 		return nil, fmt.Errorf("the id %v is invalid must be <user_id>_<team_id>", id)
 	}
+
 	return &UserTeamAssignment{
 		UserId: splitUserTeam[0],
 		TeamId: splitUserTeam[1],
@@ -125,9 +126,11 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	found := false
+
 	for _, user := range team.Users {
 		if user.UserId == assignment.UserId {
 			found = true
+
 			break
 		}
 	}
@@ -135,6 +138,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	if !found {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 
@@ -185,7 +189,7 @@ func resourceUserTeamAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 func resourceUserTeamAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	assignment, err := GetUserTeamAssignmentFromId(d.Id())
 	if err != nil {
-		return nil, fmt.Errorf("%v", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	apiClient := meta.(client.ApiClientInterface)
@@ -198,13 +202,16 @@ func resourceUserTeamAssignmentImport(ctx context.Context, d *schema.ResourceDat
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
 			return nil, fmt.Errorf("team %v not found", assignment.TeamId)
 		}
+
 		return nil, err
 	}
 
 	found := false
+
 	for _, user := range team.Users {
 		if user.UserId == assignment.UserId {
 			found = true
+
 			break
 		}
 	}

@@ -104,9 +104,11 @@ func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, err
 func getCustomFlow(ctx context.Context, id string, meta interface{}) (*client.CustomFlow, error) {
 	if _, err := uuid.Parse(id); err == nil {
 		tflog.Info(ctx, "Resolving custom flow by id", map[string]interface{}{"id": id})
+
 		return meta.(client.ApiClientInterface).CustomFlow(id)
 	} else {
 		tflog.Info(ctx, "Resolving custom flow by name", map[string]interface{}{"name": id})
+
 		return getCustomFlowByName(id, meta)
 	}
 }
@@ -118,7 +120,7 @@ func resourceCustomFlowImport(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if err := writeResourceData(customFlow, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

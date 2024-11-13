@@ -44,9 +44,11 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 
 		for _, attr := range allVCSAttributes {
 			var found bool
+
 			for _, str := range strs {
 				if str == attr {
 					found = true
+
 					break
 				}
 			}
@@ -296,6 +298,7 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if problem != nil {
 		return problem
 	}
+
 	template, err := apiClient.TemplateCreate(request)
 	if err != nil {
 		return diag.Errorf("could not create template: %v", err)
@@ -317,6 +320,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	if template.IsDeleted && !d.IsNewResource() {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 
@@ -334,6 +338,7 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if problem != nil {
 		return problem
 	}
+
 	_, err := apiClient.TemplateUpdate(d.Id(), request)
 	if err != nil {
 		return diag.Errorf("could not update template: %v", err)
@@ -346,26 +351,34 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
+
 	err := apiClient.TemplateDelete(id)
 	if err != nil {
 		return diag.Errorf("could not delete template: %v", err)
 	}
+
 	return nil
 }
 
 func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
+
 	var getErr diag.Diagnostics
+
 	_, uuidErr := uuid.Parse(id)
+
 	if uuidErr == nil {
 		tflog.Info(ctx, "Resolving template by id", map[string]interface{}{"id": id})
 		_, getErr = getTemplateById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving template by name", map[string]interface{}{"name": id})
+
 		var template client.Template
+
 		template, getErr = getTemplateByName(id, meta)
 		d.SetId(template.Id)
 	}
+
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
 	} else {
@@ -457,7 +470,7 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
-		return fmt.Errorf("schema resource data serialization failed: %v", err)
+		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	// https://github.com/env0/terraform-provider-env0/issues/699 - backend removes the "/".

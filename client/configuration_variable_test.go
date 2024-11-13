@@ -123,6 +123,7 @@ var _ = Describe("Configuration Variable", func() {
 				"isRequired":     *mockConfig.IsRequired,
 				"regex":          mockConfig.Regex,
 			}}
+
 			return request
 		}
 
@@ -155,7 +156,7 @@ var _ = Describe("Configuration Variable", func() {
 		}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			SetCreateRequestExpectation(mockConfigurationVariable)
 			DoCreateRequest(mockConfigurationVariable)
 		})
@@ -174,7 +175,7 @@ var _ = Describe("Configuration Variable", func() {
 
 		DescribeTable("Create with different schema format", func(schemaFormat Format) {
 			var mockWithFormat = ConfigurationVariable{}
-			copier.Copy(&mockWithFormat, &mockConfigurationVariable)
+			_ = copier.Copy(&mockWithFormat, &mockConfigurationVariable)
 			mockWithFormat.Schema.Format = schemaFormat
 			SetCreateRequestExpectation(mockWithFormat)
 
@@ -205,7 +206,7 @@ var _ = Describe("Configuration Variable", func() {
 		var updatedConfigurationVariable ConfigurationVariable
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			newName := "new-" + mockConfigurationVariable.Name
 			newDescription := "new-" + mockConfigurationVariable.Description
@@ -272,7 +273,7 @@ var _ = Describe("Configuration Variable", func() {
 		expectedParams := map[string]string{"organizationId": organizationId, "blueprintId": scopeId}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration", expectedParams, gomock.Any()).

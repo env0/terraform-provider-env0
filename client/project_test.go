@@ -28,7 +28,7 @@ var _ = Describe("Project", func() {
 
 	Describe("ProjectCreate", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payload := struct {
 				ProjectCreatePayload
@@ -69,13 +69,19 @@ var _ = Describe("Project", func() {
 	})
 
 	Describe("ProjectDelete", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/projects/"+mockProject.Id, nil)
-			apiClient.ProjectDelete(mockProject.Id)
+			err = apiClient.ProjectDelete(mockProject.Id)
 		})
 
 		It("Should send DELETE request with project id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 
@@ -132,7 +138,7 @@ var _ = Describe("Project", func() {
 		mockProjects := []Project{mockProject}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/projects", map[string]string{"organizationId": organizationId}, gomock.Any()).
@@ -156,6 +162,8 @@ var _ = Describe("Project", func() {
 	})
 
 	Describe("ProjectMove", func() {
+		var err error
+
 		targetProjectId := "targetid"
 
 		payload := struct {
@@ -166,13 +174,19 @@ var _ = Describe("Project", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/projects/"+mockProject.Id+"/move", payload, nil).Times(1)
-			apiClient.ProjectMove(mockProject.Id, targetProjectId)
+			err = apiClient.ProjectMove(mockProject.Id, targetProjectId)
 		})
 
 		It("Should send POST request with project id and target project id", func() {})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("ProjectMove with no target project id", func() {
+		var err error
+
 		payload := struct {
 			TargetProjectId *string `json:"targetProjectId"`
 		}{
@@ -181,15 +195,19 @@ var _ = Describe("Project", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/projects/"+mockProject.Id+"/move", payload, nil).Times(1)
-			apiClient.ProjectMove(mockProject.Id, "")
+			err = apiClient.ProjectMove(mockProject.Id, "")
 		})
 
 		It("Should send POST request with project id and nil target project id", func() {})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("ModuleTestingProject", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/projects/modules/testing/"+organizationId, nil, gomock.Any()).

@@ -39,7 +39,7 @@ var _ = AfterSuite(func() {
 	ctrl.Finish()
 })
 
-func mockOrganizationIdCall(organizationId string) *gomock.Call {
+func mockOrganizationIdCall() *gomock.Call {
 	organizations := []Organization{{
 		Id: organizationId,
 	}}

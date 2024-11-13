@@ -20,7 +20,7 @@ var _ = Describe("VCSToken", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/vcs-token/"+vcsType, map[string]string{

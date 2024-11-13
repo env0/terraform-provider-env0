@@ -42,7 +42,7 @@ var _ = Describe("GitToken Client", func() {
 		mockGitTokens := []GitToken{mockGitToken}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]GitToken) {
@@ -69,10 +69,10 @@ var _ = Describe("GitToken Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			createGitTokenPayload := GitTokenCreatePayload{}
-			copier.Copy(&createGitTokenPayload, &mockGitToken)
+			_ = copier.Copy(&createGitTokenPayload, &mockGitToken)
 
 			expectedCreateRequest := GitTokenCreatePayloadWith{
 				GitTokenCreatePayload: createGitTokenPayload,
@@ -107,13 +107,19 @@ var _ = Describe("GitToken Client", func() {
 	})
 
 	Describe("Delete GitToken", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/tokens/"+mockGitToken.Id, nil)
-			apiClient.GitTokenDelete(mockGitToken.Id)
+			err = apiClient.GitTokenDelete(mockGitToken.Id)
 		})
 
 		It("Should send DELETE request with GitToken id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 })

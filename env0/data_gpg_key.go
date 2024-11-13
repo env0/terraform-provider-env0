@@ -41,6 +41,7 @@ func dataGpgKey() *schema.Resource {
 
 func dataGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var gpgKey *client.GpgKey
+
 	var err error
 
 	id, ok := d.GetOk("id")

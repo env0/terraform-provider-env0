@@ -36,7 +36,7 @@ var _ = Describe("Approval Policy Client", func() {
 		mockApprovalPolicies := []ApprovalPolicy{mockApprovalPolicy}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/approval-policy", map[string]string{"organizationId": organizationId, "name": mockApprovalPolicy.Name}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ApprovalPolicy) {
@@ -125,10 +125,10 @@ var _ = Describe("Approval Policy Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
+			mockOrganizationIdCall().Times(1)
 
 			createApprovalPolicyPayload := ApprovalPolicyCreatePayload{}
-			copier.Copy(&createApprovalPolicyPayload, &mockApprovalPolicy)
+			_ = copier.Copy(&createApprovalPolicyPayload, &mockApprovalPolicy)
 
 			expectedCreateRequest := struct {
 				ApprovalPolicyCreatePayload
@@ -162,7 +162,7 @@ var _ = Describe("Approval Policy Client", func() {
 
 		BeforeEach(func() {
 			updateApprovalPolicyPayload := ApprovalPolicyUpdatePayload{}
-			copier.Copy(&updateApprovalPolicyPayload, &mockApprovalPolicy)
+			_ = copier.Copy(&updateApprovalPolicyPayload, &mockApprovalPolicy)
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/approval-policy", &updateApprovalPolicyPayload, gomock.Any()).

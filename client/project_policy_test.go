@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"errors"
-	"fmt"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	. "github.com/onsi/ginkgo"
@@ -23,7 +22,7 @@ var _ = Describe("Policy", func() {
 		var policy Policy
 		var err error
 
-		path := fmt.Sprintf("/policies?projectId=%s", mockPolicy.ProjectId)
+		path := "/policies?projectId=" + mockPolicy.ProjectId
 
 		Describe("Success", func() {
 			BeforeEach(func() {
