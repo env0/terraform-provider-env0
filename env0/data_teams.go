@@ -28,6 +28,7 @@ func dataTeams() *schema.Resource {
 
 func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
 	teams, err := apiClient.Teams()
 	if err != nil {
 		return diag.Errorf("Could not get teams: %v", err)

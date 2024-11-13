@@ -36,13 +36,19 @@ var _ = Describe("Project Budget Client", func() {
 	})
 
 	Describe("Delete Project Budget", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/costs/project/"+mockProjectBudget.ProjectId+"/budget", gomock.Nil())
 			httpCall.Times(1)
-			apiClient.ProjectBudgetDelete(mockProjectBudget.ProjectId)
+			err = apiClient.ProjectBudgetDelete(mockProjectBudget.ProjectId)
 		})
 
 		It("Should delete project budget", func() {})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("Update Project Budget", func() {
@@ -50,7 +56,7 @@ var _ = Describe("Project Budget Client", func() {
 
 		BeforeEach(func() {
 			var updateProjectBudgetPayload ProjectBudgetUpdatePayload
-			copier.Copy(&updateProjectBudgetPayload, &mockProjectBudget)
+			_ = copier.Copy(&updateProjectBudgetPayload, &mockProjectBudget)
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/costs/project/"+mockProjectBudget.ProjectId+"/budget", &updateProjectBudgetPayload, gomock.Any()).

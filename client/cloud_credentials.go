@@ -152,8 +152,8 @@ func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
 	}
 
 	var credentials []Credentials
-	err = client.http.Get("/credentials", map[string]string{"organizationId": organizationId}, &credentials)
-	if err != nil {
+
+	if err := client.http.Get("/credentials", map[string]string{"organizationId": organizationId}, &credentials); err != nil {
 		return []Credentials{}, err
 	}
 

@@ -35,6 +35,7 @@ func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *sche
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
+
 	result, err := apiClient.AssignCostCredentialsToProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not assign cost credentials to project: %v", err)
@@ -65,6 +66,7 @@ func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 
 	if !found && !d.IsNewResource() {
 		d.SetId("")
+
 		return nil
 	}
 
@@ -77,9 +79,11 @@ func resourceCostCredentialsProjectAssignmentDelete(ctx context.Context, d *sche
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
+
 	err := apiClient.RemoveCostCredentialsFromProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not delete cost credentials from project: %v", err)
 	}
+
 	return nil
 }

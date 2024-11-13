@@ -89,6 +89,7 @@ func getGitTokenByName(name string, meta interface{}) (*client.GitToken, error) 
 	}
 
 	var foundGitTokens []client.GitToken
+
 	for _, gitToken := range gitTokens {
 		if gitToken.Name == name {
 			foundGitTokens = append(foundGitTokens, gitToken)
@@ -110,9 +111,11 @@ func getGitToken(ctx context.Context, id string, meta interface{}) (*client.GitT
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving git token by id", map[string]interface{}{"id": id})
+
 		return meta.(client.ApiClientInterface).GitToken(id)
 	} else {
 		tflog.Info(ctx, "Resolving git token by name", map[string]interface{}{"name": id})
+
 		return getGitTokenByName(id, meta)
 	}
 }
@@ -124,7 +127,7 @@ func resourceGitTokenImport(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if err := writeResourceData(gitToken, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

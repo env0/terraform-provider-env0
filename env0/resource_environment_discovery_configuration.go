@@ -270,7 +270,7 @@ func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *sch
 
 func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPayload *client.EnvironmentDiscoveryPayload) error {
 	if err := writeResourceData(getPayload, d); err != nil {
-		return fmt.Errorf("schema resource data serialization failed: %v", err)
+		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	discoveryWriteSshKeyHelper(getPayload, d)

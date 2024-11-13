@@ -42,7 +42,7 @@ var _ = Describe("Teams Client", func() {
 		mockTeams := []Team{mockTeam}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/teams/organizations/"+organizationId, nil, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]Team) {
@@ -70,10 +70,10 @@ var _ = Describe("Teams Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				createTeamPayload := TeamCreatePayload{}
-				copier.Copy(&createTeamPayload, &mockTeam)
+				_ = copier.Copy(&createTeamPayload, &mockTeam)
 
 				expectedCreateRequest := createTeamPayload
 				expectedCreateRequest.OrganizationId = organizationId
@@ -120,13 +120,19 @@ var _ = Describe("Teams Client", func() {
 	})
 
 	Describe("TeamDelete", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/teams/"+mockTeam.Id, nil)
-			apiClient.TeamDelete(mockTeam.Id)
+			err = apiClient.TeamDelete(mockTeam.Id)
 		})
 
 		It("Should send DELETE request with team id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
 		})
 	})
 

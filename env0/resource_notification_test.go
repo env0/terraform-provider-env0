@@ -52,6 +52,7 @@ func TestUnitNotificationResource(t *testing.T) {
 	}
 
 	webhookSecret := "my-little-secret"
+
 	var nullString *string
 
 	t.Run("Success", func(t *testing.T) {

@@ -62,6 +62,7 @@ func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	for i := range users {
 		if users[i].User.UserId == userId {
 			user = &users[i]
+
 			break
 		}
 	}
@@ -69,6 +70,7 @@ func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	if user == nil {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

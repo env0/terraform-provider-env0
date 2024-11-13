@@ -130,7 +130,6 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 	})
 
 	t.Run("validate missing arguments", func(t *testing.T) {
-
 		missingArgumentsTestCases := []resource.TestCase{
 			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
 				"name": "update",
@@ -139,13 +138,13 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 				"service_account_key": "update",
 			}, "name"),
 		}
+
 		for _, testCase := range missingArgumentsTestCases {
 			tc := testCase
 
 			t.Run("validate missing arguments", func(t *testing.T) {
 				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})
-
 		}
 	})
 

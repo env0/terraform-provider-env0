@@ -37,6 +37,7 @@ func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values m
 	if len(c.Format) > 0 {
 		values["format"] = c.Format
 	}
+
 	return nil
 }
 
@@ -105,6 +106,7 @@ func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVar
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}
+
 	return result, nil
 }
 
@@ -184,10 +186,11 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 	request["schema"] = getSchema(params)
 
 	requestInArray := []map[string]interface{}{request}
-	err = client.http.Post("configuration", requestInArray, &result)
-	if err != nil {
+
+	if err := client.http.Post("configuration", requestInArray, &result); err != nil {
 		return ConfigurationVariable{}, err
 	}
+
 	return result[0], nil
 }
 

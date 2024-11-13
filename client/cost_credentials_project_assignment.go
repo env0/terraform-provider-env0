@@ -12,9 +12,11 @@ func (client *ApiClient) AssignCostCredentialsToProject(projectId string, creden
 	err := client.http.Put("/costs/project/"+projectId+"/credentials", map[string]string{
 		"credentialsId": credentialId,
 	}, &result)
+
 	if err != nil {
 		return result, err
 	}
+
 	return result, nil
 }
 
@@ -29,5 +31,6 @@ func (client *ApiClient) CostCredentialIdsInProject(projectId string) ([]CostCre
 	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }

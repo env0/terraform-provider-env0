@@ -71,6 +71,7 @@ func dataModule() *schema.Resource {
 
 func dataModuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var module *client.Module
+
 	var err error
 
 	id, ok := d.GetOk("id")

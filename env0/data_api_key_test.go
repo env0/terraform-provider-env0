@@ -1,7 +1,6 @@
 package env0
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -100,7 +99,7 @@ func TestApiKeyDataSource(t *testing.T) {
 
 	t.Run("Throw error when by id and no api key found with that id", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(apiKeyFieldsById, fmt.Sprintf("id %s not found", apiKey.Id)),
+			getErrorTestCase(apiKeyFieldsById, "not found"),
 			mockListApiKeysCall([]client.ApiKey{otherApiKey}),
 		)
 	})

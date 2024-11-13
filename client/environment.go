@@ -188,6 +188,7 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	tcb, err := json.Marshal(&create.TemplateCreate)
 	if err != nil {
 		return nil, err
@@ -256,19 +257,23 @@ func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, e
 
 func (client *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
+
 	err := client.http.Get("/environments/"+id, nil, &result)
 	if err != nil {
 		return Environment{}, err
 	}
+
 	return result, nil
 }
 
 func (client *ApiClient) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
 	var result DeploymentLog
+
 	err := client.http.Get("/environments/deployments/"+id, nil, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -279,6 +284,7 @@ func (client *ApiClient) EnvironmentCreate(payload EnvironmentCreate) (Environme
 	if err != nil {
 		return Environment{}, err
 	}
+
 	return result, nil
 }
 
@@ -301,20 +307,23 @@ func (client *ApiClient) EnvironmentCreateWithoutTemplate(payload EnvironmentCre
 
 func (client *ApiClient) EnvironmentDestroy(id string) (*EnvironmentDestroyResponse, error) {
 	var result EnvironmentDestroyResponse
+
 	err := client.http.Post("/environments/"+id+"/destroy", nil, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
 func (client *ApiClient) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {
 	var result Environment
-	err := client.http.Put("/environments/"+id, payload, &result)
 
+	err := client.http.Put("/environments/"+id, payload, &result)
 	if err != nil {
 		return Environment{}, err
 	}
+
 	return result, nil
 }
 
@@ -328,21 +337,23 @@ func (client *ApiClient) EnvironmentMarkAsArchived(id string) error {
 
 func (client *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
 	var result Environment
-	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)
 
+	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)
 	if err != nil {
 		return Environment{}, err
 	}
+
 	return result, nil
 }
 
 func (client *ApiClient) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
 	var result EnvironmentDeployResponse
-	err := client.http.Post("/environments/"+id+"/deployments", payload, &result)
 
+	err := client.http.Post("/environments/"+id+"/deployments", payload, &result)
 	if err != nil {
 		return EnvironmentDeployResponse{}, err
 	}
+
 	return result, nil
 }
 

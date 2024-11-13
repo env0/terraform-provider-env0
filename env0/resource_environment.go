@@ -65,6 +65,7 @@ func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
 
 func isTemplateless(d *schema.ResourceData) bool {
 	_, ok := d.GetOk("without_template_settings.0")
+
 	return ok
 }
 
@@ -91,6 +92,7 @@ func resourceEnvironment() *schema.Resource {
 					if value != client.ENVIRONMENT && value != client.TERRAFORM {
 						errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
 					}
+
 					return
 				},
 			},
@@ -240,6 +242,7 @@ func resourceEnvironment() *schema.Resource {
 					if !matched || err != nil {
 						errs = append(errs, fmt.Errorf("%q must be of iso format (for example: \"2021-12-13T10:00:00Z\"), got: %q", key, ttl))
 					}
+
 					return
 				},
 			},
@@ -394,7 +397,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("vcs_pr_comments_enabled"); !exists {
 		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore any drifts if not explicitly configured in the environment resource.
 	} else {
@@ -472,6 +475,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 		for _, newv := range variableSetsIds {
 			found := false
+
 			for _, sortedv := range sortedVariablesSet {
 				if newv == sortedv {
 					found = true
@@ -562,6 +566,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	var environment client.Environment
+
 	var err error
 
 	if !isTemplateless(d) {
@@ -599,6 +604,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
+
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
 	}
@@ -622,6 +628,7 @@ func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient clien
 	}
 
 	var environmentVariableSetIds []string
+
 	for _, variableSet := range environmentVariableSets {
 		if variableSet.AssignmentScope == client.ENVIRONMENT {
 			environmentVariableSetIds = append(environmentVariableSetIds, variableSet.Id)
@@ -661,6 +668,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if isTemplateless(d) {
 		// environment with no template.
 		templateId := d.Get("without_template_settings.0.id").(string)
+
 		template, err := apiClient.Template(templateId)
 		if err != nil {
 			return diag.Errorf("could not get template: %v", err)
@@ -736,7 +744,7 @@ func shouldUpdate(d *schema.ResourceData) bool {
 		return true
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
 		// if this field is set to 'false' will return that there is change each time.
 		// this is because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation).
@@ -806,6 +814,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		for i, subEnvironment := range subEnvironments {
 			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]interface{})
 			configurationChanges := getConfigurationVariablesFromSchema(configuration)
+
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeEnvironment, apiClient)
 			if err != nil {
 				return diag.FromErr(err)
@@ -845,16 +854,19 @@ func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	if err != nil {
 		return diag.Errorf("could not update environment: %v", err)
 	}
+
 	return nil
 }
 
 func updateTTL(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	ttl := d.Get("ttl").(string)
 	payload := getTTl(ttl)
+
 	_, err := apiClient.EnvironmentUpdateTTL(d.Id(), payload)
 	if err != nil {
 		return diag.Errorf("could not update the environment's ttl: %v", err)
 	}
+
 	return nil
 }
 
@@ -893,8 +905,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
 			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
+
 			return nil
 		}
+
 		return diag.Errorf("could not delete environment: %v", err)
 	}
 
@@ -925,20 +939,24 @@ func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientIn
 			deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
 			if err != nil {
 				results <- fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
+
 				return
 			}
 
 			if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
 				results <- fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", deployment.Status)
+
 				return
 			}
 
 			if deployment.Status == "SUCCESS" {
 				results <- nil
+
 				return
 			}
 
 			tflog.Info(ctx, "current 'destroy' deployment status", map[string]interface{}{"deploymentId": deploymentId, "status": deployment.Status})
+
 			if deployment.Status == "WAITING_FOR_USER" {
 				tflog.Warn(ctx, "waiting for user approval (Env0 UI) to proceed with 'destroy' deployment")
 			}
@@ -946,6 +964,7 @@ func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientIn
 			select {
 			case <-timer.C:
 				results <- fmt.Errorf("timeout! last 'destroy' deployment status was '%s'", deployment.Status)
+
 				return
 			case <-ticker.C:
 				continue
@@ -963,34 +982,34 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		return client.EnvironmentCreate{}, diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
 		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("deploy_on_push"); exists {
 		payload.ContinuousDeployment = boolPtr(val.(bool))
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
 		payload.PullRequestPlanDeployments = boolPtr(val.(bool))
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("prevent_auto_deploy"); exists {
 		payload.PreventAutoDeploy = boolPtr(val.(bool))
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
 		payload.AutoDeployOnPathChangesOnly = boolPtr(val.(bool))
 	}
 
 	_, isWorkflow := d.GetOk("sub_environment_configuration")
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
 		payload.RequiresApproval = boolPtr(!val.(bool))
 
@@ -1004,7 +1023,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.RequiresApproval = boolPtr(false)
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("is_remote_backend"); exists {
 		payload.IsRemoteBackend = boolPtr(val.(bool))
 	}
@@ -1082,6 +1101,7 @@ func assertEnvironment(d *schema.ResourceData) diag.Diagnostics {
 		if !continuousDeployment && !pullRequestPlanDeployments {
 			return diag.Errorf("run_plan_on_pull_requests or deploy_on_push must be enabled for auto_deploy_by_custom_glob")
 		}
+
 		if !autoDeployOnPathChangesOnly {
 			return diag.Errorf("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled")
 		}
@@ -1090,6 +1110,7 @@ func assertEnvironment(d *schema.ResourceData) diag.Diagnostics {
 	isRemoteApplyEnabled := d.Get("is_remote_apply_enabled").(bool)
 	isRemotedBackend := d.Get("is_remote_backend").(bool)
 	approvePlanAutomatically := d.Get("approve_plan_automatically").(bool)
+
 	if isRemoteApplyEnabled && (!isRemotedBackend || !approvePlanAutomatically) {
 		return diag.Errorf("cannot set is_remote_apply_enabled when approve_plan_automatically or is_remote_backend are disabled")
 	}
@@ -1105,7 +1126,7 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	}
 
 	// Because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation): always set a value here (even if there's no change).
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
 		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
 	}
@@ -1148,12 +1169,14 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 
 func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient client.ApiClientInterface) (*client.ConfigurationSetChanges, error) {
 	variableSetsFromSchema := getEnvironmentVariableSetIdsFromSchema(d)
+
 	variableSetFromApi, err := getEnvironmentVariableSetIdsFromApi(d, apiClient)
 	if err != nil {
 		return nil, err
 	}
 
 	var assignVariableSets []string
+
 	var unassignVariableSets []string
 
 	for _, sv := range variableSetsFromSchema {
@@ -1200,6 +1223,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 
 func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterface, isRedeploy bool) (client.DeployRequest, error) {
 	payload := client.DeployRequest{}
+
 	var err error
 
 	if isTemplateless(d) {
@@ -1246,7 +1270,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 	}
 
-	//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
 		payload.UserRequiresApproval = boolPtr(!val.(bool))
 	}
@@ -1261,6 +1285,7 @@ func getTTl(date string) client.TTL {
 			Value: date,
 		}
 	}
+
 	return client.TTL{
 		Type:  client.TTlTypeInfinite,
 		Value: "",
@@ -1287,11 +1312,13 @@ func deleteUnusedConfigurationVariables(configurationChanges client.Configuratio
 			configurationChanges = append(configurationChanges, existVariable)
 		}
 	}
+
 	return configurationChanges
 }
 
 func linkToExistConfigurationVariables(configurationChanges client.ConfigurationChanges, existVariables client.ConfigurationChanges) client.ConfigurationChanges {
 	updateConfigurationChanges := client.ConfigurationChanges{}
+
 	for _, change := range configurationChanges {
 		if isExist, existVariable := isVariableExist(existVariables, change); isExist {
 			change.Id = existVariable.Id
@@ -1299,6 +1326,7 @@ func linkToExistConfigurationVariables(configurationChanges client.Configuration
 
 		updateConfigurationChanges = append(updateConfigurationChanges, change)
 	}
+
 	return updateConfigurationChanges
 }
 
@@ -1308,6 +1336,7 @@ func isVariableExist(variables client.ConfigurationChanges, search client.Config
 			return true, variable
 		}
 	}
+
 	return false, client.ConfigurationVariable{}
 }
 
@@ -1319,12 +1348,14 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 
 func getEnvironmentByName(meta interface{}, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	environmentsByName, err := apiClient.EnvironmentsByName(name)
 	if err != nil {
 		return client.Environment{}, diag.Errorf("Could not get Environment: %v", err)
 	}
 
 	filteredEnvironments := []client.Environment{}
+
 	for _, candidate := range environmentsByName {
 		if excludeArchived && candidate.IsArchived != nil && *candidate.IsArchived {
 			continue
@@ -1350,15 +1381,18 @@ func getEnvironmentByName(meta interface{}, name string, projectId string, exclu
 
 func getEnvironmentById(environmentId string, meta interface{}) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	environment, err := apiClient.Environment(environmentId)
 	if err != nil {
 		return client.Environment{}, diag.Errorf("Could not find environment: %v", err)
 	}
+
 	return environment, nil
 }
 
 func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
+
 	var getErr diag.Diagnostics
 
 	var environment client.Environment
@@ -1427,6 +1461,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("is_inactive", false) // default is false.
+
 	if environment.IsArchived != nil {
 		d.Set("is_inactive", *environment.IsArchived)
 	}

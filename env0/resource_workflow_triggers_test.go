@@ -26,8 +26,8 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 		"environment_id":             environmentId,
 		"downstream_environment_ids": []string{trigger.Id},
 	})
-	t.Run("Success", func(t *testing.T) {
 
+	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -67,7 +67,6 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 				mock.EXPECT().WorkflowTrigger(environmentId).Times(2).Return([]client.WorkflowTrigger{trigger}, nil),      // 1 after createHCL, 1 before update
 				mock.EXPECT().WorkflowTrigger(environmentId).Times(1).Return([]client.WorkflowTrigger{otherTrigger}, nil), // 1 after update
 			)
-
 		})
 	})
 
@@ -86,7 +85,6 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 				DownstreamEnvironmentIds: []string{trigger.Id},
 			}).Times(1).Return([]client.WorkflowTrigger{}, errors.New("error"))
 		})
-
 	})
 
 	t.Run("Failure in read", func(t *testing.T) {
@@ -109,6 +107,5 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 
 			mock.EXPECT().WorkflowTrigger(environmentId).Return([]client.WorkflowTrigger{}, errors.New("error"))
 		})
-
 	})
 }

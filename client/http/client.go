@@ -49,9 +49,11 @@ func (client *HttpClient) httpResult(response *resty.Response, err error) error 
 	if err != nil {
 		return err
 	}
+
 	if !response.IsSuccess() {
 		return &FailedResponseError{res: response}
 	}
+
 	return nil
 }
 
@@ -98,6 +100,7 @@ func (client *HttpClient) Get(path string, params map[string]string, response in
 
 func (client *HttpClient) Delete(path string, params map[string]string) error {
 	result, err := client.request().SetQueryParams(params).Delete(path)
+
 	return client.httpResult(result, err)
 }
 
@@ -106,5 +109,6 @@ func (client *HttpClient) Patch(path string, request interface{}, response inter
 		SetBody(request).
 		SetResult(response).
 		Patch(path)
+
 	return client.httpResult(result, err)
 }

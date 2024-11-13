@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -37,6 +38,7 @@ func resourceNotification() *schema.Resource {
 					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams && notificationType != client.NotificationTypeEmail && notificationType != client.NotificationTypeWebhook {
 						return diag.Errorf("Invalid notification type")
 					}
+
 					return nil
 				},
 			},
@@ -70,7 +72,7 @@ func getNotificationById(id string, meta interface{}) (*client.Notification, err
 		}
 	}
 
-	return nil, nil
+	return nil, ErrNotFound
 }
 
 func getNotificationByName(name string, meta interface{}) (*client.Notification, error) {
@@ -82,6 +84,7 @@ func getNotificationByName(name string, meta interface{}) (*client.Notification,
 	}
 
 	var foundNotifications []client.Notification
+
 	for _, notification := range notifications {
 		if notification.Name == name {
 			foundNotifications = append(foundNotifications, notification)
@@ -120,12 +123,16 @@ func resourceNotificationCreate(ctx context.Context, d *schema.ResourceData, met
 func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	notification, err := getNotificationById(d.Id(), meta)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			if notification == nil {
+				tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+				d.SetId("")
+
+				return nil
+			}
+		}
+
 		return diag.Errorf("could not get notification: %v", err)
-	}
-	if notification == nil {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
-		d.SetId("")
-		return nil
 	}
 
 	if err := writeResourceData(notification, d); err != nil {
@@ -146,7 +153,9 @@ func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChanges("webhook_secret") {
 		webhookSecret := d.Get("webhook_secret").(string)
+
 		var strPtr *string
+
 		if webhookSecret == "" {
 			// webhook secret was removed - pass 'null pointer' (will pass 'null' in json).
 			// see https://docs.env0.com/reference/notifications-update-notification-endpoint
@@ -178,9 +187,11 @@ func getNotification(ctx context.Context, id string, meta interface{}) (*client.
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving notifcation by id", map[string]interface{}{"id": id})
+
 		return getNotificationById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving notifcation by name", map[string]interface{}{"name	": id})
+
 		return getNotificationByName(id, meta)
 	}
 }
@@ -188,14 +199,15 @@ func getNotification(ctx context.Context, id string, meta interface{}) (*client.
 func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	notification, err := getNotification(ctx, d.Id(), meta)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return nil, fmt.Errorf("notification with id %v not found", d.Id())
+		}
+
 		return nil, err
-	}
-	if notification == nil {
-		return nil, fmt.Errorf("notification with id %v not found", d.Id())
 	}
 
 	if err := writeResourceData(notification, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

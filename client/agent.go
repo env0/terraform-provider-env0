@@ -11,8 +11,8 @@ func (client *ApiClient) Agents() ([]Agent, error) {
 	}
 
 	var result []Agent
-	err = client.http.Get("/agents", map[string]string{"organizationId": organizationId}, &result)
-	if err != nil {
+
+	if err := client.http.Get("/agents", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return nil, err
 	}
 

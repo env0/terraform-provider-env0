@@ -198,6 +198,7 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 	}
 
 	var foundModules []client.Module
+
 	for _, module := range modules {
 		if module.ModuleName == name {
 			foundModules = append(foundModules, module)
@@ -219,9 +220,11 @@ func getModule(ctx context.Context, id string, meta interface{}) (*client.Module
 	_, err := uuid.Parse(id)
 	if err == nil {
 		tflog.Info(ctx, "Resolving module by id", map[string]interface{}{"id": id})
+
 		return meta.(client.ApiClientInterface).Module(id)
 	} else {
 		tflog.Info(ctx, "Resolving module by name", map[string]interface{}{"name": id})
+
 		return getModuleByName(id, meta)
 	}
 }
@@ -233,7 +236,7 @@ func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if err := writeResourceData(module, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

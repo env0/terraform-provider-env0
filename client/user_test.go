@@ -24,7 +24,7 @@ var _ = Describe("User Client", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations/"+organizationId+"/users", gomock.Any(), gomock.Any()).
@@ -42,7 +42,7 @@ var _ = Describe("User Client", func() {
 
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().

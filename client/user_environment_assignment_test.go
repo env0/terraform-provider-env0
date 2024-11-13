@@ -75,13 +75,19 @@ var _ = Describe("User Environment Assignment", func() {
 	})
 
 	Describe("RemoveUserFromEnvironment", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/assignments/users", map[string]string{"environmentId": environmentId, "userId": userId})
-			apiClient.RemoveUserRoleFromEnvironment(environmentId, userId)
+			err = apiClient.RemoveUserRoleFromEnvironment(environmentId, userId)
 		})
 
 		It("Should send DELETE request with assignment id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
 		})
 	})
 

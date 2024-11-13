@@ -29,12 +29,14 @@ func dataUser() *schema.Resource {
 
 func getUserByEmail(email string, meta interface{}) (*client.User, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	organizationUsers, err := apiClient.Users()
 	if err != nil {
 		return nil, diag.Errorf("Could not get users: %v", err)
 	}
 
 	var usersByEmail []client.User
+
 	for _, organizationUser := range organizationUsers {
 		if organizationUser.User.Email == email {
 			usersByEmail = append(usersByEmail, organizationUser.User)
@@ -44,6 +46,7 @@ func getUserByEmail(email string, meta interface{}) (*client.User, diag.Diagnost
 	if len(usersByEmail) > 1 {
 		return nil, diag.Errorf("Found multiple users with the same email: %s", email)
 	}
+
 	if len(usersByEmail) == 0 {
 		return nil, diag.Errorf("Could not find a user with the email: %s", email)
 	}
@@ -53,6 +56,7 @@ func getUserByEmail(email string, meta interface{}) (*client.User, diag.Diagnost
 
 func dataUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	email := d.Get("email").(string)
+
 	user, err := getUserByEmail(email, meta)
 	if err != nil {
 		return err

@@ -33,6 +33,10 @@ jobs:
       - name: Go vet
         run: |
           ! go vet ./... | read
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
       - name: Go Test
         run: go test -v ./...
 

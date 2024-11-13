@@ -21,7 +21,7 @@ var _ = Describe("ApiKey Client", func() {
 		mockApiKeys := []ApiKey{mockApiKey}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]ApiKey) {
@@ -48,10 +48,11 @@ var _ = Describe("ApiKey Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			createApiKeyPayload := ApiKeyCreatePayload{}
-			copier.Copy(&createApiKeyPayload, &mockApiKey)
+
+			_ = copier.Copy(&createApiKeyPayload, &mockApiKey)
 
 			expectedCreateRequest := ApiKeyCreatePayloadWith{
 				ApiKeyCreatePayload: createApiKeyPayload,
@@ -85,13 +86,19 @@ var _ = Describe("ApiKey Client", func() {
 	})
 
 	Describe("Delete ApiKey", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/api-keys/"+mockApiKey.Id, nil)
-			apiClient.ApiKeyDelete(mockApiKey.Id)
+			err = apiClient.ApiKeyDelete(mockApiKey.Id)
 		})
 
 		It("Should send DELETE request with ApiKey id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 
@@ -101,7 +108,7 @@ var _ = Describe("ApiKey Client", func() {
 		mockedOidcSub := "oidc sub 1234"
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys/oidc-sub", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *string) {

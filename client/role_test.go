@@ -36,7 +36,7 @@ var _ = Describe("Role", func() {
 
 	Describe("RoleCreate", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/roles", RoleCreatePayload{
@@ -71,13 +71,19 @@ var _ = Describe("Role", func() {
 	})
 
 	Describe("RoleDelete", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/roles/"+mockRole.Id, nil)
-			apiClient.RoleDelete(mockRole.Id)
+			err = apiClient.RoleDelete(mockRole.Id)
 		})
 
 		It("Should send DELETE request with role id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
 		})
 	})
 
@@ -130,7 +136,7 @@ var _ = Describe("Role", func() {
 		mockRoles := []Role{mockRole}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles", map[string]string{"organizationId": organizationId}, gomock.Any()).

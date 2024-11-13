@@ -57,6 +57,7 @@ func resourceUserProjectAssignmentCreate(ctx context.Context, d *schema.Resource
 	if !ok {
 		role = d.Get("custom_role_id")
 	}
+
 	newAssignment.Role = role.(string)
 
 	projectId := d.Get("project_id").(string)
@@ -119,6 +120,7 @@ func resourceUserProjectAssignmentUpdate(ctx context.Context, d *schema.Resource
 	if !ok {
 		role = d.Get("custom_role_id")
 	}
+
 	payload.Role = role.(string)
 
 	apiClient := meta.(client.ApiClientInterface)

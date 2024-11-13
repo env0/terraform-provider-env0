@@ -187,16 +187,19 @@ func createRestyClient(ctx context.Context) *resty.Client {
 			if r != nil {
 				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
 			}
+
 			return nil
 		}).
 		OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
 			tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
+
 			return nil
 		}).
 		AddRetryCondition(func(r *resty.Response, err error) bool {
 			if r == nil {
 				// No response. Possibly a networking issue (E.g. DNS lookup failure).
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "No response, retrying request")
+
 				return true
 			}
 
@@ -204,11 +207,13 @@ func createRestyClient(ctx context.Context) *resty.Client {
 			// Retry when there's a 5xx error. Otherwise do not retry.
 			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+
 				return true
 			}
 
 			if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+
 				return true
 			}
 

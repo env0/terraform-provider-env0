@@ -20,7 +20,7 @@ var _ = Describe("Gpg Token Client", func() {
 		mockGpgKeys := []GpgKey{mockGpgKey}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			mockHttpClient.EXPECT().
 				Get("/gpg-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]GpgKey) {
@@ -56,7 +56,7 @@ var _ = Describe("Gpg Token Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payload := struct {
 				OrganizationId string `json:"organizationId"`

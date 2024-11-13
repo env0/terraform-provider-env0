@@ -36,7 +36,7 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("GoogleCostCredentialsCreate", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payloadValue := GoogleCostCredentialsValuePayload{
 				TableId: "table",
@@ -77,7 +77,7 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("AwsCredentialsCreate", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payloadValue := AwsCredentialsValuePayload{
 				RoleArn:  "role",
@@ -118,7 +118,7 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("AwsCredentialsUpdate", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payloadValue := AwsCredentialsValuePayload{
 				RoleArn:  "role",
@@ -162,7 +162,7 @@ var _ = Describe("CloudCredentials", func() {
 		mockGcpCredentials := mockCredentials
 		mockGcpCredentials.Type = gcpRequestType
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			payloadValue := GcpCredentialsValuePayload{
 				ProjectId:         "projectId",
@@ -207,7 +207,7 @@ var _ = Describe("CloudCredentials", func() {
 		mockAzureCredentials.Type = azureRequestType
 		BeforeEach(func() {
 
-			mockOrganizationIdCall(organizationId).Times(1)
+			mockOrganizationIdCall().Times(1)
 
 			payloadValue := AzureCredentialsValuePayload{
 				ClientId:       "fakeClientId",
@@ -241,19 +241,25 @@ var _ = Describe("CloudCredentials", func() {
 	})
 
 	Describe("CloudCredentialsDelete", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/credentials/"+mockCredentials.Id, nil)
-			apiClient.CloudCredentialsDelete(mockCredentials.Id)
+			err = apiClient.CloudCredentialsDelete(mockCredentials.Id)
 		})
 
 		It("Should send DELETE request with project id", func() {
 			httpCall.Times(1)
 		})
+
+		It("should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("CloudCredentials", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
@@ -276,7 +282,7 @@ var _ = Describe("CloudCredentials", func() {
 		var credentials []Credentials
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
