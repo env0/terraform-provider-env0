@@ -247,7 +247,6 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 				DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
 				SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
 			}).Times(1).Return(resetPolicy, nil)
-
 		})
 	})
 

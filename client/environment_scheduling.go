@@ -46,6 +46,7 @@ func (client *ApiClient) EnvironmentScheduling(environmentId string) (Environmen
 	if err != nil {
 		return result, err
 	}
+
 	return result, nil
 }
 

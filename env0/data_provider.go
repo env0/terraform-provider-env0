@@ -36,6 +36,7 @@ func dataProvider() *schema.Resource {
 
 func dataProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var provider *client.Provider
+
 	var err error
 
 	id, ok := d.GetOk("id")

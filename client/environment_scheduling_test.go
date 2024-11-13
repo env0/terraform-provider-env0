@@ -115,13 +115,19 @@ var _ = Describe("EnvironmentScheduling", func() {
 
 	Describe("Delete", func() {
 		Describe("Success", func() {
+			var err error
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().Put("/scheduling/environments/"+mockEnvironmentId, EnvironmentScheduling{}, &EnvironmentScheduling{})
-				apiClient.EnvironmentSchedulingDelete(mockEnvironmentId)
+				err = apiClient.EnvironmentSchedulingDelete(mockEnvironmentId)
 			})
 
 			It("Should send PUT request with empty environment scheduling object", func() {
 				httpCall.Times(1)
+			})
+
+			It("Should not return error", func() {
+				Expect(err).To(BeNil())
 			})
 		})
 

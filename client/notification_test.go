@@ -22,7 +22,7 @@ var _ = Describe("Notification Client", func() {
 		mockNotifications := []Notification{mockNotification}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request interface{}, response *[]Notification) {
@@ -50,10 +50,10 @@ var _ = Describe("Notification Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				createNotificationPayload := NotificationCreatePayload{}
-				copier.Copy(&createNotificationPayload, &mockNotification)
+				_ = copier.Copy(&createNotificationPayload, &mockNotification)
 
 				expectedCreateRequest := NotificationCreatePayloadWith{
 					NotificationCreatePayload: createNotificationPayload,
@@ -88,13 +88,19 @@ var _ = Describe("Notification Client", func() {
 	})
 
 	Describe("NotificationDelete", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/notifications/endpoints/"+mockNotification.Id, nil)
-			apiClient.NotificationDelete(mockNotification.Id)
+			err = apiClient.NotificationDelete(mockNotification.Id)
 		})
 
 		It("Should send DELETE request with notification id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
 		})
 	})
 

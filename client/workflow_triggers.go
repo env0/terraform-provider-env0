@@ -14,6 +14,7 @@ type WorkflowTriggerEnvironments struct {
 
 func (client *ApiClient) WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error) {
 	var result []WorkflowTrigger
+
 	err := client.http.Get("/environments/"+environmentId+"/downstream", nil, &result)
 	if err != nil {
 		return []WorkflowTrigger{}, err
@@ -29,6 +30,7 @@ func (client *ApiClient) WorkflowTriggerUpsert(environmentId string, request Wor
 	if err != nil {
 		return []WorkflowTrigger{}, err
 	}
+
 	return result, nil
 }
 

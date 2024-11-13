@@ -235,5 +235,4 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 			)
 		})
 	})
-
 }

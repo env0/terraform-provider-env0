@@ -181,12 +181,14 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 		if err != nil {
 			panic(err)
 		}
+
 		var tpl bytes.Buffer
 
 		err = tmpl.Execute(&tpl, data)
 		if err != nil {
 			panic(err)
 		}
+
 		stepConfig := tpl.String()
 
 		testStep := resource.TestStep{

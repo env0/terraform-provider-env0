@@ -24,7 +24,7 @@ var _ = Describe("Agent Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents", gomock.Any(), gomock.Any()).
@@ -56,7 +56,7 @@ var _ = Describe("Agent Client", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents", gomock.Any(), gomock.Any()).

@@ -10,6 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const INFINITE = "Infinite"
+const INHERIT = "inherit"
+
 func resourceProjectPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProjectPolicyCreate,
@@ -89,14 +92,14 @@ func resourceProjectPolicy() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
 				Optional:         true,
-				Default:          "inherit",
+				Default:          INHERIT,
 				ValidateDiagFunc: ValidateTtl,
 			},
 			"default_ttl": {
 				Type:             schema.TypeString,
 				Description:      "the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
 				Optional:         true,
-				Default:          "inherit",
+				Default:          INHERIT,
 				ValidateDiagFunc: ValidateTtl,
 			},
 			"force_remote_backend": {
@@ -167,7 +170,7 @@ func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	// Validate if one is "inherit", the other must be too.
-	if (payload.MaxTtl == "inherit" || payload.DefaultTtl == "inherit") && payload.MaxTtl != payload.DefaultTtl {
+	if (payload.MaxTtl == INHERIT || payload.DefaultTtl == INHERIT) && payload.MaxTtl != payload.DefaultTtl {
 		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
 	}
 
@@ -175,11 +178,11 @@ func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	if payload.DefaultTtl == "Infinite" {
+	if payload.DefaultTtl == INFINITE {
 		payload.DefaultTtl = ""
 	}
 
-	if payload.MaxTtl == "Infinite" {
+	if payload.MaxTtl == INFINITE {
 		payload.MaxTtl = ""
 	}
 
@@ -210,6 +213,7 @@ func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	d.SetId(projectId)
+
 	if err := writeResourceData(&policy, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
@@ -226,8 +230,9 @@ func resourceProjectPolicyImport(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	d.SetId(projectId)
+
 	if err := writeResourceData(&policy, d); err != nil {
-		return nil, fmt.Errorf("schema resource data serialization failed: %v", err)
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
 	return []*schema.ResourceData{d}, nil

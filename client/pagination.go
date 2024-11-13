@@ -24,6 +24,7 @@ func (p *Pagination) getParams() map[string]string {
 // returns true if there is more data.
 func (p *Pagination) next(currentPageSize int) bool {
 	p.offset += currentPageSize
+
 	return currentPageSize == limit
 }
 

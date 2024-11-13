@@ -30,6 +30,7 @@ func (client *ApiClient) ProjectsAgentsAssignments() (*ProjectsAgentsAssignments
 	}
 
 	var result ProjectsAgentsAssignments
+
 	err = client.http.Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, &result)
 	if err != nil {
 		return nil, err

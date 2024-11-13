@@ -7,6 +7,7 @@ func (client *ApiClient) EnvironmentDriftDetection(environmentId string) (Enviro
 	if err != nil {
 		return result, err
 	}
+
 	return result, nil
 }
 

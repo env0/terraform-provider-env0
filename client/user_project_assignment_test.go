@@ -78,13 +78,19 @@ var _ = Describe("Agent Project Assignment", func() {
 	})
 
 	Describe("RemoveUserFromProject", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/permissions/projects/"+projectId+"/users/"+expectedResponse.Id, nil)
-			apiClient.RemoveUserFromProject(projectId, expectedResponse.Id)
+			err = apiClient.RemoveUserFromProject(projectId, expectedResponse.Id)
 		})
 
 		It("Should send DELETE request with assignment id", func() {
 			httpCall.Times(1)
+		})
+
+		It("Should not return an error", func() {
+			Expect(err).Should(BeNil())
 		})
 	})
 

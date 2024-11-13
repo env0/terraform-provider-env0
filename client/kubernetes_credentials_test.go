@@ -39,7 +39,7 @@ var _ = Describe("Kubernetes Credentials", func() {
 		}
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/credentials", &createPayloadWithOrganizationId, gomock.Any()).

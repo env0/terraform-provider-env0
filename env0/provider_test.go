@@ -37,6 +37,7 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 	testPattern := os.Getenv("TEST_PATTERN")
 	if testPattern != "" && !strings.Contains(t.Name(), testPattern) {
 		t.SkipNow()
+
 		return
 	}
 
@@ -47,11 +48,13 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 	mockFunc(apiClientMock)
 
 	testCase.ProviderFactories = map[string]func() (*schema.Provider, error){
+		//nolint:all // tests
 		"env0": func() (*schema.Provider, error) {
 			provider := Provider("")()
 			provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 				return apiClientMock, nil
 			}
+
 			return provider, nil
 		},
 	}
@@ -67,7 +70,9 @@ func TestProvider(t *testing.T) {
 
 func testExpectedProviderError(t *testing.T, diags diag.Diagnostics, expectedKey string) {
 	expectedError := fmt.Sprintf("The argument \"%s\" is required, but no definition was found.", expectedKey)
+
 	var errorDetail string
+
 	for _, diag := range diags {
 		if strings.Contains(diag.Detail, expectedError) {
 			errorDetail = diag.Detail

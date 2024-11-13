@@ -39,7 +39,7 @@ var _ = Describe("Environment Client", func() {
 
 		Describe("Success", func() {
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"limit":          "100",
@@ -74,7 +74,7 @@ var _ = Describe("Environment Client", func() {
 			}
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"offset":         "0",
@@ -148,7 +148,7 @@ var _ = Describe("Environment Client", func() {
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
-				mockOrganizationIdCall(organizationId)
+				mockOrganizationIdCall()
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"limit":          "100",
@@ -207,7 +207,7 @@ var _ = Describe("Environment Client", func() {
 
 		BeforeEach(func() {
 			createEnvironmentPayload := EnvironmentCreate{}
-			copier.Copy(&createEnvironmentPayload, &mockEnvironment)
+			_ = copier.Copy(&createEnvironmentPayload, &mockEnvironment)
 
 			expectedCreateRequest := createEnvironmentPayload
 
@@ -238,11 +238,11 @@ var _ = Describe("Environment Client", func() {
 		var err error
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 			createEnvironmentPayload := EnvironmentCreate{}
-			copier.Copy(&createEnvironmentPayload, &mockEnvironment)
+			_ = copier.Copy(&createEnvironmentPayload, &mockEnvironment)
 			createTemplatePayload := TemplateCreatePayload{}
-			copier.Copy(&createTemplatePayload, &mockTemplate)
+			_ = copier.Copy(&createTemplatePayload, &mockTemplate)
 
 			createRequest := EnvironmentCreateWithoutTemplate{
 				EnvironmentCreate: createEnvironmentPayload,

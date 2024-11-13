@@ -63,6 +63,7 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 	if !ok {
 		role = d.Get("custom_role_id")
 	}
+
 	payload.Role = role.(string)
 
 	assignment, err := apiClient.TeamRoleAssignmentCreateOrUpdate(&payload)

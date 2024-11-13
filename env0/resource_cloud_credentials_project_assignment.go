@@ -71,9 +71,11 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 			found = true
 		}
 	}
+
 	if !found && !d.IsNewResource() {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 
@@ -90,9 +92,11 @@ func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *sch
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
+
 	err := apiClient.RemoveCloudCredentialsFromProject(projectId, credentialId)
 	if err != nil {
 		return diag.Errorf("could not delete cloud credentials from project: %v", err)
 	}
+
 	return nil
 }

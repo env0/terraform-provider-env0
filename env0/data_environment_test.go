@@ -119,6 +119,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 	mockListEnvironmentsCall := func(returnValue []client.Environment, tem *client.Template) func(mockFunc *client.MockApiClientInterface) {
 		return func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().EnvironmentsByName(environment.Name).AnyTimes().Return(returnValue, nil)
+
 			if tem != nil {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).AnyTimes().Return(*tem, nil)
 			}

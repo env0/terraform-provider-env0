@@ -47,6 +47,7 @@ func resourceTeamOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *sc
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
+
 	payload.OrganizationId = organizationId
 
 	assignment, err := apiClient.TeamRoleAssignmentCreateOrUpdate(&payload)

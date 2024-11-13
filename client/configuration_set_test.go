@@ -21,7 +21,7 @@ var _ = Describe("Configuration Set", func() {
 
 	Describe("create organization configuration set", func() {
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId).Times(1)
+			mockOrganizationIdCall().Times(1)
 
 			createPayload := CreateConfigurationSetPayload{
 				Name:        "name1",
@@ -111,16 +111,22 @@ var _ = Describe("Configuration Set", func() {
 	})
 
 	Describe("delete configuration set", func() {
+		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Delete("/configuration-sets/"+id, nil).
 				Do(func(path string, request interface{}) {}).
 				Times(1)
 
-			apiClient.ConfigurationSetDelete(id)
+			err = apiClient.ConfigurationSetDelete(id)
 		})
 
 		It("Should call delete once", func() {})
+
+		It("should not return error", func() {
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("get configuration variables by set id", func() {
@@ -136,7 +142,7 @@ var _ = Describe("Configuration Set", func() {
 		var variables []ConfigurationVariable
 
 		BeforeEach(func() {
-			mockOrganizationIdCall(organizationId)
+			mockOrganizationIdCall()
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration", map[string]string{

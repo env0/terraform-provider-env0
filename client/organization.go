@@ -34,10 +34,12 @@ type OrganizationPolicyUpdatePayload struct {
 
 func (client *ApiClient) Organization() (Organization, error) {
 	var result []Organization
+
 	err := client.http.Get("/organizations", nil, &result)
 	if err != nil {
 		return Organization{}, err
 	}
+
 	if len(result) != 1 {
 		if client.defaultOrganizationId != "" {
 			for _, organization := range result {
@@ -51,6 +53,7 @@ func (client *ApiClient) Organization() (Organization, error) {
 
 		return Organization{}, errors.New("server responded with too many organizations (set a default organization id in the provider settings)")
 	}
+
 	return result[0], nil
 }
 
@@ -58,11 +61,14 @@ func (client *ApiClient) OrganizationId() (string, error) {
 	if client.cachedOrganizationId != "" {
 		return client.cachedOrganizationId, nil
 	}
+
 	organization, err := client.Organization()
 	if err != nil {
 		return "", err
 	}
+
 	client.cachedOrganizationId = organization.Id
+
 	return client.cachedOrganizationId, nil
 }
 

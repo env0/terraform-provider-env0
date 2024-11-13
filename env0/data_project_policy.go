@@ -94,6 +94,7 @@ func dataPolicy() *schema.Resource {
 
 func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err diag.Diagnostics
+
 	var policy client.Policy
 
 	projectId, ok := d.GetOk("project_id")

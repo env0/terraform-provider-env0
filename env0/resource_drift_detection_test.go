@@ -15,6 +15,7 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 	drift := client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: true}
 	updateDrift := client.EnvironmentSchedulingExpression{Cron: "2 2 * * *", Enabled: true}
+
 	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

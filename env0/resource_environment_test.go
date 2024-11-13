@@ -844,6 +844,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			deploymentWithStatus := func(status string) *client.DeploymentLog {
 				newDeployment := deploymentLog
 				newDeployment.Status = status
+
 				return &newDeployment
 			}
 
@@ -1324,6 +1325,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 			formatVariables := func(variables []client.ConfigurationVariable) string {
 				format := ""
+
 				for _, variable := range variables {
 					schemaFormat := ""
 
@@ -1342,12 +1344,13 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									`, variable.Schema.Type,
 								variable.Schema.Format)
 						}
-
 					}
+
 					varType := "environment"
 					if *variable.Type == client.ConfigurationVariableTypeTerraform {
 						varType = "terraform"
 					}
+
 					format += fmt.Sprintf(`configuration{
 									name = "%s"
 									value = "%s"
@@ -1459,6 +1462,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
 					}, ConfigurationChanges: &client.ConfigurationChanges{configurationVariables},
 				}).Times(1).Return(environment, nil)
+
 				configurationVariables.Id = "generated-id-from-server"
 
 				varTrue := true
@@ -1469,6 +1473,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{configurationVariables}, nil), // read after create -> on update
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(redeployConfigurationVariables, nil),                      // read after create -> on update -> read after update
 				)
+
 				redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 				redeployConfigurationVariables[0].IsSensitive = &isSensitive
 				redeployConfigurationVariables[0].IsReadOnly = boolPtr(false)
@@ -1983,7 +1988,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
-
 	}
 
 	testTTL := func() {
@@ -2237,7 +2241,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
-
 	}
 
 	testForceDestroy := func() {
@@ -2304,7 +2307,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(5).Return(nil, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1)
-
 			})
 		})
 	}
@@ -2390,7 +2392,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					ProjectIds: []string{"no-match"},
 				}, nil)
 			})
-
 		})
 
 		t.Run("fail when trying to create an inactive environment", func(t *testing.T) {
@@ -2439,7 +2440,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 			})
-
 		})
 
 		t.Run("Failure in update", func(t *testing.T) {
@@ -2485,7 +2485,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
-
 		})
 
 		t.Run("Failure in deploy", func(t *testing.T) {
@@ -2533,7 +2532,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(3).Return(nil, nil)
 			})
-
 		})
 
 		t.Run("Failure in read", func(t *testing.T) {
@@ -2566,7 +2564,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(0).Return(client.ConfigurationChanges{}, nil)
 			})
-
 		})
 	}
 
@@ -2924,7 +2921,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
-
 	})
 
 	t.Run("Import By Id", func(t *testing.T) {

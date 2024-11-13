@@ -105,6 +105,7 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 	if !ok {
 		isSensitive = false
 	}
+
 	res.IsSensitive = boolPtr(isSensitive)
 
 	variableType := d["type"].(string)
@@ -126,6 +127,7 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 		if len(value) == 0 {
 			return nil, fmt.Errorf("free text variable '%s' must have a value", res.Name)
 		}
+
 		res.Schema = &client.ConfigurationVariableSchema{
 			Type: "string",
 		}
@@ -133,6 +135,7 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 		if len(value) == 0 {
 			return nil, fmt.Errorf("hcl variable '%s' must have a value", res.Name)
 		}
+
 		res.Schema = &client.ConfigurationVariableSchema{
 			Format: "HCL",
 		}
@@ -140,9 +143,11 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 		if len(value) == 0 {
 			return nil, fmt.Errorf("json variable '%s' must have a value", res.Name)
 		}
+
 		res.Schema = &client.ConfigurationVariableSchema{
 			Format: "JSON",
 		}
+
 		// validate JSON.
 		var js json.RawMessage
 		if err := json.Unmarshal([]byte(value), &js); err != nil {
@@ -193,25 +198,28 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (interface
 			ivariable["is_sensitive"] = true
 		}
 
-		if variable.Schema.Type == "string" {
+		switch {
+		case variable.Schema.Type == "string":
 			if len(variable.Schema.Enum) > 0 {
 				ivariable["format"] = "dropdown"
 				ivalues := make([]interface{}, 0)
+
 				for _, value := range variable.Schema.Enum {
 					ivalues = append(ivalues, value)
 				}
+
 				ivariable["dropdown_values"] = ivalues
 			} else {
 				ivariable["format"] = "text"
 				ivariable["value"] = variable.Value
 			}
-		} else if variable.Schema.Format == "HCL" {
+		case variable.Schema.Format == "HCL":
 			ivariable["format"] = "hcl"
 			ivariable["value"] = variable.Value
-		} else if variable.Schema.Format == "JSON" {
+		case variable.Schema.Format == "JSON":
 			ivariable["format"] = "json"
 			ivariable["value"] = variable.Value
-		} else {
+		default:
 			return nil, fmt.Errorf("unhandled variable use-case: %s", variable.Name)
 		}
 	}
@@ -232,7 +240,9 @@ func getVariablesFromSchema(d *schema.ResourceData, organizationId string) ([]cl
 		if err != nil {
 			return nil, err
 		}
+
 		variable.OrganizationId = organizationId
+
 		res = append(res, *variable)
 	}
 
@@ -324,6 +334,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 		for _, svariable := range schema {
 			if svariable.Name == avariable.Name && *svariable.Type == *avariable.Type {
 				found = true
+
 				break
 			}
 		}
@@ -364,9 +375,7 @@ func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta i
 	mergedVariables := mergeVariables(variablesFromSchema, variablesFromApi)
 
 	// for "READ" the source of truth is the variables from the API - existing + deleted.
-	variables := append(mergedVariables.currentVariables, mergedVariables.deletedVariables...)
-
-	ivariables, err := getSchemaFromVariables(variables)
+	ivariables, err := getSchemaFromVariables(append(mergedVariables.currentVariables, mergedVariables.deletedVariables...))
 	if err != nil {
 		return diag.Errorf("failed to get schema from variables: %v", err)
 	}

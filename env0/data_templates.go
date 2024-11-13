@@ -28,6 +28,7 @@ func dataTemplates() *schema.Resource {
 
 func dataTemplatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
 	templates, err := apiClient.Templates()
 	if err != nil {
 		return diag.Errorf("Could not get templates: %v", err)

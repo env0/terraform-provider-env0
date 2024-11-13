@@ -17,6 +17,7 @@ func ValidateConfigurationPropertySchema(val interface{}, key string) (warns []s
 	if value != string(client.HCL) && value != string(client.Text) && value != string(client.JSON) {
 		errs = append(errs, fmt.Errorf("%q can be either \"HCL\", \"JSON\" or empty, got: %q", key, value))
 	}
+
 	return
 }
 
@@ -62,6 +63,7 @@ func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 		if !cr.MatchString(i.(string)) {
 			return diag.Errorf("must match pattern %v", r)
 		}
+
 		return nil
 	}
 }

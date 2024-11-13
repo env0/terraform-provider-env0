@@ -49,6 +49,7 @@ func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, m
 	if !drift.Enabled {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 

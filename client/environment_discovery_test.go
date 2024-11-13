@@ -105,12 +105,18 @@ var _ = Describe("Environment Discovery", func() {
 
 	Describe("DELETE", func() {
 		Describe("success", func() {
+			var err error
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().Delete("/environment-discovery/projects/"+projectId, nil).Times(1)
-				apiClient.DeleteEnvironmentDiscovery(projectId)
+				err = apiClient.DeleteEnvironmentDiscovery(projectId)
 			})
 
 			It("Should send DELETE request", func() {})
+
+			It("Should not return error", func() {
+				Expect(err).To(BeNil())
+			})
 		})
 
 		Describe("failure", func() {

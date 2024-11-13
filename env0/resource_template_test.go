@@ -13,11 +13,15 @@ import (
 
 func TestUnitTemplateResource(t *testing.T) {
 	const resourceType = "env0_template"
+
 	const resourceName = "test"
+
 	const defaultVersion = "0.15.1"
+
 	const defaultType = "terraform"
 
 	var resourceFullName = resourceAccessor(resourceType, resourceName)
+
 	gleeTemplate := client.Template{
 		Id:          "id0",
 		Name:        "template0",
@@ -495,75 +499,97 @@ func TestUnitTemplateResource(t *testing.T) {
 		if template.Type != "" {
 			templateAsDictionary["type"] = template.Type
 		}
+
 		if template.Description != "" {
 			templateAsDictionary["description"] = template.Description
 		}
+
 		if template.Revision != "" {
 			templateAsDictionary["revision"] = template.Revision
 		}
+
 		if template.Path != "" {
 			templateAsDictionary["path"] = template.Path
 		}
+
 		if template.Retry != (client.TemplateRetry{}) && template.Retry.OnDeploy != nil {
 			templateAsDictionary["retries_on_deploy"] = template.Retry.OnDeploy.Times
 			if template.Retry.OnDeploy.ErrorRegex != "" {
 				templateAsDictionary["retry_on_deploy_only_when_matches_regex"] = template.Retry.OnDeploy.ErrorRegex
 			}
 		}
+
 		if template.Retry != (client.TemplateRetry{}) && template.Retry.OnDestroy != nil {
 			templateAsDictionary["retries_on_destroy"] = template.Retry.OnDestroy.Times
 			if template.Retry.OnDestroy.ErrorRegex != "" {
 				templateAsDictionary["retry_on_destroy_only_when_matches_regex"] = template.Retry.OnDestroy.ErrorRegex
 			}
 		}
+
 		if template.TerraformVersion != "" {
 			templateAsDictionary["terraform_version"] = template.TerraformVersion
 		}
+
 		if template.OpentofuVersion != "" {
 			templateAsDictionary["opentofu_version"] = template.OpentofuVersion
 		}
+
 		if template.TokenId != "" {
 			templateAsDictionary["token_id"] = template.TokenId
 		}
+
 		if template.TokenName != "" {
 			templateAsDictionary["token_name"] = template.TokenName
 		}
+
 		if template.GithubInstallationId != 0 {
 			templateAsDictionary["github_installation_id"] = template.GithubInstallationId
 		}
+
 		if template.IsGitlabEnterprise != false {
 			templateAsDictionary["is_gitlab_enterprise"] = template.IsGitlabEnterprise
 		}
+
 		if template.BitbucketClientKey != "" {
 			templateAsDictionary["bitbucket_client_key"] = template.BitbucketClientKey
 		}
+
 		if template.IsGithubEnterprise != false {
 			templateAsDictionary["is_github_enterprise"] = template.IsGithubEnterprise
 		}
+
 		if template.IsBitbucketServer != false {
 			templateAsDictionary["is_bitbucket_server"] = template.IsBitbucketServer
 		}
+
 		if template.FileName != "" {
 			templateAsDictionary["file_name"] = template.FileName
 		}
+
 		if template.TerragruntVersion != "" {
 			templateAsDictionary["terragrunt_version"] = template.TerragruntVersion
 		}
+
 		if template.IsTerragruntRunAll {
 			templateAsDictionary["is_terragrunt_run_all"] = true
 		}
+
 		if template.IsAzureDevOps {
 			templateAsDictionary["is_azure_devops"] = true
 		}
+
 		if template.IsHelmRepository {
 			templateAsDictionary["is_helm_repository"] = true
 		}
+
 		if template.HelmChartName != "" {
 			templateAsDictionary["helm_chart_name"] = template.HelmChartName
 		}
+
 		if template.IsGitlab {
 			templateAsDictionary["is_gitlab"] = true
 		}
+
 		if template.AnsibleVersion != "" {
 			templateAsDictionary["ansible_version"] = template.AnsibleVersion
 		}
@@ -666,6 +692,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Opentofu", opentofuTemplate, opentofuUpdatedTemplate},
 		{"Ansible", ansibleTemplate, ansibleUpdatedTemplate},
 	}
+
 	for _, templateUseCase := range templateUseCases {
 		t.Run("Full "+templateUseCase.vcs+" template (without SSH keys)", func(t *testing.T) {
 			templateCreatePayload := client.TemplateCreatePayload{
@@ -942,6 +969,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		var testCases []resource.TestCase
+
 		for attribute, amounts := range testMatrix {
 			for _, amount := range amounts {
 				testCases = append(testCases, resource.TestCase{
@@ -1004,6 +1032,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
 		{"GitLab EE", "GitHub EE", map[string]interface{}{"name": "test", "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
 	}
+
 	for _, mixUseCase := range mixedUsecases {
 		t.Run("Mixed "+mixUseCase.firstVcs+" and "+mixUseCase.secondVcs+" template", func(t *testing.T) {
 			var testCases []resource.TestCase
@@ -1094,7 +1123,6 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:             template.Name,
 				Repository:       template.Repository,

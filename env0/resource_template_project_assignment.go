@@ -46,12 +46,15 @@ func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.Reso
 	templateId := d.Get("template_id").(string)
 	projectId := d.Get("project_id").(string)
 	request := templateProjectAssignmentPayloadFromParameters(d)
+
 	result, err := apiClient.AssignTemplateToProject(templateId, request)
 	if err != nil {
 		return diag.Errorf("could not assign template to project: %v", err)
 	}
+
 	resourceId := result.Id + "|" + projectId
 	d.SetId(resourceId)
+
 	return nil
 }
 
@@ -68,19 +71,24 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	if template.IsDeleted {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 
 	var assignProjectId = d.Get("project_id").(string)
+
 	isProjectIdInTemplate := false
+
 	for _, projectId := range template.ProjectIds {
 		if assignProjectId == projectId {
 			isProjectIdInTemplate = true
 		}
 	}
+
 	if !isProjectIdInTemplate {
 		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
 		d.SetId("")
+
 		return nil
 	}
 
@@ -92,9 +100,11 @@ func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.Reso
 
 	templateId := d.Get("template_id").(string)
 	projectId := d.Get("project_id").(string)
+
 	err := apiClient.RemoveTemplateFromProject(templateId, projectId)
 	if err != nil {
 		return diag.Errorf("could not delete template from project: %v", err)
 	}
+
 	return nil
 }

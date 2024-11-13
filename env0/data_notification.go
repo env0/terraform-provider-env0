@@ -46,6 +46,7 @@ func dataNotification() *schema.Resource {
 
 func dataNotificationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var notification *client.Notification
+
 	var err error
 
 	id, ok := d.GetOk("id")

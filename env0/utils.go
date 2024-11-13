@@ -30,6 +30,7 @@ type ResourceDataSliceStructValueWriter interface {
 func toSnakeCase(str string) string {
 	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
 	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+
 	return strings.ToLower(snake)
 }
 
@@ -51,6 +52,7 @@ func stringInSlice(str string, strs []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -74,7 +76,7 @@ func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceD
 	_, okBool := dval.(bool)
 
 	if okString || okBool || okInt {
-		//lint:ignore SA1019 reason: https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+		//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 		if _, exists := d.GetOkExists(fieldName); !exists {
 			return nil
 		}
@@ -210,6 +212,7 @@ func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error
 			if err := readResourceDataSliceStructHelper(val, resource); err != nil {
 				return err
 			}
+
 			val = val.Elem()
 		default:
 			return fmt.Errorf("internal error - unhandled slice element kind %v", elemType.Kind())
@@ -315,6 +318,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			if parsedField.omitEmpty && field.String() == "" {
 				continue
 			}
+
 			if err := d.Set(fieldName, field.String()); err != nil {
 				return err
 			}
@@ -322,6 +326,7 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 			if parsedField.omitEmpty && field.Int() == 0 {
 				continue
 			}
+
 			if err := d.Set(fieldName, field.Int()); err != nil {
 				return err
 			}
@@ -356,6 +361,7 @@ func getInterfaceSliceValues(i interface{}) []interface{} {
 
 func writeResourceDataGetSliceValues(i interface{}, name string, d *schema.ResourceData) ([]interface{}, error) {
 	ivalues := getInterfaceSliceValues(i)
+
 	var values []interface{}
 
 	// Iterate over the slice of values and build a slice of terraform values.
@@ -385,6 +391,7 @@ func writeResourceDataGetSliceValues(i interface{}, name string, d *schema.Resou
 			if err != nil {
 				return nil, err
 			}
+
 			values = append(values, value)
 		default:
 			return nil, fmt.Errorf("internal error - unhandled slice kind %v", valType.Kind())
@@ -464,6 +471,7 @@ func writeResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) e
 	if prefix == "" {
 		return writeResourceData(i, d)
 	}
+
 	return writeResourceDataSlice([]interface{}{i}, prefix, d)
 }
 
@@ -478,6 +486,7 @@ func ttlToDuration(ttl *string) (time.Duration, error) {
 	}
 
 	numberStr := match[1]
+
 	number, err := strconv.Atoi(numberStr)
 	if err != nil {
 		return 0, fmt.Errorf("invalid TTL format %s - not a number: %w", *ttl, err)
@@ -499,8 +508,8 @@ func ttlToDuration(ttl *string) (time.Duration, error) {
 	return time.ParseDuration(fmt.Sprintf("%dh", hours))
 }
 
-func lastSplit(s string, sep string) []string {
-	lastIndex := strings.LastIndex(s, sep)
+func lastUnderscoreSplit(s string) []string {
+	lastIndex := strings.LastIndex(s, "_")
 	if lastIndex == -1 {
 		return []string{s}
 	}

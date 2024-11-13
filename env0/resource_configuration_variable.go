@@ -126,20 +126,24 @@ func validateNilValue(isReadOnly bool, isRequired bool, value string) error {
 	if isReadOnly && isRequired && value == "" {
 		return errors.New("'value' cannot be empty when 'is_read_only' and 'is_required' are true ")
 	}
+
 	return nil
 }
 
 func whichScope(d *schema.ResourceData) (client.Scope, string) {
 	scope := client.ScopeGlobal
 	scopeId := ""
+
 	if projectId, ok := d.GetOk("project_id"); ok {
 		scope = client.ScopeProject
 		scopeId = projectId.(string)
 	}
+
 	if templateId, ok := d.GetOk("template_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
+
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		scope = client.ScopeEnvironment
 		scopeId = environmentId.(string)
@@ -150,6 +154,7 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 
 func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.ConfigurationVariableCreateParams, error) {
 	scope, scopeId := whichScope(d)
+
 	params := client.ConfigurationVariableCreateParams{Scope: scope, ScopeId: scopeId}
 	if err := readResourceData(&params, d); err != nil {
 		return nil, fmt.Errorf("schema resource data deserialization failed: %w", err)
@@ -187,7 +192,9 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 
 func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 	var enumValues []interface{}
+
 	var actualEnumValues []string
+
 	if specified, ok := d.GetOk("enum"); ok {
 		enumValues = specified.([]interface{})
 		valueExists := false
@@ -203,10 +210,12 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 				valueExists = true
 			}
 		}
+
 		if !valueExists {
 			return nil, fmt.Errorf("value - '%s' is not one of the enum options %v", selectedValue, actualEnumValues)
 		}
 	}
+
 	return actualEnumValues, nil
 }
 
@@ -258,28 +267,33 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
+
 	err := apiClient.ConfigurationVariableDelete(id)
 	if err != nil {
 		return diag.Errorf("could not delete configurationVariable: %v", err)
 	}
+
 	return nil
 }
 
 func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
+
 	inputData := d.Id()
 
 	// soft delete isn't part of the configuration variable, so we need to set it
 	d.Set("soft_delete", false)
 
 	err := json.Unmarshal([]byte(inputData), &configurationParams)
+	if err != nil {
+		return nil, err
+	}
+
 	// We need this conversion since getConfigurationVariable query by the scope and in our BE we use blueprint as the scope name instead of template
 	if string(configurationParams.Scope) == "TEMPLATE" {
 		configurationParams.Scope = "BLUEPRINT"
 	}
-	if err != nil {
-		return nil, err
-	}
+
 	variable, getErr := getConfigurationVariable(configurationParams, meta)
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)

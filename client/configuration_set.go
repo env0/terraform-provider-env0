@@ -101,5 +101,6 @@ func (client *ApiClient) ConfigurationVariablesBySetId(setId string) ([]Configur
 	}, &result); err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }

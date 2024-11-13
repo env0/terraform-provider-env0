@@ -116,7 +116,7 @@ var _ = Describe("Http Client", func() {
 
 		// Get actual request body
 		actualBodyBuffer := new(strings.Builder)
-		io.Copy(actualBodyBuffer, httpRequest.Body)
+		_, _ = io.Copy(actualBodyBuffer, httpRequest.Body)
 
 		Expect(actualBodyBuffer.String()).To(Equal(string(mockRequestJson)), "Should send payload as HTTP request body")
 	}
@@ -127,10 +127,12 @@ var _ = Describe("Http Client", func() {
 		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
 			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
 				httpRequest = req
+
 				return httpmock.NewJsonResponse(200, mockedResponse)
 			})
 			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
 				httpRequest = req
+
 				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
 			})
 		}

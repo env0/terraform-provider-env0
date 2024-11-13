@@ -34,7 +34,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId).Times(1)
+				mockOrganizationIdCall().Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/agents/projects-assignments?organizationId="+organizationId, mapping, gomock.Any()).Times(1).
@@ -59,7 +59,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId).Times(1)
+				mockOrganizationIdCall().Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/agents/projects-assignments?organizationId="+organizationId, mapping, gomock.Any()).Times(1).Return(errorMock)
@@ -83,7 +83,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId).Times(1)
+				mockOrganizationIdCall().Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, gomock.Any()).Times(1).
@@ -107,7 +107,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			var err error
 
 			BeforeEach(func() {
-				mockOrganizationIdCall(organizationId).Times(1)
+				mockOrganizationIdCall().Times(1)
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, gomock.Any()).Times(1).

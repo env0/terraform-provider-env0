@@ -90,22 +90,28 @@ func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.Errorf("could not delete team: %v", err)
 	}
+
 	return nil
 }
 
 func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
+
 	var getErr diag.Diagnostics
+
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
 		tflog.Info(ctx, "Resolving team by id", map[string]interface{}{"id": id})
 		_, getErr = getTeamById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving team by name", map[string]interface{}{"name": id})
+
 		var team client.Team
+
 		team, getErr = getTeamByName(id, meta)
 		d.SetId(team.Id)
 	}
+
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
 	} else {
@@ -115,12 +121,14 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 
 func getTeamByName(name string, meta interface{}) (client.Team, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	teams, err := apiClient.TeamsByName(name)
 	if err != nil {
 		return client.Team{}, diag.Errorf("Could not get teams: %v", err)
 	}
 
 	var teamsByName []client.Team
+
 	for _, candidate := range teams {
 		if candidate.Name == name {
 			teamsByName = append(teamsByName, candidate)
@@ -140,9 +148,11 @@ func getTeamByName(name string, meta interface{}) (client.Team, diag.Diagnostics
 
 func getTeamById(id interface{}, meta interface{}) (client.Team, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
+
 	team, err := apiClient.Team(id.(string))
 	if err != nil {
 		return client.Team{}, diag.Errorf("Could not get team: %v", err)
 	}
+
 	return team, nil
 }

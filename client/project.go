@@ -36,25 +36,29 @@ func (client *ApiClient) Projects() ([]Project, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var result []Project
-	err = client.http.Get("/projects", map[string]string{"organizationId": organizationId}, &result)
-	if err != nil {
+
+	if err := client.http.Get("/projects", map[string]string{"organizationId": organizationId}, &result); err != nil {
 		return []Project{}, err
 	}
+
 	return result, nil
 }
 
 func (client *ApiClient) Project(id string) (Project, error) {
 	var result Project
-	err := client.http.Get("/projects/"+id, nil, &result)
-	if err != nil {
+
+	if err := client.http.Get("/projects/"+id, nil, &result); err != nil {
 		return Project{}, err
 	}
+
 	return result, nil
 }
 
 func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, error) {
 	var result Project
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Project{}, err
@@ -72,6 +76,7 @@ func (client *ApiClient) ProjectCreate(payload ProjectCreatePayload) (Project, e
 	if err != nil {
 		return Project{}, err
 	}
+
 	return result, nil
 }
 
@@ -86,6 +91,7 @@ func (client *ApiClient) ProjectUpdate(id string, payload ProjectUpdatePayload) 
 	if err != nil {
 		return Project{}, err
 	}
+
 	return result, nil
 }
 
