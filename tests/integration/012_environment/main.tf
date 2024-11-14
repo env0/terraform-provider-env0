@@ -122,12 +122,13 @@ resource "env0_environment_state_access" "disallow" {
 */
 
 resource "env0_template" "terragrunt_template" {
-  name               = "Terragrunt template for environment resource-${random_string.random.result}"
-  type               = "terragrunt"
-  repository         = "https://github.com/env0/templates"
-  path               = "misc/null-resource"
-  terraform_version  = "0.15.1"
-  terragrunt_version = "0.35.0"
+  name                 = "Terragrunt template for environment resource-${random_string.random.result}"
+  type                 = "terragrunt"
+  repository           = "https://github.com/env0/templates"
+  path                 = "misc/null-resource"
+  terragrunt_tf_binary = "terraform"
+  terraform_version    = "0.15.1"
+  terragrunt_version   = "0.35.0"
 }
 
 resource "env0_template_project_assignment" "terragrunt_assignment" {

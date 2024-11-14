@@ -49,12 +49,13 @@ resource "env0_template" "gitlab_template" {
 }
 
 resource "env0_template" "template_tg" {
-  name               = "Template for environment resource - tg-${random_string.random.result}"
-  type               = "terragrunt"
-  repository         = "https://github.com/env0/templates"
-  path               = "terragrunt/misc/null-resource"
-  terraform_version  = "0.15.1"
-  terragrunt_version = "0.35.0"
+  name                 = "Template for environment resource - tg-${random_string.random.result}"
+  type                 = "terragrunt"
+  repository           = "https://github.com/env0/templates"
+  path                 = "terragrunt/misc/null-resource"
+  terragrunt_tf_binary = "terraform"
+  terraform_version    = "0.15.1"
+  terragrunt_version   = "0.35.0"
 }
 
 resource "env0_template" "template_opentofu" {
