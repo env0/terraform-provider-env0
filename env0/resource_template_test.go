@@ -43,7 +43,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		IsGitlabEnterprise: true,
 		TerraformVersion:   "0.12.24",
 		TerragruntVersion:  "0.35.1",
-		TerragruntTfBinary: "opentofu",
+		TerragruntTfBinary: "terraform",
 	}
 	gleeUpdatedTemplate := client.Template{
 		Id:          gleeTemplate.Id,
@@ -67,6 +67,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		IsGitlabEnterprise: true,
 		TerraformVersion:   "0.15.1",
 		IsTerragruntRunAll: true,
+		TerragruntTfBinary: "terraform",
 	}
 	gitlabTemplate := client.Template{
 		Id:          "id0-gitlab",
@@ -108,11 +109,12 @@ func TestUnitTemplateResource(t *testing.T) {
 				ErrorRegex: "NewForDestroy.*",
 			},
 		},
-		Type:              "terragrunt",
-		TerragruntVersion: "0.26.1",
-		TokenId:           "2",
-		TerraformVersion:  "0.15.1",
-		TokenName:         "token_name2",
+		Type:               "terragrunt",
+		TerragruntVersion:  "0.26.1",
+		TokenId:            "2",
+		TerraformVersion:   "0.15.1",
+		TokenName:          "token_name2",
+		TerragruntTfBinary: "terraform",
 	}
 	githubTemplate := client.Template{
 		Id:          "id0",
@@ -157,6 +159,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		GithubInstallationId: 2,
 		TerraformVersion:     "0.15.1",
 		IsTerragruntRunAll:   true,
+		TerragruntTfBinary:   "terraform",
 	}
 	bitbucketTemplate := client.Template{
 		Id:          "id0",
@@ -200,6 +203,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		BitbucketClientKey: "clientkey2",
 		TerragruntVersion:  "0.35.1",
 		TerraformVersion:   "0.15.1",
+		TerragruntTfBinary: "terraform",
 	}
 	gheeTemplate := client.Template{
 		Id:          "id0",
@@ -366,11 +370,12 @@ func TestUnitTemplateResource(t *testing.T) {
 				ErrorRegex: "NewForDestroy.*",
 			},
 		},
-		Type:              "terragrunt",
-		TerragruntVersion: "0.26.1",
-		TokenId:           "2",
-		TerraformVersion:  "0.15.1",
-		IsAzureDevOps:     true,
+		Type:               "terragrunt",
+		TerragruntVersion:  "0.26.1",
+		TokenId:            "2",
+		TerraformVersion:   "0.15.1",
+		TerragruntTfBinary: "terraform",
+		IsAzureDevOps:      true,
 	}
 
 	helmTemplate := client.Template{
@@ -594,6 +599,10 @@ func TestUnitTemplateResource(t *testing.T) {
 			templateAsDictionary["ansible_version"] = template.AnsibleVersion
 		}
 
+		if template.TerragruntTfBinary != "" {
+			templateAsDictionary["terragrunt_tf_binary"] = template.TerragruntTfBinary
+		}
+
 		return resourceConfigCreate(resourceType, resourceName, templateAsDictionary)
 	}
 	fullTemplateResourceCheck := func(resourceFullName string, template client.Template) resource.TestCheckFunc {
@@ -729,29 +738,32 @@ func TestUnitTemplateResource(t *testing.T) {
 				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
 				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
 				IsGitlab:             templateUseCase.updatedTemplate.IsGitlab,
-
-				TokenId:            templateUseCase.updatedTemplate.TokenId,
-				Path:               templateUseCase.updatedTemplate.Path,
-				Revision:           templateUseCase.updatedTemplate.Revision,
-				Type:               templateUseCase.updatedTemplate.Type,
-				Retry:              templateUseCase.updatedTemplate.Retry,
-				TerraformVersion:   templateUseCase.updatedTemplate.TerraformVersion,
-				BitbucketClientKey: templateUseCase.updatedTemplate.BitbucketClientKey,
-				IsGithubEnterprise: templateUseCase.updatedTemplate.IsGithubEnterprise,
-				IsBitbucketServer:  templateUseCase.updatedTemplate.IsBitbucketServer,
-				FileName:           templateUseCase.updatedTemplate.FileName,
-				TerragruntVersion:  templateUseCase.updatedTemplate.TerragruntVersion,
-				IsTerragruntRunAll: templateUseCase.updatedTemplate.IsTerragruntRunAll,
-				IsAzureDevOps:      templateUseCase.updatedTemplate.IsAzureDevOps,
-				IsHelmRepository:   templateUseCase.updatedTemplate.IsHelmRepository,
-				HelmChartName:      templateUseCase.updatedTemplate.HelmChartName,
-				OpentofuVersion:    templateUseCase.updatedTemplate.OpentofuVersion,
-				TokenName:          templateUseCase.updatedTemplate.TokenName,
-				AnsibleVersion:     templateUseCase.updatedTemplate.AnsibleVersion,
+				TokenId:              templateUseCase.updatedTemplate.TokenId,
+				Path:                 templateUseCase.updatedTemplate.Path,
+				Revision:             templateUseCase.updatedTemplate.Revision,
+				Type:                 templateUseCase.updatedTemplate.Type,
+				Retry:                templateUseCase.updatedTemplate.Retry,
+				TerraformVersion:     templateUseCase.updatedTemplate.TerraformVersion,
+				BitbucketClientKey:   templateUseCase.updatedTemplate.BitbucketClientKey,
+				IsGithubEnterprise:   templateUseCase.updatedTemplate.IsGithubEnterprise,
+				IsBitbucketServer:    templateUseCase.updatedTemplate.IsBitbucketServer,
+				FileName:             templateUseCase.updatedTemplate.FileName,
+				TerragruntVersion:    templateUseCase.updatedTemplate.TerragruntVersion,
+				IsTerragruntRunAll:   templateUseCase.updatedTemplate.IsTerragruntRunAll,
+				IsAzureDevOps:        templateUseCase.updatedTemplate.IsAzureDevOps,
+				IsHelmRepository:     templateUseCase.updatedTemplate.IsHelmRepository,
+				HelmChartName:        templateUseCase.updatedTemplate.HelmChartName,
+				OpentofuVersion:      templateUseCase.updatedTemplate.OpentofuVersion,
+				TokenName:            templateUseCase.updatedTemplate.TokenName,
+				AnsibleVersion:       templateUseCase.updatedTemplate.AnsibleVersion,
 			}
 
 			if templateUseCase.template.Type == "terragrunt" {
 				templateCreatePayload.TerragruntTfBinary = templateUseCase.template.TerragruntTfBinary
+			}
+
+			if templateUseCase.updatedTemplate.Type == "terragrunt" {
+				updateTemplateCreateTemplate.TerragruntTfBinary = templateUseCase.updatedTemplate.TerragruntTfBinary
 			}
 
 			if templateUseCase.template.Type != "terraform" && templateUseCase.template.Type != "terragrunt" {
@@ -1366,28 +1378,10 @@ func TestUnitTemplateResource(t *testing.T) {
 						"type":                  "terragrunt",
 						"terraform_version":     "0.15.1",
 						"terragrunt_version":    "0.27.50",
+						"terragrunt_tf_binary":  "terraform",
 						"is_terragrunt_run_all": "true",
 					}),
 					ExpectError: regexp.MustCompile(`can't set is_terragrunt_run_all to 'true' for terragrunt versions lower than 0.28.1`),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
-	})
-
-	t.Run("terragrunt_tf_binary set with a non terragrunt template type", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":                 "template0",
-						"repository":           "env0/repo",
-						"type":                 "terraform",
-						"terraform_version":    "0.15.1",
-						"terragrunt_tf_binary": "opentofu",
-					}),
-					ExpectError: regexp.MustCompile(`terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is 'terraform'`),
 				},
 			},
 		}

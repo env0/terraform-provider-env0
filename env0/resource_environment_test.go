@@ -2736,11 +2736,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			terragruntVersion = "terragrunt_version = \"" + template.TerragruntVersion + "\""
 		}
 
-		terragruntTfBinary := ""
-		if template.TerragruntTfBinary != "" {
-			terragruntTfBinary = "terragrunt_tf_binary = \"" + template.TerragruntTfBinary + "\""
-		}
-
 		openTofuVersion := ""
 		if template.OpentofuVersion != "" {
 			openTofuVersion = "opentofu_version = \"" + template.OpentofuVersion + "\""
@@ -2769,7 +2764,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				github_installation_id = %d
 				%s
 				%s
-				%s
 			}
 		}`,
 			resourceType, resourceName,
@@ -2790,7 +2784,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 			template.Description,
 			template.GithubInstallationId,
 			terragruntVersion,
-			terragruntTfBinary,
 			openTofuVersion,
 		)
 	}
@@ -2837,7 +2830,6 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.type", updatedTemplate.Type),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.path", updatedTemplate.Path),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terragrunt_version", updatedTemplate.TerragruntVersion),
-						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.terragrunt_tf_binary", updatedTemplate.TerragruntTfBinary),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.revision", updatedTemplate.Revision),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retries_on_deploy", strconv.Itoa(updatedTemplate.Retry.OnDeploy.Times)),
 						resource.TestCheckResourceAttr(accessor, "without_template_settings.0.retry_on_deploy_only_when_matches_regex", updatedTemplate.Retry.OnDeploy.ErrorRegex),
