@@ -98,7 +98,7 @@ type TemplateCreatePayload struct {
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName,omitempty"`
-	TerragruntTfBinary   string           `json:"terragruntTfBinary"`
+	TerragruntTfBinary   string           `json:"terragruntTfBinary,omitempty"`
 	AnsibleVersion       string           `json:"ansibleVersion,omitempty"`
 }
 
