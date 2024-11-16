@@ -1389,6 +1389,45 @@ func TestUnitTemplateResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 
+	t.Run("run with terragrunt without an opentofu version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                  "template0",
+						"repository":            "env0/repo",
+						"type":                  "terragrunt",
+						"terragrunt_version":    "0.56.50",
+						"is_terragrunt_run_all": "true",
+					}),
+					ExpectError: regexp.MustCompile("must supply opentofu version"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("run terragrunt with terraform binary and no terraform version", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                  "template0",
+						"repository":            "env0/repo",
+						"type":                  "terragrunt",
+						"terragrunt_version":    "0.56.50",
+						"is_terragrunt_run_all": "true",
+						"terragrunt_tf_binary":  "terraform",
+					}),
+					ExpectError: regexp.MustCompile("must supply terraform version"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("invalid ansible version", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
