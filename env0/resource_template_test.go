@@ -1389,6 +1389,25 @@ func TestUnitTemplateResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 
+	t.Run("terragrunt_tf_binary set with a non terragrunt template type", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"name":                 "template0",
+						"repository":           "env0/repo",
+						"type":                 "terraform",
+						"terraform_version":    "0.15.1",
+						"terragrunt_tf_binary": "opentofu",
+					}),
+					ExpectError: regexp.MustCompile(`can't define terragrunt_tf_binary for non-terragrunt template`),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
 	t.Run("run with terragrunt without an opentofu version", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

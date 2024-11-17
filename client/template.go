@@ -127,10 +127,6 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		return errors.New("must not specify organizationId")
 	}
 
-	if payload.Type != TERRAGRUNT && payload.TerragruntVersion != "" {
-		return errors.New("can't define terragrunt version for non-terragrunt template")
-	}
-
 	if payload.Type == TERRAGRUNT {
 		if payload.TerragruntVersion == "" {
 			return errors.New("must supply terragrunt version")
@@ -149,7 +145,13 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 			return errors.New("must supply terraform version")
 		}
 	} else {
-		payload.TerragruntTfBinary = ""
+		if payload.TerragruntVersion != "" {
+			return errors.New("can't define terragrunt version for non-terragrunt template")
+		}
+
+		if payload.TerragruntTfBinary != "" {
+			return errors.New("can't define terragrunt_tf_binary for non-terragrunt template")
+		}
 	}
 
 	if payload.Type == OPENTOFU && payload.OpentofuVersion == "" {
