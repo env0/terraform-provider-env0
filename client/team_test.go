@@ -16,6 +16,11 @@ var _ = Describe("Teams Client", func() {
 		Name: "team-name",
 	}
 
+	mockTeam2 := Team{
+		Id:   "team-id2",
+		Name: "team-name2",
+	}
+
 	Describe("Get Single Team", func() {
 		var returnedTeam Team
 
@@ -40,13 +45,29 @@ var _ = Describe("Teams Client", func() {
 	Describe("Get All Teams", func() {
 		var returnedTeams []Team
 		mockTeams := []Team{mockTeam}
+		mockTeams2 := []Team{mockTeam2}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
-				Get("/teams/organizations/"+organizationId, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Team) {
-					*response = mockTeams
+				Get("/teams/organizations/"+organizationId, map[string]string{
+					"limit": "100",
+				}, gomock.Any()).
+				Do(func(path string, request interface{}, response *PaginatedTeamsResponse) {
+					*response = PaginatedTeamsResponse{
+						Teams:       mockTeams,
+						NextPageKey: "next_page_key",
+					}
+				})
+			httpCall2 = mockHttpClient.EXPECT().
+				Get("/teams/organizations/"+organizationId, map[string]string{
+					"offset": "next_page_key",
+					"limit":  "100",
+				}, gomock.Any()).
+				Do(func(path string, request interface{}, response *PaginatedTeamsResponse) {
+					*response = PaginatedTeamsResponse{
+						Teams: mockTeams2,
+					}
 				})
 			returnedTeams, _ = apiClient.Teams()
 		})
@@ -57,10 +78,11 @@ var _ = Describe("Teams Client", func() {
 
 		It("Should send GET request", func() {
 			httpCall.Times(1)
+			httpCall2.Times(1)
 		})
 
 		It("Should return teams", func() {
-			Expect(returnedTeams).To(Equal(mockTeams))
+			Expect(returnedTeams).To(Equal(append(mockTeams, mockTeams2...)))
 		})
 	})
 
