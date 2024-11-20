@@ -22,6 +22,11 @@ type Team struct {
 	Users          []User `json:"users"`
 }
 
+type PaginatedTeamsResponse struct {
+	Teams       []Team `json:"teams"`
+	NextPageKey string `json:"nextPageKey"`
+}
+
 func (client *ApiClient) TeamCreate(payload TeamCreatePayload) (Team, error) {
 	if payload.Name == "" {
 		return Team{}, errors.New("must specify team name on creation")
@@ -84,20 +89,32 @@ func (client *ApiClient) GetTeams(params map[string]string) ([]Team, error) {
 		return nil, err
 	}
 
-	var result []Team
+	var teams []Team
 
-	err = client.http.Get("/teams/organizations/"+organizationId, params, &result)
-	if err != nil {
-		return nil, err
+	for {
+		var res PaginatedTeamsResponse
+
+		if err := client.http.Get("/teams/organizations/"+organizationId, params, &res); err != nil {
+			return nil, err
+		}
+
+		teams = append(teams, res.Teams...)
+
+		nextPageKey := res.NextPageKey
+		if nextPageKey == "" {
+			break
+		}
+
+		params["offset"] = nextPageKey
 	}
 
-	return result, err
+	return teams, nil
 }
 
 func (client *ApiClient) Teams() ([]Team, error) {
-	return client.GetTeams(nil)
+	return client.GetTeams(map[string]string{"limit": "100"})
 }
 
 func (client *ApiClient) TeamsByName(name string) ([]Team, error) {
-	return client.GetTeams(map[string]string{"name": name})
+	return client.GetTeams(map[string]string{"name": name, "limit": "100"})
 }
