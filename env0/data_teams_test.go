@@ -22,18 +22,25 @@ func TestTeamsDataSource(t *testing.T) {
 		Description: "A team's description",
 	}
 
+	team3 := client.Team{
+		Id:          "id2",
+		Name:        "name3",
+		Description: "A team's description",
+	}
+
 	resourceType := "env0_teams"
 	resourceName := "test_teams"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getTestCase := func() resource.TestCase {
+	getTestCase := func(params map[string]interface{}) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, params),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "names.0", team1.Name),
 						resource.TestCheckResourceAttr(accessor, "names.1", team2.Name),
+						resource.TestCheckNoResourceAttr(accessor, "names.2"),
 					),
 				},
 			},
@@ -48,8 +55,17 @@ func TestTeamsDataSource(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		runUnitTest(t,
-			getTestCase(),
+			getTestCase(map[string]interface{}{}),
 			mockTeams([]client.Team{team1, team2}),
+		)
+	})
+
+	t.Run("Success with regex filter", func(t *testing.T) {
+		runUnitTest(t,
+			getTestCase(map[string]interface{}{
+				"filter": "name(?:1|2)",
+			}),
+			mockTeams([]client.Team{team1, team2, team3}),
 		)
 	})
 
@@ -60,6 +76,24 @@ func TestTeamsDataSource(t *testing.T) {
 					{
 						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
 						ExpectError: regexp.MustCompile("error"),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Teams().AnyTimes().Return(nil, errors.New("error"))
+			},
+		)
+	})
+
+	t.Run("invalid regex filter", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+							"filter": "(ab",
+						}),
+						ExpectError: regexp.MustCompile("Invalid filter:.+"),
 					},
 				},
 			},
