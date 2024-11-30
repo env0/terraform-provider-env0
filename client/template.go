@@ -127,20 +127,35 @@ func (payload *TemplateCreatePayload) Invalidate() error {
 		return errors.New("must not specify organizationId")
 	}
 
-	if payload.Type != TERRAGRUNT && payload.TerragruntVersion != "" {
-		return errors.New("can't define terragrunt version for non-terragrunt template")
-	}
+	if payload.Type == TERRAGRUNT {
+		if payload.TerragruntVersion == "" {
+			return errors.New("must supply terragrunt version")
+		}
 
-	if payload.Type == TERRAGRUNT && payload.TerragruntVersion == "" {
-		return errors.New("must supply terragrunt version")
+		// The provider implicitly defaults to "opentofu".
+		if payload.TerragruntTfBinary == "" {
+			payload.TerragruntTfBinary = OPENTOFU
+		}
+
+		if payload.TerragruntTfBinary == OPENTOFU && payload.OpentofuVersion == "" {
+			return errors.New("must supply opentofu version")
+		}
+
+		if payload.TerragruntTfBinary == TERRAFORM && payload.TerraformVersion == "" {
+			return errors.New("must supply terraform version")
+		}
+	} else {
+		if payload.TerragruntVersion != "" {
+			return errors.New("can't define terragrunt version for non-terragrunt template")
+		}
+
+		if payload.TerragruntTfBinary != "" {
+			return errors.New("can't define terragrunt_tf_binary for non-terragrunt template")
+		}
 	}
 
 	if payload.Type == OPENTOFU && payload.OpentofuVersion == "" {
 		return errors.New("must supply opentofu version")
-	}
-
-	if payload.TerragruntTfBinary != "" && payload.Type != TERRAGRUNT {
-		return fmt.Errorf("terragrunt_tf_binary should only be used when the template type is 'terragrunt', but type is '%s'", payload.Type)
 	}
 
 	if payload.IsTerragruntRunAll {
