@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -22,12 +23,30 @@ func dataTeams() *schema.Resource {
 					Description: "the team name",
 				},
 			},
+			"filter": {
+				Type:        schema.TypeString,
+				Description: "add an optional regex filter, only names matching the filter will be added to 'names'. Note: The regex filter is Golang flavor",
+				Optional:    true,
+				Default:     "",
+			},
 		},
 	}
 }
 
 func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
+
+	var regex *regexp.Regexp
+
+	var err error
+
+	filter := d.Get("filter").(string)
+	if filter != "" {
+		regex, err = regexp.Compile(filter)
+		if err != nil {
+			return diag.Errorf("Invalid filter: %v", err)
+		}
+	}
 
 	teams, err := apiClient.Teams()
 	if err != nil {
@@ -37,13 +56,14 @@ func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta interface{}
 	data := []string{}
 
 	for _, team := range teams {
-		data = append(data, team.Name)
+		if regex == nil || regex.MatchString(team.Name) {
+			data = append(data, team.Name)
+		}
 	}
 
 	d.Set("names", data)
 
-	// Not really needed. But required by Terraform SDK - https://github.com/hashicorp/terraform-plugin-sdk/issues/541
-	d.SetId("all_teams_names")
+	d.SetId("all_teams_names" + filter)
 
 	return nil
 }
