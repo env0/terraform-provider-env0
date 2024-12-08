@@ -10,6 +10,7 @@ type ApiClient struct {
 	http                  http.HttpClientInterface
 	cachedOrganizationId  string
 	defaultOrganizationId string
+	memoizedGetTeams      func(string) ([]Team, error)
 }
 
 type ApiClientInterface interface {
@@ -172,9 +173,11 @@ type ApiClientInterface interface {
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
-	return &ApiClient{
+	apiClient := &ApiClient{
 		http:                  client,
 		cachedOrganizationId:  "",
 		defaultOrganizationId: defaultOrganizationId,
 	}
+	apiClient.memoizedGetTeams = memoize(apiClient.GetTeams)
+	return apiClient
 }
