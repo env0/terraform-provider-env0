@@ -178,6 +178,8 @@ func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string)
 		cachedOrganizationId:  "",
 		defaultOrganizationId: defaultOrganizationId,
 	}
+
 	apiClient.memoizedGetTeams = memoize(apiClient.GetTeams)
+
 	return apiClient
 }
