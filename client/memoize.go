@@ -20,3 +20,8 @@ func memoize[K comparable, V any](f func(K) (V, error)) func(K) (V, error) {
 		return value, err
 	}
 }
+
+// MemoizeExported exports the memoize function for testing
+func MemoizeExported[K comparable, V any](f func(K) (V, error)) func(K) (V, error) {
+	return memoize(f)
+}
