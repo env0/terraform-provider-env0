@@ -83,7 +83,12 @@ func (client *ApiClient) TeamUpdate(id string, payload TeamUpdatePayload) (Team,
 	return result, nil
 }
 
-func (client *ApiClient) GetTeams(params map[string]string) ([]Team, error) {
+func (client *ApiClient) GetTeams(name string) ([]Team, error) {
+	params := map[string]string{"limit": "100"}
+	if name != "" {
+		params["name"] = name
+	}
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return nil, err
@@ -112,9 +117,9 @@ func (client *ApiClient) GetTeams(params map[string]string) ([]Team, error) {
 }
 
 func (client *ApiClient) Teams() ([]Team, error) {
-	return client.GetTeams(map[string]string{"limit": "100"})
+	return client.memoizedGetTeams("")
 }
 
 func (client *ApiClient) TeamsByName(name string) ([]Team, error) {
-	return client.GetTeams(map[string]string{"name": name, "limit": "100"})
+	return client.memoizedGetTeams(name)
 }
