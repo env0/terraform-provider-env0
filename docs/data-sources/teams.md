@@ -3,12 +3,12 @@
 page_title: "env0_teams Data Source - terraform-provider-env0"
 subcategory: ""
 description: |-
-  
+  Note: this data source is cached, once fetched it will not be updated until the next plan/apply
 ---
 
 # env0_teams (Data Source)
 
-
+Note: this data source is cached, once fetched it will not be updated until the next plan/apply
 
 ## Example Usage
 
