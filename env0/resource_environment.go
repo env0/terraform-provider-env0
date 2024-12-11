@@ -674,7 +674,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("could not get template: %v", err)
 		}
 
-		if err := templateRead("without_template_settings", template, d, false); err != nil {
+		if err := templateRead("without_template_settings", template, d); err != nil {
 			return diag.Errorf("schema resource data serialization failed: %v", err)
 		}
 	}
@@ -1443,7 +1443,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 			return nil, fmt.Errorf("failed to get template with id %s: %w", templateId, err)
 		}
 
-		if err := templateRead("without_template_settings", template, d, true); err != nil {
+		if err := templateRead("without_template_settings", template, d); err != nil {
 			return nil, fmt.Errorf("failed to write template to schema: %w", err)
 		}
 	}

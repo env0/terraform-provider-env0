@@ -12,6 +12,7 @@ import (
 func dataTeams() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataTeamsRead,
+		Description: "Note: this data source is cached, once fetched it will not be updated until the next plan/apply",
 
 		Schema: map[string]*schema.Schema{
 			"names": {

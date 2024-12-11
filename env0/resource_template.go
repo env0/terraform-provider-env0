@@ -104,7 +104,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
 			Optional:         true,
-			Default:          client.TERRAFORM,
+			Default:          client.OPENTOFU,
 			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
 		},
 		"revision": {
@@ -244,7 +244,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"terragrunt_tf_binary": {
 			Type:             schema.TypeString,
 			Optional:         true,
-			Description:      "the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. For new templates defaults to 'opentofu'",
+			Description:      "the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. Defaults to 'opentofu'",
 			ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM}),
 		},
 		"token_name": {
@@ -324,7 +324,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := templateRead("", template, d, false); err != nil {
+	if err := templateRead("", template, d); err != nil {
 		return diag.Errorf("%v", err)
 	}
 
@@ -410,25 +410,6 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 		return payload, diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
-	isNew := d.IsNewResource()
-
-	terragruntTfBinaryKey := "terragrunt_tf_binary"
-	templateTypeKey := "type"
-
-	if prefix != "" {
-		terragruntTfBinaryKey = prefix + "." + terragruntTfBinaryKey
-		templateTypeKey = prefix + "." + templateTypeKey
-	}
-
-	if templateType, ok := d.GetOk(templateTypeKey); ok {
-		// If the user has set a value - use it.
-		if terragruntTfBinary := d.Get(terragruntTfBinaryKey).(string); terragruntTfBinary != "" {
-			payload.TerragruntTfBinary = terragruntTfBinary
-		} else if templateType.(string) == client.TERRAGRUNT && isNew {
-			payload.TerragruntTfBinary = client.OPENTOFU
-		}
-	}
-
 	templateCreatePayloadRetryOnHelper(prefix, d, "deploy", &payload.Retry.OnDeploy)
 	templateCreatePayloadRetryOnHelper(prefix, d, "destroy", &payload.Retry.OnDestroy)
 
@@ -440,32 +421,23 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 }
 
 // Reads template and writes to the resource data.
-func templateRead(prefix string, template client.Template, d *schema.ResourceData, isImport bool) error {
+func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
 	pathPrefix := "path"
 	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
-	terraformVersionPrefix := "terraform_version"
 
 	if prefix != "" {
-		pathPrefix = prefix + ".0." + pathPrefix
 		terragruntTfBinaryPrefix = prefix + ".0." + terragruntTfBinaryPrefix
-		terraformVersionPrefix = prefix + ".0." + terraformVersionPrefix
+		pathPrefix = prefix + ".0." + pathPrefix
 	}
 
 	path, pathOk := d.GetOk(pathPrefix)
-	terragruntTfBinary := d.Get(terragruntTfBinaryPrefix).(string)
-	terraformVersion := d.Get(terraformVersionPrefix).(string)
 
-	// If this value isn't set, ignore whatever is returned from the response.
-	// This helps avoid drifts when defaulting to 'opentofu' for new 'terragrunt' templates, and 'terraform' for existing 'terragrunt' templates.
-	// 'template.TerragruntTfBinary' field is set to 'omitempty'. Therefore, the state isn't modified if `template.TerragruntTfBinary` is an empty string.
-	// This is not true for imports - because the shcema is empty irrespective in that case.
-	if !isImport {
-		if terragruntTfBinary == "" {
+	// This is done to avoid drifts in case the backend returns "opentofu", but non is configured in the provider.
+	// (The provider implicitly defaults to "opentofu").
+	if template.TerragruntTfBinary == client.OPENTOFU {
+		terragruntTfBinary, terragruntTfBinaryOk := d.GetOk(terragruntTfBinaryPrefix)
+		if !terragruntTfBinaryOk || terragruntTfBinary.(string) == "" {
 			template.TerragruntTfBinary = ""
-		}
-		// Same explanation as above.
-		if terraformVersion == "" {
-			template.TerraformVersion = ""
 		}
 	}
 

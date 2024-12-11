@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"encoding/json"
-	"strings"
 	"testing"
 
 	. "github.com/env0/terraform-provider-env0/client"
@@ -309,7 +308,7 @@ func TestConfigurationVariableMarshelling(t *testing.T) {
 
 	b, err := json.Marshal(&variable)
 	if assert.NoError(t, err) {
-		assert.False(t, strings.Contains(string(b), str))
+		assert.NotContains(t, string(b), str)
 	}
 
 	type ConfigurationVariableDummy ConfigurationVariable
@@ -318,7 +317,7 @@ func TestConfigurationVariableMarshelling(t *testing.T) {
 
 	b, err = json.Marshal(&dummy)
 	if assert.NoError(t, err) {
-		assert.True(t, strings.Contains(string(b), str))
+		assert.Contains(t, string(b), str)
 	}
 
 	var variable2 ConfigurationVariable
