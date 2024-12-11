@@ -104,7 +104,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:             schema.TypeString,
 			Description:      fmt.Sprintf("template type (allowed values: %s)", strings.Join(allowedTemplateTypes, ", ")),
 			Optional:         true,
-			Default:          client.TERRAFORM,
+			Default:          client.OPENTOFU,
 			ValidateDiagFunc: NewStringInValidator(allowedTemplateTypes),
 		},
 		"revision": {
