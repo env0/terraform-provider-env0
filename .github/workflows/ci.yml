@@ -47,8 +47,8 @@ jobs:
     container: golang:1.23-alpine
     timeout-minutes: 20
     steps:
-      - name: Install Terraform
-        run: apk add terraform
+      - name: Install Opentofu
+        run: apk add opentofu
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run Harness tests
