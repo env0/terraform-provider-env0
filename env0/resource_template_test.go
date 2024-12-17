@@ -18,7 +18,7 @@ func TestUnitTemplateResource(t *testing.T) {
 
 	const defaultVersion = "0.15.1"
 
-	const defaultType = client.OPENTOFU
+	const testType = client.OPENTOFU
 
 	const defaultOpentofuVersion = "1.6.0"
 
@@ -505,6 +505,8 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		if template.Type != "" {
 			templateAsDictionary["type"] = template.Type
+		} else {
+			templateAsDictionary["type"] = string(testType)
 		}
 
 		if template.Description != "" {
@@ -760,6 +762,11 @@ func TestUnitTemplateResource(t *testing.T) {
 				AnsibleVersion:       templateUseCase.updatedTemplate.AnsibleVersion,
 			}
 
+			if templateUseCase.template.Type == "" {
+				templateCreatePayload.Type = string(testType)
+				updateTemplateCreateTemplate.Type = string(testType)
+			}
+
 			if templateUseCase.template.Type == "terragrunt" {
 				templateCreatePayload.TerragruntTfBinary = templateUseCase.template.TerragruntTfBinary
 			}
@@ -815,7 +822,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             template.Name,
 			Repository:       template.Repository,
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 
@@ -823,6 +830,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 				"name":              template.Name,
 				"repository":        template.Repository,
+				"type":              string(testType),
 				"terraform_version": defaultVersion,
 				"opentofu_version":  defaultOpentofuVersion,
 			})
@@ -836,7 +844,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
 						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-						resource.TestCheckResourceAttr(resourceFullName, "type", string(defaultType)),
+						resource.TestCheckResourceAttr(resourceFullName, "type", string(testType)),
 						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", defaultVersion),
 						resource.TestCheckResourceAttr(resourceFullName, "opentofu_version", defaultOpentofuVersion),
 					),
@@ -849,7 +857,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:            template.Name,
 				Repository:      template.Repository,
-				Type:            defaultType,
+				Type:            testType,
 				OpentofuVersion: defaultOpentofuVersion,
 			}).Times(1).Return(template, nil)
 			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
@@ -901,7 +909,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             "template0",
 			Repository:       "env0/repo",
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			SshKeys:          []client.TemplateSshKey{initialSshKey1, initialSshKey2},
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
@@ -911,7 +919,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             template.Name,
 			Repository:       template.Repository,
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			SshKeys:          []client.TemplateSshKey{updatedSshKey1, updatedSshKey2},
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
@@ -931,7 +939,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			id   = "%s"
 			name = "%s"
 		}]
-	}`, name, repository, defaultVersion, string(defaultType), defaultOpentofuVersion, sshKey1.Id, sshKey1.Name, sshKey2.Id, sshKey2.Name)
+	}`, name, repository, defaultVersion, string(testType), defaultOpentofuVersion, sshKey1.Id, sshKey1.Name, sshKey2.Id, sshKey2.Name)
 		}
 
 		sshTemplateResourceCheck := func(resourceFullName string, template client.Template, sshKey1 client.TemplateSshKey, sshKey2 client.TemplateSshKey) resource.TestCheckFunc {
@@ -967,14 +975,14 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:            template.Name,
 				Repository:      template.Repository,
-				Type:            defaultType,
+				Type:            testType,
 				SshKeys:         template.SshKeys,
 				OpentofuVersion: defaultOpentofuVersion,
 			}).Times(1).Return(template, nil)
 			mock.EXPECT().TemplateUpdate(updatedTemplate.Id, client.TemplateCreatePayload{
 				Name:            updatedTemplate.Name,
 				Repository:      updatedTemplate.Repository,
-				Type:            defaultType,
+				Type:            testType,
 				SshKeys:         updatedTemplate.SshKeys,
 				OpentofuVersion: defaultOpentofuVersion,
 			}).Times(1).Return(updatedTemplate, nil)
@@ -995,7 +1003,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				testCases = append(testCases, resource.TestCase{
 					Steps: []resource.TestStep{
 						{
-							Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", attribute: amount}),
+							Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", attribute: amount}),
 							ExpectError: regexp.MustCompile("retries amount must be between 1 and 3"),
 						},
 					},
@@ -1023,7 +1031,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			testCases = append(testCases, resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "repository": "env0/test", regexAttribute: "bla"}),
+						Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", regexAttribute: "bla"}),
 						ExpectError: regexp.MustCompile(fmt.Sprintf("`%s,%s`\\s+must\\s+be\\s+specified", timesAttribute, regexAttribute)),
 					},
 				},
@@ -1045,12 +1053,12 @@ func TestUnitTemplateResource(t *testing.T) {
 		tfObject  map[string]interface{}
 		exception string
 	}{
-		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
-		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
-		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"github_installation_id\": conflicts with is_gitlab_enterprise"},
-		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
-		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
-		{"GitLab EE", "GitHub EE", map[string]interface{}{"name": "test", "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
+		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
+		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
+		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"github_installation_id\": conflicts with is_gitlab_enterprise"},
+		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
+		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
+		{"GitLab EE", "GitHub EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
 	}
 
 	for _, mixUseCase := range mixedUsecases {
@@ -1077,12 +1085,14 @@ func TestUnitTemplateResource(t *testing.T) {
 			Id:         "id0",
 			Name:       "template0",
 			Repository: "env0/repo",
+			Type:       string(testType),
 		}
 
 		updateTemplate := client.Template{
 			Id:         "id0-update",
 			Name:       "template0-update",
 			Repository: "env0/repo-update",
+			Type:       string(testType),
 		}
 
 		templateWithDefaults := client.Template{
@@ -1090,7 +1100,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             template.Name,
 			Repository:       template.Repository,
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 		templateWithDefaultsUpdate := client.Template{
@@ -1098,7 +1108,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             updateTemplate.Name,
 			Repository:       updateTemplate.Repository,
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 
@@ -1108,13 +1118,14 @@ func TestUnitTemplateResource(t *testing.T) {
 			Name:             template.Name,
 			Repository:       template.Repository,
 			TerraformVersion: defaultVersion,
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 
 		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 				"name":              template.Name,
+				"type":              string(template.Type),
 				"repository":        template.Repository,
 				"terraform_version": defaultVersion,
 				"opentofu_version":  defaultOpentofuVersion,
@@ -1129,7 +1140,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
 						resource.TestCheckResourceAttr(resourceFullName, "repository", template.Repository),
-						resource.TestCheckResourceAttr(resourceFullName, "type", string(defaultType)),
+						resource.TestCheckResourceAttr(resourceFullName, "type", string(testType)),
 						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", defaultVersion),
 						resource.TestCheckResourceAttr(resourceFullName, "opentofu_version", defaultOpentofuVersion),
 					),
@@ -1140,7 +1151,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceFullName, "id", updateTemplate.Id),
 						resource.TestCheckResourceAttr(resourceFullName, "name", updateTemplate.Name),
 						resource.TestCheckResourceAttr(resourceFullName, "repository", updateTemplate.Repository),
-						resource.TestCheckResourceAttr(resourceFullName, "type", string(defaultType)),
+						resource.TestCheckResourceAttr(resourceFullName, "type", string(testType)),
 						resource.TestCheckResourceAttr(resourceFullName, "terraform_version", defaultVersion),
 						resource.TestCheckResourceAttr(resourceFullName, "opentofu_version", defaultOpentofuVersion),
 					),
@@ -1152,14 +1163,14 @@ func TestUnitTemplateResource(t *testing.T) {
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:            template.Name,
 				Repository:      template.Repository,
-				Type:            defaultType,
+				Type:            testType,
 				OpentofuVersion: defaultOpentofuVersion,
 			}).Times(1).Return(template, nil)
 
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:            updateTemplate.Name,
 				Repository:      updateTemplate.Repository,
-				Type:            defaultType,
+				Type:            testType,
 				OpentofuVersion: defaultOpentofuVersion,
 			}).Times(1).Return(updateTemplate, nil)
 
@@ -1180,7 +1191,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Path:             "path/zero",
 			Repository:       "repo",
 			TerraformVersion: string(defaultVersion),
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 
@@ -1190,7 +1201,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			Path:             "path/one",
 			Repository:       "repo",
 			TerraformVersion: string(defaultVersion),
-			Type:             string(defaultType),
+			Type:             string(testType),
 			OpentofuVersion:  defaultOpentofuVersion,
 		}
 
@@ -1203,6 +1214,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"repository":        pathTemplate.Repository,
 						"terraform_version": pathTemplate.TerraformVersion,
 						"opentofu_version":  defaultOpentofuVersion,
+						"type":              pathTemplate.Type,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(resourceFullName, "id", pathTemplate.Id),
@@ -1221,6 +1233,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"repository":        updatedPathTemplate.Repository,
 						"terraform_version": updatedPathTemplate.TerraformVersion,
 						"opentofu_version":  defaultOpentofuVersion,
+						"type":              updatedPathTemplate.Type,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(resourceFullName, "id", updatedPathTemplate.Id),
