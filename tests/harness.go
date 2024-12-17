@@ -185,18 +185,18 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 func terraformDestory(testName string) {
 	log.Println("Running destroy to clean up in", testName)
 
-	destroy := exec.Command("terraform", "destroy", "-auto-approve", "-var", "second_run=0")
+	destroy := exec.Command("tofu", "destroy", "-auto-approve", "-var", "second_run=0")
 	destroy.Dir = TESTS_FOLDER + "/" + testName
 
 	if err := destroy.Run(); err != nil {
-		log.Println("WARNING: error running terraform destroy")
+		log.Println("WARNING: error running tofu destroy")
 	}
 
-	log.Println("Done running terraform destroy in", testName)
+	log.Println("Done running tofu destroy in", testName)
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
-	cmd := exec.Command("terraform", arg...)
+	cmd := exec.Command("tofu", arg...)
 	cmd.Dir = TESTS_FOLDER + "/" + testName
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INTEGRATION_TESTS=1")
@@ -207,29 +207,29 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 	cmd.Stderr = bufio.NewWriter(&errOutput)
 	cmd.Stdout = bufio.NewWriter(&output)
 
-	log.Println("Running terraform ", arg, " in ", testName)
+	log.Println("Running tofu ", arg, " in ", testName)
 
 	err := cmd.Run()
 
 	log.Println(errOutput.String())
 
 	if err != nil {
-		log.Println("error running terraform ", arg, " in ", testName, " error: ", err)
+		log.Println("error running tofu ", arg, " in ", testName, " error: ", err)
 	} else {
-		log.Println("Completed successfully terraform", arg, "in", testName)
+		log.Println("Completed successfully tofu", arg, "in", testName)
 	}
 
 	return output.Bytes(), err
 }
 
 func printTerraformVersion() {
-	versionString, err := exec.Command("terraform", "version").Output()
+	versionString, err := exec.Command("tofu", "version").Output()
 
 	if err != nil {
-		log.Fatalln("Unable to invoke terraform. Perhaps it's not in PATH?", err)
+		log.Fatalln("Unable to invoke tofu. Perhaps it's not in PATH?", err)
 	}
 
-	log.Println("Terraform version: ", string(versionString))
+	log.Println("tofu version: ", string(versionString))
 }
 
 func makeSureRunningFromProjectRoot() {
