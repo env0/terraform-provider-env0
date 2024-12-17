@@ -1,6 +1,6 @@
 module github.com/env0/terraform-provider-env0
 
-go 1.22.0
+go 1.23.0
 
 toolchain go1.23.4
 
