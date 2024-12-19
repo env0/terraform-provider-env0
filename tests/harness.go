@@ -39,7 +39,7 @@ func main() {
 
 		go func(testName string) {
 			if destroyMode == "DESTROY_ONLY" {
-				terraformDestory(testName)
+				terraformDestroy(testName)
 			} else {
 				success, err := runTest(testName, destroyMode != "NO_DESTROY")
 				if !success {
@@ -87,7 +87,7 @@ func runTest(testName string, destroy bool) (bool, error) {
 	_, _ = terraformCommand(testName, "fmt")
 
 	if destroy {
-		defer terraformDestory(testName)
+		defer terraformDestroy(testName)
 	}
 
 	_, err = terraformCommand(testName, "apply", "-auto-approve", "-var", "second_run=0")
@@ -182,7 +182,7 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 	return result, nil
 }
 
-func terraformDestory(testName string) {
+func terraformDestroy(testName string) {
 	log.Println("Running destroy to clean up in", testName)
 
 	destroy := exec.Command("tofu", "destroy", "-auto-approve", "-var", "second_run=0")

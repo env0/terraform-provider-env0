@@ -15,7 +15,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 
 	Describe("AssignCostCredentialsToProject", func() {
 		expectedResponse := CostCredentialProjectAssignment{
-			ProjectId:       "assigment id",
+			ProjectId:       "assignment id",
 			CredentialsId:   "credentialId",
 			CredentialsType: "GCP_CREDENTIALS",
 		}
@@ -79,13 +79,13 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			var actualResult []CostCredentialProjectAssignment
 
 			firstResulteResponse := CostCredentialProjectAssignment{
-				ProjectId:       "assigment id",
+				ProjectId:       "assignment id",
 				CredentialsId:   "credentialId",
 				CredentialsType: "GCP_CREDENTIALS",
 			}
 
 			secondResulteResponse := CostCredentialProjectAssignment{
-				ProjectId:       "assigment id",
+				ProjectId:       "assignment id",
 				CredentialsId:   "credentialId-2",
 				CredentialsType: "GCP_CREDENTIALS",
 			}

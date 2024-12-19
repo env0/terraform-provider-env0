@@ -39,7 +39,7 @@ resource "env0_template_project_assignment" "assignment2" {
   project_id  = env0_project.test_project2.id
 }
 
-resource "env0_environment" "auto_glob_envrironment" {
+resource "env0_environment" "auto_glob_environment" {
   depends_on                       = [env0_template_project_assignment.assignment]
   name                             = "environment-auto-glob-${random_string.random.result}"
   project_id                       = env0_project.test_project.id

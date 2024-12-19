@@ -12,7 +12,7 @@ import (
 )
 
 func resourceModule() *schema.Resource {
-	vcsExcatlyOneOf := []string{
+	vcsExactlyOneOf := []string{
 		"token_id",
 		"github_installation_id",
 		"bitbucket_client_key",
@@ -53,7 +53,7 @@ func resourceModule() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "the git token id to be used",
 				Optional:     true,
-				ExactlyOneOf: vcsExcatlyOneOf,
+				ExactlyOneOf: vcsExactlyOneOf,
 			},
 			"token_name": {
 				Type:         schema.TypeString,
@@ -65,13 +65,13 @@ func resourceModule() *schema.Resource {
 				Type:         schema.TypeInt,
 				Description:  "the env0 application installation id on the relevant Github repository",
 				Optional:     true,
-				ExactlyOneOf: vcsExcatlyOneOf,
+				ExactlyOneOf: vcsExactlyOneOf,
 			},
 			"bitbucket_client_key": {
 				Type:         schema.TypeString,
 				Description:  "the client key used for integration with Bitbucket",
 				Optional:     true,
-				ExactlyOneOf: vcsExcatlyOneOf,
+				ExactlyOneOf: vcsExactlyOneOf,
 			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
