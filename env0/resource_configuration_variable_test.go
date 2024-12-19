@@ -77,7 +77,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 	})
 
 	t.Run("Create sensitive", func(t *testing.T) {
-		createSenstiveConfig := client.ConfigurationVariableCreateParams{
+		createSensitiveConfig := client.ConfigurationVariableCreateParams{
 			Name:        "name",
 			Value:       "value",
 			IsSensitive: true,
@@ -86,7 +86,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 
 		sensitiveConfig := client.ConfigurationVariable{
 			Id:          uuid.NewString(),
-			Name:        createSenstiveConfig.Name,
+			Name:        createSensitiveConfig.Name,
 			Value:       "*",
 			IsSensitive: boolPtr(true),
 			Scope:       client.ScopeGlobal,
@@ -96,14 +96,14 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"name":         createSenstiveConfig.Name,
-						"value":        createSenstiveConfig.Value,
+						"name":         createSensitiveConfig.Name,
+						"value":        createSensitiveConfig.Value,
 						"is_sensitive": true,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", sensitiveConfig.Id),
-						resource.TestCheckResourceAttr(accessor, "name", createSenstiveConfig.Name),
-						resource.TestCheckResourceAttr(accessor, "value", createSenstiveConfig.Value),
+						resource.TestCheckResourceAttr(accessor, "name", createSensitiveConfig.Name),
+						resource.TestCheckResourceAttr(accessor, "value", createSensitiveConfig.Value),
 						resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(true)),
 					),
 				},
@@ -111,7 +111,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		}
 
 		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().ConfigurationVariableCreate(createSenstiveConfig).Times(1).Return(sensitiveConfig, nil)
+			mock.EXPECT().ConfigurationVariableCreate(createSensitiveConfig).Times(1).Return(sensitiveConfig, nil)
 			mock.EXPECT().ConfigurationVariablesById(sensitiveConfig.Id).Times(1).Return(sensitiveConfig, nil)
 			mock.EXPECT().ConfigurationVariableDelete(sensitiveConfig.Id).Times(1).Return(nil)
 		})
@@ -648,7 +648,7 @@ resource "%s" "test" {
 		IsRequired:  &isRequired,
 		Scope:       "BLUEPRINT",
 	}
-	stepConfirImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfigImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
 
 		"name":         configVarImport.Name,
 		"description":  configVarImport.Description,
@@ -676,7 +676,7 @@ resource "%s" "test" {
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: stepConfirImport,
+					Config: stepConfigImport,
 				},
 				{
 					ResourceName:            ResourceNameImport,
@@ -700,7 +700,7 @@ resource "%s" "test" {
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: stepConfirImport,
+					Config: stepConfigImport,
 				},
 				{
 					ResourceName:            ResourceNameImport,

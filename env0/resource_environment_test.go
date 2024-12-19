@@ -3069,8 +3069,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 
 	updatedSubEnvironment.Workspace = "workspace2"
 
-	subEnvrionmentWithId := subEnvironment
-	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
+	subEnvironmentWithId := subEnvironment
+	subEnvironmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
 	environment := client.Environment{
 		Id:               "id",
@@ -3290,7 +3290,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
 				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: environment.Id,
 				}, nil),
