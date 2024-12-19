@@ -931,7 +931,7 @@ func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientIn
 	}
 
 	ticker := time.NewTicker(waitInterval) // When invoked - check the status.
-	timer := time.NewTimer(timeout)       // When invoked - timeout.
+	timer := time.NewTimer(timeout)        // When invoked - timeout.
 	results := make(chan error)
 
 	go func() {

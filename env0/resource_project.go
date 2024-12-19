@@ -169,7 +169,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 			waitInterval = time.Second
 		}
 
-		ticker := time.NewTicker(waitInterval)                   // When invoked check if project can be deleted.
+		ticker := time.NewTicker(waitInterval)                  // When invoked check if project can be deleted.
 		timer := time.NewTimer(PROJECT_DESTROY_TOTAL_WAIT_TIME) // When invoked wait time has elapsed.
 		done := make(chan bool)
 
