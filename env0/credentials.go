@@ -88,7 +88,7 @@ func getCredentialsById(id string, prefixList []string, meta interface{}) (clien
 	}
 
 	if !credentials.HasPrefix(prefixList) {
-		return client.Credentials{}, fmt.Errorf("credentials type mistmatch %s", credentials.Type)
+		return client.Credentials{}, fmt.Errorf("credentials type mismatch %s", credentials.Type)
 	}
 
 	return credentials, nil

@@ -237,7 +237,7 @@ func getFieldName(field reflect.StructField) *parsedField {
 	var res parsedField
 
 	// Assumes golang is CamalCase and Terraform is snake_case.
-	// This behavior can be overrided be used in the 'tfschema' tag.
+	// This behavior can be overridden be used in the 'tfschema' tag.
 	res.name = toSnakeCase(field.Name)
 
 	if tag, ok := field.Tag.Lookup("tfschema"); ok {

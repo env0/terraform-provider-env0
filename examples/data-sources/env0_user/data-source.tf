@@ -3,5 +3,5 @@ data "env0_user" "user_by_email_example" {
 }
 
 output "user_id" {
-  value = data.env0_user.user_by_email_exmple.id
+  value = data.env0_user.user_by_email_example.id
 }

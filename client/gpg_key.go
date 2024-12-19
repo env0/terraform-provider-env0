@@ -21,7 +21,7 @@ func (client *ApiClient) GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, er
 		return nil, err
 	}
 
-	payloadWithOrganzationId := struct {
+	payloadWithOrganizationId := struct {
 		OrganizationId string `json:"organizationId"`
 		GpgKeyCreatePayload
 	}{
@@ -30,7 +30,7 @@ func (client *ApiClient) GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, er
 	}
 
 	var result GpgKey
-	if err := client.http.Post("/gpg-keys", payloadWithOrganzationId, &result); err != nil {
+	if err := client.http.Post("/gpg-keys", payloadWithOrganizationId, &result); err != nil {
 		return nil, err
 	}
 

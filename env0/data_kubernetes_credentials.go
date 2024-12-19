@@ -11,7 +11,7 @@ import (
 
 func dataKubernetesCredentials(credentialsType CloudType) *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataKuberentesCredentialsRead(credentialsType),
+		ReadContext: dataKubernetesCredentialsRead(credentialsType),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -30,7 +30,7 @@ func dataKubernetesCredentials(credentialsType CloudType) *schema.Resource {
 	}
 }
 
-func dataKuberentesCredentialsRead(credentialsType CloudType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataKubernetesCredentialsRead(credentialsType CloudType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		var credentials client.Credentials
 
