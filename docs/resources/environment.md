@@ -162,6 +162,7 @@ Optional:
 Required:
 
 - `repository` (String) git repository url for the template source code
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 Optional:
 
@@ -192,7 +193,6 @@ Optional:
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 Read-Only:
 
