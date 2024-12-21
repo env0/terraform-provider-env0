@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -176,7 +175,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.\nImportant note: After the environment is created, this field cannot be modified.",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable",
 				Optional:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
@@ -382,13 +381,6 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 			},
 		},
-		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
-			if oldValue != "" && oldValue != newValue {
-				return errors.New("template_id may not be modified, create a new environment instead")
-			}
-
-			return nil
-		}),
 	}
 }
 
@@ -736,7 +728,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 		}
 	}
 
-	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets")
+	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets", "template_id")
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
