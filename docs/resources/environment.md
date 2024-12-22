@@ -127,7 +127,7 @@ Optional:
 
 - `approve_plan_automatically` (Boolean) when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval
 - `configuration` (Block List) sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
-- `workspace` (String) sub environment workspace (overrides the configurtion in the yml file)
+- `workspace` (String) sub environment workspace (overrides the configuration in the yml file)
 
 Read-Only:
 

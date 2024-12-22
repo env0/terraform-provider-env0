@@ -322,7 +322,7 @@ func resourceEnvironment() *schema.Resource {
 						},
 						"workspace": {
 							Type:        schema.TypeString,
-							Description: "sub environment workspace (overrides the configurtion in the yml file)",
+							Description: "sub environment workspace (overrides the configuration in the yml file)",
 							Optional:    true,
 						},
 						"configuration": {
@@ -914,16 +914,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string) error {
-	waitInteval := time.Second * 10
+	waitInterval := time.Second * 10
 	timeout := time.Minute * 30
 
 	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and timeout to 10 seconds.
-		waitInteval = time.Second
+		waitInterval = time.Second
 		timeout = time.Second * 10
 	}
 
-	ticker := time.NewTicker(waitInteval) // When invoked - check the status.
-	timer := time.NewTimer(timeout)       // When invoked - timeout.
+	ticker := time.NewTicker(waitInterval) // When invoked - check the status.
+	timer := time.NewTimer(timeout)        // When invoked - timeout.
 	results := make(chan error)
 
 	go func() {

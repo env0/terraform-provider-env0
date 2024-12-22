@@ -5,7 +5,7 @@ import "strings"
 type AwsCredentialsType string
 type GcpCredentialsType string
 type AzureCredentialsType string
-type VaultCrednetialsType string
+type VaultCredentialsType string
 
 type Credentials struct {
 	Id             string `json:"id"`
@@ -92,7 +92,7 @@ type VaultCredentialsValuePayload struct {
 type VaultCredentialsCreatePayload struct {
 	Name           string                       `json:"name,omitempty"`
 	OrganizationId string                       `json:"organizationId,omitempty"`
-	Type           VaultCrednetialsType         `json:"type"`
+	Type           VaultCredentialsType         `json:"type"`
 	Value          VaultCredentialsValuePayload `json:"value"`
 }
 
@@ -127,7 +127,7 @@ const (
 	AzureCostCredentialsType             AzureCredentialsType = "AZURE_CREDENTIALS"
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 	AzureOidcCredentialsType             AzureCredentialsType = "AZURE_OIDC"
-	VaultOidcCredentialsType             VaultCrednetialsType = "VAULT_OIDC"
+	VaultOidcCredentialsType             VaultCredentialsType = "VAULT_OIDC"
 )
 
 func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {
