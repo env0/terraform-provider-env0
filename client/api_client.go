@@ -170,6 +170,11 @@ type ApiClientInterface interface {
 	CloudAccount(id string) (*CloudAccount, error)
 	CloudAccounts() ([]CloudAccount, error)
 	VcsToken(vcsType string, repository string) (*VscToken, error)
+	VcsConnection(id string) (*VcsConnection, error)
+	VcsConnectionCreate(payload VcsConnectionCreatePayload) (*VcsConnection, error)
+	VcsConnectionUpdate(id string, payload VcsConnectionUpdatePayload) (*VcsConnection, error)
+	VcsConnectionDelete(id string) error
+	VcsConnections() ([]VcsConnection, error)
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

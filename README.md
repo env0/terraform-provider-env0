@@ -185,7 +185,7 @@ export PATH=$PATH:$(go env GOPATH)  # if not
 2. Install mockgen
 
 ```
-go install go.uber.org/mock/mockgen@v0.3.0
+go install go.uber.org/mock/mockgen@v0.5.0
 ```
 
 3. Make sure to add this line in files that include the interface you'd wish to mock:
