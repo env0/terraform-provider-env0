@@ -39,7 +39,7 @@ func resourceVcsConnection() *schema.Resource {
 			"url": {
 				Type:             schema.TypeString,
 				Required:         true,
-				Description:      "URL of the VCS server",
+				Description:      "URL of the VCS server. This can either be a 'VCS URL' (e.g.: https://github.com) or 'Repository URL' (E.g.: https://github.com/env0/myrepo)",
 				ValidateDiagFunc: ValidateUrl,
 			},
 			"vcs_agent_key": {
