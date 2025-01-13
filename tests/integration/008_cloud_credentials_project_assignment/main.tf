@@ -10,7 +10,7 @@ resource "env0_cloud_credentials_project_assignment" "example" {
 }
 
 resource "env0_project" "test_project" {
-  name        = "Test-Projecte-${random_string.random.result}"
+  name        = "Test-Project-${random_string.random.result}"
   description = "Test Description"
 }
 

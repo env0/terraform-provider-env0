@@ -1,22 +1,22 @@
 package client
 
-type KubernetesCrednetialsType string
+type KubernetesCredentialsType string
 
 const (
-	KubeconfigCredentialsType KubernetesCrednetialsType = "K8S_KUBECONFIG_FILE"
-	AwsEksCredentialsType     KubernetesCrednetialsType = "K8S_EKS_AUTH"
-	AzureAksCredentialsType   KubernetesCrednetialsType = "K8S_AZURE_AKS_AUTH"
-	GcpGkeCredentialsType     KubernetesCrednetialsType = "K8S_GCP_GKE_AUTH"
+	KubeconfigCredentialsType KubernetesCredentialsType = "K8S_KUBECONFIG_FILE"
+	AwsEksCredentialsType     KubernetesCredentialsType = "K8S_EKS_AUTH"
+	AzureAksCredentialsType   KubernetesCredentialsType = "K8S_AZURE_AKS_AUTH"
+	GcpGkeCredentialsType     KubernetesCredentialsType = "K8S_GCP_GKE_AUTH"
 )
 
 type KubernetesCredentialsCreatePayload struct {
 	Name  string                    `json:"name"`
-	Type  KubernetesCrednetialsType `json:"type"`
+	Type  KubernetesCredentialsType `json:"type"`
 	Value interface{}               `json:"value"`
 }
 
 type KubernetesCredentialsUpdatePayload struct {
-	Type  KubernetesCrednetialsType `json:"type"`
+	Type  KubernetesCredentialsType `json:"type"`
 	Value interface{}               `json:"value"`
 }
 

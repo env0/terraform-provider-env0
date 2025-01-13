@@ -43,5 +43,5 @@ resource "env0_agent_project_assignment" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import env0_agent_project_assigment.example project_id
+terraform import env0_agent_project_assignment.example project_id
 ```

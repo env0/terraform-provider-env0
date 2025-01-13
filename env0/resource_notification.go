@@ -186,11 +186,11 @@ func resourceNotificationDelete(ctx context.Context, d *schema.ResourceData, met
 func getNotification(ctx context.Context, id string, meta interface{}) (*client.Notification, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving notifcation by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving notification by id", map[string]interface{}{"id": id})
 
 		return getNotificationById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving notifcation by name", map[string]interface{}{"name	": id})
+		tflog.Info(ctx, "Resolving notification by name", map[string]interface{}{"name	": id})
 
 		return getNotificationByName(id, meta)
 	}
