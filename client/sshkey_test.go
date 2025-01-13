@@ -81,7 +81,7 @@ var _ = Describe("SshKey", func() {
 		})
 	})
 
-	Describe("SshKetUpdate", func() {
+	Describe("SshKeyUpdate", func() {
 		Describe("Success", func() {
 			updateMockSshKey := mockSshKey
 			updateMockSshKey.Value = "new-value"

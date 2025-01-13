@@ -65,7 +65,7 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	_, arnExist := d.GetOk("arn")
 
 	if !accessKeyExist && !arnExist {
-		// Due to "import" must be inforced here and not in the schema level.
+		// Due to "import" must be enforced here and not in the schema level.
 		// This fields are only available during creation (will not be returned in read or import).
 		return diag.Errorf("one of `access_key_id,arn` must be specified")
 	}
