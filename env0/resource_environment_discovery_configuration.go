@@ -92,7 +92,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			"is_terragrunt_run_all": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "If set to 'true', execute terragrunt commands with 'run all'",
+				Description: "If set to 'true', execute terragrunt commands with 'run all' (default: false)",
 				Default:     false,
 			},
 			"ssh_key_id": {
@@ -163,6 +163,12 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "start files Glob matching from this folder only",
 				Optional:    true,
+			},
+			"create_new_environments_from_pull_requests": {
+				Type:        schema.TypeBool,
+				Description: "create new environments from pull requests (default: false)",
+				Optional:    true,
+				Default:     false,
 			},
 		},
 	}
