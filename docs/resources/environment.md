@@ -80,8 +80,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `sub_environment_configuration` (Block List) the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
 - `template_id` (String) the template id the environment is to be created from.
-Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.
-Important note: After the environment is created, this field cannot be modified.
+Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable. Please note that changing this attribute will require environment redeploy
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - `variable_sets` (List of String) a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'
@@ -128,7 +127,7 @@ Optional:
 
 - `approve_plan_automatically` (Boolean) when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval
 - `configuration` (Block List) sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
-- `workspace` (String) sub environment workspace (overrides the configurtion in the yml file)
+- `workspace` (String) sub environment workspace (overrides the configuration in the yml file)
 
 Read-Only:
 
@@ -162,6 +161,7 @@ Optional:
 Required:
 
 - `repository` (String) git repository url for the template source code
+- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 Optional:
 
@@ -192,7 +192,6 @@ Optional:
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
-- `type` (String) template type (allowed values: terraform, terragrunt, pulumi, k8s, workflow, cloudformation, helm, opentofu, ansible)
 
 Read-Only:
 

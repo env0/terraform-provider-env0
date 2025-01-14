@@ -29,6 +29,15 @@ resource "env0_template" "template" {
   terraform_version      = "0.15.1"
 }
 
+resource "env0_template" "template2" {
+  repository             = data.env0_template.github_template_for_environment.repository
+  github_installation_id = data.env0_template.github_template_for_environment.github_installation_id
+  name                   = "Template for environment resource 2-${random_string.random.result}"
+  type                   = "terraform"
+  path                   = "misc/null-resource"
+  terraform_version      = "0.16.1"
+}
+
 resource "env0_template_project_assignment" "assignment" {
   template_id = env0_template.template.id
   project_id  = env0_project.test_project.id
@@ -39,7 +48,7 @@ resource "env0_template_project_assignment" "assignment2" {
   project_id  = env0_project.test_project2.id
 }
 
-resource "env0_environment" "auto_glob_envrironment" {
+resource "env0_environment" "auto_glob_environment" {
   depends_on                       = [env0_template_project_assignment.assignment]
   name                             = "environment-auto-glob-${random_string.random.result}"
   project_id                       = env0_project.test_project.id
@@ -76,6 +85,16 @@ resource "env0_environment" "move_environment" {
   template_id         = env0_template.template.id
   prevent_auto_deploy = true
 }
+
+resource "env0_environment" "modify_template" {
+  depends_on          = [env0_template_project_assignment.assignment]
+  force_destroy       = true
+  name                = "environment-modify-template-${random_string.random.result}"
+  project_id          = env0_project.test_project.id
+  template_id         = var.second_run ? env0_template.template2.id : env0_template.template.id
+  prevent_auto_deploy = true
+}
+
 
 resource "env0_custom_role" "custom_role1" {
   name = "custom-role-${random_string.random.result}"

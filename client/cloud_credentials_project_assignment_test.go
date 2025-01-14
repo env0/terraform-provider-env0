@@ -15,7 +15,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 
 	Describe("AssignCloudCredentialsToProject", func() {
 		expectedResponse := CloudCredentialsProjectAssignment{
-			Id:           "assigment id",
+			Id:           "assignment id",
 			CredentialId: "credentialId",
 			ProjectId:    projectId,
 		}

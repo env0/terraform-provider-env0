@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -176,7 +175,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"template_id": {
 				Type:         schema.TypeString,
-				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable.\nImportant note: After the environment is created, this field cannot be modified.",
+				Description:  "the template id the environment is to be created from.\nImportant note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable. Please note that changing this attribute will require environment redeploy",
 				Optional:     true,
 				ExactlyOneOf: []string{"without_template_settings", "template_id"},
 			},
@@ -323,7 +322,7 @@ func resourceEnvironment() *schema.Resource {
 						},
 						"workspace": {
 							Type:        schema.TypeString,
-							Description: "sub environment workspace (overrides the configurtion in the yml file)",
+							Description: "sub environment workspace (overrides the configuration in the yml file)",
 							Optional:    true,
 						},
 						"configuration": {
@@ -382,13 +381,6 @@ func resourceEnvironment() *schema.Resource {
 				Optional:    true,
 			},
 		},
-		CustomizeDiff: customdiff.ValidateChange("template_id", func(ctx context.Context, oldValue, newValue, meta interface{}) error {
-			if oldValue != "" && oldValue != newValue {
-				return errors.New("template_id may not be modified, create a new environment instead")
-			}
-
-			return nil
-		}),
 	}
 }
 
@@ -736,7 +728,7 @@ func shouldDeploy(d *schema.ResourceData) bool {
 		}
 	}
 
-	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets")
+	return d.HasChanges("revision", "configuration", "sub_environment_configuration", "variable_sets", "template_id")
 }
 
 func shouldUpdate(d *schema.ResourceData) bool {
@@ -922,16 +914,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string) error {
-	waitInteval := time.Second * 10
+	waitInterval := time.Second * 10
 	timeout := time.Minute * 30
 
 	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and timeout to 10 seconds.
-		waitInteval = time.Second
+		waitInterval = time.Second
 		timeout = time.Second * 10
 	}
 
-	ticker := time.NewTicker(waitInteval) // When invoked - check the status.
-	timer := time.NewTimer(timeout)       // When invoked - timeout.
+	ticker := time.NewTicker(waitInterval) // When invoked - check the status.
+	timer := time.NewTimer(timeout)        // When invoked - timeout.
 	results := make(chan error)
 
 	go func() {

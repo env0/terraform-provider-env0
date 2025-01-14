@@ -2,6 +2,7 @@ package env0
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -144,4 +145,15 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 		// not supported.
 		return diag.Errorf("the following built-in role '%s' is not supported for this resource, must be one of %s", role, "["+strings.Join(supportedBuiltInRoles, ",")+"]")
 	}
+}
+
+func ValidateUrl(i interface{}, path cty.Path) diag.Diagnostics {
+	v := i.(string)
+	_, err := url.ParseRequestURI(v)
+
+	if err != nil {
+		return diag.Errorf("must be a valid URL: %v", err)
+	}
+
+	return nil
 }

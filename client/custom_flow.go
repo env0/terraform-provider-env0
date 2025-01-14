@@ -54,7 +54,7 @@ func (client *ApiClient) CustomFlowCreate(payload CustomFlowCreatePayload) (*Cus
 		return nil, err
 	}
 
-	payloadWithOrganzationId := struct {
+	payloadWithOrganizationId := struct {
 		OrganizationId string `json:"organizationId"`
 		CustomFlowCreatePayload
 	}{
@@ -63,7 +63,7 @@ func (client *ApiClient) CustomFlowCreate(payload CustomFlowCreatePayload) (*Cus
 	}
 
 	var result CustomFlow
-	if err := client.http.Post("/custom-flow", &payloadWithOrganzationId, &result); err != nil {
+	if err := client.http.Post("/custom-flow", &payloadWithOrganizationId, &result); err != nil {
 		return nil, err
 	}
 

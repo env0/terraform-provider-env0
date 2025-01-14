@@ -568,7 +568,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
-		t.Run("avoid modifying template id", func(t *testing.T) {
+		t.Run("redeploy on change in template id", func(t *testing.T) {
 			templateId := "template-id"
 			newTemplateId := "new-template-id"
 
@@ -579,6 +579,19 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				LatestDeploymentLog: client.DeploymentLog{
 					BlueprintId: templateId,
 				},
+			}
+
+			updatedEnvironment := client.Environment{
+				Id:        environment.Id,
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: newTemplateId,
+				},
+			}
+
+			deployRequest := client.DeployRequest{
+				BlueprintId: newTemplateId,
 			}
 
 			testCase := resource.TestCase{
@@ -604,8 +617,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 							"template_id":   newTemplateId,
 							"force_destroy": true,
 						}),
-						PlanOnly:    true,
-						ExpectError: regexp.MustCompile("template_id may not be modified, create a new environment instead"),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environment.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", newTemplateId),
+						),
 					},
 				},
 			}
@@ -625,6 +642,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(2).Return(nil, nil),
+					mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
+						Id: "deployment-id",
+					}, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(updatedEnvironment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
@@ -3069,8 +3092,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 
 	updatedSubEnvironment.Workspace = "workspace2"
 
-	subEnvrionmentWithId := subEnvironment
-	subEnvrionmentWithId.Id = workflowSubEnvironment.EnvironmentId
+	subEnvironmentWithId := subEnvironment
+	subEnvironmentWithId.Id = workflowSubEnvironment.EnvironmentId
 
 	environment := client.Environment{
 		Id:               "id",
@@ -3290,7 +3313,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariable}, nil),
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
-				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvrionmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
 				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: environment.Id,
 				}, nil),
