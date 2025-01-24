@@ -12,12 +12,6 @@ import (
 )
 
 func resourceModule() *schema.Resource {
-	vcsExactlyOneOf := []string{
-		"token_id",
-		"github_installation_id",
-		"bitbucket_client_key",
-	}
-
 	return &schema.Resource{
 		CreateContext: resourceModuleCreate,
 		ReadContext:   resourceModuleRead,
@@ -50,10 +44,10 @@ func resourceModule() *schema.Resource {
 				Optional:    true,
 			},
 			"token_id": {
-				Type:         schema.TypeString,
-				Description:  "the git token id to be used",
-				Optional:     true,
-				ExactlyOneOf: vcsExactlyOneOf,
+				Type:          schema.TypeString,
+				Description:   "the git token id to be used",
+				Optional:      true,
+				ConflictsWith: []string{"github_installation_id", "bitbucket_client_key"},
 			},
 			"token_name": {
 				Type:         schema.TypeString,
@@ -62,16 +56,16 @@ func resourceModule() *schema.Resource {
 				RequiredWith: []string{"token_id"},
 			},
 			"github_installation_id": {
-				Type:         schema.TypeInt,
-				Description:  "the env0 application installation id on the relevant Github repository",
-				Optional:     true,
-				ExactlyOneOf: vcsExactlyOneOf,
+				Type:          schema.TypeInt,
+				Description:   "the env0 application installation id on the relevant Github repository",
+				Optional:      true,
+				ConflictsWith: []string{"token_id", "bitbucket_client_key"},
 			},
 			"bitbucket_client_key": {
-				Type:         schema.TypeString,
-				Description:  "the client key used for integration with Bitbucket",
-				Optional:     true,
-				ExactlyOneOf: vcsExactlyOneOf,
+				Type:          schema.TypeString,
+				Description:   "the client key used for integration with Bitbucket",
+				Optional:      true,
+				ConflictsWith: []string{"token_id", "github_installation_id"},
 			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
@@ -119,6 +113,30 @@ func resourceModule() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"is_gitlab": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with GitLab",
+				Optional:    true,
+				Default:     false,
+			},
+			"is_bitbucket_server": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with Bitbucket Server",
+				Optional:    true,
+				Default:     false,
+			},
+			"is_github_enterprise": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with GitHub Enterprise",
+				Optional:    true,
+				Default:     false,
+			},
+			"is_gitlab_enterprise": {
+				Type:        schema.TypeBool,
+				Description: "true if this module integrates with GitLab Enterprise",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -151,6 +169,13 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 	module, err := apiClient.Module(d.Id())
 	if err != nil {
 		return ResourceGetFailure(ctx, "module", d, err)
+	}
+
+	if module.IsDeleted {
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		d.SetId("")
+
+		return nil
 	}
 
 	if err := writeResourceData(module, d); err != nil {
@@ -200,7 +225,7 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 	var foundModules []client.Module
 
 	for _, module := range modules {
-		if module.ModuleName == name {
+		if !module.IsDeleted && module.ModuleName == name {
 			foundModules = append(foundModules, module)
 		}
 	}

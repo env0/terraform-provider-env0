@@ -16,6 +16,9 @@ type Module struct {
 	GithubInstallationId  *int           `json:"githubInstallationId" tfschema:",omitempty"`
 	BitbucketClientKey    *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGitlab              bool           `json:"isGitLab"`
+	IsBitbucketServer     bool           `json:"isBitbucketServer"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys"`
 	Type                  string         `json:"type"`
 	Id                    string         `json:"id"`
@@ -43,7 +46,10 @@ type ModuleCreatePayload struct {
 	TokenName             string         `json:"tokenName,omitempty"`
 	GithubInstallationId  *int           `json:"githubInstallationId,omitempty"`
 	BitbucketClientKey    string         `json:"bitbucketClientKey,omitempty"`
-	IsGitlab              *bool          `json:"isGitLab,omitempty"`
+	IsGitlab              bool           `json:"isGitLab"`
+	IsBitbucketServer     bool           `json:"isBitbucketServer"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys,omitempty"`
 	Path                  string         `json:"path,omitempty"`
 	TagPrefix             string         `json:"tagPrefix,omitempty"`
@@ -70,6 +76,9 @@ type ModuleUpdatePayload struct {
 	GithubInstallationId  *int           `json:"githubInstallationId"`
 	BitbucketClientKey    string         `json:"bitbucketClientKey"`
 	IsGitlab              bool           `json:"isGitLab"`
+	IsBitbucketServer     bool           `json:"isBitbucketServer"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys"`
 	Path                  string         `json:"path"`
 	TagPrefix             string         `json:"tagPrefix,omitempty"`

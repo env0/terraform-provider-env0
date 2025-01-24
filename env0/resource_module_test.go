@@ -493,4 +493,92 @@ func TestUnitModuleResource(t *testing.T) {
 			mock.EXPECT().ModuleDelete(module.Id).Times(1)
 		})
 	})
+
+	t.Run("Import By Name - Module Is Deleted", func(t *testing.T) {
+		deletedModule := module
+		deletedModule.IsDeleted = true
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
+					}),
+				},
+				{
+					ResourceName:      resourceNameImport,
+					ImportState:       true,
+					ImportStateId:     deletedModule.ModuleName,
+					ImportStateVerify: false,
+					ExpectError:       regexp.MustCompile("module with name .* not found"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(gomock.Any()).Times(1).Return(&module, nil)
+			mock.EXPECT().Module(module.Id).Times(1).Return(&module, nil)
+			mock.EXPECT().Modules().Times(1).Return([]client.Module{deletedModule}, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+		})
+	})
+
+	t.Run("Detect Drift When Module Is Deleted", func(t *testing.T) {
+		deletedModule := module
+		deletedModule.IsDeleted = true
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
+					}),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
+					}),
+					ExpectNonEmptyPlan: true,
+					PlanOnly:           true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(gomock.Any()).Times(1).Return(&module, nil)
+			mock.EXPECT().Module(module.Id).Times(1).Return(&module, nil)
+			mock.EXPECT().Module(module.Id).Times(2).Return(&deletedModule, nil)
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+		})
+	})
 }
