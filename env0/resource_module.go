@@ -14,11 +14,13 @@ import (
 func resourceModule() *schema.Resource {
 	vcsTypeConflicts := func(fieldName string, allFields []string) []string {
 		conflicts := make([]string, 0, len(allFields)-1)
+
 		for _, field := range allFields {
 			if field != fieldName {
 				conflicts = append(conflicts, field)
 			}
 		}
+
 		return conflicts
 	}
 
