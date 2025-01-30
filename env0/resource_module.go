@@ -12,6 +12,24 @@ import (
 )
 
 func resourceModule() *schema.Resource {
+	vcsTypeConflicts := func(fieldName string, allFields []string) []string {
+		conflicts := make([]string, 0, len(allFields)-1)
+		for _, field := range allFields {
+			if field != fieldName {
+				conflicts = append(conflicts, field)
+			}
+		}
+		return conflicts
+	}
+
+	vcsTypes := []string{
+		"is_azure_devops",
+		"is_gitlab",
+		"is_bitbucket_server",
+		"is_github_enterprise",
+		"is_gitlab_enterprise",
+	}
+
 	return &schema.Resource{
 		CreateContext: resourceModuleCreate,
 		ReadContext:   resourceModuleRead,
@@ -108,34 +126,39 @@ func resourceModule() *schema.Resource {
 				ValidateDiagFunc: NewOpenTofuVersionValidator(),
 			},
 			"is_azure_devops": {
-				Type:        schema.TypeBool,
-				Description: "true if this module integrates with azure dev ops",
-				Optional:    true,
-				Default:     false,
+				Type:          schema.TypeBool,
+				Description:   "true if this module integrates with azure dev ops",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: vcsTypeConflicts("is_azure_devops", vcsTypes),
 			},
 			"is_gitlab": {
-				Type:        schema.TypeBool,
-				Description: "true if this module integrates with GitLab",
-				Optional:    true,
-				Default:     false,
+				Type:          schema.TypeBool,
+				Description:   "true if this module integrates with GitLab",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: vcsTypeConflicts("is_gitlab", vcsTypes),
 			},
 			"is_bitbucket_server": {
-				Type:        schema.TypeBool,
-				Description: "true if this module integrates with Bitbucket Server",
-				Optional:    true,
-				Default:     false,
+				Type:          schema.TypeBool,
+				Description:   "true if this module integrates with Bitbucket Server",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: vcsTypeConflicts("is_bitbucket_server", vcsTypes),
 			},
 			"is_github_enterprise": {
-				Type:        schema.TypeBool,
-				Description: "true if this module integrates with GitHub Enterprise",
-				Optional:    true,
-				Default:     false,
+				Type:          schema.TypeBool,
+				Description:   "true if this module integrates with GitHub Enterprise",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: vcsTypeConflicts("is_github_enterprise", vcsTypes),
 			},
 			"is_gitlab_enterprise": {
-				Type:        schema.TypeBool,
-				Description: "true if this module integrates with GitLab Enterprise",
-				Optional:    true,
-				Default:     false,
+				Type:          schema.TypeBool,
+				Description:   "true if this module integrates with GitLab Enterprise",
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: vcsTypeConflicts("is_gitlab_enterprise", vcsTypes),
 			},
 		},
 	}
