@@ -37,6 +37,10 @@ resource "env0_module" "example" {
 - `description` (String) description of the module
 - `github_installation_id` (Number) the env0 application installation id on the relevant Github repository
 - `is_azure_devops` (Boolean) true if this module integrates with azure dev ops
+- `is_bitbucket_server` (Boolean) true if this module integrates with Bitbucket Server
+- `is_github_enterprise` (Boolean) true if this module integrates with GitHub Enterprise
+- `is_gitlab` (Boolean) true if this module integrates with GitLab
+- `is_gitlab_enterprise` (Boolean) true if this module integrates with GitLab Enterprise
 - `module_test_enabled` (Boolean) set to 'true' to enable module test (defaults to 'false')
 - `opentofu_version` (String) the opentofu version to use, Can only be set if 'module_test_enabled' is enabled
 - `path` (String) the folder in the repository to create the module from
