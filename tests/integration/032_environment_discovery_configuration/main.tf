@@ -25,6 +25,7 @@ resource "env0_environment_discovery_configuration" "example" {
   opentofu_version       = "1.6.2"
   repository             = data.env0_template.github_template.repository
   github_installation_id = data.env0_template.github_template.github_installation_id
+  create_new_environments_from_pull_requests = true
 
   depends_on = [env0_template_project_assignment.assignment]
 }
