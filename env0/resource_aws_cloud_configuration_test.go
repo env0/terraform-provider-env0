@@ -21,9 +21,10 @@ func TestUnitAwsCloudConfigurationResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	awsConfig := client.AWSCloudAccountConfiguration{
-		AccountId:  "acc1",
-		BucketName: "b1",
-		Regions:    []string{"us-west-1", "us-east-1000"},
+		AccountId:                   "acc1",
+		BucketName:                  "b1",
+		Regions:                     []string{"us-west-1", "us-east-1000"},
+		ShouldPrefixUnderLogsFolder: true,
 	}
 
 	updatedAwsConfig := client.AWSCloudAccountConfiguration{
@@ -67,10 +68,11 @@ func TestUnitAwsCloudConfigurationResource(t *testing.T) {
 		awsConfig := cloudConfig.Configuration.(*client.AWSCloudAccountConfiguration)
 
 		fields := map[string]interface{}{
-			"name":        cloudConfig.Name,
-			"account_id":  awsConfig.AccountId,
-			"bucket_name": awsConfig.BucketName,
-			"regions":     awsConfig.Regions,
+			"name":                            cloudConfig.Name,
+			"account_id":                      awsConfig.AccountId,
+			"bucket_name":                     awsConfig.BucketName,
+			"regions":                         awsConfig.Regions,
+			"should_prefix_under_logs_folder": awsConfig.ShouldPrefixUnderLogsFolder,
 		}
 
 		if awsConfig.Prefix != "" {
@@ -92,6 +94,7 @@ func TestUnitAwsCloudConfigurationResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "regions.0", awsConfig.Regions[0]),
 						resource.TestCheckResourceAttr(accessor, "regions.1", awsConfig.Regions[1]),
 						resource.TestCheckResourceAttr(accessor, "health", "false"),
+						resource.TestCheckResourceAttr(accessor, "should_prefix_under_logs_folder", "true"),
 					),
 				},
 				{
@@ -104,6 +107,7 @@ func TestUnitAwsCloudConfigurationResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "regions.1", updatedAwsConfig.Regions[1]),
 						resource.TestCheckResourceAttr(accessor, "prefix", updatedAwsConfig.Prefix),
 						resource.TestCheckResourceAttr(accessor, "health", "true"),
+						resource.TestCheckResourceAttr(accessor, "should_prefix_under_logs_folder", "false"),
 					),
 				},
 			},
