@@ -54,11 +54,12 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
 
 - `auto_deploy_by_custom_glob` (String) If specified, deploy/plan on changes matching the given pattern (glob). Otherwise, deploy on template folder changes only
 - `bitbucket_client_key` (String) bitbucket client
+- `create_new_environments_from_pull_requests` (Boolean) create new environments from pull requests (default: false)
 - `environment_placement` (String) the environment placement strategy with the project (default: 'topProject')
 - `github_installation_id` (Number) github repository id
 - `gitlab_project_id` (Number, Deprecated) gitlab project id (deprecated)
 - `is_azure_devops` (Boolean) set to true if azure devops is used
-- `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all'
+- `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all' (default: false)
 - `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.
 - `retries_on_deploy` (Number) number of times to retry when deploy fails (between 1 and 3)
 - `retries_on_destroy` (Number) number of times to retry when destroy fails (between 1 and 3)
