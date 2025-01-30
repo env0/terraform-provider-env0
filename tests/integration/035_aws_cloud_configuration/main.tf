@@ -11,4 +11,5 @@ resource "env0_aws_cloud_configuration" "aws_cloud_configuration" {
   account_id  = var.second_run ? "012345678901" : "242345678901"
   bucket_name = var.second_run ? "my_bucket_name2" : "my_bucket_name1"
   regions     = var.second_run ? ["us-west-2"] : ["us-east-1", "us-west-2"]
+  should_prefix_under_logs_folder = var.second_run ? true : false
 }

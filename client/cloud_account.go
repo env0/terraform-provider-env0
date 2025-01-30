@@ -14,10 +14,11 @@ type CloudAccountUpdatePayload struct {
 }
 
 type AWSCloudAccountConfiguration struct {
-	AccountId  string   `json:"accountId"`
-	BucketName string   `json:"bucketName"`
-	Prefix     string   `json:"prefix,omitempty"`
-	Regions    []string `json:"regions"`
+	AccountId                   string   `json:"accountId"`
+	BucketName                  string   `json:"bucketName"`
+	Prefix                      string   `json:"prefix,omitempty"`
+	Regions                     []string `json:"regions"`
+	ShouldPrefixUnderLogsFolder bool     `json:"shouldPrefixUnderLogsFolder"`
 }
 
 type CloudAccount struct {
