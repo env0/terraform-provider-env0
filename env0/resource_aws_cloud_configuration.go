@@ -53,6 +53,12 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 				Computed:    true,
 				Description: "an indicator if the configuration is valid",
 			},
+			"should_prefix_under_logs_folder": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If 'true' than the prefix will be under 'AWSLogs' folder (default: false)",
+			},
 		},
 	}
 }
