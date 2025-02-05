@@ -34,6 +34,7 @@ resource "env0_aws_cloud_configuration" "example" {
 ### Optional
 
 - `prefix` (String) an optional bucket prefix (folder)
+- `should_prefix_under_logs_folder` (Boolean) If 'true' than the prefix will be under 'AWSLogs' folder (default: false)
 
 ### Read-Only
 
