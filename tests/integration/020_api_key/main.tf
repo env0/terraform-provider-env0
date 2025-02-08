@@ -76,3 +76,28 @@ resource "env0_user_project_assignment" "api_key_project_assignment_custom_role"
   custom_role_id = var.second_run ? null : env0_custom_role.custom_role.id
   role           = var.second_run ? "Viewer" : null
 }
+
+resource "env0_api_key" "test_api_key_with_permissions" {
+  name              = "api-key-with-permissions-${random_string.random.result}"
+  organization_role = "User"
+
+  project_permissions {
+    project_id   = env0_project.project_resource.id
+    project_role = "Deployer"
+  }
+
+  project_permissions {
+    project_id   = env0_project.project_resource2.id
+    project_role = "Viewer"
+  }
+}
+
+resource "env0_api_key" "test_api_key_custom_role" {
+  name              = "api-key-custom-role-${random_string.random.result}"
+  organization_role = env0_custom_role.custom_role.id
+
+  project_permissions {
+    project_id   = env0_project.project_resource.id
+    project_role = "Planner"
+  }
+}

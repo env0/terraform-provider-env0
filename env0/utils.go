@@ -82,7 +82,11 @@ func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceD
 		}
 	}
 
-	if sval, ok := dval.([]interface{}); ok && len(sval) == 0 {
+	if s, ok := dval.(*schema.Set); ok && s.Len() == 0 {
+		return nil
+	}
+
+	if s, ok := dval.([]interface{}); ok && len(s) == 0 {
 		return nil
 	}
 
@@ -154,7 +158,14 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
 		case reflect.Slice:
-			if err := readResourceDataSliceEx(field, dval.([]interface{})); err != nil {
+			var sliceData []interface{}
+			if s, ok := dval.(*schema.Set); ok {
+				sliceData = s.List()
+			} else {
+				sliceData = dval.([]interface{})
+			}
+
+			if err := readResourceDataSliceEx(field, sliceData); err != nil {
 				return err
 			}
 		case reflect.String, reflect.Bool, reflect.Int:
