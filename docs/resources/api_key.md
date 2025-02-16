@@ -13,27 +13,85 @@ description: |-
 ## Example Usage
 
 ```terraform
-resource "env0_api_key" "api_key_example" {
-  name = "api-key-example"
+# Example 1: Project-level Permissions
+# Using project_permissions block within the API key resource
+
+# Example: Admin API Key (default)
+resource "env0_api_key" "admin_key" {
+  name = "admin-api-key"
 }
 
-resource "env0_project" "project_resource" {
-  name = "project-resource"
+# Example: User API Key with project permissions
+resource "env0_project" "project" {
+  name = "demo-project"
 }
 
-resource "env0_user_project_assignment" "api_key_project_assignment_example" {
-  user_id    = env0_api_key.api_key_example.id
-  project_id = env0_project.project_resource.id
-  role       = "Viewer"
+resource "env0_api_key" "user_key_with_project" {
+  name              = "user-api-key-project"
+  organization_role = "User"
+
+  project_permissions {
+    project_id   = env0_project.project.id
+    project_role = "Deployer"
+  }
+}
+
+# Example 2: Team Assignment
+# Assign API key to teams for team-based access control
+
+resource "env0_api_key" "team_api_key" {
+  name = "team-api-key"
 }
 
 resource "env0_team" "team_resource" {
   name = "team-resource"
 }
 
-resource "env0_user_team_assignment" "api_key_team_assignment_example" {
-  user_id = env0_api_key.api_key_example.id
+resource "env0_user_team_assignment" "api_key_team_assignment" {
+  user_id = env0_api_key.team_api_key.id
   team_id = env0_team.team_resource.id
+}
+
+# Example 3: Combined Approach
+# Using both project permissions and team assignment
+
+resource "env0_api_key" "combined_key" {
+  name              = "combined-access-key"
+  organization_role = "User"
+
+  project_permissions {
+    project_id   = env0_project.project.id
+    project_role = "Viewer"
+  }
+}
+
+resource "env0_user_team_assignment" "combined_team_assignment" {
+  user_id = env0_api_key.combined_key.id
+  team_id = env0_team.team_resource.id
+}
+
+# Example 4: API Key with Custom Role
+# Create a custom role and assign it to an API key
+
+resource "env0_custom_role" "deployer_role" {
+  name = "custom-deployer"
+  permissions = [
+    "VIEW_ORGANIZATION",
+    "VIEW_PROJECT",
+    "VIEW_ENVIRONMENT",
+    "RUN_PLAN",
+    "RUN_APPLY"
+  ]
+}
+
+resource "env0_api_key" "custom_role_key" {
+  name              = "custom-role-api-key"
+  organization_role = env0_custom_role.deployer_role.id
+
+  project_permissions {
+    project_id   = env0_project.project.id
+    project_role = "Deployer"
+  }
 }
 ```
 
@@ -47,13 +105,22 @@ resource "env0_user_team_assignment" "api_key_team_assignment_example" {
 ### Optional
 
 - `omit_api_key_secret` (Boolean) if set to 'true' will omit the api_key_secret from the state. This would mean that the api_key_secret cannot be used
-- `organization_role` (String) the api key type. 'Admin' or 'User'. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys
+- `organization_role` (String) the api key type. 'Admin', 'User' or a custom role id. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys
+- `project_permissions` (Block Set) Project-specific permissions. Only valid when organization_role is 'User' or a custom role id (see [below for nested schema](#nestedblock--project_permissions))
 
 ### Read-Only
 
 - `api_key_id` (String) the api key id
 - `api_key_secret` (String, Sensitive) the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--project_permissions"></a>
+### Nested Schema for `project_permissions`
+
+Required:
+
+- `project_id` (String) The project ID to assign permissions to
+- `project_role` (String) The role for this project. Must be one of: Planner, Viewer, Deployer, Admin
 
 ## Import
 
