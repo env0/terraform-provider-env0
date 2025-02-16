@@ -7,9 +7,15 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+const (
+	organizationRoleAdmin = "Admin"
+	organizationRoleUser  = "User"
 )
 
 func resourceApiKey() *schema.Resource {
@@ -28,24 +34,57 @@ func resourceApiKey() *schema.Resource {
 				ForceNew:    true,
 			},
 			"organization_role": {
-				Type:             schema.TypeString,
-				Description:      "the api key type. 'Admin' or 'User'. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys",
-				Default:          "Admin",
-				Optional:         true,
-				ForceNew:         true,
-				ValidateDiagFunc: NewStringInValidator([]string{"Admin", "User"}),
-			},
-			"api_key_secret": {
 				Type:        schema.TypeString,
-				Description: "the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'",
-				Computed:    true,
-				Sensitive:   true,
+				Description: "the api key type. 'Admin', 'User' or a custom role id. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys",
+				Default:     organizationRoleAdmin,
+				Optional:    true,
+				ForceNew:    true,
+				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+					val := i.(string)
+					if val != organizationRoleAdmin && val != organizationRoleUser {
+						_, err := uuid.Parse(val)
+						if err != nil {
+							return diag.Errorf("Organization role must be either 'Admin', 'User' or a custom role id, got: %s", val)
+						}
+					}
+
+					return nil
+				},
+			},
+			"project_permissions": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Project-specific permissions. Only valid when organization_role is 'User' or a custom role id",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"project_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: "The project ID to assign permissions to",
+						},
+						"project_role": {
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							Description:      "The role for this project. Must be one of: Planner, Viewer, Deployer, Admin",
+							ValidateDiagFunc: NewStringInValidator([]string{"Planner", "Viewer", "Deployer", "Admin"}),
+						},
+					},
+				},
 			},
 			"omit_api_key_secret": {
 				Type:        schema.TypeBool,
 				Description: "if set to 'true' will omit the api_key_secret from the state. This would mean that the api_key_secret cannot be used",
 				Optional:    true,
 				ForceNew:    true,
+			},
+			"api_key_secret": {
+				Type:        schema.TypeString,
+				Description: "the api key secret. This attribute is not computed for imported resources. Note that this will be written to the state file. To omit the secret: set 'omit_api_key_secret' to 'true'",
+				Computed:    true,
+				Sensitive:   true,
 			},
 			"api_key_id": {
 				Type:        schema.TypeString,
@@ -59,13 +98,18 @@ func resourceApiKey() *schema.Resource {
 func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	var payload client.ApiKeyCreatePayload
-	if err := readResourceData(&payload, d); err != nil {
-		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	organizationRole := d.Get("organization_role").(string)
+	if organizationRole == organizationRoleAdmin && len(d.Get("project_permissions").(*schema.Set).List()) > 0 {
+		return diag.Errorf("project_permissions cannot be set when organization_role is Admin")
 	}
 
-	organizationRole := d.Get("organization_role").(string)
-	payload.Permissions.OrganizationRole = organizationRole
+	var payload client.ApiKeyCreatePayload
+
+	payload.Name = d.Get("name").(string)
+
+	if err := readResourceData(&payload.Permissions, d); err != nil {
+		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
 
 	apiKey, err := apiClient.ApiKeyCreate(payload)
 	if err != nil {

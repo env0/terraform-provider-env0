@@ -13,8 +13,14 @@ type ApiKey struct {
 	CreatedByUser    User   `json:"createdByUser"`
 }
 
+type ProjectPermission struct {
+	ProjectId   string `json:"projectId"`
+	ProjectRole string `json:"projectRole"`
+}
+
 type ApiKeyPermissions struct {
-	OrganizationRole string `json:"organizationRole"`
+	OrganizationRole   string              `json:"organizationRole"`
+	ProjectPermissions []ProjectPermission `json:"projectPermissions,omitempty"`
 }
 
 type ApiKeyCreatePayload struct {

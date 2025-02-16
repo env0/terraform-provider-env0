@@ -45,6 +45,25 @@ func TestUnitApiKeyResource(t *testing.T) {
 		OrganizationRole: "Admin",
 	}
 
+	apiKeyWithProjectPermissions := client.ApiKey{
+		Id:               uuid.NewString(),
+		Name:             "name-with-permissions",
+		ApiKeyId:         "keyid",
+		ApiKeySecret:     "keysecret",
+		OrganizationId:   "org",
+		OrganizationRole: "User",
+	}
+
+	customRoleId := uuid.NewString()
+	apiKeyWithCustomRole := client.ApiKey{
+		Id:               uuid.NewString(),
+		Name:             "name-custom-role",
+		ApiKeyId:         "keyid",
+		ApiKeySecret:     "keysecret",
+		OrganizationId:   "org",
+		OrganizationRole: customRoleId,
+	}
+
 	t.Run("Success - Admin", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -256,6 +275,114 @@ func TestUnitApiKeyResource(t *testing.T) {
 			}).Times(1).Return(&updatedApiKey, nil)
 			mock.EXPECT().ApiKeys().Times(2).Return([]client.ApiKey{updatedApiKey}, nil)
 			mock.EXPECT().ApiKeyDelete(updatedApiKey.Id).Times(1)
+		})
+	})
+
+	t.Run("Success - User with Project Permissions", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+                        resource "%s" "%s" {
+                            name              = "%s"
+                            organization_role = "%s"
+                            
+                            project_permissions {
+                                project_id   = "proj1"
+                                project_role = "Viewer"
+                            }
+                        }
+                    `, resourceType, resourceName, apiKeyWithProjectPermissions.Name, apiKeyWithProjectPermissions.OrganizationRole),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", apiKeyWithProjectPermissions.Id),
+						resource.TestCheckResourceAttr(accessor, "name", apiKeyWithProjectPermissions.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", apiKeyWithProjectPermissions.OrganizationRole),
+						resource.TestCheckResourceAttr(accessor, "project_permissions.#", "1"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
+					Name: apiKeyWithProjectPermissions.Name,
+					Permissions: client.ApiKeyPermissions{
+						OrganizationRole: apiKeyWithProjectPermissions.OrganizationRole,
+						ProjectPermissions: []client.ProjectPermission{
+							{ProjectId: "proj1", ProjectRole: "Viewer"},
+						},
+					},
+				}).Times(1).Return(&apiKeyWithProjectPermissions, nil),
+				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{apiKeyWithProjectPermissions}, nil),
+				mock.EXPECT().ApiKeyDelete(apiKeyWithProjectPermissions.Id).Times(1),
+			)
+		})
+	})
+
+	t.Run("Success - Custom Role with Project Permissions", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+                        resource "%s" "%s" {
+                            name              = "%s"
+                            organization_role = "%s"
+                            
+                            project_permissions {
+                                project_id   = "proj1"
+                                project_role = "Planner"
+                            }
+                        }
+                    `, resourceType, resourceName, apiKeyWithCustomRole.Name, customRoleId),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", apiKeyWithCustomRole.Id),
+						resource.TestCheckResourceAttr(accessor, "name", apiKeyWithCustomRole.Name),
+						resource.TestCheckResourceAttr(accessor, "organization_role", customRoleId),
+						resource.TestCheckResourceAttr(accessor, "project_permissions.#", "1"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApiKeyCreate(client.ApiKeyCreatePayload{
+					Name: apiKeyWithCustomRole.Name,
+					Permissions: client.ApiKeyPermissions{
+						OrganizationRole: customRoleId,
+						ProjectPermissions: []client.ProjectPermission{
+							{ProjectId: "proj1", ProjectRole: "Planner"},
+						},
+					},
+				}).Times(1).Return(&apiKeyWithCustomRole, nil),
+				mock.EXPECT().ApiKeys().Times(1).Return([]client.ApiKey{apiKeyWithCustomRole}, nil),
+				mock.EXPECT().ApiKeyDelete(apiKeyWithCustomRole.Id).Times(1),
+			)
+		})
+	})
+
+	t.Run("Failure - Admin with Project Permissions", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fmt.Sprintf(`
+                        resource "%s" "%s" {
+                            name = "%s"
+                            
+                            project_permissions {
+                                project_id   = "proj1"
+                                project_role = "Viewer"
+                            }
+                        }
+                    `, resourceType, resourceName, apiKey.Name),
+					ExpectError: regexp.MustCompile("project_permissions cannot be set when organization_role is Admin"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// No API calls expected since validation fails
 		})
 	})
 }
