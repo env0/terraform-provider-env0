@@ -120,6 +120,7 @@ func (client *ApiClient) OrganizationCreate(payload OrganizationCreatePayload) (
 	if err := client.http.Post("/organizations", payload, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -128,6 +129,7 @@ func (client *ApiClient) OrganizationUpdate(id string, payload OrganizationUpdat
 	if err := client.http.Put("/organizations/"+id, payload, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -136,5 +138,6 @@ func (client *ApiClient) OrganizationById(id string) (*Organization, error) {
 	if err := client.http.Get("/organizations/"+id, nil, &result); err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
