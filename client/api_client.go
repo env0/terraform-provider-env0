@@ -23,6 +23,9 @@ type ApiClientInterface interface {
 	OrganizationId() (string, error)
 	OrganizationPolicyUpdate(OrganizationPolicyUpdatePayload) (*Organization, error)
 	OrganizationUserUpdateRole(userId string, roleId string) error
+	OrganizationCreate(payload OrganizationCreatePayload) (*Organization, error)
+	OrganizationUpdate(id string, payload OrganizationUpdatePayload) (*Organization, error)
+	OrganizationById(id string) (*Organization, error)
 	OidcSub() (string, error)
 	Policy(projectId string) (Policy, error)
 	PolicyUpdate(payload PolicyUpdatePayload) (Policy, error)
