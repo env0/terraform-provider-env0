@@ -19,6 +19,8 @@ func getCloudConfigurationFromSchema(d *schema.ResourceData, provider string) (i
 	switch provider {
 	case "AWS":
 		configuration = &client.AWSCloudAccountConfiguration{}
+	case "AzureLAW":
+		configuration = &client.AzureCloudAccountConfiguration{}
 	default:
 		return nil, fmt.Errorf("unhandled provider: %s", provider)
 	}
@@ -69,6 +71,8 @@ func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string
 	switch cloudAccount.Provider {
 	case "AWS":
 		configuration = &client.AWSCloudAccountConfiguration{}
+	case "AzureLAW":
+		configuration = &client.AzureCloudAccountConfiguration{}
 	default:
 		return nil, fmt.Errorf("unhandled provider: %s", cloudAccount.Provider)
 	}
