@@ -181,7 +181,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"workspace": {
 				Type:        schema.TypeString,
-				Description: "the terraform workspace of the environment",
+				Description: "the terraform workspace name of the environment",
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
