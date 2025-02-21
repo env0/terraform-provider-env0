@@ -24,3 +24,5 @@ tf
 
 # macosx
 .DS_Store
+
+test/
