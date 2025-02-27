@@ -106,7 +106,6 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_github_installation_id":    dataGithubInstallationId(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"env0_organization":                              resourceOrganization(),
 				"env0_project":                                   resourceProject(),
 				"env0_project_policy":                            resourceProjectPolicy(),
 				"env0_configuration_variable":                    resourceConfigurationVariable(),

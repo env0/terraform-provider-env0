@@ -1400,36 +1400,6 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
-// OrganizationById mocks base method.
-func (m *MockApiClientInterface) OrganizationById(id string) (*Organization, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OrganizationById", id)
-	ret0, _ := ret[0].(*Organization)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// OrganizationById indicates an expected call of OrganizationById.
-func (mr *MockApiClientInterfaceMockRecorder) OrganizationById(id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationById", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationById), id)
-}
-
-// OrganizationCreate mocks base method.
-func (m *MockApiClientInterface) OrganizationCreate(payload OrganizationCreatePayload) (*Organization, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OrganizationCreate", payload)
-	ret0, _ := ret[0].(*Organization)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// OrganizationCreate indicates an expected call of OrganizationCreate.
-func (mr *MockApiClientInterfaceMockRecorder) OrganizationCreate(payload any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationCreate), payload)
-}
-
 // OrganizationId mocks base method.
 func (m *MockApiClientInterface) OrganizationId() (string, error) {
 	m.ctrl.T.Helper()
@@ -1458,21 +1428,6 @@ func (m *MockApiClientInterface) OrganizationPolicyUpdate(arg0 OrganizationPolic
 func (mr *MockApiClientInterfaceMockRecorder) OrganizationPolicyUpdate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationPolicyUpdate), arg0)
-}
-
-// OrganizationUpdate mocks base method.
-func (m *MockApiClientInterface) OrganizationUpdate(id string, payload OrganizationUpdatePayload) (*Organization, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OrganizationUpdate", id, payload)
-	ret0, _ := ret[0].(*Organization)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// OrganizationUpdate indicates an expected call of OrganizationUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) OrganizationUpdate(id, payload any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationUpdate), id, payload)
 }
 
 // OrganizationUserUpdateRole mocks base method.
