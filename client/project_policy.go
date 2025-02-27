@@ -19,6 +19,7 @@ type Policy struct {
 	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
 	DriftDetectionCron          string  `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
+	AutoDriftRemediation        string  `json:"autoDriftRemediation"`
 	OutputsAsInputsEnabled      bool    `json:"outputsAsInputsEnabled"`
 }
 
@@ -38,6 +39,7 @@ type PolicyUpdatePayload struct {
 	ForceRemoteBackend          bool   `json:"forceRemoteBackend"`
 	DriftDetectionCron          string `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool   `json:"driftDetectionEnabled"`
+	AutoDriftRemediation        string `json:"autoDriftRemediation,omitempty"`
 	VcsPrCommentsEnabledDefault bool   `json:"vcsPrCommentsEnabledDefault"`
 	OutputsAsInputsEnabled      bool   `json:"outputsAsInputsEnabled"`
 }

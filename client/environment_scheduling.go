@@ -7,8 +7,9 @@ import (
 )
 
 type EnvironmentSchedulingExpression struct {
-	Cron    string `json:"cron,omitempty"`
-	Enabled bool   `json:"enabled"`
+	Cron                 string `json:"cron,omitempty"`
+	Enabled              bool   `json:"enabled"`
+	AutoDriftRemediation string `json:"autoDriftRemediation,omitempty"`
 }
 
 func (e *EnvironmentSchedulingExpression) ReadResourceData(fieldName string, d *schema.ResourceData) error {

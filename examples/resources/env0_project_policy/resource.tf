@@ -11,4 +11,6 @@ resource "env0_project_policy" "example" {
   skip_apply_when_plan_is_empty = true
   disable_destroy_environments  = true
   skip_redundant_deployments    = true
+  drift_detection_cron          = "0 4 * * *"  # Run drift detection daily at 4 AM
+  auto_drift_remediation        = "CODE_TO_CLOUD"  # Optional, defaults to "DISABLED"
 }

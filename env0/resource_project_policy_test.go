@@ -30,6 +30,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		ForceRemoteBackend:          true,
 		DriftDetectionCron:          "0 4 * * *",
 		DriftDetectionEnabled:       true,
+		AutoDriftRemediation:        "CODE_TO_CLOUD",
 		VcsPrCommentsEnabledDefault: true,
 		OutputsAsInputsEnabled:      true,
 	}
@@ -48,6 +49,9 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		MaxTtl:                     nil,
 		DefaultTtl:                 stringPtr("7-h"),
 		ForceRemoteBackend:         false,
+		DriftDetectionCron:         "",
+		DriftDetectionEnabled:      false,
+		AutoDriftRemediation:       "DISABLED",
 	}
 
 	resetPolicy := client.Policy{
@@ -72,6 +76,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						"continuous_deployment_default":   policy.ContinuousDeploymentDefault,
 						"force_remote_backend":            policy.ForceRemoteBackend,
 						"drift_detection_cron":            policy.DriftDetectionCron,
+						"auto_drift_remediation":          policy.AutoDriftRemediation,
 						"vcs_pr_comments_enabled_default": policy.VcsPrCommentsEnabledDefault,
 						"outputs_as_inputs_enabled":       policy.OutputsAsInputsEnabled,
 					}),
@@ -90,6 +95,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "default_ttl", "inherit"),
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(policy.ForceRemoteBackend)),
 						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", policy.DriftDetectionCron),
+						resource.TestCheckResourceAttr(accessor, "auto_drift_remediation", policy.AutoDriftRemediation),
 						resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled_default", strconv.FormatBool(policy.VcsPrCommentsEnabledDefault)),
 						resource.TestCheckResourceAttr(accessor, "outputs_as_inputs_enabled", strconv.FormatBool(policy.OutputsAsInputsEnabled)),
 					),
@@ -104,6 +110,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						"skip_redundant_deployments":    updatedPolicy.SkipRedundantDeployments,
 						"max_ttl":                       "Infinite",
 						"default_ttl":                   *updatedPolicy.DefaultTtl,
+						"auto_drift_remediation":        updatedPolicy.AutoDriftRemediation,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "project_id", updatedPolicy.ProjectId),
@@ -118,6 +125,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "default_ttl", *updatedPolicy.DefaultTtl),
 						resource.TestCheckResourceAttr(accessor, "force_remote_backend", strconv.FormatBool(updatedPolicy.ForceRemoteBackend)),
 						resource.TestCheckResourceAttr(accessor, "drift_detection_cron", updatedPolicy.DriftDetectionCron),
+						resource.TestCheckResourceAttr(accessor, "auto_drift_remediation", updatedPolicy.AutoDriftRemediation),
 						resource.TestCheckResourceAttr(accessor, "vcs_pr_comments_enabled_default", strconv.FormatBool(updatedPolicy.VcsPrCommentsEnabledDefault)),
 						resource.TestCheckResourceAttr(accessor, "outputs_as_inputs_enabled", strconv.FormatBool(updatedPolicy.OutputsAsInputsEnabled)),
 					),
@@ -142,6 +150,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					ForceRemoteBackend:          true,
 					DriftDetectionEnabled:       true,
 					DriftDetectionCron:          policy.DriftDetectionCron,
+					AutoDriftRemediation:        policy.AutoDriftRemediation,
 					VcsPrCommentsEnabledDefault: policy.VcsPrCommentsEnabledDefault,
 					OutputsAsInputsEnabled:      policy.OutputsAsInputsEnabled,
 				}).Times(1).Return(policy, nil),
@@ -159,6 +168,9 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					MaxTtl:                     "",
 					DefaultTtl:                 *updatedPolicy.DefaultTtl,
 					ForceRemoteBackend:         updatedPolicy.ForceRemoteBackend,
+					DriftDetectionEnabled:      updatedPolicy.DriftDetectionEnabled,
+					DriftDetectionCron:         updatedPolicy.DriftDetectionCron,
+					AutoDriftRemediation:       updatedPolicy.AutoDriftRemediation,
 				}).Times(1).Return(updatedPolicy, nil),
 				mock.EXPECT().Policy(gomock.Any()).Times(1).Return(updatedPolicy, nil), // 1 after update.
 				// Delete
@@ -189,6 +201,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 			DisableDestroyEnvironments: true,
 			SkipRedundantDeployments:   true,
 			UpdatedBy:                  "updater0",
+			AutoDriftRemediation:       "DISABLED",
 		}
 
 		testCaseForDefault := resource.TestCase{
@@ -233,6 +246,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 				SkipRedundantDeployments:   policy.SkipRedundantDeployments,
 				DefaultTtl:                 "inherit",
 				MaxTtl:                     "inherit",
+				AutoDriftRemediation:       "DISABLED",
 			}).Times(1).Return(policy, nil)
 
 			mock.EXPECT().Policy(gomock.Any()).Times(1).Return(expectedPolicy, nil)
