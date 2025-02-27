@@ -32,18 +32,6 @@ type OrganizationPolicyUpdatePayload struct {
 	EnforcePrCommenterPermissions       *bool   `json:"enforcePrCommenterPermissions,omitempty"`
 }
 
-type OrganizationCreatePayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	PhotoUrl    string `json:"photoUrl,omitempty"`
-}
-
-type OrganizationUpdatePayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	PhotoUrl    string `json:"photoUrl,omitempty"`
-}
-
 func (client *ApiClient) Organization() (Organization, error) {
 	var result []Organization
 
@@ -113,31 +101,4 @@ func (client *ApiClient) OrganizationUserUpdateRole(userId string, roleId string
 	}
 
 	return client.http.Put("/organizations/"+id+"/users/"+userId+"/role", roleId, nil)
-}
-
-func (client *ApiClient) OrganizationCreate(payload OrganizationCreatePayload) (*Organization, error) {
-	var result Organization
-	if err := client.http.Post("/organizations", payload, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-func (client *ApiClient) OrganizationUpdate(id string, payload OrganizationUpdatePayload) (*Organization, error) {
-	var result Organization
-	if err := client.http.Put("/organizations/"+id, payload, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-func (client *ApiClient) OrganizationById(id string) (*Organization, error) {
-	var result Organization
-	if err := client.http.Get("/organizations/"+id, nil, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }
