@@ -13,20 +13,31 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 	resourceType := "env0_environment_drift_detection"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
-	drift := client.EnvironmentSchedulingExpression{Cron: "2 * * * *", Enabled: true}
-	updateDrift := client.EnvironmentSchedulingExpression{Cron: "2 2 * * *", Enabled: true}
+	drift := client.EnvironmentSchedulingExpression{
+		Cron:                 "2 * * * *",
+		Enabled:              true,
+		AutoDriftRemediation: "CODE_TO_CLOUD",
+	}
+	updateDrift := client.EnvironmentSchedulingExpression{
+		Cron:                 "2 2 * * *",
+		Enabled:              true,
+		AutoDriftRemediation: "DISABLED",
+	}
+	autoDriftRemediation := "CODE_TO_CLOUD"
 
 	t.Run("Success", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"environment_id": environmentId,
-						"cron":           drift.Cron,
+						"environment_id":         environmentId,
+						"cron":                   drift.Cron,
+						"auto_drift_remediation": autoDriftRemediation,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
 						resource.TestCheckResourceAttr(accessor, "cron", drift.Cron),
+						resource.TestCheckResourceAttr(accessor, "auto_drift_remediation", autoDriftRemediation),
 					),
 				},
 			},
@@ -43,22 +54,26 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 			Steps: []resource.TestStep{
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"environment_id": environmentId,
-						"cron":           drift.Cron,
+						"environment_id":         environmentId,
+						"cron":                   drift.Cron,
+						"auto_drift_remediation": autoDriftRemediation,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
 						resource.TestCheckResourceAttr(accessor, "cron", drift.Cron),
+						resource.TestCheckResourceAttr(accessor, "auto_drift_remediation", autoDriftRemediation),
 					),
 				},
 				{
 					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
-						"environment_id": environmentId,
-						"cron":           updateDrift.Cron,
+						"environment_id":         environmentId,
+						"cron":                   updateDrift.Cron,
+						"auto_drift_remediation": "DISABLED",
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "environment_id", environmentId),
 						resource.TestCheckResourceAttr(accessor, "cron", updateDrift.Cron),
+						resource.TestCheckResourceAttr(accessor, "auto_drift_remediation", "DISABLED"),
 					),
 				},
 			},

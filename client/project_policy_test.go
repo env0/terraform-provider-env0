@@ -15,7 +15,10 @@ const (
 
 var _ = Describe("Policy", func() {
 	mockPolicy := Policy{
-		Id: policyId,
+		Id:                   policyId,
+		ProjectId:            "project0",
+		DriftDetectionCron:   "0 * * * *",
+		AutoDriftRemediation: "CODE_TO_CLOUD",
 	}
 
 	Describe("Policy", func() {
@@ -47,6 +50,10 @@ var _ = Describe("Policy", func() {
 			It("Should not return an error", func() {
 				Expect(err).Should(BeNil())
 			})
+
+			It("Should return policy with auto drift remediation", func() {
+				Expect(policy.AutoDriftRemediation).Should(Equal("CODE_TO_CLOUD"))
+			})
 		})
 
 		Describe("Failure", func() {
@@ -63,7 +70,12 @@ var _ = Describe("Policy", func() {
 	})
 
 	Describe("PolicyUpdate", func() {
-		updatePolicyPayload := PolicyUpdatePayload{ProjectId: "project0"}
+		updatePolicyPayload := PolicyUpdatePayload{
+			ProjectId:             "project0",
+			DriftDetectionCron:    "0 * * * *",
+			DriftDetectionEnabled: true,
+			AutoDriftRemediation:  "CODE_TO_CLOUD",
+		}
 		Describe("Success", func() {
 			var updatedPolicy Policy
 			var err error
@@ -88,6 +100,10 @@ var _ = Describe("Policy", func() {
 
 			It("Should return team received from API", func() {
 				Expect(updatedPolicy).To(Equal(mockPolicy))
+			})
+
+			It("Should return policy with updated auto drift remediation", func() {
+				Expect(updatedPolicy.AutoDriftRemediation).To(Equal("CODE_TO_CLOUD"))
 			})
 		})
 
