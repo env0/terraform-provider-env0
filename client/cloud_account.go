@@ -21,6 +21,12 @@ type AWSCloudAccountConfiguration struct {
 	ShouldPrefixUnderLogsFolder bool     `json:"shouldPrefixUnderLogsFolder"`
 }
 
+type AzureCloudAccountConfiguration struct {
+	TenantId                string `json:"tenantId"`
+	ClientId                string `json:"clientId"`
+	LogAnalyticsWorkspaceId string `json:"logAnalyticsWorkspaceId"`
+}
+
 type CloudAccount struct {
 	Id            string      `json:"id"`
 	Provider      string      `json:"provider"`

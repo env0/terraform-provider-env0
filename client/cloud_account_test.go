@@ -45,6 +45,30 @@ var _ = Describe("CloudAccount", func() {
 		Configuration: []string{"some random configuration"},
 	}
 
+	azureConfiguration := AzureCloudAccountConfiguration{
+		TenantId:                "tenant123",
+		ClientId:                "client123",
+		LogAnalyticsWorkspaceId: "workspace123",
+	}
+
+	azureConfigurationUpdated := AzureCloudAccountConfiguration{
+		TenantId:                "tenant456",
+		ClientId:                "client456",
+		LogAnalyticsWorkspaceId: "workspace456",
+	}
+
+	azureAccount := CloudAccount{
+		Id:            "id3",
+		Provider:      "Azure",
+		Name:          "azure1",
+		Health:        true,
+		Configuration: &azureConfiguration,
+	}
+
+	azureAccountUpdated := azureAccount
+	azureAccountUpdated.Name = "updatedazure1"
+	azureAccountUpdated.Configuration = azureConfigurationUpdated
+
 	Describe("create", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -82,6 +106,40 @@ var _ = Describe("CloudAccount", func() {
 
 		It("should not return error", func() {
 			Expect(err).To(BeNil())
+		})
+
+		Context("when creating an Azure configuration", func() {
+			BeforeEach(func() {
+				payload := CloudAccountCreatePayload{
+					Provider:      azureAccount.Provider,
+					Name:          azureAccount.Name,
+					Configuration: azureAccount.Configuration,
+				}
+
+				payloadWithOrganizationId := struct {
+					*CloudAccountCreatePayload
+					OrganizationId string `json:"organizationId"`
+				}{
+					&payload,
+					organizationId,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Post("/cloud/configurations", &payloadWithOrganizationId, gomock.Any()).
+					Do(func(path string, request interface{}, response *CloudAccount) {
+						*response = azureAccount
+					}).Times(1)
+
+				account, err = apiClient.CloudAccountCreate(&payload)
+			})
+
+			It("should return azure account", func() {
+				Expect(*account).To(Equal(azureAccount))
+			})
+
+			It("should not return error", func() {
+				Expect(err).To(BeNil())
+			})
 		})
 	})
 
@@ -148,6 +206,7 @@ var _ = Describe("CloudAccount", func() {
 		mockedAccounts := []CloudAccount{
 			account1,
 			account2,
+			azureAccount,
 		}
 
 		BeforeEach(func() {
