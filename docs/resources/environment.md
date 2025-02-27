@@ -88,7 +88,7 @@ Important note: the template must first be assigned to the same project as the e
 - `vcs_pr_comments_enabled` (Boolean) set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration
 - `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
-- `workspace` (String) the terraform workspace of the environment
+- `workspace` (String) the terraform workspace name of the environment
 
 ### Read-Only
 
