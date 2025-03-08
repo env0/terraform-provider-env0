@@ -655,14 +655,6 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("could not get environment: %v", err)
 	}
 
-	// _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"
-	// return diag.Errorf("!!!!!! ", environment.AutoDeployOnPathChangesOnly, " ????? ")
-
-	// //nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	// if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); !exists {
-	// 	environment.AutoDeployOnPathChangesOnly = nil
-	// }
-
 	scope := client.ScopeEnvironment
 	if _, ok := d.GetOk("sub_environment_configuration"); ok {
 		scope = client.ScopeWorkflow
