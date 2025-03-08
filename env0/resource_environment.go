@@ -386,7 +386,6 @@ func resourceEnvironment() *schema.Resource {
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
 	// Some of the fields can be inherited from the project. Ignore them if not explicitly set.
-
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); !exists {
 		environment.AutoDeployOnPathChangesOnly = nil
