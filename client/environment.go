@@ -118,7 +118,7 @@ type Environment struct {
 	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
-	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl"`
+	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl,omitempty"`
 	LatestDeploymentLogId       string        `json:"latestDeploymentLogId" tfschema:"deployment_id"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`

@@ -150,6 +150,24 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
+	// Set this explicitly because these are not set in setEnvironmentSchema due to possible project inheritance.
+
+	if environment.AutoDeployOnPathChangesOnly != nil {
+		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
+	}
+
+	if environment.ContinuousDeployment != nil {
+		d.Set("deploy_on_push", *environment.ContinuousDeployment)
+	}
+
+	if environment.PullRequestPlanDeployments != nil {
+		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
+	}
+
+	if environment.LifespanEndAt != "" {
+		d.Set("ttl", environment.LifespanEndAt)
+	}
+
 	subEnvironments := []interface{}{}
 
 	if environment.LatestDeploymentLog.WorkflowFile != nil {
