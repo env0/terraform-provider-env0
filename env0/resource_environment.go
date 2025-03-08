@@ -385,6 +385,27 @@ func resourceEnvironment() *schema.Resource {
 }
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
+	// Some of the fields can be inherited from the project. Ignore them if not explicitly set.
+
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); !exists {
+		environment.AutoDeployOnPathChangesOnly = nil
+	}
+
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("deploy_on_push"); !exists {
+		environment.ContinuousDeployment = nil
+	}
+
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	if _, exists := d.GetOkExists("run_plan_on_pull_requests"); !exists {
+		environment.PullRequestPlanDeployments = nil
+	}
+
+	if _, ok := d.GetOk("ttl"); !ok {
+		environment.LifespanEndAt = ""
+	}
+
 	if err := writeResourceData(&environment, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
@@ -597,10 +618,6 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(environment.Id)
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 
-	if environment.AutoDeployOnPathChangesOnly != nil {
-		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
-	}
-
 	var environmentVariableSetIds []string
 	if environmentPayload.ConfigurationSetChanges != nil {
 		environmentVariableSetIds = environmentPayload.ConfigurationSetChanges.Assign
@@ -637,6 +654,14 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("could not get environment: %v", err)
 	}
+
+	// _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"
+	// return diag.Errorf("!!!!!! ", environment.AutoDeployOnPathChangesOnly, " ????? ")
+
+	// //nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
+	// if _, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); !exists {
+	// 	environment.AutoDeployOnPathChangesOnly = nil
+	// }
 
 	scope := client.ScopeEnvironment
 	if _, ok := d.GetOk("sub_environment_configuration"); ok {
