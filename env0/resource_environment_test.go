@@ -2011,6 +2011,75 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
+
+		t.Run("No drift with unspecified fields", func(t *testing.T) {
+			truthyValue := true
+			falseyValue := false
+
+			// Environment with fields set by API
+			environmentWithAPIFields := client.Environment{
+				Id:                          uuid.New().String(),
+				Name:                        "my-environment",
+				ProjectId:                   "project-id",
+				WorkspaceName:               "workspace-name",
+				LifespanEndAt:               "2023-12-13T10:00:00Z", // TTL is set by API but not in schema
+				ContinuousDeployment:        &truthyValue,           // deploy_on_push set by API but not in schema
+				PullRequestPlanDeployments:  &truthyValue,           // run_plan_on_pull_requests set by API but not in schema
+				AutoDeployOnPathChangesOnly: &falseyValue,           // auto_deploy_on_path_changes_only set by API but not in schema
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       templateId,
+					BlueprintRevision: "revision",
+					Output:            []byte(`{"a": "b"}`),
+				},
+			}
+
+			// Create a minimal config that does NOT specify the fields we're testing
+			minimalConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				"name":          environmentWithAPIFields.Name,
+				"project_id":    environmentWithAPIFields.ProjectId,
+				"template_id":   environmentWithAPIFields.LatestDeploymentLog.BlueprintId,
+				"force_destroy": true,
+			})
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: minimalConfig,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environmentWithAPIFields.Id),
+							resource.TestCheckResourceAttr(accessor, "name", environmentWithAPIFields.Name),
+							resource.TestCheckResourceAttr(accessor, "project_id", environmentWithAPIFields.ProjectId),
+							resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+
+							// Fields that aren't set in schema but are returned by API shouldn't be in state
+							resource.TestCheckNoResourceAttr(accessor, "ttl"),
+							resource.TestCheckNoResourceAttr(accessor, "deploy_on_push"),
+							resource.TestCheckNoResourceAttr(accessor, "run_plan_on_pull_requests"),
+							resource.TestCheckNoResourceAttr(accessor, "auto_deploy_on_path_changes_only"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(environmentWithAPIFields.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+
+				// Expect environment create with minimal fields
+				mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+					Name:      environmentWithAPIFields.Name,
+					ProjectId: environmentWithAPIFields.ProjectId,
+					DeployRequest: &client.DeployRequest{
+						BlueprintId: templateId,
+					},
+				}).Times(1).Return(environmentWithAPIFields, nil)
+
+				// API returns environment with the fields set
+				mock.EXPECT().Environment(environmentWithAPIFields.Id).Times(1).Return(environmentWithAPIFields, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environmentWithAPIFields.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environmentWithAPIFields.Id).Times(1).Return(nil, nil)
+				mock.EXPECT().EnvironmentDestroy(environmentWithAPIFields.Id).Times(1)
+			})
+		})
 	}
 
 	testTTL := func() {
