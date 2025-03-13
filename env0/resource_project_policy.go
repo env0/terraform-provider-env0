@@ -114,6 +114,16 @@ func resourceProjectPolicy() *schema.Resource {
 				Optional:         true,
 				ValidateDiagFunc: ValidateCronExpression,
 			},
+			"auto_drift_remediation": {
+				Type:        schema.TypeString,
+				Description: "Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED",
+				Optional:    true,
+				Default:     DriftRemediationDisabled,
+				ValidateDiagFunc: NewStringInValidator([]string{
+					DriftRemediationDisabled,
+					DriftRemediationCodeToCloud,
+				}),
+			},
 			"vcs_pr_comments_enabled_default": {
 				Type:        schema.TypeBool,
 				Description: "if 'true' all environments created in this project will be created with an 'enabled' running VCS PR plan/apply commands using PR comments. Default is 'false'",

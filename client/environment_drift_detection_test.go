@@ -13,7 +13,11 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 	environmentId := "env"
 	path := "/scheduling/drift-detection/environments/" + environmentId
 	mockError := errors.New("I don't like milk")
-	schedulingExpression := EnvironmentSchedulingExpression{Cron: "0 * * * *", Enabled: true}
+	schedulingExpression := EnvironmentSchedulingExpression{
+		Cron:                 "0 * * * *",
+		Enabled:              true,
+		AutoDriftRemediation: "CODE_TO_CLOUD",
+	}
 	var driftResponse EnvironmentSchedulingExpression
 
 	Describe("Get", func() {
@@ -62,6 +66,10 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 
 			It("Should return the drift scheduling response", func() {
 				Expect(driftResponse).To(Equal(schedulingExpression))
+			})
+
+			It("Should include auto drift remediation in response", func() {
+				Expect(driftResponse.AutoDriftRemediation).To(Equal("CODE_TO_CLOUD"))
 			})
 		})
 

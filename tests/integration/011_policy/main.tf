@@ -18,7 +18,7 @@ resource "env0_project_policy" "test_policy" {
   disable_destroy_environments  = false
   skip_redundant_deployments    = false
   drift_detection_cron          = var.second_run ? "0 4 * * *" : "0 3 * * *"
-
+  auto_drift_remediation        = var.second_run ? "DISABLED" : "CODE_TO_CLOUD"
 }
 
 resource "env0_project_policy" "test_policy_2" {
@@ -32,6 +32,8 @@ resource "env0_project_policy" "test_policy_2" {
   skip_redundant_deployments      = true
   vcs_pr_comments_enabled_default = true
   outputs_as_inputs_enabled       = true
+  drift_detection_cron            = "0 4 * * *"
+  auto_drift_remediation          = "CODE_TO_CLOUD"
 }
 
 resource "env0_project_policy" "test_policy_ttl" {
@@ -45,6 +47,8 @@ resource "env0_project_policy" "test_policy_ttl" {
   skip_redundant_deployments    = true
   max_ttl                       = "4-d"
   default_ttl                   = "14-h"
+  drift_detection_cron          = "0 4 * * *"
+  auto_drift_remediation        = "DISABLED"
 }
 
 resource "env0_project_policy" "test_policy_infinite" {

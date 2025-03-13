@@ -13,7 +13,8 @@ resource "env0_environment" "env" {
 }
 
 resource "env0_environment_drift_detection" "drift" {
-  environment_id = env0_environment.env.id
-  cron           = "0 4 * * *"
+  environment_id         = env0_environment.env.id
+  cron                   = "0 4 * * *"     # Run drift detection daily at 4 AM
+  auto_drift_remediation = "CODE_TO_CLOUD" # Optional, defaults to "DISABLED"
 }
 
