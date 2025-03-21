@@ -11,8 +11,8 @@ resource "env0_custom_flow" "custom_flow" {
 
 
 // Self Hosted VCS
-resource "env0_custom_flow" "custom_flow" {
-  name                   = "Custom Flow"
+resource "env0_custom_flow" "ghe_custom_flow" {
+  name                   = "GHE Custom Flow"
   revision               = "my-revision"
   repository             = "https://mycompany.github.com/myorg/myrepo"
   path                   = "custom-flows/my-custom-flow.yaml"
