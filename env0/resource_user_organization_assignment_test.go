@@ -35,7 +35,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),
@@ -47,7 +47,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    updatedRole,
 					}),
@@ -76,7 +76,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id":        userId,
 						"custom_role_id": customRole,
 					}),
@@ -88,7 +88,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id":        userId,
 						"custom_role_id": updatedCustomRole,
 					}),
@@ -117,7 +117,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),
@@ -129,7 +129,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": updatedUserId,
 						"role":    role,
 					}),
@@ -159,7 +159,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),
@@ -171,7 +171,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 					ExpectNonEmptyPlan: true,
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),
@@ -198,7 +198,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),
@@ -218,7 +218,7 @@ func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"role":    role,
 					}),

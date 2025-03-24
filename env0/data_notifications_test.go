@@ -32,7 +32,7 @@ func TestNotificationsDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "names.0", notification1.Name),
 						resource.TestCheckResourceAttr(accessor, "names.1", notification2.Name),
@@ -60,7 +60,7 @@ func TestNotificationsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						ExpectError: regexp.MustCompile("error"),
 					},
 				},

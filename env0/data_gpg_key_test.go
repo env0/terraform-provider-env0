@@ -23,14 +23,14 @@ func TestGpgKeyDataSource(t *testing.T) {
 		Content: "content2",
 	}
 
-	gpgKeyFieldsByName := map[string]interface{}{"name": gpgKey.Name}
-	gpgKeyFieldsById := map[string]interface{}{"id": gpgKey.Id}
+	gpgKeyFieldsByName := map[string]any{"name": gpgKey.Name}
+	gpgKeyFieldsById := map[string]any{"id": gpgKey.Id}
 
 	resourceType := "env0_gpg_key"
 	resourceName := "test_gpg_key"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -46,7 +46,7 @@ func TestGpgKeyDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{

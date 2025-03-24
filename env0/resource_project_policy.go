@@ -140,7 +140,7 @@ func resourceProjectPolicy() *schema.Resource {
 	}
 }
 
-func resourceProjectPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	if err := resourceProjectPolicyUpdate(ctx, d, meta); err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func resourceProjectPolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceProjectPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()
@@ -170,7 +170,7 @@ func resourceProjectPolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	payload := client.PolicyUpdatePayload{}
@@ -207,7 +207,7 @@ func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()
@@ -231,7 +231,7 @@ func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceProjectPolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceProjectPolicyImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	projectId := d.Id()
 
 	policy, err := getPolicyByProjectId(projectId, meta)

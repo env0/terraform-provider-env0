@@ -18,12 +18,12 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	gcpCredentialsResource := map[string]interface{}{
+	gcpCredentialsResource := map[string]any{
 		"name":                                  "test",
 		"credential_configuration_file_content": "content1",
 	}
 
-	updatedGcpCredentialsResource := map[string]interface{}{
+	updatedGcpCredentialsResource := map[string]any{
 		"name":                                  "test",
 		"credential_configuration_file_content": "content2",
 	}

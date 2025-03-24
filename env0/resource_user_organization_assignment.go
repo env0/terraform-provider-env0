@@ -47,7 +47,7 @@ func resourceUserOrganizationAssignment() *schema.Resource {
 	}
 }
 
-func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	userId := d.Get("user_id").(string)
@@ -68,7 +68,7 @@ func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	}
 
 	if user == nil {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -83,7 +83,7 @@ func resourceUserOrganizationAssignmentRead(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceUserOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	userId := d.Get("user_id").(string)
@@ -102,7 +102,7 @@ func resourceUserOrganizationAssignmentCreateOrUpdate(ctx context.Context, d *sc
 	return nil
 }
 
-func resourceUserOrganizationAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserOrganizationAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	userId := d.Get("user_id").(string)

@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"slices"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -23,7 +25,7 @@ type CustomResourceDataField interface {
 }
 
 type ResourceDataSliceStructValueWriter interface {
-	ResourceDataSliceStructValueWrite(map[string]interface{}) error
+	ResourceDataSliceStructValueWrite(map[string]any) error
 }
 
 // https://stackoverflow.com/questions/56616196/how-to-convert-camel-case-string-to-snake-case
@@ -47,16 +49,10 @@ func intPtr(i int) *int {
 }
 
 func stringInSlice(str string, strs []string) bool {
-	for _, strOther := range strs {
-		if str == strOther {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(strs, str)
 }
 
-func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceData) interface{} {
+func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceData) any {
 	dval := d.Get(fieldName)
 	if dval == nil {
 		return nil
@@ -86,7 +82,7 @@ func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceD
 		return nil
 	}
 
-	if s, ok := dval.([]interface{}); ok && len(s) == 0 {
+	if s, ok := dval.([]any); ok && len(s) == 0 {
 		return nil
 	}
 
@@ -95,11 +91,11 @@ func reasourceDataGetValue(fieldName string, omitEmpty bool, d *schema.ResourceD
 
 // Extracts values from the resourcedata, and writes it to the interface.
 // Prepends prefix to the fieldName.
-func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
+func readResourceDataEx(prefix string, i any, d *schema.ResourceData) error {
 	// TODO: add a mechanism that returns an error if fields were set in the resourceData but not in the struct.
 	// Blocked by: https://github.com/hashicorp/terraform-plugin-sdk/issues/910
 	val := reflect.ValueOf(i).Elem()
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		parsedField := getFieldName(val.Type().Field(i))
 		if parsedField.skip {
 			continue
@@ -158,11 +154,11 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 				return fmt.Errorf("internal error - unhandled field pointer kind %v", fieldType.Elem().Kind())
 			}
 		case reflect.Slice:
-			var sliceData []interface{}
+			var sliceData []any
 			if s, ok := dval.(*schema.Set); ok {
 				sliceData = s.List()
 			} else {
-				sliceData = dval.([]interface{})
+				sliceData = dval.([]any)
 			}
 
 			if err := readResourceDataSliceEx(field, sliceData); err != nil {
@@ -179,15 +175,15 @@ func readResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) er
 }
 
 // Extracts values from the resourcedata, and writes it to the interface.
-func readResourceData(i interface{}, d *schema.ResourceData) error {
+func readResourceData(i any, d *schema.ResourceData) error {
 	return readResourceDataEx("", i, d)
 }
 
-func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}) error {
+func readResourceDataSliceStructHelper(field reflect.Value, resource any) error {
 	val := field.Elem()
-	m := resource.(map[string]interface{})
+	m := resource.(map[string]any)
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		parsedField := getFieldName(val.Type().Field(i))
 		if parsedField.skip {
 			continue
@@ -206,7 +202,7 @@ func readResourceDataSliceStructHelper(field reflect.Value, resource interface{}
 }
 
 // Extracts a list of values from the resourcedata, and writes it to the struct field.
-func readResourceDataSliceEx(field reflect.Value, resources []interface{}) error {
+func readResourceDataSliceEx(field reflect.Value, resources []any) error {
 	elemType := field.Type().Elem()
 	vals := reflect.MakeSlice(field.Type(), 0, len(resources))
 
@@ -273,10 +269,10 @@ func getFieldName(field reflect.StructField) *parsedField {
 }
 
 // Extracts values from the interface, and writes it to resourcedata.
-func writeResourceData(i interface{}, d *schema.ResourceData) error {
+func writeResourceData(i any, d *schema.ResourceData) error {
 	val := reflect.ValueOf(i).Elem()
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		parsedField := getFieldName(val.Type().Field(i))
 		if parsedField.skip {
 			continue
@@ -357,12 +353,12 @@ func writeResourceData(i interface{}, d *schema.ResourceData) error {
 	return nil
 }
 
-func getInterfaceSliceValues(i interface{}) []interface{} {
-	var result []interface{}
+func getInterfaceSliceValues(i any) []any {
+	var result []any
 
 	val := reflect.ValueOf(i)
 
-	for i := 0; i < val.Len(); i++ {
+	for i := range val.Len() {
 		field := val.Index(i)
 		result = append(result, field.Interface())
 	}
@@ -370,10 +366,10 @@ func getInterfaceSliceValues(i interface{}) []interface{} {
 	return result
 }
 
-func writeResourceDataGetSliceValues(i interface{}, name string, d *schema.ResourceData) ([]interface{}, error) {
+func writeResourceDataGetSliceValues(i any, name string, d *schema.ResourceData) ([]any, error) {
 	ivalues := getInterfaceSliceValues(i)
 
-	var values []interface{}
+	var values []any
 
 	// Iterate over the slice of values and build a slice of terraform values.
 	for _, ivalue := range ivalues {
@@ -412,10 +408,10 @@ func writeResourceDataGetSliceValues(i interface{}, name string, d *schema.Resou
 	return values, nil
 }
 
-func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.ResourceData) (map[string]interface{}, error) {
-	value := make(map[string]interface{})
+func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.ResourceData) (map[string]any, error) {
+	value := make(map[string]any)
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		field := val.Field(i)
 		fieldType := field.Type()
 
@@ -465,7 +461,7 @@ func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.R
 }
 
 // Extracts values from a slice of interfaces, and writes it to resourcedata at name.
-func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) error {
+func writeResourceDataSlice(i any, name string, d *schema.ResourceData) error {
 	values, err := writeResourceDataGetSliceValues(i, name, d)
 	if err != nil {
 		return err
@@ -478,12 +474,12 @@ func writeResourceDataSlice(i interface{}, name string, d *schema.ResourceData) 
 	return nil
 }
 
-func writeResourceDataEx(prefix string, i interface{}, d *schema.ResourceData) error {
+func writeResourceDataEx(prefix string, i any, d *schema.ResourceData) error {
 	if prefix == "" {
 		return writeResourceData(i, d)
 	}
 
-	return writeResourceDataSlice([]interface{}{i}, prefix, d)
+	return writeResourceDataSlice([]any{i}, prefix, d)
 }
 
 func ttlToDuration(ttl *string) (time.Duration, error) {

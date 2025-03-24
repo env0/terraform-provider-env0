@@ -24,7 +24,7 @@ var _ = Describe("Workflow Triggers", func() {
 					DownstreamEnvironmentIds: []string{mockTrigger[0].Id},
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *[]WorkflowTrigger) {
+				Do(func(path string, request any, response *[]WorkflowTrigger) {
 					*response = mockTrigger
 				})
 
@@ -42,7 +42,7 @@ var _ = Describe("Workflow Triggers", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/environments/"+environmentId+"/downstream", nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]WorkflowTrigger) {
+				Do(func(path string, request any, response *[]WorkflowTrigger) {
 					*response = mockTrigger
 				})
 			triggers, _ = apiClient.WorkflowTrigger(environmentId)

@@ -33,7 +33,7 @@ func resourceNotification() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "'Slack', 'Teams', 'Email' or 'Webhook'",
 				Required:    true,
-				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
+				ValidateDiagFunc: func(i any, path cty.Path) diag.Diagnostics {
 					notificationType := client.NotificationType(i.(string))
 					if notificationType != client.NotificationTypeSlack && notificationType != client.NotificationTypeTeams && notificationType != client.NotificationTypeEmail && notificationType != client.NotificationTypeWebhook {
 						return diag.Errorf("Invalid notification type")
@@ -58,7 +58,7 @@ func resourceNotification() *schema.Resource {
 	}
 }
 
-func getNotificationById(id string, meta interface{}) (*client.Notification, error) {
+func getNotificationById(id string, meta any) (*client.Notification, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	notifications, err := apiClient.Notifications()
@@ -75,7 +75,7 @@ func getNotificationById(id string, meta interface{}) (*client.Notification, err
 	return nil, ErrNotFound
 }
 
-func getNotificationByName(name string, meta interface{}) (*client.Notification, error) {
+func getNotificationByName(name string, meta any) (*client.Notification, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	notifications, err := apiClient.Notifications()
@@ -102,7 +102,7 @@ func getNotificationByName(name string, meta interface{}) (*client.Notification,
 	return &foundNotifications[0], nil
 }
 
-func resourceNotificationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.NotificationCreatePayload
@@ -120,12 +120,12 @@ func resourceNotificationCreate(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	notification, err := getNotificationById(d.Id(), meta)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			if notification == nil {
-				tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+				tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 				d.SetId("")
 
 				return nil
@@ -142,7 +142,7 @@ func resourceNotificationRead(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	payload := client.NotificationUpdatePayload{}
@@ -173,7 +173,7 @@ func resourceNotificationUpdate(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func resourceNotificationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.NotificationDelete(d.Id()); err != nil {
@@ -183,20 +183,20 @@ func resourceNotificationDelete(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func getNotification(ctx context.Context, id string, meta interface{}) (*client.Notification, error) {
+func getNotification(ctx context.Context, id string, meta any) (*client.Notification, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving notification by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving notification by id", map[string]any{"id": id})
 
 		return getNotificationById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving notification by name", map[string]interface{}{"name	": id})
+		tflog.Info(ctx, "Resolving notification by name", map[string]any{"name	": id})
 
 		return getNotificationByName(id, meta)
 	}
 }
 
-func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNotificationImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	notification, err := getNotification(ctx, d.Id(), meta)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {

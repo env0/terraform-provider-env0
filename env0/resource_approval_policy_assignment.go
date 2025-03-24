@@ -45,7 +45,7 @@ func resourceApprovalPolicyAssignment() *schema.Resource {
 	}
 }
 
-func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignment client.ApprovalPolicyAssignment
@@ -71,7 +71,7 @@ func resourceApprovalPolicyAssignmentCreate(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignment client.ApprovalPolicyAssignment
@@ -95,7 +95,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	}
 
 	if !found {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -104,7 +104,7 @@ func resourceApprovalPolicyAssignmentRead(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceApprovalPolicyAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	scope := d.Get("scope").(string)

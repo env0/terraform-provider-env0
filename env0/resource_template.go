@@ -290,7 +290,7 @@ func resourceTemplate() *schema.Resource {
 	}
 }
 
-func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters("", d)
@@ -308,7 +308,7 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	template, err := apiClient.Template(d.Id())
@@ -317,7 +317,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if template.IsDeleted && !d.IsNewResource() {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -330,7 +330,7 @@ func resourceTemplateRead(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	request, problem := templateCreatePayloadFromParameters("", d)
@@ -346,7 +346,7 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -359,7 +359,7 @@ func resourceTemplateDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
 	var getErr diag.Diagnostics
@@ -367,10 +367,10 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta in
 	_, uuidErr := uuid.Parse(id)
 
 	if uuidErr == nil {
-		tflog.Info(ctx, "Resolving template by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving template by id", map[string]any{"id": id})
 		_, getErr = getTemplateById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving template by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving template by name", map[string]any{"name": id})
 
 		var template client.Template
 
@@ -458,7 +458,7 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 // Helpers function for templateRead.
 func templateReadRetryOnHelper(prefix string, d *schema.ResourceData, retryType string, retryOn *client.TemplateRetryOn) {
 	if prefix != "" {
-		value := d.Get(prefix + ".0").(map[string]interface{})
+		value := d.Get(prefix + ".0").(map[string]any)
 		if retryOn != nil {
 			value["retries_on_"+retryType] = retryOn.Times
 			value["retry_on_"+retryType+"_only_when_matches_regex"] = retryOn.ErrorRegex
@@ -467,7 +467,7 @@ func templateReadRetryOnHelper(prefix string, d *schema.ResourceData, retryType 
 			value["retry_on_"+retryType+"_only_when_matches_regex"] = ""
 		}
 
-		d.Set(prefix, []interface{}{value})
+		d.Set(prefix, []any{value})
 	} else {
 		if retryOn != nil {
 			d.Set("retries_on_"+retryType, retryOn.Times)

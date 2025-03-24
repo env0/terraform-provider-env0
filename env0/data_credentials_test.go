@@ -45,9 +45,9 @@ func TestCredentialsDataSource(t *testing.T) {
 		tc := testCase
 
 		name := "name" + tc.cloudType
-		byName := map[string]interface{}{"name": name}
+		byName := map[string]any{"name": name}
 		id := "id" + tc.cloudType
-		byId := map[string]interface{}{"id": id}
+		byId := map[string]any{"id": id}
 
 		resourceType := "env0_" + tc.cloudType + "_credentials"
 		resourceName := "testdata"
@@ -74,7 +74,7 @@ func TestCredentialsDataSource(t *testing.T) {
 			Type:           "Invalid-type",
 		}
 
-		getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+		getValidTestCase := func(input map[string]any) resource.TestCase {
 			return resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -88,7 +88,7 @@ func TestCredentialsDataSource(t *testing.T) {
 			}
 		}
 
-		getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+		getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 			return resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -127,7 +127,7 @@ func TestCredentialsDataSource(t *testing.T) {
 
 		t.Run(tc.cloudType+" throw error when no name or id is supplied", func(t *testing.T) {
 			runUnitTest(t,
-				getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+				getErrorTestCase(map[string]any{}, "one of `id,name` must be specified"),
 				func(mock *client.MockApiClientInterface) {},
 			)
 		})

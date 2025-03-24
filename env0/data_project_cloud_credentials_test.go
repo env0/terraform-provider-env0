@@ -22,7 +22,7 @@ func TestProjectCloudCredentialsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 							"project_id": projectId,
 						}),
 						Check: resource.ComposeAggregateTestCheckFunc(
@@ -43,7 +43,7 @@ func TestProjectCloudCredentialsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 							"project_id": projectId,
 						}),
 						ExpectError: regexp.MustCompile("could not get cloud credentials associated with project.*error"),

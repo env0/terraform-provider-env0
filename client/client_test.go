@@ -44,7 +44,7 @@ func mockOrganizationIdCall() *gomock.Call {
 		Id: organizationId,
 	}}
 
-	organizationIdCall = mockHttpClient.EXPECT().Get("/organizations", nil, gomock.Any()).Do(func(path string, params interface{}, response *[]Organization) {
+	organizationIdCall = mockHttpClient.EXPECT().Get("/organizations", nil, gomock.Any()).Do(func(path string, params any, response *[]Organization) {
 		*response = organizations
 	})
 

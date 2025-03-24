@@ -64,10 +64,10 @@ func TestUnitAwsCloudConfigurationResource(t *testing.T) {
 		Name:     "other_name",
 	}
 
-	getFields := func(cloudConfig *client.CloudAccount) map[string]interface{} {
+	getFields := func(cloudConfig *client.CloudAccount) map[string]any {
 		awsConfig := cloudConfig.Configuration.(*client.AWSCloudAccountConfiguration)
 
-		fields := map[string]interface{}{
+		fields := map[string]any{
 			"name":                            cloudConfig.Name,
 			"account_id":                      awsConfig.AccountId,
 			"bucket_name":                     awsConfig.BucketName,

@@ -44,7 +44,7 @@ var _ = Describe("Project", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/projects", payload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Project) {
+				Do(func(path string, request any, response *Project) {
 					*response = mockProject
 				})
 
@@ -99,7 +99,7 @@ var _ = Describe("Project", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/projects/"+mockProject.Id, payload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Project) {
+				Do(func(path string, request any, response *Project) {
 					*response = mockedResponse
 				})
 			project, _ = apiClient.ProjectUpdate(mockProject.Id, payload)
@@ -118,7 +118,7 @@ var _ = Describe("Project", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/projects/"+mockProject.Id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *Project) {
+				Do(func(path string, request any, response *Project) {
 					*response = mockProject
 				})
 			project, _ = apiClient.Project(mockProject.Id)
@@ -142,7 +142,7 @@ var _ = Describe("Project", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/projects", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Project) {
+				Do(func(path string, request any, response *[]Project) {
 					*response = mockProjects
 				})
 			projects, _ = apiClient.Projects()
@@ -211,7 +211,7 @@ var _ = Describe("Project", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/projects/modules/testing/"+organizationId, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *ModuleTestingProject) {
+				Do(func(path string, request any, response *ModuleTestingProject) {
 					*response = mockModuleTestingProject
 				})
 			moduleTestingProject, _ = apiClient.ModuleTestingProject()

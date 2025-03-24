@@ -33,7 +33,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),
@@ -44,7 +44,7 @@ func TestUnitProviderResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        updatedProvider.Type,
 						"description": updatedProvider.Description,
 					}),
@@ -77,7 +77,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),
@@ -98,7 +98,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        "-" + provider.Type,
 						"description": provider.Description,
 					}),
@@ -114,13 +114,13 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        updatedProvider.Type,
 						"description": updatedProvider.Description,
 					}),
@@ -148,7 +148,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),
@@ -180,7 +180,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),
@@ -210,7 +210,7 @@ func TestUnitProviderResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"type":        provider.Type,
 						"description": provider.Description,
 					}),

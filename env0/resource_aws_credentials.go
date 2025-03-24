@@ -60,7 +60,7 @@ func resourceAwsCredentials() *schema.Resource {
 	}
 }
 
-func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	_, accessKeyExist := d.GetOk("access_key_id")
 	_, arnExist := d.GetOk("arn")
 

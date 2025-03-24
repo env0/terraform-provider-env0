@@ -187,13 +187,13 @@ func createRestyClient(ctx context.Context) *resty.Client {
 		SetRetryMaxWaitTime(time.Second * 5).
 		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 			if r != nil {
-				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]interface{}{"method": r.Method, "url": r.URL})
+				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]any{"method": r.Method, "url": r.URL})
 			}
 
 			return nil
 		}).
 		OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
-			tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
+			tflog.SubsystemInfo(subCtx, "env0_api_client", "Received response", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status": r.Status()})
 
 			return nil
 		}).
@@ -208,13 +208,13 @@ func createRestyClient(ctx context.Context) *resty.Client {
 			// When running integration tests 404 may occur due to "database eventual consistency".
 			// Retry when there's a 5xx error. Otherwise do not retry.
 			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
 
 				return true
 			}
 
 			if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]interface{}{"method": r.Request.Method, "url": r.Request.URL})
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL})
 
 				return true
 			}
@@ -226,7 +226,7 @@ func createRestyClient(ctx context.Context) *resty.Client {
 func configureProvider(version string, p *schema.Provider) schema.ConfigureContextFunc {
 	userAgent := p.UserAgent("terraform-provider-env0", version)
 
-	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	return func(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 		apiKey, ok := d.GetOk("api_key")
 		if !ok {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Detail: `The argument "api_key" is required, but no definition was found.`}}

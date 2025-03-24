@@ -18,14 +18,14 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	azureCredentialsResource := map[string]interface{}{
+	azureCredentialsResource := map[string]any{
 		"name":            "test",
 		"tenant_id":       "tenantid1",
 		"subscription_id": "subscriptionid1",
 		"client_id":       "clientid1",
 	}
 
-	updatedAzureCredentialsResource := map[string]interface{}{
+	updatedAzureCredentialsResource := map[string]any{
 		"name":            "test",
 		"tenant_id":       "tenantid2",
 		"subscription_id": "subscriptionid2",

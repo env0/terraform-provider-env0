@@ -52,7 +52,7 @@ func resourceAzureCredentials() *schema.Resource {
 	}
 }
 
-func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.AzureCredentialsValuePayload{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)

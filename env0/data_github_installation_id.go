@@ -29,7 +29,7 @@ func dataGithubInstallationId() *schema.Resource {
 	}
 }
 
-func dataGithubInstallationIdRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataGithubInstallationIdRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	repositroy := d.Get("repository").(string)

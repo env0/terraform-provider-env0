@@ -37,14 +37,14 @@ func TestKubernetesCredentialsDataSource(t *testing.T) {
 			Type: test[1],
 		}
 
-		byName := map[string]interface{}{"name": credentials.Name}
-		byId := map[string]interface{}{"id": credentials.Id}
+		byName := map[string]any{"name": credentials.Name}
+		byId := map[string]any{"id": credentials.Id}
 
 		resourceType := test[0]
 		resourceName := "test"
 		accessor := dataSourceAccessor(resourceType, resourceName)
 
-		getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+		getValidTestCase := func(input map[string]any) resource.TestCase {
 			return resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -58,7 +58,7 @@ func TestKubernetesCredentialsDataSource(t *testing.T) {
 			}
 		}
 
-		getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+		getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 			return resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -97,7 +97,7 @@ func TestKubernetesCredentialsDataSource(t *testing.T) {
 
 		t.Run("throw error when no name or id is supplied - "+test[0], func(t *testing.T) {
 			runUnitTest(t,
-				getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+				getErrorTestCase(map[string]any{}, "one of `id,name` must be specified"),
 				func(mock *client.MockApiClientInterface) {},
 			)
 		})

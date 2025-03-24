@@ -32,15 +32,15 @@ func hclAccessor(source TFSource, resourceType string, resourceName string) stri
 	return fmt.Sprintf("%s.%s", resourceType, resourceName)
 }
 
-func dataSourceConfigCreate(resourceType string, resourceName string, fields map[string]interface{}) string {
+func dataSourceConfigCreate(resourceType string, resourceName string, fields map[string]any) string {
 	return hclConfigCreate(DataSource, resourceType, resourceName, fields)
 }
 
-func resourceConfigCreate(resourceType string, resourceName string, fields map[string]interface{}) string {
+func resourceConfigCreate(resourceType string, resourceName string, fields map[string]any) string {
 	return hclConfigCreate(Resource, resourceType, resourceName, fields)
 }
 
-func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]interface{}) string {
+func hclConfigCreate(source TFSource, resourceType string, resourceName string, fields map[string]any) string {
 	hclFields := ""
 
 	for key, value := range fields {
@@ -83,7 +83,7 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 	return fmt.Sprintf(`%s "%s" "%s" {%s}`, source, resourceType, resourceName, hclFields)
 }
 
-func missingArgumentTestCase(resourceType string, resourceName string, errorResource map[string]interface{}, missingArgumentKey string) resource.TestCase {
+func missingArgumentTestCase(resourceType string, resourceName string, errorResource map[string]any, missingArgumentKey string) resource.TestCase {
 	testCaseFormMissingValidInputError := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
@@ -96,7 +96,7 @@ func missingArgumentTestCase(resourceType string, resourceName string, errorReso
 	return testCaseFormMissingValidInputError
 }
 
-func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]interface{}) resource.TestCase {
+func missingArgumentTestCaseForCostCred(resourceType string, resourceName string, errorResource map[string]any) resource.TestCase {
 	testCaseFormMissingValidInputError := resource.TestCase{
 		Steps: []resource.TestStep{
 			{

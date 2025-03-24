@@ -64,14 +64,14 @@ func TestProjectDataSource(t *testing.T) {
 		ParentProjectId: otherParentProject.Id,
 	}
 
-	projectDataByName := map[string]interface{}{"name": project.Name}
-	projectDataById := map[string]interface{}{"id": project.Id}
+	projectDataByName := map[string]any{"name": project.Name}
+	projectDataById := map[string]any{"id": project.Id}
 
 	resourceType := "env0_project"
 	resourceName := "test_project"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -89,7 +89,7 @@ func TestProjectDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -137,7 +137,7 @@ func TestProjectDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": projectWithParent.Name, "parent_project_name": parentProject.Name}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": projectWithParent.Name, "parent_project_name": parentProject.Name}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", projectWithParent.Id),
 							resource.TestCheckResourceAttr(accessor, "name", projectWithParent.Name),
@@ -191,7 +191,7 @@ func TestProjectDataSource(t *testing.T) {
 				resource.TestCase{
 					Steps: []resource.TestStep{
 						{
-							Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "p3", "parent_project_path": "p1|p2"}),
+							Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": "p3", "parent_project_path": "p1|p2"}),
 							Check: resource.ComposeAggregateTestCheckFunc(
 								resource.TestCheckResourceAttr(accessor, "id", p3.Id),
 								resource.TestCheckResourceAttr(accessor, "name", p3.Name),
@@ -218,7 +218,7 @@ func TestProjectDataSource(t *testing.T) {
 				resource.TestCase{
 					Steps: []resource.TestStep{
 						{
-							Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "p4", "parent_project_path": "p1|p2"}),
+							Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": "p4", "parent_project_path": "p1|p2"}),
 							Check: resource.ComposeAggregateTestCheckFunc(
 								resource.TestCheckResourceAttr(accessor, "id", p4.Id),
 								resource.TestCheckResourceAttr(accessor, "name", p4.Name),
@@ -244,7 +244,7 @@ func TestProjectDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": projectWithParent.Name, "parent_project_id": parentProject.Id}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": projectWithParent.Name, "parent_project_id": parentProject.Id}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", projectWithParent.Id),
 							resource.TestCheckResourceAttr(accessor, "name", projectWithParent.Name),
@@ -265,7 +265,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+			getErrorTestCase(map[string]any{}, "one of `id,name` must be specified"),
 			func(mock *client.MockApiClientInterface) {},
 		)
 	})
@@ -279,7 +279,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and more than one project and parent project name exist", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{"name": projectWithParent.Name, "parent_project_name": parentProject.Name}, "found multiple projects for name"),
+			getErrorTestCase(map[string]any{"name": projectWithParent.Name, "parent_project_name": parentProject.Name}, "found multiple projects for name"),
 			func(mock *client.MockApiClientInterface) {
 				gomock.InOrder(
 					mock.EXPECT().Projects().Times(1).Return([]client.Project{projectWithParent, otherProjectWithParent, projectWithParent}, nil),
@@ -299,7 +299,7 @@ func TestProjectDataSource(t *testing.T) {
 	})
 
 	t.Run("Throw error when by name and no projects found with that name", func(t *testing.T) {
-		projectWithOtherName := map[string]interface{}{"name": "other-name"}
+		projectWithOtherName := map[string]any{"name": "other-name"}
 		runUnitTest(t,
 			getErrorTestCase(projectWithOtherName, "could not find a project with name"),
 			mockListProjectsCall([]client.Project{project, project}),
@@ -308,7 +308,7 @@ func TestProjectDataSource(t *testing.T) {
 
 	t.Run("Throw error when by name and no projects found with that name and parent name", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{"name": projectWithParent.Name, "parent_project_name": "noooo"}, "could not find a project with name"),
+			getErrorTestCase(map[string]any{"name": projectWithParent.Name, "parent_project_name": "noooo"}, "could not find a project with name"),
 			func(mock *client.MockApiClientInterface) {
 				gomock.InOrder(
 					mock.EXPECT().Projects().Times(1).Return([]client.Project{projectWithParent}, nil),

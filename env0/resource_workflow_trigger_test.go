@@ -22,7 +22,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": triggerId,
 					}),
@@ -33,7 +33,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": otherTriggerId,
 					}),
@@ -78,7 +78,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": triggerId,
 					}),
@@ -104,13 +104,13 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": triggerId,
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": otherTriggerId,
 					}),
@@ -143,7 +143,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": triggerId,
 					}),
@@ -165,7 +165,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":            environmentId,
 						"downstream_environment_id": triggerId,
 					}),

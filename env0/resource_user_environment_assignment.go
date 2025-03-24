@@ -39,7 +39,7 @@ func resourceUserEnvironmentAssignment() *schema.Resource {
 	}
 }
 
-func resourceUserEnvironmentAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserEnvironmentAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var newAssignment client.AssignUserRoleToEnvironmentPayload
 	if err := readResourceData(&newAssignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -57,7 +57,7 @@ func resourceUserEnvironmentAssignmentCreate(ctx context.Context, d *schema.Reso
 	return nil
 }
 
-func resourceUserEnvironmentAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserEnvironmentAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	client := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -80,13 +80,13 @@ func resourceUserEnvironmentAssignmentRead(ctx context.Context, d *schema.Resour
 		}
 	}
 
-	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 	d.SetId("")
 
 	return nil
 }
 
-func resourceUserEnvironmentAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserEnvironmentAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var payload client.AssignUserRoleToEnvironmentPayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -104,7 +104,7 @@ func resourceUserEnvironmentAssignmentUpdate(ctx context.Context, d *schema.Reso
 	return nil
 }
 
-func resourceUserEnvironmentAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserEnvironmentAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	environmentId := d.Get("environment_id").(string)
 	userId := d.Get("user_id").(string)
 

@@ -35,7 +35,7 @@ func TestUnitGitTokenResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  gitToken.Name,
 						"value": gitToken.Value,
 					}),
@@ -46,7 +46,7 @@ func TestUnitGitTokenResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  updatedGitToken.Name,
 						"value": updatedGitToken.Value,
 					}),
@@ -81,7 +81,7 @@ func TestUnitGitTokenResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  gitToken.Name,
 						"value": gitToken.Value,
 					}),
@@ -102,7 +102,7 @@ func TestUnitGitTokenResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  gitToken.Name,
 						"value": gitToken.Value,
 					}),
@@ -132,7 +132,7 @@ func TestUnitGitTokenResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  gitToken.Name,
 						"value": gitToken.Value,
 					}),

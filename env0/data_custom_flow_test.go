@@ -24,14 +24,14 @@ func TestCustomFlowDataSource(t *testing.T) {
 		Path:       "path",
 	}
 
-	customFlowFieldsByName := map[string]interface{}{"name": customFlow.Name}
-	customFlowFieldsById := map[string]interface{}{"id": customFlow.Id}
+	customFlowFieldsByName := map[string]any{"name": customFlow.Name}
+	customFlowFieldsById := map[string]any{"id": customFlow.Id}
 
 	resourceType := "env0_custom_flow"
 	resourceName := "test_custom_flow"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -45,7 +45,7 @@ func TestCustomFlowDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{

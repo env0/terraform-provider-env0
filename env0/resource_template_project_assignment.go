@@ -40,7 +40,7 @@ func templateProjectAssignmentPayloadFromParameters(d *schema.ResourceData) clie
 	return result
 }
 
-func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
@@ -58,7 +58,7 @@ func resourceTemplateProjectAssignmentCreate(ctx context.Context, d *schema.Reso
 	return nil
 }
 
-func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
@@ -69,7 +69,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	}
 
 	if template.IsDeleted {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -86,7 +86,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	}
 
 	if !isProjectIdInTemplate {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -95,7 +95,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	return nil
 }
 
-func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTemplateProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)

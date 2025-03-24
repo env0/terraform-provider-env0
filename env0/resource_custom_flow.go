@@ -24,7 +24,7 @@ func resourceCustomFlow() *schema.Resource {
 	}
 }
 
-func resourceCustomFlowCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.CustomFlowCreatePayload
@@ -42,7 +42,7 @@ func resourceCustomFlowCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	customFlow, err := apiClient.CustomFlow(d.Id())
@@ -57,7 +57,7 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceCustomFlowUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.CustomFlowCreatePayload
@@ -72,7 +72,7 @@ func resourceCustomFlowUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceCustomFlowDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.CustomFlowDelete(d.Id()); err != nil {
@@ -82,7 +82,7 @@ func resourceCustomFlowDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, error) {
+func getCustomFlowByName(name string, meta any) (*client.CustomFlow, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	customFlows, err := apiClient.CustomFlows(name)
@@ -101,19 +101,19 @@ func getCustomFlowByName(name string, meta interface{}) (*client.CustomFlow, err
 	return &customFlows[0], nil
 }
 
-func getCustomFlow(ctx context.Context, id string, meta interface{}) (*client.CustomFlow, error) {
+func getCustomFlow(ctx context.Context, id string, meta any) (*client.CustomFlow, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		tflog.Info(ctx, "Resolving custom flow by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving custom flow by id", map[string]any{"id": id})
 
 		return meta.(client.ApiClientInterface).CustomFlow(id)
 	} else {
-		tflog.Info(ctx, "Resolving custom flow by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving custom flow by name", map[string]any{"name": id})
 
 		return getCustomFlowByName(id, meta)
 	}
 }
 
-func resourceCustomFlowImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCustomFlowImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	customFlow, err := getCustomFlow(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

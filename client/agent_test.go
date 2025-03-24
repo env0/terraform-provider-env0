@@ -28,7 +28,7 @@ var _ = Describe("Agent Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents", gomock.Any(), gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Agent) {
+					Do(func(path string, request any, response *[]Agent) {
 						*response = expectedResponse
 					})
 				actualResult, err = apiClient.Agents()
@@ -86,7 +86,7 @@ var _ = Describe("Agent Client", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents/"+agentId+"/values", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *string) {
+					Do(func(path string, request any, response *string) {
 						*response = expectedResponse
 					})
 				actualResult, err = apiClient.AgentValues(agentId)

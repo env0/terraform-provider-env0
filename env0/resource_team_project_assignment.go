@@ -51,7 +51,7 @@ func resourceTeamProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentCreateOrUpdatePayload
@@ -76,7 +76,7 @@ func resourceTeamProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.
 	return nil
 }
 
-func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentListPayload
@@ -105,13 +105,13 @@ func resourceTeamProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 	d.SetId("")
 
 	return nil
 }
 
-func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentDeletePayload
@@ -126,7 +126,7 @@ func resourceTeamProjectAssignmentDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	splitTeamProject := strings.Split(d.Id(), "_")

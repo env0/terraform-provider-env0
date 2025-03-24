@@ -56,7 +56,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -67,7 +67,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": updatedRole,
 					}),
@@ -96,7 +96,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -108,7 +108,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 					ExpectNonEmptyPlan: true,
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -136,7 +136,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -157,7 +157,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -180,7 +180,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": role,
 					}),
@@ -191,7 +191,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": updatedRole,
 					}),
@@ -215,7 +215,7 @@ func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id": teamId,
 						"role_id": "Planner",
 					}),

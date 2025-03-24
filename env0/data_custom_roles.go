@@ -26,7 +26,7 @@ func dataCustomRoles() *schema.Resource {
 	}
 }
 
-func dataCustomRolesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataCustomRolesRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	roles, err := apiClient.Roles()

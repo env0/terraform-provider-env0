@@ -39,7 +39,7 @@ func getCredentialIdAndProjectId(d *schema.ResourceData) (string, string) {
 	return credentialId, projectId
 }
 
-func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
@@ -54,7 +54,7 @@ func resourceCloudCredentialsProjectAssignmentCreate(ctx context.Context, d *sch
 	return nil
 }
 
-func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
@@ -73,7 +73,7 @@ func resourceCloudCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 	}
 
 	if !found && !d.IsNewResource() {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -88,7 +88,7 @@ func getResourceId(credentialId string, projectId string) string {
 	return credentialId + "|" + projectId
 }
 
-func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)

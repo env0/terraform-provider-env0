@@ -69,7 +69,7 @@ func dataModule() *schema.Resource {
 	}
 }
 
-func dataModuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataModuleRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var module *client.Module
 
 	var err error

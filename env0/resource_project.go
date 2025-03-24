@@ -72,7 +72,7 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ProjectCreatePayload
@@ -90,7 +90,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	project, err := apiClient.Project(d.Id())
@@ -105,7 +105,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -131,7 +131,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func resourceProjectAssertCanDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 	forceDestroy := d.Get("force_destroy").(bool)
 	if forceDestroy {
 		return nil
@@ -158,7 +158,7 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -212,20 +212,20 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	id := d.Id()
 	_, err := uuid.Parse(id)
 
 	var project client.Project
 
 	if err == nil {
-		tflog.Info(ctx, "Resolving project by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving project by id", map[string]any{"id": id})
 
 		if project, err = getProjectById(id, meta); err != nil {
 			return nil, err
 		}
 	} else {
-		tflog.Info(ctx, "Resolving project by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving project by name", map[string]any{"name": id})
 
 		if project, err = getProjectByName(id, "", "", "", meta); err != nil {
 			return nil, err

@@ -5,8 +5,8 @@ package client
 type AssignProjectsAgentsAssignmentsPayload map[string]string
 
 type ProjectsAgentsAssignments struct {
-	DefaultAgent   string                 `json:"defaultAgent"`
-	ProjectsAgents map[string]interface{} `json:"projectsAgents"`
+	DefaultAgent   string         `json:"defaultAgent"`
+	ProjectsAgents map[string]any `json:"projectsAgents"`
 }
 
 func (client *ApiClient) AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {

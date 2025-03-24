@@ -37,7 +37,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,
@@ -52,7 +52,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          updatedVcsConnection.Name,
 						"type":          updatedVcsConnection.Type,
 						"url":           updatedVcsConnection.Url,
@@ -84,7 +84,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,
@@ -105,7 +105,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,
@@ -134,7 +134,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,
@@ -165,7 +165,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,
@@ -199,7 +199,7 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          vcsConnection.Name,
 						"type":          vcsConnection.Type,
 						"url":           vcsConnection.Url,

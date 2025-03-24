@@ -23,7 +23,7 @@ func TestWorkflowTriggerDataSource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id": environmentId,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -44,7 +44,7 @@ func TestWorkflowTriggerDataSource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id": environmentId,
 					}),
 					ExpectError: regexp.MustCompile("could not get workflow triggers: error"),

@@ -42,7 +42,7 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 	}
 
 	getConfig := func(a *AgentProjectAssignment) string {
-		return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		return resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"project_id": a.ProjectId,
 			"agent_id":   a.AgentId,
 		})
@@ -67,7 +67,7 @@ func TestUnitAgentProjectAssignmentResource(t *testing.T) {
 		}
 
 		if len(as) > 0 {
-			assignments.ProjectsAgents = map[string]interface{}{}
+			assignments.ProjectsAgents = map[string]any{}
 
 			for _, a := range as {
 				assignments.ProjectsAgents[a.ProjectId] = a.AgentId

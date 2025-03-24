@@ -32,7 +32,7 @@ func TestTeamsDataSource(t *testing.T) {
 	resourceName := "test_teams"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getTestCase := func(params map[string]interface{}) resource.TestCase {
+	getTestCase := func(params map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -55,14 +55,14 @@ func TestTeamsDataSource(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		runUnitTest(t,
-			getTestCase(map[string]interface{}{}),
+			getTestCase(map[string]any{}),
 			mockTeams([]client.Team{team1, team2}),
 		)
 	})
 
 	t.Run("Success with regex filter", func(t *testing.T) {
 		runUnitTest(t,
-			getTestCase(map[string]interface{}{
+			getTestCase(map[string]any{
 				"filter": "name(?:1|2)",
 			}),
 			mockTeams([]client.Team{team1, team2, team3}),
@@ -74,7 +74,7 @@ func TestTeamsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						ExpectError: regexp.MustCompile("error"),
 					},
 				},
@@ -90,7 +90,7 @@ func TestTeamsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 							"filter": "(ab",
 						}),
 						ExpectError: regexp.MustCompile("Invalid filter:.+"),

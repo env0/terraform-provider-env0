@@ -26,7 +26,7 @@ func TestUnitSshKeyDataSourceByIdNotFound(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 					"id": "id123",
 				}),
 				ExpectError: regexp.MustCompile("could not read ssh key: id id123 not found"),
@@ -58,7 +58,7 @@ func testUnitSshKeyDataSource(t *testing.T, byKey string) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 					byKey: jsonData[byKey],
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -95,7 +95,7 @@ func TestUnitSshKeyDataSourceRetryByName(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 					"name": sshKey.Name,
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(

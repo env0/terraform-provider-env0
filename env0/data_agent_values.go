@@ -27,7 +27,7 @@ func dataAgentValues() *schema.Resource {
 	}
 }
 
-func dataAgentValuesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataAgentValuesRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	agentKey := d.Get("agent_key").(string)

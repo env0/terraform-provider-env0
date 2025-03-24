@@ -34,7 +34,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 				}
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/teams", &createPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *TeamRoleAssignmentPayload) {
+					Do(func(path string, request any, response *TeamRoleAssignmentPayload) {
 						*response = mockTeamRoleAssignment
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
@@ -58,7 +58,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 				}
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/teams", &createPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *TeamRoleAssignmentPayload) {
+					Do(func(path string, request any, response *TeamRoleAssignmentPayload) {
 						*response = mockTeamRoleAssignment
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
@@ -82,7 +82,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 				}
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/teams", &createPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *TeamRoleAssignmentPayload) {
+					Do(func(path string, request any, response *TeamRoleAssignmentPayload) {
 						*response = mockTeamRoleAssignment
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
@@ -101,7 +101,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"projectId": dummyProjectId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]TeamRoleAssignmentPayload) {
+				Do(func(path string, request any, response *[]TeamRoleAssignmentPayload) {
 					*response = mockTeamRoleAssignments
 				}).Times(1)
 			assignments, _ = apiClient.TeamRoleAssignments(&TeamRoleAssignmentListPayload{ProjectId: dummyProjectId})
@@ -119,7 +119,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"environmentId": dummyEnvironmentId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]TeamRoleAssignmentPayload) {
+				Do(func(path string, request any, response *[]TeamRoleAssignmentPayload) {
 					*response = mockTeamRoleAssignments
 				}).Times(1)
 			assignments, _ = apiClient.TeamRoleAssignments(&TeamRoleAssignmentListPayload{EnvironmentId: dummyEnvironmentId})
@@ -137,7 +137,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"organizationId": dummyOrganizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]TeamRoleAssignmentPayload) {
+				Do(func(path string, request any, response *[]TeamRoleAssignmentPayload) {
 					*response = mockTeamRoleAssignments
 				}).Times(1)
 			assignments, _ = apiClient.TeamRoleAssignments(&TeamRoleAssignmentListPayload{OrganizationId: dummyOrganizationId})

@@ -35,7 +35,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  sshKey.Name,
 						"value": sshKey.Value,
 					}),
@@ -46,7 +46,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  updatedSshKey.Name,
 						"value": updatedSshKey.Value,
 					}),
@@ -71,7 +71,7 @@ func TestUnitSshKeyResource(t *testing.T) {
 	})
 
 	t.Run("SSH Key removed in UI", func(t *testing.T) {
-		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":  sshKey.Name,
 			"value": sshKey.Value,
 		})

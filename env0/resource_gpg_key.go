@@ -43,7 +43,7 @@ func resourceGpgKey() *schema.Resource {
 	}
 }
 
-func resourceGpgKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGpgKeyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.GpgKeyCreatePayload
@@ -61,7 +61,7 @@ func resourceGpgKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	gpgKey, err := getGpgKeyById(d.Id(), meta)
 	if err != nil {
 		return ResourceGetFailure(ctx, "gpg key", d, err)
@@ -74,7 +74,7 @@ func resourceGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceGpgKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGpgKeyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.GpgKeyDelete(d.Id()); err != nil {
@@ -84,7 +84,7 @@ func resourceGpgKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func getGpgKeyById(id string, meta interface{}) (*client.GpgKey, error) {
+func getGpgKeyById(id string, meta any) (*client.GpgKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	gpgKeys, err := apiClient.GpgKeys()
@@ -101,7 +101,7 @@ func getGpgKeyById(id string, meta interface{}) (*client.GpgKey, error) {
 	return nil, &client.NotFoundError{}
 }
 
-func getGpgKeyByName(name string, meta interface{}) (*client.GpgKey, error) {
+func getGpgKeyByName(name string, meta any) (*client.GpgKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	gpgKeys, err := apiClient.GpgKeys()
@@ -128,20 +128,20 @@ func getGpgKeyByName(name string, meta interface{}) (*client.GpgKey, error) {
 	return &foundGpgKeys[0], nil
 }
 
-func getGpgKey(ctx context.Context, idOrName string, meta interface{}) (*client.GpgKey, error) {
+func getGpgKey(ctx context.Context, idOrName string, meta any) (*client.GpgKey, error) {
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
-		tflog.Info(ctx, "Resolving gpg key by id", map[string]interface{}{"id": idOrName})
+		tflog.Info(ctx, "Resolving gpg key by id", map[string]any{"id": idOrName})
 
 		return getGpgKeyById(idOrName, meta)
 	} else {
-		tflog.Info(ctx, "Resolving gpg key by name", map[string]interface{}{"name": idOrName})
+		tflog.Info(ctx, "Resolving gpg key by name", map[string]any{"name": idOrName})
 
 		return getGpgKeyByName(idOrName, meta)
 	}
 }
 
-func resourceGpgKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceGpgKeyImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	gpgKey, err := getGpgKey(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

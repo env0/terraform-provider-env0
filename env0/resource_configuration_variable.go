@@ -172,7 +172,7 @@ func getConfigurationVariableCreateParams(d *schema.ResourceData) (*client.Confi
 	return &params, nil
 }
 
-func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	params, err := getConfigurationVariableCreateParams(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -191,12 +191,12 @@ func resourceConfigurationVariableCreate(ctx context.Context, d *schema.Resource
 }
 
 func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
-	var enumValues []interface{}
+	var enumValues []any
 
 	var actualEnumValues []string
 
 	if specified, ok := d.GetOk("enum"); ok {
-		enumValues = specified.([]interface{})
+		enumValues = specified.([]any)
 		valueExists := false
 
 		for i, enumValue := range enumValues {
@@ -219,7 +219,7 @@ func getEnum(d *schema.ResourceData, selectedValue string) ([]string, error) {
 	return actualEnumValues, nil
 }
 
-func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -242,7 +242,7 @@ func resourceConfigurationVariableRead(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	params, err := getConfigurationVariableCreateParams(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -258,7 +258,7 @@ func resourceConfigurationVariableUpdate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceConfigurationVariableDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	// don't delete if soft delete is set
 	if softDelete := d.Get("soft_delete"); softDelete != nil && softDelete.(bool) {
 		return nil
@@ -276,7 +276,7 @@ func resourceConfigurationVariableDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 
 	inputData := d.Id()

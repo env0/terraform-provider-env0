@@ -55,11 +55,11 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": configurationVariable.Id}),
 						Check:  checkResources,
 					},
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": configurationVariable.Name}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": configurationVariable.Name}),
 						Check:  checkResources,
 					},
 				},
@@ -102,11 +102,11 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"id": configurationVariable.Id}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": configurationVariable.Id}),
 						Check:  checkResources,
 					},
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": configurationVariable.Name}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": configurationVariable.Name}),
 						Check:  checkResources,
 					},
 				},
@@ -124,7 +124,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": "template_id", "name": configurationVariable.Name}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"template_id": "template_id", "name": configurationVariable.Name}),
 						Check:  checkResources,
 					},
 				},
@@ -140,7 +140,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"environment_id": configurationVariable.Id, "name": configurationVariable.Name}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"environment_id": configurationVariable.Id, "name": configurationVariable.Name}),
 						Check:  checkResources,
 					},
 				},
@@ -156,7 +156,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": "invalid"}),
 						ExpectError: regexp.MustCompile("Could not query variables"),
 					},
 				},
@@ -172,7 +172,7 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "invalid"}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{"name": "invalid"}),
 						ExpectError: regexp.MustCompile("Could not find variable"),
 					},
 				},

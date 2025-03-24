@@ -37,7 +37,7 @@ func resourceProvider() *schema.Resource {
 	}
 }
 
-func resourceProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProviderCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ProviderCreatePayload
@@ -55,7 +55,7 @@ func resourceProviderCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProviderRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	provider, err := apiClient.Provider(d.Id())
@@ -70,7 +70,7 @@ func resourceProviderRead(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProviderUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ProviderUpdatePayload
@@ -85,7 +85,7 @@ func resourceProviderUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceProviderDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProviderDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.ProviderDelete(d.Id()); err != nil {
@@ -95,7 +95,7 @@ func resourceProviderDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func getProviderByName(name string, meta interface{}) (*client.Provider, error) {
+func getProviderByName(name string, meta any) (*client.Provider, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	providers, err := apiClient.Providers()
@@ -122,20 +122,20 @@ func getProviderByName(name string, meta interface{}) (*client.Provider, error) 
 	return &foundProviders[0], nil
 }
 
-func getProvider(ctx context.Context, idOrName string, meta interface{}) (*client.Provider, error) {
+func getProvider(ctx context.Context, idOrName string, meta any) (*client.Provider, error) {
 	_, err := uuid.Parse(idOrName)
 	if err == nil {
-		tflog.Info(ctx, "Resolving provider by id", map[string]interface{}{"id": idOrName})
+		tflog.Info(ctx, "Resolving provider by id", map[string]any{"id": idOrName})
 
 		return meta.(client.ApiClientInterface).Provider(idOrName)
 	} else {
-		tflog.Info(ctx, "Resolving provider by name", map[string]interface{}{"name": idOrName})
+		tflog.Info(ctx, "Resolving provider by name", map[string]any{"name": idOrName})
 
 		return getProviderByName(idOrName, meta)
 	}
 }
 
-func resourceProviderImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceProviderImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	provider, err := getProvider(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

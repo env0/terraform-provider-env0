@@ -28,7 +28,7 @@ var _ = Describe("User Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations/"+organizationId+"/users", gomock.Any(), gomock.Any()).
-					Do(func(path string, request interface{}, response *[]OrganizationUser) {
+					Do(func(path string, request any, response *[]OrganizationUser) {
 						*response = mockUsers
 					}).Times(1)
 

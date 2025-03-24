@@ -50,7 +50,7 @@ func resourceVariableSetAssignment() *schema.Resource {
 	}
 }
 
-func resourceVariableSetAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignmentSchema variableSetAssignmentSchema
@@ -70,7 +70,7 @@ func resourceVariableSetAssignmentCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignmentSchema variableSetAssignmentSchema
@@ -142,7 +142,7 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceVariableSetAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignmentSchema variableSetAssignmentSchema
@@ -160,7 +160,7 @@ func resourceVariableSetAssignmentDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignmentSchema variableSetAssignmentSchema

@@ -34,7 +34,7 @@ func dataTeams() *schema.Resource {
 	}
 }
 
-func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataTeamsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var regex *regexp.Regexp

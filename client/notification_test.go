@@ -25,7 +25,7 @@ var _ = Describe("Notification Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Notification) {
+				Do(func(path string, request any, response *[]Notification) {
 					*response = mockNotifications
 				})
 			returnedNotifications, _ = apiClient.Notifications()
@@ -62,7 +62,7 @@ var _ = Describe("Notification Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/notifications/endpoints", expectedCreateRequest, gomock.Any()).
-					Do(func(path string, request interface{}, response *Notification) {
+					Do(func(path string, request any, response *Notification) {
 						*response = mockNotification
 					})
 
@@ -116,7 +116,7 @@ var _ = Describe("Notification Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Patch("/notifications/endpoints/"+mockNotification.Id, updateNotificationPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Notification) {
+					Do(func(path string, request any, response *Notification) {
 						*response = updateMockNotification
 					})
 

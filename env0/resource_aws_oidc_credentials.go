@@ -53,7 +53,7 @@ func awsOidcCredentialsGetValue(d *schema.ResourceData) (client.AwsCredentialsVa
 	return value, nil
 }
 
-func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := awsOidcCredentialsGetValue(d)
@@ -77,7 +77,7 @@ func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceAwsOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := awsOidcCredentialsGetValue(d)

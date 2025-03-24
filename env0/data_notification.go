@@ -44,7 +44,7 @@ func dataNotification() *schema.Resource {
 	}
 }
 
-func dataNotificationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataNotificationRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var notification *client.Notification
 
 	var err error

@@ -31,7 +31,7 @@ func TestUnitResourceCostCredentialsProjectAssignmentResource(t *testing.T) {
 		ProjectId:       "proj-it-update",
 		CredentialsType: "AWS_ASSUMED_ROLE",
 	}
-	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"credential_id": assignment.CredentialsId,
 		"project_id":    assignment.ProjectId,
 	})
@@ -121,7 +121,7 @@ func TestUnitResourceCostCredentialsProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"credential_id": assignmentForDrift.CredentialsId,
 						"project_id":    assignmentForDrift.ProjectId,
 					}),

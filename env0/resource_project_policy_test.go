@@ -63,7 +63,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                      policy.ProjectId,
 						"number_of_environments":          *policy.NumberOfEnvironments,
 						"number_of_environments_total":    *policy.NumberOfEnvironmentsTotal,
@@ -101,7 +101,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                    updatedPolicy.ProjectId,
 						"requires_approval_default":     updatedPolicy.RequiresApprovalDefault,
 						"include_cost_estimation":       updatedPolicy.IncludeCostEstimation,
@@ -207,7 +207,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		testCaseForDefault := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                    policy.ProjectId,
 						"number_of_environments":        *policy.NumberOfEnvironments,
 						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
@@ -268,7 +268,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                    policy.ProjectId,
 						"number_of_environments":        *policy.NumberOfEnvironments,
 						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
@@ -293,7 +293,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                    policy.ProjectId,
 						"number_of_environments":        *policy.NumberOfEnvironments,
 						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
@@ -318,7 +318,7 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":                    policy.ProjectId,
 						"number_of_environments":        *policy.NumberOfEnvironments,
 						"number_of_environments_total":  *policy.NumberOfEnvironmentsTotal,
@@ -343,7 +343,7 @@ func TestUnitPolicyInvalidParams(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config:      resourceConfigCreate("env0_project_policy", "test", map[string]interface{}{"project_id": ""}),
+				Config:      resourceConfigCreate("env0_project_policy", "test", map[string]any{"project_id": ""}),
 				ExpectError: regexp.MustCompile("may not be empty"),
 			},
 		},

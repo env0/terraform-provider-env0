@@ -28,7 +28,7 @@ var _ = Describe("Configuration Set", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/configuration-sets/assignments/environment/12345?setIds=1,2,3", nil, nil).
-				Do(func(path string, request interface{}, response *interface{}) {}).
+				Do(func(path string, request any, response *any) {}).
 				Times(1)
 			err = apiClient.AssignConfigurationSets(scope, scopeId, setIds)
 		})
@@ -47,7 +47,7 @@ var _ = Describe("Configuration Set", func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/configuration-sets/assignments/environment/12345", map[string]string{
 				"setIds": "1,2,3",
 			}).
-				Do(func(path string, request interface{}) {}).
+				Do(func(path string, request any) {}).
 				Times(1)
 			err = apiClient.UnassignConfigurationSets(scope, scopeId, setIds)
 		})
@@ -65,7 +65,7 @@ var _ = Describe("Configuration Set", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration-sets/assignments/environment/12345", nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
+				Do(func(path string, request any, response *[]ConfigurationSet) {
 					*response = mockConfigurationSets
 				}).Times(1)
 			configurationSets, _ = apiClient.ConfigurationSetsAssignments(scope, scopeId)

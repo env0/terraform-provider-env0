@@ -28,7 +28,7 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 		BlueprintId: "blueprint_id",
 	}
 
-	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"scope_id":    assignment.ScopeId,
 		"template_id": assignment.BlueprintId,
 	})

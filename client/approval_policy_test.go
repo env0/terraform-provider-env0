@@ -39,7 +39,7 @@ var _ = Describe("Approval Policy Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/approval-policy", map[string]string{"organizationId": organizationId, "name": mockApprovalPolicy.Name}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ApprovalPolicy) {
+				Do(func(path string, request any, response *[]ApprovalPolicy) {
 					*response = mockApprovalPolicies
 				})
 			organizationIdCall.Times(1)
@@ -64,7 +64,7 @@ var _ = Describe("Approval Policy Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Post("/approval-policy/assignment", &mockAssignment, gomock.Any()).
-				Do(func(path string, request interface{}, response *ApprovalPolicyAssignment) {
+				Do(func(path string, request any, response *ApprovalPolicyAssignment) {
 					*response = mockAssignment
 				})
 			httpCall.Times(1)
@@ -108,7 +108,7 @@ var _ = Describe("Approval Policy Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get(fmt.Sprintf("/approval-policy/%s/%s", scope, scopeId), nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ApprovalPolicyByScope) {
+				Do(func(path string, request any, response *[]ApprovalPolicyByScope) {
 					*response = mockApprovalPolicyByScopeArr
 				})
 			httpCall.Times(1)
@@ -140,7 +140,7 @@ var _ = Describe("Approval Policy Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/approval-policy", &expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *ApprovalPolicy) {
+				Do(func(path string, request any, response *ApprovalPolicy) {
 					*response = mockApprovalPolicy
 				}).Times(1)
 
@@ -166,7 +166,7 @@ var _ = Describe("Approval Policy Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/approval-policy", &updateApprovalPolicyPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *ApprovalPolicy) {
+				Do(func(path string, request any, response *ApprovalPolicy) {
 					*response = mockApprovalPolicy
 				}).Times(1)
 

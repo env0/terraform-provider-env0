@@ -22,7 +22,7 @@ var _ = Describe("GitToken Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/tokens/"+mockGitToken.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *GitToken) {
+				Do(func(path string, request any, response *GitToken) {
 					*response = mockGitToken
 				})
 			returnedGitToken, _ = apiClient.GitToken(mockGitToken.Id)
@@ -45,7 +45,7 @@ var _ = Describe("GitToken Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]GitToken) {
+				Do(func(path string, request any, response *[]GitToken) {
 					*response = mockGitTokens
 				})
 			returnedGitTokens, _ = apiClient.GitTokens()
@@ -82,7 +82,7 @@ var _ = Describe("GitToken Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/tokens", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *GitToken) {
+				Do(func(path string, request any, response *GitToken) {
 					*response = mockGitToken
 				})
 

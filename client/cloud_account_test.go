@@ -89,7 +89,7 @@ var _ = Describe("CloudAccount", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/cloud/configurations", &payloadWithOrganizationId, gomock.Any()).
-				Do(func(path string, request interface{}, response *CloudAccount) {
+				Do(func(path string, request any, response *CloudAccount) {
 					*response = account1
 				}).Times(1)
 
@@ -126,7 +126,7 @@ var _ = Describe("CloudAccount", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/cloud/configurations", &payloadWithOrganizationId, gomock.Any()).
-					Do(func(path string, request interface{}, response *CloudAccount) {
+					Do(func(path string, request any, response *CloudAccount) {
 						*response = azureAccount
 					}).Times(1)
 
@@ -152,7 +152,7 @@ var _ = Describe("CloudAccount", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/cloud/configurations/"+account.Id, &payload, gomock.Any()).
-				Do(func(path string, request interface{}, response *CloudAccount) {
+				Do(func(path string, request any, response *CloudAccount) {
 					*response = account1Updated
 				}).Times(1)
 
@@ -172,7 +172,7 @@ var _ = Describe("CloudAccount", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Delete("/cloud/configurations/"+account.Id, nil).
-				Do(func(path string, request interface{}) {}).Times(1)
+				Do(func(path string, request any) {}).Times(1)
 
 			err = apiClient.CloudAccountDelete(account.Id)
 		})
@@ -186,7 +186,7 @@ var _ = Describe("CloudAccount", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/cloud/configurations/"+account.Id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *CloudAccount) {
+				Do(func(path string, request any, response *CloudAccount) {
 					*response = account1
 				}).Times(1)
 
@@ -214,7 +214,7 @@ var _ = Describe("CloudAccount", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/cloud/configurations", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]CloudAccount) {
+				Do(func(path string, request any, response *[]CloudAccount) {
 					*response = mockedAccounts
 				}).Times(1)
 

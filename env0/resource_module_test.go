@@ -62,7 +62,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -92,7 +92,7 @@ func TestUnitModuleResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":          updatedModule.ModuleName,
 						"module_provider":      updatedModule.ModuleProvider,
 						"repository":           updatedModule.Repository,
@@ -169,7 +169,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":     module.ModuleName,
 						"module_provider": module.ModuleProvider,
 						"repository":      module.Repository,
@@ -198,7 +198,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":     "bad!!name^",
 						"module_provider": module.ModuleProvider,
 						"repository":      module.Repository,
@@ -218,7 +218,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":     module.ModuleName,
 						"module_provider": "ab_c",
 						"repository":      module.Repository,
@@ -238,7 +238,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":         module.ModuleName,
 						"module_provider":     module.ModuleProvider,
 						"repository":          module.Repository,
@@ -262,7 +262,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -286,7 +286,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -301,7 +301,7 @@ func TestUnitModuleResource(t *testing.T) {
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":          updatedModule.ModuleName,
 						"module_provider":      updatedModule.ModuleProvider,
 						"repository":           updatedModule.Repository,
@@ -351,7 +351,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -366,7 +366,7 @@ func TestUnitModuleResource(t *testing.T) {
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               updatedModule.ModuleName,
 						"module_provider":           updatedModule.ModuleProvider,
 						"repository":                updatedModule.Repository,
@@ -405,7 +405,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -452,7 +452,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -501,7 +501,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -540,7 +540,7 @@ func TestUnitModuleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,
@@ -555,7 +555,7 @@ func TestUnitModuleResource(t *testing.T) {
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"module_name":               module.ModuleName,
 						"module_provider":           module.ModuleProvider,
 						"repository":                module.Repository,

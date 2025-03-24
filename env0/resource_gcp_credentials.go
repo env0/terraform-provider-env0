@@ -41,7 +41,7 @@ func resourceGcpCredentials() *schema.Resource {
 	}
 }
 
-func resourceGcpCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGcpCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.GcpCredentialsValuePayload{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)

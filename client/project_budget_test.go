@@ -23,7 +23,7 @@ var _ = Describe("Project Budget Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/costs/project/"+mockProjectBudget.ProjectId+"/budget", gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *ProjectBudget) {
+				Do(func(path string, request any, response *ProjectBudget) {
 					*response = mockProjectBudget
 				})
 			httpCall.Times(1)
@@ -60,7 +60,7 @@ var _ = Describe("Project Budget Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/costs/project/"+mockProjectBudget.ProjectId+"/budget", &updateProjectBudgetPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *ProjectBudget) {
+				Do(func(path string, request any, response *ProjectBudget) {
 					*response = mockProjectBudget
 				})
 			httpCall.Times(1)

@@ -17,7 +17,7 @@ type AgentProjectAssignment struct {
 
 const ENV0_DEFAULT = "ENV0_DEFAULT"
 
-func getAgentProjectAssignment(d *schema.ResourceData, meta interface{}) (*AgentProjectAssignment, error) {
+func getAgentProjectAssignment(d *schema.ResourceData, meta any) (*AgentProjectAssignment, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	assignments, err := apiClient.ProjectsAgentsAssignments()
@@ -70,7 +70,7 @@ func resourceAgentProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceAgentProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAgentProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignment AgentProjectAssignment
@@ -91,7 +91,7 @@ func resourceAgentProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema
 	return nil
 }
 
-func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	assignment, err := getAgentProjectAssignment(d, meta)
 	if err != nil {
 		return diag.FromErr(err)
@@ -104,7 +104,7 @@ func resourceAgentProjectAssignmentRead(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	// When deleting an assignment, revert the project assignment to the default.
@@ -126,7 +126,7 @@ func resourceAgentProjectAssignmentDelete(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceAgentProjectAssignmentImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	// Validate the project exists.

@@ -34,11 +34,11 @@ func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
 		return nil, nil
 	}
 
-	numberOfSubEnvironments := len(isubEnvironments.([]interface{}))
+	numberOfSubEnvironments := len(isubEnvironments.([]any))
 
 	var subEnvironments []SubEnvironment
 
-	for i := 0; i < numberOfSubEnvironments; i++ {
+	for i := range numberOfSubEnvironments {
 		prefix := fmt.Sprintf("sub_environment_configuration.%d", i)
 
 		var subEnvironment SubEnvironment
@@ -49,7 +49,7 @@ func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
 
 		configurationPrefix := prefix + ".configuration"
 		if configuration, ok := d.GetOk(configurationPrefix); ok {
-			subEnvironment.Configuration = getConfigurationVariablesFromSchema(configuration.([]interface{}))
+			subEnvironment.Configuration = getConfigurationVariablesFromSchema(configuration.([]any))
 
 			for i := range subEnvironment.Configuration {
 				subEnvironment.Configuration[i].Scope = client.ScopeEnvironment
@@ -86,7 +86,7 @@ func resourceEnvironment() *schema.Resource {
 				Description: "variable type (allowed values are: terraform, environment)",
 				Default:     client.ENVIRONMENT,
 				Optional:    true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+				ValidateFunc: func(val any, key string) (warns []string, errs []error) {
 					value := val.(string)
 					if value != client.ENVIRONMENT && value != client.TERRAFORM {
 						errs = append(errs, fmt.Errorf("%q can be either \"environment\" or \"terraform\", got: %q", key, value))
@@ -234,7 +234,7 @@ func resourceEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.",
 				Optional:    true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+				ValidateFunc: func(val any, key string) (warns []string, errs []error) {
 					utcPattern := `\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d`
 					ttl := val.(string)
 					matched, err := regexp.MatchString(utcPattern, ttl)
@@ -422,8 +422,8 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 			d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 		}
 	} else if environment.BlueprintId != "" || environment.LatestDeploymentLog.BlueprintId != "" {
-		settings := d.Get("without_template_settings").([]interface{})
-		elem := settings[0].(map[string]interface{})
+		settings := d.Get("without_template_settings").([]any)
+		elem := settings[0].(map[string]any)
 
 		if environment.BlueprintId != "" {
 			elem["id"] = environment.BlueprintId
@@ -449,10 +449,10 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
 
 		if ok {
-			var newSubEnvironments []interface{}
+			var newSubEnvironments []any
 
-			for i, iSubEnvironment := range iSubEnvironments.([]interface{}) {
-				subEnvironment := iSubEnvironment.(map[string]interface{})
+			for i, iSubEnvironment := range iSubEnvironments.([]any) {
+				subEnvironment := iSubEnvironment.(map[string]any)
 
 				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
 
@@ -507,8 +507,8 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	return nil
 }
 
-func createVariable(configurationVariable *client.ConfigurationVariable) interface{} {
-	variable := make(map[string]interface{})
+func createVariable(configurationVariable *client.ConfigurationVariable) any {
+	variable := make(map[string]any)
 
 	variable["name"] = configurationVariable.Name
 	variable["value"] = configurationVariable.Value
@@ -565,7 +565,7 @@ func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.
 	return nil
 }
 
-func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if d.Get("is_inactive").(bool) {
@@ -646,7 +646,7 @@ func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient clien
 	return environmentVariableSetIds, nil
 }
 
-func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environment, err := apiClient.Environment(d.Id())
@@ -690,7 +690,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if d.HasChange("project_id") {
@@ -820,7 +820,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
 		for i, subEnvironment := range subEnvironments {
-			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]interface{})
+			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]any)
 			configurationChanges := getConfigurationVariablesFromSchema(configuration)
 
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeEnvironment, apiClient)
@@ -882,7 +882,7 @@ func getEnvironmentVariableSetIdsFromSchema(d *schema.ResourceData) []string {
 	var variableSets []string
 
 	if ivariableSets, ok := d.GetOk("variable_sets"); ok {
-		for _, ivariableSet := range ivariableSets.([]interface{}) {
+		for _, ivariableSet := range ivariableSets.([]any) {
 			variableSets = append(variableSets, ivariableSet.(string))
 		}
 	}
@@ -890,7 +890,7 @@ func getEnvironmentVariableSetIdsFromSchema(d *schema.ResourceData) []string {
 	return variableSets
 }
 
-func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	markAsArchived := d.Get("removal_strategy").(string) == "mark_as_archived"
@@ -912,7 +912,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
-			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]interface{}{"id": d.Id(), "error": frerr.Error()})
+			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]any{"id": d.Id(), "error": frerr.Error()})
 
 			return nil
 		}
@@ -963,7 +963,7 @@ func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientIn
 				return
 			}
 
-			tflog.Info(ctx, "current 'destroy' deployment status", map[string]interface{}{"deploymentId": deploymentId, "status": deployment.Status})
+			tflog.Info(ctx, "current 'destroy' deployment status", map[string]any{"deploymentId": deploymentId, "status": deployment.Status})
 
 			if deployment.Status == "WAITING_FOR_USER" {
 				tflog.Warn(ctx, "waiting for user approval (Env0 UI) to proceed with 'destroy' deployment")
@@ -1041,7 +1041,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
+		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]any))
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -1257,7 +1257,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
-			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]interface{}))
+			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]any))
 			scope := client.ScopeEnvironment
 
 			if _, ok := d.GetOk("sub_environment_configuration"); ok {
@@ -1354,7 +1354,7 @@ func typeEqual(variable client.ConfigurationVariable, search client.Configuratio
 		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
 }
 
-func getEnvironmentByName(meta interface{}, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
+func getEnvironmentByName(meta any, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentsByName, err := apiClient.EnvironmentsByName(name)
@@ -1387,7 +1387,7 @@ func getEnvironmentByName(meta interface{}, name string, projectId string, exclu
 	return filteredEnvironments[0], nil
 }
 
-func getEnvironmentById(environmentId string, meta interface{}) (client.Environment, diag.Diagnostics) {
+func getEnvironmentById(environmentId string, meta any) (client.Environment, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environment, err := apiClient.Environment(environmentId)
@@ -1398,7 +1398,7 @@ func getEnvironmentById(environmentId string, meta interface{}) (client.Environm
 	return environment, nil
 }
 
-func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
 	var getErr diag.Diagnostics
@@ -1407,10 +1407,10 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving environment by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving environment by id", map[string]any{"id": id})
 		environment, getErr = getEnvironmentById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving environment by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving environment by name", map[string]any{"name": id})
 
 		environment, getErr = getEnvironmentByName(meta, id, "", false)
 	}

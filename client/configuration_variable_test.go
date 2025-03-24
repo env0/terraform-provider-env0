@@ -83,7 +83,7 @@ var _ = Describe("Configuration Variable", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration/"+id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *ConfigurationVariable) {
+				Do(func(path string, request any, response *ConfigurationVariable) {
 					*response = mockConfigurationVariable
 				})
 
@@ -98,8 +98,8 @@ var _ = Describe("Configuration Variable", func() {
 	Describe("ConfigurationVariableCreate", func() {
 		var createdConfigurationVariable ConfigurationVariable
 
-		var GetExpectedRequest = func(mockConfig ConfigurationVariable) []map[string]interface{} {
-			schema := map[string]interface{}{
+		var GetExpectedRequest = func(mockConfig ConfigurationVariable) []map[string]any {
+			schema := map[string]any{
 				"type":   mockConfig.Schema.Type,
 				"format": mockConfig.Schema.Format,
 			}
@@ -108,7 +108,7 @@ var _ = Describe("Configuration Variable", func() {
 				delete(schema, "format")
 			}
 
-			request := []map[string]interface{}{{
+			request := []map[string]any{{
 				"name":           mockConfig.Name,
 				"description":    mockConfig.Description,
 				"isSensitive":    *mockConfig.IsSensitive,
@@ -130,7 +130,7 @@ var _ = Describe("Configuration Variable", func() {
 			expectedCreateRequest := GetExpectedRequest(mockConfig)
 			httpCall = mockHttpClient.EXPECT().
 				Post("configuration", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
 					*response = []ConfigurationVariable{mockConfig}
 				})
 		}
@@ -211,7 +211,7 @@ var _ = Describe("Configuration Variable", func() {
 			newDescription := "new-" + mockConfigurationVariable.Description
 			newValue := "new-" + mockConfigurationVariable.Value
 
-			expectedUpdateRequest := []map[string]interface{}{{
+			expectedUpdateRequest := []map[string]any{{
 				"name":           newName,
 				"description":    newDescription,
 				"value":          newValue,
@@ -221,7 +221,7 @@ var _ = Describe("Configuration Variable", func() {
 				"scopeId":        mockConfigurationVariable.ScopeId,
 				"scope":          mockConfigurationVariable.Scope,
 				"type":           *mockConfigurationVariable.Type,
-				"schema": map[string]interface{}{
+				"schema": map[string]any{
 					"type": mockConfigurationVariable.Schema.Type,
 				},
 				"isReadonly": *mockConfigurationVariable.IsReadOnly,
@@ -231,7 +231,7 @@ var _ = Describe("Configuration Variable", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/configuration", expectedUpdateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
 					*response = []ConfigurationVariable{mockConfigurationVariable}
 				})
 
@@ -276,7 +276,7 @@ var _ = Describe("Configuration Variable", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration", expectedParams, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
 					*response = mockVariables
 				})
 			returnedVariables, _ = apiClient.ConfigurationVariablesByScope(ScopeTemplate, scopeId)

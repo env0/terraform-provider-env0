@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func ValidateConfigurationPropertySchema(val interface{}, key string) (warns []string, errs []error) {
+func ValidateConfigurationPropertySchema(val any, key string) (warns []string, errs []error) {
 	value := val.(string)
 	if value != string(client.HCL) && value != string(client.Text) && value != string(client.JSON) {
 		errs = append(errs, fmt.Errorf("%q can be either \"HCL\", \"JSON\" or empty, got: %q", key, value))
@@ -22,7 +22,7 @@ func ValidateConfigurationPropertySchema(val interface{}, key string) (warns []s
 	return
 }
 
-func ValidateCronExpression(i interface{}, path cty.Path) diag.Diagnostics {
+func ValidateCronExpression(i any, path cty.Path) diag.Diagnostics {
 	expr := i.(string)
 	parser := gronx.New()
 	isValid := parser.IsValid(expr)
@@ -39,7 +39,7 @@ func ValidateCronExpression(i interface{}, path cty.Path) diag.Diagnostics {
 	return nil
 }
 
-func ValidateNotEmptyString(i interface{}, path cty.Path) diag.Diagnostics {
+func ValidateNotEmptyString(i any, path cty.Path) diag.Diagnostics {
 	s := strings.TrimSpace(i.(string))
 	if len(s) == 0 {
 		return diag.Errorf("may not be empty")
@@ -48,7 +48,7 @@ func ValidateNotEmptyString(i interface{}, path cty.Path) diag.Diagnostics {
 	return nil
 }
 
-func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
+func ValidateRetries(i any, path cty.Path) diag.Diagnostics {
 	retries := i.(int)
 	if retries < 1 || retries > 3 {
 		return diag.Errorf("retries amount must be between 1 and 3")
@@ -60,7 +60,7 @@ func ValidateRetries(i interface{}, path cty.Path) diag.Diagnostics {
 func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 	cr := regexp.MustCompile(r)
 
-	return func(i interface{}, p cty.Path) diag.Diagnostics {
+	return func(i any, p cty.Path) diag.Diagnostics {
 		if !cr.MatchString(i.(string)) {
 			return diag.Errorf("must match pattern %v", r)
 		}
@@ -70,7 +70,7 @@ func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 }
 
 func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc {
-	return func(i interface{}, p cty.Path) diag.Diagnostics {
+	return func(i any, p cty.Path) diag.Diagnostics {
 		value := i.(string)
 		for _, allowedValue := range allowedValues {
 			if value == allowedValue {
@@ -83,7 +83,7 @@ func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc 
 }
 
 func NewIntInValidator(allowedValues []int) schema.SchemaValidateDiagFunc {
-	return func(i interface{}, p cty.Path) diag.Diagnostics {
+	return func(i any, p cty.Path) diag.Diagnostics {
 		value := i.(int)
 		for _, allowedValue := range allowedValues {
 			if value == allowedValue {
@@ -96,7 +96,7 @@ func NewIntInValidator(allowedValues []int) schema.SchemaValidateDiagFunc {
 }
 
 func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
-	return func(i interface{}, p cty.Path) diag.Diagnostics {
+	return func(i any, p cty.Path) diag.Diagnostics {
 		value := i.(int)
 		if value <= greaterThan {
 			return diag.Errorf("%d must be greater than %d", value, greaterThan)
@@ -110,7 +110,7 @@ func NewOpenTofuVersionValidator() schema.SchemaValidateDiagFunc {
 	return NewRegexValidator(`(?:^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}(?:-.+)?$)|^RESOLVE_FROM_CODE$|^latest$`)
 }
 
-func ValidateTtl(i interface{}, path cty.Path) diag.Diagnostics {
+func ValidateTtl(i any, path cty.Path) diag.Diagnostics {
 	ttl := i.(string)
 
 	_, err := ttlToDuration(&ttl)
@@ -122,7 +122,7 @@ func ValidateTtl(i interface{}, path cty.Path) diag.Diagnostics {
 }
 
 func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagFunc {
-	return func(i interface{}, p cty.Path) diag.Diagnostics {
+	return func(i any, p cty.Path) diag.Diagnostics {
 		role := i.(string)
 
 		if role == "" {
@@ -147,7 +147,7 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 	}
 }
 
-func ValidateUrl(i interface{}, path cty.Path) diag.Diagnostics {
+func ValidateUrl(i any, path cty.Path) diag.Diagnostics {
 	v := i.(string)
 	_, err := url.ParseRequestURI(v)
 

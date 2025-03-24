@@ -42,7 +42,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
@@ -57,7 +57,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedRole.Name,
 						"permissions":     updatedRole.Permissions,
 						"is_default_role": updatedRole.IsDefaultRole,
@@ -98,7 +98,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
@@ -121,14 +121,14 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedRole.Name,
 						"permissions":     updatedRole.Permissions,
 						"is_default_role": updatedRole.IsDefaultRole,
@@ -156,7 +156,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 	})
 
 	t.Run("Drift", func(t *testing.T) {
-		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":            role.Name,
 			"permissions":     role.Permissions,
 			"is_default_role": role.IsDefaultRole,
@@ -195,7 +195,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
@@ -226,7 +226,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
@@ -258,7 +258,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,
@@ -292,7 +292,7 @@ func TestUnitCustomRoleResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            role.Name,
 						"permissions":     role.Permissions,
 						"is_default_role": role.IsDefaultRole,

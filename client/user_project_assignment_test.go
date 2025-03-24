@@ -37,7 +37,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Post("/permissions/projects/"+projectId, assignPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *UserProjectAssignment) {
+					Do(func(path string, request any, response *UserProjectAssignment) {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.AssignUserToProject(projectId, assignPayload)
@@ -103,7 +103,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/permissions/projects/"+projectId, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]UserProjectAssignment) {
+					Do(func(path string, request any, response *[]UserProjectAssignment) {
 						*response = []UserProjectAssignment{*expectedResponse}
 					}).Times(1)
 				actualResult, err = apiClient.UserProjectAssignments(projectId)
@@ -152,7 +152,7 @@ var _ = Describe("Agent Project Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/permissions/projects/"+projectId+"/users/"+userId, updatePayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *UserProjectAssignment) {
+					Do(func(path string, request any, response *UserProjectAssignment) {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.UpdateUserProjectAssignment(projectId, userId, updatePayload)

@@ -38,7 +38,7 @@ func TestProjectsDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "projects.0.id", project1.Id),
 						resource.TestCheckResourceAttr(accessor, "projects.0.name", project1.Name),
@@ -59,7 +59,7 @@ func TestProjectsDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"include_archived_projects": "true",
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -85,7 +85,7 @@ func TestProjectsDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					ExpectError: regexp.MustCompile(expectedError),
 				},
 			},

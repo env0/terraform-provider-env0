@@ -26,7 +26,7 @@ func TestAgentsDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "agents.0.agent_key", agent1.AgentKey),
 						resource.TestCheckResourceAttr(accessor, "agents.1.agent_key", agent2.AgentKey),
@@ -54,7 +54,7 @@ func TestAgentsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						ExpectError: regexp.MustCompile("error"),
 					},
 				},

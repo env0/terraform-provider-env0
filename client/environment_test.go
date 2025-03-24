@@ -47,7 +47,7 @@ var _ = Describe("Environment Client", func() {
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
 					}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Environment) {
+					Do(func(path string, request any, response *[]Environment) {
 						*response = mockEnvironments
 					})
 
@@ -65,11 +65,11 @@ var _ = Describe("Environment Client", func() {
 
 		Describe("SuccessMultiPages", func() {
 			var environmentsP1, environmentsP2 []Environment
-			for i := 0; i < full_page; i++ {
+			for range full_page {
 				environmentsP1 = append(environmentsP1, mockEnvironment)
 			}
 
-			for i := 0; i < partial_page; i++ {
+			for range partial_page {
 				environmentsP2 = append(environmentsP2, mockEnvironment)
 			}
 
@@ -82,7 +82,7 @@ var _ = Describe("Environment Client", func() {
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
 					}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Environment) {
+					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP1
 					}).Times(1)
 
@@ -93,7 +93,7 @@ var _ = Describe("Environment Client", func() {
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
 					}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Environment) {
+					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP2
 					}).Times(1)
 
@@ -108,11 +108,11 @@ var _ = Describe("Environment Client", func() {
 		Describe("SuccessMultiPagesWithProject", func() {
 			projectId := "proj123"
 			var environmentsP1, environmentsP2 []Environment
-			for i := 0; i < full_page; i++ {
+			for range full_page {
 				environmentsP1 = append(environmentsP1, mockEnvironment)
 			}
 
-			for i := 0; i < partial_page; i++ {
+			for range partial_page {
 				environmentsP2 = append(environmentsP2, mockEnvironment)
 			}
 
@@ -123,7 +123,7 @@ var _ = Describe("Environment Client", func() {
 						"limit":     "100",
 						"projectId": projectId,
 					}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Environment) {
+					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP1
 					}).Times(1)
 
@@ -133,7 +133,7 @@ var _ = Describe("Environment Client", func() {
 						"limit":     "100",
 						"projectId": projectId,
 					}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Environment) {
+					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP2
 					}).Times(1)
 
@@ -172,7 +172,7 @@ var _ = Describe("Environment Client", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments/"+mockEnvironment.Id, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *Environment) {
+					Do(func(path string, request any, response *Environment) {
 						*response = mockEnvironment
 					})
 
@@ -213,7 +213,7 @@ var _ = Describe("Environment Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/environments", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Environment) {
+				Do(func(path string, request any, response *Environment) {
 					*response = mockEnvironment
 				})
 
@@ -254,7 +254,7 @@ var _ = Describe("Environment Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/environments/without-template", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Environment) {
+				Do(func(path string, request any, response *Environment) {
 					*response = mockEnvironment
 				})
 
@@ -288,7 +288,7 @@ var _ = Describe("Environment Client", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/environments/"+mockEnvironment.Id+"/destroy", nil, gomock.Any()).Times(1).
-				Do((func(path string, request interface{}, response *EnvironmentDestroyResponse) {
+				Do((func(path string, request any, response *EnvironmentDestroyResponse) {
 					*response = mockedRes
 				}))
 			res, err = apiClient.EnvironmentDestroy(mockEnvironment.Id)
@@ -333,7 +333,7 @@ var _ = Describe("Environment Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/environments/"+mockEnvironment.Id, updateEnvironmentPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Environment) {
+					Do(func(path string, request any, response *Environment) {
 						*response = mockEnvironment
 					})
 
@@ -376,7 +376,7 @@ var _ = Describe("Environment Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/environments/"+mockEnvironment.Id+"/deployments", deployRequest, gomock.Any()).
-					Do(func(path string, request interface{}, response *EnvironmentDeployResponse) {
+					Do(func(path string, request any, response *EnvironmentDeployResponse) {
 						*response = deployResponseMock
 					})
 
@@ -410,7 +410,7 @@ var _ = Describe("Environment Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/environments/"+mockEnvironment.Id+"/ttl", updateTTLRequest, gomock.Any()).
-					Do(func(path string, request interface{}, response *Environment) {
+					Do(func(path string, request any, response *Environment) {
 						*response = mockEnvironment
 					})
 
@@ -463,7 +463,7 @@ var _ = Describe("Environment Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/environments/deployments/"+mockDeployment.Id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *DeploymentLog) {
+				Do(func(path string, request any, response *DeploymentLog) {
 					*response = mockDeployment
 				}).Times(1)
 

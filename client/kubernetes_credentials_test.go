@@ -27,10 +27,10 @@ var _ = Describe("Kubernetes Credentials", func() {
 		}
 
 		createPayloadWithOrganizationId := struct {
-			OrganizationId string      `json:"organizationId"`
-			Name           string      `json:"name"`
-			Type           string      `json:"type"`
-			Value          interface{} `json:"value"`
+			OrganizationId string `json:"organizationId"`
+			Name           string `json:"name"`
+			Type           string `json:"type"`
+			Value          any    `json:"value"`
 		}{
 			OrganizationId: organizationId,
 			Name:           createPayload.Name,
@@ -43,7 +43,7 @@ var _ = Describe("Kubernetes Credentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/credentials", &createPayloadWithOrganizationId, gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockCredentials
 				})
 
@@ -72,7 +72,7 @@ var _ = Describe("Kubernetes Credentials", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Patch("/credentials/"+mockCredentials.Id, &updatePayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockCredentials
 				})
 

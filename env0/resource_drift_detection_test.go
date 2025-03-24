@@ -29,7 +29,7 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":         environmentId,
 						"cron":                   drift.Cron,
 						"auto_drift_remediation": autoDriftRemediation,
@@ -53,7 +53,7 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":         environmentId,
 						"cron":                   drift.Cron,
 						"auto_drift_remediation": autoDriftRemediation,
@@ -65,7 +65,7 @@ func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":         environmentId,
 						"cron":                   updateDrift.Cron,
 						"auto_drift_remediation": "DISABLED",

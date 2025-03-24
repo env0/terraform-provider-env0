@@ -83,7 +83,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -104,7 +104,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedApprovalPolicy.Name,
 						"repository":      updatedApprovalPolicy.Repository,
 						"path":            updatedApprovalPolicy.Path,
@@ -142,7 +142,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -164,7 +164,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 					ExpectNonEmptyPlan: true,
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedApprovalPolicy.Name,
 						"repository":      updatedApprovalPolicy.Repository,
 						"path":            updatedApprovalPolicy.Path,
@@ -201,7 +201,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -223,7 +223,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 					ExpectNonEmptyPlan: true,
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedApprovalPolicy.Name,
 						"repository":      updatedApprovalPolicy.Repository,
 						"path":            updatedApprovalPolicy.Path,
@@ -260,7 +260,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -283,7 +283,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -294,7 +294,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedApprovalPolicy.Name,
 						"repository":      updatedApprovalPolicy.Repository,
 						"path":            updatedApprovalPolicy.Path,
@@ -321,7 +321,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -353,7 +353,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -387,7 +387,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -421,7 +421,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,
@@ -455,7 +455,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   approvalPolicy.Name,
 						"repository":             approvalPolicy.Repository,
 						"path":                   approvalPolicy.Path,

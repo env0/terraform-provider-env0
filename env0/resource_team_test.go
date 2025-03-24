@@ -32,7 +32,7 @@ func TestUnitTeamResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        team.Name,
 						"description": team.Description,
 					}),
@@ -43,7 +43,7 @@ func TestUnitTeamResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        updatedTeam.Name,
 						"description": updatedTeam.Description,
 					}),
@@ -79,7 +79,7 @@ func TestUnitTeamResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        team.Name,
 						"description": team.Description,
 					}),
@@ -100,13 +100,13 @@ func TestUnitTeamResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        team.Name,
 						"description": team.Description,
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        updatedTeam.Name,
 						"description": updatedTeam.Description,
 					}),
@@ -133,7 +133,7 @@ func TestUnitTeamResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        team.Name,
 						"description": team.Description,
 					}),
@@ -153,7 +153,7 @@ func TestUnitTeamResource(t *testing.T) {
 	})
 
 	t.Run("Team removed in UI", func(t *testing.T) {
-		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":        team.Name,
 			"description": team.Description,
 		})

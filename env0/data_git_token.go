@@ -29,7 +29,7 @@ func dataGitToken() *schema.Resource {
 	}
 }
 
-func dataGitTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataGitTokenRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var gitToken *client.GitToken
 
 	var err error

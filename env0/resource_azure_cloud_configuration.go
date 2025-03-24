@@ -48,10 +48,10 @@ func resourceAzureCloudConfiguration() *schema.Resource {
 	}
 }
 
-func resourceAzureCloudConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAzureCloudConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return createCloudConfiguration(d, meta, "AzureLAW")
 }
 
-func resourceAzureCloudConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAzureCloudConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return updateCloudConfiguration(d, meta, "AzureLAW")
 }

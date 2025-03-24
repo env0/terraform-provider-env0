@@ -18,13 +18,13 @@ func TestUnitAwsEksCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	credentialsResource := map[string]interface{}{
+	credentialsResource := map[string]any{
 		"name":           "test",
 		"cluster_name":   "my-cluster",
 		"cluster_region": "us-east-2",
 	}
 
-	updatedCredentialsResource := map[string]interface{}{
+	updatedCredentialsResource := map[string]any{
 		"name":           "test",
 		"cluster_name":   "my-cluster2",
 		"cluster_region": "us-east-2",

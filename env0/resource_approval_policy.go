@@ -24,7 +24,7 @@ func resourceApprovalPolicy() *schema.Resource {
 	}
 }
 
-func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ApprovalPolicyCreatePayload
@@ -42,7 +42,7 @@ func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	approvalPolicy, err := apiClient.Template(d.Id())
@@ -51,7 +51,7 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if approvalPolicy.IsDeleted && !d.IsNewResource() {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -64,7 +64,7 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ApprovalPolicyUpdatePayload
@@ -79,7 +79,7 @@ func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceApprovalPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApprovalPolicyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.TemplateDelete(d.Id()); err != nil {
@@ -89,7 +89,7 @@ func resourceApprovalPolicyDelete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func getApprovalPolicyByName(name string, meta interface{}) (*client.ApprovalPolicy, error) {
+func getApprovalPolicyByName(name string, meta any) (*client.ApprovalPolicy, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	approvalPolicies, err := apiClient.ApprovalPolicies(name)
@@ -108,9 +108,9 @@ func getApprovalPolicyByName(name string, meta interface{}) (*client.ApprovalPol
 	return &approvalPolicies[0], nil
 }
 
-func getApprovalPolicy(ctx context.Context, id string, meta interface{}) (interface{}, error) {
+func getApprovalPolicy(ctx context.Context, id string, meta any) (any, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		tflog.Info(ctx, "Resolving approval policy by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving approval policy by id", map[string]any{"id": id})
 
 		template, err := meta.(client.ApiClientInterface).Template(id)
 		if err != nil {
@@ -123,13 +123,13 @@ func getApprovalPolicy(ctx context.Context, id string, meta interface{}) (interf
 
 		return &template, nil
 	} else {
-		tflog.Info(ctx, "Resolving approval policy by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving approval policy by name", map[string]any{"name": id})
 
 		return getApprovalPolicyByName(id, meta)
 	}
 }
 
-func resourceApprovalPolicyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceApprovalPolicyImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	approvalPolicy, err := getApprovalPolicy(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

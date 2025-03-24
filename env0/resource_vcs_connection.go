@@ -51,7 +51,7 @@ func resourceVcsConnection() *schema.Resource {
 	}
 }
 
-func resourceVcsConnectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVcsConnectionCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.VcsConnectionCreatePayload
@@ -69,7 +69,7 @@ func resourceVcsConnectionCreate(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceVcsConnectionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVcsConnectionRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	vcsConnection, err := apiClient.VcsConnection(d.Id())
@@ -84,7 +84,7 @@ func resourceVcsConnectionRead(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceVcsConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVcsConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.VcsConnectionUpdatePayload
@@ -99,7 +99,7 @@ func resourceVcsConnectionUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceVcsConnectionRead(ctx, d, meta)
 }
 
-func resourceVcsConnectionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVcsConnectionDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.VcsConnectionDelete(d.Id()); err != nil {
@@ -109,7 +109,7 @@ func resourceVcsConnectionDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func getVcsConnectionByName(name string, meta interface{}) (*client.VcsConnection, error) {
+func getVcsConnectionByName(name string, meta any) (*client.VcsConnection, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	vcsConnections, err := apiClient.VcsConnections()
@@ -136,19 +136,19 @@ func getVcsConnectionByName(name string, meta interface{}) (*client.VcsConnectio
 	return &foundConnections[0], nil
 }
 
-func getVcsConnection(ctx context.Context, id string, meta interface{}) (*client.VcsConnection, error) {
+func getVcsConnection(ctx context.Context, id string, meta any) (*client.VcsConnection, error) {
 	if _, err := uuid.Parse(id); err == nil {
-		tflog.Info(ctx, "Resolving VCS connection by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving VCS connection by id", map[string]any{"id": id})
 
 		return meta.(client.ApiClientInterface).VcsConnection(id)
 	}
 
-	tflog.Info(ctx, "Resolving VCS connection by name", map[string]interface{}{"name": id})
+	tflog.Info(ctx, "Resolving VCS connection by name", map[string]any{"name": id})
 
 	return getVcsConnectionByName(id, meta)
 }
 
-func resourceVcsConnectionImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceVcsConnectionImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	vcsConnection, err := getVcsConnection(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

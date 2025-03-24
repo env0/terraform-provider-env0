@@ -34,7 +34,7 @@ var _ = Describe("User Environment Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/roles/assignments/users", assignPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *UserRoleEnvironmentAssignment) {
+					Do(func(path string, request any, response *UserRoleEnvironmentAssignment) {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.AssignUserRoleToEnvironment(assignPayload)
@@ -100,7 +100,7 @@ var _ = Describe("User Environment Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/roles/assignments/users", map[string]string{"environmentId": environmentId}, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]UserRoleEnvironmentAssignment) {
+					Do(func(path string, request any, response *[]UserRoleEnvironmentAssignment) {
 						*response = []UserRoleEnvironmentAssignment{*expectedResponse}
 					}).Times(1)
 				actualResult, err = apiClient.UserRoleEnvironmentAssignments(environmentId)

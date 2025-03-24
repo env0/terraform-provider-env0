@@ -44,7 +44,7 @@ func gcpOidcCredentialsGetValue(d *schema.ResourceData) (client.GcpCredentialsVa
 	return value, nil
 }
 
-func resourceGcpOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGcpOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := gcpOidcCredentialsGetValue(d)
@@ -68,7 +68,7 @@ func resourceGcpOidcCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceGcpOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGcpOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := gcpOidcCredentialsGetValue(d)

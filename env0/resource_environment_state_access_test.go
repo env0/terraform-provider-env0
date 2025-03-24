@@ -39,7 +39,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":      remoteState.EnvironmentId,
 						"allowed_project_ids": remoteState.AllowedProjectIds,
 					}),
@@ -51,7 +51,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":                      remoteState.EnvironmentId,
 						"accessible_from_entire_organization": "true",
 					}),
@@ -81,7 +81,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":      remoteState.EnvironmentId,
 						"allowed_project_ids": remoteState.AllowedProjectIds,
 					}),
@@ -99,7 +99,7 @@ func TestUnitEnvironmentStateAccessResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":                      remoteState.EnvironmentId,
 						"allowed_project_ids":                 remoteState.AllowedProjectIds,
 						"accessible_from_entire_organization": "true",

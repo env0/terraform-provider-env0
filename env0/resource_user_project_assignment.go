@@ -47,7 +47,7 @@ func resourceUserProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceUserProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var newAssignment client.AssignUserToProjectPayload
 	if err := readResourceData(&newAssignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -74,7 +74,7 @@ func resourceUserProjectAssignmentCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceUserProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -101,13 +101,13 @@ func resourceUserProjectAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 	d.SetId("")
 
 	return nil
 }
 
-func resourceUserProjectAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserProjectAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	projectId := d.Get("project_id").(string)
 	userId := d.Get("user_id").(string)
 
@@ -131,7 +131,7 @@ func resourceUserProjectAssignmentUpdate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceUserProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	projectId := d.Get("project_id").(string)
 	userId := d.Get("user_id").(string)
 

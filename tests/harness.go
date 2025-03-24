@@ -156,7 +156,7 @@ func readExpectedOutputs(testName string) (map[string]string, error) {
 }
 
 func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
-	var stringMapUncasted map[string]interface{}
+	var stringMapUncasted map[string]any
 
 	err := json.Unmarshal(data, &stringMapUncasted)
 	if err != nil {
@@ -174,7 +174,7 @@ func bytesOfJsonToStringMap(data []byte) (map[string]string, error) {
 		switch value := valueUncasted.(type) {
 		case string:
 			result[key] = value
-		case map[string]interface{}:
+		case map[string]any:
 			result[key] = value["value"].(string)
 		}
 	}

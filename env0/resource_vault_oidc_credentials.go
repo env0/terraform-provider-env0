@@ -64,7 +64,7 @@ func vaultOidcCredentialsGetValue(d *schema.ResourceData) (client.VaultCredentia
 	return value, nil
 }
 
-func resourceVaultOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVaultOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := vaultOidcCredentialsGetValue(d)
@@ -88,7 +88,7 @@ func resourceVaultOidcCredentialsCreate(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceVaultOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVaultOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := vaultOidcCredentialsGetValue(d)

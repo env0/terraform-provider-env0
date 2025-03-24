@@ -65,7 +65,7 @@ func resourceCustomFlowAssignment() *schema.Resource {
 	}
 }
 
-func resourceCustomFlowAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var assignment client.CustomFlowAssignment
@@ -82,7 +82,7 @@ func resourceCustomFlowAssignmentCreate(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	assignmentFromId, err := getCustomFlowAssignmentFromId(d)
@@ -106,7 +106,7 @@ func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if !found && !d.IsNewResource() {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -117,7 +117,7 @@ func resourceCustomFlowAssignmentRead(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceCustomFlowAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomFlowAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	assignmentFromId, err := getCustomFlowAssignmentFromId(d)

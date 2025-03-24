@@ -28,7 +28,7 @@ var _ = Describe("Templates Client", func() {
 					GithubInstallationId: value,
 				}
 				jsonPayload, _ := json.Marshal(payload)
-				var parsedPayload map[string]interface{}
+				var parsedPayload map[string]any
 				_ = json.Unmarshal(jsonPayload, &parsedPayload)
 				Expect(parsedPayload["githubInstallationId"]).To(expected)
 			},
@@ -43,7 +43,7 @@ var _ = Describe("Templates Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints/"+mockTemplate.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *Template) {
+				Do(func(path string, request any, response *Template) {
 					*response = mockTemplate
 				})
 			returnedTemplate, _ = apiClient.Template(mockTemplate.Id)
@@ -67,7 +67,7 @@ var _ = Describe("Templates Client", func() {
 			expectedPayload := map[string]string{"organizationId": organizationId}
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints", expectedPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Template) {
+				Do(func(path string, request any, response *[]Template) {
 					*response = mockTemplates
 				})
 			returnedTemplates, _ = apiClient.Templates()
@@ -101,7 +101,7 @@ var _ = Describe("Templates Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/blueprints", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Template) {
+				Do(func(path string, request any, response *Template) {
 					*response = mockTemplate
 				})
 
@@ -153,7 +153,7 @@ var _ = Describe("Templates Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/blueprints/"+mockTemplate.Id, expectedUpdateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Template) {
+				Do(func(path string, request any, response *Template) {
 					*response = mockTemplate
 				})
 
@@ -186,7 +186,7 @@ var _ = Describe("Templates Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Patch("/blueprints/"+mockTemplate.Id+"/projects", expectedAssignRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Template) {
+				Do(func(path string, request any, response *Template) {
 					*response = mockTemplate
 				})
 
@@ -249,7 +249,7 @@ var _ = Describe("Templates Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints/variables-from-repository", expectedParams, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
 					*response = []ConfigurationVariable{}
 				})
 			returnedVariables, err = apiClient.VariablesFromRepository(payload)

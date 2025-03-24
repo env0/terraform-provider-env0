@@ -35,7 +35,7 @@ func TestPolicyDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": policy.ProjectId,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(

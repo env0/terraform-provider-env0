@@ -62,7 +62,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   customFlow.Name,
 						"repository":             customFlow.Repository,
 						"path":                   customFlow.Path,
@@ -82,7 +82,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedCustomFlow.Name,
 						"repository":      updatedCustomFlow.Repository,
 						"path":            updatedCustomFlow.Path,
@@ -119,7 +119,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   customFlow.Name,
 						"repository":             customFlow.Repository,
 						"path":                   customFlow.Path,
@@ -142,7 +142,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   customFlow.Name,
 						"repository":             customFlow.Repository,
 						"path":                   customFlow.Path,
@@ -153,7 +153,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            updatedCustomFlow.Name,
 						"repository":      updatedCustomFlow.Repository,
 						"path":            updatedCustomFlow.Path,
@@ -180,7 +180,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   customFlow.Name,
 						"repository":             customFlow.Repository,
 						"path":                   customFlow.Path,
@@ -214,7 +214,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                   customFlow.Name,
 						"repository":             customFlow.Repository,
 						"path":                   customFlow.Path,

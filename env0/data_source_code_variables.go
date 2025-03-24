@@ -52,7 +52,7 @@ func dataSourceCodeVariables() *schema.Resource {
 	}
 }
 
-func dataSourceCodeVariablesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCodeVariablesRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
@@ -83,7 +83,7 @@ func dataSourceCodeVariablesRead(ctx context.Context, d *schema.ResourceData, me
 
 	for i, ivalue := range ivalues {
 		if variables[i].IsSensitive == nil || !*variables[i].IsSensitive {
-			ivariable := ivalue.(map[string]interface{})
+			ivariable := ivalue.(map[string]any)
 			ivariable["value"] = variables[i].Value
 		}
 	}

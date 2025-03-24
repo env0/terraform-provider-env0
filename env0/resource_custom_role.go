@@ -86,7 +86,7 @@ func resourceCustomRole() *schema.Resource {
 	}
 }
 
-func resourceCustomRoleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomRoleCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.RoleCreatePayload
@@ -104,7 +104,7 @@ func resourceCustomRoleCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	role, err := apiClient.Role(d.Id())
@@ -119,7 +119,7 @@ func resourceCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceCustomRoleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomRoleUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.RoleUpdatePayload
@@ -134,7 +134,7 @@ func resourceCustomRoleUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceCustomRoleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomRoleDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	err := apiClient.RoleDelete(d.Id())
@@ -145,13 +145,13 @@ func resourceCustomRoleDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func getCustomRoleById(id string, meta interface{}) (*client.Role, error) {
+func getCustomRoleById(id string, meta any) (*client.Role, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	return apiClient.Role(id)
 }
 
-func getCustomRoleByName(name string, meta interface{}) (*client.Role, error) {
+func getCustomRoleByName(name string, meta any) (*client.Role, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	roles, err := apiClient.Roles()
@@ -178,20 +178,20 @@ func getCustomRoleByName(name string, meta interface{}) (*client.Role, error) {
 	return &foundRoles[0], nil
 }
 
-func getCustomRole(ctx context.Context, id string, meta interface{}) (*client.Role, error) {
+func getCustomRole(ctx context.Context, id string, meta any) (*client.Role, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving custom role by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving custom role by id", map[string]any{"id": id})
 
 		return getCustomRoleById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving custom role by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving custom role by name", map[string]any{"name": id})
 
 		return getCustomRoleByName(id, meta)
 	}
 }
 
-func resourceCustomRoleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCustomRoleImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	role, err := getCustomRole(ctx, d.Id(), meta)
 
 	if err != nil {

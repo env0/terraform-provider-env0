@@ -18,7 +18,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	vaultCredentialsResource := map[string]interface{}{
+	vaultCredentialsResource := map[string]any{
 		"name":                  "test",
 		"address":               "http://fake1.com:80",
 		"version":               "version1",
@@ -27,7 +27,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 		"namespace":             "namespace1",
 	}
 
-	updatedVaultCredentialsResource := map[string]interface{}{
+	updatedVaultCredentialsResource := map[string]any{
 		"name":                  "test",
 		"address":               "http://fake2.com:80",
 		"version":               "version2",

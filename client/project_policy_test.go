@@ -32,7 +32,7 @@ var _ = Describe("Policy", func() {
 				policiesResult := mockPolicy
 				httpCall = mockHttpClient.EXPECT().
 					Get(path, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *Policy) {
+					Do(func(path string, request any, response *Policy) {
 						*response = policiesResult
 					})
 
@@ -83,7 +83,7 @@ var _ = Describe("Policy", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/policies", updatePolicyPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Policy) {
+					Do(func(path string, request any, response *Policy) {
 						*response = mockPolicy
 					})
 

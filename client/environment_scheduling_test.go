@@ -28,7 +28,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/scheduling/environments/"+mockEnvironmentId, mockEnvironmentSchedulingPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *EnvironmentScheduling) {
+					Do(func(path string, request any, response *EnvironmentScheduling) {
 						*response = mockEnvironmentSchedulingPayload
 					}).Times(1)
 				environmentSchedulingResponse, _ = apiClient.EnvironmentSchedulingUpdate(mockEnvironmentId, mockEnvironmentSchedulingPayload)
@@ -74,7 +74,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/scheduling/environments/"+mockEnvironmentId, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *EnvironmentScheduling) {
+					Do(func(path string, request any, response *EnvironmentScheduling) {
 						*response = mockEnvironmentSchedulingPayload
 					})
 				environmentSchedulingResponse, _ = apiClient.EnvironmentScheduling(mockEnvironmentId)

@@ -21,13 +21,13 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 
 	duration := 3600
 
-	awsArnCredentialResource := map[string]interface{}{
+	awsArnCredentialResource := map[string]any{
 		"name":     "test",
 		"arn":      "11111",
 		"duration": strconv.Itoa(duration),
 	}
 
-	updatedAwsAccessKeyCredentialResource := map[string]interface{}{
+	updatedAwsAccessKeyCredentialResource := map[string]any{
 		"name":              "update",
 		"access_key_id":     "33333",
 		"secret_access_key": "44444",
@@ -109,7 +109,7 @@ func TestUnitAwsCredentialsResource(t *testing.T) {
 		},
 	}
 
-	missingValidInputErrorResource := map[string]interface{}{
+	missingValidInputErrorResource := map[string]any{
 		"name": "update",
 	}
 	testCaseFormMissingValidInputError := resource.TestCase{

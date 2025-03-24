@@ -45,7 +45,7 @@ func TestUnitTemplateData(t *testing.T) {
 		TokenName:         "tokenname",
 	}
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -79,7 +79,7 @@ func TestUnitTemplateData(t *testing.T) {
 
 	t.Run("Template By ID", func(t *testing.T) {
 		runUnitTest(t,
-			getValidTestCase(map[string]interface{}{"id": template.Id}),
+			getValidTestCase(map[string]any{"id": template.Id}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
 			})
@@ -90,7 +90,7 @@ func TestUnitTemplateData(t *testing.T) {
 		deletedTemplate.IsDeleted = true
 
 		runUnitTest(t,
-			getValidTestCase(map[string]interface{}{"name": template.Name}),
+			getValidTestCase(map[string]any{"name": template.Name}),
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template, deletedTemplate}, nil)
 			})

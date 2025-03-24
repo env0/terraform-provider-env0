@@ -72,7 +72,7 @@ func dataProject() *schema.Resource {
 	}
 }
 
-func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataProjectRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err error
 
 	var project client.Project
@@ -118,7 +118,7 @@ func filterByParentProjectId(parentId string, projects []client.Project) []clien
 	return filteredProjects
 }
 
-func filterByParentProjectName(parentName string, projects []client.Project, meta interface{}) ([]client.Project, error) {
+func filterByParentProjectName(parentName string, projects []client.Project, meta any) ([]client.Project, error) {
 	filteredProjects := make([]client.Project, 0)
 
 	for _, project := range projects {
@@ -139,7 +139,7 @@ func filterByParentProjectName(parentName string, projects []client.Project, met
 	return filteredProjects, nil
 }
 
-func getProjectByName(name string, parentId string, parentName string, parentPath string, meta interface{}) (client.Project, error) {
+func getProjectByName(name string, parentId string, parentName string, parentPath string, meta any) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projects, err := apiClient.Projects()
@@ -183,7 +183,7 @@ func getProjectByName(name string, parentId string, parentName string, parentPat
 	return projectsByName[0], nil
 }
 
-func pathMatches(path, parentIds []string, meta interface{}) (bool, error) {
+func pathMatches(path, parentIds []string, meta any) (bool, error) {
 	if len(path) > len(parentIds) {
 		return false, nil
 	}
@@ -206,7 +206,7 @@ func pathMatches(path, parentIds []string, meta interface{}) (bool, error) {
 	return true, nil
 }
 
-func filterByParentProjectPath(parentPath string, projectsByName []client.Project, meta interface{}) ([]client.Project, error) {
+func filterByParentProjectPath(parentPath string, projectsByName []client.Project, meta any) ([]client.Project, error) {
 	filteredProjects := make([]client.Project, 0)
 
 	path := strings.Split(parentPath, "|")
@@ -230,7 +230,7 @@ func filterByParentProjectPath(parentPath string, projectsByName []client.Projec
 	return filteredProjects, nil
 }
 
-func getProjectById(id string, meta interface{}) (client.Project, error) {
+func getProjectById(id string, meta any) (client.Project, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	project, err := apiClient.Project(id)

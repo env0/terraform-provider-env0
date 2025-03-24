@@ -27,7 +27,7 @@ var _ = Describe("Teams Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/teams/"+mockTeam.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *Team) {
+				Do(func(path string, request any, response *Team) {
 					*response = mockTeam
 				})
 			returnedTeam, _ = apiClient.Team(mockTeam.Id)
@@ -53,7 +53,7 @@ var _ = Describe("Teams Client", func() {
 				Get("/teams/organizations/"+organizationId, map[string]string{
 					"limit": "100",
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *PaginatedTeamsResponse) {
+				Do(func(path string, request any, response *PaginatedTeamsResponse) {
 					*response = PaginatedTeamsResponse{
 						Teams:       mockTeams,
 						NextPageKey: "next_page_key",
@@ -64,7 +64,7 @@ var _ = Describe("Teams Client", func() {
 					"offset": "next_page_key",
 					"limit":  "100",
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *PaginatedTeamsResponse) {
+				Do(func(path string, request any, response *PaginatedTeamsResponse) {
 					*response = PaginatedTeamsResponse{
 						Teams: mockTeams2,
 					}
@@ -102,7 +102,7 @@ var _ = Describe("Teams Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/teams", expectedCreateRequest, gomock.Any()).
-					Do(func(path string, request interface{}, response *Team) {
+					Do(func(path string, request any, response *Team) {
 						*response = mockTeam
 					})
 
@@ -168,7 +168,7 @@ var _ = Describe("Teams Client", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/teams/"+mockTeam.Id, updateTeamPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Team) {
+					Do(func(path string, request any, response *Team) {
 						*response = mockTeam
 					})
 

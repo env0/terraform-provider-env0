@@ -30,8 +30,8 @@ func dataKubernetesCredentials(credentialsType CloudType) *schema.Resource {
 	}
 }
 
-func dataKubernetesCredentialsRead(credentialsType CloudType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataKubernetesCredentialsRead(credentialsType CloudType) func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 		var credentials client.Credentials
 
 		var err error

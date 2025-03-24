@@ -49,7 +49,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    assignment.TeamId,
 						"project_id": projectId,
 						"role":       assignment.Role,
@@ -74,7 +74,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		driftTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    assignment.TeamId,
 						"project_id": projectId,
 						"role":       assignment.Role,
@@ -86,7 +86,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    updateAssignment.TeamId,
 						"project_id": projectId,
 						"role":       assignment.Role,
@@ -116,7 +116,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":        assignmentCustom.TeamId,
 						"project_id":     projectId,
 						"custom_role_id": customRole,
@@ -128,7 +128,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":        updateAssignmentCustom.TeamId,
 						"project_id":     projectId,
 						"custom_role_id": updatedCustomRole,
@@ -140,7 +140,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    updateAssignmentCustom.TeamId,
 						"project_id": projectId,
 						"role":       updateAssignment.Role,
@@ -172,7 +172,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    assignment.TeamId,
 						"project_id": projectId,
 						"role":       assignment.Role,
@@ -198,7 +198,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":        assignmentCustom.TeamId,
 						"project_id":     projectId,
 						"custom_role_id": assignmentCustom.Role,
@@ -224,7 +224,7 @@ func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"team_id":    assignment.TeamId,
 						"project_id": projectId,
 						"role":       assignment.Role,

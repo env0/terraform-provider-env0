@@ -30,7 +30,7 @@ func dataCredentials(cloudType CloudType) *schema.Resource {
 }
 
 func dataCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 		var err error
 
 		var credentials client.Credentials

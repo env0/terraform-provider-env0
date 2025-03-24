@@ -46,7 +46,7 @@ func resourceProjectBudget() *schema.Resource {
 	}
 }
 
-func resourceProjectBudgetCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectBudgetCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var payload client.ProjectBudgetUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -66,7 +66,7 @@ func resourceProjectBudgetCreateOrUpdate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceProjectBudgetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectBudgetRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Get("project_id").(string)
@@ -83,7 +83,7 @@ func resourceProjectBudgetRead(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceProjectBudgetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectBudgetDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	projectId := d.Get("project_id").(string)
 
 	apiClient := meta.(client.ApiClientInterface)

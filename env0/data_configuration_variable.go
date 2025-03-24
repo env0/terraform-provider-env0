@@ -119,7 +119,7 @@ func dataConfigurationVariable() *schema.Resource {
 	}
 }
 
-func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	scope, scopeId := getScopeAndId(d)
 
 	params := ConfigurationVariableParams{Scope: scope, ScopeId: scopeId}
@@ -176,7 +176,7 @@ func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 	return scope, scopeId
 }
 
-func getConfigurationVariable(params ConfigurationVariableParams, meta interface{}) (client.ConfigurationVariable, diag.Diagnostics) {
+func getConfigurationVariable(params ConfigurationVariableParams, meta any) (client.ConfigurationVariable, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 	id, idOk := params.Id, params.Id != ""
 

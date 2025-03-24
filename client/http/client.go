@@ -9,11 +9,11 @@ import (
 )
 
 type HttpClientInterface interface {
-	Get(path string, params map[string]string, response interface{}) error
-	Post(path string, request interface{}, response interface{}) error
-	Put(path string, request interface{}, response interface{}) error
+	Get(path string, params map[string]string, response any) error
+	Post(path string, request any, response any) error
+	Put(path string, request any, response any) error
 	Delete(path string, params map[string]string) error
-	Patch(path string, request interface{}, response interface{}) error
+	Patch(path string, request any, response any) error
 }
 
 type HttpClient struct {
@@ -57,7 +57,7 @@ func (client *HttpClient) httpResult(response *resty.Response, err error) error 
 	return nil
 }
 
-func (client *HttpClient) Post(path string, request interface{}, response interface{}) error {
+func (client *HttpClient) Post(path string, request any, response any) error {
 	req := client.request().SetBody(request)
 	if response != nil {
 		req = req.SetResult(response)
@@ -68,7 +68,7 @@ func (client *HttpClient) Post(path string, request interface{}, response interf
 	return client.httpResult(result, err)
 }
 
-func (client *HttpClient) Put(path string, request interface{}, response interface{}) error {
+func (client *HttpClient) Put(path string, request any, response any) error {
 	req := client.request().SetBody(request)
 	if response != nil {
 		req = req.SetResult(response)
@@ -79,7 +79,7 @@ func (client *HttpClient) Put(path string, request interface{}, response interfa
 	return client.httpResult(result, err)
 }
 
-func (client *HttpClient) Get(path string, params map[string]string, response interface{}) error {
+func (client *HttpClient) Get(path string, params map[string]string, response any) error {
 	request := client.request().SetQueryParams(params)
 
 	responseType := reflect.TypeOf(response)
@@ -104,7 +104,7 @@ func (client *HttpClient) Delete(path string, params map[string]string) error {
 	return client.httpResult(result, err)
 }
 
-func (client *HttpClient) Patch(path string, request interface{}, response interface{}) error {
+func (client *HttpClient) Patch(path string, request any, response any) error {
 	result, err := client.request().
 		SetBody(request).
 		SetResult(response).

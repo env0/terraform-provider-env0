@@ -12,12 +12,12 @@ import (
 )
 
 func TestReadResourceDataModule(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]any{
 		"module_name":            "module_name",
 		"module_provider":        "module_provider",
 		"github_installation_id": 1000,
-		"ssh_keys": []interface{}{
-			map[string]interface{}{"id": "id1", "name": "name1"},
+		"ssh_keys": []any{
+			map[string]any{"id": "id1", "name": "name1"},
 		},
 	})
 
@@ -43,7 +43,7 @@ func TestReadResourceDataModule(t *testing.T) {
 }
 
 func TestWriteResourceDataModule(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]any{})
 
 	m := client.Module{
 		ModuleName:           "module_name",
@@ -71,13 +71,13 @@ func TestWriteResourceDataModule(t *testing.T) {
 	assert.Equal(t, "description", d.Get("description"))
 	assert.Equal(t, 1000, d.Get("github_installation_id"))
 
-	var rawSshKeys []interface{}
-	rawSshKeys = append(rawSshKeys, map[string]interface{}{"id": "id1", "name": "name1"})
+	var rawSshKeys []any
+	rawSshKeys = append(rawSshKeys, map[string]any{"id": "id1", "name": "name1"})
 	assert.Equal(t, rawSshKeys, d.Get("ssh_keys"))
 }
 
 func TestReadResourceDataNotification(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]any{
 		"name":  "name",
 		"type":  "Slack",
 		"value": "value",
@@ -96,7 +96,7 @@ func TestReadResourceDataNotification(t *testing.T) {
 }
 
 func TestReadResourceDataWithTag(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceAwsCredentials().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, resourceAwsCredentials().Schema, map[string]any{
 		"name": "name",
 		"arn":  "tagged_arn",
 	})
@@ -112,7 +112,7 @@ func TestReadResourceDataWithTag(t *testing.T) {
 }
 
 func TestWriteResourceDataNotification(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, resourceNotification().Schema, map[string]any{})
 
 	n := client.Notification{
 		Id:    "id",
@@ -130,8 +130,8 @@ func TestWriteResourceDataNotification(t *testing.T) {
 }
 
 func TestReadResourceDataNotificationProjectAssignment(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]interface{}{
-		"event_names": []interface{}{
+	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]any{
+		"event_names": []any{
 			"driftUndetected",
 			"destroySucceeded",
 		},
@@ -152,7 +152,7 @@ func TestReadResourceDataNotificationProjectAssignment(t *testing.T) {
 }
 
 func TestWriteResourceDataNotificationProjectAssignment(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, resourceNotificationProjectAssignment().Schema, map[string]any{})
 
 	a := client.NotificationProjectAssignment{
 		Id:                     "id",
@@ -166,11 +166,11 @@ func TestWriteResourceDataNotificationProjectAssignment(t *testing.T) {
 
 	assert.Equal(t, "id", d.Id())
 	assert.Equal(t, "nid", d.Get("notification_endpoint_id"))
-	assert.Equal(t, []interface{}{"driftUndetected"}, d.Get("event_names"))
+	assert.Equal(t, []any{"driftUndetected"}, d.Get("event_names"))
 }
 
 func TestWriteCustomResourceData(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]any{})
 
 	configurationVariable := client.ConfigurationVariable{
 		Id:             "id0",
@@ -202,7 +202,7 @@ func TestWriteCustomResourceData(t *testing.T) {
 }
 
 func TestReadByValueCustomResourceData(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]any{
 		"type":        "terraform",
 		"name":        "name",
 		"description": "description",
@@ -218,7 +218,7 @@ func TestReadByValueCustomResourceData(t *testing.T) {
 }
 
 func TestReadByPointerCustomResourceData(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]any{
 		"type":        "terraform",
 		"name":        "name",
 		"description": "description",
@@ -234,7 +234,7 @@ func TestReadByPointerCustomResourceData(t *testing.T) {
 }
 
 func TestReadByPointerNilCustomResourceData(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, dataConfigurationVariable().Schema, map[string]any{
 		"name":        "name",
 		"description": "description",
 	})
@@ -249,7 +249,7 @@ func TestReadByPointerNilCustomResourceData(t *testing.T) {
 }
 
 func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, dataAgents().Schema, map[string]any{})
 
 	agent1 := client.Agent{
 		AgentKey: "key1",
@@ -268,7 +268,7 @@ func TestWriteResourceDataSliceVariablesAgents(t *testing.T) {
 }
 
 func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, dataSourceCodeVariables().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, dataSourceCodeVariables().Schema, map[string]any{})
 
 	schema1 := client.ConfigurationVariableSchema{
 		Type:   "string",
@@ -306,7 +306,7 @@ func TestWriteResourceDataSliceVariablesConfigurationVariable(t *testing.T) {
 }
 
 func TestWriteResourceDataOmitEmpty(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceTemplate().Schema, map[string]interface{}{})
+	d := schema.TestResourceDataRaw(t, resourceTemplate().Schema, map[string]any{})
 
 	template := client.Template{
 		Id:         "id0",
@@ -382,24 +382,24 @@ func TestReadSubEnvironment(t *testing.T) {
 		},
 	}
 
-	d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]interface{}{
-		"sub_environment_configuration": []interface{}{
-			map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]any{
+		"sub_environment_configuration": []any{
+			map[string]any{
 				"id":       expectedSubEnvironments[0].Id,
 				"alias":    expectedSubEnvironments[0].Alias,
 				"revision": expectedSubEnvironments[0].Revision,
 			},
-			map[string]interface{}{
+			map[string]any{
 				"id":                         expectedSubEnvironments[1].Id,
 				"alias":                      expectedSubEnvironments[1].Alias,
 				"revision":                   expectedSubEnvironments[1].Revision,
 				"approve_plan_automatically": expectedSubEnvironments[1].ApprovePlanAutomatically,
-				"configuration": []interface{}{
-					map[string]interface{}{
+				"configuration": []any{
+					map[string]any{
 						"name":  expectedSubEnvironments[1].Configuration[0].Name,
 						"value": expectedSubEnvironments[1].Configuration[0].Value,
 					},
-					map[string]interface{}{
+					map[string]any{
 						"name":  expectedSubEnvironments[1].Configuration[1].Name,
 						"value": expectedSubEnvironments[1].Configuration[1].Value,
 					},

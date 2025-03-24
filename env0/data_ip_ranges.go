@@ -25,7 +25,7 @@ func dataIpRanges() *schema.Resource {
 	}
 }
 
-func dataIpRangesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataIpRangesRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	ipv4s := []string{
 		"3.209.36.240/32",
 		"3.222.51.117/32",

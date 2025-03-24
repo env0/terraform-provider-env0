@@ -38,7 +38,7 @@ func resourceGcpGkeCredentials() *schema.Resource {
 	}
 }
 
-func resourceGcpGkeCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGcpGkeCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.GcpGkeValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -62,7 +62,7 @@ func resourceGcpGkeCredentialsCreate(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceGcpGkeCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGcpGkeCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.GcpGkeValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)

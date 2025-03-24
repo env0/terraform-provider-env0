@@ -27,7 +27,7 @@ func dataUser() *schema.Resource {
 	}
 }
 
-func getUserByEmail(email string, meta interface{}) (*client.User, diag.Diagnostics) {
+func getUserByEmail(email string, meta any) (*client.User, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	organizationUsers, err := apiClient.Users()
@@ -54,7 +54,7 @@ func getUserByEmail(email string, meta interface{}) (*client.User, diag.Diagnost
 	return &usersByEmail[0], nil
 }
 
-func dataUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataUserRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	email := d.Get("email").(string)
 
 	user, err := getUserByEmail(email, meta)

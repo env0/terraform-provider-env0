@@ -18,12 +18,12 @@ func TestUnitKubeconfigCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	credentialsResource := map[string]interface{}{
+	credentialsResource := map[string]any{
 		"name":        "test",
 		"kube_config": "file content...",
 	}
 
-	updatedCredentialsResource := map[string]interface{}{
+	updatedCredentialsResource := map[string]any{
 		"name":        "test",
 		"kube_config": "new file content...",
 	}

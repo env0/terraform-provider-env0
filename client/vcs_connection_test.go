@@ -24,7 +24,7 @@ var _ = Describe("VcsConnection Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/vcs/connections/"+mockVcsConnection.Id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *VcsConnection) {
+				Do(func(path string, request any, response *VcsConnection) {
 					*response = mockVcsConnection
 				})
 			returnedVcsConnection, err = apiClient.VcsConnection(mockVcsConnection.Id)
@@ -63,7 +63,7 @@ var _ = Describe("VcsConnection Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/vcs/connections", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *VcsConnection) {
+				Do(func(path string, request any, response *VcsConnection) {
 					*response = mockVcsConnection
 				})
 
@@ -99,7 +99,7 @@ var _ = Describe("VcsConnection Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/vcs/connections/"+mockVcsConnection.Id, updatePayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *VcsConnection) {
+				Do(func(path string, request any, response *VcsConnection) {
 					*response = mockVcsConnection
 				})
 
@@ -146,7 +146,7 @@ var _ = Describe("VcsConnection Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/vcs/connections", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]VcsConnection) {
+				Do(func(path string, request any, response *[]VcsConnection) {
 					*response = mockVcsConnections
 				})
 			returnedVcsConnections, err = apiClient.VcsConnections()

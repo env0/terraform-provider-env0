@@ -26,7 +26,7 @@ func dataNotifications() *schema.Resource {
 	}
 }
 
-func dataNotificationsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataNotificationsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	notifications, err := apiClient.Notifications()

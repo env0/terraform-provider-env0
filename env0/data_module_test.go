@@ -30,14 +30,14 @@ func TestModuleDataSource(t *testing.T) {
 		Repository:     "r1",
 	}
 
-	moduleFieldsByName := map[string]interface{}{"module_name": module.ModuleName}
-	moduleFieldsById := map[string]interface{}{"id": module.Id}
+	moduleFieldsByName := map[string]any{"module_name": module.ModuleName}
+	moduleFieldsById := map[string]any{"id": module.Id}
 
 	resourceType := "env0_module"
 	resourceName := "test_module"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -56,7 +56,7 @@ func TestModuleDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -95,7 +95,7 @@ func TestModuleDataSource(t *testing.T) {
 
 	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{}, "one of `id,module_name` must be specified"),
+			getErrorTestCase(map[string]any{}, "one of `id,module_name` must be specified"),
 			func(mock *client.MockApiClientInterface) {},
 		)
 	})

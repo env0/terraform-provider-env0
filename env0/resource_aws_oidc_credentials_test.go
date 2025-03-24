@@ -22,13 +22,13 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 	duration := 3600
 	updatedDuration := 2 * duration
 
-	awsCredentialsResource := map[string]interface{}{
+	awsCredentialsResource := map[string]any{
 		"name":     "test",
 		"role_arn": "11111",
 		"duration": strconv.Itoa(duration),
 	}
 
-	updatedAwsCredentialsResource := map[string]interface{}{
+	updatedAwsCredentialsResource := map[string]any{
 		"name":     "test",
 		"role_arn": "22222",
 		"duration": strconv.Itoa(updatedDuration),
