@@ -36,7 +36,7 @@ func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
 
 	numberOfSubEnvironments := len(isubEnvironments.([]any))
 
-	var subEnvironments []SubEnvironment
+	subEnvironments := []SubEnvironment{}
 
 	for i := range numberOfSubEnvironments {
 		prefix := fmt.Sprintf("sub_environment_configuration.%d", i)

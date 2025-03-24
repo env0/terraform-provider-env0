@@ -354,7 +354,7 @@ func writeResourceData(i any, d *schema.ResourceData) error {
 }
 
 func getInterfaceSliceValues(i any) []any {
-	var result []any
+	result := []any{}
 
 	val := reflect.ValueOf(i)
 
