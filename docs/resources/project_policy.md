@@ -26,6 +26,8 @@ resource "env0_project_policy" "example" {
   skip_apply_when_plan_is_empty = true
   disable_destroy_environments  = true
   skip_redundant_deployments    = true
+  drift_detection_cron          = "0 4 * * *"  # Run drift detection daily at 4 AM
+  auto_drift_remediation        = "CODE_TO_CLOUD"  # Optional, defaults to "DISABLED"
 }
 ```
 
@@ -38,6 +40,7 @@ resource "env0_project_policy" "example" {
 
 ### Optional
 
+- `auto_drift_remediation` (String) Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
 - `default_ttl` (String) the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
