@@ -88,6 +88,11 @@ func dataPolicy() *schema.Resource {
 				Description: "force env0 remote backend",
 				Computed:    true,
 			},
+			"auto_drift_remediation": {
+				Type:        schema.TypeString,
+				Description: "Auto drift remediation setting (DISABLED or CODE_TO_CLOUD)",
+				Computed:    true,
+			},
 		},
 	}
 }

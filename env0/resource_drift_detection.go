@@ -9,6 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	DriftRemediationDisabled    = "DISABLED"
+	DriftRemediationCodeToCloud = "CODE_TO_CLOUD"
+)
+
 func resourceDriftDetection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentDriftCreateOrUpdate,
@@ -30,6 +35,16 @@ func resourceDriftDetection() *schema.Resource {
 				Description:      "Cron expression for scheduled drift detection of the environment",
 				Required:         true,
 				ValidateDiagFunc: ValidateCronExpression,
+			},
+			"auto_drift_remediation": {
+				Type:        schema.TypeString,
+				Description: "Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED",
+				Optional:    true,
+				Default:     DriftRemediationDisabled,
+				ValidateDiagFunc: NewStringInValidator([]string{
+					DriftRemediationDisabled,
+					DriftRemediationCodeToCloud,
+				}),
 			},
 		},
 	}
@@ -65,8 +80,13 @@ func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.Resou
 
 	environmentId := d.Get("environment_id").(string)
 	cron := d.Get("cron").(string)
+	autoDriftRemediation := d.Get("auto_drift_remediation").(string)
 
-	payload := client.EnvironmentSchedulingExpression{Cron: cron, Enabled: true}
+	payload := client.EnvironmentSchedulingExpression{
+		Cron:                 cron,
+		Enabled:              true,
+		AutoDriftRemediation: autoDriftRemediation,
+	}
 
 	if _, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload); err != nil {
 		return diag.Errorf("could not create or update environment drift detection: %v", err)
