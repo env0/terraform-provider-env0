@@ -38,7 +38,7 @@ var _ = Describe("Configuration Set", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/configuration-sets", &createPayloadWithScopeId, gomock.Any()).
-				Do(func(path string, request interface{}, response *ConfigurationSet) {
+				Do(func(path string, request any, response *ConfigurationSet) {
 					*response = mockConfigurationSet
 				}).Times(1)
 
@@ -61,7 +61,7 @@ var _ = Describe("Configuration Set", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/configuration-sets", &createPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *ConfigurationSet) {
+				Do(func(path string, request any, response *ConfigurationSet) {
 					*response = mockConfigurationSet
 				}).Times(1)
 
@@ -82,7 +82,7 @@ var _ = Describe("Configuration Set", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/configuration-sets/"+id, &updatePayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *ConfigurationSet) {
+				Do(func(path string, request any, response *ConfigurationSet) {
 					*response = mockConfigurationSet
 				}).Times(1)
 
@@ -98,7 +98,7 @@ var _ = Describe("Configuration Set", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration-sets/"+id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *ConfigurationSet) {
+				Do(func(path string, request any, response *ConfigurationSet) {
 					*response = mockConfigurationSet
 				}).Times(1)
 
@@ -116,7 +116,7 @@ var _ = Describe("Configuration Set", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Delete("/configuration-sets/"+id, nil).
-				Do(func(path string, request interface{}) {}).
+				Do(func(path string, request any) {}).
 				Times(1)
 
 			err = apiClient.ConfigurationSetDelete(id)
@@ -149,7 +149,7 @@ var _ = Describe("Configuration Set", func() {
 					"setId":          id,
 					"organizationId": organizationId,
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationVariable) {
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
 					*response = mockVariables
 				}).Times(1)
 
@@ -178,7 +178,7 @@ var _ = Describe("Configuration Set", func() {
 					"scopeId": mockVariables[0].CreationScopeId,
 					"scope":   "project",
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
+				Do(func(path string, request any, response *[]ConfigurationSet) {
 					*response = mockVariables
 				}).Times(1)
 
@@ -207,7 +207,7 @@ var _ = Describe("Configuration Set", func() {
 					"scopeId": mockVariables[0].CreationScopeId,
 					"scope":   "organization",
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ConfigurationSet) {
+				Do(func(path string, request any, response *[]ConfigurationSet) {
 					*response = mockVariables
 				}).Times(1)
 

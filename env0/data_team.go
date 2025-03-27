@@ -34,7 +34,7 @@ func dataTeam() *schema.Resource {
 	}
 }
 
-func dataTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataTeamRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err diag.Diagnostics
 
 	var team client.Team

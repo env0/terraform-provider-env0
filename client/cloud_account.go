@@ -3,14 +3,14 @@ package client
 import "fmt"
 
 type CloudAccountCreatePayload struct {
-	Provider      string      `json:"provider"`
-	Name          string      `json:"name"`
-	Configuration interface{} `json:"configuration" tfschema:"-"`
+	Provider      string `json:"provider"`
+	Name          string `json:"name"`
+	Configuration any    `json:"configuration" tfschema:"-"`
 }
 
 type CloudAccountUpdatePayload struct {
-	Name          string      `json:"name"`
-	Configuration interface{} `json:"configuration" tfschema:"-"`
+	Name          string `json:"name"`
+	Configuration any    `json:"configuration" tfschema:"-"`
 }
 
 type AWSCloudAccountConfiguration struct {
@@ -28,11 +28,11 @@ type AzureCloudAccountConfiguration struct {
 }
 
 type CloudAccount struct {
-	Id            string      `json:"id"`
-	Provider      string      `json:"provider"`
-	Name          string      `json:"name"`
-	Health        bool        `json:"health"`
-	Configuration interface{} `json:"configuration" tfschema:"-"`
+	Id            string `json:"id"`
+	Provider      string `json:"provider"`
+	Name          string `json:"name"`
+	Health        bool   `json:"health"`
+	Configuration any    `json:"configuration" tfschema:"-"`
 }
 
 func (client *ApiClient) CloudAccountCreate(payload *CloudAccountCreatePayload) (*CloudAccount, error) {

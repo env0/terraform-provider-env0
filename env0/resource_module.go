@@ -166,7 +166,7 @@ func resourceModule() *schema.Resource {
 	}
 }
 
-func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ModuleCreatePayload
@@ -188,7 +188,7 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	module, err := apiClient.Module(d.Id())
@@ -197,7 +197,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	if module.IsDeleted {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -210,7 +210,7 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.ModuleUpdatePayload
@@ -229,7 +229,7 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceModuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceModuleDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.ModuleDelete(d.Id()); err != nil {
@@ -239,7 +239,7 @@ func resourceModuleDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func getModuleByName(name string, meta interface{}) (*client.Module, error) {
+func getModuleByName(name string, meta any) (*client.Module, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	modules, err := apiClient.Modules()
@@ -266,20 +266,20 @@ func getModuleByName(name string, meta interface{}) (*client.Module, error) {
 	return &foundModules[0], nil
 }
 
-func getModule(ctx context.Context, id string, meta interface{}) (*client.Module, error) {
+func getModule(ctx context.Context, id string, meta any) (*client.Module, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving module by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving module by id", map[string]any{"id": id})
 
 		return meta.(client.ApiClientInterface).Module(id)
 	} else {
-		tflog.Info(ctx, "Resolving module by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving module by name", map[string]any{"name": id})
 
 		return getModuleByName(id, meta)
 	}
 }
 
-func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceModuleImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	module, err := getModule(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

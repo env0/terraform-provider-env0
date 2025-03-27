@@ -35,7 +35,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    gpgKey.Name,
 						"key_id":  gpgKey.KeyId,
 						"content": gpgKey.Content,
@@ -48,7 +48,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    updatedGpgKey.Name,
 						"key_id":  updatedGpgKey.KeyId,
 						"content": updatedGpgKey.Content,
@@ -87,7 +87,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    gpgKey.Name,
 						"key_id":  gpgKey.KeyId,
 						"content": gpgKey.Content,
@@ -110,7 +110,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    gpgKey.Name,
 						"key_id":  gpgKey.KeyId,
 						"content": gpgKey.Content,
@@ -140,7 +140,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    gpgKey.Name,
 						"key_id":  gpgKey.KeyId,
 						"content": gpgKey.Content,
@@ -170,7 +170,7 @@ func TestUnitGpgKeyyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":    updatedGpgKey.Name,
 						"key_id":  updatedGpgKey.KeyId,
 						"content": updatedGpgKey.Content,

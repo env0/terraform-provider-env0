@@ -12,12 +12,12 @@ const (
 type KubernetesCredentialsCreatePayload struct {
 	Name  string                    `json:"name"`
 	Type  KubernetesCredentialsType `json:"type"`
-	Value interface{}               `json:"value"`
+	Value any                       `json:"value"`
 }
 
 type KubernetesCredentialsUpdatePayload struct {
 	Type  KubernetesCredentialsType `json:"type"`
-	Value interface{}               `json:"value"`
+	Value any                       `json:"value"`
 }
 
 // K8S_KUBECONFIG_FILE
@@ -50,10 +50,10 @@ func (client *ApiClient) KubernetesCredentialsCreate(payload *KubernetesCredenti
 	}
 
 	payloadWithOrganizatioId := &struct {
-		OrganizationId string      `json:"organizationId"`
-		Name           string      `json:"name"`
-		Type           string      `json:"type"`
-		Value          interface{} `json:"value"`
+		OrganizationId string `json:"organizationId"`
+		Name           string `json:"name"`
+		Type           string `json:"type"`
+		Value          any    `json:"value"`
 	}{
 		OrganizationId: organizationId,
 		Name:           payload.Name,

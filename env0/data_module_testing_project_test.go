@@ -23,7 +23,7 @@ func TestModuleTestingProjectDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "name", moduleTestingProject.Name),
 						resource.TestCheckResourceAttr(accessor, "id", moduleTestingProject.Id),
@@ -51,7 +51,7 @@ func TestModuleTestingProjectDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						ExpectError: regexp.MustCompile("could not get module testing project: error"),
 					},
 				},

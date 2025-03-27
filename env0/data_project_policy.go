@@ -97,7 +97,7 @@ func dataPolicy() *schema.Resource {
 	}
 }
 
-func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err diag.Diagnostics
 
 	var policy client.Policy
@@ -119,7 +119,7 @@ func dataPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func getPolicyByProjectId(projectId string, meta interface{}) (client.Policy, diag.Diagnostics) {
+func getPolicyByProjectId(projectId string, meta any) (client.Policy, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	policy, err := apiClient.Policy(projectId)

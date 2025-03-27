@@ -45,7 +45,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignment.NotificationEndpointId,
 						"event_names":              []string{"driftDetected"},
@@ -59,7 +59,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignment.NotificationEndpointId,
 						"event_names":              []string{"driftDetected", "environmentDestroyStarted"},
@@ -100,7 +100,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignment.NotificationEndpointId,
 						"event_names":              []string{"driftDetected"},
@@ -114,7 +114,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignmentNotificationEndpointIdUpdated.NotificationEndpointId,
 						"event_names":              []string{"driftDetected"},
@@ -157,7 +157,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignment.NotificationEndpointId,
 						"event_names":              []string{"driftDetected", "invalidname"},
@@ -174,7 +174,7 @@ func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":               projectId,
 						"notification_endpoint_id": assignment.NotificationEndpointId,
 						"event_names":              []string{"driftDetected"},

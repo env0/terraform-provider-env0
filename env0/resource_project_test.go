@@ -45,7 +45,7 @@ func TestUnitProjectResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        project.Name,
 						"description": project.Description,
 					}),
@@ -56,7 +56,7 @@ func TestUnitProjectResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        updatedProject.Name,
 						"description": updatedProject.Description,
 					}),
@@ -93,7 +93,7 @@ func TestUnitProjectResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              subProject.Name,
 						"description":       subProject.Description,
 						"parent_project_id": project.Id,
@@ -106,7 +106,7 @@ func TestUnitProjectResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              updatedSubproject.Name,
 						"description":       updatedSubproject.Description,
 						"parent_project_id": updatedSubproject.ParentProjectId,
@@ -146,7 +146,7 @@ func TestUnitProjectInvalidParams(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config:      resourceConfigCreate("env0_project", "test", map[string]interface{}{"name": ""}),
+				Config:      resourceConfigCreate("env0_project", "test", map[string]any{"name": ""}),
 				ExpectError: regexp.MustCompile("may not be empty"),
 			},
 		},
@@ -174,7 +174,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":          project.Name,
 						"description":   project.Description,
 						"force_destroy": true,
@@ -203,7 +203,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        project.Name,
 						"description": project.Description,
 					}),
@@ -215,7 +215,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": project.Name,
 					}),
 					Destroy:     true,
@@ -244,7 +244,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        project.Name,
 						"description": project.Description,
 						"wait":        "true",
@@ -258,7 +258,7 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": project.Name,
 					}),
 					Destroy:     true,

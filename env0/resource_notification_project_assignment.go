@@ -63,7 +63,7 @@ func resourceNotificationProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceNotificationProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationProjectAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	projectId := d.Get("project_id").(string)
 	endpointId := d.Get("notification_endpoint_id").(string)
 
@@ -84,7 +84,7 @@ func resourceNotificationProjectAssignmentCreateOrUpdate(ctx context.Context, d 
 	return nil
 }
 
-func getNotificationProjectAssignment(d *schema.ResourceData, meta interface{}) (*client.NotificationProjectAssignment, error) {
+func getNotificationProjectAssignment(d *schema.ResourceData, meta any) (*client.NotificationProjectAssignment, error) {
 	projectId := d.Get("project_id").(string)
 	endpointId := d.Get("notification_endpoint_id").(string)
 
@@ -104,12 +104,12 @@ func getNotificationProjectAssignment(d *schema.ResourceData, meta interface{}) 
 	return nil, ErrNotFound
 }
 
-func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	assignment, err := getNotificationProjectAssignment(d, meta)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			// Notification endpoint not found.
-			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 			d.SetId("")
 
 			return nil
@@ -125,7 +125,7 @@ func resourceNotificationProjectAssignmentRead(ctx context.Context, d *schema.Re
 	return nil
 }
 
-func resourceNotificationProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	projectId := d.Get("project_id").(string)
 	endpointId := d.Get("notification_endpoint_id").(string)
 	// There's no delete API call. When delete is called, remove all events.

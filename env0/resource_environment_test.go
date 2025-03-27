@@ -74,7 +74,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	createEnvironmentResourceConfig := func(environment client.Environment) string {
-		config := map[string]interface{}{
+		config := map[string]any{
 			"name":                         environment.Name,
 			"project_id":                   environment.ProjectId,
 			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
@@ -95,7 +95,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	createEnvironmentResourceConfigWithVcsPrCommentsEnabled := func(environment client.Environment, vcsPrCommentsEnabled *bool) string {
-		config := map[string]interface{}{
+		config := map[string]any{
 			"name":                         environment.Name,
 			"project_id":                   environment.ProjectId,
 			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
@@ -115,7 +115,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	}
 
 	createEnvironmentResourceConfigDriftDetection := func(environment client.Environment, cron string) string {
-		config := map[string]interface{}{
+		config := map[string]any{
 			"name":                         environment.Name,
 			"project_id":                   environment.ProjectId,
 			"template_id":                  environment.LatestDeploymentLog.BlueprintId,
@@ -245,7 +245,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   templateId,
@@ -257,7 +257,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          movedEnvironment.Name,
 							"project_id":    movedEnvironment.ProjectId,
 							"template_id":   templateId,
@@ -393,7 +393,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                environment.Name,
 							"project_id":          environment.ProjectId,
 							"template_id":         templateId,
@@ -506,7 +506,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   templateId,
@@ -523,7 +523,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   templateId,
@@ -597,7 +597,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   templateId,
@@ -611,7 +611,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   newTemplateId,
@@ -673,7 +673,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                       environment.Name,
 							"project_id":                 environment.ProjectId,
 							"template_id":                templateId,
@@ -745,7 +745,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                       environment.Name,
 							"project_id":                 environment.ProjectId,
 							"template_id":                templateId,
@@ -764,7 +764,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                       environment.Name,
 							"project_id":                 environment.ProjectId,
 							"template_id":                templateId,
@@ -784,7 +784,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                       environment.Name,
 							"project_id":                 environment.ProjectId,
 							"template_id":                templateId,
@@ -871,7 +871,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				return &newDeployment
 			}
 
-			config := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			config := resourceConfigCreate(resourceType, resourceName, map[string]any{
 				"name":             environment.Name,
 				"project_id":       environment.ProjectId,
 				"template_id":      templateId,
@@ -1025,7 +1025,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":             environment.Name,
 							"project_id":       environment.ProjectId,
 							"template_id":      templateId,
@@ -1951,7 +1951,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   environment.LatestDeploymentLog.BlueprintId,
@@ -2034,7 +2034,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			}
 
 			// Create a minimal config that does NOT specify the fields we're testing
-			minimalConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			minimalConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 				"name":          environmentWithAPIFields.Name,
 				"project_id":    environmentWithAPIFields.ProjectId,
 				"template_id":   environmentWithAPIFields.LatestDeploymentLog.BlueprintId,
@@ -2106,7 +2106,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":        environment.Name,
 							"project_id":  environment.ProjectId,
 							"template_id": environment.LatestDeploymentLog.BlueprintId,
@@ -2121,7 +2121,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          updatedEnvironment.Name,
 							"project_id":    updatedEnvironment.ProjectId,
 							"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
@@ -2180,7 +2180,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":        environment.Name,
 							"project_id":  environment.ProjectId,
 							"template_id": environment.LatestDeploymentLog.BlueprintId,
@@ -2195,7 +2195,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          updatedEnvironment.Name,
 							"project_id":    updatedEnvironment.ProjectId,
 							"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
@@ -2265,7 +2265,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
@@ -2287,7 +2287,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
@@ -2350,7 +2350,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":        environment.Name,
 							"project_id":  environment.ProjectId,
 							"template_id": environment.LatestDeploymentLog.BlueprintId,
@@ -2364,7 +2364,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					{
 						Destroy: true,
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   environment.LatestDeploymentLog.BlueprintId,
@@ -2373,7 +2373,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						ExpectError: regexp.MustCompile(`must enable "force_destroy" safeguard in order to destroy`),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   environment.LatestDeploymentLog.BlueprintId,
@@ -2382,7 +2382,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					{
 						Destroy: true,
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          environment.Name,
 							"project_id":    environment.ProjectId,
 							"template_id":   environment.LatestDeploymentLog.BlueprintId,
@@ -2408,7 +2408,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			autoDeployWithCustomGlobEnabled := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
@@ -2420,7 +2420,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						ExpectError: regexp.MustCompile("cannot set auto_deploy_by_custom_glob when auto_deploy_on_path_changes_only is disabled"),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                             environment.Name,
 							"project_id":                       environment.ProjectId,
 							"template_id":                      environment.LatestDeploymentLog.BlueprintId,
@@ -2452,7 +2452,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			autoDeployWithCustomGlobEnabled := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                       environment.Name,
 							"project_id":                 environment.ProjectId,
 							"template_id":                environment.LatestDeploymentLog.BlueprintId,
@@ -2490,7 +2490,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":          updatedEnvironment.Name,
 							"project_id":    updatedEnvironment.ProjectId,
 							"template_id":   updatedEnvironment.LatestDeploymentLog.BlueprintId,
@@ -2596,7 +2596,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						Config: createEnvironmentResourceConfig(environment),
 					},
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"name":                         updatedEnvironment.Name,
 							"project_id":                   updatedEnvironment.ProjectId,
 							"template_id":                  updatedEnvironment.LatestDeploymentLog.BlueprintId,

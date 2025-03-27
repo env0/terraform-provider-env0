@@ -94,7 +94,7 @@ if err != nil {
 
 func ResourceGetFailure(resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
     if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-        tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+        tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
         d.SetId("")
         return nil
     }
@@ -115,7 +115,7 @@ Finally create acceptance tests for data. Check [data_gcp_credentials_test.go](.
 **Note** In most cases, data is calculated by name or id. Names may not be unique. If searching by name and more than one resource is returned, it's considered an error.
 
 ```
-func getGcpCredentialsByName(name interface{}, meta interface{}) (client.Credentials, diag.Diagnostics) {
+func getGcpCredentialsByName(name any, meta any) (client.Credentials, diag.Diagnostics) {
     apiClient := meta.(client.ApiClientInterface)
     credentialsList, err := apiClient.CloudCredentialsList()
     if err != nil {

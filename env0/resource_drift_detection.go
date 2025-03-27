@@ -50,7 +50,7 @@ func resourceDriftDetection() *schema.Resource {
 	}
 }
 
-func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
@@ -62,7 +62,7 @@ func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if !drift.Enabled {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -75,7 +75,7 @@ func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -97,7 +97,7 @@ func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceEnvironmentDriftDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDriftDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.EnvironmentStopDriftDetection(d.Id()); err != nil {

@@ -24,7 +24,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 
 	id := fmt.Sprintf("%s#%s#%s", assignment.Scope, assignment.ScopeId, assignment.BlueprintId)
 
-	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"scope_id":     assignment.ScopeId,
 		"blueprint_id": assignment.BlueprintId,
 	})

@@ -38,7 +38,7 @@ func dataVariableSet() *schema.Resource {
 	}
 }
 
-func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataVariableSetRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	resource := struct {
 		Name      string
 		Scope     string

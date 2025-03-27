@@ -57,7 +57,7 @@ func dataProjects() *schema.Resource {
 	}
 }
 
-func dataProjectsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataProjectsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	includeArchivedProjects := d.Get("include_archived_projects").(bool)

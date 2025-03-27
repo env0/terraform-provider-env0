@@ -23,14 +23,14 @@ func TestNotificationDataSource(t *testing.T) {
 		Value: "http://my-notification-1.com",
 	}
 
-	notificationFieldsByName := map[string]interface{}{"name": notification.Name}
-	notificationFieldsById := map[string]interface{}{"id": notification.Id}
+	notificationFieldsByName := map[string]any{"name": notification.Name}
+	notificationFieldsById := map[string]any{"id": notification.Id}
 
 	resourceType := "env0_notification"
 	resourceName := "test_notification"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -46,7 +46,7 @@ func TestNotificationDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -79,7 +79,7 @@ func TestNotificationDataSource(t *testing.T) {
 
 	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+			getErrorTestCase(map[string]any{}, "one of `id,name` must be specified"),
 			func(mock *client.MockApiClientInterface) {},
 		)
 	})

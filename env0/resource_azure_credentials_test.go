@@ -18,7 +18,7 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	azureCredentialResource := map[string]interface{}{
+	azureCredentialResource := map[string]any{
 		"name":            "test",
 		"client_id":       "11111",
 		"client_secret":   "client-secret1",
@@ -26,7 +26,7 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		"tenant_id":       "tenant-id1",
 	}
 
-	updateAzureCredentialResource := map[string]interface{}{
+	updateAzureCredentialResource := map[string]any{
 		"name":            "testUpdate",
 		"client_id":       "22222",
 		"client_secret":   "client-secret2",
@@ -153,7 +153,7 @@ func TestUnitAzureCredentialsResource(t *testing.T) {
 		}
 
 		for _, argument := range arguments {
-			tc := missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{}, argument)
+			tc := missingArgumentTestCase(resourceType, resourceName, map[string]any{}, argument)
 			t.Run("validate missing arrguments "+argument, func(t *testing.T) {
 				runUnitTest(t, tc, func(mock *client.MockApiClientInterface) {})
 			})

@@ -29,7 +29,7 @@ var _ = Describe("RemoteStateAccess", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/remote-backend/states/"+environmentId+"/access-control", createRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *RemoteStateAccessConfiguration) {
+				Do(func(path string, request any, response *RemoteStateAccessConfiguration) {
 					*response = remoteStateAccess
 				})
 			httpCall.Times(1)
@@ -52,7 +52,7 @@ var _ = Describe("RemoteStateAccess", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/remote-backend/states/"+environmentId+"/access-control", gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *RemoteStateAccessConfiguration) {
+				Do(func(path string, request any, response *RemoteStateAccessConfiguration) {
 					*response = remoteStateAccess
 				})
 			httpCall.Times(1)

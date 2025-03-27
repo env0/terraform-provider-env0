@@ -46,7 +46,7 @@ var _ = Describe("Role", func() {
 					IsDefaultRole:  roleIsDefaultRole,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Role) {
+				Do(func(path string, request any, response *Role) {
 					*response = mockRole
 				})
 
@@ -97,7 +97,7 @@ var _ = Describe("Role", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/roles/"+updatedMockRole.Id, payload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Role) {
+				Do(func(path string, request any, response *Role) {
 					*response = updatedMockRole
 				})
 			role, _ = apiClient.RoleUpdate(updatedMockRole.Id, payload)
@@ -116,7 +116,7 @@ var _ = Describe("Role", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/"+mockRole.Id, nil, gomock.Any()).
-				Do(func(path string, request interface{}, response *Role) {
+				Do(func(path string, request any, response *Role) {
 					*response = mockRole
 				})
 			role, _ = apiClient.Role(mockRole.Id)
@@ -140,7 +140,7 @@ var _ = Describe("Role", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Role) {
+				Do(func(path string, request any, response *[]Role) {
 					*response = mockRoles
 				})
 			roles, _ = apiClient.Roles()

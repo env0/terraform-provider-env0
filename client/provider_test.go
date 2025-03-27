@@ -20,7 +20,7 @@ var _ = Describe("Provider Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/providers/"+mockProvider.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *Provider) {
+				Do(func(path string, request any, response *Provider) {
 					*response = mockProvider
 				}).Times(1)
 			returnedProvider, _ = apiClient.Provider(mockProvider.Id)
@@ -39,7 +39,7 @@ var _ = Describe("Provider Client", func() {
 			mockOrganizationIdCall().Times(1)
 			httpCall = mockHttpClient.EXPECT().
 				Get("/providers", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Provider) {
+				Do(func(path string, request any, response *[]Provider) {
 					*response = mockProviders
 				}).Times(1)
 			returnedProviders, _ = apiClient.Providers()
@@ -71,7 +71,7 @@ var _ = Describe("Provider Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/providers", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Provider) {
+				Do(func(path string, request any, response *Provider) {
 					*response = mockProvider
 				}).Times(1)
 
@@ -107,7 +107,7 @@ var _ = Describe("Provider Client", func() {
 			updateProviderPayload := ProviderUpdatePayload{Description: updatedMockProvider.Description}
 			httpCall = mockHttpClient.EXPECT().
 				Put("/providers/"+mockProvider.Id, updateProviderPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Provider) {
+				Do(func(path string, request any, response *Provider) {
 					*response = updatedMockProvider
 				}).Times(1)
 

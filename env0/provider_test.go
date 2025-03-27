@@ -51,7 +51,7 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 		//nolint:all // tests
 		"env0": func() (*schema.Provider, error) {
 			provider := Provider("")()
-			provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 				return apiClientMock, nil
 			}
 
@@ -94,7 +94,7 @@ func testMissingEnvVar(t *testing.T, envVars map[string]string, expectedKey stri
 	testExpectedProviderError(t, diags, expectedKey)
 }
 
-func testMissingConfig(t *testing.T, config map[string]interface{}, expectedKey string) {
+func testMissingConfig(t *testing.T, config map[string]any, expectedKey string) {
 	diags := Provider("TEST")().Configure(context.Background(), terraform.NewResourceConfigRaw(config))
 	testExpectedProviderError(t, diags, expectedKey)
 }
@@ -103,7 +103,7 @@ func TestMissingConfigurations(t *testing.T) {
 	expectedApiKeyConfig := "api_key"
 	expectedApiSecretConfig := "api_secret"
 
-	configTestCases := map[string]map[string]interface{}{
+	configTestCases := map[string]map[string]any{
 		expectedApiKeyConfig: {
 			"api_secret": "value",
 		},

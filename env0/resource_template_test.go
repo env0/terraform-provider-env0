@@ -498,7 +498,7 @@ func TestUnitTemplateResource(t *testing.T) {
 	}
 
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
-		templateAsDictionary := map[string]interface{}{
+		templateAsDictionary := map[string]any{
 			"name":       template.Name,
 			"repository": template.Repository,
 		}
@@ -827,7 +827,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
-			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			return resourceConfigCreate(resourceType, resourceName, map[string]any{
 				"name":              template.Name,
 				"repository":        template.Repository,
 				"type":              string(testType),
@@ -873,7 +873,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":       template.Name,
 						"repository": template.Repository,
 						"type":       "gruntyform",
@@ -1003,7 +1003,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				testCases = append(testCases, resource.TestCase{
 					Steps: []resource.TestStep{
 						{
-							Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", attribute: amount}),
+							Config:      resourceConfigCreate(resourceType, resourceName, map[string]any{"name": "test", "type": testType, "repository": "env0/test", attribute: amount}),
 							ExpectError: regexp.MustCompile("retries amount must be between 1 and 3"),
 						},
 					},
@@ -1031,7 +1031,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			testCases = append(testCases, resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", regexAttribute: "bla"}),
+						Config:      resourceConfigCreate(resourceType, resourceName, map[string]any{"name": "test", "type": testType, "repository": "env0/test", regexAttribute: "bla"}),
 						ExpectError: regexp.MustCompile(fmt.Sprintf("`%s,%s`\\s+must\\s+be\\s+specified", timesAttribute, regexAttribute)),
 					},
 				},
@@ -1050,15 +1050,15 @@ func TestUnitTemplateResource(t *testing.T) {
 	var mixedUsecases = []struct {
 		firstVcs  string
 		secondVcs string
-		tfObject  map[string]interface{}
+		tfObject  map[string]any
 		exception string
 	}{
-		{"GitLab", "GitHub", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
-		{"GitLab", "GitLab EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
-		{"GitHub", "GitLab EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"github_installation_id\": conflicts with is_gitlab_enterprise"},
-		{"GitHub", "Bitbucket", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
-		{"GitLab", "Bitbucket", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
-		{"GitLab EE", "GitHub EE", map[string]interface{}{"name": "test", "type": testType, "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
+		{"GitLab", "GitHub", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "token_id": "2"}, "\"github_installation_id\": conflicts with token_id"},
+		{"GitLab", "GitLab EE", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "is_gitlab_enterprise": "true"}, "\"is_gitlab_enterprise\": conflicts with token_id"},
+		{"GitHub", "GitLab EE", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "is_gitlab_enterprise": "true"}, "\"github_installation_id\": conflicts with is_gitlab_enterprise"},
+		{"GitHub", "Bitbucket", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
+		{"GitLab", "Bitbucket", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
+		{"GitLab EE", "GitHub EE", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
 	}
 
 	for _, mixUseCase := range mixedUsecases {
@@ -1123,7 +1123,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		basicTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
-			return resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+			return resourceConfigCreate(resourceType, resourceName, map[string]any{
 				"name":              template.Name,
 				"type":              string(template.Type),
 				"repository":        template.Repository,
@@ -1208,7 +1208,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              pathTemplate.Name,
 						"path":              "/" + pathTemplate.Path,
 						"repository":        pathTemplate.Repository,
@@ -1227,7 +1227,7 @@ func TestUnitTemplateResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              updatedPathTemplate.Name,
 						"path":              "/" + updatedPathTemplate.Path,
 						"repository":        updatedPathTemplate.Repository,
@@ -1275,7 +1275,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
@@ -1294,7 +1294,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":             "template0",
 						"repository":       "env0/repo",
 						"type":             "opentofu",
@@ -1313,7 +1313,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":       "template0",
 						"repository": "env0/repo",
 						"type":       "opentofu",
@@ -1331,7 +1331,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "cloudformation",
@@ -1349,7 +1349,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terraform",
@@ -1368,7 +1368,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              "template0",
 						"repository":        "env0/repo",
 						"type":              "terragrunt",
@@ -1386,7 +1386,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":               "template0",
 						"repository":         "env0/repo",
 						"type":               "terraform",
@@ -1405,7 +1405,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  "template0",
 						"repository":            "env0/repo",
 						"type":                  "terragrunt",
@@ -1426,7 +1426,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                 "template0",
 						"repository":           "env0/repo",
 						"type":                 "terraform",
@@ -1445,7 +1445,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  "template0",
 						"repository":            "env0/repo",
 						"type":                  "terragrunt",
@@ -1464,7 +1464,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  "template0",
 						"repository":            "env0/repo",
 						"type":                  "terragrunt",
@@ -1484,7 +1484,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            "template",
 						"repository":      "env0/repo",
 						"type":            "ansible",
@@ -1502,7 +1502,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":            "template",
 						"repository":      "env0/repo",
 						"type":            "ansible",
@@ -1520,7 +1520,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":       "template",
 						"repository": "env0/repo",
 						"type":       "ansible",

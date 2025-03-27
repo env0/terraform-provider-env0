@@ -48,7 +48,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -75,7 +75,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -95,7 +95,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -115,7 +115,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -136,7 +136,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -148,7 +148,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 					ExpectNonEmptyPlan: true,
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -176,7 +176,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -204,7 +204,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userIdWithUnderscore,
 						"team_id": teamId,
 					}),
@@ -232,7 +232,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -261,7 +261,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),
@@ -292,7 +292,7 @@ func TestUnitUserTeamAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"user_id": userId,
 						"team_id": teamId,
 					}),

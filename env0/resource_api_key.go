@@ -39,7 +39,7 @@ func resourceApiKey() *schema.Resource {
 				Default:     organizationRoleAdmin,
 				Optional:    true,
 				ForceNew:    true,
-				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+				ValidateDiagFunc: func(i any, p cty.Path) diag.Diagnostics {
 					val := i.(string)
 					if val != organizationRoleAdmin && val != organizationRoleUser {
 						_, err := uuid.Parse(val)
@@ -95,7 +95,7 @@ func resourceApiKey() *schema.Resource {
 	}
 }
 
-func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	organizationRole := d.Get("organization_role").(string)
@@ -127,11 +127,11 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiKey, err := getApiKeyById(d.Id(), meta)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 			d.SetId("")
 
 			return nil
@@ -149,7 +149,7 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceApiKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApiKeyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.ApiKeyDelete(d.Id()); err != nil {
@@ -159,7 +159,7 @@ func resourceApiKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func getApiKeyById(id string, meta interface{}) (*client.ApiKey, error) {
+func getApiKeyById(id string, meta any) (*client.ApiKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	apiKeys, err := apiClient.ApiKeys()
@@ -176,7 +176,7 @@ func getApiKeyById(id string, meta interface{}) (*client.ApiKey, error) {
 	return nil, ErrNotFound
 }
 
-func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
+func getApiKeyByName(name string, meta any) (*client.ApiKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	apiKeys, err := apiClient.ApiKeys()
@@ -203,20 +203,20 @@ func getApiKeyByName(name string, meta interface{}) (*client.ApiKey, error) {
 	return &foundApiKeys[0], nil
 }
 
-func getApiKey(ctx context.Context, id string, meta interface{}) (*client.ApiKey, error) {
+func getApiKey(ctx context.Context, id string, meta any) (*client.ApiKey, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving api key by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving api key by id", map[string]any{"id": id})
 
 		return getApiKeyById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving api key by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving api key by name", map[string]any{"name": id})
 
 		return getApiKeyByName(id, meta)
 	}
 }
 
-func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiKey, err := getApiKey(ctx, d.Id(), meta)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {

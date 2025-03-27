@@ -34,7 +34,7 @@ func dataSshKey() *schema.Resource {
 	}
 }
 
-func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var sshKey *client.SshKey
 
 	var err error
@@ -64,7 +64,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error) {
+func getSshKeyByName(name any, meta any) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	return backoff.RetryWithData(func() (*client.SshKey, error) {
@@ -93,7 +93,7 @@ func getSshKeyByName(name interface{}, meta interface{}) (*client.SshKey, error)
 	}, backoff.NewExponentialBackOff(backoff.WithMaxElapsedTime(time.Minute*1), backoff.WithMaxInterval(time.Second*10)))
 }
 
-func getSshKeyById(id interface{}, meta interface{}) (*client.SshKey, error) {
+func getSshKeyById(id any, meta any) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	sshKeys, err := apiClient.SshKeys()

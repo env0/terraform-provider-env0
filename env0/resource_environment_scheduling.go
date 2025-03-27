@@ -40,7 +40,7 @@ func resourceEnvironmentScheduling() *schema.Resource {
 	}
 }
 
-func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Id()
@@ -58,7 +58,7 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -86,7 +86,7 @@ func resourceEnvironmentSchedulingCreateOrUpdate(ctx context.Context, d *schema.
 	return nil
 }
 
-func resourceEnvironmentSchedulingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentSchedulingDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.EnvironmentSchedulingDelete(d.Id()); err != nil {

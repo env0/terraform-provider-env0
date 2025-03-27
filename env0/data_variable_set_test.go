@@ -42,7 +42,7 @@ func TestVariableSetDataSource(t *testing.T) {
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
 	getConfig := func(name string, scope string, projectId string) string {
-		fields := map[string]interface{}{"name": name, "scope": scope}
+		fields := map[string]any{"name": name, "scope": scope}
 		if projectId != "" {
 			fields["project_id"] = projectId
 		}

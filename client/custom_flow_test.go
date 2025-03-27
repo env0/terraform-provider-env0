@@ -35,7 +35,7 @@ var _ = Describe("Custom Flow Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/custom-flow/"+mockCustomFlow.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *CustomFlow) {
+				Do(func(path string, request any, response *CustomFlow) {
 					*response = mockCustomFlow
 				})
 			httpCall.Times(1)
@@ -55,7 +55,7 @@ var _ = Describe("Custom Flow Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/custom-flows", map[string]string{"organizationId": organizationId, "name": mockCustomFlow.Name}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]CustomFlow) {
+				Do(func(path string, request any, response *[]CustomFlow) {
 					*response = mockCustomFlows
 				})
 			organizationIdCall.Times(1)
@@ -88,7 +88,7 @@ var _ = Describe("Custom Flow Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/custom-flow", &expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *CustomFlow) {
+				Do(func(path string, request any, response *CustomFlow) {
 					*response = mockCustomFlow
 				})
 			httpCall.Times(1)
@@ -140,7 +140,7 @@ var _ = Describe("Custom Flow Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/custom-flow", &expectedUpdateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *CustomFlow) {
+				Do(func(path string, request any, response *CustomFlow) {
 					*response = updatedMockCustomFlow
 				})
 			httpCall.Times(1)
@@ -199,7 +199,7 @@ var _ = Describe("Custom Flow Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Post("/custom-flow/get-assignments", mockAssignmentList, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]CustomFlowAssignment) {
+				Do(func(path string, request any, response *[]CustomFlowAssignment) {
 					*response = mockAssignmentList
 				})
 			httpCall.Times(1)

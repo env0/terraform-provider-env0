@@ -36,7 +36,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": projectBudget.ProjectId,
 						"amount":     strconv.Itoa(projectBudget.Amount),
 						"timeframe":  projectBudget.Timeframe,
@@ -50,7 +50,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": updatedProjectBudget.ProjectId,
 						"amount":     strconv.Itoa(updatedProjectBudget.Amount),
 						"timeframe":  updatedProjectBudget.Timeframe,
@@ -89,7 +89,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": projectBudget.ProjectId,
 						"amount":     strconv.Itoa(projectBudget.Amount),
 						"timeframe":  "invalid",
@@ -107,7 +107,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": projectBudget.ProjectId,
 						"amount":     strconv.Itoa(projectBudget.Amount),
 						"timeframe":  projectBudget.Timeframe,
@@ -141,7 +141,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id": projectBudget.ProjectId,
 						"amount":     strconv.Itoa(projectBudget.Amount),
 						"timeframe":  projectBudget.Timeframe,

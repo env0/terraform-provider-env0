@@ -70,7 +70,7 @@ func resourceUserTeamAssignment() *schema.Resource {
 	}
 }
 
-func resourceUserTeamAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserTeamAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var newAssignment UserTeamAssignment
 	if err := readResourceData(&newAssignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -109,7 +109,7 @@ func resourceUserTeamAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	assignment, err := GetUserTeamAssignmentFromId(d.Id())
 	if err != nil {
 		return diag.Errorf("%v", err)
@@ -136,7 +136,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if !found {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -149,7 +149,7 @@ func resourceUserTeamAssignmentRead(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func resourceUserTeamAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserTeamAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var assignment UserTeamAssignment
 	if err := readResourceData(&assignment, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -186,7 +186,7 @@ func resourceUserTeamAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceUserTeamAssignmentImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceUserTeamAssignmentImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	assignment, err := GetUserTeamAssignmentFromId(d.Id())
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)

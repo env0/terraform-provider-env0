@@ -23,7 +23,7 @@ var _ = Describe("Module Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/modules/"+mockModule.Id, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *Module) {
+				Do(func(path string, request any, response *Module) {
 					*response = mockModule
 				})
 			returnedModule, _ = apiClient.Module(mockModule.Id)
@@ -46,7 +46,7 @@ var _ = Describe("Module Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/modules", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Module) {
+				Do(func(path string, request any, response *[]Module) {
 					*response = mockModules
 				})
 			returnedModules, _ = apiClient.Modules()
@@ -83,7 +83,7 @@ var _ = Describe("Module Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/modules", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *Module) {
+				Do(func(path string, request any, response *Module) {
 					*response = mockModule
 				})
 
@@ -136,7 +136,7 @@ var _ = Describe("Module Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Patch("/modules/"+mockModule.Id, updateModulePayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Module) {
+				Do(func(path string, request any, response *Module) {
 					*response = updatedMockModule
 				})
 

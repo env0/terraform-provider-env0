@@ -35,7 +35,7 @@ func dataWorkflowTriggers() *schema.Resource {
 	}
 }
 
-func dataWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)

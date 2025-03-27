@@ -32,7 +32,7 @@ func dataProjectCloudCredentials() *schema.Resource {
 	}
 }
 
-func dataProjectCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataProjectCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Get("project_id").(string)

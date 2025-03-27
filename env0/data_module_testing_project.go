@@ -28,7 +28,7 @@ func dataModuleTestingProject() *schema.Resource {
 	}
 }
 
-func dataModuleTestingProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataModuleTestingProjectRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	client := meta.(client.ApiClientInterface)
 
 	moduleTestingProject, err := client.ModuleTestingProject()

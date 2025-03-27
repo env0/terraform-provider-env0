@@ -8,18 +8,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func getConfigurationVariablesFromSchema(configuration []interface{}) client.ConfigurationChanges {
+func getConfigurationVariablesFromSchema(configuration []any) client.ConfigurationChanges {
 	configurationChanges := client.ConfigurationChanges{}
 
 	for _, variable := range configuration {
-		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]interface{}))
+		configurationVariable := getConfigurationVariableFromSchema(variable.(map[string]any))
 		configurationChanges = append(configurationChanges, configurationVariable)
 	}
 
 	return configurationChanges
 }
 
-func getConfigurationVariableFromSchema(variable map[string]interface{}) client.ConfigurationVariable {
+func getConfigurationVariableFromSchema(variable map[string]any) client.ConfigurationVariable {
 	varType, _ := client.GetConfigurationVariableType(variable["type"].(string))
 
 	configurationVariable := client.ConfigurationVariable{
@@ -62,8 +62,8 @@ func getConfigurationVariableFromSchema(variable map[string]interface{}) client.
 		Type:   variable["schema_type"].(string),
 	}
 
-	if variable["schema_type"] != "" && len(variable["schema_enum"].([]interface{})) > 0 {
-		enumOfAny := variable["schema_enum"].([]interface{})
+	if variable["schema_type"] != "" && len(variable["schema_enum"].([]any)) > 0 {
+		enumOfAny := variable["schema_enum"].([]any)
 		enum := make([]string, len(enumOfAny))
 
 		for i := range enum {
@@ -86,16 +86,16 @@ func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if ivariables == nil {
-		ivariables = make([]interface{}, 0)
+		ivariables = make([]any, 0)
 	}
 
-	variables := ivariables.([]interface{})
+	variables := ivariables.([]any)
 
-	newVariables := make([]interface{}, 0)
+	newVariables := make([]any, 0)
 
 	// The goal is to maintain existing state order as much as possible. (The backend response order may vary from state).
 	for _, ivariable := range variables {
-		variable := ivariable.(map[string]interface{})
+		variable := ivariable.(map[string]any)
 		variableName := variable["name"].(string)
 
 		for _, configurationVariable := range configurationVariables {
@@ -104,7 +104,7 @@ func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceDa
 
 				if configurationVariable.IsSensitive != nil && *configurationVariable.IsSensitive {
 					// To avoid drift for sensitive variables, don't override with the variable value received from API. Use the one in the schema instead.
-					newVariable.(map[string]interface{})["value"] = variable["value"]
+					newVariable.(map[string]any)["value"] = variable["value"]
 				}
 
 				newVariables = append(newVariables, newVariable)
@@ -119,7 +119,7 @@ func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceDa
 		found := false
 
 		for _, ivariable := range variables {
-			variable := ivariable.(map[string]interface{})
+			variable := ivariable.(map[string]any)
 			variableName := variable["name"].(string)
 
 			if configurationVariable.Name == variableName {
@@ -130,7 +130,7 @@ func setEnvironmentConfigurationSchema(ctx context.Context, d *schema.ResourceDa
 		}
 
 		if !found {
-			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"configuration name": configurationVariable.Name})
+			tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"configuration name": configurationVariable.Name})
 			newVariables = append(newVariables, createVariable(&configurationVariable))
 		}
 	}

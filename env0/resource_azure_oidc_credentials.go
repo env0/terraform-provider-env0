@@ -54,7 +54,7 @@ func azureOidcCredentialsGetValue(d *schema.ResourceData) (client.AzureCredentia
 	return value, nil
 }
 
-func resourceAzureOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAzureOidcCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := azureOidcCredentialsGetValue(d)
@@ -78,7 +78,7 @@ func resourceAzureOidcCredentialsCreate(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceAzureOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAzureOidcCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := azureOidcCredentialsGetValue(d)

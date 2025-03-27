@@ -36,7 +36,7 @@ func resourceSshKey() *schema.Resource {
 	}
 }
 
-func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.SshKeyCreatePayload
@@ -54,7 +54,7 @@ func resourceSshKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceSshKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSshKeyUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.SshKeyUpdatePayload
@@ -69,21 +69,21 @@ func resourceSshKeyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSshKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	sshKey, err := getSshKeyById(d.Id(), meta)
 	if err != nil {
 		return diag.Errorf("could not get ssh key: %v", err)
 	}
 
 	if sshKey == nil {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 	}
 
 	return nil
 }
 
-func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -96,7 +96,7 @@ func resourceSshKeyDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
 	var getErr error
@@ -104,10 +104,10 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta inte
 	_, uuidErr := uuid.Parse(id)
 
 	if uuidErr == nil {
-		tflog.Info(ctx, "Resolving SSH key by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving SSH key by id", map[string]any{"id": id})
 		_, getErr = getSshKeyById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving SSH key by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving SSH key by name", map[string]any{"name": id})
 
 		var sshKey *client.SshKey
 

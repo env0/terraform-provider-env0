@@ -16,7 +16,7 @@ func TestIpRangesDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "ipv4.0", "3.209.36.240/32"),
 						resource.TestCheckResourceAttr(accessor, "ipv4.1", "3.222.51.117/32"),

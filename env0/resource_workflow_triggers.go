@@ -36,7 +36,7 @@ func resourceWorkflowTriggers() *schema.Resource {
 	}
 }
 
-func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -57,10 +57,10 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 	environmentId := d.Get("environment_id").(string)
-	rawDownstreamIds := d.Get("downstream_environment_ids").([]interface{})
+	rawDownstreamIds := d.Get("downstream_environment_ids").([]any)
 
 	requestDownstreamIds := []string{}
 
@@ -88,7 +88,7 @@ func resourceWorkflowTriggersCreateOrUpdate(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceWorkflowTriggersDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggersDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	_, err := apiClient.WorkflowTriggerUpsert(d.Id(), client.WorkflowTriggerUpsertPayload{DownstreamEnvironmentIds: []string{}})

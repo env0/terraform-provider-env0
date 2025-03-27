@@ -51,7 +51,7 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockCredentialsForGoogleCostCred
 				})
 
@@ -92,7 +92,7 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockCredentials
 				})
 
@@ -133,7 +133,7 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockCredentials
 				})
 
@@ -177,7 +177,7 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockGcpCredentials
 				})
 
@@ -224,7 +224,7 @@ var _ = Describe("CloudCredentials", func() {
 					Value:          payloadValue,
 				},
 					gomock.Any()).
-				Do(func(path string, request interface{}, response *Credentials) {
+				Do(func(path string, request any, response *Credentials) {
 					*response = mockAzureCredentials
 				}).Times(1)
 
@@ -263,7 +263,7 @@ var _ = Describe("CloudCredentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Credentials) {
+				Do(func(path string, request any, response *[]Credentials) {
 					*response = keys
 				})
 			credentials, _ = apiClient.CloudCredentials(mockCredentials.Id)
@@ -286,7 +286,7 @@ var _ = Describe("CloudCredentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Get("/credentials", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]Credentials) {
+				Do(func(path string, request any, response *[]Credentials) {
 					*response = keys
 				})
 			credentials, _ = apiClient.CloudCredentialsList()

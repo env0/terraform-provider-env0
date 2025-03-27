@@ -326,7 +326,7 @@ func (client *ApiClient) VariablesFromRepository(payload *VariablesFromRepositor
 			sshkeys := []string{}
 
 			if value != nil {
-				for _, sshkey := range value.([]interface{}) {
+				for _, sshkey := range value.([]any) {
 					sshkeys = append(sshkeys, "\""+sshkey.(string)+"\"")
 				}
 			}

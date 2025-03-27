@@ -42,7 +42,7 @@ func dataOrganization() *schema.Resource {
 	}
 }
 
-func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataOrganizationRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	organization, err := apiClient.Organization()

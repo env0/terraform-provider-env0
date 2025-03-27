@@ -25,7 +25,7 @@ func TestGithubInstallationIdDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"repository": repository,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -40,7 +40,7 @@ func TestGithubInstallationIdDataSource(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"repository": repository,
 					}),
 					ExpectError: regexp.MustCompile(expectedError),

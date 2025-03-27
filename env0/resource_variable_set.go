@@ -95,7 +95,7 @@ func resourceVariableSet() *schema.Resource {
 	}
 }
 
-func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVariable, error) {
+func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, error) {
 	var res client.ConfigurationVariable
 
 	res.Scope = "SET"
@@ -154,7 +154,7 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 			return nil, fmt.Errorf("json variable '%s' is not a valid json value: %w", res.Name, err)
 		}
 	case "dropdown":
-		ivalues, ok := d["dropdown_values"].([]interface{})
+		ivalues, ok := d["dropdown_values"].([]any)
 		if !ok || len(ivalues) == 0 {
 			return nil, fmt.Errorf("dropdown variable '%s' must have dropdown_values", res.Name)
 		}
@@ -174,11 +174,11 @@ func getVariableFromSchema(d map[string]interface{}) (*client.ConfigurationVaria
 	return &res, nil
 }
 
-func getSchemaFromVariables(variables []client.ConfigurationVariable) (interface{}, error) {
-	res := make([]interface{}, 0)
+func getSchemaFromVariables(variables []client.ConfigurationVariable) (any, error) {
+	res := make([]any, 0)
 
 	for _, variable := range variables {
-		ivariable := make(map[string]interface{})
+		ivariable := make(map[string]any)
 		res = append(res, ivariable)
 
 		ivariable["name"] = variable.Name
@@ -202,7 +202,7 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (interface
 		case variable.Schema.Type == "string":
 			if len(variable.Schema.Enum) > 0 {
 				ivariable["format"] = "dropdown"
-				ivalues := make([]interface{}, 0)
+				ivalues := make([]any, 0)
 
 				for _, value := range variable.Schema.Enum {
 					ivalues = append(ivalues, value)
@@ -235,8 +235,8 @@ func getVariablesFromSchema(d *schema.ResourceData, organizationId string) ([]cl
 		return res, nil
 	}
 
-	for _, ivariable := range ivariables.([]interface{}) {
-		variable, err := getVariableFromSchema(ivariable.(map[string]interface{}))
+	for _, ivariable := range ivariables.([]any) {
+		variable, err := getVariableFromSchema(ivariable.(map[string]any))
 		if err != nil {
 			return nil, err
 		}
@@ -249,7 +249,7 @@ func getVariablesFromSchema(d *schema.ResourceData, organizationId string) ([]cl
 	return res, nil
 }
 
-func resourceVariableSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err error
 
 	apiClient := meta.(client.ApiClientInterface)
@@ -282,7 +282,7 @@ func resourceVariableSetCreate(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceVariableSetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -348,7 +348,7 @@ func mergeVariables(schema []client.ConfigurationVariable, api []client.Configur
 	return &res
 }
 
-func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -385,7 +385,7 @@ func resourceVariableSetRead(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourceVariableSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVariableSetUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err error
 
 	id := d.Id()

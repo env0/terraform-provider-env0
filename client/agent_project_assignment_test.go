@@ -15,7 +15,7 @@ var _ = Describe("Agent Project Assignment", func() {
 		"pid2": "aid2",
 	}
 
-	imapping := map[string]interface{}{
+	imapping := map[string]any{
 		"pid1": "aid1",
 		"pid2": "aid2",
 	}
@@ -38,7 +38,7 @@ var _ = Describe("Agent Project Assignment", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/agents/projects-assignments?organizationId="+organizationId, mapping, gomock.Any()).Times(1).
-					Do(func(path string, request interface{}, response *ProjectsAgentsAssignments) {
+					Do(func(path string, request any, response *ProjectsAgentsAssignments) {
 						*response = expectedResponse
 					})
 				results, err = apiClient.AssignAgentsToProjects(mapping)
@@ -87,7 +87,7 @@ var _ = Describe("Agent Project Assignment", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Get("/agents/projects-assignments", map[string]string{"organizationId": organizationId}, gomock.Any()).Times(1).
-					Do(func(path string, request interface{}, response *ProjectsAgentsAssignments) {
+					Do(func(path string, request any, response *ProjectsAgentsAssignments) {
 						*response = expectedResponse
 					})
 				results, err = apiClient.ProjectsAgentsAssignments()

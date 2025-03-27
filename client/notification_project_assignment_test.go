@@ -22,7 +22,7 @@ var _ = Describe("Notification Project Assignment Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/notifications/projects/"+projectId, gomock.Nil(), gomock.Any()).
-				Do(func(path string, request interface{}, response *[]NotificationProjectAssignment) {
+				Do(func(path string, request any, response *[]NotificationProjectAssignment) {
 					*response = []NotificationProjectAssignment{mockNotificationProjectAssignment}
 				})
 			returnedAssignments, _ = apiClient.NotificationProjectAssignments(projectId)
@@ -51,7 +51,7 @@ var _ = Describe("Notification Project Assignment Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Put("/notifications/projects/"+projectId+"/endpoints/"+mockNotificationProjectAssignment.Id, updateAssignmentPayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *NotificationProjectAssignment) {
+				Do(func(path string, request any, response *NotificationProjectAssignment) {
 					*response = updatedMockNotificationProjectAssignment
 				})
 

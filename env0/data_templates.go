@@ -26,7 +26,7 @@ func dataTemplates() *schema.Resource {
 	}
 }
 
-func dataTemplatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataTemplatesRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templates, err := apiClient.Templates()

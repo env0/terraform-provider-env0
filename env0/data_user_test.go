@@ -27,7 +27,7 @@ func TestUserDataSource(t *testing.T) {
 	resourceName := "test_user"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -41,7 +41,7 @@ func TestUserDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -59,7 +59,7 @@ func TestUserDataSource(t *testing.T) {
 	}
 
 	t.Run("Get user by email", func(t *testing.T) {
-		input := map[string]interface{}{"email": user.User.Email}
+		input := map[string]any{"email": user.User.Email}
 
 		runUnitTest(t,
 			getValidTestCase(input),
@@ -68,7 +68,7 @@ func TestUserDataSource(t *testing.T) {
 	})
 
 	t.Run("Return error when user by email not found", func(t *testing.T) {
-		input := map[string]interface{}{"email": user.User.Email}
+		input := map[string]any{"email": user.User.Email}
 
 		runUnitTest(t,
 			getErrorTestCase(input, "not find a user"),
@@ -77,7 +77,7 @@ func TestUserDataSource(t *testing.T) {
 	})
 
 	t.Run("Throw error when multiple users by email found", func(t *testing.T) {
-		input := map[string]interface{}{"email": user.User.Email}
+		input := map[string]any{"email": user.User.Email}
 
 		runUnitTest(t,
 			getErrorTestCase(input, "multiple users"),

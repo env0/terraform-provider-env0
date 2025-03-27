@@ -61,10 +61,10 @@ func TestUnitAzureCloudConfigurationResource(t *testing.T) {
 		Name:     "other_name",
 	}
 
-	getFields := func(cloudConfig *client.CloudAccount) map[string]interface{} {
+	getFields := func(cloudConfig *client.CloudAccount) map[string]any {
 		azureConfig := cloudConfig.Configuration.(*client.AzureCloudAccountConfiguration)
 
-		return map[string]interface{}{
+		return map[string]any{
 			"name":                       cloudConfig.Name,
 			"tenant_id":                  azureConfig.TenantId,
 			"client_id":                  azureConfig.ClientId,

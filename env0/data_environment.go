@@ -123,7 +123,7 @@ func dataEnvironment() *schema.Resource {
 	}
 }
 
-func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err diag.Diagnostics
 
 	var environment client.Environment
@@ -168,11 +168,11 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		d.Set("ttl", environment.LifespanEndAt)
 	}
 
-	subEnvironments := []interface{}{}
+	subEnvironments := []any{}
 
 	if environment.LatestDeploymentLog.WorkflowFile != nil {
 		for alias, subenv := range environment.LatestDeploymentLog.WorkflowFile.Environments {
-			subEnvironment := map[string]interface{}{
+			subEnvironment := map[string]any{
 				"id":    subenv.EnvironmentId,
 				"alias": alias,
 			}
@@ -180,9 +180,9 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	slices.SortFunc(subEnvironments, func(a, b interface{}) int {
-		amap := a.(map[string]interface{})
-		bmap := b.(map[string]interface{})
+	slices.SortFunc(subEnvironments, func(a, b any) int {
+		amap := a.(map[string]any)
+		bmap := b.(map[string]any)
 
 		aalias := amap["alias"].(string)
 		balias := bmap["alias"].(string)

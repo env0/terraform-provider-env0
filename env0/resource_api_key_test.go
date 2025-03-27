@@ -68,7 +68,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": apiKey.Name,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -80,7 +80,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": updatedApiKey.Name,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -116,7 +116,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":              apiKeyUser.Name,
 						"organization_role": apiKeyUser.OrganizationRole,
 					}),
@@ -147,7 +147,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                apiKey.Name,
 						"omit_api_key_secret": true,
 					}),
@@ -180,7 +180,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": apiKey.Name,
 					}),
 					ExpectError: regexp.MustCompile("could not create api key: error"),
@@ -200,7 +200,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": apiKey.Name,
 					}),
 				},
@@ -227,7 +227,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": apiKey.Name,
 					}),
 				},
@@ -254,7 +254,7 @@ func TestUnitApiKeyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name": updatedApiKey.Name,
 					}),
 				},

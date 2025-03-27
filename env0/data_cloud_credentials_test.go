@@ -37,7 +37,7 @@ func TestCloudCredentialsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "names.0", credentials1.Name),
 							resource.TestCheckResourceAttr(accessor, "names.1", credentials2.Name),
@@ -54,7 +54,7 @@ func TestCloudCredentialsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"credential_type": credentials2.Type}),
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"credential_type": credentials2.Type}),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "names.0", credentials2.Name),
 						),
@@ -70,7 +70,7 @@ func TestCloudCredentialsDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{}),
 						ExpectError: regexp.MustCompile("error"),
 					},
 				},

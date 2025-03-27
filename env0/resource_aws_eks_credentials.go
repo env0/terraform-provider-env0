@@ -38,7 +38,7 @@ func resourceAwsEksCredentials() *schema.Resource {
 	}
 }
 
-func resourceAwsEksCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsEksCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.AwsEksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -62,7 +62,7 @@ func resourceAwsEksCredentialsCreate(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceAwsEksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsEksCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.AwsEksValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)

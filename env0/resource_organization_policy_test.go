@@ -47,7 +47,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"max_ttl":     *organization.MaxTtl,
 						"default_ttl": *organization.DefaultTtl,
 						"do_not_consider_merge_commits_for_pr_plans": organization.DoNotConsiderMergeCommitsForPrPlans,
@@ -63,7 +63,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"default_ttl":                         *organizationUpdated.DefaultTtl,
 						"do_not_report_skipped_status_checks": organizationUpdated.DoNotReportSkippedStatusChecks,
 						"enable_oidc":                         organizationUpdated.EnableOidc,
@@ -110,7 +110,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"max_ttl":     "23-h",
 						"default_ttl": "1-d",
 					}),
@@ -126,7 +126,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"max_ttl":     *organization.MaxTtl,
 						"default_ttl": *organization.DefaultTtl,
 						"do_not_consider_merge_commits_for_pr_plans": organization.DoNotConsiderMergeCommitsForPrPlans,

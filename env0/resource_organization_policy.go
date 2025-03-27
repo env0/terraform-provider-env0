@@ -55,7 +55,7 @@ func resourceOrganizationPolicy() *schema.Resource {
 	}
 }
 
-func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationPolicyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	organization, err := apiClient.Organization()
@@ -89,7 +89,7 @@ func validateTtl(defaultTtl *string, maxTtl *string) error {
 	return nil
 }
 
-func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.OrganizationPolicyUpdatePayload
@@ -111,7 +111,7 @@ func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.Res
 	return nil
 }
 
-func resourceOrganizationPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationPolicyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	// In cases of a "DELETE", update the organization policy to default values.

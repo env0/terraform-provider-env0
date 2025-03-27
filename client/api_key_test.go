@@ -24,7 +24,7 @@ var _ = Describe("ApiKey Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]ApiKey) {
+				Do(func(path string, request any, response *[]ApiKey) {
 					*response = mockApiKeys
 				})
 			returnedApiKeys, _ = apiClient.ApiKeys()
@@ -61,7 +61,7 @@ var _ = Describe("ApiKey Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/api-keys", expectedCreateRequest, gomock.Any()).
-				Do(func(path string, request interface{}, response *ApiKey) {
+				Do(func(path string, request any, response *ApiKey) {
 					*response = mockApiKey
 				})
 
@@ -111,7 +111,7 @@ var _ = Describe("ApiKey Client", func() {
 			mockOrganizationIdCall()
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys/oidc-sub", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *string) {
+				Do(func(path string, request any, response *string) {
 					*response = mockedOidcSub
 				})
 			returnedOidcSub, err = apiClient.OidcSub()

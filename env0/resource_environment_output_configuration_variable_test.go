@@ -56,7 +56,7 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  configurationVariable.Name,
 						"description":           configurationVariable.Description,
 						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),
@@ -80,7 +80,7 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  configurationVariable.Name,
 						"description":           updatedConfigurationVariable.Description,
 						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),
@@ -141,7 +141,7 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  configurationVariable.Name,
 						"description":           configurationVariable.Description,
 						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),
@@ -167,7 +167,7 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  configurationVariable.Name,
 						"description":           configurationVariable.Description,
 						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),
@@ -211,7 +211,7 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		createTestCaseForImport := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":                  configurationVariable.Name,
 						"description":           configurationVariable.Description,
 						"is_read_only":          strconv.FormatBool(*configurationVariable.IsReadOnly),

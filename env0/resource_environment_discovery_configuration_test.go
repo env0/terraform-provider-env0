@@ -81,7 +81,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           putPayload.GlobPattern,
 						"repository":             putPayload.Repository,
@@ -105,7 +105,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           updatePutPayload.GlobPattern,
 						"repository":             updatePutPayload.Repository,
@@ -171,7 +171,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"type":                   putPayload.Type,
 						"glob_pattern":           putPayload.GlobPattern,
@@ -225,7 +225,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"type":                   putPayload.Type,
 						"glob_pattern":           putPayload.GlobPattern,
@@ -283,7 +283,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":           projectId,
 						"type":                 putPayload.Type,
 						"glob_pattern":         putPayload.GlobPattern,
@@ -343,7 +343,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":        projectId,
 						"type":              putPayload.Type,
 						"glob_pattern":      putPayload.GlobPattern,
@@ -399,7 +399,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":      projectId,
 						"type":            putPayload.Type,
 						"glob_pattern":    putPayload.GlobPattern,
@@ -466,7 +466,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"type":                   putPayload.Type,
 						"glob_pattern":           putPayload.GlobPattern,
@@ -563,7 +563,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"type":                   putPayload.Type,
 						"glob_pattern":           putPayload.GlobPattern,
@@ -589,7 +589,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"type":                   updatePutPayload.Type,
 						"glob_pattern":           updatePutPayload.GlobPattern,
@@ -628,7 +628,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           "**",
 						"repository":             "https://re.po",
@@ -646,7 +646,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           "**",
 						"repository":             "https://re.po",
@@ -665,7 +665,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           "**",
 						"repository":             "https://re.po",
@@ -684,7 +684,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           "**",
 						"repository":             "https://re.po",
@@ -704,7 +704,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           "**",
 						"repository":             "https://re.po",
@@ -746,7 +746,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"project_id":             projectId,
 						"glob_pattern":           putPayload.GlobPattern,
 						"repository":             putPayload.Repository,

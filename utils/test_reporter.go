@@ -15,7 +15,7 @@ type TestReporter struct {
 	T *testing.T
 }
 
-func (r *TestReporter) Error(args ...interface{}) {
+func (r *TestReporter) Error(args ...any) {
 	r.T.Helper()
 	r.T.Error(args...)
 }
@@ -34,16 +34,16 @@ func (r *TestReporter) Failed() bool {
 	return r.T.Failed()
 }
 
-func (r *TestReporter) Fatal(args ...interface{}) {
+func (r *TestReporter) Fatal(args ...any) {
 	r.T.Helper()
 	r.T.Fatal(args...)
 }
 
-func (r *TestReporter) Log(args ...interface{}) {
+func (r *TestReporter) Log(args ...any) {
 	r.T.Log(args...)
 }
 
-func (r *TestReporter) Logf(format string, args ...interface{}) {
+func (r *TestReporter) Logf(format string, args ...any) {
 	r.T.Logf(format, args...)
 }
 
@@ -55,7 +55,7 @@ func (r *TestReporter) Parallel() {
 	r.T.Parallel()
 }
 
-func (r *TestReporter) Skip(args ...interface{}) {
+func (r *TestReporter) Skip(args ...any) {
 	r.T.Skip(args...)
 }
 
@@ -63,7 +63,7 @@ func (r *TestReporter) SkipNow() {
 	r.T.SkipNow()
 }
 
-func (r *TestReporter) Skipf(format string, args ...interface{}) {
+func (r *TestReporter) Skipf(format string, args ...any) {
 	r.T.Skipf(format, args...)
 }
 
@@ -75,14 +75,14 @@ func (r *TestReporter) Helper() {
 	r.T.Helper()
 }
 
-func (r *TestReporter) Fatalf(format string, args ...interface{}) {
+func (r *TestReporter) Fatalf(format string, args ...any) {
 	r.T.Helper()
 	r.Log(fmt.Sprintf(format, args...))
 	r.T.Fail()
 	os.Exit(1)
 }
 
-func (r *TestReporter) Errorf(format string, args ...interface{}) {
+func (r *TestReporter) Errorf(format string, args ...any) {
 	r.T.Helper()
 	r.T.Errorf(format, args...)
 }

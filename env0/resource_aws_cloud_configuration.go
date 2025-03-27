@@ -63,10 +63,10 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 	}
 }
 
-func resourceAwsCloudConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsCloudConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return createCloudConfiguration(d, meta, "AWS")
 }
 
-func resourceAwsCloudConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAwsCloudConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return updateCloudConfiguration(d, meta, "AWS")
 }

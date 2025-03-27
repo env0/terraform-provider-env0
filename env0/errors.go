@@ -27,7 +27,7 @@ func driftDetected(err error) bool {
 
 func ResourceGetFailure(ctx context.Context, resourceName string, d *schema.ResourceData, err error) diag.Diagnostics {
 	if driftDetected(err) {
-		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+		tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 		d.SetId("")
 
 		return nil
@@ -36,7 +36,7 @@ func ResourceGetFailure(ctx context.Context, resourceName string, d *schema.Reso
 	return diag.Errorf("could not get %s: %v", resourceName, err)
 }
 
-func DataGetFailure(dataName string, id interface{}, err error) diag.Diagnostics {
+func DataGetFailure(dataName string, id any, err error) diag.Diagnostics {
 	if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
 		return diag.Errorf("could not read %s: id %v not found", dataName, id)
 	}

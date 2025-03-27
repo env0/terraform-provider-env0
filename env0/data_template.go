@@ -152,7 +152,7 @@ func dataTemplate() *schema.Resource {
 	}
 }
 
-func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var template client.Template
 
 	var err diag.Diagnostics
@@ -175,7 +175,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func getTemplateByName(name interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
+func getTemplateByName(name any, meta any) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	templates, err := apiClient.Templates()
@@ -202,7 +202,7 @@ func getTemplateByName(name interface{}, meta interface{}) (client.Template, dia
 	return templatesByName[0], nil
 }
 
-func getTemplateById(id interface{}, meta interface{}) (client.Template, diag.Diagnostics) {
+func getTemplateById(id any, meta any) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	template, err := apiClient.Template(id.(string))

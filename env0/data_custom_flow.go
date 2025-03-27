@@ -29,7 +29,7 @@ func dataCustomFlow() *schema.Resource {
 	}
 }
 
-func dataCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err error
 
 	var customFlow *client.CustomFlow

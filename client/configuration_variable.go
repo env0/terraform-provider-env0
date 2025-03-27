@@ -33,7 +33,7 @@ type ConfigurationVariableSchema struct {
 	Format Format   `json:"format,omitempty"`
 }
 
-func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values map[string]interface{}) error {
+func (c *ConfigurationVariableSchema) ResourceDataSliceStructValueWrite(values map[string]any) error {
 	if len(c.Format) > 0 {
 		values["format"] = c.Format
 	}
@@ -166,7 +166,7 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 
 	var result []ConfigurationVariable
 
-	request := map[string]interface{}{
+	request := map[string]any{
 		"name":           params.Name,
 		"description":    params.Description,
 		"value":          params.Value,
@@ -185,7 +185,7 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 
 	request["schema"] = getSchema(params)
 
-	requestInArray := []map[string]interface{}{request}
+	requestInArray := []map[string]any{request}
 
 	if err := client.http.Post("configuration", requestInArray, &result); err != nil {
 		return ConfigurationVariable{}, err
@@ -194,8 +194,8 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 	return result[0], nil
 }
 
-func getSchema(params ConfigurationVariableCreateParams) map[string]interface{} {
-	schema := map[string]interface{}{
+func getSchema(params ConfigurationVariableCreateParams) map[string]any {
+	schema := map[string]any{
 		"type": "string",
 	}
 
@@ -227,7 +227,7 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 
 	var result []ConfigurationVariable
 
-	request := map[string]interface{}{
+	request := map[string]any{
 		"id":             updateParams.Id,
 		"name":           commonParams.Name,
 		"description":    commonParams.Description,
@@ -247,7 +247,7 @@ func (client *ApiClient) ConfigurationVariableUpdate(updateParams ConfigurationV
 
 	request["schema"] = getSchema(updateParams.CommonParams)
 
-	requestInArray := []map[string]interface{}{request}
+	requestInArray := []map[string]any{request}
 
 	if err := client.http.Post("/configuration", requestInArray, &result); err != nil {
 		return ConfigurationVariable{}, err

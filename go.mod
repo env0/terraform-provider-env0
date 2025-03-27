@@ -1,8 +1,6 @@
 module github.com/env0/terraform-provider-env0
 
-go 1.23.0
-
-toolchain go1.23.4
+go 1.24
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1

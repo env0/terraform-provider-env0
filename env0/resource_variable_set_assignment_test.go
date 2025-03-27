@@ -71,7 +71,7 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"scope":    scope,
 						"scope_id": scopeId,
 						"set_ids":  setIds,
@@ -84,7 +84,7 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"scope":    scope,
 						"scope_id": scopeId,
 						"set_ids":  updatedSetIds,
@@ -133,7 +133,7 @@ func TestUnitVariableSetAssignmentResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"scope":    scope,
 						"scope_id": scopeId,
 						"set_ids":  setIds,

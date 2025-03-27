@@ -22,7 +22,7 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 	otherTrigger := client.WorkflowTrigger{
 		Id: "id1",
 	}
-	createHCL := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	createHCL := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"environment_id":             environmentId,
 		"downstream_environment_ids": []string{trigger.Id},
 	})
@@ -39,7 +39,7 @@ func TestUnitWorkflowTriggersResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id":             environmentId,
 						"downstream_environment_ids": []string{otherTrigger.Id},
 					}),

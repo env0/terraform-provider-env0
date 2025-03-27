@@ -39,7 +39,7 @@ func dataGpgKey() *schema.Resource {
 	}
 }
 
-func dataGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataGpgKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var gpgKey *client.GpgKey
 
 	var err error

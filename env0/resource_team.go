@@ -35,7 +35,7 @@ func resourceTeam() *schema.Resource {
 	}
 }
 
-func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamCreatePayload
@@ -53,7 +53,7 @@ func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	team, err := apiClient.Team(d.Id())
@@ -68,7 +68,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamUpdatePayload
@@ -83,7 +83,7 @@ func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	err := apiClient.TeamDelete(d.Id())
@@ -94,17 +94,17 @@ func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
 	var getErr diag.Diagnostics
 
 	_, uuidErr := uuid.Parse(id)
 	if uuidErr == nil {
-		tflog.Info(ctx, "Resolving team by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving team by id", map[string]any{"id": id})
 		_, getErr = getTeamById(id, meta)
 	} else {
-		tflog.Info(ctx, "Resolving team by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving team by name", map[string]any{"name": id})
 
 		var team client.Team
 
@@ -119,7 +119,7 @@ func resourceTeamImport(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 }
 
-func getTeamByName(name string, meta interface{}) (client.Team, diag.Diagnostics) {
+func getTeamByName(name string, meta any) (client.Team, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	teams, err := apiClient.TeamsByName(name)
@@ -146,7 +146,7 @@ func getTeamByName(name string, meta interface{}) (client.Team, diag.Diagnostics
 	return teamsByName[0], nil
 }
 
-func getTeamById(id interface{}, meta interface{}) (client.Team, diag.Diagnostics) {
+func getTeamById(id any, meta any) (client.Team, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	team, err := apiClient.Team(id.(string))

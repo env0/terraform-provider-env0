@@ -48,7 +48,7 @@ var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
 	GCP_GKE_TYPE:    {string(client.GcpGkeCredentialsType)},
 }
 
-func getCredentialsByName(name string, prefixList []string, meta interface{}) (client.Credentials, error) {
+func getCredentialsByName(name string, prefixList []string, meta any) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialsList, err := apiClient.CloudCredentialsList()
@@ -75,7 +75,7 @@ func getCredentialsByName(name string, prefixList []string, meta interface{}) (c
 	return foundCredentials[0], nil
 }
 
-func getCredentialsById(id string, prefixList []string, meta interface{}) (client.Credentials, error) {
+func getCredentialsById(id string, prefixList []string, meta any) (client.Credentials, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentials, err := apiClient.CloudCredentials(id)
@@ -94,21 +94,21 @@ func getCredentialsById(id string, prefixList []string, meta interface{}) (clien
 	return credentials, nil
 }
 
-func getCredentials(ctx context.Context, id string, prefixList []string, meta interface{}) (client.Credentials, error) {
+func getCredentials(ctx context.Context, id string, prefixList []string, meta any) (client.Credentials, error) {
 	_, err := uuid.Parse(id)
 
 	if err == nil {
-		tflog.Info(ctx, "Resolving credentials by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving credentials by id", map[string]any{"id": id})
 
 		return getCredentialsById(id, prefixList, meta)
 	} else {
-		tflog.Info(ctx, "Resolving credentials by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving credentials by name", map[string]any{"name": id})
 
 		return getCredentialsByName(id, prefixList, meta)
 	}
 }
 
-func resourceCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
@@ -122,7 +122,7 @@ func resourceCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 		apiClient := meta.(client.ApiClientInterface)
 
 		credentials, err := apiClient.CloudCredentials(d.Id())
@@ -139,7 +139,7 @@ func resourceCredentialsRead(cloudType CloudType) schema.ReadContextFunc {
 }
 
 func resourceCredentialsImport(cloudType CloudType) schema.StateContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return func(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 		credentials, err := getCredentials(ctx, d.Id(), credentialsTypeToPrefixList[cloudType], meta)
 		if err != nil {
 			if _, ok := err.(*client.NotFoundError); ok {

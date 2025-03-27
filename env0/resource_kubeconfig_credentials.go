@@ -33,7 +33,7 @@ func resourceKubeconfigCredentials() *schema.Resource {
 	}
 }
 
-func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.KubeconfigFileValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
@@ -57,7 +57,7 @@ func resourceKubeconfigCredentialsCreate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKubeconfigCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	value := client.KubeconfigFileValue{}
 	if err := readResourceData(&value, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)

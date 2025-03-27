@@ -230,7 +230,7 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 	return nil
 }
 
-func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var putPayload client.EnvironmentDiscoveryPutPayload
@@ -262,7 +262,7 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 	return nil
 }
 
-func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDiscoveryConfigurationDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Get("project_id").(string)
@@ -287,7 +287,7 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 	return nil
 }
 
-func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Get("project_id").(string)
@@ -304,7 +304,7 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 	return nil
 }
 
-func resourceEnvironmentDiscoveryConfigurationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceEnvironmentDiscoveryConfigurationImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	projectId := d.Id()

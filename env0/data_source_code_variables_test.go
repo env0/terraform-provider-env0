@@ -64,7 +64,7 @@ func TestSourceCodeVariablesDataSource(t *testing.T) {
 	testCase := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": template.Id}),
+				Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"template_id": template.Id}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(accessor, "variables.0.name", var1.Name),
 					resource.TestCheckResourceAttr(accessor, "variables.1.name", var2.Name),
@@ -91,7 +91,7 @@ func TestSourceCodeVariablesDataSource(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": template.Id}),
+						Config:      dataSourceConfigCreate(resourceType, resourceName, map[string]any{"template_id": template.Id}),
 						ExpectError: regexp.MustCompile("error"),
 					},
 				},

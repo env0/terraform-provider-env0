@@ -195,7 +195,7 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	}
 
 	// 2. Unmarshal both JSON byte arrays to two maps.
-	var ecm, tcm map[string]interface{}
+	var ecm, tcm map[string]any
 
 	if err := json.Unmarshal(ecb, &ecm); err != nil {
 		return nil, err

@@ -21,7 +21,7 @@ func TestAgentValues(t *testing.T) {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 						"agent_key": agentKey,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
@@ -51,7 +51,7 @@ func TestAgentValues(t *testing.T) {
 			resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
 							"agent_key": agentKey,
 						}),
 						ExpectError: regexp.MustCompile("could not get agent values: error"),

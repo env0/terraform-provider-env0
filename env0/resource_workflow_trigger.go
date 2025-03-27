@@ -33,7 +33,7 @@ func resourceWorkflowTrigger() *schema.Resource {
 	}
 }
 
-func resourceWorkflowTriggerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggerRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -51,13 +51,13 @@ func resourceWorkflowTriggerRead(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 	d.SetId("")
 
 	return nil
 }
 
-func resourceWorkflowTriggerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggerCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)
@@ -74,7 +74,7 @@ func resourceWorkflowTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceWorkflowTriggerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkflowTriggerDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	environmentId := d.Get("environment_id").(string)

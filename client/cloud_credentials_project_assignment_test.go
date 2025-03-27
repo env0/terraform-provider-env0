@@ -25,7 +25,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/credentials/deployment/"+credentialId+"/project/"+projectId, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *CloudCredentialsProjectAssignment) {
+					Do(func(path string, request any, response *CloudCredentialsProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
@@ -83,7 +83,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/credentials/deployment/project/"+projectId, nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *CloudCredentialIdsInProjectResponse) {
+					Do(func(path string, request any, response *CloudCredentialIdsInProjectResponse) {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.CloudCredentialIdsInProject(projectId)

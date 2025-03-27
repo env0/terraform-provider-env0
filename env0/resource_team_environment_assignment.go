@@ -39,7 +39,7 @@ func resourceTeamEnvironmentAssignment() *schema.Resource {
 	}
 }
 
-func resourceTeamEnvironmentAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamEnvironmentAssignmentCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentCreateOrUpdatePayload
@@ -57,7 +57,7 @@ func resourceTeamEnvironmentAssignmentCreateOrUpdate(ctx context.Context, d *sch
 	return nil
 }
 
-func resourceTeamEnvironmentAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamEnvironmentAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentListPayload
@@ -82,13 +82,13 @@ func resourceTeamEnvironmentAssignmentRead(ctx context.Context, d *schema.Resour
 		}
 	}
 
-	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]interface{}{"id": d.Id()})
+	tflog.Warn(ctx, "Drift Detected: Terraform will remove id from state", map[string]any{"id": d.Id()})
 	d.SetId("")
 
 	return nil
 }
 
-func resourceTeamEnvironmentAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTeamEnvironmentAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.TeamRoleAssignmentDeletePayload

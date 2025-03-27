@@ -27,7 +27,7 @@ var _ = Describe("VCSToken", func() {
 					"organizationId": organizationId,
 					"repository":     repository,
 				}, gomock.Any()).
-				Do(func(path string, request interface{}, response *VscToken) {
+				Do(func(path string, request any, response *VscToken) {
 					*response = mockVcsToken
 				}).Times(1)
 

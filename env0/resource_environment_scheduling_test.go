@@ -24,7 +24,7 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id": environmentId,
 						"deploy_cron":    environmentScheduling.Deploy.Cron,
 						"destroy_cron":   environmentScheduling.Destroy.Cron,
@@ -50,7 +50,7 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
-						Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 							"environment_id": environmentId,
 							key:              "not_a_valid_cron",
 						}),
@@ -67,7 +67,7 @@ func TestUnitEnvironmentSchedulingResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"environment_id": environmentId,
 					}),
 					ExpectError: regexp.MustCompile("Missing required argument"),

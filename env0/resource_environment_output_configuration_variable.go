@@ -214,7 +214,7 @@ func getEnvironmentOutputCreateParams(d *schema.ResourceData) (*client.Configura
 	return &createParams, nil
 }
 
-func resourceEnvironmentOutputConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentOutputConfigurationVariableCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	createParams, err := getEnvironmentOutputCreateParams(d)
@@ -232,7 +232,7 @@ func resourceEnvironmentOutputConfigurationVariableCreate(ctx context.Context, d
 	return nil
 }
 
-func resourceEnvironmentOutputConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentOutputConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	variable, err := apiClient.ConfigurationVariablesById(d.Id())
@@ -252,7 +252,7 @@ func resourceEnvironmentOutputConfigurationVariableRead(ctx context.Context, d *
 	return nil
 }
 
-func resourceEnvironmentOutputConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentOutputConfigurationVariableUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	createParams, err := getEnvironmentOutputCreateParams(d)
@@ -268,7 +268,7 @@ func resourceEnvironmentOutputConfigurationVariableUpdate(ctx context.Context, d
 	return nil
 }
 
-func resourceEnvironmentOutputConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceEnvironmentOutputConfigurationVariableImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	var configurationParams ConfigurationVariableParams
 
 	inputData := d.Id()

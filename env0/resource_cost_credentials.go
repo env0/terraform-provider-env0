@@ -76,7 +76,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 	getPayload := func(d *schema.ResourceData) (client.CredentialCreatePayload, error) {
 		var payload client.CredentialCreatePayload
 
-		var value interface{}
+		var value any
 
 		switch providerName {
 		case AWS:
@@ -109,8 +109,8 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 		return payload, nil
 	}
 
-	getResourceCreate := func() func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-		return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	getResourceCreate := func() func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+		return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 			payload, err := getPayload(d)
 			if err != nil {
 				return diag.FromErr(err)
@@ -129,8 +129,8 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 		}
 	}
 
-	getResourceUpdate := func() func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-		return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	getResourceUpdate := func() func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+		return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 			payload, err := getPayload(d)
 			if err != nil {
 				return diag.FromErr(err)
@@ -163,7 +163,7 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 	}
 }
 
-func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if _, err := apiClient.CloudCredentials(d.Id()); err != nil {
@@ -173,7 +173,7 @@ func resourceCostCredentialsRead(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCostCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.CloudCredentialsDelete(d.Id()); err != nil {

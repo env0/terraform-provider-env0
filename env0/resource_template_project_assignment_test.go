@@ -15,12 +15,12 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 
 	resourceName := "test"
 
-	resourceTemplateAssignment := map[string]interface{}{
+	resourceTemplateAssignment := map[string]any{
 		"template_id": "id",
 		"project_id":  "pid",
 	}
 
-	resourceTemplateAssignmentUpdate := map[string]interface{}{
+	resourceTemplateAssignmentUpdate := map[string]any{
 		"template_id": "update",
 		"project_id":  "updatepid",
 	}
@@ -72,7 +72,7 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 	testCaseForError := resource.TestCase{
 		Steps: []resource.TestStep{
 			{
-				Config:      resourceConfigCreate(resourceType, resourceName, map[string]interface{}{"template_id": "id"}),
+				Config:      resourceConfigCreate(resourceType, resourceName, map[string]any{"template_id": "id"}),
 				ExpectError: regexp.MustCompile("Missing required argument"),
 			},
 		},

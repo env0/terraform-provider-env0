@@ -29,7 +29,7 @@ func dataCustomRole() *schema.Resource {
 	}
 }
 
-func dataCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var err error
 
 	var role *client.Role

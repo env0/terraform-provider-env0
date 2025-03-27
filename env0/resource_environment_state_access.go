@@ -41,7 +41,7 @@ func resourceEnvironmentStateAccess() *schema.Resource {
 	}
 }
 
-func resourceEnvironmentStateAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentStateAccessCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	environmentId := d.Get("environment_id").(string)
 
 	var payload client.RemoteStateAccessConfigurationCreate
@@ -65,7 +65,7 @@ func resourceEnvironmentStateAccessCreate(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceEnvironmentStateAccessRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentStateAccessRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	environmentId := d.Get("environment_id").(string)
 
 	apiClient := meta.(client.ApiClientInterface)
@@ -82,7 +82,7 @@ func resourceEnvironmentStateAccessRead(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceEnvironmentStateAccessDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnvironmentStateAccessDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	environmentId := d.Get("environment_id").(string)
 
 	apiClient := meta.(client.ApiClientInterface)

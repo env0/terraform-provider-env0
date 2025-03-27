@@ -23,7 +23,7 @@ var _ = Describe("Gpg Token Client", func() {
 			mockOrganizationIdCall()
 			mockHttpClient.EXPECT().
 				Get("/gpg-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
-				Do(func(path string, request interface{}, response *[]GpgKey) {
+				Do(func(path string, request any, response *[]GpgKey) {
 					*response = mockGpgKeys
 				})
 			returnedGpgKeys, _ = apiClient.GpgKeys()
@@ -72,7 +72,7 @@ var _ = Describe("Gpg Token Client", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/gpg-keys", payload, gomock.Any()).
-				Do(func(path string, request interface{}, response *GpgKey) {
+				Do(func(path string, request any, response *GpgKey) {
 					*response = mockGpgKey
 				})
 

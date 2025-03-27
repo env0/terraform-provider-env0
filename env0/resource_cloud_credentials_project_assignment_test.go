@@ -24,7 +24,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 		ProjectId:    "proj-it-update",
 	}
 
-	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"credential_id": assignment.CredentialId,
 		"project_id":    assignment.ProjectId,
 	})
@@ -111,7 +111,7 @@ func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"credential_id": assignmentForDrift.CredentialId,
 						"project_id":    assignmentForDrift.ProjectId,
 					}),

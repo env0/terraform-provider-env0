@@ -22,14 +22,14 @@ func TestProviderDataSource(t *testing.T) {
 		Description: "des1",
 	}
 
-	providerFieldByName := map[string]interface{}{"type": provider.Type}
-	providerFieldById := map[string]interface{}{"id": provider.Id}
+	providerFieldByName := map[string]any{"type": provider.Type}
+	providerFieldById := map[string]any{"id": provider.Id}
 
 	resourceType := "env0_provider"
 	resourceName := "test_provider"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -44,7 +44,7 @@ func TestProviderDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{

@@ -46,7 +46,7 @@ func dataCloudCredentials() *schema.Resource {
 	}
 }
 
-func dataCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataCloudCredentialsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialsList, err := apiClient.CloudCredentialsList()

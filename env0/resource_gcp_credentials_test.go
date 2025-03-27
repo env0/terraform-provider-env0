@@ -18,13 +18,13 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	gcpCredentialResource := map[string]interface{}{
+	gcpCredentialResource := map[string]any{
 		"name":                "test",
 		"project_id":          "11111",
 		"service_account_key": "22222",
 	}
 
-	updateGcpCredentialResource := map[string]interface{}{
+	updateGcpCredentialResource := map[string]any{
 		"name":                "update",
 		"project_id":          "333_update",
 		"service_account_key": "444_update",
@@ -131,10 +131,10 @@ func TestUnitGcpCredentialsResource(t *testing.T) {
 
 	t.Run("validate missing arguments", func(t *testing.T) {
 		missingArgumentsTestCases := []resource.TestCase{
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
+			missingArgumentTestCase(resourceType, resourceName, map[string]any{
 				"name": "update",
 			}, "service_account_key"),
-			missingArgumentTestCase(resourceType, resourceName, map[string]interface{}{
+			missingArgumentTestCase(resourceType, resourceName, map[string]any{
 				"service_account_key": "update",
 			}, "name"),
 		}

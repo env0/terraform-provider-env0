@@ -59,7 +59,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":           notification.Name,
 						"type":           notification.Type,
 						"value":          notification.Value,
@@ -74,7 +74,7 @@ func TestUnitNotificationResource(t *testing.T) {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  updatedNotification.Name,
 						"type":  updatedNotification.Type,
 						"value": updatedNotification.Value,
@@ -117,7 +117,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notification.Name,
 						"value": notification.Value,
 						"type":  "bad-type",
@@ -134,7 +134,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  "",
 						"value": notification.Value,
 						"type":  notification.Type,
@@ -151,7 +151,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notification.Name,
 						"value": "",
 						"type":  notification.Type,
@@ -168,7 +168,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notification.Name,
 						"value": notification.Value,
 						"type":  notification.Type,
@@ -191,14 +191,14 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notification.Name,
 						"type":  notification.Type,
 						"value": notification.Value,
 					}),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  updatedNotification.Name,
 						"type":  updatedNotification.Type,
 						"value": updatedNotification.Value,
@@ -230,7 +230,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notification.Name,
 						"type":  notification.Type,
 						"value": notification.Value,
@@ -260,7 +260,7 @@ func TestUnitNotificationResource(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  notificationById.Name,
 						"type":  notificationById.Type,
 						"value": notificationById.Value,

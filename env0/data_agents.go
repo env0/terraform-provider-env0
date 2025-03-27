@@ -31,7 +31,7 @@ func dataAgents() *schema.Resource {
 	}
 }
 
-func agentsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func agentsRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	agents, err := apiClient.Agents()

@@ -57,16 +57,16 @@ func TestEnvironmentDataSource(t *testing.T) {
 		IsArchived: boolPtr(true),
 	}
 
-	environmentFieldsByName := map[string]interface{}{"name": environment.Name}
-	environmentFieldsByNameWithExclude := map[string]interface{}{"name": environment.Name, "exclude_archived": "true"}
-	environmentFieldByNameWithProjectId := map[string]interface{}{"name": environment.Name, "project_id": environment.ProjectId}
-	environmentFieldsById := map[string]interface{}{"id": environment.Id}
+	environmentFieldsByName := map[string]any{"name": environment.Name}
+	environmentFieldsByNameWithExclude := map[string]any{"name": environment.Name, "exclude_archived": "true"}
+	environmentFieldByNameWithProjectId := map[string]any{"name": environment.Name, "project_id": environment.ProjectId}
+	environmentFieldsById := map[string]any{"id": environment.Id}
 
 	resourceType := "env0_environment"
 	resourceName := "test_environment"
 	accessor := dataSourceAccessor(resourceType, resourceName)
 
-	getValidTestCase := func(input map[string]interface{}) resource.TestCase {
+	getValidTestCase := func(input map[string]any) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -98,7 +98,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 		}
 	}
 
-	getErrorTestCase := func(input map[string]interface{}, expectedError string) resource.TestCase {
+	getErrorTestCase := func(input map[string]any, expectedError string) resource.TestCase {
 		return resource.TestCase{
 			Steps: []resource.TestStep{
 				{
@@ -156,7 +156,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 
 	t.Run("Throw error when no name or id is supplied", func(t *testing.T) {
 		runUnitTest(t,
-			getErrorTestCase(map[string]interface{}{}, "one of `id,name` must be specified"),
+			getErrorTestCase(map[string]any{}, "one of `id,name` must be specified"),
 			func(mock *client.MockApiClientInterface) {},
 		)
 	})

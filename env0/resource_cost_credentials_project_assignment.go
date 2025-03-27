@@ -31,7 +31,7 @@ func resourceCostCredentialsProjectAssignment() *schema.Resource {
 	}
 }
 
-func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
@@ -46,7 +46,7 @@ func resourceCostCredentialsProjectAssignmentCreate(ctx context.Context, d *sche
 	return nil
 }
 
-func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)
@@ -75,7 +75,7 @@ func resourceCostdCredentialsProjectAssignmentRead(ctx context.Context, d *schem
 	return nil
 }
 
-func resourceCostCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCostCredentialsProjectAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	credentialId, projectId := getCredentialIdAndProjectId(d)

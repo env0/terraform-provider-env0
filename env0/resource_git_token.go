@@ -37,7 +37,7 @@ func resourceGitToken() *schema.Resource {
 	}
 }
 
-func resourceGitTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGitTokenCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var payload client.GitTokenCreatePayload
@@ -55,7 +55,7 @@ func resourceGitTokenCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceGitTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGitTokenRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	gitToken, err := apiClient.GitToken(d.Id())
@@ -70,7 +70,7 @@ func resourceGitTokenRead(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceGitTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGitTokenDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.GitTokenDelete(d.Id()); err != nil {
@@ -80,7 +80,7 @@ func resourceGitTokenDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func getGitTokenByName(name string, meta interface{}) (*client.GitToken, error) {
+func getGitTokenByName(name string, meta any) (*client.GitToken, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	gitTokens, err := apiClient.GitTokens()
@@ -107,20 +107,20 @@ func getGitTokenByName(name string, meta interface{}) (*client.GitToken, error) 
 	return &foundGitTokens[0], nil
 }
 
-func getGitToken(ctx context.Context, id string, meta interface{}) (*client.GitToken, error) {
+func getGitToken(ctx context.Context, id string, meta any) (*client.GitToken, error) {
 	_, err := uuid.Parse(id)
 	if err == nil {
-		tflog.Info(ctx, "Resolving git token by id", map[string]interface{}{"id": id})
+		tflog.Info(ctx, "Resolving git token by id", map[string]any{"id": id})
 
 		return meta.(client.ApiClientInterface).GitToken(id)
 	} else {
-		tflog.Info(ctx, "Resolving git token by name", map[string]interface{}{"name": id})
+		tflog.Info(ctx, "Resolving git token by name", map[string]any{"name": id})
 
 		return getGitTokenByName(id, meta)
 	}
 }
 
-func resourceGitTokenImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceGitTokenImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	gitToken, err := getGitToken(ctx, d.Id(), meta)
 	if err != nil {
 		return nil, err

@@ -34,7 +34,7 @@ func dataApiKey() *schema.Resource {
 	}
 }
 
-func dataApiKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataApiKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	var apiKey *client.ApiKey
 
 	var err error

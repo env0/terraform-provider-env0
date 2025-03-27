@@ -30,7 +30,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		IsReadOnly:  &isReadonly,
 		IsRequired:  &isRequired,
 	}
-	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 		"name":         configVar.Name,
 		"description":  configVar.Description,
 		"value":        configVar.Value,
@@ -95,7 +95,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         createSensitiveConfig.Name,
 						"value":        createSensitiveConfig.Value,
 						"is_sensitive": true,
@@ -163,7 +163,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Format:      client.Text,
 		}
 
-		data := map[string]interface{}{"projectId": projVar.ScopeId, "orgResourceName": orgResourceName, "projResourceName": projResourceName, "resourceType": resourceType, "variableName": orgVar.Name, "orgValue": orgVar.Value, "projValue": projVar.Value}
+		data := map[string]any{"projectId": projVar.ScopeId, "orgResourceName": orgResourceName, "projResourceName": projResourceName, "resourceType": resourceType, "variableName": orgVar.Name, "orgValue": orgVar.Value, "projValue": projVar.Value}
 
 		tmpl, err := template.New("").Parse(`
 resource "{{.resourceType}}" "{{.orgResourceName}}" {
@@ -226,7 +226,7 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 			Name:  "regex-var-name",
 			Regex: "initial-regex",
 		}
-		initialResource := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		initialResource := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":  initialVar.Name,
 			"regex": initialVar.Regex,
 		})
@@ -238,7 +238,7 @@ resource "{{.resourceType}}" "{{.projResourceName}}" {
 
 		updatedVar := initialVar
 		updatedVar.Regex = "updated-regex"
-		updatedResource := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		updatedResource := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":  updatedVar.Name,
 			"regex": updatedVar.Regex,
 		})
@@ -447,7 +447,7 @@ resource "%s" "test" {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":  configVar.Name,
 						"value": configVar.Value,
 						"type":  6,
@@ -534,7 +534,7 @@ resource "%s" "test" {
 		updateTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
@@ -551,7 +551,7 @@ resource "%s" "test" {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         newConfigVar.Name,
 						"description":  newConfigVar.Description,
 						"value":        newConfigVar.Value,
@@ -601,7 +601,7 @@ resource "%s" "test" {
 		updateTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
@@ -618,7 +618,7 @@ resource "%s" "test" {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":        newConfigVar.Name,
 						"description": newConfigVar.Description,
 						"value":       newConfigVar.Value,
@@ -648,7 +648,7 @@ resource "%s" "test" {
 		IsRequired:  &isRequired,
 		Scope:       "BLUEPRINT",
 	}
-	stepConfigImport := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+	stepConfigImport := resourceConfigCreate(resourceType, resourceName, map[string]any{
 
 		"name":         configVarImport.Name,
 		"description":  configVarImport.Description,
@@ -728,7 +728,7 @@ resource "%s" "test" {
 			IsReadOnly:  &trueVariable,
 			IsRequired:  &trueVariable,
 		}
-		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
 			"name":         configVar.Name,
 			"description":  configVar.Description,
 			"value":        configVar.Value,
@@ -763,7 +763,7 @@ resource "%s" "test" {
 		updateTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,
@@ -780,7 +780,7 @@ resource "%s" "test" {
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         newConfigVar.Name,
 						"description":  newConfigVar.Description,
 						"value":        "",
@@ -810,7 +810,7 @@ resource "%s" "test" {
 		createTestCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]interface{}{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
 						"name":         configVar.Name,
 						"description":  configVar.Description,
 						"value":        configVar.Value,

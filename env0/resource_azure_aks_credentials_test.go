@@ -18,13 +18,13 @@ func TestUnitAzureAksCredentialsResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 	accessor := resourceAccessor(resourceType, resourceName)
 
-	credentialsResource := map[string]interface{}{
+	credentialsResource := map[string]any{
 		"name":           "test",
 		"cluster_name":   "my-cluster",
 		"resource_group": "rg1",
 	}
 
-	updatedCredentialsResource := map[string]interface{}{
+	updatedCredentialsResource := map[string]any{
 		"name":           "test",
 		"cluster_name":   "my-cluster2",
 		"resource_group": "rg1",

@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func getCloudConfigurationFromSchema(d *schema.ResourceData, provider string) (interface{}, error) {
-	var configuration interface{}
+func getCloudConfigurationFromSchema(d *schema.ResourceData, provider string) (any, error) {
+	var configuration any
 
 	// Find the correct type, create an instance of this type, and deserialize from the schema to the instance.
 
@@ -64,7 +64,7 @@ func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string
 		return nil, fmt.Errorf("failed to get clound configuration: %w", err)
 	}
 
-	var configuration interface{}
+	var configuration any
 
 	// Find the correct type, marshal the interface to bytes, and unmarshal the bytes back to an instance of the correct type.
 
@@ -91,7 +91,7 @@ func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string
 	return cloudAccount, nil
 }
 
-func createCloudConfiguration(d *schema.ResourceData, meta interface{}, provider string) diag.Diagnostics {
+func createCloudConfiguration(d *schema.ResourceData, meta any, provider string) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var createPayload client.CloudAccountCreatePayload
@@ -120,7 +120,7 @@ func createCloudConfiguration(d *schema.ResourceData, meta interface{}, provider
 	return nil
 }
 
-func readCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func readCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	cloudAccount, err := getCloudConfigurationFromApi(apiClient, d.Id())
@@ -139,7 +139,7 @@ func readCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func updateCloudConfiguration(d *schema.ResourceData, meta interface{}, provider string) diag.Diagnostics {
+func updateCloudConfiguration(d *schema.ResourceData, meta any, provider string) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	var updatePayload client.CloudAccountUpdatePayload
@@ -165,7 +165,7 @@ func updateCloudConfiguration(d *schema.ResourceData, meta interface{}, provider
 	return nil
 }
 
-func deleteCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func deleteCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.CloudAccountDelete(d.Id()); err != nil {
@@ -175,7 +175,7 @@ func deleteCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func importCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func importCloudConfiguration(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
 	cloudAccount, err := getCloudConfigurationFromApi(apiClient, d.Id())

@@ -29,7 +29,7 @@ var _ = Describe("Organization", func() {
 				organizationsResult := []Organization{mockOrganization}
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Organization) {
+					Do(func(path string, request any, response *[]Organization) {
 						*response = organizationsResult
 					})
 
@@ -51,7 +51,7 @@ var _ = Describe("Organization", func() {
 				organizationsResult := []Organization{mockOrganization, mockDefaultOrganization}
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Organization) {
+					Do(func(path string, request any, response *[]Organization) {
 						*response = organizationsResult
 					})
 
@@ -83,7 +83,7 @@ var _ = Describe("Organization", func() {
 				organizationsResult := []Organization{mockOrganization, mockOrganization}
 				httpCall = mockHttpClient.EXPECT().
 					Get("/organizations", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]Organization) {
+					Do(func(path string, request any, response *[]Organization) {
 						*response = organizationsResult
 					})
 
@@ -118,7 +118,7 @@ var _ = Describe("Organization", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Post("/organizations/"+organizationId+"/policies", updateOrganizationPolicyPayload, gomock.Any()).
-					Do(func(path string, request interface{}, response *Organization) {
+					Do(func(path string, request any, response *Organization) {
 						*response = updatedMockOrganization
 					})
 
@@ -163,7 +163,7 @@ var _ = Describe("Organization", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Post("/organizations/"+organizationId+"/policies", sentUpdatePayload, gomock.Any()).
-				Do(func(path string, request interface{}, response *Organization) {
+				Do(func(path string, request any, response *Organization) {
 					*response = updatedMockOrganization
 				}).Times(1)
 

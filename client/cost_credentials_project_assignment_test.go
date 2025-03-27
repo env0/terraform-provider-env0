@@ -25,7 +25,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 
 				httpCall = mockHttpClient.EXPECT().
 					Put("/costs/project/"+projectId+"/credentials", map[string]string{"credentialsId": credentialId}, gomock.Any()).
-					Do(func(path string, request interface{}, response *CostCredentialProjectAssignment) {
+					Do(func(path string, request any, response *CostCredentialProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.AssignCostCredentialsToProject(projectId, credentialId)
@@ -94,7 +94,7 @@ var _ = Describe(" Cost Credentials Project Assignment", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/costs/project/"+projectId+"/credentials", nil, gomock.Any()).
-					Do(func(path string, request interface{}, response *[]CostCredentialProjectAssignment) {
+					Do(func(path string, request any, response *[]CostCredentialProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.CostCredentialIdsInProject(projectId)
