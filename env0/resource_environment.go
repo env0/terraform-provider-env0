@@ -441,6 +441,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
+	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("approve_plan_automatically"); exists && environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
 	}
@@ -619,7 +620,9 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	var environment client.Environment
+
 	var environmentPayload client.EnvironmentCreate
+
 	var diagError diag.Diagnostics
 
 	if !isTemplateless(d) {
