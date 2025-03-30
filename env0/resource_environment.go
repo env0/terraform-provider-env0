@@ -319,7 +319,7 @@ func resourceEnvironment() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "sub environment revision",
 							Optional:    true,
-							Deprecated:  "this field is depreacted and no longer used, will be removed in the future",
+							Deprecated:  "this field is deprecated and no longer used, will be removed in the future",
 						},
 						"workspace": {
 							Type:        schema.TypeString,
