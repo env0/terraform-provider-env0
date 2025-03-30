@@ -441,8 +441,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		d.Set("output", string(environment.LatestDeploymentLog.Output))
 	}
 
-	// Don't update this value for workflow environments - this value should always be 'false'.
-	if _, isWorkflow := d.GetOk("sub_environment_configuration"); !isWorkflow && environment.RequiresApproval != nil {
+	if _, exists := d.GetOkExists("approve_plan_automatically"); exists && environment.RequiresApproval != nil {
 		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
 	}
 
@@ -550,20 +549,66 @@ func createVariable(configurationVariable *client.ConfigurationVariable) any {
 }
 
 // Validate that the template is assigned to the "project_id".
-func validateTemplateProjectAssignment(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+func validateTemplateProjectAssignment(d *schema.ResourceData, template *client.Template) error {
 	projectId := d.Get("project_id").(string)
-	templateId := d.Get("template_id").(string)
-
-	template, err := apiClient.Template(templateId)
-	if err != nil {
-		return fmt.Errorf("could not get template: %w", err)
-	}
 
 	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
 		return errors.New("could not create environment: template is not assigned to project")
 	}
 
 	return nil
+}
+
+func createEnvironmentWithTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.Environment, client.EnvironmentCreate, diag.Diagnostics) {
+	templateId := d.Get("template_id").(string)
+
+	template, err := apiClient.Template(templateId)
+	if err != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("could not get template: %v", err)
+	}
+
+	if err := validateTemplateProjectAssignment(d, &template); err != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("%v", err)
+	}
+
+	environmentPayload, diagError := getCreatePayload(d, apiClient, template.Type)
+	if diagError != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diagError
+	}
+
+	environment, err := apiClient.EnvironmentCreate(environmentPayload)
+	if err != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("could not create environment: %v", err)
+	}
+
+	return environment, environmentPayload, nil
+}
+
+func createEnvironmentWithoutTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.Environment, client.EnvironmentCreate, diag.Diagnostics) {
+	templatePayload, diagError := templateCreatePayloadFromParameters("without_template_settings.0", d)
+	if diagError != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diagError
+	}
+
+	environmentPayload, diagError := getCreatePayload(d, apiClient, templatePayload.Type)
+	if diagError != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diagError
+	}
+
+	payload := client.EnvironmentCreateWithoutTemplate{
+		EnvironmentCreate: environmentPayload,
+		TemplateCreate:    templatePayload,
+	}
+
+	// Note: the blueprint id field of the environment is returned only during creation of a template without environment.
+	// Afterward, it will be omitted from future response.
+	// setEnvironmentSchema() sets the blueprint id in the resource (under "without_template_settings.0.id").
+	environment, err := apiClient.EnvironmentCreateWithoutTemplate(payload)
+	if err != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("could not create environment: %v", err)
+	}
+
+	return environment, environmentPayload, nil
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
@@ -573,41 +618,18 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("cannot create an inactive environment (remove 'is_inactive' or set it to 'false')")
 	}
 
-	environmentPayload, createEnvPayloadErr := getCreatePayload(d, apiClient)
-	if createEnvPayloadErr != nil {
-		return createEnvPayloadErr
-	}
-
 	var environment client.Environment
-
-	var err error
+	var environmentPayload client.EnvironmentCreate
+	var diagError diag.Diagnostics
 
 	if !isTemplateless(d) {
-		if err := validateTemplateProjectAssignment(d, apiClient); err != nil {
-			return diag.Errorf("%v\n", err)
-		}
-
-		environment, err = apiClient.EnvironmentCreate(environmentPayload)
+		environment, environmentPayload, diagError = createEnvironmentWithTemplate(d, apiClient)
 	} else {
-		templatePayload, createTemPayloadErr := templateCreatePayloadFromParameters("without_template_settings.0", d)
-
-		if createTemPayloadErr != nil {
-			return createTemPayloadErr
-		}
-
-		payload := client.EnvironmentCreateWithoutTemplate{
-			EnvironmentCreate: environmentPayload,
-			TemplateCreate:    templatePayload,
-		}
-
-		// Note: the blueprint id field of the environment is returned only during creation of a template without environment.
-		// Afterward, it will be omitted from future response.
-		// setEnvironmentSchema() (several lines below) sets the blueprint id in the resource (under "without_template_settings.0.id").
-		environment, err = apiClient.EnvironmentCreateWithoutTemplate(payload)
+		environment, environmentPayload, diagError = createEnvironmentWithoutTemplate(d, apiClient)
 	}
 
-	if err != nil {
-		return diag.Errorf("could not create environment: %v", err)
+	if diagError != nil {
+		return diagError
 	}
 
 	environmentConfigurationVariables := client.ConfigurationChanges{}
@@ -984,7 +1006,7 @@ func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientIn
 	return <-results
 }
 
-func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface) (client.EnvironmentCreate, diag.Diagnostics) {
+func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface, templateType string) (client.EnvironmentCreate, diag.Diagnostics) {
 	var payload client.EnvironmentCreate
 
 	if err := readResourceData(&payload, d); err != nil {
@@ -1016,7 +1038,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		payload.AutoDeployOnPathChangesOnly = boolPtr(val.(bool))
 	}
 
-	_, isWorkflow := d.GetOk("sub_environment_configuration")
+	isWorkflow := templateType == client.WORKFLOW
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
