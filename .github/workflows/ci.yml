@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-24.04
     steps:
+      - name: Install Terraform
+        run: apk add terraform
       - name: Install Go
         uses: actions/setup-go@v5
         with:
