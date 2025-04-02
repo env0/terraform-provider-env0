@@ -3,7 +3,6 @@ package env0
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -13,46 +12,6 @@ import (
 )
 
 func resourceCustomRole() *schema.Resource {
-	var allowedCustomRoleTypes = []string{
-		"VIEW_ORGANIZATION",
-		"EDIT_ORGANIZATION_SETTINGS",
-		"CREATE_AND_EDIT_TEMPLATES",
-		"CREATE_AND_EDIT_MODULES",
-		"CREATE_PROJECT",
-		"VIEW_PROJECT",
-		"EDIT_PROJECT_SETTINGS",
-		"MANAGE_PROJECT_TEMPLATES",
-		"EDIT_ENVIRONMENT_SETTINGS",
-		"ARCHIVE_ENVIRONMENT",
-		"OVERRIDE_MAX_TTL",
-		"CREATE_CROSS_PROJECT_ENVIRONMENTS",
-		"OVERRIDE_MAX_ENVIRONMENT_PROJECT_LIMITS",
-		"RUN_PLAN",
-		"RUN_APPLY",
-		"ABORT_DEPLOYMENT",
-		"RUN_TASK",
-		"CREATE_CUSTOM_ROLES",
-		"VIEW_DASHBOARD",
-		"VIEW_MODULES",
-		"READ_STATE",
-		"WRITE_STATE",
-		"FORCE_UNLOCK_WORKSPACE",
-		"MANAGE_BILLING",
-		"VIEW_AUDIT_LOGS",
-		"MANAGE_ENVIRONMENT_LOCK",
-		"CREATE_VCS_ENVIRONMENT",
-		"CREATE_AND_EDIT_PROVIDERS",
-		"VIEW_PROVIDERS",
-		"VIEW_ENVIRONMENT",
-		"ASSIGN_ROLE_ON_ENVIRONMENT",
-		"EDIT_ALLOW_REMOTE_APPLY",
-		"EDIT_VCS_ENVIRONMENT",
-		"MOVE_ENVIRONMENTS",
-		"IMPORT_ENVIRONMENTS",
-	}
-
-	allowedCustomRoleTypesStr := fmt.Sprintf("(allowed values: %s)", strings.Join(allowedCustomRoleTypes, ", "))
-
 	return &schema.Resource{
 		CreateContext: resourceCustomRoleCreate,
 		ReadContext:   resourceCustomRoleRead,
@@ -69,11 +28,10 @@ func resourceCustomRole() *schema.Resource {
 			},
 			"permissions": {
 				Type:        schema.TypeList,
-				Description: "A list of permissions assigned to the role. Allowed values: " + allowedCustomRoleTypesStr,
+				Description: "The list of permissions assigned to the role. The allowed values are available within the 'permissions' attribute at this URL: https://docs.env0.com/reference/roles-create",
 				Required:    true,
 				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					ValidateDiagFunc: NewStringInValidator(allowedCustomRoleTypes),
+					Type: schema.TypeString,
 				},
 			},
 			"is_default_role": {
