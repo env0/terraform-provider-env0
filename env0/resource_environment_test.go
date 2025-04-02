@@ -2439,7 +2439,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				},
 			}
 			runUnitTest(t, autoDeployWithCustomGlobEnabled, func(mock *client.MockApiClientInterface) {
-				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(2).Return(template, nil)
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
@@ -3217,11 +3217,12 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				},
 			},
 		},
-		Type: "workflow",
+		Type: client.WORKFLOW,
 	}
 
 	template := client.Template{
 		ProjectId: environment.ProjectId,
+		Type:      client.WORKFLOW,
 	}
 
 	deployRequest := client.DeployRequest{
@@ -3268,7 +3269,9 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Template(environmentCreatePayload.DeployRequest.BlueprintId).Times(1).Return(template, nil)
+		})
 	})
 
 	t.Run("Success in create", func(t *testing.T) {
