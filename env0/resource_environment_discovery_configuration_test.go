@@ -771,4 +771,68 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("bitbucket server & github enterprise & gitlab enterprise", func(t *testing.T) {
+		putPayload := client.EnvironmentDiscoveryPutPayload{
+			GlobPattern:          "**",
+			Repository:           "https://re.po",
+			Type:                 "terraform",
+			EnvironmentPlacement: "topProject",
+			WorkspaceNaming:      "default",
+			TerraformVersion:     "1.6.2",
+			IsBitbucketServer:    true,
+			IsGitHubEnterprise:   true,
+			IsGitLabEnterprise:   true,
+		}
+
+		getPayload := client.EnvironmentDiscoveryPayload{
+			Id:                   id,
+			GlobPattern:          putPayload.GlobPattern,
+			Repository:           putPayload.Repository,
+			Type:                 putPayload.Type,
+			EnvironmentPlacement: putPayload.EnvironmentPlacement,
+			WorkspaceNaming:      putPayload.WorkspaceNaming,
+			TerraformVersion:     putPayload.TerraformVersion,
+			IsBitbucketServer:    putPayload.IsBitbucketServer,
+			IsGitHubEnterprise:   putPayload.IsGitHubEnterprise,
+			IsGitLabEnterprise:   putPayload.IsGitLabEnterprise,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":           projectId,
+						"glob_pattern":         putPayload.GlobPattern,
+						"repository":           putPayload.Repository,
+						"type":                 putPayload.Type,
+						"terraform_version":    putPayload.TerraformVersion,
+						"is_bitbucket_server":  putPayload.IsBitbucketServer,
+						"is_github_enterprise": putPayload.IsGitHubEnterprise,
+						"is_gitlab_enterprise": putPayload.IsGitLabEnterprise,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "glob_pattern", putPayload.GlobPattern),
+						resource.TestCheckResourceAttr(accessor, "repository", putPayload.Repository),
+						resource.TestCheckResourceAttr(accessor, "type", putPayload.Type),
+						resource.TestCheckResourceAttr(accessor, "environment_placement", putPayload.EnvironmentPlacement),
+						resource.TestCheckResourceAttr(accessor, "workspace_naming", putPayload.WorkspaceNaming),
+						resource.TestCheckResourceAttr(accessor, "terraform_version", putPayload.TerraformVersion),
+						resource.TestCheckResourceAttr(accessor, "is_bitbucket_server", "true"),
+						resource.TestCheckResourceAttr(accessor, "is_github_enterprise", "true"),
+						resource.TestCheckResourceAttr(accessor, "is_gitlab_enterprise", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
+			)
+		})
+	})
 }

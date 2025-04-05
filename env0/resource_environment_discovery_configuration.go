@@ -154,6 +154,24 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Default:      false,
 				RequiredWith: []string{"token_id"},
 			},
+			"is_bitbucket_server": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "set to true if Bitbucket Server is used",
+				Default:     false,
+			},
+			"is_github_enterprise": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "set to true if GitHub Enterprise is used",
+				Default:     false,
+			},
+			"is_gitlab_enterprise": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "set to true if GitLab Enterprise is used",
+				Default:     false,
+			},
 			"token_id": {
 				Type:        schema.TypeString,
 				Description: "a token id to be used with 'gitlab' or 'azure_devops'",
