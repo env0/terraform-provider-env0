@@ -17,6 +17,9 @@ type EnvironmentDiscoveryPutPayload struct {
 	GithubInstallationId                  int              `json:"githubInstallationId,omitempty"`
 	BitbucketClientKey                    string           `json:"bitbucketClientKey,omitempty"`
 	IsAzureDevops                         bool             `json:"isAzureDevOps"`
+	IsBitbucketServer                     bool             `json:"isBitbucketServer"`
+	IsGitHubEnterprise                    bool             `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise                    bool             `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
 	Retry                                 TemplateRetry    `json:"retry"`
 	RootPath                              string           `json:"rootPath"`
 	CreateNewEnvironmentsFromPullRequests bool             `json:"createNewEnvironmentsFromPullRequests"`
@@ -40,6 +43,9 @@ type EnvironmentDiscoveryPayload struct {
 	GithubInstallationId                  int              `json:"githubInstallationId"`
 	BitbucketClientKey                    string           `json:"bitbucketClientKey"`
 	IsAzureDevops                         bool             `json:"isAzureDevOps"`
+	IsBitbucketServer                     bool             `json:"isBitbucketServer"`
+	IsGitHubEnterprise                    bool             `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise                    bool             `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
 	Retry                                 TemplateRetry    `json:"retry" tfschema:"-"`
 	RootPath                              string           `json:"rootPath"`
 	CreateNewEnvironmentsFromPullRequests bool             `json:"createNewEnvironmentsFromPullRequests"`
