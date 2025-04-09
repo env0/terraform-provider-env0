@@ -59,6 +59,9 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
 - `github_installation_id` (Number) github repository id
 - `gitlab_project_id` (Number, Deprecated) gitlab project id (deprecated)
 - `is_azure_devops` (Boolean) set to true if azure devops is used
+- `is_bitbucket_server` (Boolean) set to true if Bitbucket Server is used
+- `is_github_enterprise` (Boolean) set to true if GitHub Enterprise is used
+- `is_gitlab_enterprise` (Boolean) set to true if GitLab Enterprise is used
 - `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all' (default: false)
 - `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.
 - `retries_on_deploy` (Number) number of times to retry when deploy fails (between 1 and 3)
