@@ -186,7 +186,7 @@ func (suite *testRestyClientSuite) Test5xxResponse() {
 	}
 
 	// Should be called multiple times - retries.
-	assert.Equal(t, 6, httpmock.GetTotalCallCount())
+	assert.Equal(t, 8, httpmock.GetTotalCallCount())
 }
 
 func TestRestyClientSuite(t *testing.T) {
