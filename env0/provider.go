@@ -182,9 +182,9 @@ func createRestyClient(ctx context.Context) *resty.Client {
 
 	subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
 
-	return resty.New().SetRetryCount(5).
+	return resty.New().SetRetryCount(7).
 		SetRetryWaitTime(time.Second).
-		SetRetryMaxWaitTime(time.Second * 5).
+		SetRetryMaxWaitTime(time.Second * 15).
 		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 			if r != nil {
 				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]any{"method": r.Method, "url": r.URL})
@@ -209,6 +209,13 @@ func createRestyClient(ctx context.Context) *resty.Client {
 			// Retry when there's a 5xx error. Otherwise do not retry.
 			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+
+				return true
+			}
+
+			// Retry on rate limiting (429 Too Many Requests)
+			if r.StatusCode() == 429 {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Rate limited, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL})
 
 				return true
 			}
