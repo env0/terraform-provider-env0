@@ -37,12 +37,19 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: Verify Terraform installation
+        run: |
+          terraform version
+          echo "TF_PATH=$(which terraform)" >> $GITHUB_ENV
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.8
       - name: Go Test
         run: go test -v ./...
+        env:
+          TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
+          TF_ACC_TERRAFORM_VERSION: ${{ env.TERRAFORM_VERSION }}
 
   # See terraform-provider-env0 README for integration tests prerequisites
   integration-tests:
