@@ -15,7 +15,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     timeout-minutes: 10
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
@@ -43,7 +43,7 @@ jobs:
   # See terraform-provider-env0 README for integration tests prerequisites
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: golang:1.24-alpine
     timeout-minutes: 20
     steps:
