@@ -5,7 +5,7 @@ on:
 
 jobs:
   add-assignee:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       - uses: kentaro-m/auto-assign-action@v1.2.4

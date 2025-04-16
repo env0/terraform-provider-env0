@@ -9,13 +9,13 @@ env:
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
   GO_VERSION: "1.24"
-  TERRAFORM_VERSION: 1.1.7
+  TERRAFORM_VERSION: 1.11.4
 
 jobs:
   unit-tests:
     name: Unit Tests
-    timeout-minutes: 10
-    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
@@ -33,17 +33,37 @@ jobs:
       - name: Go vet
         run: |
           ! go vet ./... | read
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: Verify Terraform installation
+        run: |
+          terraform version
+          which terraform
+          echo "TF_PATH=$(which terraform)" >> $GITHUB_ENV
+          # Make sure terraform is executable
+          chmod +x $(which terraform)
+          ls -la $(which terraform)
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.8
       - name: Go Test
-        run: go test -v ./...
+        run: |
+          echo "Using Terraform at: $TF_PATH"
+          echo "Terraform version: $TERRAFORM_VERSION"
+          # Run tests with detailed logging
+          TF_LOG=DEBUG go test -v ./...
+        env:
+          TF_ACC: true
+          TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
+          TF_ACC_TERRAFORM_VERSION: ${{ env.TERRAFORM_VERSION }}
 
   # See terraform-provider-env0 README for integration tests prerequisites
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: golang:1.24-alpine
     timeout-minutes: 20
     steps:
