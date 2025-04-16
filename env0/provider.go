@@ -182,9 +182,9 @@ func createRestyClient(ctx context.Context) *resty.Client {
 
 	subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
 
-	return resty.New().SetRetryCount(7).
-		SetRetryWaitTime(time.Second).
-		SetRetryMaxWaitTime(time.Second * 15).
+	return resty.New().SetRetryCount(10).
+		SetRetryWaitTime(time.Second + 5).
+		SetRetryMaxWaitTime(time.Second * 30).
 		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 			if r != nil {
 				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]any{"method": r.Method, "url": r.URL})
