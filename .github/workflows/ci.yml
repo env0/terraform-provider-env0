@@ -9,7 +9,7 @@ env:
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
   GO_VERSION: "1.24"
-  TERRAFORM_VERSION: 1.1.7
+  TERRAFORM_VERSION: 1.11.4
 
 jobs:
   unit-tests:
@@ -33,6 +33,10 @@ jobs:
       - name: Go vet
         run: |
           ! go vet ./... | read
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
