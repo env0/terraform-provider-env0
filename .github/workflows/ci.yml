@@ -40,14 +40,23 @@ jobs:
       - name: Verify Terraform installation
         run: |
           terraform version
+          which terraform
           echo "TF_PATH=$(which terraform)" >> $GITHUB_ENV
+          # Make sure terraform is executable
+          chmod +x $(which terraform)
+          ls -la $(which terraform)
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.8
       - name: Go Test
-        run: go test -v ./...
+        run: |
+          echo "Using Terraform at: $TF_PATH"
+          echo "Terraform version: $TERRAFORM_VERSION"
+          # Run tests with detailed logging
+          TF_LOG=DEBUG go test -v ./...
         env:
+          TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
           TF_ACC_TERRAFORM_VERSION: ${{ env.TERRAFORM_VERSION }}
 
