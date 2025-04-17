@@ -17,16 +17,12 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.1.7" 
       - name: Install Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Generate mocks
         run: |
           go install go.uber.org/mock/mockgen@v0.3.0
