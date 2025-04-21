@@ -633,7 +633,7 @@ func (mr *MockApiClientInterfaceMockRecorder) CostCredentialIdsInProject(project
 }
 
 // CredentialsCreate mocks base method.
-func (m *MockApiClientInterface) CredentialsCreate(request CredentialCreatePayload) (Credentials, error) {
+func (m *MockApiClientInterface) CredentialsCreate(request any) (Credentials, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CredentialsCreate", request)
 	ret0, _ := ret[0].(Credentials)
@@ -648,7 +648,7 @@ func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(request any) *go
 }
 
 // CredentialsUpdate mocks base method.
-func (m *MockApiClientInterface) CredentialsUpdate(id string, request CredentialCreatePayload) (Credentials, error) {
+func (m *MockApiClientInterface) CredentialsUpdate(id string, request any) (Credentials, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CredentialsUpdate", id, request)
 	ret0, _ := ret[0].(Credentials)

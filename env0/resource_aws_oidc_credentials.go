@@ -37,6 +37,12 @@ func resourceAwsOidcCredentials() *schema.Resource {
 				ValidateDiagFunc: NewIntInValidator([]int{3600, 7200, 14400, 18000, 28800, 43200}),
 				Default:          18000,
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -62,9 +68,10 @@ func resourceAwsOidcCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	request := client.AwsCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  client.AwsOidcCredentialsType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      client.AwsOidcCredentialsType,
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)
