@@ -160,6 +160,7 @@ func (client *ApiClient) CredentialsCreate(request any) (Credentials, error) {
 		if err != nil {
 			return Credentials{}, err
 		}
+
 		requestMap["organizationId"] = organizationId
 	}
 
@@ -190,6 +191,7 @@ func (client *ApiClient) CredentialsUpdate(id string, request any) (Credentials,
 		if err != nil {
 			return Credentials{}, err
 		}
+
 		requestMap["organizationId"] = organizationId
 	}
 
