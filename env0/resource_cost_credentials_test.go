@@ -402,7 +402,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 		})
 	})
 
-	t.Run("acceptance: create with project_id", func(t *testing.T) {
+	t.Run("create with project_id", func(t *testing.T) {
 		projectId := "project-xyz"
 		googleCostCredentialResourceWithProject := map[string]any{
 			"name":       "test",
@@ -446,7 +446,7 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 		})
 	})
 
-	t.Run("acceptance: update with project_id", func(t *testing.T) {
+	t.Run("update with project_id", func(t *testing.T) {
 		projectId := "project-xyz"
 		googleCostCredentialResourceWithProject := map[string]any{
 			"name":       "test",

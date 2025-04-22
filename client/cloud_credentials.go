@@ -184,16 +184,13 @@ func (client *ApiClient) CredentialsUpdate(id string, request any) (Credentials,
 		return Credentials{}, err
 	}
 
-	// Only add organizationId if projectId is not set or empty
-	projectId, hasProjectId := requestMap["projectId"]
-	if !hasProjectId || projectId == "" {
-		organizationId, err := client.OrganizationId()
-		if err != nil {
-			return Credentials{}, err
-		}
-
-		requestMap["organizationId"] = organizationId
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return Credentials{}, err
 	}
+
+	// Unlike Create, always set organizationId, even if projectId is set.
+	requestMap["organizationId"] = organizationId
 
 	// Convert back to original struct type
 	if err := convertMapBackToStruct(requestMap, &request); err != nil {

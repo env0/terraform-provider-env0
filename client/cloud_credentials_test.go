@@ -206,7 +206,7 @@ var _ = Describe("CloudCredentials", func() {
 		const projectId = "project-456"
 
 		BeforeEach(func() {
-			// Note: No organization ID call should be made
+			mockOrganizationIdCall()
 
 			payloadValue := AwsCredentialsValuePayload{
 				RoleArn:  "role",
@@ -215,10 +215,11 @@ var _ = Describe("CloudCredentials", func() {
 
 			httpCall = mockHttpClient.EXPECT().
 				Patch("/credentials/"+mockCredentials.Id, &AwsCredentialsCreatePayload{
-					Name:      credentialsName,
-					Type:      "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
-					Value:     payloadValue,
-					ProjectId: projectId,
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+					Value:          payloadValue,
+					ProjectId:      projectId,
 				},
 					gomock.Any()).
 				Do(func(path string, request any, response *Credentials) {
@@ -233,11 +234,11 @@ var _ = Describe("CloudCredentials", func() {
 			})
 		})
 
-		It("Should not get organization id", func() {
-			organizationIdCall.Times(0)
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
 		})
 
-		It("Should send PATCH request with projectId and without organizationId", func() {
+		It("Should send PATCH request with both projectId and organizationId", func() {
 			httpCall.Times(1)
 		})
 
