@@ -29,6 +29,10 @@ resource "env0_gcp_cost_credentials" "gcp_cost_credentials" {
 - `secret` (String, Sensitive) the GCP service account key
 - `table_id` (String) the full BigQuery table id of the exported billing data
 
+### Optional
+
+- `project_id` (String) the env0 project id to associate the credentials with
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.

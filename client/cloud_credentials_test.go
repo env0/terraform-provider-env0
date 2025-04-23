@@ -116,6 +116,51 @@ var _ = Describe("CloudCredentials", func() {
 		})
 	})
 
+	Describe("AwsCredentialsCreate with ProjectId", func() {
+		const projectId = "project-123"
+
+		BeforeEach(func() {
+			// Note: No organization ID call should be made
+
+			payloadValue := AwsCredentialsValuePayload{
+				RoleArn:  "role",
+				Duration: 1,
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/credentials", &AwsCredentialsCreatePayload{
+					Name:      credentialsName,
+					Type:      "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+					Value:     payloadValue,
+					ProjectId: projectId,
+				},
+					gomock.Any()).
+				Do(func(path string, request any, response *Credentials) {
+					*response = mockCredentials
+				})
+
+			credentials, _ = apiClient.CredentialsCreate(&AwsCredentialsCreatePayload{
+				Name:      credentialsName,
+				Value:     payloadValue,
+				Type:      "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+				ProjectId: projectId,
+			})
+		})
+
+		It("Should not get organization id", func() {
+			// Verify organizationId was not called
+			organizationIdCall.Times(0)
+		})
+
+		It("Should send POST request with projectId and without organizationId", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(credentials).To(Equal(mockCredentials))
+		})
+	})
+
 	Describe("AwsCredentialsUpdate", func() {
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -149,6 +194,51 @@ var _ = Describe("CloudCredentials", func() {
 		})
 
 		It("Should send PATCH request with params", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(credentials).To(Equal(mockCredentials))
+		})
+	})
+
+	Describe("AwsCredentialsUpdate with ProjectId", func() {
+		const projectId = "project-456"
+
+		BeforeEach(func() {
+			mockOrganizationIdCall()
+
+			payloadValue := AwsCredentialsValuePayload{
+				RoleArn:  "role",
+				Duration: 1,
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Patch("/credentials/"+mockCredentials.Id, &AwsCredentialsCreatePayload{
+					Name:           credentialsName,
+					OrganizationId: organizationId,
+					Type:           "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+					Value:          payloadValue,
+					ProjectId:      projectId,
+				},
+					gomock.Any()).
+				Do(func(path string, request any, response *Credentials) {
+					*response = mockCredentials
+				})
+
+			credentials, _ = apiClient.CredentialsUpdate(mockCredentials.Id, &AwsCredentialsCreatePayload{
+				Name:      credentialsName,
+				Value:     payloadValue,
+				Type:      "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",
+				ProjectId: projectId,
+			})
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send PATCH request with both projectId and organizationId", func() {
 			httpCall.Times(1)
 		})
 
@@ -237,6 +327,55 @@ var _ = Describe("CloudCredentials", func() {
 
 		It("Should return key", func() {
 			Expect(credentials).To(Equal(mockAzureCredentials))
+		})
+	})
+
+	Describe("AzureCredentialsCreate with ProjectId", func() {
+		const projectId = "project-abc"
+		const azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+		mockAzureCredentialsWithProject := mockCredentials
+		mockAzureCredentialsWithProject.Type = azureRequestType
+
+		BeforeEach(func() {
+			// No organization ID call expected
+
+			payloadValue := AzureCredentialsValuePayload{
+				ClientId:       "fakeClientId",
+				ClientSecret:   "fakeClientSecret",
+				SubscriptionId: "fakeSubscriptionId",
+				TenantId:       "fakeTenantId",
+			}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("/credentials", &AzureCredentialsCreatePayload{
+					Name:      credentialsName,
+					Type:      azureRequestType,
+					Value:     payloadValue,
+					ProjectId: projectId,
+				},
+					gomock.Any()).
+				Do(func(path string, request any, response *Credentials) {
+					*response = mockAzureCredentialsWithProject
+				}).Times(1)
+
+			credentials, _ = apiClient.CredentialsCreate(&AzureCredentialsCreatePayload{
+				Name:      credentialsName,
+				Value:     payloadValue,
+				Type:      azureRequestType,
+				ProjectId: projectId,
+			})
+		})
+
+		It("Should not call organization id", func() {
+			organizationIdCall.Times(0)
+		})
+
+		It("Should send POST request with projectId", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return key", func() {
+			Expect(credentials).To(Equal(mockAzureCredentialsWithProject))
 		})
 	})
 

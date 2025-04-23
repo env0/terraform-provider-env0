@@ -56,6 +56,12 @@ func resourceAwsCredentials() *schema.Resource {
 				ForceNew:         true,
 				ConflictsWith:    []string{"access_key_id"},
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -85,9 +91,10 @@ func resourceAwsCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	request := client.AwsCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  requestType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      requestType,
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)

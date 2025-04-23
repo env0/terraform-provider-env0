@@ -37,6 +37,12 @@ func resourceGcpCredentials() *schema.Resource {
 				Sensitive:   true,
 				ForceNew:    true,
 			},
+			"env0_project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -52,9 +58,10 @@ func resourceGcpCredentialsCreate(ctx context.Context, d *schema.ResourceData, m
 	requestType := client.GcpServiceAccountCredentialsType
 
 	request := client.GcpCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  requestType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      requestType,
+		ProjectId: d.Get("env0_project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)
