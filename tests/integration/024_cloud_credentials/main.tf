@@ -18,10 +18,37 @@ resource "env0_aws_credentials" "aws_cred2" {
   arn  = "Role ARN2"
 }
 
+// Add new AWS credentials with project association
+resource "env0_aws_credentials" "aws_cred_with_project" {
+  name            = "Test Role with project ${random_string.random.result}"
+  arn             = "Role ARN with project"
+  project_id      = env0_project.project.id
+}
+
+// Add data source to retrieve and verify
+data "env0_aws_credentials" "aws_credentials_with_project" {
+  depends_on = [env0_aws_credentials.aws_cred_with_project]
+  name       = "Test Role with project ${random_string.random.result}"
+}
+
 resource "env0_gcp_credentials" "gcp_cred" {
   name                = "name ${random_string.random.result}"
   service_account_key = "your_account_key"
   project_id          = "your_project_id"
+}
+
+// Add new GCP credentials with project association
+resource "env0_gcp_credentials" "gcp_cred_with_project" {
+  name                = "name with project ${random_string.random.result}"
+  service_account_key = "your_account_key"
+  project_id          = "your_project_id"
+  env0_project_id     = env0_project.project.id
+}
+
+// Add data source to retrieve and verify
+data "env0_gcp_credentials" "gcp_credentials" {
+  depends_on = [env0_gcp_credentials.gcp_cred_with_project]
+  name       = "name with project ${random_string.random.result}"
 }
 
 data "env0_cloud_credentials" "all_aws_credentials" {

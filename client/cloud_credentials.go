@@ -1,6 +1,8 @@
 package client
 
-import "strings"
+import (
+	"strings"
+)
 
 type AwsCredentialsType string
 type GcpCredentialsType string
@@ -10,8 +12,9 @@ type VaultCredentialsType string
 type Credentials struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
-	OrganizationId string `json:"organizationId"`
+	OrganizationId string `json:"organizationId" tfschema:",omitempty"`
 	Type           string `json:"type"`
+	ProjectId      string `json:"projectId" tfschema:",omitempty"`
 }
 
 func (c *Credentials) HasPrefix(prefixList []string) bool {
@@ -24,15 +27,12 @@ func (c *Credentials) HasPrefix(prefixList []string) bool {
 	return false
 }
 
-type CredentialCreatePayload interface {
-	SetOrganizationId(organizationId string)
-}
-
 type AzureCredentialsCreatePayload struct {
 	Name           string                       `json:"name,omitempty"`
 	OrganizationId string                       `json:"organizationId,omitempty"`
 	Type           AzureCredentialsType         `json:"type"`
 	Value          AzureCredentialsValuePayload `json:"value"`
+	ProjectId      string                       `json:"projectId,omitempty"`
 }
 
 type AzureCredentialsValuePayload struct {
@@ -40,6 +40,7 @@ type AzureCredentialsValuePayload struct {
 	ClientSecret   string `json:"clientSecret"`
 	SubscriptionId string `json:"subscriptionId"`
 	TenantId       string `json:"tenantId"`
+	ProjectId      string `json:"projectId,omitempty"`
 }
 
 type AwsCredentialsCreatePayload struct {
@@ -47,6 +48,7 @@ type AwsCredentialsCreatePayload struct {
 	OrganizationId string                     `json:"organizationId,omitempty"`
 	Type           AwsCredentialsType         `json:"type"`
 	Value          AwsCredentialsValuePayload `json:"value"`
+	ProjectId      string                     `json:"projectId,omitempty"`
 }
 
 type AwsCredentialsValuePayload struct {
@@ -54,6 +56,7 @@ type AwsCredentialsValuePayload struct {
 	Duration        int    `json:"duration,omitempty"`
 	AccessKeyId     string `json:"accessKeyId,omitempty"`
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`
+	ProjectId       string `json:"projectId,omitempty"`
 }
 
 type GoogleCostCredentialsCreatePayload struct {
@@ -61,6 +64,7 @@ type GoogleCostCredentialsCreatePayload struct {
 	OrganizationId string                            `json:"organizationId,omitempty"`
 	Type           GcpCredentialsType                `json:"type"`
 	Value          GoogleCostCredentialsValuePayload `json:"value"`
+	ProjectId      string                            `json:"projectId,omitempty"`
 }
 
 type GoogleCostCredentialsValuePayload struct {
@@ -73,6 +77,7 @@ type GcpCredentialsCreatePayload struct {
 	OrganizationId string                     `json:"organizationId,omitempty"`
 	Type           GcpCredentialsType         `json:"type"`
 	Value          GcpCredentialsValuePayload `json:"value"`
+	ProjectId      string                     `json:"projectId,omitempty"`
 }
 
 type GcpCredentialsValuePayload struct {
@@ -94,26 +99,7 @@ type VaultCredentialsCreatePayload struct {
 	OrganizationId string                       `json:"organizationId,omitempty"`
 	Type           VaultCredentialsType         `json:"type"`
 	Value          VaultCredentialsValuePayload `json:"value"`
-}
-
-func (c *GoogleCostCredentialsCreatePayload) SetOrganizationId(organizationId string) {
-	c.OrganizationId = organizationId
-}
-
-func (c *AwsCredentialsCreatePayload) SetOrganizationId(organizationId string) {
-	c.OrganizationId = organizationId
-}
-
-func (c *GcpCredentialsCreatePayload) SetOrganizationId(organizationId string) {
-	c.OrganizationId = organizationId
-}
-
-func (c *AzureCredentialsCreatePayload) SetOrganizationId(organizationId string) {
-	c.OrganizationId = organizationId
-}
-
-func (c *VaultCredentialsCreatePayload) SetOrganizationId(organizationId string) {
-	c.OrganizationId = organizationId
+	ProjectId      string                       `json:"projectId,omitempty"`
 }
 
 const (
@@ -160,13 +146,28 @@ func (client *ApiClient) CloudCredentialsList() ([]Credentials, error) {
 	return credentials, nil
 }
 
-func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Credentials, error) {
-	organizationId, err := client.OrganizationId()
+func (client *ApiClient) CredentialsCreate(request any) (Credentials, error) {
+	// Convert to map to set organizationId
+	requestMap, err := convertToMap(request)
 	if err != nil {
 		return Credentials{}, err
 	}
 
-	request.SetOrganizationId(organizationId)
+	// Only add organizationId if projectId is not set or empty
+	projectId, hasProjectId := requestMap["projectId"]
+	if !hasProjectId || projectId == "" {
+		organizationId, err := client.OrganizationId()
+		if err != nil {
+			return Credentials{}, err
+		}
+
+		requestMap["organizationId"] = organizationId
+	}
+
+	// Convert back to original struct type
+	if err := convertMapBackToStruct(requestMap, &request); err != nil {
+		return Credentials{}, err
+	}
 
 	var result Credentials
 	if err := client.http.Post("/credentials", request, &result); err != nil {
@@ -176,13 +177,25 @@ func (client *ApiClient) CredentialsCreate(request CredentialCreatePayload) (Cre
 	return result, nil
 }
 
-func (client *ApiClient) CredentialsUpdate(id string, request CredentialCreatePayload) (Credentials, error) {
+func (client *ApiClient) CredentialsUpdate(id string, request any) (Credentials, error) {
+	// Convert to map to set organizationId
+	requestMap, err := convertToMap(request)
+	if err != nil {
+		return Credentials{}, err
+	}
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Credentials{}, err
 	}
 
-	request.SetOrganizationId(organizationId)
+	// Unlike Create, always set organizationId, even if projectId is set.
+	requestMap["organizationId"] = organizationId
+
+	// Convert back to original struct type
+	if err := convertMapBackToStruct(requestMap, &request); err != nil {
+		return Credentials{}, err
+	}
 
 	var result Credentials
 
