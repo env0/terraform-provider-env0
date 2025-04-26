@@ -19,3 +19,11 @@ resource "env0_configuration_variable" "json_variable" {
   value  = "{ \"a\": 1234 }"
   format = "JSON"
 }
+
+resource "env0_configuration_variable" "sub_environment_example" {
+  name                  = "SUB_ENVIRONMENT_VARIABLE"
+  value                 = "sub env value"
+  template_id           = "example-template-id"
+  sub_environment_alias = "example-alias"
+  description           = "Variable for a sub environment scope"
+}

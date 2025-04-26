@@ -1,3 +1,4 @@
+version: "2"
 linters:
   enable:
     - errname
@@ -18,15 +19,33 @@ linters:
     - spancheck
     - testifylint
     - unparam
-    - unused
     - usestdlibvars
     - wsl
-
-linters-settings:
-  errorlint:
-    asserts: false
-  errcheck:
-    exclude-functions:
-      - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceData).Set
-  goconst:
-    ignore-tests: true
+  settings:
+    errcheck:
+      exclude-functions:
+        - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceData).Set
+    errorlint:
+      asserts: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - goconst
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

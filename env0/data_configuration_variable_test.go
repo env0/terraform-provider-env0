@@ -151,6 +151,62 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			})
 	})
 
+	t.Run("ScopeSubEnvironment", func(t *testing.T) {
+		isSensitive := false
+		isReadonly := true
+		isRequired := false
+		variableType := client.ConfigurationVariableTypeEnvironment
+		configurationVariable := client.ConfigurationVariable{
+			Id:             "id_subenv",
+			Name:           "name_subenv",
+			Description:    "desc_subenv",
+			ScopeId:        "template123:alias456",
+			Value:          "value_subenv",
+			OrganizationId: "organization_subenv",
+			UserId:         "user_subenv",
+			IsSensitive:    &isSensitive,
+			Scope:          client.ScopeSubEnvironment,
+			Type:           &variableType,
+			Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL},
+			IsReadOnly:     &isReadonly,
+			IsRequired:     &isRequired,
+			Regex:          "regex_subenv",
+		}
+
+		accessor := dataSourceAccessor(resourceType, resourceName)
+		checkResources := resource.ComposeAggregateTestCheckFunc(
+			resource.TestCheckResourceAttr(accessor, "id", configurationVariable.Id),
+			resource.TestCheckResourceAttr(accessor, "name", configurationVariable.Name),
+			resource.TestCheckResourceAttr(accessor, "description", configurationVariable.Description),
+			resource.TestCheckResourceAttr(accessor, "type", "environment"),
+			resource.TestCheckResourceAttr(accessor, "value", configurationVariable.Value),
+			resource.TestCheckResourceAttr(accessor, "scope", string(configurationVariable.Scope)),
+			resource.TestCheckResourceAttr(accessor, "is_sensitive", strconv.FormatBool(*configurationVariable.IsSensitive)),
+			resource.TestCheckResourceAttr(accessor, "format", string(configurationVariable.Schema.Format)),
+			resource.TestCheckResourceAttr(accessor, "is_read_only", strconv.FormatBool(*configurationVariable.IsReadOnly)),
+			resource.TestCheckResourceAttr(accessor, "is_required", strconv.FormatBool(*configurationVariable.IsRequired)),
+			resource.TestCheckResourceAttr(accessor, "regex", "regex_subenv"),
+		)
+
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{
+							"template_id":           "template123",
+							"sub_environment_alias": "alias456",
+							"name":                  configurationVariable.Name,
+						}),
+						Check: checkResources,
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeSubEnvironment, "template123:alias456").AnyTimes().
+					Return([]client.ConfigurationVariable{configurationVariable}, nil)
+			})
+	})
+
 	t.Run("configuration variable not exists in the server", func(t *testing.T) {
 		runUnitTest(t,
 			resource.TestCase{

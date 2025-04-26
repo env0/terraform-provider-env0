@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const templateScope = "TEMPLATE"
+
 func resourceConfigurationVariable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConfigurationVariableCreate,
@@ -68,6 +70,14 @@ func resourceConfigurationVariable() *schema.Resource {
 				ConflictsWith: []string{"template_id", "project_id", "is_required", "is_read_only"},
 				ForceNew:      true,
 			},
+			"sub_environment_alias": {
+				Type:          schema.TypeString,
+				Description:   "create the variable for sub templates of a workflow. Requires template_id to be set.",
+				Optional:      true,
+				ForceNew:      true,
+				RequiredWith:  []string{"template_id"},
+				ConflictsWith: []string{"environment_id", "project_id"},
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "default 'environment'. set to 'terraform' to create a terraform variable",
@@ -120,8 +130,6 @@ func resourceConfigurationVariable() *schema.Resource {
 	}
 }
 
-const templateScope = "TEMPLATE"
-
 func validateNilValue(isReadOnly bool, isRequired bool, value string) error {
 	if isReadOnly && isRequired && value == "" {
 		return errors.New("'value' cannot be empty when 'is_read_only' and 'is_required' are true ")
@@ -139,7 +147,11 @@ func whichScope(d *schema.ResourceData) (client.Scope, string) {
 		scopeId = projectId.(string)
 	}
 
-	if templateId, ok := d.GetOk("template_id"); ok {
+	if subEnvironmentAlias, ok := d.GetOk("sub_environment_alias"); ok {
+		// The scope id is template_id:sub_environment_alias
+		scope = client.ScopeSubEnvironment
+		scopeId = d.Get("template_id").(string) + ":" + subEnvironmentAlias.(string)
+	} else if templateId, ok := d.GetOk("template_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}
@@ -297,9 +309,23 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 	variable, getErr := getConfigurationVariable(configurationParams, meta)
 	if getErr != nil {
 		return nil, errors.New(getErr[0].Summary)
-	} else {
-		d.SetId(variable.Id)
+	}
 
+	if variable.Scope == client.ScopeSubEnvironment {
+		// The scope id is template_id:sub_environment_alias
+		parts := strings.Split(variable.ScopeId, ":")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid sub environment scope id format: %s", variable.ScopeId)
+		}
+
+		templateId := parts[0]
+
+		subEnvironmentAlias := parts[1]
+
+		d.Set("template_id", templateId)
+
+		d.Set("sub_environment_alias", subEnvironmentAlias)
+	} else {
 		var scopeName string
 
 		if variable.Scope == client.ScopeTemplate {
@@ -309,7 +335,9 @@ func resourceConfigurationVariableImport(ctx context.Context, d *schema.Resource
 		}
 
 		d.Set(scopeName, configurationParams.ScopeId)
-
-		return []*schema.ResourceData{d}, nil
 	}
+
+	d.SetId(variable.Id)
+
+	return []*schema.ResourceData{d}, nil
 }

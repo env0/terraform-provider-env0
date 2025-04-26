@@ -109,7 +109,7 @@ func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, err
 	res.IsSensitive = boolPtr(isSensitive)
 
 	variableType := d["type"].(string)
-	if variableType == "terraform" {
+	if variableType == client.TERRAFORM {
 		res.Type = (*client.ConfigurationVariableType)(intPtr(1))
 	} else {
 		res.Type = (*client.ConfigurationVariableType)(intPtr(0))
@@ -187,9 +187,9 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (any, erro
 		}
 
 		if variable.Type == nil || *variable.Type == client.ConfigurationVariableTypeEnvironment {
-			ivariable["type"] = "environment"
+			ivariable["type"] = client.ENVIRONMENT
 		} else {
-			ivariable["type"] = "terraform"
+			ivariable["type"] = client.TERRAFORM
 		}
 
 		if variable.IsSensitive == nil || !*variable.IsSensitive {
