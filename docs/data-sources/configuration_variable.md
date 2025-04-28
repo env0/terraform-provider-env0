@@ -36,6 +36,7 @@ output "aws_default_region" {
 - `name` (String) the name of the configuration variable
 - `project_id` (String) search for the variable under this project, not globally
 - `regex` (String) specifies a regular expression to validate variable value (enforced only in env0 UI)
+- `sub_environment_alias` (String) search for the variable for sub templates of a workflow. Requires template_id as well
 - `template_id` (String) search for the variable under this template, not globally
 - `type` (String) 'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.
 
