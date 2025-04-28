@@ -31,6 +31,7 @@ resource "env0_aws_oidc_credentials" "credentials" {
 ### Optional
 
 - `duration` (Number) the session duration in seconds. If set must be one of the following: 3600 (1h), 7200 (2h), 14400 (4h), 18000 (5h default), 28800 (8h), 43200 (12h)
+- `project_id` (String) the env0 project id to associate the credentials with
 
 ### Read-Only
 

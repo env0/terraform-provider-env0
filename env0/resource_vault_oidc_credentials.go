@@ -50,6 +50,12 @@ func resourceVaultOidcCredentials() *schema.Resource {
 				Description: "an optional vault namespace",
 				Optional:    true,
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -73,9 +79,10 @@ func resourceVaultOidcCredentialsCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	request := client.VaultCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  client.VaultOidcCredentialsType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      client.VaultOidcCredentialsType,
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)

@@ -31,6 +31,10 @@ resource "env0_azure_oidc_credentials" "credentials" {
 - `subscription_id` (String) the azure subscription id
 - `tenant_id` (String) the azure tenant id
 
+### Optional
+
+- `project_id` (String) the env0 project id to associate the credentials with
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.

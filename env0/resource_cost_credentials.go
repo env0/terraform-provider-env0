@@ -29,6 +29,12 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 					Optional:         true,
 					ValidateDiagFunc: NewIntInValidator([]int{3600, 7200, 14400, 18000, 28800, 43200}),
 				},
+				"project_id": {
+					Type:        schema.TypeString,
+					Description: "the env0 project id to associate the credentials with",
+					Optional:    true,
+					ForceNew:    true,
+				},
 			}
 		case AZURE:
 			return map[string]*schema.Schema{
@@ -53,6 +59,12 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 					Description: "the azure subscription id",
 					Required:    true,
 				},
+				"project_id": {
+					Type:        schema.TypeString,
+					Description: "the env0 project id to associate the credentials with",
+					Optional:    true,
+					ForceNew:    true,
+				},
 			}
 		case GOOGLE:
 			return map[string]*schema.Schema{
@@ -67,31 +79,40 @@ func resourceCostCredentials(providerName string) *schema.Resource {
 					Sensitive:   true,
 					Required:    true,
 				},
+				"project_id": {
+					Type:        schema.TypeString,
+					Description: "the env0 project id to associate the credentials with",
+					Optional:    true,
+					ForceNew:    true,
+				},
 			}
 		default:
 			panic("unhandled provider name: " + providerName)
 		}
 	}
 
-	getPayload := func(d *schema.ResourceData) (client.CredentialCreatePayload, error) {
-		var payload client.CredentialCreatePayload
+	getPayload := func(d *schema.ResourceData) (any, error) {
+		var payload any
 
 		var value any
 
 		switch providerName {
 		case AWS:
 			payload = &client.AwsCredentialsCreatePayload{
-				Type: client.AwsCostCredentialsType,
+				Type:      client.AwsCostCredentialsType,
+				ProjectId: d.Get("project_id").(string),
 			}
 			value = &payload.(*client.AwsCredentialsCreatePayload).Value
 		case AZURE:
 			payload = &client.AzureCredentialsCreatePayload{
-				Type: client.AzureCostCredentialsType,
+				Type:      client.AzureCostCredentialsType,
+				ProjectId: d.Get("project_id").(string),
 			}
 			value = &payload.(*client.AzureCredentialsCreatePayload).Value
 		case GOOGLE:
 			payload = &client.GoogleCostCredentialsCreatePayload{
-				Type: client.GoogleCostCredentialsType,
+				Type:      client.GoogleCostCredentialsType,
+				ProjectId: d.Get("project_id").(string),
 			}
 			value = &payload.(*client.GoogleCostCredentialsCreatePayload).Value
 		default:

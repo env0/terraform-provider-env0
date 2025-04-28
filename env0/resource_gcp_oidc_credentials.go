@@ -30,6 +30,12 @@ func resourceGcpOidcCredentials() *schema.Resource {
 				Description: "the JSON content of the JWT configuration file",
 				Required:    true,
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -53,9 +59,10 @@ func resourceGcpOidcCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	request := client.GcpCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  client.GcpOidcCredentialsType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      client.GcpOidcCredentialsType,
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)

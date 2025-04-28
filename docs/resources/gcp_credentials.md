@@ -30,6 +30,7 @@ resource "env0_gcp_credentials" "credentials" {
 
 ### Optional
 
+- `env0_project_id` (String) the env0 project id to associate the credentials with
 - `project_id` (String, Sensitive) the gcp project id
 
 ### Read-Only

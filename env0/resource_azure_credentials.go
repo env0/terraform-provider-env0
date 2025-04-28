@@ -48,6 +48,12 @@ func resourceAzureCredentials() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Description: "the env0 project id to associate the credentials with",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -63,9 +69,10 @@ func resourceAzureCredentialsCreate(ctx context.Context, d *schema.ResourceData,
 	requestType := client.AzureServicePrincipalCredentialsType
 
 	request := client.AzureCredentialsCreatePayload{
-		Name:  d.Get("name").(string),
-		Value: value,
-		Type:  requestType,
+		Name:      d.Get("name").(string),
+		Value:     value,
+		Type:      requestType,
+		ProjectId: d.Get("project_id").(string),
 	}
 
 	credentials, err := apiClient.CredentialsCreate(&request)

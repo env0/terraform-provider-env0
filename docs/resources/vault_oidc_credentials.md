@@ -37,6 +37,7 @@ resource "env0_vault_oidc_credentials" "example" {
 ### Optional
 
 - `namespace` (String) an optional vault namespace
+- `project_id` (String) the env0 project id to associate the credentials with
 
 ### Read-Only
 

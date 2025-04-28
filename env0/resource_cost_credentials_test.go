@@ -401,4 +401,129 @@ func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 			mock.EXPECT().CloudCredentialsDelete(updateReturnValues.Id).Times(1).Return(nil)
 		})
 	})
+
+	t.Run("create with project_id", func(t *testing.T) {
+		projectId := "project-xyz"
+		googleCostCredentialResourceWithProject := map[string]any{
+			"name":       "test",
+			"table_id":   "11111",
+			"secret":     "22222",
+			"project_id": projectId,
+		}
+		googleCostCredCreatePayloadWithProject := client.GoogleCostCredentialsCreatePayload{
+			Name: googleCostCredentialResourceWithProject["name"].(string),
+			Value: client.GoogleCostCredentialsValuePayload{
+				TableId: googleCostCredentialResourceWithProject["table_id"].(string),
+				Secret:  googleCostCredentialResourceWithProject["secret"].(string),
+			},
+			Type:      client.GoogleCostCredentialsType,
+			ProjectId: projectId,
+		}
+		returnValuesWithProject := client.Credentials{
+			Id:        "id",
+			Name:      "test",
+			Type:      string(client.GoogleCostCredentialsType),
+			ProjectId: projectId,
+		}
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, googleCostCredentialResourceWithProject),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "name", googleCostCredentialResourceWithProject["name"].(string)),
+						resource.TestCheckResourceAttr(accessor, "table_id", googleCostCredentialResourceWithProject["table_id"].(string)),
+						resource.TestCheckResourceAttr(accessor, "secret", googleCostCredentialResourceWithProject["secret"].(string)),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "id", returnValuesWithProject.Id),
+					),
+				},
+			},
+		}
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().CredentialsCreate(&googleCostCredCreatePayloadWithProject).Times(1).Return(returnValuesWithProject, nil)
+			mock.EXPECT().CloudCredentials(returnValuesWithProject.Id).Times(1).Return(returnValuesWithProject, nil)
+			mock.EXPECT().CloudCredentialsDelete(returnValuesWithProject.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("update with project_id", func(t *testing.T) {
+		projectId := "project-xyz"
+		googleCostCredentialResourceWithProject := map[string]any{
+			"name":       "test",
+			"table_id":   "11111",
+			"secret":     "22222",
+			"project_id": projectId,
+		}
+		googleCostCredentialResourceWithProjectUpdated := map[string]any{
+			"name":       "test-updated",
+			"table_id":   "11111-updated",
+			"secret":     "22222-updated",
+			"project_id": projectId, // project_id remains the same
+		}
+		googleCostCredCreatePayloadWithProject := client.GoogleCostCredentialsCreatePayload{
+			Name: googleCostCredentialResourceWithProject["name"].(string),
+			Value: client.GoogleCostCredentialsValuePayload{
+				TableId: googleCostCredentialResourceWithProject["table_id"].(string),
+				Secret:  googleCostCredentialResourceWithProject["secret"].(string),
+			},
+			Type:      client.GoogleCostCredentialsType,
+			ProjectId: projectId,
+		}
+		googleCostCredUpdatePayloadWithProject := client.GoogleCostCredentialsCreatePayload{
+			Name: googleCostCredentialResourceWithProjectUpdated["name"].(string),
+			Value: client.GoogleCostCredentialsValuePayload{
+				TableId: googleCostCredentialResourceWithProjectUpdated["table_id"].(string),
+				Secret:  googleCostCredentialResourceWithProjectUpdated["secret"].(string),
+			},
+			Type:      client.GoogleCostCredentialsType,
+			ProjectId: projectId,
+		}
+		returnValuesWithProject := client.Credentials{
+			Id:        "id",
+			Name:      "test",
+			Type:      string(client.GoogleCostCredentialsType),
+			ProjectId: projectId,
+		}
+		updateReturnValuesWithProject := client.Credentials{
+			Id:        "id",
+			Name:      "test-updated",
+			Type:      string(client.GoogleCostCredentialsType),
+			ProjectId: projectId,
+		}
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, googleCostCredentialResourceWithProject),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "name", googleCostCredentialResourceWithProject["name"].(string)),
+						resource.TestCheckResourceAttr(accessor, "table_id", googleCostCredentialResourceWithProject["table_id"].(string)),
+						resource.TestCheckResourceAttr(accessor, "secret", googleCostCredentialResourceWithProject["secret"].(string)),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "id", returnValuesWithProject.Id),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, googleCostCredentialResourceWithProjectUpdated),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "name", googleCostCredentialResourceWithProjectUpdated["name"].(string)),
+						resource.TestCheckResourceAttr(accessor, "table_id", googleCostCredentialResourceWithProjectUpdated["table_id"].(string)),
+						resource.TestCheckResourceAttr(accessor, "secret", googleCostCredentialResourceWithProjectUpdated["secret"].(string)),
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "id", updateReturnValuesWithProject.Id),
+					),
+				},
+			},
+		}
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().CredentialsCreate(&googleCostCredCreatePayloadWithProject).Times(1).Return(returnValuesWithProject, nil),
+				mock.EXPECT().CredentialsUpdate(returnValuesWithProject.Id, &googleCostCredUpdatePayloadWithProject).Times(1).Return(updateReturnValuesWithProject, nil),
+			)
+			gomock.InOrder(
+				mock.EXPECT().CloudCredentials(returnValuesWithProject.Id).Times(2).Return(returnValuesWithProject, nil),
+				mock.EXPECT().CloudCredentials(updateReturnValuesWithProject.Id).Times(1).Return(updateReturnValuesWithProject, nil),
+			)
+			mock.EXPECT().CloudCredentialsDelete(updateReturnValuesWithProject.Id).Times(1).Return(nil)
+		})
+	})
 }

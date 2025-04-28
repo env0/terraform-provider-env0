@@ -29,6 +29,10 @@ resource "env0_gcp_oidc_credentials" "credentials" {
 - `credential_configuration_file_content` (String) the JSON content of the JWT configuration file
 - `name` (String) name for the oidc credentials
 
+### Optional
+
+- `project_id` (String) the env0 project id to associate the credentials with
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.
