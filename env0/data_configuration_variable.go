@@ -67,6 +67,12 @@ func dataConfigurationVariable() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"template_id", "environment_id", "project_id"},
 			},
+			"sub_environment_alias": {
+				Type:         schema.TypeString,
+				Description:  "search for the variable for sub templates of a workflow. Requires template_id as well",
+				Optional:     true,
+				RequiredWith: []string{"template_id"},
+			},
 			"value": {
 				Type:        schema.TypeString,
 				Description: "value stored in the variable",
@@ -158,7 +164,11 @@ func getScopeAndId(d *schema.ResourceData) (client.Scope, string) {
 		scopeId = projectId.(string)
 	}
 
-	if templateId, ok := d.GetOk("template_id"); ok {
+	if subEnvironmentAlias, ok := d.GetOk("sub_environment_alias"); ok {
+		templateId := d.Get("template_id").(string)
+		scope = client.ScopeSubEnvironment
+		scopeId = templateId + ":" + subEnvironmentAlias.(string)
+	} else if templateId, ok := d.GetOk("template_id"); ok {
 		scope = client.ScopeTemplate
 		scopeId = templateId.(string)
 	}

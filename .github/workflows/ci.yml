@@ -46,9 +46,9 @@ jobs:
           chmod +x $(which terraform)
           ls -la $(which terraform)
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64.8
+          version: v2.0
       - name: Go Test
         run: |
           echo "Using Terraform at: $TF_PATH"

@@ -500,7 +500,7 @@ func ttlToDuration(ttl *string) (time.Duration, error) {
 	}
 	// M/w/d/h
 
-	var hours int = number
+	hours := number
 
 	switch rangeType := match[2]; rangeType {
 	case "M":

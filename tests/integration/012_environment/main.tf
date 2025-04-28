@@ -324,6 +324,15 @@ resource "env0_environment" "workflow-environment" {
   }
 }
 
+resource "env0_configuration_variable" "sub_environment_example" {
+  depends_on            = [env0_environment.workflow-environment]
+  name                  = "SUB_ENVIRONMENT_VARIABLE-${random_string.random.result}"
+  value                 = "sub env value"
+  template_id           = env0_template.workflow_template.id
+  sub_environment_alias = "rootService1"
+  description           = "Variable for a sub environment scope"
+}
+
 data "env0_environment" "test-workflow" {
   id = env0_environment.workflow-environment.id
 }

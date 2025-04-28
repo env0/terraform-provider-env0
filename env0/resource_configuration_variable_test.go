@@ -636,7 +636,7 @@ resource "%s" "test" {
 		})
 	})
 
-	importStateId_id := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1", "name": "name0"}`
+	importStateId_id := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0", "Id": "id1"}`
 	importStateId_name := `{  "Scope": "BLUEPRINT",  "ScopeId": "id0",  "name": "name0"}`
 	ResourceNameImport := "env0_configuration_variable.test"
 	configVarImport := client.ConfigurationVariable{
@@ -716,6 +716,114 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableCreate(configurationVariableCreateParamsImport).Times(1).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariablesById(configVarImport.Id).Times(3).Return(configVarImport, nil)
 			mock.EXPECT().ConfigurationVariableDelete(configVarImport.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Create with sub_environment_alias", func(t *testing.T) {
+		templateId := "template123"
+		subEnvironmentAlias := "stage"
+		configVar := client.ConfigurationVariable{
+			Id:          "sub-env-id",
+			Name:        "sub-env-name",
+			Description: "Sub environment variable",
+			Value:       "SubEnvValue",
+			Scope:       client.ScopeSubEnvironment,
+			ScopeId:     templateId + ":" + subEnvironmentAlias,
+		}
+
+		stepConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
+			"name":                  configVar.Name,
+			"description":           configVar.Description,
+			"value":                 configVar.Value,
+			"template_id":           templateId,
+			"sub_environment_alias": subEnvironmentAlias,
+		})
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: stepConfig,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", configVar.Id),
+						resource.TestCheckResourceAttr(accessor, "name", configVar.Name),
+						resource.TestCheckResourceAttr(accessor, "description", configVar.Description),
+						resource.TestCheckResourceAttr(accessor, "value", configVar.Value),
+						resource.TestCheckResourceAttr(accessor, "template_id", templateId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_alias", subEnvironmentAlias),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(
+				client.ConfigurationVariableCreateParams{
+					Name:        configVar.Name,
+					Value:       configVar.Value,
+					IsSensitive: false,
+					Scope:       client.ScopeSubEnvironment,
+					ScopeId:     templateId + ":" + subEnvironmentAlias,
+					Type:        client.ConfigurationVariableTypeEnvironment,
+					EnumValues:  nil,
+					Description: configVar.Description,
+					Format:      client.Text,
+				}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("Import with sub_environment_alias", func(t *testing.T) {
+		templateId := "template456"
+		subEnvironmentAlias := "prod"
+		configVar := client.ConfigurationVariable{
+			Id:          "sub-env-import-id",
+			Name:        "sub-env-import-name",
+			Description: "Sub environment import variable",
+			Value:       "SubEnvImportValue",
+			Scope:       client.ScopeSubEnvironment,
+			ScopeId:     templateId + ":" + subEnvironmentAlias,
+		}
+
+		importStateId := fmt.Sprintf(`{"Scope": "%s", "ScopeId": "%s", "Id": "%s"}`,
+			configVar.Scope, configVar.ScopeId, configVar.Id)
+
+		createTestCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":                  configVar.Name,
+						"description":           configVar.Description,
+						"value":                 configVar.Value,
+						"template_id":           templateId,
+						"sub_environment_alias": subEnvironmentAlias,
+					}),
+				},
+				{
+					ResourceName:            "env0_configuration_variable.test",
+					ImportState:             true,
+					ImportStateId:           importStateId,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"is_required", "is_read_only"},
+				},
+			},
+		}
+
+		runUnitTest(t, createTestCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ConfigurationVariableCreate(
+				client.ConfigurationVariableCreateParams{
+					Name:        configVar.Name,
+					Value:       configVar.Value,
+					IsSensitive: false,
+					Scope:       client.ScopeSubEnvironment,
+					ScopeId:     templateId + ":" + subEnvironmentAlias,
+					Type:        client.ConfigurationVariableTypeEnvironment,
+					EnumValues:  nil,
+					Description: configVar.Description,
+					Format:      client.Text,
+				}).Times(1).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariablesById(configVar.Id).Times(3).Return(configVar, nil)
+			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(1).Return(nil)
 		})
 	})
 

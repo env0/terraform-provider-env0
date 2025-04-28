@@ -174,7 +174,7 @@ func Provider(version string) plugin.ProviderFunc {
 }
 
 func createRestyClient(ctx context.Context) *resty.Client {
-	isIntegrationTest := false
+	var isIntegrationTest bool
 
 	if os.Getenv("INTEGRATION_TESTS") == "1" {
 		isIntegrationTest = true

@@ -8,14 +8,15 @@ import (
 type Scope string
 
 const (
-	ScopeGlobal        Scope = "GLOBAL"
-	ScopeTemplate      Scope = "BLUEPRINT"
-	ScopeProject       Scope = "PROJECT"
-	ScopeEnvironment   Scope = "ENVIRONMENT"
-	ScopeDeployment    Scope = "DEPLOYMENT"
-	ScopeDeploymentLog Scope = "DEPLOYMENT_LOG"
-	ScopeWorkflow      Scope = "WORKFLOW"
-	ScopeSet           Scope = "SET"
+	ScopeGlobal         Scope = "GLOBAL"
+	ScopeTemplate       Scope = "BLUEPRINT"
+	ScopeSubEnvironment Scope = "SUB_ENVIRONMENT_BLUEPRINT"
+	ScopeProject        Scope = "PROJECT"
+	ScopeEnvironment    Scope = "ENVIRONMENT"
+	ScopeDeployment     Scope = "DEPLOYMENT"
+	ScopeDeploymentLog  Scope = "DEPLOYMENT_LOG"
+	ScopeWorkflow       Scope = "WORKFLOW"
+	ScopeSet            Scope = "SET"
 )
 
 type Format string
@@ -120,21 +121,23 @@ func (client *ApiClient) ConfigurationVariablesByScope(scope Scope, scopeId stri
 
 	params := map[string]string{"organizationId": organizationId}
 
-	switch {
-	case scope == ScopeGlobal:
-	case scope == ScopeTemplate:
+	switch scope {
+	case ScopeGlobal:
+	case ScopeTemplate:
 		params["blueprintId"] = scopeId
-	case scope == ScopeProject:
+	case ScopeProject:
 		params["projectId"] = scopeId
-	case scope == ScopeEnvironment:
+	case ScopeEnvironment:
 		params["environmentId"] = scopeId
-	case scope == ScopeDeployment:
+	case ScopeDeployment:
 		return nil, errors.New("no api to fetch configuration variables by deployment")
-	case scope == ScopeDeploymentLog:
+	case ScopeDeploymentLog:
 		params["deploymentLogId"] = scopeId
-	case scope == ScopeWorkflow:
+	case ScopeWorkflow:
 		params["environmentId"] = scopeId
 		params["workflowEnvironmentId"] = scopeId
+	case ScopeSubEnvironment:
+		params["workflowBlueprintIdSubAlias"] = scopeId
 	}
 
 	err = client.http.Get("/configuration", params, &result)
