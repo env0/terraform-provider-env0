@@ -164,6 +164,10 @@ func dataEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta any) 
 		d.Set("run_plan_on_pull_requests", *environment.PullRequestPlanDeployments)
 	}
 
+	if environment.RequiresApproval != nil {
+		d.Set("approve_plan_automatically", !*environment.RequiresApproval)
+	}
+
 	if environment.LifespanEndAt != "" {
 		d.Set("ttl", environment.LifespanEndAt)
 	}
