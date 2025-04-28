@@ -51,7 +51,7 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"template_id": {
 				Type:          schema.TypeString,
-				Description:   "search for the variable under this template, not globally. Required when using sub_environment_alias.",
+				Description:   "search for the variable under this template, not globally",
 				Optional:      true,
 				ConflictsWith: []string{"project_id", "environment_id", "deployment_log_id"},
 			},
@@ -69,7 +69,7 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"sub_environment_alias": {
 				Type:         schema.TypeString,
-				Description:  "search for the variable for sub templates of a workflow. Requires template_id to be set.",
+				Description:  "search for the variable for sub templates of a workflow. Requires template_id as well",
 				Optional:     true,
 				RequiredWith: []string{"template_id"},
 			},
