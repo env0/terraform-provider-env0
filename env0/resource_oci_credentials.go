@@ -66,6 +66,7 @@ func ociCredentialsGetValue(d *schema.ResourceData) (client.OciCredentialsValueP
 	if err := readResourceData(&value, d); err != nil {
 		return value, fmt.Errorf("schema resource data deserialization failed: %w", err)
 	}
+
 	return value, nil
 }
 
