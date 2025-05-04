@@ -837,6 +837,12 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		return diag.FromErr(err)
 	}
 
+	// See: https://github.com/env0/terraform-provider-env0/issues/1005
+	// If the user requires approval for deployment, we cannot update the template_id.
+	if deployPayload.UserRequiresApproval != nil && *deployPayload.UserRequiresApproval && d.HasChange("template_id") {
+		return diag.Errorf("cannot update template_id when user requires approval for deployment. Please set 'approve_plan_automatically' to 'true' or avoid updating the 'template_id' field")
+	}
+
 	subEnvironments, err := getSubEnvironments(d)
 	if err != nil {
 		return diag.Errorf("failed to extract subenvrionments from resourcedata: %v", err)
