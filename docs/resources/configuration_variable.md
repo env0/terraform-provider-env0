@@ -89,3 +89,6 @@ resource "env0_configuration_variable" "project_var" {
   project_id  = "project_var_id"
 }
 ```
+
+### Global Variables
+When the `Scope` is `GLOBAL`, do not pass `ScopeID`. See API docs for more details: https://docs.env0.com/reference/configuration-find-variables-by-scope
