@@ -74,8 +74,18 @@ resource "env0_configuration_variable" "sub_environment_example" {
 
 ## Import
 
+### Project Variables
 Import is supported using the following syntax:
 
 ```shell
 terraform import env0_configuration_variable.my_config '{  "Scope": "PROJECT",  "ScopeId": "project id",  "name": "configuration variable name"}'
+```
+
+with the following resource definition:
+```shell
+resource "env0_configuration_variable" "project_var" {
+  name        = "project_var_name"
+  value       = "project_var_value"
+  project_id  = "project_var_id"
+}
 ```
