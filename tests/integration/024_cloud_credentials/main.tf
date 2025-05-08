@@ -119,3 +119,21 @@ resource "env0_gcp_gke_credentials" "gcp_gke_credentials" {
   cluster_name   = "my-cluster"
   compute_region = "us-west1"
 }
+
+resource "env0_oci_credentials" "oci_cred" {
+  name         = "oci-cred-${random_string.random.result}"
+  tenancy_ocid = "ocid1.tenancy.oc1..exampleuniqueID"
+  user_ocid    = "ocid1.user.oc1..exampleuniqueID"
+  fingerprint  = "12:34:56:78:90:ab:cd:ef:12:34:56:78:90:ab:cd:ef"
+  private_key  = <<EOF
+-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASC...
+-----END PRIVATE KEY-----
+EOF
+  region       = "us-phoenix-1"
+}
+
+data "env0_oci_credentials" "oci_cred" {
+  depends_on = [env0_oci_credentials.oci_cred]
+  name       = "oci-cred-${random_string.random.result}"
+}
