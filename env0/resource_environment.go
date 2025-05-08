@@ -839,8 +839,15 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 
 	// See: https://github.com/env0/terraform-provider-env0/issues/1005
 	// If the user requires approval for deployment, we cannot update the template_id.
-	if deployPayload.UserRequiresApproval != nil && *deployPayload.UserRequiresApproval && d.HasChange("template_id") {
-		return diag.Errorf("cannot update template_id when user requires approval for deployment. Please set 'approve_plan_automatically' to 'true' or avoid updating the 'template_id' field")
+	if d.HasChange("template_id") {
+		environment, err := apiClient.Environment(d.Id())
+		if err != nil {
+			return diag.Errorf("could not get environment: %v", err)
+		}
+
+		if environment.RequiresApproval != nil && *environment.RequiresApproval {
+			return diag.Errorf("cannot update template_id when user requires approval for deployment. Please set 'approve_plan_automatically' to 'true' or avoid updating the 'template_id' field")
+		}
 	}
 
 	subEnvironments, err := getSubEnvironments(d)

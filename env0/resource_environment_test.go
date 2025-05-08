@@ -644,6 +644,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(2).Return(nil, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 						Id: "deployment-id",
 					}, nil),
