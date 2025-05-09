@@ -8,6 +8,7 @@ type AwsCredentialsType string
 type GcpCredentialsType string
 type AzureCredentialsType string
 type VaultCredentialsType string
+type OciCredentialsType string
 
 type Credentials struct {
 	Id             string `json:"id"`
@@ -102,6 +103,22 @@ type VaultCredentialsCreatePayload struct {
 	ProjectId      string                       `json:"projectId,omitempty"`
 }
 
+type OciCredentialsCreatePayload struct {
+	Name           string                     `json:"name,omitempty"`
+	OrganizationId string                     `json:"organizationId,omitempty"`
+	Type           OciCredentialsType         `json:"type"`
+	Value          OciCredentialsValuePayload `json:"value"`
+	ProjectId      string                     `json:"projectId,omitempty"`
+}
+
+type OciCredentialsValuePayload struct {
+	TenancyOcid string `json:"tenancyOcid"`
+	UserOcid    string `json:"userOcid"`
+	Fingerprint string `json:"fingerprint"`
+	PrivateKey  string `json:"privateKey"`
+	Region      string `json:"region"`
+}
+
 const (
 	AwsCostCredentialsType               AwsCredentialsType   = "AWS_ASSUMED_ROLE"
 	AwsAssumedRoleCredentialsType        AwsCredentialsType   = "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT"
@@ -114,6 +131,7 @@ const (
 	AzureServicePrincipalCredentialsType AzureCredentialsType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
 	AzureOidcCredentialsType             AzureCredentialsType = "AZURE_OIDC"
 	VaultOidcCredentialsType             VaultCredentialsType = "VAULT_OIDC"
+	OciApiKeyCredentialsType             OciCredentialsType   = "OCI_API_KEY_FOR_DEPLOYMENT"
 )
 
 func (client *ApiClient) CloudCredentials(id string) (Credentials, error) {

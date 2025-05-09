@@ -29,6 +29,7 @@ const (
 	AWS_EKS_TYPE    CloudType = "aws_eks"
 	AZURE_AKS_TYPE  CloudType = "azure_aks"
 	GCP_GKE_TYPE    CloudType = "gcp_gke"
+	OCI_TYPE        CloudType = "oci"
 )
 
 var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
@@ -46,6 +47,7 @@ var credentialsTypeToPrefixList map[CloudType][]string = map[CloudType][]string{
 	AWS_EKS_TYPE:    {string(client.AwsEksCredentialsType)},
 	AZURE_AKS_TYPE:  {string(client.AzureAksCredentialsType)},
 	GCP_GKE_TYPE:    {string(client.GcpGkeCredentialsType)},
+	OCI_TYPE:        {string(client.OciApiKeyCredentialsType)},
 }
 
 func getCredentialsByName(name string, prefixList []string, meta any) (client.Credentials, error) {
