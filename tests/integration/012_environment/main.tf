@@ -87,12 +87,13 @@ resource "env0_environment" "move_environment" {
 }
 
 resource "env0_environment" "modify_template" {
-  depends_on          = [env0_template_project_assignment.assignment]
-  force_destroy       = true
-  name                = "environment-modify-template-${random_string.random.result}"
-  project_id          = env0_project.test_project.id
-  template_id         = var.second_run ? env0_template.template2.id : env0_template.template.id
-  prevent_auto_deploy = true
+  depends_on                 = [env0_template_project_assignment.assignment]
+  force_destroy              = true
+  name                       = "environment-modify-template-${random_string.random.result}"
+  project_id                 = env0_project.test_project.id
+  template_id                = var.second_run ? env0_template.template2.id : env0_template.template.id
+  prevent_auto_deploy        = true
+  approve_plan_automatically = true
 }
 
 
