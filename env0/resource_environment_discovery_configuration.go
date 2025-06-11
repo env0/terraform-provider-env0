@@ -74,7 +74,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:             schema.TypeString,
 				Description:      "the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.",
 				Optional:         true,
-				ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|latest$`),
+				ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|RESOLVE_FROM_TERRAFORM_CODE|latest$`),
 			},
 			"terragrunt_version": {
 				Type:             schema.TypeString,
