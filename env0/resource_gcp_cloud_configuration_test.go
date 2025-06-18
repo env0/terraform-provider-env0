@@ -19,8 +19,17 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 
 	gcpConfig := client.GCPCloudAccountConfiguration{
-		GcpProjectId:                       "test-project-123",
-		CredentialConfigurationFileContent: "test-credentials-json",
+		GcpProjectId: "test-project-123",
+		CredentialConfigurationFileContent: `{
+  "audience": "//iam.googleapis.com/projects/578187717855/locations/global/workloadIdentityPools/cloudcompass-wif-pool/providers/cloudcompass-oidc-provider",
+  "credential_source": {
+    "file": "file.json",
+    "format": {
+      "type": "json",
+      "subject_token_field_name": "access_token"
+    }
+  }
+}`,
 	}
 
 	cloudConfig := client.CloudAccount{
