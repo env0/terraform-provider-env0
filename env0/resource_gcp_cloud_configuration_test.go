@@ -39,6 +39,7 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 
 	getFields := func(cloudConfig *client.CloudAccount) map[string]any {
 		gcpConfig := cloudConfig.Configuration.(*client.GCPCloudAccountConfiguration)
+
 		return map[string]any{
 			"name":                            cloudConfig.Name,
 			"project_id":                      gcpConfig.GcpProjectId,
