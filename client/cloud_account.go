@@ -27,6 +27,11 @@ type AzureCloudAccountConfiguration struct {
 	LogAnalyticsWorkspaceId string `json:"logAnalyticsWorkspaceId"`
 }
 
+type GCPCloudAccountConfiguration struct {
+	GcpProjectId                       string `json:"gcpProjectId"`
+	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent"`
+}
+
 type CloudAccount struct {
 	Id            string `json:"id"`
 	Provider      string `json:"provider"`
