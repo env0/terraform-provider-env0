@@ -50,6 +50,7 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 
 	getFields := func(cloudConfig *client.CloudAccount) map[string]any {
 		gcpConfig := cloudConfig.Configuration.(*client.GCPCloudAccountConfiguration)
+
 		return map[string]any{
 			"name":                            cloudConfig.Name,
 			"project_id":                      gcpConfig.GcpProjectId,
@@ -85,6 +86,125 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(2).Return(&cloudConfig, nil),
 				mock.EXPECT().CloudAccountUpdate(cloudConfig.Id, &updatePayload).Times(1).Return(&updatedCloudConfig, nil),
 				mock.EXPECT().CloudAccount(updatedCloudConfig.Id).Times(1).Return(&updatedCloudConfig, nil),
+				mock.EXPECT().CloudAccountDelete(updatedCloudConfig.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	// Import by id
+	otherCloudConfig := client.CloudAccount{
+		Id:       uuid.NewString(),
+		Provider: "GCP",
+		Name:     "other_name",
+	}
+
+	t.Run("import by id", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+				},
+				{
+					ResourceName:      resourceType + "." + resourceName,
+					ImportState:       true,
+					ImportStateId:     cloudConfig.Name,
+					ImportStateVerify: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccounts().Times(1).Return([]client.CloudAccount{otherCloudConfig, cloudConfig}, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccountDelete(cloudConfig.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	// Import by name not found
+	t.Run("import by name not found", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+				},
+				{
+					ResourceName:      resourceType + "." + resourceName,
+					ImportState:       true,
+					ImportStateId:     cloudConfig.Name,
+					ImportStateVerify: true,
+					ExpectError:       nil, // You may want to set a regexp here if your implementation returns a specific error
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccounts().Times(1).Return([]client.CloudAccount{otherCloudConfig}, nil),
+				mock.EXPECT().CloudAccountDelete(cloudConfig.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	// Drift
+	t.Run("drift", func(t *testing.T) {
+		runUnitTest(t, resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+				},
+			},
+		}, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccountDelete(cloudConfig.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	// Create failed
+	t.Run("create failed", func(t *testing.T) {
+		runUnitTest(t, resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config:      resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+					ExpectError: nil, // You may want to set a regexp here if your implementation returns a specific error
+				},
+			},
+		}, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(nil, nil)
+		})
+	})
+
+	// Update failed
+	t.Run("update failed", func(t *testing.T) {
+		runUnitTest(t, resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, getFields(&cloudConfig)),
+				},
+				{
+					Config:      resourceConfigCreate(resourceType, resourceName, getFields(&updatedCloudConfig)),
+					ExpectError: nil, // You may want to set a regexp here if your implementation returns a specific error
+				},
+			},
+		}, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(2).Return(&cloudConfig, nil),
+				mock.EXPECT().CloudAccountUpdate(cloudConfig.Id, &updatePayload).Times(1).Return(nil, nil),
 				mock.EXPECT().CloudAccountDelete(updatedCloudConfig.Id).Times(1).Return(nil),
 			)
 		})
