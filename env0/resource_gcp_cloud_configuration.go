@@ -29,7 +29,7 @@ func resourceGcpCloudConfiguration() *schema.Resource {
 				Description: "the GCP project ID",
 				Required:    true,
 			},
-			"json_configuration_file_content": {
+			"credential_configuration_file_content": {
 				Type:        schema.TypeString,
 				Description: "the JSON configuration file content containing the service account key",
 				Required:    true,

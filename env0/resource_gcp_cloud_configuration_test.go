@@ -41,12 +41,9 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 		gcpConfig := cloudConfig.Configuration.(*client.GCPCloudAccountConfiguration)
 
 		return map[string]any{
-			"name":       cloudConfig.Name,
-			"project_id": gcpConfig.GcpProjectId,
-			"json_configuration_file_content": fmt.Sprintf(`<<EOF
-%s
-EOF
-`, gcpConfig.CredentialConfigurationFileContent),
+			"name":                                  cloudConfig.Name,
+			"project_id":                            gcpConfig.GcpProjectId,
+			"credential_configuration_file_content": gcpConfig.CredentialConfigurationFileContent,
 		}
 	}
 
