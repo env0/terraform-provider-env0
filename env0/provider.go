@@ -121,7 +121,6 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_gcp_cost_credentials":                      resourceCostCredentials("google"),
 				"env0_gcp_credentials":                           resourceGcpCredentials(),
 				"env0_gcp_oidc_credentials":                      resourceGcpOidcCredentials(),
-				"env0_gcp_cloud_configuration":                   resourceGcpCloudConfiguration(),
 				"env0_vault_oidc_credentials":                    resourceVaultOidcCredentials(),
 				"env0_oci_credentials":                           resourceOciCredentials(),
 				"env0_template_project_assignment":               resourceTemplateProjectAssignment(),
@@ -166,6 +165,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_environment_output_configuration_variable": resourceEnvironmentOutputConfigurationVariable(),
 				"env0_aws_cloud_configuration":                   resourceAwsCloudConfiguration(),
 				"env0_azure_cloud_configuration":                 resourceAzureCloudConfiguration(),
+				"env0_gcp_cloud_configuration":                   resourceGcpCloudConfiguration(),
 				"env0_vcs_connection":                            resourceVcsConnection(),
 			},
 		}
