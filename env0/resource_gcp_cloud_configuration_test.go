@@ -19,8 +19,17 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 	resourceNameImport := resourceType + "." + resourceName
 
 	gcpConfig := client.GCPCloudAccountConfiguration{
-		GcpProjectId:                       "test-project-123",
-		CredentialConfigurationFileContent: `{"audience": "//iam.googleapis.com/projects/578187717855/locations/global/workloadIdentityPools/cloudcompass-wif-pool/providers/cloudcompass-oidc-provider","credential_source": {"file": "file.json","format": {"type": "json","subject_token_field_name": "access_token"}}}`,
+		GcpProjectId: "test-project-123",
+		CredentialConfigurationFileContent: `{
+  "audience": "//iam.googleapis.com/projects/578187717855/locations/global/workloadIdentityPools/cloudcompass-wif-pool/providers/cloudcompass-oidc-provider",
+  "credential_source": {
+    "file": "file.json",
+    "format": {
+      "type": "json",
+      "subject_token_field_name": "access_token"
+    }
+  }
+}`,
 	}
 
 	cloudConfig := client.CloudAccount{
@@ -43,7 +52,7 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 		return map[string]any{
 			"name":                            cloudConfig.Name,
 			"project_id":                      gcpConfig.GcpProjectId,
-			"json_configuration_file_content": gcpConfig.CredentialConfigurationFileContent,
+			"json_configuration_file_content": fmt.Sprintf(`<<EOF\n%s\nEOF\n`, gcpConfig.CredentialConfigurationFileContent),
 		}
 	}
 
