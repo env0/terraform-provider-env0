@@ -97,9 +97,11 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 			mock.EXPECT().CloudAccountCreate(gomock.Any()).DoAndReturn(func(actual interface{}) (*client.CloudAccount, error) {
 				fmt.Fprintf(os.Stderr, "[DEBUG] Expected: %#v\n", &createPayload)
 				fmt.Fprintf(os.Stderr, "[DEBUG] Actual:   %#v\n", actual)
+
 				if !reflect.DeepEqual(actual, &createPayload) {
 					fmt.Fprintf(os.Stderr, "[MISMATCH] Arguments are not deeply equal!\n")
 				}
+
 				return &cloudConfig, nil
 			})
 
