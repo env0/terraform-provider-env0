@@ -1,2 +1,15 @@
-variable "gcp_project_id" {}
-variable "credential_configuration_file_content" {}
+terraform {
+  backend "local" {
+  }
+  required_providers {
+    env0 = {
+      source = "terraform-registry.env0.com/env0/env0"
+    }
+  }
+}
+
+provider "env0" {}
+
+variable "second_run" {
+  default = false
+}
