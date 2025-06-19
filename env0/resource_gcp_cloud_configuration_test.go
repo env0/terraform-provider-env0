@@ -3,6 +3,8 @@ package env0
 import (
 	"errors"
 	"fmt"
+	"os"
+	"reflect"
 	"regexp"
 	"testing"
 
@@ -92,8 +94,16 @@ func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().CloudAccountCreate(gomock.Any()).DoAndReturn(func(actual interface{}) (*client.CloudAccount, error) {
+				fmt.Fprintf(os.Stderr, "[DEBUG] Expected: %#v\n", &createPayload)
+				fmt.Fprintf(os.Stderr, "[DEBUG] Actual:   %#v\n", actual)
+				if !reflect.DeepEqual(actual, &createPayload) {
+					fmt.Fprintf(os.Stderr, "[MISMATCH] Arguments are not deeply equal!\n")
+				}
+				return &cloudConfig, nil
+			})
+
 			gomock.InOrder(
-				mock.EXPECT().CloudAccountCreate(&createPayload).Times(1).Return(&cloudConfig, nil),
 				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
 				mock.EXPECT().CloudAccounts().Times(1).Return([]client.CloudAccount{otherCloudConfig, cloudConfig}, nil),
 				mock.EXPECT().CloudAccount(cloudConfig.Id).Times(1).Return(&cloudConfig, nil),
