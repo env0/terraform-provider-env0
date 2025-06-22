@@ -45,6 +45,28 @@ var _ = Describe("CloudAccount", func() {
 		Configuration: []string{"some random configuration"},
 	}
 
+	gcpConfiguration := GCPCloudAccountConfiguration{
+		GcpProjectId:                       "gcp-project-1",
+		CredentialConfigurationFileContent: "{\"type\":\"service_account\",...}",
+	}
+
+	gcpConfigurationUpdated := GCPCloudAccountConfiguration{
+		GcpProjectId:                       "gcp-project-2",
+		CredentialConfigurationFileContent: "{\"type\":\"service_account\",...updated}",
+	}
+
+	gcpAccount := CloudAccount{
+		Id:            "id4",
+		Provider:      "GCP",
+		Name:          "gcp1",
+		Health:        true,
+		Configuration: &gcpConfiguration,
+	}
+
+	gcpAccountUpdated := gcpAccount
+	gcpAccountUpdated.Name = "updatedgcp1"
+	gcpAccountUpdated.Configuration = gcpConfigurationUpdated
+
 	azureConfiguration := AzureCloudAccountConfiguration{
 		TenantId:                "tenant123",
 		ClientId:                "client123",
@@ -70,6 +92,39 @@ var _ = Describe("CloudAccount", func() {
 	azureAccountUpdated.Configuration = azureConfigurationUpdated
 
 	Describe("create", func() {
+		Context("when creating a GCP configuration", func() {
+			BeforeEach(func() {
+				payload := CloudAccountCreatePayload{
+					Provider:      gcpAccount.Provider,
+					Name:          gcpAccount.Name,
+					Configuration: gcpAccount.Configuration,
+				}
+
+				payloadWithOrganizationId := struct {
+					*CloudAccountCreatePayload
+					OrganizationId string `json:"organizationId"`
+				}{
+					&payload,
+					organizationId,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Post("/cloud/configurations", &payloadWithOrganizationId, gomock.Any()).
+					Do(func(path string, request any, response *CloudAccount) {
+						*response = gcpAccount
+					}).Times(1)
+
+				account, err = apiClient.CloudAccountCreate(&payload)
+			})
+
+			It("should return gcp account", func() {
+				Expect(*account).To(Equal(gcpAccount))
+			})
+
+			It("should not return error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
 		BeforeEach(func() {
 			mockOrganizationIdCall()
 
