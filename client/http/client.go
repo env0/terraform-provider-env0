@@ -19,10 +19,6 @@ type HttpClientInterface interface {
 }
 
 func createRateLimiter(requestsPerMinute int) *rate.Limiter {
-	if requestsPerMinute <= 0 {
-		requestsPerMinute = 800 // Default to 800 requests per minute
-	}
-
 	// Set up a limiter that allows bursts up to the full minute limit
 	// The rate is set to requestsPerMinute/60 per second, but the burst capacity
 	// is set to the full minute's worth of requests. This means:
@@ -51,7 +47,7 @@ type HttpClientConfig struct {
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	rateLimitPerMinute := config.RateLimitPerMinute
 	if rateLimitPerMinute <= 0 {
-		rateLimitPerMinute = 800
+		rateLimitPerMinute = 800 // Default to 800 requests per minute
 	}
 
 	httpClient := &HttpClient{
