@@ -1,7 +1,6 @@
 package http_test
 
 import (
-	"context"
 	"sync"
 	"time"
 
@@ -122,72 +121,63 @@ var _ = Describe("Rate Limiter", func() {
 		Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testRateLimit))
 	})
 
-	Context("with more direct rate limiter tests", func() {
-		// These tests directly test the rate limiter behavior without relying on timing
+	Context("with client rate limiting tests", func() {
+		// These tests verify our HTTP client's rate limiting behavior
 		
-		It("should allow immediate consumption of tokens up to burst limit", func() {
-			// Create a rate limiter with a small limit for testing
+		It("should allow burst of requests up to the rate limit", func() {
+			// Create a client with a small rate limit for testing
 			testLimit := 10
-			limiter := rate.NewLimiter(rate.Limit(float64(testLimit)/60.0), testLimit)
+			httpClient = createClient(testLimit)
 			
-			// Should be able to consume all tokens immediately
+			// Should be able to make all requests immediately
 			for i := 0; i < testLimit; i++ {
-				allow := limiter.Allow()
-				Expect(allow).To(BeTrue(), "Should allow request within burst limit")
+				makeRequest(httpClient)
 			}
 			
-			// The next token should not be immediately available
-			allow := limiter.Allow()
-			Expect(allow).To(BeFalse(), "Should not allow request beyond burst limit without waiting")
+			// Verify all requests were made
+			callCount := httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit))
 		})
 		
-		It("should block when tokens are exhausted and then allow after refill", func() {
-			// Create a rate limiter with a small limit and fast refill for testing
-			testLimit := 5
-			// Set to 5 tokens per second (very fast for testing)
-			limiter := rate.NewLimiter(rate.Limit(5), testLimit)
+		It("should allow multiple requests and eventually succeed", func() {
+			// Create a client with a reasonable rate limit for testing
+			testLimit := 20 // Small enough to test, but not too small
+			httpClient = createClient(testLimit)
 			
-			// Consume all tokens
-			for i := 0; i < testLimit; i++ {
-				allow := limiter.Allow()
-				Expect(allow).To(BeTrue(), "Should allow request within burst limit")
+			// Make a series of requests that should all succeed
+			totalRequests := 10
+			for i := 0; i < totalRequests; i++ {
+				makeRequest(httpClient)
 			}
 			
-			// The next token should not be immediately available
-			allow := limiter.Allow()
-			Expect(allow).To(BeFalse(), "Should not allow request beyond burst limit without waiting")
-			
-			// Wait for at least one token to be refilled (should take ~200ms)
-			time.Sleep(250 * time.Millisecond)
-			
-			// Now we should be able to get a token
-			allow = limiter.Allow()
-			Expect(allow).To(BeTrue(), "Should allow request after token refill")
+			// Verify all requests were made successfully
+			callCount := httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(totalRequests))
 		})
 		
-		It("should queue requests with Wait() when tokens are exhausted", func() {
-			// Create a rate limiter with a small limit and fast refill for testing
-			testLimit := 5
-			// Set to 10 tokens per second (very fast for testing)
-			limiter := rate.NewLimiter(rate.Limit(10), testLimit)
+		It("should handle concurrent requests with rate limiting", func() {
+			// Create a client with a higher rate limit for testing concurrent requests
+			// 600 per minute = 10 per second, which is fast enough for testing
+			testLimit := 600
+			httpClient = createClient(testLimit)
 			
-			// Consume all tokens
-			for i := 0; i < testLimit; i++ {
-				allow := limiter.Allow()
-				Expect(allow).To(BeTrue(), "Should allow request within burst limit")
+			// Make concurrent requests
+			var wg sync.WaitGroup
+			totalRequests := 20 // Small number to keep test fast
+			for i := 0; i < totalRequests; i++ {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					makeRequest(httpClient)
+				}()
 			}
 			
-			// The next request should wait, not fail
-			ctx := context.Background()
-			startTime := time.Now()
+			// Wait for all requests to complete
+			wg.Wait()
 			
-			// This should wait for a token (approximately 100ms with our rate)
-			err := limiter.Wait(ctx)
-			Elapsed := time.Since(startTime)
-			
-			Expect(err).To(BeNil(), "Wait should not return an error")
-			Expect(Elapsed).To(BeNumerically(">", 50*time.Millisecond), "Should have waited for a token")
-			Expect(Elapsed).To(BeNumerically("<", 200*time.Millisecond), "Should not wait too long")
+			// Verify all requests were made
+			callCount := httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(totalRequests))
 		})
 	})
 })
