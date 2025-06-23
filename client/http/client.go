@@ -5,6 +5,7 @@ package http
 import (
 	"context"
 	"reflect"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/time/rate"
@@ -24,7 +25,8 @@ func createRateLimiter(requestsPerMinute int) *rate.Limiter {
 	// is set to the full minute's worth of requests. This means:
 	// - All requests up to the minute limit will be processed immediately
 	// - After the burst capacity is used, tokens refill at a rate of requestsPerMinute/60 per second
-	return rate.NewLimiter(rate.Limit(float64(requestsPerMinute)/60.0), requestsPerMinute)
+	return rate.NewLimiter(rate.Every(1*time.Minute), requestsPerMinute)
+	// return rate.NewLimiter(rate.Limit(float64(requestsPerMinute)/60.0), requestsPerMinute)
 }
 
 type HttpClient struct {
