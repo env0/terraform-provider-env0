@@ -63,7 +63,10 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 func (client *HttpClient) request() *resty.Request {
 	if client.rateLimiter != nil {
 		ctx := context.Background()
-		client.rateLimiter.Wait(ctx)
+		err := client.rateLimiter.Wait(ctx)
+		if err != nil {
+			return client.client.R().SetError(err)
+		}
 	}
 
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
