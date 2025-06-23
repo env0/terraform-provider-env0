@@ -3,9 +3,11 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/time/rate"
 )
 
 type HttpClientInterface interface {
@@ -16,12 +18,26 @@ type HttpClientInterface interface {
 	Patch(path string, request any, response any) error
 }
 
+// createRateLimiter creates a new rate limiter with the specified requests per minute
+func createRateLimiter(requestsPerMinute int) *rate.Limiter {
+	if requestsPerMinute <= 0 {
+		requestsPerMinute = 800 // Default to 800 requests per minute
+	}
+
+	// Set up a limiter that allows bursts up to the full minute limit
+	// The rate is set to requestsPerMinute/60 per second, but the burst capacity
+	// is set to the full minute's worth of requests. This means:
+	// - All requests up to the minute limit will be processed immediately
+	// - After the burst capacity is used, tokens refill at a rate of requestsPerMinute/60 per second
+	return rate.NewLimiter(rate.Limit(float64(requestsPerMinute)/60.0), requestsPerMinute)
+}
+
 type HttpClient struct {
 	ApiKey      string
 	ApiSecret   string
 	Endpoint    string
 	client      *resty.Client
-	rateLimiter *RateLimiter
+	rateLimiter *rate.Limiter
 }
 
 type HttpClientConfig struct {
@@ -34,26 +50,25 @@ type HttpClientConfig struct {
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
-	// Set default rate limit if not specified
 	rateLimitPerMinute := config.RateLimitPerMinute
 	if rateLimitPerMinute <= 0 {
-		rateLimitPerMinute = 800 // Default to 800 requests per minute
+		rateLimitPerMinute = 800
 	}
 
 	httpClient := &HttpClient{
 		ApiKey:      config.ApiKey,
 		ApiSecret:   config.ApiSecret,
 		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
-		rateLimiter: NewRateLimiter(rateLimitPerMinute),
+		rateLimiter: createRateLimiter(rateLimitPerMinute),
 	}
 
 	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
-	// Apply rate limiting before making the request
 	if client.rateLimiter != nil {
-		client.rateLimiter.Take()
+		ctx := context.Background()
+		client.rateLimiter.Wait(ctx)
 	}
 
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
