@@ -2,14 +2,12 @@ package http_test
 
 import (
 	"sync"
-	"time"
 
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/time/rate"
 )
 
 var _ = Describe("Rate Limiter", func() {
@@ -76,26 +74,32 @@ var _ = Describe("Rate Limiter", func() {
 	})
 
 	// Test that directly verifies the limiter configuration
-	It("should configure rate limiter with correct burst size and rate", func() {
-		// Create a rate limiter directly to test its configuration
-		requestsPerMinute := 800
-		limiter := rate.NewLimiter(rate.Limit(float64(requestsPerMinute)/60.0), requestsPerMinute)
-		
-		// Verify the burst size is set to the full minute limit
-		Expect(limiter.Burst()).To(Equal(requestsPerMinute))
-		
-		// Verify the rate is set to requestsPerMinute/60 per second
-		Expect(limiter.Limit()).To(Equal(rate.Limit(float64(requestsPerMinute)/60.0)))
-		
-		// Test that we can immediately consume the full burst capacity
-		reserve := limiter.ReserveN(time.Now(), requestsPerMinute)
-		Expect(reserve.OK()).To(BeTrue(), "Should be able to reserve the full burst capacity")
-		Expect(reserve.Delay()).To(Equal(time.Duration(0)), "Should have no delay for burst capacity")
-		
-		// Test that exceeding the burst capacity causes a delay
-		reserve = limiter.ReserveN(time.Now(), 1)
-		Expect(reserve.OK()).To(BeTrue(), "Should be able to reserve beyond burst capacity")
-		Expect(reserve.Delay()).To(BeNumerically(">", time.Duration(0)), "Should have delay for exceeding burst capacity")
+	It("should create HTTP client with default rate limit when not specified", func() {
+		// Create a client without specifying rate limit
+		config := httpModule.HttpClientConfig{
+			ApiKey:      ApiKey,
+			ApiSecret:   ApiSecret,
+			ApiEndpoint: BaseUrl,
+			UserAgent:   UserAgent,
+			RestClient:  restClient,
+			// RateLimitPerMinute not specified - should use default
+		}
+		client, err := httpModule.NewHttpClient(config)
+		Expect(err).To(BeNil())
+
+		// Register a responder for the test endpoint
+		httpmock.RegisterResponder("GET", BaseUrl+TestEndpoint,
+			httpmock.NewStringResponder(200, SuccessResponse))
+
+		// Make a request to verify client works with default rate limit
+		var response string
+		err = client.Get(TestEndpoint, nil, &response)
+		Expect(err).To(BeNil())
+		Expect(response).To(Equal(SuccessResponse))
+
+		// Verify the call was made
+		callCount := httpmock.GetCallCountInfo()
+		Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(1))
 	})
 
 	It("should allow burst of requests up to the rate limit", func() {
