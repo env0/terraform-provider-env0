@@ -6,12 +6,10 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// RateLimiter wraps the standard library rate limiter
 type RateLimiter struct {
 	limiter *rate.Limiter
 }
 
-// NewRateLimiter creates a new rate limiter with the specified requests per minute
 func NewRateLimiter(requestsPerMinute int) *RateLimiter {
 	if requestsPerMinute <= 0 {
 		requestsPerMinute = 800 // Default to 800 requests per minute
@@ -27,10 +25,7 @@ func NewRateLimiter(requestsPerMinute int) *RateLimiter {
 	}
 }
 
-// Take attempts to take a token from the bucket, blocking if necessary
 func (r *RateLimiter) Take() {
-	// Wait for a token to become available
-	// This will block if we've exceeded our rate limit
 	ctx := context.Background()
 	r.limiter.Wait(ctx)
 }
