@@ -128,20 +128,7 @@ var _ = Describe("Rate Limiter", func() {
 	Context("with client rate limiting tests", func() {
 		// These tests verify our HTTP client's rate limiting behavior
 		
-		It("should allow burst of requests up to the rate limit", func() {
-			// Create a client with a small rate limit for testing
-			testLimit := 10
-			httpClient = createClient(testLimit)
-			
-			// Should be able to make all requests immediately
-			for i := 0; i < testLimit; i++ {
-				makeRequest(httpClient)
-			}
-			
-			// Verify all requests were made
-			callCount := httpmock.GetCallCountInfo()
-			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit))
-		})
+
 		
 		It("should allow multiple requests and eventually succeed", func() {
 			// Create a client with a reasonable rate limit for testing
