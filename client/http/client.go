@@ -19,16 +19,6 @@ type HttpClientInterface interface {
 	Patch(path string, request any, response any) error
 }
 
-func createRateLimiter(requestsPerMinute int) *rate.Limiter {
-	// Set up a limiter that allows bursts up to the full minute limit
-	// The rate is set to requestsPerMinute/60 per second, but the burst capacity
-	// is set to the full minute's worth of requests. This means:
-	// - All requests up to the minute limit will be processed immediately
-	// - After the burst capacity is used, tokens refill at a rate of requestsPerMinute/60 per second
-	return rate.NewLimiter(rate.Every(1*time.Minute), requestsPerMinute)
-	// return rate.NewLimiter(rate.Limit(float64(requestsPerMinute)/60.0), requestsPerMinute)
-}
-
 type HttpClient struct {
 	ApiKey      string
 	ApiSecret   string
@@ -56,7 +46,7 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 		ApiKey:      config.ApiKey,
 		ApiSecret:   config.ApiSecret,
 		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
-		rateLimiter: createRateLimiter(rateLimitPerMinute),
+		rateLimiter: rate.NewLimiter(rate.Every(1*time.Minute), rateLimitPerMinute),
 	}
 
 	return httpClient, nil
