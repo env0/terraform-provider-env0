@@ -52,7 +52,7 @@ var _ = Describe("Rate Limiter", func() {
 		}
 		client, err := httpModule.NewHttpClient(config)
 		Expect(err).To(BeNil())
-		
+
 		return client
 	}
 

@@ -99,7 +99,7 @@ var _ = Describe("Http Client", func() {
 		httpRequest = nil
 		httpmock.RegisterNoResponder(func(req *http.Request) (*http.Response, error) {
 			httpRequest = req
-			
+
 			return nil, errors.New("No responder found")
 		})
 
