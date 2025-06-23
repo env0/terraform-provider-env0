@@ -63,6 +63,7 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 func (client *HttpClient) request() *resty.Request {
 	if client.rateLimiter != nil {
 		ctx := context.Background()
+		
 		err := client.rateLimiter.Wait(ctx)
 		if err != nil {
 			return client.client.R().SetError(err)
