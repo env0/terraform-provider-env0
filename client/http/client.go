@@ -18,7 +18,6 @@ type HttpClientInterface interface {
 	Patch(path string, request any, response any) error
 }
 
-// createRateLimiter creates a new rate limiter with the specified requests per minute
 func createRateLimiter(requestsPerMinute int) *rate.Limiter {
 	if requestsPerMinute <= 0 {
 		requestsPerMinute = 800 // Default to 800 requests per minute
