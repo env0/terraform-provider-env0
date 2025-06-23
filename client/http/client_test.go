@@ -2,6 +2,7 @@ package http_test
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -50,10 +51,6 @@ var _ = BeforeSuite(func() {
 	httpmock.ActivateNonDefault(restClient.GetClient())
 })
 
-var _ = BeforeEach(func() {
-	httpmock.Reset()
-})
-
 var _ = AfterSuite(func() {
 	// unmock HTTP requests
 	httpmock.DeactivateAndReset()
@@ -66,18 +63,60 @@ func TestHttpClient(t *testing.T) {
 
 var _ = Describe("Http Client", func() {
 	var httpRequest *http.Request
+	var httpclient *httpModule.HttpClient
 
 	mockRequest := RequestBody{
-		Message: "I have a request",
+		Message: "Hello",
 	}
+
 	mockedResponse := ResponseType{
-		Id:   1,
-		Name: "I have a response",
+		Id:   123,
+		Name: "Test",
 	}
+
 	successURI := "/path/to/success"
 	failureURI := "/path/to/failure"
 	successUrl := BaseUrl + successURI
 	failureUrl := BaseUrl + failureURI
+
+	BeforeEach(func() {
+		// Create a new REST client for each test to avoid rate limiter interference
+		restClient := resty.New()
+		httpmock.ActivateNonDefault(restClient.GetClient())
+
+		// Create HTTP client with the custom REST client and disable rate limiting
+		config := httpModule.HttpClientConfig{
+			ApiKey:             ApiKey,
+			ApiSecret:          ApiSecret,
+			ApiEndpoint:        BaseUrl,
+			UserAgent:          UserAgent,
+			RestClient:         restClient,
+			RateLimitPerMinute: 1000000, // Set to a very high value to effectively disable rate limiting for tests
+		}
+		var err error
+		httpclient, err = httpModule.NewHttpClient(config)
+		Expect(err).To(BeNil())
+
+		httpRequest = nil
+		httpmock.RegisterNoResponder(func(req *http.Request) (*http.Response, error) {
+			httpRequest = req
+			return nil, errors.New("No responder found")
+		})
+		
+		// Make calls to /path/to/success return 200, and calls to /path/to/failure return 500
+		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
+			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
+				httpRequest = req
+
+				return httpmock.NewJsonResponse(200, mockedResponse)
+			})
+			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
+				httpRequest = req
+
+				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
+			})
+		}
+	})
 
 	AssertAuth := func() {
 		authorization := httpRequest.Header["Authorization"]
