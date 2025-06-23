@@ -84,7 +84,6 @@ var _ = Describe("Http Client", func() {
 		restClient := resty.New()
 		httpmock.ActivateNonDefault(restClient.GetClient())
 
-		// Create HTTP client with the custom REST client and disable rate limiting
 		config := httpModule.HttpClientConfig{
 			ApiKey:             ApiKey,
 			ApiSecret:          ApiSecret,
@@ -102,7 +101,7 @@ var _ = Describe("Http Client", func() {
 			httpRequest = req
 			return nil, errors.New("No responder found")
 		})
-		
+
 		// Make calls to /path/to/success return 200, and calls to /path/to/failure return 500
 		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
 			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
