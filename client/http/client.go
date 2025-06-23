@@ -17,31 +17,45 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	ApiKey    string
-	ApiSecret string
-	Endpoint  string
-	client    *resty.Client
+	ApiKey      string
+	ApiSecret   string
+	Endpoint    string
+	client      *resty.Client
+	rateLimiter *RateLimiter
 }
 
 type HttpClientConfig struct {
-	ApiKey      string
-	ApiSecret   string
-	ApiEndpoint string
-	UserAgent   string
-	RestClient  *resty.Client
+	ApiKey             string
+	ApiSecret          string
+	ApiEndpoint        string
+	UserAgent          string
+	RestClient         *resty.Client
+	RateLimitPerMinute int // Optional, defaults to 800 if not specified
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
+	// Set default rate limit if not specified
+	rateLimitPerMinute := config.RateLimitPerMinute
+	if rateLimitPerMinute <= 0 {
+		rateLimitPerMinute = 800 // Default to 800 requests per minute
+	}
+
 	httpClient := &HttpClient{
-		ApiKey:    config.ApiKey,
-		ApiSecret: config.ApiSecret,
-		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		ApiKey:      config.ApiKey,
+		ApiSecret:   config.ApiSecret,
+		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		rateLimiter: NewRateLimiter(rateLimitPerMinute),
 	}
 
 	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
+	// Apply rate limiting before making the request
+	if client.rateLimiter != nil {
+		client.rateLimiter.Take()
+	}
+
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 
