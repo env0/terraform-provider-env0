@@ -219,9 +219,6 @@ var _ = Describe("Rate Limiter", func() {
 			callCount = httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit), "Queued request should not be processed immediately")
 
-			// Wait for the rate limit to refresh (slightly more than 1 minute)
-			time.Sleep(56 * time.Second)
-
 			// Wait for the goroutine to complete
 			wg.Wait()
 
