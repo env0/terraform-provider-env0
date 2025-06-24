@@ -71,6 +71,7 @@ func resourceAwsCloudConfigurationCreate(ctx context.Context, d *schema.Resource
 	if err := awsCloudConfigRateLimiter.Wait(ctx); err != nil {
 		return diag.Errorf("rate limit wait error: %v", err)
 	}
+
 	return createCloudConfiguration(d, meta, "AWS")
 }
 
@@ -78,5 +79,6 @@ func resourceAwsCloudConfigurationUpdate(ctx context.Context, d *schema.Resource
 	if err := awsCloudConfigRateLimiter.Wait(ctx); err != nil {
 		return diag.Errorf("rate limit wait error: %v", err)
 	}
+
 	return updateCloudConfiguration(d, meta, "AWS")
 }
