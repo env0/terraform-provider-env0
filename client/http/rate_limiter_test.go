@@ -177,12 +177,13 @@ var _ = Describe("Rate Limiter", func() {
 			testLimit := 5
 
 			config := httpModule.HttpClientConfig{
-				ApiKey:             ApiKey,
-				ApiSecret:          ApiSecret,
-				ApiEndpoint:        BaseUrl,
-				UserAgent:          UserAgent,
-				RestClient:         restClient,
-				RateLimitPerMinute: testLimit,
+				ApiKey:                  ApiKey,
+				ApiSecret:               ApiSecret,
+				ApiEndpoint:             BaseUrl,
+				UserAgent:               UserAgent,
+				RestClient:              restClient,
+				RateLimitPerMinute:      testLimit,
+				RateLimitAccumulateRate: 1,
 			}
 			client, err := httpModule.NewHttpClient(config)
 			Expect(err).To(BeNil())
@@ -213,22 +214,44 @@ var _ = Describe("Rate Limiter", func() {
 			}()
 
 			// Wait a short time to ensure the request is queued but not yet processed
-			time.Sleep(5 * time.Second)
+			time.Sleep(100 * time.Millisecond)
 
 			// Verify the queued request has not been processed yet
 			callCount = httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit), "Queued request should not be processed immediately")
 
-			// Wait for the goroutine to complete
-			wg.Wait()
+			// Send another request after 30 seconds - this should also be queued
+			var secondExtraResponse string
+			var secondExtraErr error
+			var wg2 sync.WaitGroup
+			wg2.Add(1)
+			time.Sleep(100 * time.Millisecond)
+			go func() {
+				defer wg2.Done()
+				// This should also block until a token becomes available
+				secondExtraErr = client.Get(TestEndpoint, nil, &secondExtraResponse)
+			}()
 
-			// Verify the extra request succeeded
+			// Wait a short time to ensure the second request is queued but not yet processed
+			time.Sleep(500 * time.Millisecond)
+
+			// Verify the second queued request has not been processed yet
+			callCount = httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit), "Second queued request should not be processed immediately")
+
+			// Wait for both goroutines to complete
+			wg.Wait()
+			wg2.Wait()
+
+			// Verify the extra requests succeeded
 			Expect(extraErr).To(BeNil())
 			Expect(extraResponse).To(Equal(SuccessResponse))
+			Expect(secondExtraErr).To(BeNil())
+			Expect(secondExtraResponse).To(Equal(SuccessResponse))
 
 			// Verify all requests were eventually made
 			callCount = httpmock.GetCallCountInfo()
-			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit+1), "Queued request should be processed after rate limit refreshes")
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(testLimit+2), "Both queued requests should be processed after rate limit refreshes")
 		})
 	})
 })

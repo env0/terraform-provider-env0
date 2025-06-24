@@ -5,7 +5,6 @@ package http
 import (
 	"context"
 	"reflect"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/time/rate"
@@ -28,25 +27,30 @@ type HttpClient struct {
 }
 
 type HttpClientConfig struct {
-	ApiKey             string
-	ApiSecret          string
-	ApiEndpoint        string
-	UserAgent          string
-	RestClient         *resty.Client
-	RateLimitPerMinute int // Optional, defaults to 800 if not specified
+	ApiKey                  string
+	ApiSecret               string
+	ApiEndpoint             string
+	UserAgent               string
+	RestClient              *resty.Client
+	RateLimitPerMinute      int // Optional, defaults to 500 if not specified
+	RateLimitAccumulateRate int // Optional, defaults to 8 if not specified
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	rateLimitPerMinute := config.RateLimitPerMinute
+	rateLimitAccumulateRate := config.RateLimitAccumulateRate
 	if rateLimitPerMinute <= 0 {
-		rateLimitPerMinute = 800 // Default to 800 requests per minute
+		rateLimitPerMinute = 500
+	}
+	if rateLimitAccumulateRate <= 0 {
+		rateLimitAccumulateRate = 8
 	}
 
 	httpClient := &HttpClient{
 		ApiKey:      config.ApiKey,
 		ApiSecret:   config.ApiSecret,
 		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
-		rateLimiter: rate.NewLimiter(rate.Every(1*time.Minute), rateLimitPerMinute),
+		rateLimiter: rate.NewLimiter(rate.Limit(rateLimitAccumulateRate), rateLimitPerMinute),
 	}
 
 	return httpClient, nil
