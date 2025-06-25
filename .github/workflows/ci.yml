@@ -50,6 +50,7 @@ jobs:
         with:
           version: v2.0
       - name: Go Test
+        timeout-minutes: 15
         run: |
           echo "Using Terraform at: $TF_PATH"
           echo "Terraform version: $TERRAFORM_VERSION"
