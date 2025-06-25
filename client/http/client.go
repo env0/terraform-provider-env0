@@ -3,9 +3,11 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/time/rate"
 )
 
 type HttpClientInterface interface {
@@ -17,31 +19,56 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	ApiKey    string
-	ApiSecret string
-	Endpoint  string
-	client    *resty.Client
+	ApiKey      string
+	ApiSecret   string
+	Endpoint    string
+	client      *resty.Client
+	rateLimiter *rate.Limiter
 }
 
 type HttpClientConfig struct {
-	ApiKey      string
-	ApiSecret   string
-	ApiEndpoint string
-	UserAgent   string
-	RestClient  *resty.Client
+	ApiKey                  string
+	ApiSecret               string
+	ApiEndpoint             string
+	UserAgent               string
+	RestClient              *resty.Client
+	RateLimitPerMinute      int // Optional, defaults to 500 if not specified
+	RateLimitAccumulateRate int // Optional, defaults to 8 if not specified
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
+	rateLimitPerMinute := config.RateLimitPerMinute
+
+	if rateLimitPerMinute <= 0 {
+		rateLimitPerMinute = 500
+	}
+
+	rateLimitAccumulateRate := config.RateLimitAccumulateRate
+
+	if rateLimitAccumulateRate <= 0 {
+		rateLimitAccumulateRate = 8
+	}
+
 	httpClient := &HttpClient{
-		ApiKey:    config.ApiKey,
-		ApiSecret: config.ApiSecret,
-		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		ApiKey:      config.ApiKey,
+		ApiSecret:   config.ApiSecret,
+		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		rateLimiter: rate.NewLimiter(rate.Limit(rateLimitAccumulateRate), rateLimitPerMinute),
 	}
 
 	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
+	if client.rateLimiter != nil {
+		ctx := context.Background()
+
+		err := client.rateLimiter.Wait(ctx)
+		if err != nil {
+			return client.client.R().SetError(err)
+		}
+	}
+
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 
