@@ -38,10 +38,13 @@ type HttpClientConfig struct {
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	rateLimitPerMinute := config.RateLimitPerMinute
-	rateLimitAccumulateRate := config.RateLimitAccumulateRate
+
 	if rateLimitPerMinute <= 0 {
 		rateLimitPerMinute = 500
 	}
+
+	rateLimitAccumulateRate := config.RateLimitAccumulateRate
+
 	if rateLimitAccumulateRate <= 0 {
 		rateLimitAccumulateRate = 8
 	}
