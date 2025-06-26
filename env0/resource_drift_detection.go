@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	DriftRemediationDisabled      = "DISABLED"
-	DriftRemediationCodeToCloud   = "CODE_TO_CLOUD"
-	DriftRemediationCloudToCode   = "CLOUD_TO_CODE"
+	DriftRemediationDisabled         = "DISABLED"
+	DriftRemediationCodeToCloud      = "CODE_TO_CLOUD"
+	DriftRemediationCloudToCode      = "CLOUD_TO_CODE"
 	DriftRemediationSmartRemediation = "SMART_REMEDIATION"
 )
 
