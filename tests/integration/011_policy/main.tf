@@ -63,3 +63,29 @@ resource "env0_project_policy" "test_policy_infinite" {
   max_ttl                       = "Infinite"
   default_ttl                   = var.second_run ? "4-d" : "Infinite"
 }
+
+resource "env0_project_policy" "test_policy_cloud_to_code" {
+  project_id                    = env0_project.test_project.id
+  number_of_environments        = 1
+  number_of_environments_total  = 1
+  requires_approval_default     = false
+  include_cost_estimation       = false
+  skip_apply_when_plan_is_empty = false
+  disable_destroy_environments  = false
+  skip_redundant_deployments    = false
+  drift_detection_cron          = "0 6 * * *"
+  auto_drift_remediation        = "CLOUD_TO_CODE"
+}
+
+resource "env0_project_policy" "test_policy_smart_remediation" {
+  project_id                    = env0_project.test_project.id
+  number_of_environments        = 1
+  number_of_environments_total  = 1
+  requires_approval_default     = false
+  include_cost_estimation       = false
+  skip_apply_when_plan_is_empty = false
+  disable_destroy_environments  = false
+  skip_redundant_deployments    = false
+  drift_detection_cron          = "0 7 * * *"
+  auto_drift_remediation        = "SMART_REMEDIATION"
+}
