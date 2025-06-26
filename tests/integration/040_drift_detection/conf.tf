@@ -9,7 +9,3 @@ terraform {
 }
 
 provider "env0" {}
-
-variable "second_run" {
-  default = false
-}
