@@ -354,9 +354,13 @@ resource "env0_environment" "environment_output_format" {
   force_destroy = true
 
   configuration {
-    name          = "output_var"
-    value         = "my-output-value"
+    name = "vpc_id"
+    value = jsonencode({
+      environmentId = "vpc"
+      outputName    = "vpc_id"
+    })
     schema_format = "ENVIRONMENT_OUTPUT"
+    type          = "terraform"
   }
 }
 
