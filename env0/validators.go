@@ -15,8 +15,8 @@ import (
 
 func ValidateConfigurationPropertySchema(val any, key string) (warns []string, errs []error) {
 	value := val.(string)
-	if value != string(client.HCL) && value != string(client.Text) && value != string(client.JSON) {
-		errs = append(errs, fmt.Errorf("%q can be either \"HCL\", \"JSON\" or empty, got: %q", key, value))
+	if value != string(client.HCL) && value != string(client.Text) && value != string(client.JSON) && value != string(client.ENVIRONMENT_OUTPUT) {
+		errs = append(errs, fmt.Errorf("%q can be either \"HCL\", \"JSON\", \"ENVIRONMENT_OUTPUT\" or empty, got: %q", key, value))
 	}
 
 	return
