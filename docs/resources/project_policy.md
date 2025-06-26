@@ -40,7 +40,7 @@ resource "env0_project_policy" "example" {
 
 ### Optional
 
-- `auto_drift_remediation` (String) Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED
+- `auto_drift_remediation` (String) Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION). Defaults to DISABLED
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
 - `default_ttl` (String) the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
