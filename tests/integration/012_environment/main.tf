@@ -345,3 +345,22 @@ resource "env0_environment" "mark_as_archived" {
   template_id      = env0_template.template.id
   removal_strategy = "mark_as_archived"
 }
+
+resource "env0_environment" "environment_output_format" {
+  depends_on    = [env0_template_project_assignment.assignment]
+  name          = "environment-output-format-${random_string.random.result}"
+  project_id    = env0_project.test_project.id
+  template_id   = env0_template.template.id
+  force_destroy = true
+
+  configuration {
+    name = "vpc_id"
+    value = jsonencode({
+      environmentId = "vpc"
+      outputName    = "vpc_id"
+    })
+    schema_format = "ENVIRONMENT_OUTPUT"
+    type          = "terraform"
+  }
+}
+
