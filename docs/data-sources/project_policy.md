@@ -31,7 +31,7 @@ data "env0_project_policy" "project_policy" {
 
 ### Read-Only
 
-- `auto_drift_remediation` (String) Auto drift remediation setting (DISABLED or CODE_TO_CLOUD)
+- `auto_drift_remediation` (String) Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION)
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
 - `default_ttl` (String) the default environment time-to-live allowed on deploy time
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project

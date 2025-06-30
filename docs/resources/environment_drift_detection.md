@@ -44,7 +44,7 @@ resource "env0_environment_drift_detection" "drift" {
 
 ### Optional
 
-- `auto_drift_remediation` (String) Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED
+- `auto_drift_remediation` (String) Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION). Defaults to DISABLED
 
 ### Read-Only
 
