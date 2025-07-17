@@ -254,7 +254,8 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
 			RestClient:  createRestyClient(ctx),
-			RateLimiter: ratelimiter.NewSlidingWindowLimiter(500, time.Minute),
+			// env0 backend allows 1000 requests / minute
+			RateLimiter: ratelimiter.NewSlidingWindowLimiter(950, time.Minute),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
