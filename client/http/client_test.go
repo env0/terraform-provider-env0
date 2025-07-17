@@ -27,43 +27,26 @@ type RequestBody struct {
 	Message string `json:"message"`
 }
 
-const BaseUrl = "https://fake.env0.com"
-const ApiKey = "MY_USER"
-const ApiSecret = "MY_PASS"
-const ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
-const UserAgent = "super-cool-ua"
-const ErrorStatusCode = 500
-const ErrorMessage = "Very bad!"
-
-var httpclient *httpModule.HttpClient
-
-var _ = BeforeSuite(func() {
-	// mock all HTTP requests
-	restClient := resty.New()
-	config := httpModule.HttpClientConfig{
-		ApiKey:      ApiKey,
-		ApiSecret:   ApiSecret,
-		ApiEndpoint: BaseUrl,
-		UserAgent:   UserAgent,
-		RestClient:  restClient,
-	}
-	httpclient, _ = httpModule.NewHttpClient(config)
-	httpmock.ActivateNonDefault(restClient.GetClient())
-})
-
-var _ = AfterSuite(func() {
-	// unmock HTTP requests
-	httpmock.DeactivateAndReset()
-})
-
 func TestHttpClient(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "HTTP Client Tests")
 }
 
 var _ = Describe("Http Client", func() {
-	var httpRequest *http.Request
-	var httpclient *httpModule.HttpClient
+	const (
+		BaseUrl           = "https://fake.env0.com"
+		ApiKey            = "MY_USER"
+		ApiSecret         = "MY_PASS"
+		ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
+		UserAgent         = "super-cool-ua"
+		ErrorStatusCode   = 500
+		ErrorMessage      = "Very bad!"
+	)
+
+	var (
+		httpRequest *http.Request
+		httpclient  *httpModule.HttpClient
+	)
 
 	mockRequest := RequestBody{
 		Message: "Hello",
@@ -85,12 +68,11 @@ var _ = Describe("Http Client", func() {
 		httpmock.ActivateNonDefault(restClient.GetClient())
 
 		config := httpModule.HttpClientConfig{
-			ApiKey:             ApiKey,
-			ApiSecret:          ApiSecret,
-			ApiEndpoint:        BaseUrl,
-			UserAgent:          UserAgent,
-			RestClient:         restClient,
-			RateLimitPerMinute: 1000000, // Set to a very high value to effectively disable rate limiting for tests
+			ApiKey:      ApiKey,
+			ApiSecret:   ApiSecret,
+			ApiEndpoint: BaseUrl,
+			UserAgent:   UserAgent,
+			RestClient:  restClient,
 		}
 		var err error
 		httpclient, err = httpModule.NewHttpClient(config)
@@ -116,6 +98,10 @@ var _ = Describe("Http Client", func() {
 				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
 			})
 		}
+	})
+
+	AfterEach(func() {
+		httpmock.DeactivateAndReset()
 	})
 
 	AssertAuth := func() {
@@ -159,23 +145,6 @@ var _ = Describe("Http Client", func() {
 
 		Expect(actualBodyBuffer.String()).To(Equal(string(mockRequestJson)), "Should send payload as HTTP request body")
 	}
-
-	BeforeEach(func() {
-		httpRequest = nil
-		// Make calls to /path/to/success return 200, and calls to /path/to/failure return 500
-		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
-			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
-				httpRequest = req
-
-				return httpmock.NewJsonResponse(200, mockedResponse)
-			})
-			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
-				httpRequest = req
-
-				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
-			})
-		}
-	})
 
 	Describe("Get", func() {
 		DescribeTable("2XX response",
