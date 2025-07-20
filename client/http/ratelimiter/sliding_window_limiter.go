@@ -40,6 +40,7 @@ func (l *SlidingWindowLimiter) Allow() bool {
 
 	if len(l.requests) < l.maxRequests {
 		l.requests = append(l.requests, now)
+
 		return true
 	}
 
@@ -70,6 +71,7 @@ func (l *SlidingWindowLimiter) Wait(ctx context.Context) error {
 			// Try again after waiting
 		case <-ctx.Done():
 			timer.Stop()
+
 			return ctx.Err()
 		}
 	}
@@ -105,5 +107,6 @@ func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
 
 	// Wait for the oldest request to expire
 	oldest := l.requests[0]
+
 	return oldest.Add(l.window).Sub(now)
 }
