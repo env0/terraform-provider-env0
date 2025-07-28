@@ -79,6 +79,7 @@ func resourceLogForwardingConfigurationRead(ctx context.Context, d *schema.Resou
 
 	id := d.Id()
 	configuration, err := apiClient.LogForwardingConfiguration(id)
+
 	if err != nil {
 		return ResourceGetFailure(ctx, "log forwarding configuration", d, err)
 	}
@@ -136,6 +137,7 @@ func resourceLogForwardingConfigurationDelete(ctx context.Context, d *schema.Res
 
 	id := d.Id()
 	err := apiClient.LogForwardingConfigurationDelete(id)
+
 	if err != nil {
 		return diag.Errorf("could not delete log forwarding configuration: %v", err)
 	}
