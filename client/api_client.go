@@ -175,6 +175,11 @@ type ApiClientInterface interface {
 	VcsConnectionUpdate(id string, payload VcsConnectionUpdatePayload) (*VcsConnection, error)
 	VcsConnectionDelete(id string) error
 	VcsConnections() ([]VcsConnection, error)
+	LogForwardingConfigurations() ([]LogForwardingConfiguration, error)
+	LogForwardingConfiguration(id string) (LogForwardingConfiguration, error)
+	LogForwardingConfigurationCreate(payload LogForwardingConfigurationCreatePayload) (LogForwardingConfiguration, error)
+	LogForwardingConfigurationUpdate(payload LogForwardingConfigurationUpdatePayload) (LogForwardingConfiguration, error)
+	LogForwardingConfigurationDelete(id string) error
 }
 
 func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {

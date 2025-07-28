@@ -168,6 +168,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_azure_cloud_configuration":                 resourceAzureCloudConfiguration(),
 				"env0_gcp_cloud_configuration":                   resourceGcpCloudConfiguration(),
 				"env0_vcs_connection":                            resourceVcsConnection(),
+				"env0_log_forwarding_configuration":              resourceLogForwardingConfiguration(),
 			},
 		}
 
