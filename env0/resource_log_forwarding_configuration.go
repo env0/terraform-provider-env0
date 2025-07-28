@@ -51,6 +51,7 @@ func resourceLogForwardingConfigurationCreate(ctx context.Context, d *schema.Res
 	apiClient := meta.(client.ApiClientInterface)
 
 	var value any
+
 	valueStr := d.Get("value").(string)
 	if err := json.Unmarshal([]byte(valueStr), &value); err != nil {
 		return diag.Errorf("invalid JSON in value field: %v", err)
@@ -89,12 +90,14 @@ func resourceLogForwardingConfigurationRead(ctx context.Context, d *schema.Resou
 		if err != nil {
 			return diag.Errorf("could not marshal configuration value: %v", err)
 		}
+
 		d.Set("value", string(valueBytes))
 	}
 
 	if configuration.AuditLogForwarding != nil {
 		d.Set("audit_log_forwarding", *configuration.AuditLogForwarding)
 	}
+
 	if configuration.DeploymentLogForwarding != nil {
 		d.Set("deployment_log_forwarding", *configuration.DeploymentLogForwarding)
 	}
@@ -106,6 +109,7 @@ func resourceLogForwardingConfigurationUpdate(ctx context.Context, d *schema.Res
 	apiClient := meta.(client.ApiClientInterface)
 
 	var value any
+
 	valueStr := d.Get("value").(string)
 	if err := json.Unmarshal([]byte(valueStr), &value); err != nil {
 		return diag.Errorf("invalid JSON in value field: %v", err)
