@@ -138,7 +138,3 @@ func resourceLogForwardingConfigurationDelete(ctx context.Context, d *schema.Res
 
 	return nil
 }
-
-func boolPtr(b bool) *bool {
-	return &b
-}
