@@ -44,7 +44,7 @@ func (client *ApiClient) LogForwardingConfiguration(id string) (LogForwardingCon
 		}
 	}
 
-	return LogForwardingConfiguration{}, NewNotFoundError("log forwarding configuration not found")
+	return LogForwardingConfiguration{}, &NotFoundError{}
 }
 
 func (client *ApiClient) LogForwardingConfigurationCreate(payload LogForwardingConfigurationCreatePayload) (LogForwardingConfiguration, error) {
