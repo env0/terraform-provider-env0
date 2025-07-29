@@ -18,10 +18,10 @@ func TestUnitSplunkLogForwardingResource(t *testing.T) {
 	accessor := resourceAccessor(resourceType, resourceName)
 
 	logForwardingConfig := client.LogForwardingConfiguration{
-		Id:                      "id0",
-		OrganizationId:          "org0",
-		Type:                    client.LogForwardingConfigurationTypeSplunk,
-		Value:                   map[string]interface{}{
+		Id:             "id0",
+		OrganizationId: "org0",
+		Type:           client.LogForwardingConfigurationTypeSplunk,
+		Value: map[string]interface{}{
 			"url":   "https://splunk.example.com",
 			"token": "splunk-token-123",
 			"index": "main",
@@ -31,10 +31,10 @@ func TestUnitSplunkLogForwardingResource(t *testing.T) {
 	}
 
 	updatedLogForwardingConfig := client.LogForwardingConfiguration{
-		Id:                      logForwardingConfig.Id,
-		OrganizationId:          logForwardingConfig.OrganizationId,
-		Type:                    client.LogForwardingConfigurationTypeSplunk,
-		Value:                   map[string]interface{}{
+		Id:             logForwardingConfig.Id,
+		OrganizationId: logForwardingConfig.OrganizationId,
+		Type:           client.LogForwardingConfigurationTypeSplunk,
+		Value: map[string]interface{}{
 			"url":   "https://updated-splunk.example.com",
 			"token": "updated-splunk-token-456",
 			"index": "updated-index",
@@ -320,10 +320,10 @@ func TestUnitSplunkLogForwardingResource(t *testing.T) {
 					}),
 				},
 				{
-					ResourceName:      resourceNameImport,
-					ImportState:       true,
-					ImportStateId:     logForwardingConfig.Id,
-					ImportStateVerify: true,
+					ResourceName:            resourceNameImport,
+					ImportState:             true,
+					ImportStateId:           logForwardingConfig.Id,
+					ImportStateVerify:       true,
 					ImportStateVerifyIgnore: []string{"token"}, // token is sensitive and not returned by API
 				},
 			},
