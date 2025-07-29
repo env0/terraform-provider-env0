@@ -5,16 +5,16 @@ import "fmt"
 type LogForwardingConfigurationType string
 
 const (
-	LogForwardingConfigurationTypeSplunk            LogForwardingConfigurationType = "SPLUNK"
-	LogForwardingConfigurationTypeNewRelic          LogForwardingConfigurationType = "NEWRELIC"
-	LogForwardingConfigurationTypeDatadog           LogForwardingConfigurationType = "DATADOG"
-	LogForwardingConfigurationTypeSumoLogic         LogForwardingConfigurationType = "SUMOLOGIC"
-	LogForwardingConfigurationTypeLogzIo            LogForwardingConfigurationType = "LOGZIO"
-	LogForwardingConfigurationTypeCoralogix         LogForwardingConfigurationType = "CORALOGIX"
+	LogForwardingConfigurationTypeSplunk             LogForwardingConfigurationType = "SPLUNK"
+	LogForwardingConfigurationTypeNewRelic           LogForwardingConfigurationType = "NEWRELIC"
+	LogForwardingConfigurationTypeDatadog            LogForwardingConfigurationType = "DATADOG"
+	LogForwardingConfigurationTypeSumoLogic          LogForwardingConfigurationType = "SUMOLOGIC"
+	LogForwardingConfigurationTypeLogzIo             LogForwardingConfigurationType = "LOGZIO"
+	LogForwardingConfigurationTypeCoralogix          LogForwardingConfigurationType = "CORALOGIX"
 	LogForwardingConfigurationTypeGoogleCloudLogging LogForwardingConfigurationType = "GOOGLE_CLOUD_LOGGING"
-	LogForwardingConfigurationTypeGrafanaLoki       LogForwardingConfigurationType = "GRAFANA_LOKI"
-	LogForwardingConfigurationTypeCloudWatch        LogForwardingConfigurationType = "CLOUDWATCH"
-	LogForwardingConfigurationTypeS3                LogForwardingConfigurationType = "S3"
+	LogForwardingConfigurationTypeGrafanaLoki        LogForwardingConfigurationType = "GRAFANA_LOKI"
+	LogForwardingConfigurationTypeCloudWatch         LogForwardingConfigurationType = "CLOUDWATCH"
+	LogForwardingConfigurationTypeS3                 LogForwardingConfigurationType = "S3"
 )
 
 type LogForwardingConfiguration struct {
