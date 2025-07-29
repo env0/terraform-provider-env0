@@ -59,6 +59,7 @@ func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	apiClient := meta.(client.ApiClientInterface)
+
 	logForwardingConfig, err := apiClient.LogForwardingConfiguration(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
@@ -67,6 +68,7 @@ func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData
 	if value, ok := logForwardingConfig.Value["url"]; ok {
 		d.Set("url", value)
 	}
+
 	if value, ok := logForwardingConfig.Value["index"]; ok {
 		d.Set("index", value)
 	}
