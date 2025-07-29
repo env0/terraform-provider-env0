@@ -15,6 +15,8 @@ func resourceSplunkLogForwarding() *schema.Resource {
 		UpdateContext: resourceSplunkLogForwardingUpdate,
 		DeleteContext: resourceSplunkLogForwardingDelete,
 
+		Importer: &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
+
 		Schema: map[string]*schema.Schema{
 			"url": {
 				Type:        schema.TypeString,
@@ -53,15 +55,18 @@ func resourceSplunkLogForwardingCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	diags := readLogForwardingConfiguration(d, meta)
-	if diags.HasError() {
-		return diags
-	}
-
 	apiClient := meta.(client.ApiClientInterface)
 
 	logForwardingConfig, err := apiClient.LogForwardingConfiguration(d.Id())
 	if err != nil {
+		return ResourceGetFailure(ctx, "log forwarding configuration", d, err)
+	}
+
+	if err := d.Set("audit_log_forwarding", logForwardingConfig.AuditLogForwarding); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := d.Set("deployment_log_forwarding", logForwardingConfig.DeploymentLogForwarding); err != nil {
 		return diag.FromErr(err)
 	}
 
