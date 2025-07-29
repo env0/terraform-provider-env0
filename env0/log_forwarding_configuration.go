@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -53,7 +54,7 @@ func readLogForwardingConfiguration(d *schema.ResourceData, meta interface{}) di
 
 	logForwardingConfig, err := apiClient.LogForwardingConfiguration(d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return ResourceGetFailure(context.Background(), "log forwarding configuration", d, err)
 	}
 
 	if err := d.Set("audit_log_forwarding", logForwardingConfig.AuditLogForwarding); err != nil {
