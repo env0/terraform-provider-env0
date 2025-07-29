@@ -6,7 +6,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/env0/terraform-provider-env0)](https://goreportcard.com/report/github.com/env0/terraform-provider-env0)
 
-- [Documentation](https://registry.terraform.io/providers/env0/env0/latest/docs)
+- [Documentation](https://search.opentofu.org/provider/env0/env0/latest)
 - [Usage Examples](https://github.com/env0/terraform-provider-env0/tree/main/examples)
 
 ## Quick Start
