@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func getLogForwardingConfigurationFromSchema(d *schema.ResourceData, configType client.LogForwardingConfigurationType) (map[string]interface{}, error) {
-	value := make(map[string]interface{})
+func getLogForwardingConfigurationFromSchema(d *schema.ResourceData, configType client.LogForwardingConfigurationType) (map[string]any, error) {
+	value := make(map[string]any)
 
 	switch configType {
 	case client.LogForwardingConfigurationTypeSplunk:
@@ -24,7 +24,7 @@ func getLogForwardingConfigurationFromSchema(d *schema.ResourceData, configType 
 	return value, nil
 }
 
-func createLogForwardingConfiguration(d *schema.ResourceData, meta interface{}, configType client.LogForwardingConfigurationType) diag.Diagnostics {
+func createLogForwardingConfiguration(d *schema.ResourceData, meta any, configType client.LogForwardingConfigurationType) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := getLogForwardingConfigurationFromSchema(d, configType)
@@ -49,7 +49,7 @@ func createLogForwardingConfiguration(d *schema.ResourceData, meta interface{}, 
 	return nil
 }
 
-func readLogForwardingConfiguration(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func readLogForwardingConfiguration(d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	logForwardingConfig, err := apiClient.LogForwardingConfiguration(d.Id())
@@ -68,7 +68,7 @@ func readLogForwardingConfiguration(d *schema.ResourceData, meta interface{}) di
 	return nil
 }
 
-func updateLogForwardingConfiguration(d *schema.ResourceData, meta interface{}, configType client.LogForwardingConfigurationType) diag.Diagnostics {
+func updateLogForwardingConfiguration(d *schema.ResourceData, meta any, configType client.LogForwardingConfigurationType) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	value, err := getLogForwardingConfigurationFromSchema(d, configType)
@@ -90,7 +90,7 @@ func updateLogForwardingConfiguration(d *schema.ResourceData, meta interface{}, 
 	return readLogForwardingConfiguration(d, meta)
 }
 
-func deleteLogForwardingConfiguration(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func deleteLogForwardingConfiguration(d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.LogForwardingConfigurationDelete(d.Id()); err != nil {

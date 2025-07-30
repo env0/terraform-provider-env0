@@ -50,11 +50,11 @@ func resourceSplunkLogForwarding() *schema.Resource {
 	}
 }
 
-func resourceSplunkLogForwardingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSplunkLogForwardingCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return createLogForwardingConfiguration(d, meta, client.LogForwardingConfigurationTypeSplunk)
 }
 
-func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	logForwardingConfig, err := apiClient.LogForwardingConfiguration(d.Id())
@@ -81,10 +81,10 @@ func resourceSplunkLogForwardingRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceSplunkLogForwardingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSplunkLogForwardingUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return updateLogForwardingConfiguration(d, meta, client.LogForwardingConfigurationTypeSplunk)
 }
 
-func resourceSplunkLogForwardingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSplunkLogForwardingDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return deleteLogForwardingConfiguration(d, meta)
 }
