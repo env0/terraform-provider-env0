@@ -5,7 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/time/rate"
 )
+
+// Limit to a burst of 5 and accumulate 1 request every 20 seconds
+var awsCloudConfigRateLimiter = rate.NewLimiter(rate.Limit(0.05), 5)
 
 func resourceAwsCloudConfiguration() *schema.Resource {
 	return &schema.Resource{
@@ -64,9 +68,17 @@ func resourceAwsCloudConfiguration() *schema.Resource {
 }
 
 func resourceAwsCloudConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	if err := awsCloudConfigRateLimiter.Wait(ctx); err != nil {
+		return diag.Errorf("rate limit wait error: %v", err)
+	}
+
 	return createCloudConfiguration(d, meta, "AWS")
 }
 
 func resourceAwsCloudConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	if err := awsCloudConfigRateLimiter.Wait(ctx); err != nil {
+		return diag.Errorf("rate limit wait error: %v", err)
+	}
+
 	return updateCloudConfiguration(d, meta, "AWS")
 }

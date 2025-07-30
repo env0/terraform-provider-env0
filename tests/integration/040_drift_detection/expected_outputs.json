@@ -1,0 +1,6 @@
+{
+  "drift_disabled_type": "DISABLED",
+  "drift_code_to_cloud_type": "CODE_TO_CLOUD", 
+  "drift_cloud_to_code_type": "CLOUD_TO_CODE",
+  "drift_smart_remediation_type": "SMART_REMEDIATION"
+}

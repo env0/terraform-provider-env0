@@ -7,6 +7,7 @@ import (
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/env0/terraform-provider-env0/client/http/ratelimiter"
 	"github.com/go-resty/resty/v2"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -253,6 +254,8 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
 			RestClient:  createRestyClient(ctx),
+			// env0 backend allows 1000 requests / minute
+			RateLimiter: ratelimiter.NewSlidingWindowLimiter(950, time.Minute),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}

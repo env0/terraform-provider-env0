@@ -18,6 +18,7 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/mock v0.5.1
+	golang.org/x/time v0.12.0
 )
 
 require (

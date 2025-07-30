@@ -3,8 +3,10 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
+	"context"
 	"reflect"
 
+	"github.com/env0/terraform-provider-env0/client/http/ratelimiter"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -17,10 +19,11 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	ApiKey    string
-	ApiSecret string
-	Endpoint  string
-	client    *resty.Client
+	ApiKey      string
+	ApiSecret   string
+	Endpoint    string
+	client      *resty.Client
+	rateLimiter *ratelimiter.RateLimiter
 }
 
 type HttpClientConfig struct {
@@ -29,19 +32,30 @@ type HttpClientConfig struct {
 	ApiEndpoint string
 	UserAgent   string
 	RestClient  *resty.Client
+	RateLimiter ratelimiter.RateLimiter // Optional rate limiter to limit outgoing requests
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 	httpClient := &HttpClient{
-		ApiKey:    config.ApiKey,
-		ApiSecret: config.ApiSecret,
-		client:    config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		ApiKey:      config.ApiKey,
+		ApiSecret:   config.ApiSecret,
+		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
+		rateLimiter: &config.RateLimiter,
 	}
 
 	return httpClient, nil
 }
 
 func (client *HttpClient) request() *resty.Request {
+	if *client.rateLimiter != nil {
+		ctx := context.Background()
+
+		err := (*client.rateLimiter).Wait(ctx)
+		if err != nil {
+			return client.client.R().SetError(err)
+		}
+	}
+
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 

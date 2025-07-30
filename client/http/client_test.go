@@ -2,6 +2,7 @@ package http_test
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -26,58 +27,82 @@ type RequestBody struct {
 	Message string `json:"message"`
 }
 
-const BaseUrl = "https://fake.env0.com"
-const ApiKey = "MY_USER"
-const ApiSecret = "MY_PASS"
-const ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
-const UserAgent = "super-cool-ua"
-const ErrorStatusCode = 500
-const ErrorMessage = "Very bad!"
-
-var httpclient *httpModule.HttpClient
-
-var _ = BeforeSuite(func() {
-	// mock all HTTP requests
-	restClient := resty.New()
-	config := httpModule.HttpClientConfig{
-		ApiKey:      ApiKey,
-		ApiSecret:   ApiSecret,
-		ApiEndpoint: BaseUrl,
-		UserAgent:   UserAgent,
-		RestClient:  restClient,
-	}
-	httpclient, _ = httpModule.NewHttpClient(config)
-	httpmock.ActivateNonDefault(restClient.GetClient())
-})
-
-var _ = BeforeEach(func() {
-	httpmock.Reset()
-})
-
-var _ = AfterSuite(func() {
-	// unmock HTTP requests
-	httpmock.DeactivateAndReset()
-})
-
 func TestHttpClient(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "HTTP Client Tests")
 }
 
 var _ = Describe("Http Client", func() {
-	var httpRequest *http.Request
+	const (
+		BaseUrl           = "https://fake.env0.com"
+		ApiKey            = "MY_USER"
+		ApiSecret         = "MY_PASS"
+		ExpectedBasicAuth = "Basic TVlfVVNFUjpNWV9QQVNT"
+		UserAgent         = "super-cool-ua"
+		ErrorStatusCode   = 500
+		ErrorMessage      = "Very bad!"
+	)
+
+	var (
+		httpRequest *http.Request
+		httpclient  *httpModule.HttpClient
+	)
 
 	mockRequest := RequestBody{
-		Message: "I have a request",
+		Message: "Hello",
 	}
+
 	mockedResponse := ResponseType{
-		Id:   1,
-		Name: "I have a response",
+		Id:   123,
+		Name: "Test",
 	}
+
 	successURI := "/path/to/success"
 	failureURI := "/path/to/failure"
 	successUrl := BaseUrl + successURI
 	failureUrl := BaseUrl + failureURI
+
+	BeforeEach(func() {
+		// Create a new REST client for each test to avoid rate limiter interference
+		restClient := resty.New()
+		httpmock.ActivateNonDefault(restClient.GetClient())
+
+		config := httpModule.HttpClientConfig{
+			ApiKey:      ApiKey,
+			ApiSecret:   ApiSecret,
+			ApiEndpoint: BaseUrl,
+			UserAgent:   UserAgent,
+			RestClient:  restClient,
+		}
+		var err error
+		httpclient, err = httpModule.NewHttpClient(config)
+		Expect(err).To(BeNil())
+
+		httpRequest = nil
+		httpmock.RegisterNoResponder(func(req *http.Request) (*http.Response, error) {
+			httpRequest = req
+
+			return nil, errors.New("No responder found")
+		})
+
+		// Make calls to /path/to/success return 200, and calls to /path/to/failure return 500
+		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
+			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
+				httpRequest = req
+
+				return httpmock.NewJsonResponse(200, mockedResponse)
+			})
+			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
+				httpRequest = req
+
+				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
+			})
+		}
+	})
+
+	AfterEach(func() {
+		httpmock.DeactivateAndReset()
+	})
 
 	AssertAuth := func() {
 		authorization := httpRequest.Header["Authorization"]
@@ -120,23 +145,6 @@ var _ = Describe("Http Client", func() {
 
 		Expect(actualBodyBuffer.String()).To(Equal(string(mockRequestJson)), "Should send payload as HTTP request body")
 	}
-
-	BeforeEach(func() {
-		httpRequest = nil
-		// Make calls to /path/to/success return 200, and calls to /path/to/failure return 500
-		for _, methodType := range []string{"GET", "POST", "PUT", "DELETE"} {
-			httpmock.RegisterResponder(methodType, successUrl, func(req *http.Request) (*http.Response, error) {
-				httpRequest = req
-
-				return httpmock.NewJsonResponse(200, mockedResponse)
-			})
-			httpmock.RegisterResponder(methodType, failureUrl, func(req *http.Request) (*http.Response, error) {
-				httpRequest = req
-
-				return httpmock.NewStringResponse(ErrorStatusCode, ErrorMessage), nil
-			})
-		}
-	})
 
 	Describe("Get", func() {
 		DescribeTable("2XX response",

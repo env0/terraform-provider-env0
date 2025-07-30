@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	DriftRemediationDisabled    = "DISABLED"
-	DriftRemediationCodeToCloud = "CODE_TO_CLOUD"
+	DriftRemediationDisabled         = "DISABLED"
+	DriftRemediationCodeToCloud      = "CODE_TO_CLOUD"
+	DriftRemediationCloudToCode      = "CLOUD_TO_CODE"
+	DriftRemediationSmartRemediation = "SMART_REMEDIATION"
 )
 
 func resourceDriftDetection() *schema.Resource {
@@ -38,12 +40,14 @@ func resourceDriftDetection() *schema.Resource {
 			},
 			"auto_drift_remediation": {
 				Type:        schema.TypeString,
-				Description: "Auto drift remediation setting (DISABLED or CODE_TO_CLOUD). Defaults to DISABLED",
+				Description: "Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION). Defaults to DISABLED",
 				Optional:    true,
 				Default:     DriftRemediationDisabled,
 				ValidateDiagFunc: NewStringInValidator([]string{
 					DriftRemediationDisabled,
 					DriftRemediationCodeToCloud,
+					DriftRemediationCloudToCode,
+					DriftRemediationSmartRemediation,
 				}),
 			},
 		},

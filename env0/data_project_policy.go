@@ -90,7 +90,7 @@ func dataPolicy() *schema.Resource {
 			},
 			"auto_drift_remediation": {
 				Type:        schema.TypeString,
-				Description: "Auto drift remediation setting (DISABLED or CODE_TO_CLOUD)",
+				Description: "Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION)",
 				Computed:    true,
 			},
 		},
