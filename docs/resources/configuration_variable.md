@@ -3,7 +3,7 @@
 page_title: "env0_configuration_variable Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  Note: do not use with an environment resource that has it's configuration variables defined in it's 'configuration' field (see env0_environment_resource -> configuration)
+  Note: do not use with an environment resource that has it's configuration variables defined in it's 'configuration' field (see env0environmentresource -> configuration)
 ---
 
 # env0_configuration_variable (Resource)
