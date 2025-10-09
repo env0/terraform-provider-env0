@@ -17,6 +17,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	var allVCSAttributes = []string{
 		"token_id",
 		"github_installation_id",
+		"vcs_connection_id",
 		"bitbucket_client_key",
 		"is_gitlab_enterprise",
 		"is_bitbucket_server",
@@ -149,6 +150,12 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "the env0 application installation id on the relevant github repository",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("github_installation_id", "path"),
+		},
+		"vcs_connection_id": {
+			Type:          schema.TypeString,
+			Description:   "the VCS connection id to be used",
+			Optional:      true,
+			ConflictsWith: allVCSAttributesBut("vcs_connection_id", "path"),
 		},
 		"token_id": {
 			Type:          schema.TypeString,

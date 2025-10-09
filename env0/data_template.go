@@ -84,6 +84,11 @@ func dataTemplate() *schema.Resource {
 				Description: "The env0 application installation id on the relevant github repository",
 				Computed:    true,
 			},
+			"vcs_connection_id": {
+				Type:        schema.TypeString,
+				Description: "The VCS connection id",
+				Computed:    true,
+			},
 			"token_id": {
 				Type:        schema.TypeString,
 				Description: "The token id used for private git repos or for integration with GitLab",

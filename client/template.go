@@ -51,6 +51,7 @@ type Template struct {
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId" tfschema:",omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
@@ -84,6 +85,7 @@ type TemplateCreatePayload struct {
 	TokenName            string           `json:"tokenName,omitempty"`
 	TokenId              string           `json:"tokenId,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId,omitempty"`
 	Revision             string           `json:"revision"`
 	OrganizationId       string           `json:"organizationId"`
 	TerraformVersion     string           `json:"terraformVersion,omitempty"`
@@ -115,6 +117,7 @@ type TemplateAssignmentToProject struct {
 type VariablesFromRepositoryPayload struct {
 	BitbucketClientKey   string   `json:"bitbucketClientKey,omitempty"`
 	GithubInstallationId int      `json:"githubInstallationId,omitempty"`
+	VcsConnectionId      string   `json:"vcsConnectionId,omitempty"`
 	Path                 string   `json:"path"`
 	Revision             string   `json:"revision"`
 	SshKeyIds            []string `json:"sshKeyIds"`
@@ -125,6 +128,10 @@ type VariablesFromRepositoryPayload struct {
 func (payload *TemplateCreatePayload) Invalidate() error {
 	if payload.OrganizationId != "" {
 		return errors.New("must not specify organizationId")
+	}
+
+	if payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
 	}
 
 	if payload.Type == TERRAGRUNT {
