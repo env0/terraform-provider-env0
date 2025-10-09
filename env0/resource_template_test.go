@@ -497,6 +497,51 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 	}
 
+	vcsConnectionTemplate := client.Template{
+		Id:              "id0-vcs-connection",
+		Name:            "template0",
+		Description:     "description0",
+		Repository:      "env0/repo",
+		Path:            "path/zero",
+		Revision:        "branch-zero",
+		VcsConnectionId: "vcs-conn-123",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "RetryMeForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "RetryMeForDestroy.*",
+			},
+		},
+		Type:             "terraform",
+		TerraformVersion: "0.12.24",
+	}
+	vcsConnectionUpdatedTemplate := client.Template{
+		Id:              vcsConnectionTemplate.Id,
+		Name:            "new-name",
+		Description:     "new-description",
+		Repository:      "env0/repo-new",
+		Path:            "path/zero/new",
+		Revision:        "branch-zero-new",
+		VcsConnectionId: "vcs-conn-456",
+		Retry: client.TemplateRetry{
+			OnDeploy: &client.TemplateRetryOn{
+				Times:      1,
+				ErrorRegex: "NewForDeploy.*",
+			},
+			OnDestroy: &client.TemplateRetryOn{
+				Times:      2,
+				ErrorRegex: "NewForDestroy.*",
+			},
+		},
+		Type:               "terragrunt",
+		TerragruntVersion:  "0.26.1",
+		TerraformVersion:   "0.15.1",
+		TerragruntTfBinary: "terraform",
+	}
+
 	fullTemplateResourceConfig := func(resourceType string, resourceName string, template client.Template) string {
 		templateAsDictionary := map[string]any{
 			"name":       template.Name,
@@ -553,6 +598,10 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		if template.GithubInstallationId != 0 {
 			templateAsDictionary["github_installation_id"] = template.GithubInstallationId
+		}
+
+		if template.VcsConnectionId != "" {
+			templateAsDictionary["vcs_connection_id"] = template.VcsConnectionId
 		}
 
 		if template.IsGitlabEnterprise != false {
@@ -640,6 +689,11 @@ func TestUnitTemplateResource(t *testing.T) {
 			githubInstallationIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id")
 		}
 
+		vcsConnectionIdAssertion := resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", template.VcsConnectionId)
+		if template.VcsConnectionId == "" {
+			vcsConnectionIdAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "vcs_connection_id")
+		}
+
 		pathAssertion := resource.TestCheckResourceAttr(resourceFullName, "path", template.Path)
 		if template.Path == "" {
 			pathAssertion = resource.TestCheckNoResourceAttr(resourceFullName, "path")
@@ -675,6 +729,7 @@ func TestUnitTemplateResource(t *testing.T) {
 			filenameAssertion,
 			terragruntVersionAssertion,
 			githubInstallationIdAssertion,
+			vcsConnectionIdAssertion,
 			helmChartNameAssertion,
 			pathAssertion,
 			opentofuVersionAssertion,
@@ -704,6 +759,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Helm Chart", helmTemplate, helmUpdatedTemplate},
 		{"Opentofu", opentofuTemplate, opentofuUpdatedTemplate},
 		{"Ansible", ansibleTemplate, ansibleUpdatedTemplate},
+		{"VCS Connection", vcsConnectionTemplate, vcsConnectionUpdatedTemplate},
 	}
 
 	for _, templateUseCase := range templateUseCases {
@@ -713,6 +769,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Repository:           templateUseCase.template.Repository,
 				Description:          templateUseCase.template.Description,
 				GithubInstallationId: templateUseCase.template.GithubInstallationId,
+				VcsConnectionId:      templateUseCase.template.VcsConnectionId,
 				IsGitlabEnterprise:   templateUseCase.template.IsGitlabEnterprise,
 				IsGitlab:             templateUseCase.template.IsGitlab,
 				TokenId:              templateUseCase.template.TokenId,
@@ -740,6 +797,7 @@ func TestUnitTemplateResource(t *testing.T) {
 				Repository:           templateUseCase.updatedTemplate.Repository,
 				Description:          templateUseCase.updatedTemplate.Description,
 				GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId,
+				VcsConnectionId:      templateUseCase.updatedTemplate.VcsConnectionId,
 				IsGitlabEnterprise:   templateUseCase.updatedTemplate.IsGitlabEnterprise,
 				IsGitlab:             templateUseCase.updatedTemplate.IsGitlab,
 				TokenId:              templateUseCase.updatedTemplate.TokenId,
@@ -1059,6 +1117,8 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"GitHub", "Bitbucket", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with github_installation_id"},
 		{"GitLab", "Bitbucket", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "token_id": "2", "bitbucket_client_key": "3"}, "\"bitbucket_client_key\": conflicts with token_id"},
 		{"GitLab EE", "GitHub EE", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "is_gitlab_enterprise": "true", "is_github_enterprise": "true"}, "\"is_github_enterprise\": conflicts with is_gitlab_enterprise"},
+		{"GitHub", "VCS Connection", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "github_installation_id": 1, "vcs_connection_id": "vcs-123"}, "\"github_installation_id\": conflicts with vcs_connection_id"},
+		{"VCS Connection", "GitLab", map[string]any{"name": "test", "type": testType, "repository": "env0/test", "vcs_connection_id": "vcs-123", "token_id": "2"}, "\"token_id\": conflicts with vcs_connection_id"},
 	}
 
 	for _, mixUseCase := range mixedUsecases {
@@ -1526,6 +1586,26 @@ func TestUnitTemplateResource(t *testing.T) {
 						"type":       "ansible",
 					}),
 					ExpectError: regexp.MustCompile("'ansible_version' is required"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":                   "template",
+						"repository":             "env0/repo",
+						"type":                   "terraform",
+						"terraform_version":      "0.15.1",
+						"github_installation_id": 123,
+						"vcs_connection_id":      "vcs-conn-456",
+					}),
+					ExpectError: regexp.MustCompile("conflicts with"),
 				},
 			},
 		}
