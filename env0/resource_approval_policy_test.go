@@ -484,4 +484,126 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("Success with vcs_connection_id", func(t *testing.T) {
+		vcsApprovalPolicy := client.ApprovalPolicy{
+			Id:              uuid.NewString(),
+			Name:            "name",
+			Repository:      "repository",
+			Path:            "path",
+			Revision:        "revision",
+			VcsConnectionId: "vcs-conn-123",
+		}
+
+		var vcsTemplate client.Template
+		require.NoError(t, copier.Copy(&vcsTemplate, &vcsApprovalPolicy))
+		vcsTemplate.Type = string(ApprovalPolicy)
+
+		vcsCreatePayload := client.ApprovalPolicyCreatePayload{
+			Name:            vcsApprovalPolicy.Name,
+			Repository:      vcsApprovalPolicy.Repository,
+			Path:            vcsApprovalPolicy.Path,
+			Revision:        vcsApprovalPolicy.Revision,
+			VcsConnectionId: vcsApprovalPolicy.VcsConnectionId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              vcsApprovalPolicy.Name,
+						"repository":        vcsApprovalPolicy.Repository,
+						"path":              vcsApprovalPolicy.Path,
+						"revision":          vcsApprovalPolicy.Revision,
+						"vcs_connection_id": vcsApprovalPolicy.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsApprovalPolicy.Id),
+						resource.TestCheckResourceAttr(accessor, "name", vcsApprovalPolicy.Name),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", vcsApprovalPolicy.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApprovalPolicyCreate(&vcsCreatePayload).Times(1).Return(&vcsApprovalPolicy, nil),
+				mock.EXPECT().Template(vcsApprovalPolicy.Id).Times(1).Return(vcsTemplate, nil),
+				mock.EXPECT().TemplateDelete(vcsApprovalPolicy.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("vcs_connection_id ignores github_installation_id from backend to avoid drift", func(t *testing.T) {
+		vcsApprovalPolicy := client.ApprovalPolicy{
+			Id:              uuid.NewString(),
+			Name:            "name",
+			Repository:      "repository",
+			VcsConnectionId: "vcs-conn-123",
+		}
+
+		vcsApprovalPolicyFromBackend := client.ApprovalPolicy{
+			Id:                   vcsApprovalPolicy.Id,
+			Name:                 vcsApprovalPolicy.Name,
+			Repository:           vcsApprovalPolicy.Repository,
+			VcsConnectionId:      vcsApprovalPolicy.VcsConnectionId,
+			GithubInstallationId: 456,
+		}
+
+		var vcsTemplate client.Template
+		require.NoError(t, copier.Copy(&vcsTemplate, &vcsApprovalPolicyFromBackend))
+		vcsTemplate.Type = string(ApprovalPolicy)
+
+		vcsCreatePayload := client.ApprovalPolicyCreatePayload{
+			Name:            vcsApprovalPolicy.Name,
+			Repository:      vcsApprovalPolicy.Repository,
+			VcsConnectionId: vcsApprovalPolicy.VcsConnectionId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              vcsApprovalPolicy.Name,
+						"repository":        vcsApprovalPolicy.Repository,
+						"vcs_connection_id": vcsApprovalPolicy.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsApprovalPolicy.Id),
+						resource.TestCheckResourceAttr(accessor, "name", vcsApprovalPolicy.Name),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", vcsApprovalPolicy.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ApprovalPolicyCreate(&vcsCreatePayload).Times(1).Return(&vcsApprovalPolicy, nil),
+				mock.EXPECT().Template(vcsApprovalPolicy.Id).Times(1).Return(vcsTemplate, nil),
+				mock.EXPECT().TemplateDelete(vcsApprovalPolicy.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":                   "test",
+						"repository":             "env0/repo",
+						"github_installation_id": 123,
+						"vcs_connection_id":      "vcs-conn-456",
+					}),
+					ExpectError: regexp.MustCompile("conflicts with"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }
