@@ -581,4 +581,127 @@ func TestUnitModuleResource(t *testing.T) {
 			mock.EXPECT().ModuleDelete(module.Id).Times(1)
 		})
 	})
+
+	t.Run("Success with vcs_connection_id", func(t *testing.T) {
+		vcsModule := client.Module{
+			ModuleName:      "vcs-module",
+			ModuleProvider:  "provider1",
+			Repository:      "repository1",
+			Description:     "description1",
+			VcsConnectionId: stringPtr("vcs-conn-123"),
+			OrganizationId:  "org1",
+			Author:          author,
+			AuthorId:        "author1",
+			Id:              uuid.NewString(),
+			Path:            "path1",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":       vcsModule.ModuleName,
+						"module_provider":   vcsModule.ModuleProvider,
+						"repository":        vcsModule.Repository,
+						"description":       vcsModule.Description,
+						"vcs_connection_id": *vcsModule.VcsConnectionId,
+						"path":              vcsModule.Path,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsModule.Id),
+						resource.TestCheckResourceAttr(accessor, "module_name", vcsModule.ModuleName),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", *vcsModule.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:      vcsModule.ModuleName,
+				ModuleProvider:  vcsModule.ModuleProvider,
+				Repository:      vcsModule.Repository,
+				Description:     vcsModule.Description,
+				VcsConnectionId: *vcsModule.VcsConnectionId,
+				Path:            vcsModule.Path,
+			}).Times(1).Return(&vcsModule, nil)
+			mock.EXPECT().Module(vcsModule.Id).Times(1).Return(&vcsModule, nil)
+			mock.EXPECT().ModuleDelete(vcsModule.Id).Times(1)
+		})
+	})
+
+	t.Run("vcs_connection_id ignores github_installation_id from backend to avoid drift", func(t *testing.T) {
+		vcsModule := client.Module{
+			ModuleName:      "vcs-module",
+			ModuleProvider:  "provider1",
+			Repository:      "repository1",
+			VcsConnectionId: stringPtr("vcs-conn-123"),
+			OrganizationId:  "org1",
+			Author:          author,
+			AuthorId:        "author1",
+			Id:              uuid.NewString(),
+		}
+
+		vcsModuleFromBackend := client.Module{
+			ModuleName:           vcsModule.ModuleName,
+			ModuleProvider:       vcsModule.ModuleProvider,
+			Repository:           vcsModule.Repository,
+			VcsConnectionId:      vcsModule.VcsConnectionId,
+			GithubInstallationId: intPtr(456),
+			OrganizationId:       vcsModule.OrganizationId,
+			Author:               vcsModule.Author,
+			AuthorId:             vcsModule.AuthorId,
+			Id:                   vcsModule.Id,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":       vcsModule.ModuleName,
+						"module_provider":   vcsModule.ModuleProvider,
+						"repository":        vcsModule.Repository,
+						"vcs_connection_id": *vcsModule.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsModule.Id),
+						resource.TestCheckResourceAttr(accessor, "module_name", vcsModule.ModuleName),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", *vcsModule.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:      vcsModule.ModuleName,
+				ModuleProvider:  vcsModule.ModuleProvider,
+				Repository:      vcsModule.Repository,
+				VcsConnectionId: *vcsModule.VcsConnectionId,
+			}).Times(1).Return(&vcsModule, nil)
+			mock.EXPECT().Module(vcsModule.Id).Times(1).Return(&vcsModuleFromBackend, nil)
+			mock.EXPECT().ModuleDelete(vcsModule.Id).Times(1)
+		})
+	})
+
+	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":            "module",
+						"module_provider":        "provider1",
+						"repository":             "repo",
+						"github_installation_id": 123,
+						"vcs_connection_id":      "vcs-conn-456",
+					}),
+					ExpectError: regexp.MustCompile("conflicts with"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }

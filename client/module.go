@@ -1,5 +1,7 @@
 package client
 
+import "errors"
+
 type ModuleSshKey struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -14,6 +16,7 @@ type Module struct {
 	TokenId               string         `json:"tokenId"`
 	TokenName             string         `json:"tokenName"`
 	GithubInstallationId  *int           `json:"githubInstallationId" tfschema:",omitempty"`
+	VcsConnectionId       *string        `json:"vcsConnectionId" tfschema:",omitempty"`
 	BitbucketClientKey    *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
@@ -45,6 +48,7 @@ type ModuleCreatePayload struct {
 	TokenId               string         `json:"tokenId,omitempty"`
 	TokenName             string         `json:"tokenName,omitempty"`
 	GithubInstallationId  *int           `json:"githubInstallationId,omitempty"`
+	VcsConnectionId       string         `json:"vcsConnectionId,omitempty"`
 	BitbucketClientKey    string         `json:"bitbucketClientKey,omitempty"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
@@ -57,6 +61,14 @@ type ModuleCreatePayload struct {
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
 	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+}
+
+func (payload *ModuleCreatePayload) Invalidate() error {
+	if payload.GithubInstallationId != nil && *payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
+	}
+
+	return nil
 }
 
 type ModuleCreatePayloadWith struct {
@@ -74,6 +86,7 @@ type ModuleUpdatePayload struct {
 	TokenId               string         `json:"tokenId"`
 	TokenName             string         `json:"tokenName"`
 	GithubInstallationId  *int           `json:"githubInstallationId"`
+	VcsConnectionId       string         `json:"vcsConnectionId"`
 	BitbucketClientKey    string         `json:"bitbucketClientKey"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
@@ -86,6 +99,14 @@ type ModuleUpdatePayload struct {
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
 	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+}
+
+func (payload *ModuleUpdatePayload) Invalidate() error {
+	if payload.GithubInstallationId != nil && *payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
+	}
+
+	return nil
 }
 
 func (client *ApiClient) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {
