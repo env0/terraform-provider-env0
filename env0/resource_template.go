@@ -430,10 +430,12 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
 	pathPrefix := "path"
 	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
+	vcsConnectionIdPrefix := "vcs_connection_id"
 
 	if prefix != "" {
 		terragruntTfBinaryPrefix = prefix + ".0." + terragruntTfBinaryPrefix
 		pathPrefix = prefix + ".0." + pathPrefix
+		vcsConnectionIdPrefix = prefix + ".0." + vcsConnectionIdPrefix
 	}
 
 	path, pathOk := d.GetOk(pathPrefix)
@@ -445,6 +447,13 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 		if !terragruntTfBinaryOk || terragruntTfBinary.(string) == "" {
 			template.TerragruntTfBinary = ""
 		}
+	}
+
+	// This is done to avoid drifts when vcs_connection_id is used. The backend automatically populates
+	// github_installation_id from the vcs_connection_id, but we don't want this to appear as a drift.
+	_, vcsConnectionIdOk := d.GetOk(vcsConnectionIdPrefix)
+	if vcsConnectionIdOk {
+		template.GithubInstallationId = 0
 	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {

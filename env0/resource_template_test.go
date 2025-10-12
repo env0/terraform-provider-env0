@@ -1612,4 +1612,57 @@ func TestUnitTemplateResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
+
+	t.Run("vcs_connection_id ignores github_installation_id from backend to avoid drift", func(t *testing.T) {
+		template := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		templateFromBackend := client.Template{
+			Id:                   "id0",
+			Name:                 "template0",
+			Repository:           "env0/repo",
+			VcsConnectionId:      "vcs-conn-123",
+			GithubInstallationId: 456,
+			Type:                 "terraform",
+			TerraformVersion:     "0.15.1",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"terraform_version": "0.15.1",
+						"vcs_connection_id": "vcs-conn-123",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", template.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", "vcs-conn-123"),
+						resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             template.Name,
+				Repository:       template.Repository,
+				Type:             template.Type,
+				VcsConnectionId:  "vcs-conn-123",
+				TerraformVersion: "0.15.1",
+			}).Times(1).Return(template, nil)
+			mock.EXPECT().Template(template.Id).Times(1).Return(templateFromBackend, nil)
+			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+		})
+	})
 }
