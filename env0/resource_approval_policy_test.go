@@ -496,6 +496,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		var vcsTemplate client.Template
+
 		require.NoError(t, copier.Copy(&vcsTemplate, &vcsApprovalPolicy))
 		vcsTemplate.Type = string(ApprovalPolicy)
 
@@ -553,6 +554,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		var vcsTemplate client.Template
+
 		require.NoError(t, copier.Copy(&vcsTemplate, &vcsApprovalPolicyFromBackend))
 		vcsTemplate.Type = string(ApprovalPolicy)
 
