@@ -32,6 +32,10 @@ func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if err := payload.Invalidate(); err != nil {
+		return diag.FromErr(err)
+	}
+
 	approvalPolicy, err := apiClient.ApprovalPolicyCreate(&payload)
 	if err != nil {
 		return diag.Errorf("failed to create approval policy: %v", err)
@@ -55,6 +59,11 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 		d.SetId("")
 
 		return nil
+	}
+
+	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
+	if vcsConnectionIdOk {
+		approvalPolicy.GithubInstallationId = 0
 	}
 
 	if err := writeResourceData(&approvalPolicy, d); err != nil {

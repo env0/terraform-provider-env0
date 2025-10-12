@@ -1,6 +1,9 @@
 package client
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ApprovalPolicy struct {
 	Id                   string           `json:"id"`
@@ -11,6 +14,7 @@ type ApprovalPolicy struct {
 	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId" tfschema:",omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
@@ -33,6 +37,7 @@ type ApprovalPolicyCreatePayload struct {
 	Path                 string `json:"path,omitempty"`
 	TokenId              string `json:"tokenId,omitempty"`
 	GithubInstallationId int    `json:"githubInstallationId,omitempty"`
+	VcsConnectionId      string `json:"vcsConnectionId,omitempty"`
 	BitbucketClientKey   string `json:"bitbucketClientKey,omitempty"`
 	IsBitbucketServer    bool   `json:"isBitbucketServer,omitempty"`
 	IsGitlabEnterprise   bool   `json:"isGitLabEnterprise"`
@@ -49,6 +54,7 @@ type ApprovalPolicyUpdatePayload struct {
 	Path                 string `json:"path,omitempty"`
 	TokenId              string `json:"tokenId,omitempty"`
 	GithubInstallationId int    `json:"githubInstallationId,omitempty"`
+	VcsConnectionId      string `json:"vcsConnectionId,omitempty"`
 	BitbucketClientKey   string `json:"bitbucketClientKey,omitempty"`
 	IsBitbucketServer    bool   `json:"isBitbucketServer,omitempty"`
 	IsGitlabEnterprise   bool   `json:"isGitLabEnterprise"`
@@ -66,6 +72,14 @@ type ApprovalPolicyAssignment struct {
 	Scope       string `json:"scope"`
 	ScopeId     string `json:"scopeId"`
 	BlueprintId string `json:"blueprintId"`
+}
+
+func (payload *ApprovalPolicyCreatePayload) Invalidate() error {
+	if payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
+	}
+
+	return nil
 }
 
 func (client *ApiClient) ApprovalPolicyCreate(payload *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {

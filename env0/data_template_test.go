@@ -95,4 +95,37 @@ func TestUnitTemplateData(t *testing.T) {
 				mock.EXPECT().Templates().AnyTimes().Return([]client.Template{template, deletedTemplate}, nil)
 			})
 	})
+
+	t.Run("Template with VCS Connection ID", func(t *testing.T) {
+		vcsTemplate := client.Template{
+			Id:               "id1",
+			Name:             "vcs-template",
+			Repository:       "repository",
+			Path:             "path",
+			Revision:         "revision",
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+			Retry:            templateRetry,
+			ProjectIds:       []string{"pId1"},
+			VcsConnectionId:  "vcs-conn-123",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": vcsTemplate.Id}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "id", vcsTemplate.Id),
+						resource.TestCheckResourceAttr(resourceFullName, "name", vcsTemplate.Name),
+						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", vcsTemplate.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Template(vcsTemplate.Id).AnyTimes().Return(vcsTemplate, nil)
+		})
+	})
 }

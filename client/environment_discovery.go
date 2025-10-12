@@ -1,5 +1,7 @@
 package client
 
+import "errors"
+
 type EnvironmentDiscoveryPutPayload struct {
 	GlobPattern                           string           `json:"globPattern"`
 	EnvironmentPlacement                  string           `json:"environmentPlacement"`
@@ -15,6 +17,7 @@ type EnvironmentDiscoveryPutPayload struct {
 	TokenId                               string           `json:"tokenId,omitempty"`
 	SshKeys                               []TemplateSshKey `json:"sshKeys,omitempty"`
 	GithubInstallationId                  int              `json:"githubInstallationId,omitempty"`
+	VcsConnectionId                       string           `json:"vcsConnectionId,omitempty"`
 	BitbucketClientKey                    string           `json:"bitbucketClientKey,omitempty"`
 	IsAzureDevops                         bool             `json:"isAzureDevOps"`
 	IsBitbucketServer                     bool             `json:"isBitbucketServer"`
@@ -23,6 +26,14 @@ type EnvironmentDiscoveryPutPayload struct {
 	Retry                                 TemplateRetry    `json:"retry"`
 	RootPath                              string           `json:"rootPath"`
 	CreateNewEnvironmentsFromPullRequests bool             `json:"createNewEnvironmentsFromPullRequests"`
+}
+
+func (payload *EnvironmentDiscoveryPutPayload) Invalidate() error {
+	if payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
+	}
+
+	return nil
 }
 
 type EnvironmentDiscoveryPayload struct {
@@ -41,6 +52,7 @@ type EnvironmentDiscoveryPayload struct {
 	TokenId                               string           `json:"tokenId"`
 	SshKeys                               []TemplateSshKey `json:"sshKeys" tfschema:"-"`
 	GithubInstallationId                  int              `json:"githubInstallationId"`
+	VcsConnectionId                       string           `json:"vcsConnectionId" tfschema:",omitempty"`
 	BitbucketClientKey                    string           `json:"bitbucketClientKey"`
 	IsAzureDevops                         bool             `json:"isAzureDevOps"`
 	IsBitbucketServer                     bool             `json:"isBitbucketServer"`

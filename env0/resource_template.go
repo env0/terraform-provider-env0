@@ -17,6 +17,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 	var allVCSAttributes = []string{
 		"token_id",
 		"github_installation_id",
+		"vcs_connection_id",
 		"bitbucket_client_key",
 		"is_gitlab_enterprise",
 		"is_bitbucket_server",
@@ -149,6 +150,12 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "the env0 application installation id on the relevant github repository",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("github_installation_id", "path"),
+		},
+		"vcs_connection_id": {
+			Type:          schema.TypeString,
+			Description:   "the VCS connection id to be used",
+			Optional:      true,
+			ConflictsWith: allVCSAttributesBut("vcs_connection_id", "path"),
 		},
 		"token_id": {
 			Type:          schema.TypeString,
@@ -423,10 +430,12 @@ func templateCreatePayloadFromParameters(prefix string, d *schema.ResourceData) 
 func templateRead(prefix string, template client.Template, d *schema.ResourceData) error {
 	pathPrefix := "path"
 	terragruntTfBinaryPrefix := "terragrunt_tf_binary"
+	vcsConnectionIdPrefix := "vcs_connection_id"
 
 	if prefix != "" {
 		terragruntTfBinaryPrefix = prefix + ".0." + terragruntTfBinaryPrefix
 		pathPrefix = prefix + ".0." + pathPrefix
+		vcsConnectionIdPrefix = prefix + ".0." + vcsConnectionIdPrefix
 	}
 
 	path, pathOk := d.GetOk(pathPrefix)
@@ -438,6 +447,13 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 		if !terragruntTfBinaryOk || terragruntTfBinary.(string) == "" {
 			template.TerragruntTfBinary = ""
 		}
+	}
+
+	// This is done to avoid drifts when vcs_connection_id is used. The backend automatically populates
+	// github_installation_id from the vcs_connection_id, but we don't want this to appear as a drift.
+	_, vcsConnectionIdOk := d.GetOk(vcsConnectionIdPrefix)
+	if vcsConnectionIdOk {
+		template.GithubInstallationId = 0
 	}
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {

@@ -835,4 +835,135 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("Success with vcs_connection_id", func(t *testing.T) {
+		putPayload := client.EnvironmentDiscoveryPutPayload{
+			GlobPattern:          "**",
+			Repository:           "https://re.po",
+			Type:                 "opentofu",
+			EnvironmentPlacement: "topProject",
+			WorkspaceNaming:      "default",
+			OpentofuVersion:      "1.6.2",
+			VcsConnectionId:      "vcs-conn-123",
+		}
+
+		getPayload := client.EnvironmentDiscoveryPayload{
+			Id:                   id,
+			GlobPattern:          putPayload.GlobPattern,
+			Repository:           putPayload.Repository,
+			Type:                 putPayload.Type,
+			EnvironmentPlacement: putPayload.EnvironmentPlacement,
+			WorkspaceNaming:      putPayload.WorkspaceNaming,
+			OpentofuVersion:      putPayload.OpentofuVersion,
+			VcsConnectionId:      putPayload.VcsConnectionId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":        projectId,
+						"glob_pattern":      putPayload.GlobPattern,
+						"repository":        putPayload.Repository,
+						"opentofu_version":  putPayload.OpentofuVersion,
+						"vcs_connection_id": putPayload.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "glob_pattern", putPayload.GlobPattern),
+						resource.TestCheckResourceAttr(accessor, "repository", putPayload.Repository),
+						resource.TestCheckResourceAttr(accessor, "type", putPayload.Type),
+						resource.TestCheckResourceAttr(accessor, "environment_placement", putPayload.EnvironmentPlacement),
+						resource.TestCheckResourceAttr(accessor, "workspace_naming", putPayload.WorkspaceNaming),
+						resource.TestCheckResourceAttr(accessor, "opentofu_version", putPayload.OpentofuVersion),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", putPayload.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("vcs_connection_id ignores github_installation_id from backend to avoid drift", func(t *testing.T) {
+		putPayload := client.EnvironmentDiscoveryPutPayload{
+			GlobPattern:          "**",
+			Repository:           "https://re.po",
+			Type:                 "terraform",
+			EnvironmentPlacement: "topProject",
+			WorkspaceNaming:      "default",
+			TerraformVersion:     "1.6.2",
+			VcsConnectionId:      "vcs-conn-123",
+		}
+
+		getPayload := client.EnvironmentDiscoveryPayload{
+			Id:                   id,
+			GlobPattern:          putPayload.GlobPattern,
+			Repository:           putPayload.Repository,
+			Type:                 putPayload.Type,
+			EnvironmentPlacement: putPayload.EnvironmentPlacement,
+			WorkspaceNaming:      putPayload.WorkspaceNaming,
+			TerraformVersion:     putPayload.TerraformVersion,
+			VcsConnectionId:      putPayload.VcsConnectionId,
+			GithubInstallationId: 456,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":        projectId,
+						"glob_pattern":      putPayload.GlobPattern,
+						"repository":        putPayload.Repository,
+						"type":              putPayload.Type,
+						"terraform_version": putPayload.TerraformVersion,
+						"vcs_connection_id": putPayload.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "glob_pattern", putPayload.GlobPattern),
+						resource.TestCheckResourceAttr(accessor, "repository", putPayload.Repository),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", putPayload.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":             projectId,
+						"glob_pattern":           "**",
+						"repository":             "https://re.po",
+						"type":                   "terraform",
+						"terraform_version":      "1.6.2",
+						"github_installation_id": 123,
+						"vcs_connection_id":      "vcs-conn-456",
+					}),
+					ExpectError: regexp.MustCompile("mutually exclusive"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }

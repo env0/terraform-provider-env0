@@ -136,6 +136,11 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Description: "github repository id",
 				Optional:    true,
 			},
+			"vcs_connection_id": {
+				Type:        schema.TypeString,
+				Description: "the VCS connection id to be used",
+				Optional:    true,
+			},
 			"bitbucket_client_key": {
 				Type:        schema.TypeString,
 				Description: "bitbucket client",
@@ -256,6 +261,10 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if err := putPayload.Invalidate(); err != nil {
+		return diag.Errorf("invalid environment discovery payload: %v", err)
+	}
+
 	discoveryReadSshKeyHelper(&putPayload, d)
 
 	templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
@@ -266,7 +275,6 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 	}
 
 	if putPayload.Type != client.TERRAGRUNT {
-		// Remove the default terragrunt_tf_binary if terragrunt isn't used.
 		putPayload.TerragruntTfBinary = ""
 	}
 
@@ -313,6 +321,11 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 	getPayload, err := apiClient.GetEnvironmentDiscovery(projectId)
 	if err != nil {
 		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
+	}
+
+	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
+	if vcsConnectionIdOk {
+		getPayload.GithubInstallationId = 0
 	}
 
 	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {

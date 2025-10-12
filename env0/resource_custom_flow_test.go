@@ -241,4 +241,114 @@ func TestUnitCustomFlowResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("Success with vcs_connection_id", func(t *testing.T) {
+		vcsCustomFlow := client.CustomFlow{
+			Id:              uuid.NewString(),
+			Name:            "vcs-custom-flow",
+			Repository:      "repository",
+			Path:            "path",
+			Revision:        "revision",
+			VcsConnectionId: "vcs-conn-123",
+		}
+
+		vcsCreatePayload := client.CustomFlowCreatePayload{
+			Name:            vcsCustomFlow.Name,
+			Repository:      vcsCustomFlow.Repository,
+			Path:            vcsCustomFlow.Path,
+			Revision:        vcsCustomFlow.Revision,
+			VcsConnectionId: vcsCustomFlow.VcsConnectionId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              vcsCustomFlow.Name,
+						"repository":        vcsCustomFlow.Repository,
+						"path":              vcsCustomFlow.Path,
+						"revision":          vcsCustomFlow.Revision,
+						"vcs_connection_id": vcsCustomFlow.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsCustomFlow.Id),
+						resource.TestCheckResourceAttr(accessor, "name", vcsCustomFlow.Name),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", vcsCustomFlow.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().CustomFlowCreate(vcsCreatePayload).Times(1).Return(&vcsCustomFlow, nil)
+			mock.EXPECT().CustomFlow(vcsCustomFlow.Id).Times(1).Return(&vcsCustomFlow, nil)
+			mock.EXPECT().CustomFlowDelete(vcsCustomFlow.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("vcs_connection_id ignores github_installation_id from backend to avoid drift", func(t *testing.T) {
+		vcsCustomFlow := client.CustomFlow{
+			Id:              uuid.NewString(),
+			Name:            "vcs-custom-flow",
+			Repository:      "repository",
+			VcsConnectionId: "vcs-conn-123",
+		}
+
+		vcsCustomFlowFromBackend := client.CustomFlow{
+			Id:                   vcsCustomFlow.Id,
+			Name:                 vcsCustomFlow.Name,
+			Repository:           vcsCustomFlow.Repository,
+			VcsConnectionId:      vcsCustomFlow.VcsConnectionId,
+			GithubInstallationId: 456,
+		}
+
+		vcsCreatePayload := client.CustomFlowCreatePayload{
+			Name:            vcsCustomFlow.Name,
+			Repository:      vcsCustomFlow.Repository,
+			VcsConnectionId: vcsCustomFlow.VcsConnectionId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              vcsCustomFlow.Name,
+						"repository":        vcsCustomFlow.Repository,
+						"vcs_connection_id": vcsCustomFlow.VcsConnectionId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", vcsCustomFlow.Id),
+						resource.TestCheckResourceAttr(accessor, "name", vcsCustomFlow.Name),
+						resource.TestCheckResourceAttr(accessor, "vcs_connection_id", vcsCustomFlow.VcsConnectionId),
+						resource.TestCheckNoResourceAttr(accessor, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().CustomFlowCreate(vcsCreatePayload).Times(1).Return(&vcsCustomFlow, nil)
+			mock.EXPECT().CustomFlow(vcsCustomFlow.Id).Times(1).Return(&vcsCustomFlowFromBackend, nil)
+			mock.EXPECT().CustomFlowDelete(vcsCustomFlow.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":                   "custom-flow",
+						"repository":             "repo",
+						"github_installation_id": 123,
+						"vcs_connection_id":      "vcs-conn-456",
+					}),
+					ExpectError: regexp.MustCompile("conflicts with"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
 }

@@ -79,13 +79,19 @@ func resourceModule() *schema.Resource {
 				Type:          schema.TypeInt,
 				Description:   "the env0 application installation id on the relevant Github repository",
 				Optional:      true,
-				ConflictsWith: []string{"token_id", "bitbucket_client_key"},
+				ConflictsWith: []string{"token_id", "bitbucket_client_key", "vcs_connection_id"},
+			},
+			"vcs_connection_id": {
+				Type:          schema.TypeString,
+				Description:   "the VCS connection id to be used",
+				Optional:      true,
+				ConflictsWith: []string{"token_id", "bitbucket_client_key", "github_installation_id"},
 			},
 			"bitbucket_client_key": {
 				Type:          schema.TypeString,
 				Description:   "the client key used for integration with Bitbucket",
 				Optional:      true,
-				ConflictsWith: []string{"token_id", "github_installation_id"},
+				ConflictsWith: []string{"token_id", "github_installation_id", "vcs_connection_id"},
 			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
@@ -174,6 +180,10 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta any)
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if err := payload.Invalidate(); err != nil {
+		return diag.Errorf("invalid module payload: %v", err)
+	}
+
 	if !payload.ModuleTestEnabled && (payload.RunTestsOnPullRequest || payload.OpentofuVersion != "") {
 		return diag.Errorf("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set if 'module_test_enabled' is enabled (set to 'true')")
 	}
@@ -203,6 +213,11 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta any) d
 		return nil
 	}
 
+	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
+	if vcsConnectionIdOk {
+		module.GithubInstallationId = nil
+	}
+
 	if err := writeResourceData(module, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
@@ -216,6 +231,10 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta any)
 	var payload client.ModuleUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if err := payload.Invalidate(); err != nil {
+		return diag.Errorf("invalid module payload: %v", err)
 	}
 
 	if !payload.ModuleTestEnabled && (payload.RunTestsOnPullRequest || payload.OpentofuVersion != "") {

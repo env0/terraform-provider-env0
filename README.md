@@ -73,6 +73,7 @@ To create an `env0_template` or a VCS `env0_environment` resources a user must p
 2. `bitbucket_client_key` for Bitbucket
 3. `gitlab_project_id` + `token_id` for Gitlab
 4. `token_id` for Azure DevOps
+5. `vcs_connection_id` for an already existing VCS connection (created in env0)
 
 To get those credentials in the provider you must first create a "master" environment via the `env0` app, then just fetch the corresponding `env0_environment` data source and use the relevant credentials:
 

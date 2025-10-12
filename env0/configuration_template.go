@@ -65,9 +65,16 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 			Optional:    true,
 		},
 		"github_installation_id": {
-			Type:        schema.TypeInt,
-			Description: "the env0 application installation id on the relevant github repository",
-			Optional:    true,
+			Type:          schema.TypeInt,
+			Description:   "the env0 application installation id on the relevant github repository",
+			Optional:      true,
+			ConflictsWith: []string{"vcs_connection_id"},
+		},
+		"vcs_connection_id": {
+			Type:          schema.TypeString,
+			Description:   "the VCS connection id to be used",
+			Optional:      true,
+			ConflictsWith: []string{"github_installation_id"},
 		},
 		"bitbucket_client_key": {
 			Type:        schema.TypeString,
