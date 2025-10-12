@@ -49,6 +49,7 @@ data "env0_template" "example" {
 - `token_id` (String) The token id used for private git repos or for integration with GitLab
 - `token_name` (String) the token name used for integration with GitLab
 - `type` (String) the template type
+- `vcs_connection_id` (String) The VCS connection id
 
 <a id="nestedatt--ssh_keys"></a>
 ### Nested Schema for `ssh_keys`

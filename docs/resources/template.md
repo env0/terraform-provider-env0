@@ -37,15 +37,6 @@ resource "env0_template" "example_github_installation_id" {
   github_installation_id = 12223344
 }
 
-resource "env0_template" "example_vcs_connection" {
-  name              = "example"
-  description       = "Example template with VCS connection"
-  repository        = "https://github.com/env0/templates"
-  terraform_version = "1.1.9"
-  type              = "terraform"
-  vcs_connection_id = "vcs-conn-id-123"
-}
-
 resource "env0_template" "example_terragrunt" {
   name               = "example - Terragrunt"
   description        = "Example template with Terragrunt version"
@@ -77,9 +68,8 @@ resource "env0_template_project_assignment" "assignment" {
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
 - `description` (String) description for the template
 - `file_name` (String) the cloudformation file name. Required if the template type is cloudformation
-- `github_installation_id` (Number) the env0 application installation id on the relevant github repository.
+- `github_installation_id` (Number) the env0 application installation id on the relevant github repository
 - `gitlab_project_id` (Number, Deprecated) the project id of the relevant repository (deprecated)
-- `vcs_connection_id` (String) the VCS connection id to be used (for an already existing VCS connection created in env0). Conflicts with `github_installation_id`
 - `helm_chart_name` (String) the helm chart name. Required if is_helm_repository is set to 'true'
 - `is_azure_devops` (Boolean) true if this template integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this template uses bitbucket server repository
@@ -101,6 +91,7 @@ resource "env0_template_project_assignment" "assignment" {
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
+- `vcs_connection_id` (String) the VCS connection id to be used
 
 ### Read-Only
 
