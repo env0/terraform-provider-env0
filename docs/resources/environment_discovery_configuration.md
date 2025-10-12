@@ -85,6 +85,7 @@ resource "env0_environment_discovery_configuration" "vcs_example" {
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.52.0)
 - `token_id` (String) a token id to be used with 'gitlab' or 'azure_devops'
 - `type` (String) the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')
+- `vcs_connection_id` (String) the VCS connection id to be used
 - `workspace_naming` (String) the Workspace namimg strategy (default: 'default')
 
 ### Read-Only

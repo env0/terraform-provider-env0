@@ -60,6 +60,7 @@ resource "env0_approval_policy_assignment" "assignment" {
 - `revision` (String) source code revision (branch / tag) to use
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - `token_id` (String) the git token id to be used
+- `vcs_connection_id` (String) the VCS connection id to be used
 
 ### Read-Only
 

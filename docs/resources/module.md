@@ -57,6 +57,7 @@ resource "env0_module" "example_vcs_connection" {
 - `tag_prefix` (String) a tag prefix for the module
 - `token_id` (String) the git token id to be used
 - `token_name` (String) the token name used for integration with GitLab
+- `vcs_connection_id` (String) the VCS connection id to be used
 
 ### Read-Only
 

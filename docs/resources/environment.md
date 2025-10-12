@@ -192,6 +192,7 @@ Optional:
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String) the git token id to be used
 - `token_name` (String) token name for Gitlab
+- `vcs_connection_id` (String) the VCS connection id to be used
 
 Read-Only:
 
