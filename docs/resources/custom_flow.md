@@ -24,6 +24,12 @@ resource "env0_custom_flow" "custom_flow" {
   path                   = "custom-flows/my-custom-flow.yaml"
 }
 
+resource "env0_custom_flow" "vcs_custom_flow" {
+  name              = "VCS Custom Flow"
+  repository        = "https://github.com/myorg/myrepo"
+  path              = "custom-flows/my-custom-flow.yaml"
+  vcs_connection_id = "vcs-conn-id-123" // Using an existing VCS connection
+}
 
 // Self Hosted VCS
 resource "env0_custom_flow" "ghe_custom_flow" {
@@ -46,8 +52,9 @@ resource "env0_custom_flow" "ghe_custom_flow" {
 ### Optional
 
 - `bitbucket_client_key` (String) the bitbucket client key used for integration
-- `github_installation_id` (Number) the env0 application installation id on the relevant github repository
+- `github_installation_id` (Number) the env0 application installation id on the relevant github repository.
 - `gitlab_project_id` (Number, Deprecated) the project id of the relevant repository (deprecated)
+- `vcs_connection_id` (String) the VCS connection id to be used (for an already existing VCS connection created in env0). Conflicts with `github_installation_id`
 - `is_azure_devops` (Boolean) true if this custom flow integrates with azure dev ops repository
 - `is_bitbucket_server` (Boolean) true if this custom flow uses bitbucket server repository
 - `is_github_enterprise` (Boolean) true if this custom flow uses github enterprise repository

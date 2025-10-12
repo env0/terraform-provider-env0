@@ -1,5 +1,7 @@
 package client
 
+import "errors"
+
 type CustomFlowCreatePayload struct {
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
@@ -8,6 +10,7 @@ type CustomFlowCreatePayload struct {
 	TokenId              string           `json:"tokenId,omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys,omitempty"`
 	GithubInstallationId int              `json:"githubInstallationId,omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId,omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey,omitempty"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
@@ -15,6 +18,14 @@ type CustomFlowCreatePayload struct {
 	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
 	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
+}
+
+func (payload *CustomFlowCreatePayload) Invalidate() error {
+	if payload.GithubInstallationId != 0 && payload.VcsConnectionId != "" {
+		return errors.New("github_installation_id and vcs_connection_id are mutually exclusive")
+	}
+
+	return nil
 }
 
 type CustomFlow struct {
@@ -26,6 +37,7 @@ type CustomFlow struct {
 	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId" tfschema:",omitempty"`
 	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`

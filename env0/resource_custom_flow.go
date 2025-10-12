@@ -32,6 +32,10 @@ func resourceCustomFlowCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if err := payload.Invalidate(); err != nil {
+		return diag.Errorf("invalid custom flow payload: %v", err)
+	}
+
 	customFlow, err := apiClient.CustomFlowCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create custom flow: %v", err)
@@ -50,6 +54,11 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta an
 		return ResourceGetFailure(ctx, "custom flow", d, err)
 	}
 
+	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
+	if vcsConnectionIdOk {
+		customFlow.GithubInstallationId = 0
+	}
+
 	if err := writeResourceData(customFlow, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
@@ -63,6 +72,10 @@ func resourceCustomFlowUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	var payload client.CustomFlowCreatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if err := payload.Invalidate(); err != nil {
+		return diag.Errorf("invalid custom flow payload: %v", err)
 	}
 
 	if _, err := apiClient.CustomFlowUpdate(d.Id(), payload); err != nil {
