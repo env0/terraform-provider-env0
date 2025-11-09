@@ -255,6 +255,12 @@ func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, e
 	})
 }
 
+func (client *ApiClient) OrganizationEnvironments(organizationId string) ([]Environment, error) {
+	return getAll(client, map[string]string{
+		"organizationId": organizationId,
+	})
+}
+
 func (client *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
 
