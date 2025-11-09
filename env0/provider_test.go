@@ -30,7 +30,6 @@ type testRestyClientSuite struct {
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
 	t.Helper()
 
-	os.Setenv("TF_ACC", "1")
 	os.Setenv("ENV0_API_KEY", "value")
 	os.Setenv("ENV0_API_SECRET", "value")
 
