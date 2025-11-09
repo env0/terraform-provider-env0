@@ -52,14 +52,7 @@ jobs:
       - name: Go Test
         timeout-minutes: 20
         run: |
-          echo "Using Terraform at: $TF_PATH"
-          echo "Terraform version: $TERRAFORM_VERSION"
-          # Run tests with detailed logging and increased timeout
-          TF_LOG=DEBUG go test -timeout 20m -v ./...
-        env:
-          TF_ACC: true
-          TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
-          TF_ACC_TERRAFORM_VERSION: ${{ env.TERRAFORM_VERSION }}
+          go test -v -parallel 16 ./...
 
   # See terraform-provider-env0 README for integration tests prerequisites
   integration-tests:
