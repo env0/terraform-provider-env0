@@ -236,6 +236,7 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 	if putPayload.GlobPattern == "" {
 		return errors.New("'glob_pattern' not set")
 	}
+
 	opentofuVersionSet := putPayload.OpentofuVersion != ""
 	terraformVersionSet := putPayload.TerraformVersion != ""
 	terragruntVersionSet := putPayload.TerragruntVersion != ""
