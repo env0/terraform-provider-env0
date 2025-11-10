@@ -31,12 +31,17 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			"glob_pattern": {
 				Type:        schema.TypeString,
 				Description: "the environments glob pattern. Any match to this pattern will result in an Environment creation and plan",
-				Required:    true,
+				Optional:    true,
 			},
 			"repository": {
 				Type:        schema.TypeString,
 				Description: "the repository to run discovery on",
-				Required:    true,
+				Optional:    true,
+			},
+			"repository_regex": {
+				Type:        schema.TypeString,
+				Description: "Regex to select repositories for discovery-file configuration (enables discoveryFileConfiguration mode)",
+				Optional:    true,
 			},
 			"type": {
 				Type:             schema.TypeString,
@@ -220,6 +225,17 @@ func discoveryWriteSshKeyHelper(getPayload *client.EnvironmentDiscoveryPayload, 
 }
 
 func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPayload) error {
+	// If discovery-file configuration is used, skip specific validations
+	if putPayload.DiscoveryFileConfiguration != nil && putPayload.DiscoveryFileConfiguration.RepositoryRegex != "" {
+		return nil
+	}
+
+	if putPayload.Repository == "" {
+		return errors.New("'repository' not set")
+	}
+	if putPayload.GlobPattern == "" {
+		return errors.New("'glob_pattern' not set")
+	}
 	opentofuVersionSet := putPayload.OpentofuVersion != ""
 	terraformVersionSet := putPayload.TerraformVersion != ""
 	terragruntVersionSet := putPayload.TerragruntVersion != ""
@@ -261,14 +277,30 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if v, ok := d.GetOk("repository_regex"); ok {
+		repoRegex := v.(string)
+		if repoRegex != "" {
+			if _, exists := d.GetOkExists("glob_pattern"); exists {
+				return diag.Errorf("'glob_pattern' cannot be set when 'repository_regex' is provided")
+			}
+			if _, exists := d.GetOkExists("repository"); exists {
+				return diag.Errorf("'repository' cannot be set when 'repository_regex' is provided")
+			}
+			putPayload = client.EnvironmentDiscoveryPutPayload{
+				DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{RepositoryRegex: repoRegex},
+			}
+		}
+	}
+
 	if err := putPayload.Invalidate(); err != nil {
 		return diag.Errorf("invalid environment discovery payload: %v", err)
 	}
 
-	discoveryReadSshKeyHelper(&putPayload, d)
-
-	templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
-	templateCreatePayloadRetryOnHelper("", d, "destroy", &putPayload.Retry.OnDestroy)
+	if putPayload.DiscoveryFileConfiguration == nil {
+		discoveryReadSshKeyHelper(&putPayload, d)
+		templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
+		templateCreatePayloadRetryOnHelper("", d, "destroy", &putPayload.Retry.OnDestroy)
+	}
 
 	if err := discoveryValidatePutPayload(&putPayload); err != nil {
 		return diag.Errorf("validation error: %s", err.Error())
@@ -309,6 +341,10 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 
 	templateReadRetryOnHelper("", d, "deploy", getPayload.Retry.OnDeploy)
 	templateReadRetryOnHelper("", d, "destroy", getPayload.Retry.OnDestroy)
+
+	if getPayload.DiscoveryFileConfiguration != nil {
+		_ = d.Set("repository_regex", getPayload.DiscoveryFileConfiguration.RepositoryRegex)
+	}
 
 	return nil
 }

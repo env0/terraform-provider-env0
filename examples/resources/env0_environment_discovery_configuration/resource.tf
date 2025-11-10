@@ -24,3 +24,8 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
   terragrunt_tf_binary   = "terraform"
   github_installation_id = 12345
 }
+
+resource "env0_environment_discovery_configuration" "discovery_file_example" {
+  project_id       = data.env0_project.project.id
+  repository_regex = "env0-example/.*|acme-corp/web.*|company/web-frontend"
+}
