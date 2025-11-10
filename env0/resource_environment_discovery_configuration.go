@@ -283,6 +283,7 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 			if gv, exists := d.GetOk("glob_pattern"); exists && gv.(string) != "" {
 				return diag.Errorf("'glob_pattern' cannot be set when 'repository_regex' is provided")
 			}
+
 			if rv, exists := d.GetOk("repository"); exists && rv.(string) != "" {
 				return diag.Errorf("'repository' cannot be set when 'repository_regex' is provided")
 			}
