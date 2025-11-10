@@ -2,10 +2,15 @@ package env0
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
+	env0http "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -92,7 +97,20 @@ func resourceEnvironmentDriftCreateOrUpdate(ctx context.Context, d *schema.Resou
 		AutoDriftRemediation: autoDriftRemediation,
 	}
 
-	if _, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload); err != nil {
+	// The environment may not be immediately available to the scheduling service
+	// right after creation. Retry on transient "Invalid environment id" errors.
+	retryTimeout := 2 * time.Minute
+	if err := retry.RetryContext(ctx, retryTimeout, func() *retry.RetryError {
+		if _, err := apiClient.EnvironmentUpdateDriftDetection(environmentId, payload); err != nil {
+			if failedReqErr, ok := err.(*env0http.FailedResponseError); ok && failedReqErr.BadRequest() && strings.Contains(failedReqErr.Error(), "Invalid environment id") {
+				return retry.RetryableError(fmt.Errorf("environment not ready for drift detection: %w", err))
+			}
+
+			return retry.NonRetryableError(err)
+		}
+
+		return nil
+	}); err != nil {
 		return diag.Errorf("could not create or update environment drift detection: %v", err)
 	}
 
