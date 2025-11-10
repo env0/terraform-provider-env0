@@ -301,9 +301,11 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		if putPayload.Type == "" {
 			putPayload.Type = client.OPENTOFU
 		}
+
 		if putPayload.EnvironmentPlacement == "" {
 			putPayload.EnvironmentPlacement = "topProject"
 		}
+
 		if putPayload.WorkspaceNaming == "" {
 			putPayload.WorkspaceNaming = "default"
 		}
