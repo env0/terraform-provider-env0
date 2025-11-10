@@ -29,3 +29,13 @@ resource "env0_environment_discovery_configuration" "example" {
 
   depends_on = [env0_template_project_assignment.assignment]
 }
+
+# Additional project to validate discovery-file configuration path
+resource "env0_project" "project_discovery_file" {
+  name = "project-discovery-file-${random_string.random.result}"
+}
+
+resource "env0_environment_discovery_configuration" "discovery_file" {
+  project_id       = env0_project.project_discovery_file.id
+  repository_regex = "env0-example/*"
+}
