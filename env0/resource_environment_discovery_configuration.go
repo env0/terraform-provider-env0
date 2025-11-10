@@ -365,6 +365,12 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 		_ = d.Set("repository_regex", getPayload.DiscoveryFileConfiguration.RepositoryRegex)
 	}
 
+	if getPayload.DiscoveryFileConfiguration == nil {
+		_ = d.Set("type", getPayload.Type)
+		_ = d.Set("environment_placement", getPayload.EnvironmentPlacement)
+		_ = d.Set("workspace_naming", getPayload.WorkspaceNaming)
+	}
+
 	return nil
 }
 
