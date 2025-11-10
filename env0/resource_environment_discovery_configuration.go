@@ -49,10 +49,11 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Default:          client.OPENTOFU,
 				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM, client.TERRAGRUNT, client.WORKFLOW}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
 					// Suppress diff if using repository_regex (discovery-file mode)
 					_, hasRepoRegex := d.GetOk("repository_regex")
-					return hasRepoRegex && new == client.OPENTOFU
+
+					return hasRepoRegex && newVal == client.OPENTOFU
 				},
 			},
 			"environment_placement": {
@@ -61,10 +62,11 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Default:          "topProject",
 				ValidateDiagFunc: NewStringInValidator([]string{"existingSubProject", "topProject"}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
 					// Suppress diff if using repository_regex (discovery-file mode)
 					_, hasRepoRegex := d.GetOk("repository_regex")
-					return hasRepoRegex && new == "topProject"
+
+					return hasRepoRegex && newVal == "topProject"
 				},
 			},
 			"workspace_naming": {
@@ -73,10 +75,11 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Default:          "default",
 				ValidateDiagFunc: NewStringInValidator([]string{"default", "environmentName"}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
 					// Suppress diff if using repository_regex (discovery-file mode)
 					_, hasRepoRegex := d.GetOk("repository_regex")
-					return hasRepoRegex && new == "default"
+
+					return hasRepoRegex && newVal == "default"
 				},
 			},
 			"auto_deploy_by_custom_glob": {
@@ -248,6 +251,7 @@ func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPaylo
 	if putPayload.Repository == "" {
 		return errors.New("'repository' not set")
 	}
+
 	if putPayload.GlobPattern == "" {
 		return errors.New("'glob_pattern' not set")
 	}
