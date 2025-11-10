@@ -45,42 +45,24 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"type": {
 				Type:             schema.TypeString,
-				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow'. Defaults to 'opentofu' when not using repository_regex",
-				Default:          client.OPENTOFU,
+				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow'.",
 				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM, client.TERRAGRUNT, client.WORKFLOW}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
-					// Suppress diff if using repository_regex (discovery-file mode)
-					_, hasRepoRegex := d.GetOk("repository_regex")
-
-					return hasRepoRegex && newVal == client.OPENTOFU
-				},
+				Computed:         true,
 			},
 			"environment_placement": {
 				Type:             schema.TypeString,
-				Description:      "the environment placement strategy with the project. Defaults to 'topProject' when not using repository_regex",
-				Default:          "topProject",
+				Description:      "the environment placement strategy with the project.",
 				ValidateDiagFunc: NewStringInValidator([]string{"existingSubProject", "topProject"}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
-					// Suppress diff if using repository_regex (discovery-file mode)
-					_, hasRepoRegex := d.GetOk("repository_regex")
-
-					return hasRepoRegex && newVal == "topProject"
-				},
+				Computed:         true,
 			},
 			"workspace_naming": {
 				Type:             schema.TypeString,
-				Description:      "the Workspace namimg strategy. Defaults to 'default' when not using repository_regex",
-				Default:          "default",
+				Description:      "the Workspace namimg strategy.",
 				ValidateDiagFunc: NewStringInValidator([]string{"default", "environmentName"}),
 				Optional:         true,
-				DiffSuppressFunc: func(k, old, newVal string, d *schema.ResourceData) bool {
-					// Suppress diff if using repository_regex (discovery-file mode)
-					_, hasRepoRegex := d.GetOk("repository_regex")
-
-					return hasRepoRegex && newVal == "default"
-				},
+				Computed:         true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
@@ -311,6 +293,19 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 			putPayload = client.EnvironmentDiscoveryPutPayload{
 				DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{RepositoryRegex: repoRegex},
 			}
+		}
+	}
+
+	// Provider-side defaults for non discovery-file mode (fields are Optional+Computed with no schema defaults)
+	if putPayload.DiscoveryFileConfiguration == nil {
+		if putPayload.Type == "" {
+			putPayload.Type = client.OPENTOFU
+		}
+		if putPayload.EnvironmentPlacement == "" {
+			putPayload.EnvironmentPlacement = "topProject"
+		}
+		if putPayload.WorkspaceNaming == "" {
+			putPayload.WorkspaceNaming = "default"
 		}
 	}
 
