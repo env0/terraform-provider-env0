@@ -280,12 +280,13 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 	if v, ok := d.GetOk("repository_regex"); ok {
 		repoRegex := v.(string)
 		if repoRegex != "" {
-			if _, exists := d.GetOkExists("glob_pattern"); exists {
+			if gv, exists := d.GetOk("glob_pattern"); exists && gv.(string) != "" {
 				return diag.Errorf("'glob_pattern' cannot be set when 'repository_regex' is provided")
 			}
-			if _, exists := d.GetOkExists("repository"); exists {
+			if rv, exists := d.GetOk("repository"); exists && rv.(string) != "" {
 				return diag.Errorf("'repository' cannot be set when 'repository_regex' is provided")
 			}
+
 			putPayload = client.EnvironmentDiscoveryPutPayload{
 				DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{RepositoryRegex: repoRegex},
 			}
