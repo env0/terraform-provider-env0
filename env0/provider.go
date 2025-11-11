@@ -84,6 +84,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_team":                      dataTeam(),
 				"env0_teams":                     dataTeams(),
 				"env0_environment":               dataEnvironment(),
+				"env0_environments":              dataEnvironments(),
 				"env0_workflow_triggers":         dataWorkflowTriggers(),
 				"env0_notification":              dataNotification(),
 				"env0_notifications":             dataNotifications(),

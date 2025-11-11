@@ -8,6 +8,7 @@ resource "random_string" "random" {
 
 resource "env0_project" "project" {
   name = "project-${random_string.random.result}"
+  wait = true
 }
 
 data "env0_template" "github_template" {

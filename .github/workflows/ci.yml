@@ -29,10 +29,16 @@ jobs:
           go generate client/api_client.go
       - name: Go fmt
         run: |
-          ! go fmt ./... | read
+          fmt_out=$(gofmt -l .)
+          if [ -n "$fmt_out" ]; then
+            echo "Go files are not formatted:"
+            echo "$fmt_out"
+            echo "Run: gofmt -w ."
+            exit 1
+          fi
       - name: Go vet
         run: |
-          ! go vet ./... | read
+          go vet ./...
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
