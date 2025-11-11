@@ -31,33 +31,38 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			"glob_pattern": {
 				Type:        schema.TypeString,
 				Description: "the environments glob pattern. Any match to this pattern will result in an Environment creation and plan",
-				Required:    true,
+				Optional:    true,
 			},
 			"repository": {
 				Type:        schema.TypeString,
 				Description: "the repository to run discovery on",
-				Required:    true,
+				Optional:    true,
+			},
+			"repository_regex": {
+				Type:        schema.TypeString,
+				Description: "Regex to select repositories for discovery-file configuration (enables discoveryFileConfiguration mode)",
+				Optional:    true,
 			},
 			"type": {
 				Type:             schema.TypeString,
 				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')",
-				Default:          client.OPENTOFU,
 				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM, client.TERRAGRUNT, client.WORKFLOW}),
 				Optional:         true,
+				Computed:         true,
 			},
 			"environment_placement": {
 				Type:             schema.TypeString,
-				Description:      "the environment placement strategy with the project (default: 'topProject')",
-				Default:          "topProject",
+				Description:      "the environment placement strategy with the project.",
 				ValidateDiagFunc: NewStringInValidator([]string{"existingSubProject", "topProject"}),
 				Optional:         true,
+				Computed:         true,
 			},
 			"workspace_naming": {
 				Type:             schema.TypeString,
-				Description:      "the Workspace namimg strategy (default: 'default')",
-				Default:          "default",
+				Description:      "the Workspace namimg strategy.",
 				ValidateDiagFunc: NewStringInValidator([]string{"default", "environmentName"}),
 				Optional:         true,
+				Computed:         true,
 			},
 			"auto_deploy_by_custom_glob": {
 				Type:        schema.TypeString,
@@ -220,6 +225,19 @@ func discoveryWriteSshKeyHelper(getPayload *client.EnvironmentDiscoveryPayload, 
 }
 
 func discoveryValidatePutPayload(putPayload *client.EnvironmentDiscoveryPutPayload) error {
+	// If discovery-file configuration is used, skip specific validations
+	if putPayload.DiscoveryFileConfiguration != nil && putPayload.DiscoveryFileConfiguration.RepositoryRegex != "" {
+		return nil
+	}
+
+	if putPayload.Repository == "" {
+		return errors.New("'repository' not set")
+	}
+
+	if putPayload.GlobPattern == "" {
+		return errors.New("'glob_pattern' not set")
+	}
+
 	opentofuVersionSet := putPayload.OpentofuVersion != ""
 	terraformVersionSet := putPayload.TerraformVersion != ""
 	terragruntVersionSet := putPayload.TerragruntVersion != ""
@@ -261,14 +279,47 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	if v, ok := d.GetOk("repository_regex"); ok {
+		repoRegex := v.(string)
+		if repoRegex != "" {
+			if gv, exists := d.GetOk("glob_pattern"); exists && gv.(string) != "" {
+				return diag.Errorf("'glob_pattern' cannot be set when 'repository_regex' is provided")
+			}
+
+			if rv, exists := d.GetOk("repository"); exists && rv.(string) != "" {
+				return diag.Errorf("'repository' cannot be set when 'repository_regex' is provided")
+			}
+
+			putPayload = client.EnvironmentDiscoveryPutPayload{
+				DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{RepositoryRegex: repoRegex},
+			}
+		}
+	}
+
+	// Provider-side defaults for non discovery-file mode (fields are Optional+Computed with no schema defaults)
+	if putPayload.DiscoveryFileConfiguration == nil {
+		if putPayload.Type == "" {
+			putPayload.Type = client.OPENTOFU
+		}
+
+		if putPayload.EnvironmentPlacement == "" {
+			putPayload.EnvironmentPlacement = "topProject"
+		}
+
+		if putPayload.WorkspaceNaming == "" {
+			putPayload.WorkspaceNaming = "default"
+		}
+	}
+
 	if err := putPayload.Invalidate(); err != nil {
 		return diag.Errorf("invalid environment discovery payload: %v", err)
 	}
 
-	discoveryReadSshKeyHelper(&putPayload, d)
-
-	templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
-	templateCreatePayloadRetryOnHelper("", d, "destroy", &putPayload.Retry.OnDestroy)
+	if putPayload.DiscoveryFileConfiguration == nil {
+		discoveryReadSshKeyHelper(&putPayload, d)
+		templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)
+		templateCreatePayloadRetryOnHelper("", d, "destroy", &putPayload.Retry.OnDestroy)
+	}
 
 	if err := discoveryValidatePutPayload(&putPayload); err != nil {
 		return diag.Errorf("validation error: %s", err.Error())
@@ -281,6 +332,15 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 	res, err := apiClient.PutEnvironmentDiscovery(d.Get("project_id").(string), &putPayload)
 	if err != nil {
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
+	}
+
+	// If vcs_connection_id is set in config, ignore github_installation_id from backend to avoid drift
+	if _, ok := d.GetOk("vcs_connection_id"); ok {
+		res.GithubInstallationId = 0
+	}
+
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, res); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId(res.Id)
@@ -309,6 +369,34 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 
 	templateReadRetryOnHelper("", d, "deploy", getPayload.Retry.OnDeploy)
 	templateReadRetryOnHelper("", d, "destroy", getPayload.Retry.OnDestroy)
+
+	if getPayload.DiscoveryFileConfiguration != nil {
+		_ = d.Set("repository_regex", getPayload.DiscoveryFileConfiguration.RepositoryRegex)
+	}
+
+	if getPayload.DiscoveryFileConfiguration == nil {
+		// Apply defaults only when not using discovery-file configuration
+		typeVal := getPayload.Type
+		if typeVal == "" {
+			typeVal = client.OPENTOFU
+		}
+
+		_ = d.Set("type", typeVal)
+
+		envPlacement := getPayload.EnvironmentPlacement
+		if envPlacement == "" {
+			envPlacement = "topProject"
+		}
+
+		_ = d.Set("environment_placement", envPlacement)
+
+		workspaceNaming := getPayload.WorkspaceNaming
+		if workspaceNaming == "" {
+			workspaceNaming = "default"
+		}
+
+		_ = d.Set("workspace_naming", workspaceNaming)
+	}
 
 	return nil
 }

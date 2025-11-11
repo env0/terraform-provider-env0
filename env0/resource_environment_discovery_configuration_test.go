@@ -966,4 +966,44 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
+
+	t.Run("discovery-file configuration with repository_regex only", func(t *testing.T) {
+		putPayload := client.EnvironmentDiscoveryPutPayload{
+			DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{
+				RepositoryRegex: "env0-example/.*|acme-corp/web.*|company/web-frontend",
+			},
+		}
+
+		getPayload := client.EnvironmentDiscoveryPayload{
+			Id: id,
+			DiscoveryFileConfiguration: &client.DiscoveryFileConfiguration{
+				RepositoryRegex: putPayload.DiscoveryFileConfiguration.RepositoryRegex,
+			},
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":       projectId,
+						"repository_regex": putPayload.DiscoveryFileConfiguration.RepositoryRegex,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", projectId),
+						resource.TestCheckResourceAttr(accessor, "repository_regex", putPayload.DiscoveryFileConfiguration.RepositoryRegex),
+						resource.TestCheckNoResourceAttr(accessor, "glob_pattern"),
+						resource.TestCheckNoResourceAttr(accessor, "repository"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
+				mock.EXPECT().DeleteEnvironmentDiscovery(projectId).Times(1).Return(nil),
+			)
+		})
+	})
 }
