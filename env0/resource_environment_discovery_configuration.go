@@ -380,18 +380,21 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 		if typeVal == "" {
 			typeVal = client.OPENTOFU
 		}
+
 		_ = d.Set("type", typeVal)
 
 		envPlacement := getPayload.EnvironmentPlacement
 		if envPlacement == "" {
 			envPlacement = "topProject"
 		}
+
 		_ = d.Set("environment_placement", envPlacement)
 
 		workspaceNaming := getPayload.WorkspaceNaming
 		if workspaceNaming == "" {
 			workspaceNaming = "default"
 		}
+
 		_ = d.Set("workspace_naming", workspaceNaming)
 	}
 
