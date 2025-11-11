@@ -56,7 +56,7 @@ type EnvironmentDiscoveryPayload struct {
 	Type                                  string                      `json:"type"`
 	TokenId                               string                      `json:"tokenId" tfschema:",omitempty"`
 	SshKeys                               []TemplateSshKey            `json:"sshKeys" tfschema:"-"`
-	GithubInstallationId                  int                         `json:"githubInstallationId"`
+	GithubInstallationId                  int                         `json:"githubInstallationId" tfschema:",omitempty"`
 	VcsConnectionId                       string                      `json:"vcsConnectionId" tfschema:",omitempty"`
 	BitbucketClientKey                    string                      `json:"bitbucketClientKey" tfschema:",omitempty"`
 	IsAzureDevops                         bool                        `json:"isAzureDevOps"`

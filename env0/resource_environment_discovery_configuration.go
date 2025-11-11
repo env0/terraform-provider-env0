@@ -45,7 +45,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"type": {
 				Type:             schema.TypeString,
-				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow'.",
+				Description:      "the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')",
 				ValidateDiagFunc: NewStringInValidator([]string{client.OPENTOFU, client.TERRAFORM, client.TERRAGRUNT, client.WORKFLOW}),
 				Optional:         true,
 				Computed:         true,
@@ -334,6 +334,15 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
 	}
 
+	// If vcs_connection_id is set in config, ignore github_installation_id from backend to avoid drift
+	if _, ok := d.GetOk("vcs_connection_id"); ok {
+		res.GithubInstallationId = 0
+	}
+
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, res); err != nil {
+		return diag.FromErr(err)
+	}
+
 	d.SetId(res.Id)
 
 	return nil
@@ -366,9 +375,24 @@ func setResourceEnvironmentDiscoveryConfiguration(d *schema.ResourceData, getPay
 	}
 
 	if getPayload.DiscoveryFileConfiguration == nil {
-		_ = d.Set("type", getPayload.Type)
-		_ = d.Set("environment_placement", getPayload.EnvironmentPlacement)
-		_ = d.Set("workspace_naming", getPayload.WorkspaceNaming)
+		// Apply defaults only when not using discovery-file configuration
+		typeVal := getPayload.Type
+		if typeVal == "" {
+			typeVal = client.OPENTOFU
+		}
+		_ = d.Set("type", typeVal)
+
+		envPlacement := getPayload.EnvironmentPlacement
+		if envPlacement == "" {
+			envPlacement = "topProject"
+		}
+		_ = d.Set("environment_placement", envPlacement)
+
+		workspaceNaming := getPayload.WorkspaceNaming
+		if workspaceNaming == "" {
+			workspaceNaming = "default"
+		}
+		_ = d.Set("workspace_naming", workspaceNaming)
 	}
 
 	return nil
