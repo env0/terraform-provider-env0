@@ -699,6 +699,10 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
+	if err := setSubEnvironmentSchema(ctx, d, environment, apiClient); err != nil {
+		return diag.Errorf("could not set sub environment schema: %v", err)
+	}
+
 	if isTemplateless(d) {
 		// environment with no template.
 		templateId := d.Get("without_template_settings.0.id").(string)
@@ -712,6 +716,40 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 			return diag.Errorf("schema resource data serialization failed: %v", err)
 		}
 	}
+
+	return nil
+}
+
+func setSubEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, apiClient client.ApiClientInterface) any {
+	iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
+
+	if !ok {
+		return nil
+	}
+
+	var newSubEnvironments []any
+
+	for _, iSubEnvironment := range iSubEnvironments.([]any) {
+		subEnvironment := iSubEnvironment.(map[string]any)
+
+		var environmentConfigurationVariables client.ConfigurationChanges
+		environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironment["id"].(string))
+		if err != nil {
+			return fmt.Errorf("could not fetch environment configuration variables for sub environment %s: %w", subEnvironment["id"].(string), err)
+		}
+
+		var newConfiguration []any
+
+		for _, variable := range environmentConfigurationVariables {
+			newConfiguration = append(newConfiguration, createVariable(&variable))
+		}
+
+		subEnvironment["configuration"] = newConfiguration
+
+		newSubEnvironments = append(newSubEnvironments, subEnvironment)
+	}
+
+	d.Set("sub_environment_configuration", newSubEnvironments)
 
 	return nil
 }
