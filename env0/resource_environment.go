@@ -699,7 +699,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
-	if err := setSubEnvironmentSchema(ctx, d, environment, apiClient); err != nil {
+	if err := setSubEnvironmentSchema(d, apiClient); err != nil {
 		return diag.Errorf("could not set sub environment schema: %v", err)
 	}
 
@@ -720,7 +720,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 	return nil
 }
 
-func setSubEnvironmentSchema(_ context.Context, d *schema.ResourceData, _ client.Environment, apiClient client.ApiClientInterface) any {
+func setSubEnvironmentSchema(d *schema.ResourceData, apiClient client.ApiClientInterface) any {
 	iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
 
 	if !ok {
