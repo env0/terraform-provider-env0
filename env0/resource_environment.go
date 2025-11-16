@@ -720,25 +720,25 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 	return nil
 }
 
-func setSubEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, apiClient client.ApiClientInterface) any {
+func setSubEnvironmentSchema(_ context.Context, d *schema.ResourceData, _ client.Environment, apiClient client.ApiClientInterface) any {
 	iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
 
 	if !ok {
 		return nil
 	}
 
-	var newSubEnvironments []any
+	subEnvironmentsList := iSubEnvironments.([]any)
+	newSubEnvironments := make([]any, 0, len(subEnvironmentsList))
 
-	for _, iSubEnvironment := range iSubEnvironments.([]any) {
+	for _, iSubEnvironment := range subEnvironmentsList {
 		subEnvironment := iSubEnvironment.(map[string]any)
 
-		var environmentConfigurationVariables client.ConfigurationChanges
 		environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironment["id"].(string))
 		if err != nil {
 			return fmt.Errorf("could not fetch environment configuration variables for sub environment %s: %w", subEnvironment["id"].(string), err)
 		}
 
-		var newConfiguration []any
+		newConfiguration := make([]any, 0, len(environmentConfigurationVariables))
 
 		for _, variable := range environmentConfigurationVariables {
 			newConfiguration = append(newConfiguration, createVariable(&variable))
