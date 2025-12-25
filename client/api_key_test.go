@@ -1,6 +1,8 @@
 package client_test
 
 import (
+	"encoding/json"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
@@ -131,6 +133,80 @@ var _ = Describe("ApiKey Client", func() {
 
 		It("Should not return error", func() {
 			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("ApiKey Project Permissions JSON Serialization", func() {
+		It("Should serialize project permissions with correct JSON field name", func() {
+			permissions := ApiKeyPermissions{
+				OrganizationRole: "User",
+				ProjectPermissions: []ProjectPermission{
+					{
+						ProjectId:   "proj-123",
+						ProjectRole: "Admin",
+					},
+				},
+			}
+
+			// Convert to JSON to verify field names
+			jsonBytes, err := json.Marshal(permissions)
+			Expect(err).To(BeNil())
+
+			// Parse JSON to verify structure
+			var result map[string]interface{}
+			err = json.Unmarshal(jsonBytes, &result)
+			Expect(err).To(BeNil())
+
+			// Verify the correct JSON field name is used
+			Expect(result).To(HaveKey("projectPermissions"))
+			Expect(result).ToNot(HaveKey("projectsPermissions"))
+
+			// Verify the content is correct
+			projectPerms := result["projectPermissions"].([]interface{})
+			Expect(projectPerms).To(HaveLen(1))
+
+			firstPerm := projectPerms[0].(map[string]interface{})
+			Expect(firstPerm["projectId"]).To(Equal("proj-123"))
+			Expect(firstPerm["projectRole"]).To(Equal("Admin"))
+		})
+
+		It("Should handle empty project permissions correctly", func() {
+			permissions := ApiKeyPermissions{
+				OrganizationRole:   "Admin",
+				ProjectPermissions: []ProjectPermission{},
+			}
+
+			jsonBytes, err := json.Marshal(permissions)
+			Expect(err).To(BeNil())
+
+			var result map[string]interface{}
+			err = json.Unmarshal(jsonBytes, &result)
+			Expect(err).To(BeNil())
+
+			// With omitempty, empty slice should be omitted from JSON
+			Expect(result).ToNot(HaveKey("projectPermissions"))
+			Expect(result).To(HaveKey("organizationRole"))
+			Expect(result["organizationRole"]).To(Equal("Admin"))
+		})
+
+		It("Should include projectPermissions when slice has values", func() {
+			permissions := ApiKeyPermissions{
+				OrganizationRole: "User",
+				ProjectPermissions: []ProjectPermission{
+					{ProjectId: "proj-1", ProjectRole: "Admin"},
+				},
+			}
+
+			jsonBytes, err := json.Marshal(permissions)
+			Expect(err).To(BeNil())
+
+			var result map[string]interface{}
+			err = json.Unmarshal(jsonBytes, &result)
+			Expect(err).To(BeNil())
+
+			// Should have the field when slice has values
+			Expect(result).To(HaveKey("projectPermissions"))
+			Expect(result).To(HaveKey("organizationRole"))
 		})
 	})
 })
