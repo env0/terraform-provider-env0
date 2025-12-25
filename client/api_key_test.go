@@ -158,11 +158,11 @@ var _ = Describe("ApiKey Client", func() {
 			Expect(err).To(BeNil())
 
 			// Verify the correct JSON field name is used
-			Expect(result).To(HaveKey("projectPermissions"))
-			Expect(result).ToNot(HaveKey("projectsPermissions"))
+			Expect(result).To(HaveKey("projectsPermissions"))
+			Expect(result).ToNot(HaveKey("projectPermissions"))
 
 			// Verify the content is correct
-			projectPerms := result["projectPermissions"].([]interface{})
+			projectPerms := result["projectsPermissions"].([]interface{})
 			Expect(projectPerms).To(HaveLen(1))
 
 			firstPerm := projectPerms[0].(map[string]interface{})
@@ -184,7 +184,7 @@ var _ = Describe("ApiKey Client", func() {
 			Expect(err).To(BeNil())
 
 			// With omitempty, empty slice should be omitted from JSON
-			Expect(result).ToNot(HaveKey("projectPermissions"))
+			Expect(result).ToNot(HaveKey("projectsPermissions"))
 			Expect(result).To(HaveKey("organizationRole"))
 			Expect(result["organizationRole"]).To(Equal("Admin"))
 		})
@@ -205,7 +205,7 @@ var _ = Describe("ApiKey Client", func() {
 			Expect(err).To(BeNil())
 
 			// Should have the field when slice has values
-			Expect(result).To(HaveKey("projectPermissions"))
+			Expect(result).To(HaveKey("projectsPermissions"))
 			Expect(result).To(HaveKey("organizationRole"))
 		})
 	})

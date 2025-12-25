@@ -20,7 +20,7 @@ type ProjectPermission struct {
 
 type ApiKeyPermissions struct {
 	OrganizationRole   string              `json:"organizationRole"`
-	ProjectPermissions []ProjectPermission `json:"projectPermissions,omitempty"`
+	ProjectPermissions []ProjectPermission `json:"projectsPermissions,omitempty"`
 }
 
 type ApiKeyCreatePayload struct {
