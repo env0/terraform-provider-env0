@@ -28,7 +28,7 @@ func resourceCustomRole() *schema.Resource {
 			},
 			"permissions": {
 				Type:        schema.TypeList,
-				Description: "The list of permissions assigned to the role. The allowed values are available within the 'permissions' attribute at this URL: https://docs.env0.com/reference/roles-create",
+				Description: "The list of permissions assigned to the role. The allowed values are available within the 'permissions' attribute at this URL: https://docs.envzero.com/api-reference/roles/create-a-role#create-a-role",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
