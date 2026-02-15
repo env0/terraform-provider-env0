@@ -40,12 +40,12 @@ func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 		Name:        "name0",
 		Description: "desc0",
 		Value:       valueStr,
-		IsReadOnly:  boolPtr(true),
+		IsReadOnly:  new(true),
 		ScopeId:     "scope_id",
 		Scope:       "PROJECT",
-		IsSensitive: boolPtr(false),
-		Type:        (*client.ConfigurationVariableType)(intPtr(1)),
-		IsRequired:  boolPtr(true),
+		IsSensitive: new(false),
+		Type:        (*client.ConfigurationVariableType)(new(1)),
+		IsRequired:  new(true),
 	}
 
 	updatedConfigurationVariable := configurationVariable

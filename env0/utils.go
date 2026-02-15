@@ -36,18 +36,6 @@ func toSnakeCase(str string) string {
 	return strings.ToLower(snake)
 }
 
-func boolPtr(b bool) *bool {
-	return &b
-}
-
-func stringPtr(s string) *string {
-	return &s
-}
-
-func intPtr(i int) *int {
-	return &i
-}
-
 func stringInSlice(str string, strs []string) bool {
 	return slices.Contains(strs, str)
 }

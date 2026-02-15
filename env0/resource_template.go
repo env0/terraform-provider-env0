@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -46,12 +47,8 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		for _, attr := range allVCSAttributes {
 			var found bool
 
-			for _, str := range strs {
-				if str == attr {
-					found = true
-
-					break
-				}
+			if slices.Contains(strs, attr) {
+				found = true
 			}
 
 			if !found {

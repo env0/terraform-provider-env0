@@ -156,13 +156,9 @@ var _ = Describe("SlidingWindowLimiter", func() {
 				wg  sync.WaitGroup
 			)
 
-			wg.Add(1)
-
-			go func() {
-				defer wg.Done()
-
+			wg.Go(func() {
 				err = limiter.Wait(ctx)
-			}()
+			})
 
 			// Cancel after a short delay
 			time.Sleep(25 * time.Millisecond)
@@ -214,15 +210,11 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			successCount := int32(0)
 
 			for range 20 {
-				wg.Add(1)
-
-				go func() {
-					defer wg.Done()
-
+				wg.Go(func() {
 					if limiter.Allow() {
 						atomic.AddInt32(&successCount, 1)
 					}
-				}()
+				})
 			}
 
 			wg.Wait()
@@ -320,15 +312,11 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			successCount := int32(0)
 
 			for range 1000 {
-				wg.Add(1)
-
-				go func() {
-					defer wg.Done()
-
+				wg.Go(func() {
 					if limiter.Allow() {
 						atomic.AddInt32(&successCount, 1)
 					}
-				}()
+				})
 			}
 
 			wg.Wait()

@@ -1,6 +1,9 @@
 package client
 
-import "strconv"
+import (
+	"maps"
+	"strconv"
+)
 
 const limit = 100
 
@@ -39,9 +42,7 @@ func getAll[P Paginated](client *ApiClient, params map[string]string) ([]P, erro
 
 	for {
 		pageParams := p.getParams()
-		for k, v := range params {
-			pageParams[k] = v
-		}
+		maps.Copy(pageParams, params)
 
 		var pageResults []P
 

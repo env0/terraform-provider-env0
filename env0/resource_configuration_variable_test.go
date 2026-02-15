@@ -88,7 +88,7 @@ func TestUnitConfigurationVariableResource(t *testing.T) {
 			Id:          uuid.NewString(),
 			Name:        createSensitiveConfig.Name,
 			Value:       "*",
-			IsSensitive: boolPtr(true),
+			IsSensitive: new(true),
 			Scope:       client.ScopeGlobal,
 		}
 

@@ -25,8 +25,8 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 	organization := client.Organization{
 		Id:                                  organizationId,
 		Name:                                "name",
-		MaxTtl:                              stringPtr("4-d"),
-		DefaultTtl:                          stringPtr("13-h"),
+		MaxTtl:                              new("4-d"),
+		DefaultTtl:                          new("13-h"),
 		DoNotReportSkippedStatusChecks:      false,
 		DoNotConsiderMergeCommitsForPrPlans: true,
 		EnableOidc:                          false,
@@ -36,7 +36,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 	organizationUpdated := client.Organization{
 		Id:                                  organizationId,
 		Name:                                "name",
-		DefaultTtl:                          stringPtr("2-M"),
+		DefaultTtl:                          new("2-M"),
 		DoNotReportSkippedStatusChecks:      true,
 		DoNotConsiderMergeCommitsForPrPlans: false,
 		EnableOidc:                          true,
@@ -87,9 +87,9 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					MaxTtl:                              organization.MaxTtl,
 					DefaultTtl:                          organization.DefaultTtl,
 					DoNotConsiderMergeCommitsForPrPlans: &organization.DoNotConsiderMergeCommitsForPrPlans,
-					DoNotReportSkippedStatusChecks:      boolPtr(false),
-					EnableOidc:                          boolPtr(false),
-					EnforcePrCommenterPermissions:       boolPtr(false),
+					DoNotReportSkippedStatusChecks:      new(false),
+					EnableOidc:                          new(false),
+					EnforcePrCommenterPermissions:       new(false),
 				}).Times(1).Return(&organization, nil),
 				mock.EXPECT().Organization().Times(2).Return(organization, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
@@ -97,8 +97,8 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					DoNotReportSkippedStatusChecks:      &organizationUpdated.DoNotReportSkippedStatusChecks,
 					EnableOidc:                          &organizationUpdated.EnableOidc,
 					EnforcePrCommenterPermissions:       &organizationUpdated.EnforcePrCommenterPermissions,
-					DoNotConsiderMergeCommitsForPrPlans: boolPtr(false),
-					MaxTtl:                              stringPtr(""),
+					DoNotConsiderMergeCommitsForPrPlans: new(false),
+					MaxTtl:                              new(""),
 				}).Times(1).Return(&organizationUpdated, nil),
 				mock.EXPECT().Organization().Times(1).Return(organizationUpdated, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{}).Times(1).Return(&defaultOrganization, nil),
@@ -141,9 +141,9 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 				MaxTtl:                              organization.MaxTtl,
 				DefaultTtl:                          organization.DefaultTtl,
 				DoNotConsiderMergeCommitsForPrPlans: &organization.DoNotConsiderMergeCommitsForPrPlans,
-				DoNotReportSkippedStatusChecks:      boolPtr(false),
-				EnableOidc:                          boolPtr(false),
-				EnforcePrCommenterPermissions:       boolPtr(false),
+				DoNotReportSkippedStatusChecks:      new(false),
+				EnableOidc:                          new(false),
+				EnforcePrCommenterPermissions:       new(false),
 			}).Times(1).Return(nil, errors.New("error"))
 		})
 	})

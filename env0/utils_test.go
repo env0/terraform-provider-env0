@@ -47,12 +47,12 @@ func TestWriteResourceDataModule(t *testing.T) {
 
 	m := client.Module{
 		ModuleName:           "module_name",
-		BitbucketClientKey:   stringPtr("12345abcd"),
+		BitbucketClientKey:   new("12345abcd"),
 		ModuleProvider:       "module_provider",
 		Repository:           "repository",
 		Description:          "description",
 		Id:                   "id",
-		GithubInstallationId: intPtr(1000),
+		GithubInstallationId: new(1000),
 		SshKeys: []client.ModuleSshKey{
 			{
 				Id:   "id1",
@@ -180,13 +180,13 @@ func TestWriteCustomResourceData(t *testing.T) {
 		ScopeId:        "scope0",
 		OrganizationId: "organization0",
 		UserId:         "user0",
-		IsSensitive:    boolPtr(true),
+		IsSensitive:    new(true),
 		Scope:          client.ScopeEnvironment,
-		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema:         &client.ConfigurationVariableSchema{Type: "string", Format: client.HCL, Enum: []string{"s1", "s2"}},
-		IsReadOnly:     boolPtr(true),
-		IsRequired:     boolPtr(true),
-		ToDelete:       boolPtr(false),
+		IsReadOnly:     new(true),
+		IsRequired:     new(true),
+		ToDelete:       new(false),
 		Regex:          "regex",
 	}
 
@@ -358,11 +358,11 @@ func TestReadSubEnvironment(t *testing.T) {
 				{
 					Name:        "name1",
 					Value:       "value1",
-					IsSensitive: boolPtr(false),
-					IsRequired:  boolPtr(false),
-					IsReadOnly:  boolPtr(false),
+					IsSensitive: new(false),
+					IsRequired:  new(false),
+					IsReadOnly:  new(false),
 					Scope:       "ENVIRONMENT",
-					Type:        (*client.ConfigurationVariableType)(intPtr(0)),
+					Type:        (*client.ConfigurationVariableType)(new(0)),
 					Schema: &client.ConfigurationVariableSchema{
 						Type: "string",
 					},
@@ -370,11 +370,11 @@ func TestReadSubEnvironment(t *testing.T) {
 				{
 					Name:        "name2",
 					Value:       "value2",
-					IsSensitive: boolPtr(false),
-					IsRequired:  boolPtr(false),
-					IsReadOnly:  boolPtr(false),
+					IsSensitive: new(false),
+					IsRequired:  new(false),
+					IsReadOnly:  new(false),
 					Scope:       "ENVIRONMENT",
-					Type:        (*client.ConfigurationVariableType)(intPtr(0)),
+					Type:        (*client.ConfigurationVariableType)(new(0)),
 					Schema: &client.ConfigurationVariableSchema{
 						Type: "string",
 					},
@@ -418,48 +418,48 @@ func TestReadSubEnvironment(t *testing.T) {
 
 func TestTTLToDuration(t *testing.T) {
 	t.Run("hours", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("2-h"))
+		duration, err := ttlToDuration(new("2-h"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(3600*2*1000000000), duration)
 	})
 
 	t.Run("days", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("1-d"))
+		duration, err := ttlToDuration(new("1-d"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(3600*24*1000000000), duration)
 	})
 
 	t.Run("weeks", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("3-w"))
+		duration, err := ttlToDuration(new("3-w"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(21*3600*24*1000000000), duration)
 	})
 
 	t.Run("months", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("1-M"))
+		duration, err := ttlToDuration(new("1-M"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(30*3600*24*1000000000), duration)
 	})
 
 	t.Run("inherit", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("inherit"))
+		duration, err := ttlToDuration(new("inherit"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(math.MaxInt64), duration)
 	})
 
 	t.Run("Infinite", func(t *testing.T) {
-		duration, err := ttlToDuration(stringPtr("Infinite"))
+		duration, err := ttlToDuration(new("Infinite"))
 		require.NoError(t, err)
 		require.Equal(t, time.Duration(math.MaxInt64), duration)
 	})
 
 	t.Run("invalid format", func(t *testing.T) {
-		_, err := ttlToDuration(stringPtr("2-F"))
+		_, err := ttlToDuration(new("2-F"))
 		require.Error(t, err)
 	})
 
 	t.Run("invalid format - not a number", func(t *testing.T) {
-		_, err := ttlToDuration(stringPtr("f-M"))
+		_, err := ttlToDuration(new("f-M"))
 		require.Error(t, err)
 	})
 }

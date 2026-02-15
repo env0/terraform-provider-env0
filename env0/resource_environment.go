@@ -478,25 +478,13 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		sortedVariablesSet := []string{}
 
 		for _, schemav := range variableSetsFromSchema {
-			for _, newv := range variableSetsIds {
-				if schemav == newv {
-					sortedVariablesSet = append(sortedVariablesSet, schemav)
-
-					break
-				}
+			if slices.Contains(variableSetsIds, schemav) {
+				sortedVariablesSet = append(sortedVariablesSet, schemav)
 			}
 		}
 
 		for _, newv := range variableSetsIds {
-			found := false
-
-			for _, sortedv := range sortedVariablesSet {
-				if newv == sortedv {
-					found = true
-
-					break
-				}
-			}
+			found := slices.Contains(sortedVariablesSet, newv)
 
 			if !found {
 				sortedVariablesSet = append(sortedVariablesSet, newv)
@@ -1070,34 +1058,34 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
-		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
+		payload.VcsPrCommentsEnabled = new(val.(bool))
 	}
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("deploy_on_push"); exists {
-		payload.ContinuousDeployment = boolPtr(val.(bool))
+		payload.ContinuousDeployment = new(val.(bool))
 	}
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("run_plan_on_pull_requests"); exists {
-		payload.PullRequestPlanDeployments = boolPtr(val.(bool))
+		payload.PullRequestPlanDeployments = new(val.(bool))
 	}
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("prevent_auto_deploy"); exists {
-		payload.PreventAutoDeploy = boolPtr(val.(bool))
+		payload.PreventAutoDeploy = new(val.(bool))
 	}
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("auto_deploy_on_path_changes_only"); exists {
-		payload.AutoDeployOnPathChangesOnly = boolPtr(val.(bool))
+		payload.AutoDeployOnPathChangesOnly = new(val.(bool))
 	}
 
 	isWorkflow := templateType == client.WORKFLOW
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
-		payload.RequiresApproval = boolPtr(!val.(bool))
+		payload.RequiresApproval = new(!val.(bool))
 
 		if isWorkflow && *payload.RequiresApproval {
 			return client.EnvironmentCreate{}, diag.Errorf("approve_plan_automatically cannot be 'false' for workflows")
@@ -1106,12 +1094,12 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	// For 'Workflows', the 'root' environment should never require an approval.
 	if isWorkflow {
-		payload.RequiresApproval = boolPtr(false)
+		payload.RequiresApproval = new(false)
 	}
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("is_remote_backend"); exists {
-		payload.IsRemoteBackend = boolPtr(val.(bool))
+		payload.IsRemoteBackend = new(val.(bool))
 	}
 
 	if err := assertEnvironment(d); err != nil {
@@ -1214,31 +1202,31 @@ func getUpdatePayload(d *schema.ResourceData) (client.EnvironmentUpdate, diag.Di
 	// Because the terraform SDK is unable to detecred changes between 'unset' and 'false' (sdk limitation): always set a value here (even if there's no change).
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("vcs_pr_comments_enabled"); exists {
-		payload.VcsPrCommentsEnabled = boolPtr(val.(bool))
+		payload.VcsPrCommentsEnabled = new(val.(bool))
 	}
 
 	if d.HasChange("approve_plan_automatically") {
-		payload.RequiresApproval = boolPtr(!d.Get("approve_plan_automatically").(bool))
+		payload.RequiresApproval = new(!d.Get("approve_plan_automatically").(bool))
 	}
 
 	if d.HasChange("deploy_on_push") {
-		payload.ContinuousDeployment = boolPtr(d.Get("deploy_on_push").(bool))
+		payload.ContinuousDeployment = new(d.Get("deploy_on_push").(bool))
 	}
 
 	if d.HasChange("run_plan_on_pull_requests") {
-		payload.PullRequestPlanDeployments = boolPtr(d.Get("run_plan_on_pull_requests").(bool))
+		payload.PullRequestPlanDeployments = new(d.Get("run_plan_on_pull_requests").(bool))
 	}
 
 	if d.HasChange("auto_deploy_on_path_changes_only") {
-		payload.AutoDeployOnPathChangesOnly = boolPtr(d.Get("auto_deploy_on_path_changes_only").(bool))
+		payload.AutoDeployOnPathChangesOnly = new(d.Get("auto_deploy_on_path_changes_only").(bool))
 	}
 
 	if d.HasChange("is_remote_backend") {
-		payload.IsRemoteBackend = boolPtr(d.Get("is_remote_backend").(bool))
+		payload.IsRemoteBackend = new(d.Get("is_remote_backend").(bool))
 	}
 
 	if d.HasChange("is_inactive") {
-		payload.IsArchived = boolPtr(d.Get("is_inactive").(bool))
+		payload.IsArchived = new(d.Get("is_inactive").(bool))
 	}
 
 	// Send an empty vcs_commands_alias if vcs_pr_comments_enabled is 'false' or unset - https://github.com/env0/terraform-provider-env0/issues/964
@@ -1266,15 +1254,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 	var unassignVariableSets []string
 
 	for _, sv := range variableSetsFromSchema {
-		found := false
-
-		for _, av := range variableSetFromApi {
-			if sv == av {
-				found = true
-
-				break
-			}
-		}
+		found := slices.Contains(variableSetFromApi, sv)
 
 		if !found {
 			assignVariableSets = append(assignVariableSets, sv)
@@ -1282,15 +1262,7 @@ func getEnvironmentConfigurationSetChanges(d *schema.ResourceData, apiClient cli
 	}
 
 	for _, av := range variableSetFromApi {
-		found := false
-
-		for _, sv := range variableSetsFromSchema {
-			if sv == av {
-				found = true
-
-				break
-			}
-		}
+		found := slices.Contains(variableSetsFromSchema, av)
 
 		if !found {
 			unassignVariableSets = append(unassignVariableSets, av)
@@ -1326,7 +1298,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	// For 'Workflows', the 'root' environment should never require a user approval.
 	if _, ok := d.GetOk("sub_environment_configuration"); ok {
-		payload.UserRequiresApproval = boolPtr(false)
+		payload.UserRequiresApproval = new(false)
 	}
 
 	if isRedeploy {
@@ -1358,7 +1330,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if val, exists := d.GetOkExists("approve_plan_automatically"); exists {
-		payload.UserRequiresApproval = boolPtr(!val.(bool))
+		payload.UserRequiresApproval = new(!val.(bool))
 	}
 
 	return payload, nil

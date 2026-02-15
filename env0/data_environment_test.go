@@ -54,7 +54,7 @@ func TestEnvironmentDataSource(t *testing.T) {
 	archivedEnvironment := client.Environment{
 		Id:         "id-archived",
 		Name:       environment.Name,
-		IsArchived: boolPtr(true),
+		IsArchived: new(true),
 	}
 
 	environmentFieldsByName := map[string]any{"name": environment.Name}

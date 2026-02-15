@@ -32,7 +32,7 @@ func convertToMap(data any) (map[string]any, error) {
 }
 
 // Helper function to convert map[string]any back to struct
-func convertMapBackToStruct(data map[string]any, target interface{}) error {
+func convertMapBackToStruct(data map[string]any, target any) error {
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
 		return err

@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -206,9 +207,7 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	}
 
 	// 3. Merged the maps.
-	for k, v := range ecm {
-		tcm[k] = v
-	}
+	maps.Copy(tcm, ecm)
 
 	// 4. Marshal the merged map back to JSON.
 	return json.Marshal(tcm)

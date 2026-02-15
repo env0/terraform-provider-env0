@@ -14,21 +14,21 @@ func TestEnvironmentsDataSource(t *testing.T) {
 		Id:         "env1",
 		Name:       "Environment 1",
 		ProjectId:  "proj1",
-		IsArchived: boolPtr(false),
+		IsArchived: new(false),
 	}
 
 	env2 := client.Environment{
 		Id:         "env2",
 		Name:       "Environment 2",
 		ProjectId:  "proj1",
-		IsArchived: boolPtr(false),
+		IsArchived: new(false),
 	}
 
 	env3Archived := client.Environment{
 		Id:         "env3",
 		Name:       "Environment 3",
 		ProjectId:  "proj1",
-		IsArchived: boolPtr(true),
+		IsArchived: new(true),
 	}
 
 	resourceType := "env0_environments"

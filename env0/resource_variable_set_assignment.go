@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"slices"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -96,12 +97,8 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 		found := false
 
 		apiSetId := apiConfigurationSet.Id
-		for _, schemaSetId := range assignmentSchema.SetIds {
-			if apiSetId == schemaSetId {
-				found = true
-
-				break
-			}
+		if slices.Contains(assignmentSchema.SetIds, apiSetId) {
+			found = true
 		}
 
 		if !found {
@@ -196,15 +193,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 
 		apiSetId := apiConfigurationSet.Id
-		found := false
-
-		for _, schemaSetId := range assignmentSchema.SetIds {
-			if schemaSetId == apiSetId {
-				found = true
-
-				break
-			}
-		}
+		found := slices.Contains(assignmentSchema.SetIds, apiSetId)
 
 		if !found {
 			newSchemaSetIds = append(newSchemaSetIds, apiSetId)
