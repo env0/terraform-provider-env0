@@ -19,7 +19,9 @@ var _ = Describe("User Client", func() {
 
 	Describe("Users", func() {
 		var users []OrganizationUser
+
 		mockUsers := []OrganizationUser{mockUser}
+
 		var err error
 
 		Describe("Success", func() {

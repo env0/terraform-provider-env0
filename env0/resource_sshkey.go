@@ -102,7 +102,6 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta any)
 	var getErr error
 
 	_, uuidErr := uuid.Parse(id)
-
 	if uuidErr == nil {
 		tflog.Info(ctx, "Resolving SSH key by id", map[string]any{"id": id})
 		_, getErr = getSshKeyById(id, meta)

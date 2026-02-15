@@ -372,7 +372,6 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta an
 	var getErr diag.Diagnostics
 
 	_, uuidErr := uuid.Parse(id)
-
 	if uuidErr == nil {
 		tflog.Info(ctx, "Resolving template by id", map[string]any{"id": id})
 		_, getErr = getTemplateById(id, meta)

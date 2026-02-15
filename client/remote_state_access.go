@@ -3,7 +3,7 @@ package client
 type RemoteStateAccessConfiguration struct {
 	EnvironmentId                    string   `json:"environmentId"`
 	AccessibleFromEntireOrganization bool     `json:"accessibleFromEntireOrganization"`
-	AllowedProjectIds                []string `json:"allowedProjectIds" tfschema:",omitempty"`
+	AllowedProjectIds                []string `json:"allowedProjectIds"                tfschema:",omitempty"`
 }
 
 type RemoteStateAccessConfigurationCreate struct {

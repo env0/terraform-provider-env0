@@ -16,8 +16,10 @@ var _ = Describe("VCSToken", func() {
 	}
 
 	Describe("get", func() {
-		var ret *VscToken
-		var err error
+		var (
+			ret *VscToken
+			err error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -42,5 +44,4 @@ var _ = Describe("VCSToken", func() {
 			Expect(err).To(BeNil())
 		})
 	})
-
 })

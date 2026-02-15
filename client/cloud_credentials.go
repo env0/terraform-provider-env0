@@ -15,7 +15,7 @@ type Credentials struct {
 	Name           string `json:"name"`
 	OrganizationId string `json:"organizationId" tfschema:",omitempty"`
 	Type           string `json:"type"`
-	ProjectId      string `json:"projectId" tfschema:",omitempty"`
+	ProjectId      string `json:"projectId"      tfschema:",omitempty"`
 }
 
 func (c *Credentials) HasPrefix(prefixList []string) bool {
@@ -53,7 +53,7 @@ type AwsCredentialsCreatePayload struct {
 }
 
 type AwsCredentialsValuePayload struct {
-	RoleArn         string `json:"roleArn" tfschema:"arn"`
+	RoleArn         string `json:"roleArn"                   tfschema:"arn"`
 	Duration        int    `json:"duration,omitempty"`
 	AccessKeyId     string `json:"accessKeyId,omitempty"`
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`

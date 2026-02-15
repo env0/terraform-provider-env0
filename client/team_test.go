@@ -44,11 +44,13 @@ var _ = Describe("Teams Client", func() {
 
 	Describe("Get All Teams", func() {
 		var returnedTeams []Team
+
 		mockTeams := []Team{mockTeam}
 		mockTeams2 := []Team{mockTeam2}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/teams/organizations/"+organizationId, map[string]string{
 					"limit": "100",
@@ -88,8 +90,10 @@ var _ = Describe("Teams Client", func() {
 
 	Describe("TeamCreate", func() {
 		Describe("Success", func() {
-			var createdTeam Team
-			var err error
+			var (
+				createdTeam Team
+				err         error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall()
@@ -160,8 +164,10 @@ var _ = Describe("Teams Client", func() {
 
 	Describe("TeamUpdate", func() {
 		Describe("Success", func() {
-			var updatedTeam Team
-			var err error
+			var (
+				updatedTeam Team
+				err         error
+			)
 
 			BeforeEach(func() {
 				updateTeamPayload := TeamUpdatePayload{Name: "updated-name"}

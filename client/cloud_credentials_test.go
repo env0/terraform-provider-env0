@@ -9,6 +9,7 @@ import (
 
 var _ = Describe("CloudCredentials", func() {
 	const credentialsName = "credential_test"
+
 	var credentials Credentials
 
 	mockCredentialsForGoogleCostCred := Credentials{
@@ -121,7 +122,6 @@ var _ = Describe("CloudCredentials", func() {
 
 		BeforeEach(func() {
 			// Note: No organization ID call should be made
-
 			payloadValue := AwsCredentialsValuePayload{
 				RoleArn:  "role",
 				Duration: 1,
@@ -249,8 +249,10 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("GcpCredentialsCreate", func() {
 		const gcpRequestType = "GCP_SERVICE_ACCOUNT_FOR_DEPLOYMENT"
+
 		mockGcpCredentials := mockCredentials
 		mockGcpCredentials.Type = gcpRequestType
+
 		BeforeEach(func() {
 			mockOrganizationIdCall()
 
@@ -293,10 +295,11 @@ var _ = Describe("CloudCredentials", func() {
 
 	Describe("AzureCredentialsCreate", func() {
 		const azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+
 		mockAzureCredentials := mockCredentials
 		mockAzureCredentials.Type = azureRequestType
-		BeforeEach(func() {
 
+		BeforeEach(func() {
 			mockOrganizationIdCall().Times(1)
 
 			payloadValue := AzureCredentialsValuePayload{
@@ -331,14 +334,16 @@ var _ = Describe("CloudCredentials", func() {
 	})
 
 	Describe("AzureCredentialsCreate with ProjectId", func() {
-		const projectId = "project-abc"
-		const azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+		const (
+			projectId        = "project-abc"
+			azureRequestType = "AZURE_SERVICE_PRINCIPAL_FOR_DEPLOYMENT"
+		)
+
 		mockAzureCredentialsWithProject := mockCredentials
 		mockAzureCredentialsWithProject.Type = azureRequestType
 
 		BeforeEach(func() {
 			// No organization ID call expected
-
 			payloadValue := AzureCredentialsValuePayload{
 				ClientId:       "fakeClientId",
 				ClientSecret:   "fakeClientSecret",

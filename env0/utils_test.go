@@ -72,6 +72,7 @@ func TestWriteResourceDataModule(t *testing.T) {
 	assert.Equal(t, 1000, d.Get("github_installation_id"))
 
 	var rawSshKeys []any
+
 	rawSshKeys = append(rawSshKeys, map[string]any{"id": "id1", "name": "name1"})
 	assert.Equal(t, rawSshKeys, d.Get("ssh_keys"))
 }

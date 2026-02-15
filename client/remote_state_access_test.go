@@ -19,8 +19,10 @@ var _ = Describe("RemoteStateAccess", func() {
 	}
 
 	Describe("Create", func() {
-		var err error
-		var remoteStateAccessResponse *RemoteStateAccessConfiguration
+		var (
+			err                       error
+			remoteStateAccessResponse *RemoteStateAccessConfiguration
+		)
 
 		BeforeEach(func() {
 			createRequest := RemoteStateAccessConfigurationCreate{
@@ -33,6 +35,7 @@ var _ = Describe("RemoteStateAccess", func() {
 					*response = remoteStateAccess
 				})
 			httpCall.Times(1)
+
 			remoteStateAccessResponse, err = apiClient.RemoteStateAccessConfigurationCreate(environmentId, createRequest)
 		})
 
@@ -46,8 +49,10 @@ var _ = Describe("RemoteStateAccess", func() {
 	})
 
 	Describe("Get", func() {
-		var err error
-		var remoteStateAccessResponse *RemoteStateAccessConfiguration
+		var (
+			err                       error
+			remoteStateAccessResponse *RemoteStateAccessConfiguration
+		)
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
@@ -56,6 +61,7 @@ var _ = Describe("RemoteStateAccess", func() {
 					*response = remoteStateAccess
 				})
 			httpCall.Times(1)
+
 			remoteStateAccessResponse, err = apiClient.RemoteStateAccessConfiguration(environmentId)
 		})
 
@@ -74,6 +80,7 @@ var _ = Describe("RemoteStateAccess", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/remote-backend/states/"+environmentId+"/access-control", nil)
 			httpCall.Times(1)
+
 			err = apiClient.RemoteStateAccessConfigurationDelete(environmentId)
 		})
 

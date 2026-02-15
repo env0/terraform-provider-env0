@@ -9,6 +9,7 @@ import (
 
 var _ = Describe("Workflow Triggers", func() {
 	const environmentId = "environmentId"
+
 	mockTrigger := []WorkflowTrigger{
 		{
 			Id: "id1",
@@ -16,8 +17,8 @@ var _ = Describe("Workflow Triggers", func() {
 	}
 
 	var triggers []WorkflowTrigger
-	Describe("WorkflowTriggerUpsert", func() {
 
+	Describe("WorkflowTriggerUpsert", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Put("/environments/"+environmentId+"/downstream", WorkflowTriggerUpsertPayload{
@@ -63,6 +64,7 @@ var _ = Describe("Workflow Triggers", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/downstream/subscribe", subscribePayload, nil)
 			httpCall.Times(1)
+
 			err = apiClient.SubscribeWorkflowTrigger(environmentId, subscribePayload)
 		})
 
@@ -81,6 +83,7 @@ var _ = Describe("Workflow Triggers", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/environments/"+environmentId+"/downstream/unsubscribe", unsubscribePayload, nil)
 			httpCall.Times(1)
+
 			err = apiClient.UnsubscribeWorkflowTrigger(environmentId, unsubscribePayload)
 		})
 

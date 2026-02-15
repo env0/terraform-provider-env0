@@ -29,10 +29,11 @@ var _ = Describe("Agent Project Assignment", func() {
 	errorMock := errors.New("error")
 
 	Describe("AssignUserToProject", func() {
-
 		Describe("Successful", func() {
-			var actualResult *UserProjectAssignment
-			var err error
+			var (
+				actualResult *UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -41,7 +42,6 @@ var _ = Describe("Agent Project Assignment", func() {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.AssignUserToProject(projectId, assignPayload)
-
 			})
 
 			It("Should send POST request with params", func() {
@@ -58,8 +58,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult *UserProjectAssignment
-			var err error
+			var (
+				actualResult *UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -95,10 +97,11 @@ var _ = Describe("Agent Project Assignment", func() {
 	})
 
 	Describe("UserProjectAssignments", func() {
-
 		Describe("Successful", func() {
-			var actualResult []UserProjectAssignment
-			var err error
+			var (
+				actualResult []UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -107,7 +110,6 @@ var _ = Describe("Agent Project Assignment", func() {
 						*response = []UserProjectAssignment{*expectedResponse}
 					}).Times(1)
 				actualResult, err = apiClient.UserProjectAssignments(projectId)
-
 			})
 
 			It("Should send GET request with params", func() {
@@ -124,8 +126,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult []UserProjectAssignment
-			var err error
+			var (
+				actualResult []UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -144,10 +148,11 @@ var _ = Describe("Agent Project Assignment", func() {
 	})
 
 	Describe("UpdateUserProjectAssignment", func() {
-
 		Describe("Successful", func() {
-			var actualResult *UserProjectAssignment
-			var err error
+			var (
+				actualResult *UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -156,7 +161,6 @@ var _ = Describe("Agent Project Assignment", func() {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.UpdateUserProjectAssignment(projectId, userId, updatePayload)
-
 			})
 
 			It("Should send PUT request with params", func() {
@@ -173,8 +177,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult *UserProjectAssignment
-			var err error
+			var (
+				actualResult *UserProjectAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -191,5 +197,4 @@ var _ = Describe("Agent Project Assignment", func() {
 			})
 		})
 	})
-
 })

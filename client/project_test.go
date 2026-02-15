@@ -12,8 +12,11 @@ const projectDescription = "project description"
 const parentProjectId = "parent_project_id"
 
 var _ = Describe("Project", func() {
-	var project Project
-	var moduleTestingProject *ModuleTestingProject
+	var (
+		project              Project
+		moduleTestingProject *ModuleTestingProject
+	)
+
 	mockProject := Project{
 		Id:             "idX",
 		Name:           "projectX",
@@ -87,6 +90,7 @@ var _ = Describe("Project", func() {
 
 	Describe("ProjectUpdate", func() {
 		var mockedResponse Project
+
 		BeforeEach(func() {
 			payload := ProjectUpdatePayload{
 				Name:        "newName",
@@ -135,6 +139,7 @@ var _ = Describe("Project", func() {
 
 	Describe("Projects", func() {
 		var projects []Project
+
 		mockProjects := []Project{mockProject}
 
 		BeforeEach(func() {

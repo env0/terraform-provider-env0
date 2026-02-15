@@ -39,10 +39,12 @@ var _ = Describe("GitToken Client", func() {
 
 	Describe("Get All GitTokens", func() {
 		var returnedGitTokens []GitToken
+
 		mockGitTokens := []GitToken{mockGitToken}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/tokens", map[string]string{"organizationId": organizationId, "type": "GIT"}, gomock.Any()).
 				Do(func(path string, request any, response *[]GitToken) {
@@ -65,8 +67,10 @@ var _ = Describe("GitToken Client", func() {
 	})
 
 	Describe("Create GitToken", func() {
-		var createdGitToken *GitToken
-		var err error
+		var (
+			createdGitToken *GitToken
+			err             error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()

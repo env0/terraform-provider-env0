@@ -149,8 +149,8 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 
 func ValidateUrl(i any, path cty.Path) diag.Diagnostics {
 	v := i.(string)
-	_, err := url.ParseRequestURI(v)
 
+	_, err := url.ParseRequestURI(v)
 	if err != nil {
 		return diag.Errorf("must be a valid URL: %v", err)
 	}

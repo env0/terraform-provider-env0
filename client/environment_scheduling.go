@@ -36,7 +36,7 @@ func (e *EnvironmentSchedulingExpression) WriteResourceData(fieldName string, d 
 }
 
 type EnvironmentScheduling struct {
-	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty" tfschema:"deploy_cron"`
+	Deploy  *EnvironmentSchedulingExpression `json:"deploy,omitempty"  tfschema:"deploy_cron"`
 	Destroy *EnvironmentSchedulingExpression `json:"destroy,omitempty" tfschema:"destroy_cron"`
 }
 

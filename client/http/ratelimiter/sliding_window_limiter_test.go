@@ -151,11 +151,16 @@ var _ = Describe("SlidingWindowLimiter", func() {
 
 			ctx, cancel := context.WithCancel(context.Background())
 
-			var err error
-			var wg sync.WaitGroup
+			var (
+				err error
+				wg  sync.WaitGroup
+			)
+
 			wg.Add(1)
+
 			go func() {
 				defer wg.Done()
+
 				err = limiter.Wait(ctx)
 			}()
 
@@ -174,13 +179,17 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			Expect(limiter.Allow()).To(BeTrue())
 
 			ctx := context.Background()
+
 			var wg sync.WaitGroup
+
 			results := make([]error, 3)
 
-			for i := 0; i < 3; i++ {
+			for i := range 3 {
 				wg.Add(1)
+
 				go func(idx int) {
 					defer wg.Done()
+
 					results[idx] = limiter.Wait(ctx)
 				}(i)
 			}
@@ -188,7 +197,7 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			wg.Wait()
 
 			// All should succeed eventually
-			for i := 0; i < 3; i++ {
+			for i := range 3 {
 				Expect(results[i]).To(BeNil())
 			}
 		})
@@ -201,12 +210,15 @@ var _ = Describe("SlidingWindowLimiter", func() {
 
 		It("should be safe for concurrent Allow calls", func() {
 			var wg sync.WaitGroup
+
 			successCount := int32(0)
 
-			for i := 0; i < 20; i++ {
+			for range 20 {
 				wg.Add(1)
+
 				go func() {
 					defer wg.Done()
+
 					if limiter.Allow() {
 						atomic.AddInt32(&successCount, 1)
 					}
@@ -223,13 +235,16 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			limiter = NewSlidingWindowLimiter(3, 100*time.Millisecond)
 
 			var wg sync.WaitGroup
+
 			ctx := context.Background()
 			errors := make([]error, 5)
 
-			for i := 0; i < 5; i++ {
+			for i := range 5 {
 				wg.Add(1)
+
 				go func(idx int) {
 					defer wg.Done()
+
 					errors[idx] = limiter.Wait(ctx)
 				}(i)
 			}
@@ -237,7 +252,7 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			wg.Wait()
 
 			// All should succeed eventually
-			for i := 0; i < 5; i++ {
+			for i := range 5 {
 				Expect(errors[i]).To(BeNil())
 			}
 		})
@@ -246,24 +261,31 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			limiter = NewSlidingWindowLimiter(5, 200*time.Millisecond)
 
 			var wg sync.WaitGroup
+
 			ctx := context.Background()
 
 			// Start some Allow calls
 			allowResults := make([]bool, 10)
-			for i := 0; i < 10; i++ {
+
+			for i := range 10 {
 				wg.Add(1)
+
 				go func(idx int) {
 					defer wg.Done()
+
 					allowResults[idx] = limiter.Allow()
 				}(i)
 			}
 
 			// Start some Wait calls
 			waitResults := make([]error, 3)
-			for i := 0; i < 3; i++ {
+
+			for i := range 3 {
 				wg.Add(1)
+
 				go func(idx int) {
 					defer wg.Done()
+
 					waitResults[idx] = limiter.Wait(ctx)
 				}(i)
 			}
@@ -272,6 +294,7 @@ var _ = Describe("SlidingWindowLimiter", func() {
 
 			// Count successful Allow calls
 			allowSuccess := 0
+
 			for _, result := range allowResults {
 				if result {
 					allowSuccess++
@@ -279,7 +302,7 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			}
 
 			// All Wait calls should succeed
-			for i := 0; i < 3; i++ {
+			for i := range 3 {
 				Expect(waitResults[i]).To(BeNil())
 			}
 
@@ -293,12 +316,15 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			limiter = NewSlidingWindowLimiter(100, time.Second)
 
 			var wg sync.WaitGroup
+
 			successCount := int32(0)
 
-			for i := 0; i < 1000; i++ {
+			for range 1000 {
 				wg.Add(1)
+
 				go func() {
 					defer wg.Done()
+
 					if limiter.Allow() {
 						atomic.AddInt32(&successCount, 1)
 					}

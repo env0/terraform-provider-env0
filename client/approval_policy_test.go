@@ -33,17 +33,21 @@ var _ = Describe("Approval Policy Client", func() {
 
 	Describe("Get Custom Flows By Name", func() {
 		var returnedApprovalPolicies []ApprovalPolicy
+
 		mockApprovalPolicies := []ApprovalPolicy{mockApprovalPolicy}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/approval-policy", map[string]string{"organizationId": organizationId, "name": mockApprovalPolicy.Name}, gomock.Any()).
 				Do(func(path string, request any, response *[]ApprovalPolicy) {
 					*response = mockApprovalPolicies
 				})
+
 			organizationIdCall.Times(1)
 			httpCall.Times(1)
+
 			returnedApprovalPolicies, _ = apiClient.ApprovalPolicies(mockApprovalPolicy.Name)
 		})
 
@@ -68,6 +72,7 @@ var _ = Describe("Approval Policy Client", func() {
 					*response = mockAssignment
 				})
 			httpCall.Times(1)
+
 			returnedApprovalPolicyAssignment, _ = apiClient.ApprovalPolicyAssign(&mockAssignment)
 		})
 
@@ -78,11 +83,13 @@ var _ = Describe("Approval Policy Client", func() {
 
 	Describe("Unassign Custom Flow", func() {
 		var err error
+
 		id := fmt.Sprintf("%s#%s#%s", mockAssignment.Scope, mockAssignment.ScopeId, mockAssignment.BlueprintId)
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/approval-policy/assignment", map[string]string{"id": id})
 			httpCall.Times(1)
+
 			err = apiClient.ApprovalPolicyUnassign(id)
 		})
 
@@ -112,6 +119,7 @@ var _ = Describe("Approval Policy Client", func() {
 					*response = mockApprovalPolicyByScopeArr
 				})
 			httpCall.Times(1)
+
 			ret, _ = apiClient.ApprovalPolicyByScope(scope, scopeId)
 		})
 
@@ -121,8 +129,10 @@ var _ = Describe("Approval Policy Client", func() {
 	})
 
 	Describe("Create ApprovalPolicy", func() {
-		var result *ApprovalPolicy
-		var err error
+		var (
+			result *ApprovalPolicy
+			err    error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall().Times(1)
@@ -157,8 +167,10 @@ var _ = Describe("Approval Policy Client", func() {
 	})
 
 	Describe("Update ApprovalPolicy", func() {
-		var result *ApprovalPolicy
-		var err error
+		var (
+			result *ApprovalPolicy
+			err    error
+		)
 
 		BeforeEach(func() {
 			updateApprovalPolicyPayload := ApprovalPolicyUpdatePayload{}

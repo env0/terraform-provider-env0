@@ -2,13 +2,13 @@ package client
 
 type AssignUserRoleToEnvironmentPayload struct {
 	UserId        string `json:"userId"`
-	Role          string `json:"role" tfschema:"role_id"`
+	Role          string `json:"role"          tfschema:"role_id"`
 	EnvironmentId string `json:"environmentId"`
 }
 
 type UserRoleEnvironmentAssignment struct {
 	UserId string `json:"userId"`
-	Role   string `json:"role" tfschema:"role_id"`
+	Role   string `json:"role"   tfschema:"role_id"`
 	Id     string `json:"id"`
 }
 

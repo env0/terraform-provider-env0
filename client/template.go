@@ -42,7 +42,7 @@ type Template struct {
 	Name                 string           `json:"name"`
 	Description          string           `json:"description"`
 	OrganizationId       string           `json:"organizationId"`
-	Path                 string           `json:"path" tfschema:",omitempty"`
+	Path                 string           `json:"path"                 tfschema:",omitempty"`
 	Revision             string           `json:"revision"`
 	ProjectId            string           `json:"projectId"`
 	ProjectIds           []string         `json:"projectIds"`
@@ -51,26 +51,26 @@ type Template struct {
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	Type                 string           `json:"type"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
-	VcsConnectionId      string           `json:"vcsConnectionId" tfschema:",omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId"      tfschema:",omitempty"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
-	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
+	TokenId              string           `json:"tokenId"              tfschema:",omitempty"`
 	UpdatedAt            string           `json:"updatedAt"`
-	TerraformVersion     string           `json:"terraformVersion" tfschema:",omitempty"`
-	TerragruntVersion    string           `json:"terragruntVersion" tfschema:",omitempty"`
-	OpentofuVersion      string           `json:"opentofuVersion" tfschema:",omitempty"`
+	TerraformVersion     string           `json:"terraformVersion"     tfschema:",omitempty"`
+	TerragruntVersion    string           `json:"terragruntVersion"    tfschema:",omitempty"`
+	OpentofuVersion      string           `json:"opentofuVersion"      tfschema:",omitempty"`
 	IsDeleted            bool             `json:"isDeleted"`
-	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey"   tfschema:",omitempty"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
-	FileName             string           `json:"fileName" tfschema:",omitempty"`
+	FileName             string           `json:"fileName"             tfschema:",omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
-	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"        tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
-	HelmChartName        string           `json:"helmChartName" tfschema:",omitempty"`
+	HelmChartName        string           `json:"helmChartName"        tfschema:",omitempty"`
 	IsGitlab             bool             `json:"isGitLab"`
-	TerragruntTfBinary   string           `json:"terragruntTfBinary" tfschema:",omitempty"`
-	TokenName            string           `json:"tokenName" tfschema:",omitempty"`
-	AnsibleVersion       string           `json:"ansibleVersion" tfschema:",omitempty"`
+	TerragruntTfBinary   string           `json:"terragruntTfBinary"   tfschema:",omitempty"`
+	TokenName            string           `json:"tokenName"            tfschema:",omitempty"`
+	AnsibleVersion       string           `json:"ansibleVersion"       tfschema:",omitempty"`
 }
 
 type TemplateCreatePayload struct {
@@ -97,7 +97,7 @@ type TemplateCreatePayload struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	FileName             string           `json:"fileName,omitempty"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
-	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"                  tfschema:"is_azure_devops"`
 	IsHelmRepository     bool             `json:"isHelmRepository"`
 	HelmChartName        string           `json:"helmChartName,omitempty"`
 	TerragruntTfBinary   string           `json:"terragruntTfBinary,omitempty"`

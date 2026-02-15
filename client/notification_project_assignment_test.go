@@ -38,8 +38,10 @@ var _ = Describe("Notification Project Assignment Client", func() {
 	})
 
 	Describe("Update Notification Project Assignment", func() {
-		var updatedAssignment *NotificationProjectAssignment
-		var err error
+		var (
+			updatedAssignment *NotificationProjectAssignment
+			err               error
+		)
 
 		updatedMockNotificationProjectAssignment := mockNotificationProjectAssignment
 		updatedMockNotificationProjectAssignment.EventNames = []string{"name3"}

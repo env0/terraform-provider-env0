@@ -237,6 +237,7 @@ func resourceEnvironment() *schema.Resource {
 				ValidateFunc: func(val any, key string) (warns []string, errs []error) {
 					utcPattern := `\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d`
 					ttl := val.(string)
+
 					matched, err := regexp.MatchString(utcPattern, ttl)
 					if !matched || err != nil {
 						errs = append(errs, fmt.Errorf("%q must be of iso format (for example: \"2021-12-13T10:00:00Z\"), got: %q", key, ttl))

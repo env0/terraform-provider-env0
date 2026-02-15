@@ -15,13 +15,13 @@ type Module struct {
 	LogoUrl               string         `json:"logoUrl"`
 	TokenId               string         `json:"tokenId"`
 	TokenName             string         `json:"tokenName"`
-	GithubInstallationId  *int           `json:"githubInstallationId" tfschema:",omitempty"`
-	VcsConnectionId       *string        `json:"vcsConnectionId" tfschema:",omitempty"`
-	BitbucketClientKey    *string        `json:"bitbucketClientKey" tfschema:",omitempty"`
+	GithubInstallationId  *int           `json:"githubInstallationId"  tfschema:",omitempty"`
+	VcsConnectionId       *string        `json:"vcsConnectionId"       tfschema:",omitempty"`
+	BitbucketClientKey    *string        `json:"bitbucketClientKey"    tfschema:",omitempty"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
-	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise"    tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise"    tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys"`
 	Type                  string         `json:"type"`
 	Id                    string         `json:"id"`
@@ -36,7 +36,7 @@ type Module struct {
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion"`
-	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps"         tfschema:"is_azure_devops"`
 }
 
 type ModuleCreatePayload struct {
@@ -52,15 +52,15 @@ type ModuleCreatePayload struct {
 	BitbucketClientKey    string         `json:"bitbucketClientKey,omitempty"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
-	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise"             tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise"             tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys,omitempty"`
 	Path                  string         `json:"path,omitempty"`
 	TagPrefix             string         `json:"tagPrefix,omitempty"`
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
-	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps"                  tfschema:"is_azure_devops"`
 }
 
 func (payload *ModuleCreatePayload) Invalidate() error {
@@ -90,15 +90,15 @@ type ModuleUpdatePayload struct {
 	BitbucketClientKey    string         `json:"bitbucketClientKey"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
-	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise"        tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise"        tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys"`
 	Path                  string         `json:"path"`
 	TagPrefix             string         `json:"tagPrefix,omitempty"`
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
 	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
-	IsAzureDevOps         bool           `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps"             tfschema:"is_azure_devops"`
 }
 
 func (payload *ModuleUpdatePayload) Invalidate() error {

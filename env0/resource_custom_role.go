@@ -151,7 +151,6 @@ func getCustomRole(ctx context.Context, id string, meta any) (*client.Role, erro
 
 func resourceCustomRoleImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	role, err := getCustomRole(ctx, d.Id(), meta)
-
 	if err != nil {
 		return nil, err
 	}
