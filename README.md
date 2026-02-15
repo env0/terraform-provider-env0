@@ -93,7 +93,7 @@ resource "env0_template" "example" {
 
 ## Development Setup
 
-> **Supported Go Version: 1.26**
+> **Required tools:** Go 1.26, [golangci-lint](https://golangci-lint.run/welcome/install/) v2+
 
 ### Build
 
@@ -123,8 +123,6 @@ terraform {
 For consistent coding style, install [pre-commit](https://pre-commit.com/#install) hooks.
 
 ```
-go install golang.org/x/tools/...@latest
-go install honnef.co/go/tools/cmd/staticcheck@latest
 pre-commit install
 pre-commit install --hook-type pre-push
 ```

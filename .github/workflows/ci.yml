@@ -54,7 +54,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v2.0
+          version: v2.9.0
       - name: Go Test
         timeout-minutes: 20
         run: |

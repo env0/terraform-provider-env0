@@ -1,26 +1,29 @@
 version: "2"
 linters:
   enable:
+    - asciicheck
+    - bidichk
     - errname
     - errorlint
     - gocheckcompilerdirectives
     - gochecknoinits
     - goconst
     - gocritic
+    - iface
+    - importas
+    - intrange
     - misspell
     - nilerr
     - nilnil
-    - nlreturn
-    - perfsprint
-    - prealloc
+    - nosprintfhostport
     - predeclared
     - reassign
+    - tagalign
     - sloglint
-    - spancheck
     - testifylint
     - unparam
     - usestdlibvars
-    - wsl
+    - wsl_v5
   settings:
     errcheck:
       exclude-functions:
@@ -43,6 +46,9 @@ linters:
       - builtin$
       - examples$
 formatters:
+  enable:
+    - gofmt
+    - goimports
   exclusions:
     generated: lax
     paths:
