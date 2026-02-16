@@ -3,7 +3,7 @@
 page_title: "env0_module_testing_project Data Source - terraform-provider-env0"
 subcategory: ""
 description: |-
-  Can be used to get the projectid for agentprojectassignment and cloudcredentialsprojectassignment
+  Can be used to get the project_id for agent_project_assignment and cloud_credentials_project_assignment
 ---
 
 # env0_module_testing_project (Data Source)

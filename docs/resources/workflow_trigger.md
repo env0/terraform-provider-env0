@@ -3,7 +3,7 @@
 page_title: "env0_workflow_trigger Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  cannot be used with env0workflowtriggers
+  cannot be used with env0_workflow_triggers
 ---
 
 # env0_workflow_trigger (Resource)

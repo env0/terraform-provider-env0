@@ -3,7 +3,7 @@
 page_title: "env0_configuration_variable Resource - terraform-provider-env0"
 subcategory: ""
 description: |-
-  Note: do not use with an environment resource that has it's configuration variables defined in it's 'configuration' field (see env0environmentresource -> configuration)
+  Note: do not use with an environment resource that has it's configuration variables defined in it's 'configuration' field (see env0_environment_resource -> configuration)
 ---
 
 # env0_configuration_variable (Resource)
@@ -75,6 +75,8 @@ resource "env0_configuration_variable" "sub_environment_example" {
 ## Import
 
 Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
 # For project variables: include a resource block that passes the project_id argument

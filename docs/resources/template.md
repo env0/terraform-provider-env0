@@ -101,6 +101,8 @@ resource "env0_template_project_assignment" "assignment" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import env0_template.by_id 29b8037a-f877-48f5-a60b-3152ae1a1405
 terraform import env0_template.by_name Best-Template

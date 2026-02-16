@@ -43,6 +43,8 @@ resource "env0_azure_oidc_credentials" "credentials" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import env0_aws_oidc_credentials.by_id d31a6b30-5f69-4d24-937c-22322754934e
 terraform import env0_aws_oidc_credentials.by_name "credentials name"
