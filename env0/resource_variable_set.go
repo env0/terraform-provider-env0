@@ -106,13 +106,13 @@ func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, err
 		isSensitive = false
 	}
 
-	res.IsSensitive = boolPtr(isSensitive)
+	res.IsSensitive = &isSensitive
 
 	variableType := d["type"].(string)
 	if variableType == client.TERRAFORM {
-		res.Type = (*client.ConfigurationVariableType)(intPtr(1))
+		res.Type = (*client.ConfigurationVariableType)(new(1))
 	} else {
-		res.Type = (*client.ConfigurationVariableType)(intPtr(0))
+		res.Type = (*client.ConfigurationVariableType)(new(0))
 	}
 
 	value, ok := d["value"].(string)
@@ -419,7 +419,7 @@ func resourceVariableSetUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	// Any deleted variables should be added to the delta.
 	for _, deletedVariable := range mergedVariables.deletedVariables {
-		deletedVariable.ToDelete = boolPtr(true)
+		deletedVariable.ToDelete = new(true)
 		payload.ConfigurationPropertiesChanges = append(payload.ConfigurationPropertiesChanges, deletedVariable)
 	}
 

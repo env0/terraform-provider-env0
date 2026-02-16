@@ -8,9 +8,11 @@ import (
 )
 
 var _ = Describe("CloudAccount", func() {
-	var account *CloudAccount
-	var accounts []CloudAccount
-	var err error
+	var (
+		account  *CloudAccount
+		accounts []CloudAccount
+		err      error
+	)
 
 	awsConfiguration := AWSCloudAccountConfiguration{
 		AccountId:  "a",

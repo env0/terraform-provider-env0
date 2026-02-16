@@ -34,12 +34,15 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("Environments", func() {
 		var environments []Environment
+
 		mockEnvironments := []Environment{mockEnvironment}
+
 		var err error
 
 		Describe("Success", func() {
 			BeforeEach(func() {
 				mockOrganizationIdCall()
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"limit":          "100",
@@ -75,6 +78,7 @@ var _ = Describe("Environment Client", func() {
 
 			BeforeEach(func() {
 				mockOrganizationIdCall()
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"offset":         "0",
@@ -107,6 +111,7 @@ var _ = Describe("Environment Client", func() {
 
 		Describe("SuccessMultiPagesWithProject", func() {
 			projectId := "proj123"
+
 			var environmentsP1, environmentsP2 []Environment
 			for range full_page {
 				environmentsP1 = append(environmentsP1, mockEnvironment)
@@ -148,7 +153,9 @@ var _ = Describe("Environment Client", func() {
 		Describe("Failure", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
+
 				mockOrganizationIdCall()
+
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
 						"limit":          "100",
@@ -165,8 +172,10 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("Environment", func() {
-		var environment Environment
-		var err error
+		var (
+			environment Environment
+			err         error
+		)
 
 		Describe("Success", func() {
 			BeforeEach(func() {
@@ -202,8 +211,10 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("EnvironmentCreate", func() {
-		var createdEnvironment Environment
-		var err error
+		var (
+			createdEnvironment Environment
+			err                error
+		)
 
 		BeforeEach(func() {
 			createEnvironmentPayload := EnvironmentCreate{}
@@ -234,11 +245,14 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("EnvironmentCreateWithoutTemplate", func() {
-		var createdEnvironment Environment
-		var err error
+		var (
+			createdEnvironment Environment
+			err                error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			createEnvironmentPayload := EnvironmentCreate{}
 			_ = copier.Copy(&createEnvironmentPayload, &mockEnvironment)
 			createTemplatePayload := TemplateCreatePayload{}
@@ -279,8 +293,10 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("EnvironmentDelete", func() {
-		var err error
-		var res *EnvironmentDestroyResponse
+		var (
+			err error
+			res *EnvironmentDestroyResponse
+		)
 
 		mockedRes := EnvironmentDestroyResponse{
 			Id: "id123",
@@ -320,13 +336,14 @@ var _ = Describe("Environment Client", func() {
 		It("Should not return error", func() {
 			Expect(err).To(BeNil())
 		})
-
 	})
 
 	Describe("EnvironmentUpdate", func() {
 		Describe("Success", func() {
-			var updatedEnvironment Environment
-			var err error
+			var (
+				updatedEnvironment Environment
+				err                error
+			)
 
 			BeforeEach(func() {
 				updateEnvironmentPayload := EnvironmentUpdate{Name: "updated-name"}
@@ -356,8 +373,11 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("EnvironmentDeploy", func() {
 		Describe("Success", func() {
-			var response EnvironmentDeployResponse
-			var err error
+			var (
+				response EnvironmentDeployResponse
+				err      error
+			)
+
 			deployResponseMock := EnvironmentDeployResponse{
 				Id: "deployment-id",
 			}
@@ -399,8 +419,10 @@ var _ = Describe("Environment Client", func() {
 
 	Describe("EnvironmentUpdateTTL", func() {
 		Describe("Success", func() {
-			var updatedEnvironment Environment
-			var err error
+			var (
+				updatedEnvironment Environment
+				err                error
+			)
 
 			BeforeEach(func() {
 				updateTTLRequest := TTL{
@@ -452,8 +474,10 @@ var _ = Describe("Environment Client", func() {
 	})
 
 	Describe("EnvironmentDeployment", func() {
-		var deployment *DeploymentLog
-		var err error
+		var (
+			deployment *DeploymentLog
+			err        error
+		)
 
 		mockDeployment := DeploymentLog{
 			Id:     "id12345",

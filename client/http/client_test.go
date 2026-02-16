@@ -74,11 +74,14 @@ var _ = Describe("Http Client", func() {
 			UserAgent:   UserAgent,
 			RestClient:  restClient,
 		}
+
 		var err error
+
 		httpclient, err = httpModule.NewHttpClient(config)
 		Expect(err).To(BeNil())
 
 		httpRequest = nil
+
 		httpmock.RegisterNoResponder(func(req *http.Request) (*http.Response, error) {
 			httpRequest = req
 
@@ -126,6 +129,7 @@ var _ = Describe("Http Client", func() {
 
 		// Validate no other call happened
 		delete(callMap, methodAndUrl)
+
 		for unexpectedCall, amount := range callMap {
 			Expect(amount).To(BeZero(), "Should not call "+unexpectedCall)
 		}
@@ -149,8 +153,10 @@ var _ = Describe("Http Client", func() {
 	Describe("Get", func() {
 		DescribeTable("2XX response",
 			func(params map[string]string, expectedQuery string) {
-				var result ResponseType
-				var err = httpclient.Get(successURI, params, &result)
+				var (
+					result ResponseType
+					err    = httpclient.Get(successURI, params, &result)
+				)
 
 				AssertHttpCall("GET", successUrl)
 				AssertNoError(err)
@@ -167,8 +173,10 @@ var _ = Describe("Http Client", func() {
 		)
 
 		It("5XX response", func() {
-			var result ResponseType
-			var err = httpclient.Get(failureURI, nil, &result)
+			var (
+				result ResponseType
+				err    = httpclient.Get(failureURI, nil, &result)
+			)
 
 			AssertHttpCall("GET", failureUrl)
 			AssertError(err)
@@ -177,8 +185,10 @@ var _ = Describe("Http Client", func() {
 
 	Describe("Post", func() {
 		It("2XX response", func() {
-			var result ResponseType
-			var err = httpclient.Post(successURI, mockRequest, &result)
+			var (
+				result ResponseType
+				err    = httpclient.Post(successURI, mockRequest, &result)
+			)
 
 			AssertHttpCall("POST", successUrl)
 			AssertNoError(err)
@@ -189,8 +199,10 @@ var _ = Describe("Http Client", func() {
 		})
 
 		It("5XX response", func() {
-			var result ResponseType
-			var err = httpclient.Post(failureURI, mockRequest, &result)
+			var (
+				result ResponseType
+				err    = httpclient.Post(failureURI, mockRequest, &result)
+			)
 
 			AssertHttpCall("POST", failureUrl)
 			AssertError(err)
@@ -216,8 +228,10 @@ var _ = Describe("Http Client", func() {
 
 	Describe("Put", func() {
 		It("2XX response", func() {
-			var result ResponseType
-			var err = httpclient.Put(successURI, mockRequest, &result)
+			var (
+				result ResponseType
+				err    = httpclient.Put(successURI, mockRequest, &result)
+			)
 
 			AssertHttpCall("PUT", successUrl)
 			AssertNoError(err)
@@ -228,8 +242,10 @@ var _ = Describe("Http Client", func() {
 		})
 
 		It("5XX response", func() {
-			var result ResponseType
-			var err = httpclient.Put(failureURI, mockRequest, &result)
+			var (
+				result ResponseType
+				err    = httpclient.Put(failureURI, mockRequest, &result)
+			)
 
 			AssertHttpCall("PUT", failureUrl)
 			AssertError(err)

@@ -39,6 +39,7 @@ var _ = Describe("Custom Flow Client", func() {
 					*response = mockCustomFlow
 				})
 			httpCall.Times(1)
+
 			returnedCustomFlow, _ = apiClient.CustomFlow(mockCustomFlow.Id)
 		})
 
@@ -49,17 +50,21 @@ var _ = Describe("Custom Flow Client", func() {
 
 	Describe("Get Custom Flows By Name", func() {
 		var returnedCustomFlows []CustomFlow
+
 		mockCustomFlows := []CustomFlow{mockCustomFlow}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/custom-flows", map[string]string{"organizationId": organizationId, "name": mockCustomFlow.Name}, gomock.Any()).
 				Do(func(path string, request any, response *[]CustomFlow) {
 					*response = mockCustomFlows
 				})
+
 			organizationIdCall.Times(1)
 			httpCall.Times(1)
+
 			returnedCustomFlows, _ = apiClient.CustomFlows(mockCustomFlow.Name)
 		})
 
@@ -69,13 +74,16 @@ var _ = Describe("Custom Flow Client", func() {
 	})
 
 	Describe("Create Custom Flow", func() {
-		var createdCustomFlow *CustomFlow
-		var err error
+		var (
+			createdCustomFlow *CustomFlow
+			err               error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
 
 			var createCustomFlowPayload CustomFlowCreatePayload
+
 			_ = copier.Copy(&createCustomFlowPayload, &mockCustomFlow)
 
 			expectedCreateRequest := struct {
@@ -93,6 +101,7 @@ var _ = Describe("Custom Flow Client", func() {
 				})
 			httpCall.Times(1)
 			organizationIdCall.Times(1)
+
 			createdCustomFlow, err = apiClient.CustomFlowCreate(createCustomFlowPayload)
 		})
 
@@ -111,6 +120,7 @@ var _ = Describe("Custom Flow Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/custom-flow/"+mockCustomFlow.Id, nil)
 			httpCall.Times(1)
+
 			err = apiClient.CustomFlowDelete(mockCustomFlow.Id)
 		})
 
@@ -120,13 +130,16 @@ var _ = Describe("Custom Flow Client", func() {
 	})
 
 	Describe("Update Custom Flow", func() {
-		var updatedCustomFlow *CustomFlow
-		var err error
+		var (
+			updatedCustomFlow *CustomFlow
+			err               error
+		)
 
 		updatedMockCustomFlow := mockCustomFlow
 		updatedMockCustomFlow.Path = "updated-path"
 
 		var updateCustomFlowPayload CustomFlowCreatePayload
+
 		_ = copier.Copy(&updateCustomFlowPayload, &updatedMockCustomFlow)
 
 		BeforeEach(func() {
@@ -144,6 +157,7 @@ var _ = Describe("Custom Flow Client", func() {
 					*response = updatedMockCustomFlow
 				})
 			httpCall.Times(1)
+
 			updatedCustomFlow, err = apiClient.CustomFlowUpdate(updatedMockCustomFlow.Id, updateCustomFlowPayload)
 		})
 
@@ -170,6 +184,7 @@ var _ = Describe("Custom Flow Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/custom-flow/assign", mockAssignmentList, nil)
 			httpCall.Times(1)
+
 			err = apiClient.CustomFlowAssign(mockAssignmentList)
 		})
 
@@ -184,6 +199,7 @@ var _ = Describe("Custom Flow Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Post("/custom-flow/unassign", mockAssignmentList, nil)
 			httpCall.Times(1)
+
 			err = apiClient.CustomFlowUnassign(mockAssignmentList)
 		})
 
@@ -193,8 +209,10 @@ var _ = Describe("Custom Flow Client", func() {
 	})
 
 	Describe("Get Custom Flow Assignments", func() {
-		var err error
-		var assignments []CustomFlowAssignment
+		var (
+			err         error
+			assignments []CustomFlowAssignment
+		)
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
@@ -203,6 +221,7 @@ var _ = Describe("Custom Flow Client", func() {
 					*response = mockAssignmentList
 				})
 			httpCall.Times(1)
+
 			assignments, err = apiClient.CustomFlowGetAssignments(mockAssignmentList)
 		})
 

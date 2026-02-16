@@ -28,7 +28,9 @@ var _ = Describe("Templates Client", func() {
 					GithubInstallationId: value,
 				}
 				jsonPayload, _ := json.Marshal(payload)
+
 				var parsedPayload map[string]any
+
 				_ = json.Unmarshal(jsonPayload, &parsedPayload)
 				Expect(parsedPayload["githubInstallationId"]).To(expected)
 			},
@@ -60,10 +62,12 @@ var _ = Describe("Templates Client", func() {
 
 	Describe("Templates", func() {
 		var returnedTemplates []Template
+
 		mockTemplates := []Template{mockTemplate}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			expectedPayload := map[string]string{"organizationId": organizationId}
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints", expectedPayload, gomock.Any()).
@@ -87,8 +91,10 @@ var _ = Describe("Templates Client", func() {
 	})
 
 	Describe("TemplateCreate", func() {
-		var createdTemplate Template
-		var err error
+		var (
+			createdTemplate Template
+			err             error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -139,8 +145,10 @@ var _ = Describe("Templates Client", func() {
 	})
 
 	Describe("TemplateUpdate", func() {
-		var updatedTemplate Template
-		var err error
+		var (
+			updatedTemplate Template
+			err             error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -177,11 +185,13 @@ var _ = Describe("Templates Client", func() {
 		templateAssignmentToProjectPayload := TemplateAssignmentToProjectPayload{
 			ProjectId: "project-id",
 		}
-		var assignedTemplate Template
-		var err error
+
+		var (
+			assignedTemplate Template
+			err              error
+		)
 
 		BeforeEach(func() {
-
 			expectedAssignRequest := templateAssignmentToProjectPayload
 
 			httpCall = mockHttpClient.EXPECT().
@@ -214,6 +224,7 @@ var _ = Describe("Templates Client", func() {
 		var err error
 
 		projectId := "project-id"
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/"+projectId, nil).Times(1)
 			err = apiClient.RemoveTemplateFromProject(mockTemplate.Id, projectId)
@@ -225,8 +236,10 @@ var _ = Describe("Templates Client", func() {
 	})
 
 	Describe("VariablesFromRepository", func() {
-		var returnedVariables []ConfigurationVariable
-		var err error
+		var (
+			returnedVariables []ConfigurationVariable
+			err               error
+		)
 
 		payload := &VariablesFromRepositoryPayload{
 			GithubInstallationId: 1111,

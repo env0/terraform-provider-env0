@@ -86,8 +86,8 @@ func (client *ApiClient) ProjectDelete(id string) error {
 
 func (client *ApiClient) ProjectUpdate(id string, payload ProjectUpdatePayload) (Project, error) {
 	var result Project
-	err := client.http.Put("/projects/"+id, payload, &result)
 
+	err := client.http.Put("/projects/"+id, payload, &result)
 	if err != nil {
 		return Project{}, err
 	}

@@ -1,9 +1,9 @@
 package client
 
 type Policy struct {
-	Id                          string  `json:"id" tfschema:"-"`
+	Id                          string  `json:"id"                                  tfschema:"-"`
 	ProjectId                   string  `json:"projectId"`
-	NumberOfEnvironments        *int    `json:"numberOfEnvironments,omitempty" tfschema:",omitempty"`
+	NumberOfEnvironments        *int    `json:"numberOfEnvironments,omitempty"      tfschema:",omitempty"`
 	NumberOfEnvironmentsTotal   *int    `json:"numberOfEnvironmentsTotal,omitempty" tfschema:",omitempty"`
 	RequiresApprovalDefault     bool    `json:"requiresApprovalDefault"`
 	IncludeCostEstimation       bool    `json:"includeCostEstimation"`
@@ -14,8 +14,8 @@ type Policy struct {
 	RunPullRequestPlanDefault   bool    `json:"runPullRequestPlanDefault"`
 	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
 	VcsPrCommentsEnabledDefault bool    `json:"vcsPrCommentsEnabledDefault"`
-	MaxTtl                      *string `json:"maxTtl,omitempty" tfschema:",omitempty"`
-	DefaultTtl                  *string `json:"defaultTtl,omitempty" tfschema:",omitempty"`
+	MaxTtl                      *string `json:"maxTtl,omitempty"                    tfschema:",omitempty"`
+	DefaultTtl                  *string `json:"defaultTtl,omitempty"                tfschema:",omitempty"`
 	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
 	DriftDetectionCron          string  `json:"driftDetectionCron"`
 	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`

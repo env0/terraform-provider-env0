@@ -217,7 +217,6 @@ func filterByParentProjectPath(parentPath string, projectsByName []client.Projec
 		parentIds = parentIds[:len(parentIds)-1]
 
 		matches, err := pathMatches(path, parentIds, meta)
-
 		if err != nil {
 			return nil, err
 		}

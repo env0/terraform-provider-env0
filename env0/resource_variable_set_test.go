@@ -28,9 +28,9 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Name:           "nv1",
 		Value:          "v1",
 		OrganizationId: organizationId,
-		IsSensitive:    boolPtr(false),
+		IsSensitive:    new(false),
 		Scope:          "SET",
-		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 		},
@@ -44,9 +44,9 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Name:           "nv1",
 		Value:          "v2",
 		OrganizationId: organizationId,
-		IsSensitive:    boolPtr(true),
+		IsSensitive:    new(true),
 		Scope:          "SET",
-		Type:           (*client.ConfigurationVariableType)(intPtr(0)),
+		Type:           (*client.ConfigurationVariableType)(new(0)),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 		},
@@ -61,9 +61,9 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Name:           "hcl1",
 		Value:          "sdzdfsdfsd",
 		OrganizationId: organizationId,
-		IsSensitive:    boolPtr(false),
+		IsSensitive:    new(false),
 		Scope:          "SET",
-		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
 			Format: "HCL",
 		},
@@ -77,9 +77,9 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Name:           "json1",
 		Value:          "{}",
 		OrganizationId: organizationId,
-		IsSensitive:    boolPtr(false),
+		IsSensitive:    new(false),
 		Scope:          "SET",
-		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
 			Format: "JSON",
 		},
@@ -93,9 +93,9 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Name:           "dropdown123",
 		Value:          "o1",
 		OrganizationId: organizationId,
-		IsSensitive:    boolPtr(false),
+		IsSensitive:    new(false),
 		Scope:          "SET",
-		Type:           (*client.ConfigurationVariableType)(intPtr(1)),
+		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 			Enum: []string{
@@ -311,7 +311,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		dropdownVariable2.Schema.Enum = []string{"o3", "o2"}
 
 		deleteDropdownVariable2 := dropdownVariable2
-		deleteDropdownVariable2.ToDelete = boolPtr(true)
+		deleteDropdownVariable2.ToDelete = new(true)
 
 		updateTestCase := resource.TestCase{
 			// Create a text variable.

@@ -57,6 +57,7 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 	makeRequest := func(client *httpModule.HttpClient) {
 		var response string
+
 		err := client.Get(TestEndpoint, nil, &response)
 		Expect(err).To(BeNil())
 		Expect(response).To(Equal(SuccessResponse))
@@ -64,33 +65,36 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 	Context("with client rate limiting tests", func() {
 		// These tests verify our HTTP client's rate limiting behavior
-
 		It("should allow multiple requests up to the limit", func() {
 			const maxConcurrentRequests = 10
+
 			httpClient = createClient(maxConcurrentRequests, 100*time.Millisecond)
 
 			// Make a series of requests that should all succeed immediately
-			for i := 0; i < maxConcurrentRequests; i++ {
+			for range maxConcurrentRequests {
 				go makeRequest(httpClient)
 			}
 
 			// Verify all requests were made successfully
 			time.Sleep(5 * time.Millisecond)
+
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(maxConcurrentRequests))
 		})
 
 		It("should handle concurrent requests with rate limiting", func() {
 			const maxConcurrentRequests = 10
+
 			httpClient = createClient(maxConcurrentRequests, 100*time.Millisecond)
 
 			// Make more requests that allowed in the window
-			for i := 0; i < maxConcurrentRequests*2; i++ {
+			for range maxConcurrentRequests * 2 {
 				go makeRequest(httpClient)
 			}
 
 			// Verify that only requests up to the limit was made immediately
 			time.Sleep(5 * time.Millisecond)
+
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(maxConcurrentRequests))
 

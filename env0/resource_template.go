@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -44,17 +45,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
-			var found bool
-
-			for _, str := range strs {
-				if str == attr {
-					found = true
-
-					break
-				}
-			}
-
-			if !found {
+			if !slices.Contains(strs, attr) {
 				if prefix != "" {
 					attr = prefix + attr
 				}
@@ -372,7 +363,6 @@ func resourceTemplateImport(ctx context.Context, d *schema.ResourceData, meta an
 	var getErr diag.Diagnostics
 
 	_, uuidErr := uuid.Parse(id)
-
 	if uuidErr == nil {
 		tflog.Info(ctx, "Resolving template by id", map[string]any{"id": id})
 		_, getErr = getTemplateById(id, meta)

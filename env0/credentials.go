@@ -98,7 +98,6 @@ func getCredentialsById(id string, prefixList []string, meta any) (client.Creden
 
 func getCredentials(ctx context.Context, id string, prefixList []string, meta any) (client.Credentials, error) {
 	_, err := uuid.Parse(id)
-
 	if err == nil {
 		tflog.Info(ctx, "Resolving credentials by id", map[string]any{"id": id})
 

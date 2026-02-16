@@ -18,8 +18,10 @@ var _ = Describe("VcsConnection Client", func() {
 	}
 
 	Describe("Get VcsConnection", func() {
-		var returnedVcsConnection *VcsConnection
-		var err error
+		var (
+			returnedVcsConnection *VcsConnection
+			err                   error
+		)
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
@@ -44,8 +46,10 @@ var _ = Describe("VcsConnection Client", func() {
 	})
 
 	Describe("Create VcsConnection", func() {
-		var createdVcsConnection *VcsConnection
-		var err error
+		var (
+			createdVcsConnection *VcsConnection
+			err                  error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -88,8 +92,10 @@ var _ = Describe("VcsConnection Client", func() {
 	})
 
 	Describe("Update VcsConnection", func() {
-		var updatedVcsConnection *VcsConnection
-		var err error
+		var (
+			updatedVcsConnection *VcsConnection
+			err                  error
+		)
 
 		BeforeEach(func() {
 			updatePayload := VcsConnectionUpdatePayload{
@@ -137,8 +143,11 @@ var _ = Describe("VcsConnection Client", func() {
 	})
 
 	Describe("List VcsConnections", func() {
-		var returnedVcsConnections []VcsConnection
-		var err error
+		var (
+			returnedVcsConnections []VcsConnection
+			err                    error
+		)
+
 		mockVcsConnections := []VcsConnection{mockVcsConnection}
 
 		BeforeEach(func() {

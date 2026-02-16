@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/adhocore/gronx"
@@ -72,10 +73,8 @@ func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
 func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc {
 	return func(i any, p cty.Path) diag.Diagnostics {
 		value := i.(string)
-		for _, allowedValue := range allowedValues {
-			if value == allowedValue {
-				return nil
-			}
+		if slices.Contains(allowedValues, value) {
+			return nil
 		}
 
 		return diag.Errorf("'%s' must be one of: %s", value, strings.Join(allowedValues, ", "))
@@ -85,10 +84,8 @@ func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc 
 func NewIntInValidator(allowedValues []int) schema.SchemaValidateDiagFunc {
 	return func(i any, p cty.Path) diag.Diagnostics {
 		value := i.(int)
-		for _, allowedValue := range allowedValues {
-			if value == allowedValue {
-				return nil
-			}
+		if slices.Contains(allowedValues, value) {
+			return nil
 		}
 
 		return diag.Errorf("must be one of: %s", fmt.Sprint(allowedValues))
@@ -135,11 +132,9 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 		}
 
 		// Built-in role. Verify it's in the supported list.
-		for _, supportedRole := range supportedBuiltInRoles {
-			if role == supportedRole {
-				// supported.
-				return nil
-			}
+		if slices.Contains(supportedBuiltInRoles, role) {
+			// supported.
+			return nil
 		}
 
 		// not supported.
@@ -149,8 +144,8 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 
 func ValidateUrl(i any, path cty.Path) diag.Diagnostics {
 	v := i.(string)
-	_, err := url.ParseRequestURI(v)
 
+	_, err := url.ParseRequestURI(v)
 	if err != nil {
 		return diag.Errorf("must be a valid URL: %v", err)
 	}

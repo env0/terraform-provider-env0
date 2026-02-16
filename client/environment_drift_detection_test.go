@@ -18,6 +18,7 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 		Enabled:              true,
 		AutoDriftRemediation: "CODE_TO_CLOUD",
 	}
+
 	var driftResponse EnvironmentSchedulingExpression
 
 	Describe("Get", func() {
@@ -45,7 +46,6 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 					Return(mockError)
 
 				_, err = apiClient.EnvironmentDriftDetection(environmentId)
-
 			})
 
 			It("Should fail if API call fails", func() {
@@ -82,7 +82,6 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 					Return(mockError)
 
 				_, err = apiClient.EnvironmentUpdateDriftDetection(environmentId, schedulingExpression)
-
 			})
 
 			It("Should fail if API call fails", func() {
@@ -111,7 +110,6 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 					Return(mockError)
 
 				err = apiClient.EnvironmentStopDriftDetection(environmentId)
-
 			})
 
 			It("Should fail if API call fails", func() {
@@ -119,5 +117,4 @@ var _ = Describe("EnvironmentDriftDetection", func() {
 			})
 		})
 	})
-
 })

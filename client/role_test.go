@@ -18,6 +18,7 @@ var _ = Describe("Role", func() {
 	updatedRolePermissions := []string{"VIEW_ORGANIZATION", "CREATE_AND_EDIT_TEMPLATES"}
 
 	var role *Role
+
 	mockRole := Role{
 		Id:             roleId,
 		Name:           roleName,
@@ -133,6 +134,7 @@ var _ = Describe("Role", func() {
 
 	Describe("Roles", func() {
 		var roles []Role
+
 		mockRoles := []Role{mockRole}
 
 		BeforeEach(func() {

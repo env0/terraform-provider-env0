@@ -182,7 +182,6 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta any
 					return
 				case <-ticker.C:
 					err := resourceProjectAssertCanDelete(d, meta)
-
 					if err != nil {
 						if aeerr, ok := err.(*ActiveEnvironmentError); ok {
 							if aeerr.retry {

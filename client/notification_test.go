@@ -19,10 +19,12 @@ var _ = Describe("Notification Client", func() {
 
 	Describe("Notifications", func() {
 		var returnedNotifications []Notification
+
 		mockNotifications := []Notification{mockNotification}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/notifications/endpoints", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request any, response *[]Notification) {
@@ -46,8 +48,10 @@ var _ = Describe("Notification Client", func() {
 
 	Describe("NotificationCreate", func() {
 		Describe("Success", func() {
-			var createdNotification *Notification
-			var err error
+			var (
+				createdNotification *Notification
+				err                 error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall()
@@ -108,8 +112,11 @@ var _ = Describe("Notification Client", func() {
 		Describe("Success", func() {
 			updateMockNotification := mockNotification
 			updateMockNotification.Name = "updated-name"
-			var updatedNotification *Notification
-			var err error
+
+			var (
+				updatedNotification *Notification
+				err                 error
+			)
 
 			BeforeEach(func() {
 				updateNotificationPayload := NotificationUpdatePayload{Name: "updated-name"}
