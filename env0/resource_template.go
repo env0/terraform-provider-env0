@@ -45,13 +45,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		butAttrs := []string{}
 
 		for _, attr := range allVCSAttributes {
-			var found bool
-
-			if slices.Contains(strs, attr) {
-				found = true
-			}
-
-			if !found {
+			if !slices.Contains(strs, attr) {
 				if prefix != "" {
 					attr = prefix + attr
 				}

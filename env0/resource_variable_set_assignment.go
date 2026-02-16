@@ -94,32 +94,22 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 			continue
 		}
 
-		found := false
-
 		apiSetId := apiConfigurationSet.Id
-		if slices.Contains(assignmentSchema.SetIds, apiSetId) {
-			found = true
-		}
 
-		if !found {
+		if !slices.Contains(assignmentSchema.SetIds, apiSetId) {
 			toDelete = append(toDelete, apiSetId)
 		}
 	}
 
 	// In Schema but not in API - add.
 	for _, schemaSetId := range assignmentSchema.SetIds {
-		found := false
-
-		for _, apiConfigurationSet := range apiConfigurationSets {
-			apiSetId := apiConfigurationSet.Id
-			if schemaSetId == apiSetId {
-				found = true
-
-				break
-			}
-		}
-
-		if !found {
+		index := slices.IndexFunc(
+			apiConfigurationSets,
+			func(apiConfigurationSet client.ConfigurationSet) bool {
+				return schemaSetId == apiConfigurationSet.Id
+			},
+		)
+		if index == -1 {
 			toAdd = append(toAdd, schemaSetId)
 		}
 	}
