@@ -101,6 +101,7 @@ var _ = Describe("Organization", func() {
 		updatedMockOrganization.DoNotConsiderMergeCommitsForPrPlans = true
 		updatedMockOrganization.EnableOidc = true
 		updatedMockOrganization.EnforcePrCommenterPermissions = true
+		updatedMockOrganization.AllowMergeableBypassForPrApply = true
 		updatedMockOrganization.DefaultTtl = &hour12
 
 		var updatedOrganization *Organization
@@ -114,6 +115,7 @@ var _ = Describe("Organization", func() {
 					DoNotConsiderMergeCommitsForPrPlans: &t,
 					EnableOidc:                          &t,
 					EnforcePrCommenterPermissions:       &t,
+					AllowMergeableBypassForPrApply:      &t,
 				}
 
 				httpCall = mockHttpClient.EXPECT().

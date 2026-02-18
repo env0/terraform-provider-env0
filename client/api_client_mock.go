@@ -5,7 +5,6 @@
 //
 //	mockgen -destination=api_client_mock.go -package=client . ApiClientInterface
 //
-
 // Package client is a generated GoMock package.
 package client
 
@@ -19,7 +18,6 @@ import (
 type MockApiClientInterface struct {
 	ctrl     *gomock.Controller
 	recorder *MockApiClientInterfaceMockRecorder
-	isgomock struct{}
 }
 
 // MockApiClientInterfaceMockRecorder is the mock recorder for MockApiClientInterface.
@@ -40,18 +38,18 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 }
 
 // AgentValues mocks base method.
-func (m *MockApiClientInterface) AgentValues(id string) (string, error) {
+func (m *MockApiClientInterface) AgentValues(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AgentValues", id)
+	ret := m.ctrl.Call(m, "AgentValues", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AgentValues indicates an expected call of AgentValues.
-func (mr *MockApiClientInterfaceMockRecorder) AgentValues(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AgentValues(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentValues", reflect.TypeOf((*MockApiClientInterface)(nil).AgentValues), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentValues", reflect.TypeOf((*MockApiClientInterface)(nil).AgentValues), arg0)
 }
 
 // Agents mocks base method.
@@ -70,32 +68,32 @@ func (mr *MockApiClientInterfaceMockRecorder) Agents() *gomock.Call {
 }
 
 // ApiKeyCreate mocks base method.
-func (m *MockApiClientInterface) ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error) {
+func (m *MockApiClientInterface) ApiKeyCreate(arg0 ApiKeyCreatePayload) (*ApiKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApiKeyCreate", payload)
+	ret := m.ctrl.Call(m, "ApiKeyCreate", arg0)
 	ret0, _ := ret[0].(*ApiKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApiKeyCreate indicates an expected call of ApiKeyCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ApiKeyCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApiKeyCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyCreate), arg0)
 }
 
 // ApiKeyDelete mocks base method.
-func (m *MockApiClientInterface) ApiKeyDelete(id string) error {
+func (m *MockApiClientInterface) ApiKeyDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApiKeyDelete", id)
+	ret := m.ctrl.Call(m, "ApiKeyDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ApiKeyDelete indicates an expected call of ApiKeyDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ApiKeyDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApiKeyDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyDelete), arg0)
 }
 
 // ApiKeys mocks base method.
@@ -114,255 +112,255 @@ func (mr *MockApiClientInterfaceMockRecorder) ApiKeys() *gomock.Call {
 }
 
 // ApprovalPolicies mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicies(name string) ([]ApprovalPolicy, error) {
+func (m *MockApiClientInterface) ApprovalPolicies(arg0 string) ([]ApprovalPolicy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicies", name)
+	ret := m.ctrl.Call(m, "ApprovalPolicies", arg0)
 	ret0, _ := ret[0].([]ApprovalPolicy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApprovalPolicies indicates an expected call of ApprovalPolicies.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicies(name any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicies(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicies", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicies), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicies", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicies), arg0)
 }
 
 // ApprovalPolicyAssign mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyAssign(assignment *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error) {
+func (m *MockApiClientInterface) ApprovalPolicyAssign(arg0 *ApprovalPolicyAssignment) (*ApprovalPolicyAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyAssign", assignment)
+	ret := m.ctrl.Call(m, "ApprovalPolicyAssign", arg0)
 	ret0, _ := ret[0].(*ApprovalPolicyAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApprovalPolicyAssign indicates an expected call of ApprovalPolicyAssign.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyAssign(assignment any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyAssign(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyAssign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyAssign), assignment)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyAssign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyAssign), arg0)
 }
 
 // ApprovalPolicyByScope mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyByScope(scope, scopeId string) ([]ApprovalPolicyByScope, error) {
+func (m *MockApiClientInterface) ApprovalPolicyByScope(arg0, arg1 string) ([]ApprovalPolicyByScope, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyByScope", scope, scopeId)
+	ret := m.ctrl.Call(m, "ApprovalPolicyByScope", arg0, arg1)
 	ret0, _ := ret[0].([]ApprovalPolicyByScope)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApprovalPolicyByScope indicates an expected call of ApprovalPolicyByScope.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyByScope(scope, scopeId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyByScope(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyByScope), scope, scopeId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyByScope), arg0, arg1)
 }
 
 // ApprovalPolicyCreate mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyCreate(payload *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {
+func (m *MockApiClientInterface) ApprovalPolicyCreate(arg0 *ApprovalPolicyCreatePayload) (*ApprovalPolicy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyCreate", payload)
+	ret := m.ctrl.Call(m, "ApprovalPolicyCreate", arg0)
 	ret0, _ := ret[0].(*ApprovalPolicy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApprovalPolicyCreate indicates an expected call of ApprovalPolicyCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyCreate), arg0)
 }
 
 // ApprovalPolicyUnassign mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyUnassign(id string) error {
+func (m *MockApiClientInterface) ApprovalPolicyUnassign(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyUnassign", id)
+	ret := m.ctrl.Call(m, "ApprovalPolicyUnassign", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ApprovalPolicyUnassign indicates an expected call of ApprovalPolicyUnassign.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUnassign(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUnassign), arg0)
 }
 
 // ApprovalPolicyUpdate mocks base method.
-func (m *MockApiClientInterface) ApprovalPolicyUpdate(payload *ApprovalPolicyUpdatePayload) (*ApprovalPolicy, error) {
+func (m *MockApiClientInterface) ApprovalPolicyUpdate(arg0 *ApprovalPolicyUpdatePayload) (*ApprovalPolicy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ApprovalPolicyUpdate", payload)
+	ret := m.ctrl.Call(m, "ApprovalPolicyUpdate", arg0)
 	ret0, _ := ret[0].(*ApprovalPolicy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ApprovalPolicyUpdate indicates an expected call of ApprovalPolicyUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUpdate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ApprovalPolicyUpdate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUpdate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApprovalPolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ApprovalPolicyUpdate), arg0)
 }
 
 // AssignAgentsToProjects mocks base method.
-func (m *MockApiClientInterface) AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
+func (m *MockApiClientInterface) AssignAgentsToProjects(arg0 AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignAgentsToProjects", payload)
+	ret := m.ctrl.Call(m, "AssignAgentsToProjects", arg0)
 	ret0, _ := ret[0].(*ProjectsAgentsAssignments)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignAgentsToProjects indicates an expected call of AssignAgentsToProjects.
-func (mr *MockApiClientInterfaceMockRecorder) AssignAgentsToProjects(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignAgentsToProjects(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignAgentsToProjects", reflect.TypeOf((*MockApiClientInterface)(nil).AssignAgentsToProjects), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignAgentsToProjects", reflect.TypeOf((*MockApiClientInterface)(nil).AssignAgentsToProjects), arg0)
 }
 
 // AssignCloudCredentialsToProject mocks base method.
-func (m *MockApiClientInterface) AssignCloudCredentialsToProject(projectId, credentialId string) (CloudCredentialsProjectAssignment, error) {
+func (m *MockApiClientInterface) AssignCloudCredentialsToProject(arg0, arg1 string) (CloudCredentialsProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignCloudCredentialsToProject", projectId, credentialId)
+	ret := m.ctrl.Call(m, "AssignCloudCredentialsToProject", arg0, arg1)
 	ret0, _ := ret[0].(CloudCredentialsProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignCloudCredentialsToProject indicates an expected call of AssignCloudCredentialsToProject.
-func (mr *MockApiClientInterfaceMockRecorder) AssignCloudCredentialsToProject(projectId, credentialId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignCloudCredentialsToProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCloudCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCloudCredentialsToProject), projectId, credentialId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCloudCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCloudCredentialsToProject), arg0, arg1)
 }
 
 // AssignConfigurationSets mocks base method.
-func (m *MockApiClientInterface) AssignConfigurationSets(scope, scopeId string, sets []string) error {
+func (m *MockApiClientInterface) AssignConfigurationSets(arg0, arg1 string, arg2 []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignConfigurationSets", scope, scopeId, sets)
+	ret := m.ctrl.Call(m, "AssignConfigurationSets", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AssignConfigurationSets indicates an expected call of AssignConfigurationSets.
-func (mr *MockApiClientInterfaceMockRecorder) AssignConfigurationSets(scope, scopeId, sets any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignConfigurationSets(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).AssignConfigurationSets), scope, scopeId, sets)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).AssignConfigurationSets), arg0, arg1, arg2)
 }
 
 // AssignCostCredentialsToProject mocks base method.
-func (m *MockApiClientInterface) AssignCostCredentialsToProject(projectId, credentialId string) (CostCredentialProjectAssignment, error) {
+func (m *MockApiClientInterface) AssignCostCredentialsToProject(arg0, arg1 string) (CostCredentialProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignCostCredentialsToProject", projectId, credentialId)
+	ret := m.ctrl.Call(m, "AssignCostCredentialsToProject", arg0, arg1)
 	ret0, _ := ret[0].(CostCredentialProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignCostCredentialsToProject indicates an expected call of AssignCostCredentialsToProject.
-func (mr *MockApiClientInterfaceMockRecorder) AssignCostCredentialsToProject(projectId, credentialId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignCostCredentialsToProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCostCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCostCredentialsToProject), projectId, credentialId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCostCredentialsToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignCostCredentialsToProject), arg0, arg1)
 }
 
 // AssignTemplateToProject mocks base method.
-func (m *MockApiClientInterface) AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error) {
+func (m *MockApiClientInterface) AssignTemplateToProject(arg0 string, arg1 TemplateAssignmentToProjectPayload) (Template, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignTemplateToProject", id, payload)
+	ret := m.ctrl.Call(m, "AssignTemplateToProject", arg0, arg1)
 	ret0, _ := ret[0].(Template)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignTemplateToProject indicates an expected call of AssignTemplateToProject.
-func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignTemplateToProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignTemplateToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignTemplateToProject), arg0, arg1)
 }
 
 // AssignUserRoleToEnvironment mocks base method.
-func (m *MockApiClientInterface) AssignUserRoleToEnvironment(payload *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error) {
+func (m *MockApiClientInterface) AssignUserRoleToEnvironment(arg0 *AssignUserRoleToEnvironmentPayload) (*UserRoleEnvironmentAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignUserRoleToEnvironment", payload)
+	ret := m.ctrl.Call(m, "AssignUserRoleToEnvironment", arg0)
 	ret0, _ := ret[0].(*UserRoleEnvironmentAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignUserRoleToEnvironment indicates an expected call of AssignUserRoleToEnvironment.
-func (mr *MockApiClientInterfaceMockRecorder) AssignUserRoleToEnvironment(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignUserRoleToEnvironment(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserRoleToEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserRoleToEnvironment), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserRoleToEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserRoleToEnvironment), arg0)
 }
 
 // AssignUserToProject mocks base method.
-func (m *MockApiClientInterface) AssignUserToProject(projectId string, payload *AssignUserToProjectPayload) (*UserProjectAssignment, error) {
+func (m *MockApiClientInterface) AssignUserToProject(arg0 string, arg1 *AssignUserToProjectPayload) (*UserProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignUserToProject", projectId, payload)
+	ret := m.ctrl.Call(m, "AssignUserToProject", arg0, arg1)
 	ret0, _ := ret[0].(*UserProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignUserToProject indicates an expected call of AssignUserToProject.
-func (mr *MockApiClientInterfaceMockRecorder) AssignUserToProject(projectId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) AssignUserToProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserToProject), projectId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserToProject), arg0, arg1)
 }
 
 // CloudAccount mocks base method.
-func (m *MockApiClientInterface) CloudAccount(id string) (*CloudAccount, error) {
+func (m *MockApiClientInterface) CloudAccount(arg0 string) (*CloudAccount, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudAccount", id)
+	ret := m.ctrl.Call(m, "CloudAccount", arg0)
 	ret0, _ := ret[0].(*CloudAccount)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CloudAccount indicates an expected call of CloudAccount.
-func (mr *MockApiClientInterfaceMockRecorder) CloudAccount(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccount(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccount", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccount), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccount", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccount), arg0)
 }
 
 // CloudAccountCreate mocks base method.
-func (m *MockApiClientInterface) CloudAccountCreate(payload *CloudAccountCreatePayload) (*CloudAccount, error) {
+func (m *MockApiClientInterface) CloudAccountCreate(arg0 *CloudAccountCreatePayload) (*CloudAccount, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudAccountCreate", payload)
+	ret := m.ctrl.Call(m, "CloudAccountCreate", arg0)
 	ret0, _ := ret[0].(*CloudAccount)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CloudAccountCreate indicates an expected call of CloudAccountCreate.
-func (mr *MockApiClientInterfaceMockRecorder) CloudAccountCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountCreate), arg0)
 }
 
 // CloudAccountDelete mocks base method.
-func (m *MockApiClientInterface) CloudAccountDelete(id string) error {
+func (m *MockApiClientInterface) CloudAccountDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudAccountDelete", id)
+	ret := m.ctrl.Call(m, "CloudAccountDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CloudAccountDelete indicates an expected call of CloudAccountDelete.
-func (mr *MockApiClientInterfaceMockRecorder) CloudAccountDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountDelete), arg0)
 }
 
 // CloudAccountUpdate mocks base method.
-func (m *MockApiClientInterface) CloudAccountUpdate(id string, payload *CloudAccountUpdatePayload) (*CloudAccount, error) {
+func (m *MockApiClientInterface) CloudAccountUpdate(arg0 string, arg1 *CloudAccountUpdatePayload) (*CloudAccount, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudAccountUpdate", id, payload)
+	ret := m.ctrl.Call(m, "CloudAccountUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*CloudAccount)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CloudAccountUpdate indicates an expected call of CloudAccountUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) CloudAccountUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudAccountUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudAccountUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CloudAccountUpdate), arg0, arg1)
 }
 
 // CloudAccounts mocks base method.
@@ -381,47 +379,47 @@ func (mr *MockApiClientInterfaceMockRecorder) CloudAccounts() *gomock.Call {
 }
 
 // CloudCredentialIdsInProject mocks base method.
-func (m *MockApiClientInterface) CloudCredentialIdsInProject(projectId string) ([]string, error) {
+func (m *MockApiClientInterface) CloudCredentialIdsInProject(arg0 string) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudCredentialIdsInProject", projectId)
+	ret := m.ctrl.Call(m, "CloudCredentialIdsInProject", arg0)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CloudCredentialIdsInProject indicates an expected call of CloudCredentialIdsInProject.
-func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialIdsInProject(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialIdsInProject(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialIdsInProject), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialIdsInProject), arg0)
 }
 
 // CloudCredentials mocks base method.
-func (m *MockApiClientInterface) CloudCredentials(id string) (Credentials, error) {
+func (m *MockApiClientInterface) CloudCredentials(arg0 string) (Credentials, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudCredentials", id)
+	ret := m.ctrl.Call(m, "CloudCredentials", arg0)
 	ret0, _ := ret[0].(Credentials)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CloudCredentials indicates an expected call of CloudCredentials.
-func (mr *MockApiClientInterfaceMockRecorder) CloudCredentials(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentials(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentials", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentials), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentials", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentials), arg0)
 }
 
 // CloudCredentialsDelete mocks base method.
-func (m *MockApiClientInterface) CloudCredentialsDelete(id string) error {
+func (m *MockApiClientInterface) CloudCredentialsDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloudCredentialsDelete", id)
+	ret := m.ctrl.Call(m, "CloudCredentialsDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CloudCredentialsDelete indicates an expected call of CloudCredentialsDelete.
-func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialsDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialsDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialsDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialsDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloudCredentialsDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CloudCredentialsDelete), arg0)
 }
 
 // CloudCredentialsList mocks base method.
@@ -440,667 +438,667 @@ func (mr *MockApiClientInterfaceMockRecorder) CloudCredentialsList() *gomock.Cal
 }
 
 // ConfigurationSet mocks base method.
-func (m *MockApiClientInterface) ConfigurationSet(id string) (*ConfigurationSet, error) {
+func (m *MockApiClientInterface) ConfigurationSet(arg0 string) (*ConfigurationSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSet", id)
+	ret := m.ctrl.Call(m, "ConfigurationSet", arg0)
 	ret0, _ := ret[0].(*ConfigurationSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationSet indicates an expected call of ConfigurationSet.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSet(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSet(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSet", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSet), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSet", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSet), arg0)
 }
 
 // ConfigurationSetCreate mocks base method.
-func (m *MockApiClientInterface) ConfigurationSetCreate(payload *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
+func (m *MockApiClientInterface) ConfigurationSetCreate(arg0 *CreateConfigurationSetPayload) (*ConfigurationSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSetCreate", payload)
+	ret := m.ctrl.Call(m, "ConfigurationSetCreate", arg0)
 	ret0, _ := ret[0].(*ConfigurationSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationSetCreate indicates an expected call of ConfigurationSetCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetCreate), arg0)
 }
 
 // ConfigurationSetDelete mocks base method.
-func (m *MockApiClientInterface) ConfigurationSetDelete(id string) error {
+func (m *MockApiClientInterface) ConfigurationSetDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSetDelete", id)
+	ret := m.ctrl.Call(m, "ConfigurationSetDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ConfigurationSetDelete indicates an expected call of ConfigurationSetDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetDelete), arg0)
 }
 
 // ConfigurationSetUpdate mocks base method.
-func (m *MockApiClientInterface) ConfigurationSetUpdate(id string, payload *UpdateConfigurationSetPayload) (*ConfigurationSet, error) {
+func (m *MockApiClientInterface) ConfigurationSetUpdate(arg0 string, arg1 *UpdateConfigurationSetPayload) (*ConfigurationSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSetUpdate", id, payload)
+	ret := m.ctrl.Call(m, "ConfigurationSetUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*ConfigurationSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationSetUpdate indicates an expected call of ConfigurationSetUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetUpdate), arg0, arg1)
 }
 
 // ConfigurationSets mocks base method.
-func (m *MockApiClientInterface) ConfigurationSets(scope, scopeId string) ([]ConfigurationSet, error) {
+func (m *MockApiClientInterface) ConfigurationSets(arg0, arg1 string) ([]ConfigurationSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSets", scope, scopeId)
+	ret := m.ctrl.Call(m, "ConfigurationSets", arg0, arg1)
 	ret0, _ := ret[0].([]ConfigurationSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationSets indicates an expected call of ConfigurationSets.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSets(scope, scopeId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSets(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSets), scope, scopeId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSets), arg0, arg1)
 }
 
 // ConfigurationSetsAssignments mocks base method.
-func (m *MockApiClientInterface) ConfigurationSetsAssignments(scope, scopeId string) ([]ConfigurationSet, error) {
+func (m *MockApiClientInterface) ConfigurationSetsAssignments(arg0, arg1 string) ([]ConfigurationSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationSetsAssignments", scope, scopeId)
+	ret := m.ctrl.Call(m, "ConfigurationSetsAssignments", arg0, arg1)
 	ret0, _ := ret[0].([]ConfigurationSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationSetsAssignments indicates an expected call of ConfigurationSetsAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetsAssignments(scope, scopeId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationSetsAssignments(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetsAssignments), scope, scopeId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationSetsAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationSetsAssignments), arg0, arg1)
 }
 
 // ConfigurationVariableCreate mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariableCreate(arg0 ConfigurationVariableCreateParams) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariableCreate", params)
+	ret := m.ctrl.Call(m, "ConfigurationVariableCreate", arg0)
 	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariableCreate indicates an expected call of ConfigurationVariableCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableCreate(params any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableCreate), params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableCreate), arg0)
 }
 
 // ConfigurationVariableDelete mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariableDelete(id string) error {
+func (m *MockApiClientInterface) ConfigurationVariableDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariableDelete", id)
+	ret := m.ctrl.Call(m, "ConfigurationVariableDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ConfigurationVariableDelete indicates an expected call of ConfigurationVariableDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableDelete), arg0)
 }
 
 // ConfigurationVariableUpdate mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariableUpdate(params ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariableUpdate(arg0 ConfigurationVariableUpdateParams) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariableUpdate", params)
+	ret := m.ctrl.Call(m, "ConfigurationVariableUpdate", arg0)
 	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariableUpdate indicates an expected call of ConfigurationVariableUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(params any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariableUpdate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariableUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariableUpdate), arg0)
 }
 
 // ConfigurationVariablesById mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariablesById(id string) (ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariablesById(arg0 string) (ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariablesById", id)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesById", arg0)
 	ret0, _ := ret[0].(ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariablesById indicates an expected call of ConfigurationVariablesById.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesById(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesById", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesById", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesById), arg0)
 }
 
 // ConfigurationVariablesByScope mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariablesByScope(arg0 Scope, arg1 string) ([]ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", scope, scopeId)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesByScope", arg0, arg1)
 	ret0, _ := ret[0].([]ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariablesByScope indicates an expected call of ConfigurationVariablesByScope.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesByScope(scope, scopeId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesByScope(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), scope, scopeId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesByScope", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesByScope), arg0, arg1)
 }
 
 // ConfigurationVariablesBySetId mocks base method.
-func (m *MockApiClientInterface) ConfigurationVariablesBySetId(setId string) ([]ConfigurationVariable, error) {
+func (m *MockApiClientInterface) ConfigurationVariablesBySetId(arg0 string) ([]ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfigurationVariablesBySetId", setId)
+	ret := m.ctrl.Call(m, "ConfigurationVariablesBySetId", arg0)
 	ret0, _ := ret[0].([]ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConfigurationVariablesBySetId indicates an expected call of ConfigurationVariablesBySetId.
-func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesBySetId(setId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ConfigurationVariablesBySetId(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesBySetId", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesBySetId), setId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationVariablesBySetId", reflect.TypeOf((*MockApiClientInterface)(nil).ConfigurationVariablesBySetId), arg0)
 }
 
 // CostCredentialIdsInProject mocks base method.
-func (m *MockApiClientInterface) CostCredentialIdsInProject(projectId string) ([]CostCredentialProjectAssignment, error) {
+func (m *MockApiClientInterface) CostCredentialIdsInProject(arg0 string) ([]CostCredentialProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CostCredentialIdsInProject", projectId)
+	ret := m.ctrl.Call(m, "CostCredentialIdsInProject", arg0)
 	ret0, _ := ret[0].([]CostCredentialProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CostCredentialIdsInProject indicates an expected call of CostCredentialIdsInProject.
-func (mr *MockApiClientInterfaceMockRecorder) CostCredentialIdsInProject(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CostCredentialIdsInProject(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CostCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CostCredentialIdsInProject), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CostCredentialIdsInProject", reflect.TypeOf((*MockApiClientInterface)(nil).CostCredentialIdsInProject), arg0)
 }
 
 // CredentialsCreate mocks base method.
-func (m *MockApiClientInterface) CredentialsCreate(request any) (Credentials, error) {
+func (m *MockApiClientInterface) CredentialsCreate(arg0 any) (Credentials, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CredentialsCreate", request)
+	ret := m.ctrl.Call(m, "CredentialsCreate", arg0)
 	ret0, _ := ret[0].(Credentials)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CredentialsCreate indicates an expected call of CredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(request any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CredentialsCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsCreate), request)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsCreate), arg0)
 }
 
 // CredentialsUpdate mocks base method.
-func (m *MockApiClientInterface) CredentialsUpdate(id string, request any) (Credentials, error) {
+func (m *MockApiClientInterface) CredentialsUpdate(arg0 string, arg1 any) (Credentials, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CredentialsUpdate", id, request)
+	ret := m.ctrl.Call(m, "CredentialsUpdate", arg0, arg1)
 	ret0, _ := ret[0].(Credentials)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CredentialsUpdate indicates an expected call of CredentialsUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) CredentialsUpdate(id, request any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CredentialsUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsUpdate), id, request)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CredentialsUpdate), arg0, arg1)
 }
 
 // CustomFlow mocks base method.
-func (m *MockApiClientInterface) CustomFlow(id string) (*CustomFlow, error) {
+func (m *MockApiClientInterface) CustomFlow(arg0 string) (*CustomFlow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlow", id)
+	ret := m.ctrl.Call(m, "CustomFlow", arg0)
 	ret0, _ := ret[0].(*CustomFlow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CustomFlow indicates an expected call of CustomFlow.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlow(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlow(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlow", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlow), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlow", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlow), arg0)
 }
 
 // CustomFlowAssign mocks base method.
-func (m *MockApiClientInterface) CustomFlowAssign(assignments []CustomFlowAssignment) error {
+func (m *MockApiClientInterface) CustomFlowAssign(arg0 []CustomFlowAssignment) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowAssign", assignments)
+	ret := m.ctrl.Call(m, "CustomFlowAssign", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CustomFlowAssign indicates an expected call of CustomFlowAssign.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowAssign(assignments any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowAssign(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowAssign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowAssign), assignments)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowAssign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowAssign), arg0)
 }
 
 // CustomFlowCreate mocks base method.
-func (m *MockApiClientInterface) CustomFlowCreate(payload CustomFlowCreatePayload) (*CustomFlow, error) {
+func (m *MockApiClientInterface) CustomFlowCreate(arg0 CustomFlowCreatePayload) (*CustomFlow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowCreate", payload)
+	ret := m.ctrl.Call(m, "CustomFlowCreate", arg0)
 	ret0, _ := ret[0].(*CustomFlow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CustomFlowCreate indicates an expected call of CustomFlowCreate.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowCreate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowCreate), arg0)
 }
 
 // CustomFlowDelete mocks base method.
-func (m *MockApiClientInterface) CustomFlowDelete(id string) error {
+func (m *MockApiClientInterface) CustomFlowDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowDelete", id)
+	ret := m.ctrl.Call(m, "CustomFlowDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CustomFlowDelete indicates an expected call of CustomFlowDelete.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowDelete", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowDelete), arg0)
 }
 
 // CustomFlowGetAssignments mocks base method.
-func (m *MockApiClientInterface) CustomFlowGetAssignments(assignments []CustomFlowAssignment) ([]CustomFlowAssignment, error) {
+func (m *MockApiClientInterface) CustomFlowGetAssignments(arg0 []CustomFlowAssignment) ([]CustomFlowAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowGetAssignments", assignments)
+	ret := m.ctrl.Call(m, "CustomFlowGetAssignments", arg0)
 	ret0, _ := ret[0].([]CustomFlowAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CustomFlowGetAssignments indicates an expected call of CustomFlowGetAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowGetAssignments(assignments any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowGetAssignments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowGetAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowGetAssignments), assignments)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowGetAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowGetAssignments), arg0)
 }
 
 // CustomFlowUnassign mocks base method.
-func (m *MockApiClientInterface) CustomFlowUnassign(assignments []CustomFlowAssignment) error {
+func (m *MockApiClientInterface) CustomFlowUnassign(arg0 []CustomFlowAssignment) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowUnassign", assignments)
+	ret := m.ctrl.Call(m, "CustomFlowUnassign", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CustomFlowUnassign indicates an expected call of CustomFlowUnassign.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUnassign(assignments any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUnassign(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUnassign), assignments)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUnassign", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUnassign), arg0)
 }
 
 // CustomFlowUpdate mocks base method.
-func (m *MockApiClientInterface) CustomFlowUpdate(id string, payload CustomFlowCreatePayload) (*CustomFlow, error) {
+func (m *MockApiClientInterface) CustomFlowUpdate(arg0 string, arg1 CustomFlowCreatePayload) (*CustomFlow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlowUpdate", id, payload)
+	ret := m.ctrl.Call(m, "CustomFlowUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*CustomFlow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CustomFlowUpdate indicates an expected call of CustomFlowUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlowUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlowUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlowUpdate), arg0, arg1)
 }
 
 // CustomFlows mocks base method.
-func (m *MockApiClientInterface) CustomFlows(name string) ([]CustomFlow, error) {
+func (m *MockApiClientInterface) CustomFlows(arg0 string) ([]CustomFlow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CustomFlows", name)
+	ret := m.ctrl.Call(m, "CustomFlows", arg0)
 	ret0, _ := ret[0].([]CustomFlow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CustomFlows indicates an expected call of CustomFlows.
-func (mr *MockApiClientInterfaceMockRecorder) CustomFlows(name any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) CustomFlows(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlows", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlows), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CustomFlows", reflect.TypeOf((*MockApiClientInterface)(nil).CustomFlows), arg0)
 }
 
 // DeleteEnvironmentDiscovery mocks base method.
-func (m *MockApiClientInterface) DeleteEnvironmentDiscovery(projectId string) error {
+func (m *MockApiClientInterface) DeleteEnvironmentDiscovery(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteEnvironmentDiscovery", projectId)
+	ret := m.ctrl.Call(m, "DeleteEnvironmentDiscovery", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteEnvironmentDiscovery indicates an expected call of DeleteEnvironmentDiscovery.
-func (mr *MockApiClientInterfaceMockRecorder) DeleteEnvironmentDiscovery(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) DeleteEnvironmentDiscovery(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).DeleteEnvironmentDiscovery), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).DeleteEnvironmentDiscovery), arg0)
 }
 
 // Environment mocks base method.
-func (m *MockApiClientInterface) Environment(id string) (Environment, error) {
+func (m *MockApiClientInterface) Environment(arg0 string) (Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Environment", id)
+	ret := m.ctrl.Call(m, "Environment", arg0)
 	ret0, _ := ret[0].(Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Environment indicates an expected call of Environment.
-func (mr *MockApiClientInterfaceMockRecorder) Environment(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Environment(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environment", reflect.TypeOf((*MockApiClientInterface)(nil).Environment), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Environment", reflect.TypeOf((*MockApiClientInterface)(nil).Environment), arg0)
 }
 
 // EnvironmentCreate mocks base method.
-func (m *MockApiClientInterface) EnvironmentCreate(payload EnvironmentCreate) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentCreate(arg0 EnvironmentCreate) (Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentCreate", payload)
+	ret := m.ctrl.Call(m, "EnvironmentCreate", arg0)
 	ret0, _ := ret[0].(Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentCreate indicates an expected call of EnvironmentCreate.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreate), arg0)
 }
 
 // EnvironmentCreateWithoutTemplate mocks base method.
-func (m *MockApiClientInterface) EnvironmentCreateWithoutTemplate(payload EnvironmentCreateWithoutTemplate) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentCreateWithoutTemplate(arg0 EnvironmentCreateWithoutTemplate) (Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentCreateWithoutTemplate", payload)
+	ret := m.ctrl.Call(m, "EnvironmentCreateWithoutTemplate", arg0)
 	ret0, _ := ret[0].(Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentCreateWithoutTemplate indicates an expected call of EnvironmentCreateWithoutTemplate.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreateWithoutTemplate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentCreateWithoutTemplate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreateWithoutTemplate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreateWithoutTemplate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentCreateWithoutTemplate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentCreateWithoutTemplate), arg0)
 }
 
 // EnvironmentDeploy mocks base method.
-func (m *MockApiClientInterface) EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error) {
+func (m *MockApiClientInterface) EnvironmentDeploy(arg0 string, arg1 DeployRequest) (EnvironmentDeployResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentDeploy", id, payload)
+	ret := m.ctrl.Call(m, "EnvironmentDeploy", arg0, arg1)
 	ret0, _ := ret[0].(EnvironmentDeployResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentDeploy indicates an expected call of EnvironmentDeploy.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploy(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploy(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploy), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploy), arg0, arg1)
 }
 
 // EnvironmentDeploymentLog mocks base method.
-func (m *MockApiClientInterface) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
+func (m *MockApiClientInterface) EnvironmentDeploymentLog(arg0 string) (*DeploymentLog, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentDeploymentLog", id)
+	ret := m.ctrl.Call(m, "EnvironmentDeploymentLog", arg0)
 	ret0, _ := ret[0].(*DeploymentLog)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentDeploymentLog indicates an expected call of EnvironmentDeploymentLog.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploymentLog(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDeploymentLog(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploymentLog", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploymentLog), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDeploymentLog", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDeploymentLog), arg0)
 }
 
 // EnvironmentDestroy mocks base method.
-func (m *MockApiClientInterface) EnvironmentDestroy(id string) (*EnvironmentDestroyResponse, error) {
+func (m *MockApiClientInterface) EnvironmentDestroy(arg0 string) (*EnvironmentDestroyResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentDestroy", id)
+	ret := m.ctrl.Call(m, "EnvironmentDestroy", arg0)
 	ret0, _ := ret[0].(*EnvironmentDestroyResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentDestroy indicates an expected call of EnvironmentDestroy.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDestroy(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDestroy", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDestroy), arg0)
 }
 
 // EnvironmentDriftDetection mocks base method.
-func (m *MockApiClientInterface) EnvironmentDriftDetection(environmentId string) (EnvironmentSchedulingExpression, error) {
+func (m *MockApiClientInterface) EnvironmentDriftDetection(arg0 string) (EnvironmentSchedulingExpression, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentDriftDetection", environmentId)
+	ret := m.ctrl.Call(m, "EnvironmentDriftDetection", arg0)
 	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentDriftDetection indicates an expected call of EnvironmentDriftDetection.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDriftDetection(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentDriftDetection(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDriftDetection), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentDriftDetection), arg0)
 }
 
 // EnvironmentMarkAsArchived mocks base method.
-func (m *MockApiClientInterface) EnvironmentMarkAsArchived(id string) error {
+func (m *MockApiClientInterface) EnvironmentMarkAsArchived(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentMarkAsArchived", id)
+	ret := m.ctrl.Call(m, "EnvironmentMarkAsArchived", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // EnvironmentMarkAsArchived indicates an expected call of EnvironmentMarkAsArchived.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMarkAsArchived(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMarkAsArchived(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMarkAsArchived", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMarkAsArchived), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMarkAsArchived", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMarkAsArchived), arg0)
 }
 
 // EnvironmentMove mocks base method.
-func (m *MockApiClientInterface) EnvironmentMove(id, projectId string) error {
+func (m *MockApiClientInterface) EnvironmentMove(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentMove", id, projectId)
+	ret := m.ctrl.Call(m, "EnvironmentMove", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // EnvironmentMove indicates an expected call of EnvironmentMove.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMove(id, projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentMove(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMove", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMove), id, projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentMove", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentMove), arg0, arg1)
 }
 
 // EnvironmentScheduling mocks base method.
-func (m *MockApiClientInterface) EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error) {
+func (m *MockApiClientInterface) EnvironmentScheduling(arg0 string) (EnvironmentScheduling, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentScheduling", environmentId)
+	ret := m.ctrl.Call(m, "EnvironmentScheduling", arg0)
 	ret0, _ := ret[0].(EnvironmentScheduling)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentScheduling indicates an expected call of EnvironmentScheduling.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentScheduling(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentScheduling(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentScheduling", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentScheduling), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentScheduling", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentScheduling), arg0)
 }
 
 // EnvironmentSchedulingDelete mocks base method.
-func (m *MockApiClientInterface) EnvironmentSchedulingDelete(environmentId string) error {
+func (m *MockApiClientInterface) EnvironmentSchedulingDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentSchedulingDelete", environmentId)
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // EnvironmentSchedulingDelete indicates an expected call of EnvironmentSchedulingDelete.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingDelete(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingDelete", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingDelete), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingDelete", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingDelete), arg0)
 }
 
 // EnvironmentSchedulingUpdate mocks base method.
-func (m *MockApiClientInterface) EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error) {
+func (m *MockApiClientInterface) EnvironmentSchedulingUpdate(arg0 string, arg1 EnvironmentScheduling) (EnvironmentScheduling, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentSchedulingUpdate", environmentId, payload)
+	ret := m.ctrl.Call(m, "EnvironmentSchedulingUpdate", arg0, arg1)
 	ret0, _ := ret[0].(EnvironmentScheduling)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentSchedulingUpdate indicates an expected call of EnvironmentSchedulingUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingUpdate(environmentId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentSchedulingUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingUpdate), environmentId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentSchedulingUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentSchedulingUpdate), arg0, arg1)
 }
 
 // EnvironmentStopDriftDetection mocks base method.
-func (m *MockApiClientInterface) EnvironmentStopDriftDetection(environmentId string) error {
+func (m *MockApiClientInterface) EnvironmentStopDriftDetection(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentStopDriftDetection", environmentId)
+	ret := m.ctrl.Call(m, "EnvironmentStopDriftDetection", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // EnvironmentStopDriftDetection indicates an expected call of EnvironmentStopDriftDetection.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentStopDriftDetection(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentStopDriftDetection(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentStopDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentStopDriftDetection), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentStopDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentStopDriftDetection), arg0)
 }
 
 // EnvironmentUpdate mocks base method.
-func (m *MockApiClientInterface) EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentUpdate(arg0 string, arg1 EnvironmentUpdate) (Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentUpdate", id, payload)
+	ret := m.ctrl.Call(m, "EnvironmentUpdate", arg0, arg1)
 	ret0, _ := ret[0].(Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentUpdate indicates an expected call of EnvironmentUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdate), arg0, arg1)
 }
 
 // EnvironmentUpdateDriftDetection mocks base method.
-func (m *MockApiClientInterface) EnvironmentUpdateDriftDetection(environmentId string, payload EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error) {
+func (m *MockApiClientInterface) EnvironmentUpdateDriftDetection(arg0 string, arg1 EnvironmentSchedulingExpression) (EnvironmentSchedulingExpression, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentUpdateDriftDetection", environmentId, payload)
+	ret := m.ctrl.Call(m, "EnvironmentUpdateDriftDetection", arg0, arg1)
 	ret0, _ := ret[0].(EnvironmentSchedulingExpression)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentUpdateDriftDetection indicates an expected call of EnvironmentUpdateDriftDetection.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateDriftDetection(environmentId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateDriftDetection(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateDriftDetection), environmentId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateDriftDetection", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateDriftDetection), arg0, arg1)
 }
 
 // EnvironmentUpdateTTL mocks base method.
-func (m *MockApiClientInterface) EnvironmentUpdateTTL(id string, payload TTL) (Environment, error) {
+func (m *MockApiClientInterface) EnvironmentUpdateTTL(arg0 string, arg1 TTL) (Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentUpdateTTL", id, payload)
+	ret := m.ctrl.Call(m, "EnvironmentUpdateTTL", arg0, arg1)
 	ret0, _ := ret[0].(Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentUpdateTTL indicates an expected call of EnvironmentUpdateTTL.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTTL(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTTL(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTTL", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTTL), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTTL", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTTL), arg0, arg1)
 }
 
 // EnvironmentsByName mocks base method.
-func (m *MockApiClientInterface) EnvironmentsByName(name string) ([]Environment, error) {
+func (m *MockApiClientInterface) EnvironmentsByName(arg0 string) ([]Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnvironmentsByName", name)
+	ret := m.ctrl.Call(m, "EnvironmentsByName", arg0)
 	ret0, _ := ret[0].([]Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EnvironmentsByName indicates an expected call of EnvironmentsByName.
-func (mr *MockApiClientInterfaceMockRecorder) EnvironmentsByName(name any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentsByName(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentsByName", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentsByName), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentsByName", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentsByName), arg0)
 }
 
 // GetEnvironmentDiscovery mocks base method.
-func (m *MockApiClientInterface) GetEnvironmentDiscovery(projectId string) (*EnvironmentDiscoveryPayload, error) {
+func (m *MockApiClientInterface) GetEnvironmentDiscovery(arg0 string) (*EnvironmentDiscoveryPayload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetEnvironmentDiscovery", projectId)
+	ret := m.ctrl.Call(m, "GetEnvironmentDiscovery", arg0)
 	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetEnvironmentDiscovery indicates an expected call of GetEnvironmentDiscovery.
-func (mr *MockApiClientInterfaceMockRecorder) GetEnvironmentDiscovery(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GetEnvironmentDiscovery(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).GetEnvironmentDiscovery), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).GetEnvironmentDiscovery), arg0)
 }
 
 // GitToken mocks base method.
-func (m *MockApiClientInterface) GitToken(id string) (*GitToken, error) {
+func (m *MockApiClientInterface) GitToken(arg0 string) (*GitToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GitToken", id)
+	ret := m.ctrl.Call(m, "GitToken", arg0)
 	ret0, _ := ret[0].(*GitToken)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GitToken indicates an expected call of GitToken.
-func (mr *MockApiClientInterfaceMockRecorder) GitToken(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GitToken(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitToken", reflect.TypeOf((*MockApiClientInterface)(nil).GitToken), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitToken", reflect.TypeOf((*MockApiClientInterface)(nil).GitToken), arg0)
 }
 
 // GitTokenCreate mocks base method.
-func (m *MockApiClientInterface) GitTokenCreate(payload GitTokenCreatePayload) (*GitToken, error) {
+func (m *MockApiClientInterface) GitTokenCreate(arg0 GitTokenCreatePayload) (*GitToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GitTokenCreate", payload)
+	ret := m.ctrl.Call(m, "GitTokenCreate", arg0)
 	ret0, _ := ret[0].(*GitToken)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GitTokenCreate indicates an expected call of GitTokenCreate.
-func (mr *MockApiClientInterfaceMockRecorder) GitTokenCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GitTokenCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokenCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokenCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokenCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokenCreate), arg0)
 }
 
 // GitTokenDelete mocks base method.
-func (m *MockApiClientInterface) GitTokenDelete(id string) error {
+func (m *MockApiClientInterface) GitTokenDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GitTokenDelete", id)
+	ret := m.ctrl.Call(m, "GitTokenDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // GitTokenDelete indicates an expected call of GitTokenDelete.
-func (mr *MockApiClientInterfaceMockRecorder) GitTokenDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GitTokenDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokenDelete", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokenDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitTokenDelete", reflect.TypeOf((*MockApiClientInterface)(nil).GitTokenDelete), arg0)
 }
 
 // GitTokens mocks base method.
@@ -1119,32 +1117,32 @@ func (mr *MockApiClientInterfaceMockRecorder) GitTokens() *gomock.Call {
 }
 
 // GpgKeyCreate mocks base method.
-func (m *MockApiClientInterface) GpgKeyCreate(payload *GpgKeyCreatePayload) (*GpgKey, error) {
+func (m *MockApiClientInterface) GpgKeyCreate(arg0 *GpgKeyCreatePayload) (*GpgKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GpgKeyCreate", payload)
+	ret := m.ctrl.Call(m, "GpgKeyCreate", arg0)
 	ret0, _ := ret[0].(*GpgKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GpgKeyCreate indicates an expected call of GpgKeyCreate.
-func (mr *MockApiClientInterfaceMockRecorder) GpgKeyCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GpgKeyCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyCreate), arg0)
 }
 
 // GpgKeyDelete mocks base method.
-func (m *MockApiClientInterface) GpgKeyDelete(id string) error {
+func (m *MockApiClientInterface) GpgKeyDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GpgKeyDelete", id)
+	ret := m.ctrl.Call(m, "GpgKeyDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // GpgKeyDelete indicates an expected call of GpgKeyDelete.
-func (mr *MockApiClientInterfaceMockRecorder) GpgKeyDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) GpgKeyDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GpgKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).GpgKeyDelete), arg0)
 }
 
 // GpgKeys mocks base method.
@@ -1163,77 +1161,77 @@ func (mr *MockApiClientInterfaceMockRecorder) GpgKeys() *gomock.Call {
 }
 
 // KubernetesCredentialsCreate mocks base method.
-func (m *MockApiClientInterface) KubernetesCredentialsCreate(payload *KubernetesCredentialsCreatePayload) (*Credentials, error) {
+func (m *MockApiClientInterface) KubernetesCredentialsCreate(arg0 *KubernetesCredentialsCreatePayload) (*Credentials, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "KubernetesCredentialsCreate", payload)
+	ret := m.ctrl.Call(m, "KubernetesCredentialsCreate", arg0)
 	ret0, _ := ret[0].(*Credentials)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // KubernetesCredentialsCreate indicates an expected call of KubernetesCredentialsCreate.
-func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsCreate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsCreate), arg0)
 }
 
 // KubernetesCredentialsUpdate mocks base method.
-func (m *MockApiClientInterface) KubernetesCredentialsUpdate(id string, payload *KubernetesCredentialsUpdatePayload) (*Credentials, error) {
+func (m *MockApiClientInterface) KubernetesCredentialsUpdate(arg0 string, arg1 *KubernetesCredentialsUpdatePayload) (*Credentials, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "KubernetesCredentialsUpdate", id, payload)
+	ret := m.ctrl.Call(m, "KubernetesCredentialsUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Credentials)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // KubernetesCredentialsUpdate indicates an expected call of KubernetesCredentialsUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsUpdate), arg0, arg1)
 }
 
 // Module mocks base method.
-func (m *MockApiClientInterface) Module(id string) (*Module, error) {
+func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Module", id)
+	ret := m.ctrl.Call(m, "Module", arg0)
 	ret0, _ := ret[0].(*Module)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Module indicates an expected call of Module.
-func (mr *MockApiClientInterfaceMockRecorder) Module(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Module(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Module", reflect.TypeOf((*MockApiClientInterface)(nil).Module), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Module", reflect.TypeOf((*MockApiClientInterface)(nil).Module), arg0)
 }
 
 // ModuleCreate mocks base method.
-func (m *MockApiClientInterface) ModuleCreate(payload ModuleCreatePayload) (*Module, error) {
+func (m *MockApiClientInterface) ModuleCreate(arg0 ModuleCreatePayload) (*Module, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ModuleCreate", payload)
+	ret := m.ctrl.Call(m, "ModuleCreate", arg0)
 	ret0, _ := ret[0].(*Module)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ModuleCreate indicates an expected call of ModuleCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ModuleCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ModuleCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleCreate), arg0)
 }
 
 // ModuleDelete mocks base method.
-func (m *MockApiClientInterface) ModuleDelete(id string) error {
+func (m *MockApiClientInterface) ModuleDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ModuleDelete", id)
+	ret := m.ctrl.Call(m, "ModuleDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ModuleDelete indicates an expected call of ModuleDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ModuleDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ModuleDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleDelete), arg0)
 }
 
 // ModuleTestingProject mocks base method.
@@ -1252,18 +1250,18 @@ func (mr *MockApiClientInterfaceMockRecorder) ModuleTestingProject() *gomock.Cal
 }
 
 // ModuleUpdate mocks base method.
-func (m *MockApiClientInterface) ModuleUpdate(id string, payload ModuleUpdatePayload) (*Module, error) {
+func (m *MockApiClientInterface) ModuleUpdate(arg0 string, arg1 ModuleUpdatePayload) (*Module, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ModuleUpdate", id, payload)
+	ret := m.ctrl.Call(m, "ModuleUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Module)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ModuleUpdate indicates an expected call of ModuleUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ModuleUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ModuleUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModuleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ModuleUpdate), arg0, arg1)
 }
 
 // Modules mocks base method.
@@ -1282,77 +1280,77 @@ func (mr *MockApiClientInterfaceMockRecorder) Modules() *gomock.Call {
 }
 
 // NotificationCreate mocks base method.
-func (m *MockApiClientInterface) NotificationCreate(payload NotificationCreatePayload) (*Notification, error) {
+func (m *MockApiClientInterface) NotificationCreate(arg0 NotificationCreatePayload) (*Notification, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NotificationCreate", payload)
+	ret := m.ctrl.Call(m, "NotificationCreate", arg0)
 	ret0, _ := ret[0].(*Notification)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NotificationCreate indicates an expected call of NotificationCreate.
-func (mr *MockApiClientInterfaceMockRecorder) NotificationCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) NotificationCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationCreate), arg0)
 }
 
 // NotificationDelete mocks base method.
-func (m *MockApiClientInterface) NotificationDelete(id string) error {
+func (m *MockApiClientInterface) NotificationDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NotificationDelete", id)
+	ret := m.ctrl.Call(m, "NotificationDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // NotificationDelete indicates an expected call of NotificationDelete.
-func (mr *MockApiClientInterfaceMockRecorder) NotificationDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) NotificationDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationDelete), arg0)
 }
 
 // NotificationProjectAssignmentUpdate mocks base method.
-func (m *MockApiClientInterface) NotificationProjectAssignmentUpdate(projectId, endpointId string, payload NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error) {
+func (m *MockApiClientInterface) NotificationProjectAssignmentUpdate(arg0, arg1 string, arg2 NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NotificationProjectAssignmentUpdate", projectId, endpointId, payload)
+	ret := m.ctrl.Call(m, "NotificationProjectAssignmentUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*NotificationProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NotificationProjectAssignmentUpdate indicates an expected call of NotificationProjectAssignmentUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignmentUpdate(projectId, endpointId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignmentUpdate(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignmentUpdate), projectId, endpointId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignmentUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignmentUpdate), arg0, arg1, arg2)
 }
 
 // NotificationProjectAssignments mocks base method.
-func (m *MockApiClientInterface) NotificationProjectAssignments(projectId string) ([]NotificationProjectAssignment, error) {
+func (m *MockApiClientInterface) NotificationProjectAssignments(arg0 string) ([]NotificationProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NotificationProjectAssignments", projectId)
+	ret := m.ctrl.Call(m, "NotificationProjectAssignments", arg0)
 	ret0, _ := ret[0].([]NotificationProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NotificationProjectAssignments indicates an expected call of NotificationProjectAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignments(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) NotificationProjectAssignments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignments), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationProjectAssignments), arg0)
 }
 
 // NotificationUpdate mocks base method.
-func (m *MockApiClientInterface) NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error) {
+func (m *MockApiClientInterface) NotificationUpdate(arg0 string, arg1 NotificationUpdatePayload) (*Notification, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NotificationUpdate", id, payload)
+	ret := m.ctrl.Call(m, "NotificationUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Notification)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NotificationUpdate indicates an expected call of NotificationUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) NotificationUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) NotificationUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotificationUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).NotificationUpdate), arg0, arg1)
 }
 
 // Notifications mocks base method.
@@ -1400,6 +1398,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
+// OrganizationEnvironments mocks base method.
+func (m *MockApiClientInterface) OrganizationEnvironments(arg0 string) ([]Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationEnvironments", arg0)
+	ret0, _ := ret[0].([]Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrganizationEnvironments indicates an expected call of OrganizationEnvironments.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationEnvironments(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationEnvironments", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationEnvironments), arg0)
+}
+
 // OrganizationId mocks base method.
 func (m *MockApiClientInterface) OrganizationId() (string, error) {
 	m.ctrl.T.Helper()
@@ -1431,179 +1444,179 @@ func (mr *MockApiClientInterfaceMockRecorder) OrganizationPolicyUpdate(arg0 any)
 }
 
 // OrganizationUserUpdateRole mocks base method.
-func (m *MockApiClientInterface) OrganizationUserUpdateRole(userId, roleId string) error {
+func (m *MockApiClientInterface) OrganizationUserUpdateRole(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OrganizationUserUpdateRole", userId, roleId)
+	ret := m.ctrl.Call(m, "OrganizationUserUpdateRole", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // OrganizationUserUpdateRole indicates an expected call of OrganizationUserUpdateRole.
-func (mr *MockApiClientInterfaceMockRecorder) OrganizationUserUpdateRole(userId, roleId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationUserUpdateRole(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationUserUpdateRole", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationUserUpdateRole), userId, roleId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationUserUpdateRole", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationUserUpdateRole), arg0, arg1)
 }
 
 // Policy mocks base method.
-func (m *MockApiClientInterface) Policy(projectId string) (Policy, error) {
+func (m *MockApiClientInterface) Policy(arg0 string) (Policy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Policy", projectId)
+	ret := m.ctrl.Call(m, "Policy", arg0)
 	ret0, _ := ret[0].(Policy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Policy indicates an expected call of Policy.
-func (mr *MockApiClientInterfaceMockRecorder) Policy(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Policy(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Policy", reflect.TypeOf((*MockApiClientInterface)(nil).Policy), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Policy", reflect.TypeOf((*MockApiClientInterface)(nil).Policy), arg0)
 }
 
 // PolicyUpdate mocks base method.
-func (m *MockApiClientInterface) PolicyUpdate(payload PolicyUpdatePayload) (Policy, error) {
+func (m *MockApiClientInterface) PolicyUpdate(arg0 PolicyUpdatePayload) (Policy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PolicyUpdate", payload)
+	ret := m.ctrl.Call(m, "PolicyUpdate", arg0)
 	ret0, _ := ret[0].(Policy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // PolicyUpdate indicates an expected call of PolicyUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) PolicyUpdate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) PolicyUpdate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).PolicyUpdate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PolicyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).PolicyUpdate), arg0)
 }
 
 // Project mocks base method.
-func (m *MockApiClientInterface) Project(id string) (Project, error) {
+func (m *MockApiClientInterface) Project(arg0 string) (Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Project", id)
+	ret := m.ctrl.Call(m, "Project", arg0)
 	ret0, _ := ret[0].(Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Project indicates an expected call of Project.
-func (mr *MockApiClientInterfaceMockRecorder) Project(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Project(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Project", reflect.TypeOf((*MockApiClientInterface)(nil).Project), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Project", reflect.TypeOf((*MockApiClientInterface)(nil).Project), arg0)
 }
 
 // ProjectBudget mocks base method.
-func (m *MockApiClientInterface) ProjectBudget(projectId string) (*ProjectBudget, error) {
+func (m *MockApiClientInterface) ProjectBudget(arg0 string) (*ProjectBudget, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectBudget", projectId)
+	ret := m.ctrl.Call(m, "ProjectBudget", arg0)
 	ret0, _ := ret[0].(*ProjectBudget)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectBudget indicates an expected call of ProjectBudget.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectBudget(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudget(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudget", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudget), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudget", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudget), arg0)
 }
 
 // ProjectBudgetDelete mocks base method.
-func (m *MockApiClientInterface) ProjectBudgetDelete(projectId string) error {
+func (m *MockApiClientInterface) ProjectBudgetDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectBudgetDelete", projectId)
+	ret := m.ctrl.Call(m, "ProjectBudgetDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProjectBudgetDelete indicates an expected call of ProjectBudgetDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetDelete(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetDelete), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetDelete), arg0)
 }
 
 // ProjectBudgetUpdate mocks base method.
-func (m *MockApiClientInterface) ProjectBudgetUpdate(projectId string, payload *ProjectBudgetUpdatePayload) (*ProjectBudget, error) {
+func (m *MockApiClientInterface) ProjectBudgetUpdate(arg0 string, arg1 *ProjectBudgetUpdatePayload) (*ProjectBudget, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectBudgetUpdate", projectId, payload)
+	ret := m.ctrl.Call(m, "ProjectBudgetUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*ProjectBudget)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectBudgetUpdate indicates an expected call of ProjectBudgetUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetUpdate(projectId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectBudgetUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetUpdate), projectId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectBudgetUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectBudgetUpdate), arg0, arg1)
 }
 
 // ProjectCreate mocks base method.
-func (m *MockApiClientInterface) ProjectCreate(payload ProjectCreatePayload) (Project, error) {
+func (m *MockApiClientInterface) ProjectCreate(arg0 ProjectCreatePayload) (Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectCreate", payload)
+	ret := m.ctrl.Call(m, "ProjectCreate", arg0)
 	ret0, _ := ret[0].(Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectCreate indicates an expected call of ProjectCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectCreate), arg0)
 }
 
 // ProjectDelete mocks base method.
-func (m *MockApiClientInterface) ProjectDelete(id string) error {
+func (m *MockApiClientInterface) ProjectDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectDelete", id)
+	ret := m.ctrl.Call(m, "ProjectDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProjectDelete indicates an expected call of ProjectDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectDelete), arg0)
 }
 
 // ProjectEnvironments mocks base method.
-func (m *MockApiClientInterface) ProjectEnvironments(projectId string) ([]Environment, error) {
+func (m *MockApiClientInterface) ProjectEnvironments(arg0 string) ([]Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectEnvironments", projectId)
+	ret := m.ctrl.Call(m, "ProjectEnvironments", arg0)
 	ret0, _ := ret[0].([]Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectEnvironments indicates an expected call of ProjectEnvironments.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectEnvironments(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectEnvironments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectEnvironments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectEnvironments), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectEnvironments", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectEnvironments), arg0)
 }
 
 // ProjectMove mocks base method.
-func (m *MockApiClientInterface) ProjectMove(id, targetProjectId string) error {
+func (m *MockApiClientInterface) ProjectMove(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectMove", id, targetProjectId)
+	ret := m.ctrl.Call(m, "ProjectMove", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProjectMove indicates an expected call of ProjectMove.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectMove(id, targetProjectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectMove(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectMove", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectMove), id, targetProjectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectMove", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectMove), arg0, arg1)
 }
 
 // ProjectUpdate mocks base method.
-func (m *MockApiClientInterface) ProjectUpdate(id string, payload ProjectUpdatePayload) (Project, error) {
+func (m *MockApiClientInterface) ProjectUpdate(arg0 string, arg1 ProjectUpdatePayload) (Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProjectUpdate", id, payload)
+	ret := m.ctrl.Call(m, "ProjectUpdate", arg0, arg1)
 	ret0, _ := ret[0].(Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProjectUpdate indicates an expected call of ProjectUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ProjectUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProjectUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProjectUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProjectUpdate), arg0, arg1)
 }
 
 // Projects mocks base method.
@@ -1637,62 +1650,62 @@ func (mr *MockApiClientInterfaceMockRecorder) ProjectsAgentsAssignments() *gomoc
 }
 
 // Provider mocks base method.
-func (m *MockApiClientInterface) Provider(providerId string) (*Provider, error) {
+func (m *MockApiClientInterface) Provider(arg0 string) (*Provider, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Provider", providerId)
+	ret := m.ctrl.Call(m, "Provider", arg0)
 	ret0, _ := ret[0].(*Provider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Provider indicates an expected call of Provider.
-func (mr *MockApiClientInterfaceMockRecorder) Provider(providerId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Provider(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provider", reflect.TypeOf((*MockApiClientInterface)(nil).Provider), providerId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provider", reflect.TypeOf((*MockApiClientInterface)(nil).Provider), arg0)
 }
 
 // ProviderCreate mocks base method.
-func (m *MockApiClientInterface) ProviderCreate(payload ProviderCreatePayload) (*Provider, error) {
+func (m *MockApiClientInterface) ProviderCreate(arg0 ProviderCreatePayload) (*Provider, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProviderCreate", payload)
+	ret := m.ctrl.Call(m, "ProviderCreate", arg0)
 	ret0, _ := ret[0].(*Provider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProviderCreate indicates an expected call of ProviderCreate.
-func (mr *MockApiClientInterfaceMockRecorder) ProviderCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProviderCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderCreate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderCreate), arg0)
 }
 
 // ProviderDelete mocks base method.
-func (m *MockApiClientInterface) ProviderDelete(providerId string) error {
+func (m *MockApiClientInterface) ProviderDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProviderDelete", providerId)
+	ret := m.ctrl.Call(m, "ProviderDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProviderDelete indicates an expected call of ProviderDelete.
-func (mr *MockApiClientInterfaceMockRecorder) ProviderDelete(providerId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProviderDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderDelete), providerId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderDelete), arg0)
 }
 
 // ProviderUpdate mocks base method.
-func (m *MockApiClientInterface) ProviderUpdate(providerId string, payload ProviderUpdatePayload) (*Provider, error) {
+func (m *MockApiClientInterface) ProviderUpdate(arg0 string, arg1 ProviderUpdatePayload) (*Provider, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProviderUpdate", providerId, payload)
+	ret := m.ctrl.Call(m, "ProviderUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Provider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ProviderUpdate indicates an expected call of ProviderUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) ProviderUpdate(providerId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) ProviderUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderUpdate), providerId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProviderUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).ProviderUpdate), arg0, arg1)
 }
 
 // Providers mocks base method.
@@ -1711,191 +1724,191 @@ func (mr *MockApiClientInterfaceMockRecorder) Providers() *gomock.Call {
 }
 
 // PutEnvironmentDiscovery mocks base method.
-func (m *MockApiClientInterface) PutEnvironmentDiscovery(projectId string, payload *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
+func (m *MockApiClientInterface) PutEnvironmentDiscovery(arg0 string, arg1 *EnvironmentDiscoveryPutPayload) (*EnvironmentDiscoveryPayload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PutEnvironmentDiscovery", projectId, payload)
+	ret := m.ctrl.Call(m, "PutEnvironmentDiscovery", arg0, arg1)
 	ret0, _ := ret[0].(*EnvironmentDiscoveryPayload)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // PutEnvironmentDiscovery indicates an expected call of PutEnvironmentDiscovery.
-func (mr *MockApiClientInterfaceMockRecorder) PutEnvironmentDiscovery(projectId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) PutEnvironmentDiscovery(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).PutEnvironmentDiscovery), projectId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutEnvironmentDiscovery", reflect.TypeOf((*MockApiClientInterface)(nil).PutEnvironmentDiscovery), arg0, arg1)
 }
 
 // RemoteStateAccessConfiguration mocks base method.
-func (m *MockApiClientInterface) RemoteStateAccessConfiguration(environmentId string) (*RemoteStateAccessConfiguration, error) {
+func (m *MockApiClientInterface) RemoteStateAccessConfiguration(arg0 string) (*RemoteStateAccessConfiguration, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoteStateAccessConfiguration", environmentId)
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfiguration", arg0)
 	ret0, _ := ret[0].(*RemoteStateAccessConfiguration)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RemoteStateAccessConfiguration indicates an expected call of RemoteStateAccessConfiguration.
-func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfiguration(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfiguration(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfiguration", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfiguration), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfiguration", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfiguration), arg0)
 }
 
 // RemoteStateAccessConfigurationCreate mocks base method.
-func (m *MockApiClientInterface) RemoteStateAccessConfigurationCreate(environmentId string, payload RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
+func (m *MockApiClientInterface) RemoteStateAccessConfigurationCreate(arg0 string, arg1 RemoteStateAccessConfigurationCreate) (*RemoteStateAccessConfiguration, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationCreate", environmentId, payload)
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationCreate", arg0, arg1)
 	ret0, _ := ret[0].(*RemoteStateAccessConfiguration)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RemoteStateAccessConfigurationCreate indicates an expected call of RemoteStateAccessConfigurationCreate.
-func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationCreate(environmentId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationCreate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationCreate), environmentId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationCreate), arg0, arg1)
 }
 
 // RemoteStateAccessConfigurationDelete mocks base method.
-func (m *MockApiClientInterface) RemoteStateAccessConfigurationDelete(environmentId string) error {
+func (m *MockApiClientInterface) RemoteStateAccessConfigurationDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationDelete", environmentId)
+	ret := m.ctrl.Call(m, "RemoteStateAccessConfigurationDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoteStateAccessConfigurationDelete indicates an expected call of RemoteStateAccessConfigurationDelete.
-func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationDelete(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoteStateAccessConfigurationDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationDelete), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoteStateAccessConfigurationDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RemoteStateAccessConfigurationDelete), arg0)
 }
 
 // RemoveCloudCredentialsFromProject mocks base method.
-func (m *MockApiClientInterface) RemoveCloudCredentialsFromProject(projectId, credentialId string) error {
+func (m *MockApiClientInterface) RemoveCloudCredentialsFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveCloudCredentialsFromProject", projectId, credentialId)
+	ret := m.ctrl.Call(m, "RemoveCloudCredentialsFromProject", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveCloudCredentialsFromProject indicates an expected call of RemoveCloudCredentialsFromProject.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveCloudCredentialsFromProject(projectId, credentialId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoveCloudCredentialsFromProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCloudCredentialsFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveCloudCredentialsFromProject), projectId, credentialId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCloudCredentialsFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveCloudCredentialsFromProject), arg0, arg1)
 }
 
 // RemoveCostCredentialsFromProject mocks base method.
-func (m *MockApiClientInterface) RemoveCostCredentialsFromProject(projectId, credentialId string) error {
+func (m *MockApiClientInterface) RemoveCostCredentialsFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveCostCredentialsFromProject", projectId, credentialId)
+	ret := m.ctrl.Call(m, "RemoveCostCredentialsFromProject", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveCostCredentialsFromProject indicates an expected call of RemoveCostCredentialsFromProject.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveCostCredentialsFromProject(projectId, credentialId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoveCostCredentialsFromProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCostCredentialsFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveCostCredentialsFromProject), projectId, credentialId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCostCredentialsFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveCostCredentialsFromProject), arg0, arg1)
 }
 
 // RemoveTemplateFromProject mocks base method.
-func (m *MockApiClientInterface) RemoveTemplateFromProject(templateId, projectId string) error {
+func (m *MockApiClientInterface) RemoveTemplateFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveTemplateFromProject", templateId, projectId)
+	ret := m.ctrl.Call(m, "RemoveTemplateFromProject", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveTemplateFromProject indicates an expected call of RemoveTemplateFromProject.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveTemplateFromProject(templateId, projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoveTemplateFromProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTemplateFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveTemplateFromProject), templateId, projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTemplateFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveTemplateFromProject), arg0, arg1)
 }
 
 // RemoveUserFromProject mocks base method.
-func (m *MockApiClientInterface) RemoveUserFromProject(projectId, userId string) error {
+func (m *MockApiClientInterface) RemoveUserFromProject(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveUserFromProject", projectId, userId)
+	ret := m.ctrl.Call(m, "RemoveUserFromProject", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveUserFromProject indicates an expected call of RemoveUserFromProject.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveUserFromProject(projectId, userId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoveUserFromProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserFromProject), projectId, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromProject", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserFromProject), arg0, arg1)
 }
 
 // RemoveUserRoleFromEnvironment mocks base method.
-func (m *MockApiClientInterface) RemoveUserRoleFromEnvironment(environmentId, userId string) error {
+func (m *MockApiClientInterface) RemoveUserRoleFromEnvironment(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveUserRoleFromEnvironment", environmentId, userId)
+	ret := m.ctrl.Call(m, "RemoveUserRoleFromEnvironment", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveUserRoleFromEnvironment indicates an expected call of RemoveUserRoleFromEnvironment.
-func (mr *MockApiClientInterfaceMockRecorder) RemoveUserRoleFromEnvironment(environmentId, userId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RemoveUserRoleFromEnvironment(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserRoleFromEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserRoleFromEnvironment), environmentId, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserRoleFromEnvironment", reflect.TypeOf((*MockApiClientInterface)(nil).RemoveUserRoleFromEnvironment), arg0, arg1)
 }
 
 // Role mocks base method.
-func (m *MockApiClientInterface) Role(id string) (*Role, error) {
+func (m *MockApiClientInterface) Role(arg0 string) (*Role, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Role", id)
+	ret := m.ctrl.Call(m, "Role", arg0)
 	ret0, _ := ret[0].(*Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Role indicates an expected call of Role.
-func (mr *MockApiClientInterfaceMockRecorder) Role(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Role(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Role", reflect.TypeOf((*MockApiClientInterface)(nil).Role), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Role", reflect.TypeOf((*MockApiClientInterface)(nil).Role), arg0)
 }
 
 // RoleCreate mocks base method.
-func (m *MockApiClientInterface) RoleCreate(payload RoleCreatePayload) (*Role, error) {
+func (m *MockApiClientInterface) RoleCreate(arg0 RoleCreatePayload) (*Role, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RoleCreate", payload)
+	ret := m.ctrl.Call(m, "RoleCreate", arg0)
 	ret0, _ := ret[0].(*Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RoleCreate indicates an expected call of RoleCreate.
-func (mr *MockApiClientInterfaceMockRecorder) RoleCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RoleCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleCreate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleCreate), arg0)
 }
 
 // RoleDelete mocks base method.
-func (m *MockApiClientInterface) RoleDelete(id string) error {
+func (m *MockApiClientInterface) RoleDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RoleDelete", id)
+	ret := m.ctrl.Call(m, "RoleDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RoleDelete indicates an expected call of RoleDelete.
-func (mr *MockApiClientInterfaceMockRecorder) RoleDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RoleDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RoleDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleDelete", reflect.TypeOf((*MockApiClientInterface)(nil).RoleDelete), arg0)
 }
 
 // RoleUpdate mocks base method.
-func (m *MockApiClientInterface) RoleUpdate(id string, payload RoleUpdatePayload) (*Role, error) {
+func (m *MockApiClientInterface) RoleUpdate(arg0 string, arg1 RoleUpdatePayload) (*Role, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RoleUpdate", id, payload)
+	ret := m.ctrl.Call(m, "RoleUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RoleUpdate indicates an expected call of RoleUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) RoleUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) RoleUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).RoleUpdate), arg0, arg1)
 }
 
 // Roles mocks base method.
@@ -1914,47 +1927,47 @@ func (mr *MockApiClientInterfaceMockRecorder) Roles() *gomock.Call {
 }
 
 // SshKeyCreate mocks base method.
-func (m *MockApiClientInterface) SshKeyCreate(payload SshKeyCreatePayload) (*SshKey, error) {
+func (m *MockApiClientInterface) SshKeyCreate(arg0 SshKeyCreatePayload) (*SshKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SshKeyCreate", payload)
+	ret := m.ctrl.Call(m, "SshKeyCreate", arg0)
 	ret0, _ := ret[0].(*SshKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SshKeyCreate indicates an expected call of SshKeyCreate.
-func (mr *MockApiClientInterfaceMockRecorder) SshKeyCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) SshKeyCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyCreate", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyCreate), arg0)
 }
 
 // SshKeyDelete mocks base method.
-func (m *MockApiClientInterface) SshKeyDelete(id string) error {
+func (m *MockApiClientInterface) SshKeyDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SshKeyDelete", id)
+	ret := m.ctrl.Call(m, "SshKeyDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SshKeyDelete indicates an expected call of SshKeyDelete.
-func (mr *MockApiClientInterfaceMockRecorder) SshKeyDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) SshKeyDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyDelete), arg0)
 }
 
 // SshKeyUpdate mocks base method.
-func (m *MockApiClientInterface) SshKeyUpdate(id string, payload *SshKeyUpdatePayload) (*SshKey, error) {
+func (m *MockApiClientInterface) SshKeyUpdate(arg0 string, arg1 *SshKeyUpdatePayload) (*SshKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SshKeyUpdate", id, payload)
+	ret := m.ctrl.Call(m, "SshKeyUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*SshKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SshKeyUpdate indicates an expected call of SshKeyUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) SshKeyUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) SshKeyUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SshKeyUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).SshKeyUpdate), arg0, arg1)
 }
 
 // SshKeys mocks base method.
@@ -1973,120 +1986,120 @@ func (mr *MockApiClientInterfaceMockRecorder) SshKeys() *gomock.Call {
 }
 
 // SubscribeWorkflowTrigger mocks base method.
-func (m *MockApiClientInterface) SubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error {
+func (m *MockApiClientInterface) SubscribeWorkflowTrigger(arg0 string, arg1 WorkflowTriggerEnvironments) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeWorkflowTrigger", environmentId, payload)
+	ret := m.ctrl.Call(m, "SubscribeWorkflowTrigger", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SubscribeWorkflowTrigger indicates an expected call of SubscribeWorkflowTrigger.
-func (mr *MockApiClientInterfaceMockRecorder) SubscribeWorkflowTrigger(environmentId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) SubscribeWorkflowTrigger(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).SubscribeWorkflowTrigger), environmentId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).SubscribeWorkflowTrigger), arg0, arg1)
 }
 
 // Team mocks base method.
-func (m *MockApiClientInterface) Team(id string) (Team, error) {
+func (m *MockApiClientInterface) Team(arg0 string) (Team, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Team", id)
+	ret := m.ctrl.Call(m, "Team", arg0)
 	ret0, _ := ret[0].(Team)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Team indicates an expected call of Team.
-func (mr *MockApiClientInterfaceMockRecorder) Team(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Team(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Team", reflect.TypeOf((*MockApiClientInterface)(nil).Team), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Team", reflect.TypeOf((*MockApiClientInterface)(nil).Team), arg0)
 }
 
 // TeamCreate mocks base method.
-func (m *MockApiClientInterface) TeamCreate(payload TeamCreatePayload) (Team, error) {
+func (m *MockApiClientInterface) TeamCreate(arg0 TeamCreatePayload) (Team, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamCreate", payload)
+	ret := m.ctrl.Call(m, "TeamCreate", arg0)
 	ret0, _ := ret[0].(Team)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TeamCreate indicates an expected call of TeamCreate.
-func (mr *MockApiClientInterfaceMockRecorder) TeamCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamCreate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamCreate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamCreate), arg0)
 }
 
 // TeamDelete mocks base method.
-func (m *MockApiClientInterface) TeamDelete(id string) error {
+func (m *MockApiClientInterface) TeamDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamDelete", id)
+	ret := m.ctrl.Call(m, "TeamDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // TeamDelete indicates an expected call of TeamDelete.
-func (mr *MockApiClientInterfaceMockRecorder) TeamDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamDelete), arg0)
 }
 
 // TeamRoleAssignmentCreateOrUpdate mocks base method.
-func (m *MockApiClientInterface) TeamRoleAssignmentCreateOrUpdate(payload *TeamRoleAssignmentCreateOrUpdatePayload) (*TeamRoleAssignmentPayload, error) {
+func (m *MockApiClientInterface) TeamRoleAssignmentCreateOrUpdate(arg0 *TeamRoleAssignmentCreateOrUpdatePayload) (*TeamRoleAssignmentPayload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamRoleAssignmentCreateOrUpdate", payload)
+	ret := m.ctrl.Call(m, "TeamRoleAssignmentCreateOrUpdate", arg0)
 	ret0, _ := ret[0].(*TeamRoleAssignmentPayload)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TeamRoleAssignmentCreateOrUpdate indicates an expected call of TeamRoleAssignmentCreateOrUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignmentCreateOrUpdate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignmentCreateOrUpdate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignmentCreateOrUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignmentCreateOrUpdate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignmentCreateOrUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignmentCreateOrUpdate), arg0)
 }
 
 // TeamRoleAssignmentDelete mocks base method.
-func (m *MockApiClientInterface) TeamRoleAssignmentDelete(payload *TeamRoleAssignmentDeletePayload) error {
+func (m *MockApiClientInterface) TeamRoleAssignmentDelete(arg0 *TeamRoleAssignmentDeletePayload) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamRoleAssignmentDelete", payload)
+	ret := m.ctrl.Call(m, "TeamRoleAssignmentDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // TeamRoleAssignmentDelete indicates an expected call of TeamRoleAssignmentDelete.
-func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignmentDelete(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignmentDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignmentDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignmentDelete), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignmentDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignmentDelete), arg0)
 }
 
 // TeamRoleAssignments mocks base method.
-func (m *MockApiClientInterface) TeamRoleAssignments(payload *TeamRoleAssignmentListPayload) ([]TeamRoleAssignmentPayload, error) {
+func (m *MockApiClientInterface) TeamRoleAssignments(arg0 *TeamRoleAssignmentListPayload) ([]TeamRoleAssignmentPayload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamRoleAssignments", payload)
+	ret := m.ctrl.Call(m, "TeamRoleAssignments", arg0)
 	ret0, _ := ret[0].([]TeamRoleAssignmentPayload)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TeamRoleAssignments indicates an expected call of TeamRoleAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignments(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamRoleAssignments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignments), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamRoleAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).TeamRoleAssignments), arg0)
 }
 
 // TeamUpdate mocks base method.
-func (m *MockApiClientInterface) TeamUpdate(id string, payload TeamUpdatePayload) (Team, error) {
+func (m *MockApiClientInterface) TeamUpdate(arg0 string, arg1 TeamUpdatePayload) (Team, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamUpdate", id, payload)
+	ret := m.ctrl.Call(m, "TeamUpdate", arg0, arg1)
 	ret0, _ := ret[0].(Team)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TeamUpdate indicates an expected call of TeamUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) TeamUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TeamUpdate), arg0, arg1)
 }
 
 // Teams mocks base method.
@@ -2105,77 +2118,77 @@ func (mr *MockApiClientInterfaceMockRecorder) Teams() *gomock.Call {
 }
 
 // TeamsByName mocks base method.
-func (m *MockApiClientInterface) TeamsByName(name string) ([]Team, error) {
+func (m *MockApiClientInterface) TeamsByName(arg0 string) ([]Team, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TeamsByName", name)
+	ret := m.ctrl.Call(m, "TeamsByName", arg0)
 	ret0, _ := ret[0].([]Team)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TeamsByName indicates an expected call of TeamsByName.
-func (mr *MockApiClientInterfaceMockRecorder) TeamsByName(name any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TeamsByName(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamsByName", reflect.TypeOf((*MockApiClientInterface)(nil).TeamsByName), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TeamsByName", reflect.TypeOf((*MockApiClientInterface)(nil).TeamsByName), arg0)
 }
 
 // Template mocks base method.
-func (m *MockApiClientInterface) Template(id string) (Template, error) {
+func (m *MockApiClientInterface) Template(arg0 string) (Template, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Template", id)
+	ret := m.ctrl.Call(m, "Template", arg0)
 	ret0, _ := ret[0].(Template)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Template indicates an expected call of Template.
-func (mr *MockApiClientInterfaceMockRecorder) Template(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) Template(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Template", reflect.TypeOf((*MockApiClientInterface)(nil).Template), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Template", reflect.TypeOf((*MockApiClientInterface)(nil).Template), arg0)
 }
 
 // TemplateCreate mocks base method.
-func (m *MockApiClientInterface) TemplateCreate(payload TemplateCreatePayload) (Template, error) {
+func (m *MockApiClientInterface) TemplateCreate(arg0 TemplateCreatePayload) (Template, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TemplateCreate", payload)
+	ret := m.ctrl.Call(m, "TemplateCreate", arg0)
 	ret0, _ := ret[0].(Template)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TemplateCreate indicates an expected call of TemplateCreate.
-func (mr *MockApiClientInterfaceMockRecorder) TemplateCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TemplateCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateCreate", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateCreate", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateCreate), arg0)
 }
 
 // TemplateDelete mocks base method.
-func (m *MockApiClientInterface) TemplateDelete(id string) error {
+func (m *MockApiClientInterface) TemplateDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TemplateDelete", id)
+	ret := m.ctrl.Call(m, "TemplateDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // TemplateDelete indicates an expected call of TemplateDelete.
-func (mr *MockApiClientInterfaceMockRecorder) TemplateDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TemplateDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateDelete", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateDelete), arg0)
 }
 
 // TemplateUpdate mocks base method.
-func (m *MockApiClientInterface) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
+func (m *MockApiClientInterface) TemplateUpdate(arg0 string, arg1 TemplateCreatePayload) (Template, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TemplateUpdate", id, payload)
+	ret := m.ctrl.Call(m, "TemplateUpdate", arg0, arg1)
 	ret0, _ := ret[0].(Template)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TemplateUpdate indicates an expected call of TemplateUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) TemplateUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) TemplateUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplateUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).TemplateUpdate), arg0, arg1)
 }
 
 // Templates mocks base method.
@@ -2194,76 +2207,76 @@ func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 }
 
 // UnassignConfigurationSets mocks base method.
-func (m *MockApiClientInterface) UnassignConfigurationSets(scope, scopeId string, sets []string) error {
+func (m *MockApiClientInterface) UnassignConfigurationSets(arg0, arg1 string, arg2 []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnassignConfigurationSets", scope, scopeId, sets)
+	ret := m.ctrl.Call(m, "UnassignConfigurationSets", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UnassignConfigurationSets indicates an expected call of UnassignConfigurationSets.
-func (mr *MockApiClientInterfaceMockRecorder) UnassignConfigurationSets(scope, scopeId, sets any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) UnassignConfigurationSets(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnassignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).UnassignConfigurationSets), scope, scopeId, sets)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnassignConfigurationSets", reflect.TypeOf((*MockApiClientInterface)(nil).UnassignConfigurationSets), arg0, arg1, arg2)
 }
 
 // UnsubscribeWorkflowTrigger mocks base method.
-func (m *MockApiClientInterface) UnsubscribeWorkflowTrigger(environmentId string, payload WorkflowTriggerEnvironments) error {
+func (m *MockApiClientInterface) UnsubscribeWorkflowTrigger(arg0 string, arg1 WorkflowTriggerEnvironments) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnsubscribeWorkflowTrigger", environmentId, payload)
+	ret := m.ctrl.Call(m, "UnsubscribeWorkflowTrigger", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UnsubscribeWorkflowTrigger indicates an expected call of UnsubscribeWorkflowTrigger.
-func (mr *MockApiClientInterfaceMockRecorder) UnsubscribeWorkflowTrigger(environmentId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) UnsubscribeWorkflowTrigger(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).UnsubscribeWorkflowTrigger), environmentId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsubscribeWorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).UnsubscribeWorkflowTrigger), arg0, arg1)
 }
 
 // UpdateUserProjectAssignment mocks base method.
-func (m *MockApiClientInterface) UpdateUserProjectAssignment(projectId, userId string, payload *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error) {
+func (m *MockApiClientInterface) UpdateUserProjectAssignment(arg0, arg1 string, arg2 *UpdateUserProjectAssignmentPayload) (*UserProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserProjectAssignment", projectId, userId, payload)
+	ret := m.ctrl.Call(m, "UpdateUserProjectAssignment", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*UserProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateUserProjectAssignment indicates an expected call of UpdateUserProjectAssignment.
-func (mr *MockApiClientInterfaceMockRecorder) UpdateUserProjectAssignment(projectId, userId, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) UpdateUserProjectAssignment(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProjectAssignment", reflect.TypeOf((*MockApiClientInterface)(nil).UpdateUserProjectAssignment), projectId, userId, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProjectAssignment", reflect.TypeOf((*MockApiClientInterface)(nil).UpdateUserProjectAssignment), arg0, arg1, arg2)
 }
 
 // UserProjectAssignments mocks base method.
-func (m *MockApiClientInterface) UserProjectAssignments(projectId string) ([]UserProjectAssignment, error) {
+func (m *MockApiClientInterface) UserProjectAssignments(arg0 string) ([]UserProjectAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UserProjectAssignments", projectId)
+	ret := m.ctrl.Call(m, "UserProjectAssignments", arg0)
 	ret0, _ := ret[0].([]UserProjectAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UserProjectAssignments indicates an expected call of UserProjectAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) UserProjectAssignments(projectId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) UserProjectAssignments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserProjectAssignments), projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserProjectAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserProjectAssignments), arg0)
 }
 
 // UserRoleEnvironmentAssignments mocks base method.
-func (m *MockApiClientInterface) UserRoleEnvironmentAssignments(environmentId string) ([]UserRoleEnvironmentAssignment, error) {
+func (m *MockApiClientInterface) UserRoleEnvironmentAssignments(arg0 string) ([]UserRoleEnvironmentAssignment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UserRoleEnvironmentAssignments", environmentId)
+	ret := m.ctrl.Call(m, "UserRoleEnvironmentAssignments", arg0)
 	ret0, _ := ret[0].([]UserRoleEnvironmentAssignment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UserRoleEnvironmentAssignments indicates an expected call of UserRoleEnvironmentAssignments.
-func (mr *MockApiClientInterfaceMockRecorder) UserRoleEnvironmentAssignments(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) UserRoleEnvironmentAssignments(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserRoleEnvironmentAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserRoleEnvironmentAssignments), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserRoleEnvironmentAssignments", reflect.TypeOf((*MockApiClientInterface)(nil).UserRoleEnvironmentAssignments), arg0)
 }
 
 // Users mocks base method.
@@ -2282,77 +2295,77 @@ func (mr *MockApiClientInterfaceMockRecorder) Users() *gomock.Call {
 }
 
 // VariablesFromRepository mocks base method.
-func (m *MockApiClientInterface) VariablesFromRepository(payload *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error) {
+func (m *MockApiClientInterface) VariablesFromRepository(arg0 *VariablesFromRepositoryPayload) ([]ConfigurationVariable, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VariablesFromRepository", payload)
+	ret := m.ctrl.Call(m, "VariablesFromRepository", arg0)
 	ret0, _ := ret[0].([]ConfigurationVariable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VariablesFromRepository indicates an expected call of VariablesFromRepository.
-func (mr *MockApiClientInterfaceMockRecorder) VariablesFromRepository(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VariablesFromRepository(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VariablesFromRepository", reflect.TypeOf((*MockApiClientInterface)(nil).VariablesFromRepository), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VariablesFromRepository", reflect.TypeOf((*MockApiClientInterface)(nil).VariablesFromRepository), arg0)
 }
 
 // VcsConnection mocks base method.
-func (m *MockApiClientInterface) VcsConnection(id string) (*VcsConnection, error) {
+func (m *MockApiClientInterface) VcsConnection(arg0 string) (*VcsConnection, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VcsConnection", id)
+	ret := m.ctrl.Call(m, "VcsConnection", arg0)
 	ret0, _ := ret[0].(*VcsConnection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VcsConnection indicates an expected call of VcsConnection.
-func (mr *MockApiClientInterfaceMockRecorder) VcsConnection(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VcsConnection(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnection", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnection), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnection", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnection), arg0)
 }
 
 // VcsConnectionCreate mocks base method.
-func (m *MockApiClientInterface) VcsConnectionCreate(payload VcsConnectionCreatePayload) (*VcsConnection, error) {
+func (m *MockApiClientInterface) VcsConnectionCreate(arg0 VcsConnectionCreatePayload) (*VcsConnection, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VcsConnectionCreate", payload)
+	ret := m.ctrl.Call(m, "VcsConnectionCreate", arg0)
 	ret0, _ := ret[0].(*VcsConnection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VcsConnectionCreate indicates an expected call of VcsConnectionCreate.
-func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionCreate(payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionCreate(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionCreate", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionCreate), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionCreate", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionCreate), arg0)
 }
 
 // VcsConnectionDelete mocks base method.
-func (m *MockApiClientInterface) VcsConnectionDelete(id string) error {
+func (m *MockApiClientInterface) VcsConnectionDelete(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VcsConnectionDelete", id)
+	ret := m.ctrl.Call(m, "VcsConnectionDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // VcsConnectionDelete indicates an expected call of VcsConnectionDelete.
-func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionDelete(id any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionDelete(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionDelete", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionDelete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionDelete", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionDelete), arg0)
 }
 
 // VcsConnectionUpdate mocks base method.
-func (m *MockApiClientInterface) VcsConnectionUpdate(id string, payload VcsConnectionUpdatePayload) (*VcsConnection, error) {
+func (m *MockApiClientInterface) VcsConnectionUpdate(arg0 string, arg1 VcsConnectionUpdatePayload) (*VcsConnection, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VcsConnectionUpdate", id, payload)
+	ret := m.ctrl.Call(m, "VcsConnectionUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*VcsConnection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VcsConnectionUpdate indicates an expected call of VcsConnectionUpdate.
-func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionUpdate(id, payload any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VcsConnectionUpdate(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionUpdate), id, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsConnectionUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).VcsConnectionUpdate), arg0, arg1)
 }
 
 // VcsConnections mocks base method.
@@ -2371,46 +2384,46 @@ func (mr *MockApiClientInterfaceMockRecorder) VcsConnections() *gomock.Call {
 }
 
 // VcsToken mocks base method.
-func (m *MockApiClientInterface) VcsToken(vcsType, repository string) (*VscToken, error) {
+func (m *MockApiClientInterface) VcsToken(arg0, arg1 string) (*VscToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VcsToken", vcsType, repository)
+	ret := m.ctrl.Call(m, "VcsToken", arg0, arg1)
 	ret0, _ := ret[0].(*VscToken)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VcsToken indicates an expected call of VcsToken.
-func (mr *MockApiClientInterfaceMockRecorder) VcsToken(vcsType, repository any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) VcsToken(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsToken", reflect.TypeOf((*MockApiClientInterface)(nil).VcsToken), vcsType, repository)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VcsToken", reflect.TypeOf((*MockApiClientInterface)(nil).VcsToken), arg0, arg1)
 }
 
 // WorkflowTrigger mocks base method.
-func (m *MockApiClientInterface) WorkflowTrigger(environmentId string) ([]WorkflowTrigger, error) {
+func (m *MockApiClientInterface) WorkflowTrigger(arg0 string) ([]WorkflowTrigger, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WorkflowTrigger", environmentId)
+	ret := m.ctrl.Call(m, "WorkflowTrigger", arg0)
 	ret0, _ := ret[0].([]WorkflowTrigger)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // WorkflowTrigger indicates an expected call of WorkflowTrigger.
-func (mr *MockApiClientInterfaceMockRecorder) WorkflowTrigger(environmentId any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTrigger(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTrigger), environmentId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTrigger", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTrigger), arg0)
 }
 
 // WorkflowTriggerUpsert mocks base method.
-func (m *MockApiClientInterface) WorkflowTriggerUpsert(environmentId string, request WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
+func (m *MockApiClientInterface) WorkflowTriggerUpsert(arg0 string, arg1 WorkflowTriggerUpsertPayload) ([]WorkflowTrigger, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WorkflowTriggerUpsert", environmentId, request)
+	ret := m.ctrl.Call(m, "WorkflowTriggerUpsert", arg0, arg1)
 	ret0, _ := ret[0].([]WorkflowTrigger)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // WorkflowTriggerUpsert indicates an expected call of WorkflowTriggerUpsert.
-func (mr *MockApiClientInterfaceMockRecorder) WorkflowTriggerUpsert(environmentId, request any) *gomock.Call {
+func (mr *MockApiClientInterfaceMockRecorder) WorkflowTriggerUpsert(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTriggerUpsert", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTriggerUpsert), environmentId, request)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowTriggerUpsert", reflect.TypeOf((*MockApiClientInterface)(nil).WorkflowTriggerUpsert), arg0, arg1)
 }

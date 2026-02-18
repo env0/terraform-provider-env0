@@ -51,6 +51,12 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Default:     false,
 				Description: "set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false')",
 			},
+			"allow_mergeable_bypass_for_pr_apply": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "set to 'true' to allow bypassing the PR mergeability check for env0/Apply status checks on GitHub (defaults to 'false')",
+			},
 		},
 	}
 }
