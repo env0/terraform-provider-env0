@@ -31,6 +31,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		DoNotConsiderMergeCommitsForPrPlans: true,
 		EnableOidc:                          false,
 		EnforcePrCommenterPermissions:       false,
+		AllowMergeableBypassForPrApply:      false,
 	}
 
 	organizationUpdated := client.Organization{
@@ -41,6 +42,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		DoNotConsiderMergeCommitsForPrPlans: false,
 		EnableOidc:                          true,
 		EnforcePrCommenterPermissions:       true,
+		AllowMergeableBypassForPrApply:      true,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -60,6 +62,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "do_not_consider_merge_commits_for_pr_plans", strconv.FormatBool(organization.DoNotConsiderMergeCommitsForPrPlans)),
 						resource.TestCheckResourceAttr(accessor, "enable_oidc", strconv.FormatBool(organization.EnableOidc)),
 						resource.TestCheckResourceAttr(accessor, "enforce_pr_commenter_permissions", strconv.FormatBool(organization.EnforcePrCommenterPermissions)),
+						resource.TestCheckResourceAttr(accessor, "allow_mergeable_bypass_for_pr_apply", strconv.FormatBool(organization.AllowMergeableBypassForPrApply)),
 					),
 				},
 				{
@@ -68,6 +71,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 						"do_not_report_skipped_status_checks": organizationUpdated.DoNotReportSkippedStatusChecks,
 						"enable_oidc":                         organizationUpdated.EnableOidc,
 						"enforce_pr_commenter_permissions":    organizationUpdated.EnforcePrCommenterPermissions,
+						"allow_mergeable_bypass_for_pr_apply": organizationUpdated.AllowMergeableBypassForPrApply,
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", organization.Id),
@@ -76,6 +80,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "do_not_consider_merge_commits_for_pr_plans", strconv.FormatBool(organizationUpdated.DoNotConsiderMergeCommitsForPrPlans)),
 						resource.TestCheckResourceAttr(accessor, "enable_oidc", strconv.FormatBool(organizationUpdated.EnableOidc)),
 						resource.TestCheckResourceAttr(accessor, "enforce_pr_commenter_permissions", strconv.FormatBool(organizationUpdated.EnforcePrCommenterPermissions)),
+						resource.TestCheckResourceAttr(accessor, "allow_mergeable_bypass_for_pr_apply", strconv.FormatBool(organizationUpdated.AllowMergeableBypassForPrApply)),
 					),
 				},
 			},
@@ -90,6 +95,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					DoNotReportSkippedStatusChecks:      new(false),
 					EnableOidc:                          new(false),
 					EnforcePrCommenterPermissions:       new(false),
+					AllowMergeableBypassForPrApply:      new(false),
 				}).Times(1).Return(&organization, nil),
 				mock.EXPECT().Organization().Times(2).Return(organization, nil),
 				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
@@ -97,6 +103,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					DoNotReportSkippedStatusChecks:      &organizationUpdated.DoNotReportSkippedStatusChecks,
 					EnableOidc:                          &organizationUpdated.EnableOidc,
 					EnforcePrCommenterPermissions:       &organizationUpdated.EnforcePrCommenterPermissions,
+					AllowMergeableBypassForPrApply:      &organizationUpdated.AllowMergeableBypassForPrApply,
 					DoNotConsiderMergeCommitsForPrPlans: new(false),
 					MaxTtl:                              new(""),
 				}).Times(1).Return(&organizationUpdated, nil),
@@ -144,6 +151,7 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 				DoNotReportSkippedStatusChecks:      new(false),
 				EnableOidc:                          new(false),
 				EnforcePrCommenterPermissions:       new(false),
+				AllowMergeableBypassForPrApply:      new(false),
 			}).Times(1).Return(nil, errors.New("error"))
 		})
 	})
