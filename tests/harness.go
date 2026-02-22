@@ -224,7 +224,6 @@ func terraformCommand(testName string, arg ...string) ([]byte, error) {
 
 func printTerraformVersion() {
 	versionString, err := exec.Command("tofu", "version").Output()
-
 	if err != nil {
 		log.Fatalln("Unable to invoke tofu. Perhaps it's not in PATH?", err)
 	}

@@ -1,7 +1,7 @@
 package client
 
 type ProjectBudget struct {
-	Id         string `json:"id" tfschema:"-"`
+	Id         string `json:"id"         tfschema:"-"`
 	ProjectId  string `json:"projectId"`
 	Amount     int    `json:"amount"`
 	Timeframe  string `json:"timeframe"`

@@ -8,8 +8,11 @@ import (
 )
 
 var _ = Describe("SshKey", func() {
-	const sshKeyName = "new_ssh_key"
-	const sshKeyValue = "fake key"
+	const (
+		sshKeyName  = "new_ssh_key"
+		sshKeyValue = "fake key"
+	)
+
 	mockSshKey := SshKey{
 		Id:             "123",
 		Name:           sshKeyName,
@@ -22,6 +25,7 @@ var _ = Describe("SshKey", func() {
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			expectedPayload := SshKeyCreatePayload{Name: sshKeyName, Value: sshKeyValue, OrganizationId: organizationId}
 			httpCall = mockHttpClient.EXPECT().
 				Post("/ssh-keys", expectedPayload, gomock.Any()).
@@ -58,8 +62,10 @@ var _ = Describe("SshKey", func() {
 
 	Describe("SshKeys", func() {
 		var sshKeys []SshKey
+
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/ssh-keys",
 					map[string]string{"organizationId": organizationId},
@@ -85,8 +91,11 @@ var _ = Describe("SshKey", func() {
 		Describe("Success", func() {
 			updateMockSshKey := mockSshKey
 			updateMockSshKey.Value = "new-value"
-			var updatedSshKey *SshKey
-			var err error
+
+			var (
+				updatedSshKey *SshKey
+				err           error
+			)
 
 			BeforeEach(func() {
 				updateSshKeyPayload := SshKeyUpdatePayload{Value: updateMockSshKey.Value}

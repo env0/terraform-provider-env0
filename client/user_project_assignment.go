@@ -2,7 +2,7 @@ package client
 
 type AssignUserToProjectPayload struct {
 	UserId string `json:"userId"`
-	Role   string `json:"role" tfschema:"-"`
+	Role   string `json:"role"   tfschema:"-"`
 }
 
 type UpdateUserProjectAssignmentPayload struct {
@@ -11,7 +11,7 @@ type UpdateUserProjectAssignmentPayload struct {
 
 type UserProjectAssignment struct {
 	UserId string `json:"userId"`
-	Role   string `json:"role" tfschema:"-"`
+	Role   string `json:"role"   tfschema:"-"`
 	Id     string `json:"id"`
 }
 

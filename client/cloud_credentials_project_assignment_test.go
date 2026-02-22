@@ -19,17 +19,17 @@ var _ = Describe("Credentials Project Assignment", func() {
 			CredentialId: "credentialId",
 			ProjectId:    projectId,
 		}
+
 		Describe("Successful", func() {
 			var actualResult CloudCredentialsProjectAssignment
-			BeforeEach(func() {
 
+			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/credentials/deployment/"+credentialId+"/project/"+projectId, nil, gomock.Any()).
 					Do(func(path string, request any, response *CloudCredentialsProjectAssignment) {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
-
 			})
 
 			It("should return the PUT result", func() {
@@ -38,14 +38,15 @@ var _ = Describe("Credentials Project Assignment", func() {
 		})
 		Describe("On Error", func() {
 			errorInfo := "error"
+
 			var err error
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/credentials/deployment/"+credentialId+"/project/"+projectId, nil, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
 				_, err = apiClient.AssignCloudCredentialsToProject(projectId, credentialId)
-
 			})
 
 			It("should return the error from the api call", func() {
@@ -57,14 +58,15 @@ var _ = Describe("Credentials Project Assignment", func() {
 
 	Describe("RemoveCloudCredentialsFromProject", func() {
 		errorInfo := "error"
+
 		var err error
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Delete("/credentials/deployment/"+credentialId+"/project/"+projectId, nil).
 				Return(errors.New(errorInfo)).
 				Times(1)
 			err = apiClient.RemoveCloudCredentialsFromProject(projectId, credentialId)
-
 		})
 
 		It("should return the error from the api call", func() {
@@ -80,6 +82,7 @@ var _ = Describe("Credentials Project Assignment", func() {
 			expectedResponse := CloudCredentialIdsInProjectResponse{
 				CredentialIds: []string{"credentialId"},
 			}
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/credentials/deployment/project/"+projectId, nil, gomock.Any()).
@@ -87,7 +90,6 @@ var _ = Describe("Credentials Project Assignment", func() {
 						*response = expectedResponse
 					}).Times(1)
 				actualResult, _ = apiClient.CloudCredentialIdsInProject(projectId)
-
 			})
 
 			It("should return the GET result", func() {
@@ -96,14 +98,15 @@ var _ = Describe("Credentials Project Assignment", func() {
 		})
 		Describe("On Error", func() {
 			errorInfo := "error"
+
 			var err error
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/credentials/deployment/project/"+projectId, nil, gomock.Any()).
 					Return(errors.New(errorInfo)).
 					Times(1)
 				_, err = apiClient.CloudCredentialIdsInProject(projectId)
-
 			})
 
 			It("should return the error from the api call", func() {
@@ -111,6 +114,5 @@ var _ = Describe("Credentials Project Assignment", func() {
 				Expect(err.Error()).Should(Equal(errorInfo))
 			})
 		})
-
 	})
 })

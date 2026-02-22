@@ -17,6 +17,7 @@ var _ = Describe("Gpg Token Client", func() {
 
 	Describe("Get All Gpg Keys", func() {
 		var returnedGpgKeys []GpgKey
+
 		mockGpgKeys := []GpgKey{mockGpgKey}
 
 		BeforeEach(func() {
@@ -26,6 +27,7 @@ var _ = Describe("Gpg Token Client", func() {
 				Do(func(path string, request any, response *[]GpgKey) {
 					*response = mockGpgKeys
 				})
+
 			returnedGpgKeys, _ = apiClient.GpgKeys()
 		})
 
@@ -52,8 +54,10 @@ var _ = Describe("Gpg Token Client", func() {
 	})
 
 	Describe("Create GpgKey", func() {
-		var createdGpgKey *GpgKey
-		var err error
+		var (
+			createdGpgKey *GpgKey
+			err           error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()

@@ -138,6 +138,7 @@ func resourceTeamProjectAssignmentImport(ctx context.Context, d *schema.Resource
 	projectId := splitTeamProject[1]
 
 	var payload client.TeamRoleAssignmentListPayload
+
 	payload.ProjectId = projectId
 
 	assignments, err := apiClient.TeamRoleAssignments(&payload)

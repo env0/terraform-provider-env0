@@ -61,7 +61,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		VcsCommandsAlias:           "alias2",
 		VcsPrCommentsEnabled:       true,
 		IsRemoteBackend:            &isRemoteBackendTrue,
-		IsArchived:                 boolPtr(true),
+		IsArchived:                 new(true),
 		K8sNamespace:               "namespace",
 	}
 
@@ -192,7 +192,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -206,7 +206,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
@@ -318,7 +318,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						),
 					},
 					{
-						Config: createEnvironmentResourceConfigWithVcsPrCommentsEnabled(updatedEnvironment, boolPtr(false)),
+						Config: createEnvironmentResourceConfigWithVcsPrCommentsEnabled(updatedEnvironment, new(false)),
 						Check: resource.ComposeAggregateTestCheckFunc(
 							resource.TestCheckResourceAttr(accessor, "id", updatedEnvironment.Id),
 							resource.TestCheckResourceAttr(accessor, "name", updatedEnvironment.Name),
@@ -364,7 +364,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					IsRemoteBackend:            &isRemoteBackendTrue,
-					VcsPrCommentsEnabled:       boolPtr(false),
+					VcsPrCommentsEnabled:       new(false),
 				}).Times(1).Return(updatedEnvironmentCopy, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
@@ -666,8 +666,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				LatestDeploymentLog: client.DeploymentLog{
 					BlueprintId: templateId,
 				},
-				IsRemoteBackend:      boolPtr(true),
-				RequiresApproval:     boolPtr(false),
+				IsRemoteBackend:      new(true),
+				RequiresApproval:     new(false),
 				IsRemoteApplyEnabled: true,
 			}
 
@@ -705,7 +705,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 						DeployRequest: &client.DeployRequest{
 							BlueprintId:          templateId,
-							UserRequiresApproval: boolPtr(false),
+							UserRequiresApproval: new(false),
 						},
 						IsRemoteBackend:      environment.IsRemoteBackend,
 						RequiresApproval:     environment.RequiresApproval,
@@ -729,8 +729,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				LatestDeploymentLog: client.DeploymentLog{
 					BlueprintId: templateId,
 				},
-				IsRemoteBackend:  boolPtr(true),
-				RequiresApproval: boolPtr(false),
+				IsRemoteBackend:  new(true),
+				RequiresApproval: new(false),
 			}
 
 			updatedEnvironment := client.Environment{
@@ -808,7 +808,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 						DeployRequest: &client.DeployRequest{
 							BlueprintId:          templateId,
-							UserRequiresApproval: boolPtr(false),
+							UserRequiresApproval: new(false),
 						},
 						IsRemoteBackend:  environment.IsRemoteBackend,
 						RequiresApproval: environment.RequiresApproval,
@@ -1091,7 +1091,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1129,7 +1129,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1196,7 +1196,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1214,7 +1214,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().EnvironmentStopDriftDetection(environment.Id).Times(1).Return(nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
@@ -1280,7 +1280,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					DeployRequest: &client.DeployRequest{
 						BlueprintId: templateId,
 					},
@@ -1298,7 +1298,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					IsRemoteBackend:            &isRemoteBackendTrue,
 					IsArchived:                 updatedEnvironment.IsArchived,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 				}).Times(1).Return(updatedEnvironment, nil)
 				mock.EXPECT().EnvironmentUpdateDriftDetection(environment.Id, client.EnvironmentSchedulingExpression{Cron: updatedDriftDetectionCron, Enabled: true}).Times(1).Return(client.EnvironmentSchedulingExpression{}, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
@@ -1348,7 +1348,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Regex:  "regex",
 			}
 			formatVariables := func(variables []client.ConfigurationVariable) string {
-				format := ""
+				var format strings.Builder
 
 				for _, variable := range variables {
 					schemaFormat := ""
@@ -1375,7 +1375,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						varType = "terraform"
 					}
 
-					format += fmt.Sprintf(`configuration{
+					format.WriteString(fmt.Sprintf(`configuration{
 									name = "%s"
 									value = "%s"
 									type = "%s"
@@ -1384,10 +1384,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									}
 
 							`, variable.Name,
-						variable.Value, varType, variable.Regex, schemaFormat)
+						variable.Value, varType, variable.Regex, schemaFormat))
 				}
 
-				return format
+				return format.String()
 			}
 
 			formatResourceWithConfiguration := func(env client.Environment, variables []client.ConfigurationVariable) string {
@@ -1471,8 +1471,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				isSensitive := false
 				configurationVariables.Scope = client.ScopeDeployment
 				configurationVariables.IsSensitive = &isSensitive
-				configurationVariables.IsReadOnly = boolPtr(false)
-				configurationVariables.IsRequired = boolPtr(false)
+				configurationVariables.IsReadOnly = new(false)
+				configurationVariables.IsRequired = new(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
 
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(templateInSlice, nil)
@@ -1500,8 +1500,8 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 				redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 				redeployConfigurationVariables[0].IsSensitive = &isSensitive
-				redeployConfigurationVariables[0].IsReadOnly = boolPtr(false)
-				redeployConfigurationVariables[0].IsRequired = boolPtr(false)
+				redeployConfigurationVariables[0].IsReadOnly = new(false)
+				redeployConfigurationVariables[0].IsRequired = new(false)
 
 				deployRequest := client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
@@ -1613,10 +1613,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:        "my env var",
 				Type:        &varType,
 				Schema:      &varSchema,
-				IsSensitive: boolPtr(true),
+				IsSensitive: new(true),
 				Scope:       client.ScopeDeployment,
-				IsReadOnly:  boolPtr(false),
-				IsRequired:  boolPtr(false),
+				IsReadOnly:  new(false),
+				IsRequired:  new(false),
 			}
 
 			redeployConfigurationVariable := client.ConfigurationVariable{
@@ -1624,10 +1624,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				Name:        "my env var",
 				Type:        &varType,
 				Schema:      &varSchema,
-				IsSensitive: boolPtr(true),
+				IsSensitive: new(true),
 				Scope:       client.ScopeDeployment,
-				IsReadOnly:  boolPtr(false),
-				IsRequired:  boolPtr(false),
+				IsReadOnly:  new(false),
+				IsRequired:  new(false),
 			}
 
 			environmentResource := fmt.Sprintf(`
@@ -2528,7 +2528,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
@@ -2560,7 +2560,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
@@ -2571,9 +2571,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					AutoDeployByCustomGlob:     autoDeployByCustomGlobDefault,
 					TerragruntWorkingDirectory: updatedEnvironment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           updatedEnvironment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					IsRemoteBackend:            &isRemoteBackendTrue,
-					IsArchived:                 boolPtr(true),
+					IsArchived:                 new(true),
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
@@ -2649,7 +2649,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 					TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 					VcsCommandsAlias:           environment.VcsCommandsAlias,
-					VcsPrCommentsEnabled:       boolPtr(true),
+					VcsPrCommentsEnabled:       new(true),
 					IsRemoteBackend:            &isRemoteBackendFalse,
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
@@ -2771,7 +2771,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		PullRequestPlanDeployments: environment.PullRequestPlanDeployments,
 		TerragruntWorkingDirectory: environment.TerragruntWorkingDirectory,
 		VcsCommandsAlias:           environment.VcsCommandsAlias,
-		VcsPrCommentsEnabled:       boolPtr(true),
+		VcsPrCommentsEnabled:       new(true),
 	}
 
 	templateCreatePayload := client.TemplateCreatePayload{
@@ -3134,13 +3134,13 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				Name:        "name",
 				Value:       "value",
 				Scope:       client.ScopeEnvironment,
-				IsSensitive: boolPtr(false),
-				IsReadOnly:  boolPtr(false),
-				IsRequired:  boolPtr(false),
+				IsSensitive: new(false),
+				IsReadOnly:  new(false),
+				IsRequired:  new(false),
 				Schema: &client.ConfigurationVariableSchema{
 					Type: "string",
 				},
-				Type: (*client.ConfigurationVariableType)(intPtr(0)),
+				Type: (*client.ConfigurationVariableType)(new(0)),
 			},
 		},
 	}
@@ -3151,13 +3151,13 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		Name:        "name2",
 		Value:       "value2",
 		Scope:       client.ScopeEnvironment,
-		IsSensitive: boolPtr(false),
-		IsReadOnly:  boolPtr(false),
-		IsRequired:  boolPtr(false),
+		IsSensitive: new(false),
+		IsReadOnly:  new(false),
+		IsRequired:  new(false),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 		},
-		Type: (*client.ConfigurationVariableType)(intPtr(0)),
+		Type: (*client.ConfigurationVariableType)(new(0)),
 	})
 
 	updatedSubEnvironment.Workspace = "workspace2"
@@ -3170,7 +3170,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		Name:             "environment",
 		ProjectId:        "project-id",
 		BlueprintId:      "template-id",
-		RequiresApproval: boolPtr(false),
+		RequiresApproval: new(false),
 		LatestDeploymentLog: client.DeploymentLog{
 			WorkflowFile: &client.WorkflowFile{
 				Environments: map[string]client.WorkflowSubEnvironment{
@@ -3183,7 +3183,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	configurationVariable := client.ConfigurationVariable{
 		Value: "v1",
 		Name:  "n1",
-		Type:  (*client.ConfigurationVariableType)(intPtr(0)),
+		Type:  (*client.ConfigurationVariableType)(new(0)),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 		},
@@ -3192,24 +3192,24 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	environmentCreatePayload := client.EnvironmentCreate{
 		Name:             environment.Name,
 		ProjectId:        environment.ProjectId,
-		RequiresApproval: boolPtr(false),
+		RequiresApproval: new(false),
 		ConfigurationChanges: &client.ConfigurationChanges{
 			{
 				Name:        "n1",
 				Value:       "v1",
 				Scope:       client.ScopeDeployment,
-				IsSensitive: boolPtr(false),
-				IsReadOnly:  boolPtr(false),
-				IsRequired:  boolPtr(false),
+				IsSensitive: new(false),
+				IsReadOnly:  new(false),
+				IsRequired:  new(false),
 				Schema: &client.ConfigurationVariableSchema{
 					Type: "string",
 				},
-				Type: (*client.ConfigurationVariableType)(intPtr(0)),
+				Type: (*client.ConfigurationVariableType)(new(0)),
 			},
 		},
 		DeployRequest: &client.DeployRequest{
 			BlueprintId:          environment.BlueprintId,
-			UserRequiresApproval: boolPtr(false),
+			UserRequiresApproval: new(false),
 			SubEnvironments: map[string]client.SubEnvironment{
 				subEnvironment.Alias: {
 					Workspace:            subEnvironment.Workspace,
@@ -3229,7 +3229,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	deployRequest := client.DeployRequest{
 		BlueprintId:          environment.BlueprintId,
 		BlueprintRevision:    environment.LatestDeploymentLog.BlueprintRevision,
-		UserRequiresApproval: boolPtr(false),
+		UserRequiresApproval: new(false),
 		SubEnvironments: map[string]client.SubEnvironment{
 			subEnvironment.Alias: {
 				Revision:             subEnvironment.Revision,

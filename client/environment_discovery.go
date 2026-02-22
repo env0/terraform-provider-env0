@@ -25,8 +25,8 @@ type EnvironmentDiscoveryPutPayload struct {
 	BitbucketClientKey                    string                      `json:"bitbucketClientKey,omitempty"`
 	IsAzureDevops                         bool                        `json:"isAzureDevOps,omitempty"`
 	IsBitbucketServer                     bool                        `json:"isBitbucketServer,omitempty"`
-	IsGitHubEnterprise                    bool                        `json:"isGitHubEnterprise,omitempty" tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise                    bool                        `json:"isGitLabEnterprise,omitempty" tfschema:"is_gitlab_enterprise"`
+	IsGitHubEnterprise                    bool                        `json:"isGitHubEnterprise,omitempty"                    tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise                    bool                        `json:"isGitLabEnterprise,omitempty"                    tfschema:"is_gitlab_enterprise"`
 	Retry                                 TemplateRetry               `json:"retry,omitempty"`
 	RootPath                              string                      `json:"rootPath,omitempty"`
 	CreateNewEnvironmentsFromPullRequests bool                        `json:"createNewEnvironmentsFromPullRequests,omitempty"`
@@ -43,28 +43,28 @@ func (payload *EnvironmentDiscoveryPutPayload) Invalidate() error {
 
 type EnvironmentDiscoveryPayload struct {
 	Id                                    string                      `json:"id"`
-	GlobPattern                           string                      `json:"globPattern" tfschema:",omitempty"`
+	GlobPattern                           string                      `json:"globPattern"                           tfschema:",omitempty"`
 	EnvironmentPlacement                  string                      `json:"environmentPlacement"`
 	WorkspaceNaming                       string                      `json:"workspaceNaming"`
-	AutoDeployByCustomGlob                string                      `json:"autoDeployByCustomGlob" tfschema:",omitempty"`
-	Repository                            string                      `json:"repository" tfschema:",omitempty"`
-	TerraformVersion                      string                      `json:"terraformVersion" tfschema:",omitempty"`
-	OpentofuVersion                       string                      `json:"opentofuVersion" tfschema:",omitempty"`
-	TerragruntVersion                     string                      `json:"terragruntVersion" tfschema:",omitempty"`
-	TerragruntTfBinary                    string                      `json:"terragruntTfBinary" tfschema:",omitempty"`
+	AutoDeployByCustomGlob                string                      `json:"autoDeployByCustomGlob"                tfschema:",omitempty"`
+	Repository                            string                      `json:"repository"                            tfschema:",omitempty"`
+	TerraformVersion                      string                      `json:"terraformVersion"                      tfschema:",omitempty"`
+	OpentofuVersion                       string                      `json:"opentofuVersion"                       tfschema:",omitempty"`
+	TerragruntVersion                     string                      `json:"terragruntVersion"                     tfschema:",omitempty"`
+	TerragruntTfBinary                    string                      `json:"terragruntTfBinary"                    tfschema:",omitempty"`
 	IsTerragruntRunAll                    bool                        `json:"isTerragruntRunAll"`
 	Type                                  string                      `json:"type"`
-	TokenId                               string                      `json:"tokenId" tfschema:",omitempty"`
-	SshKeys                               []TemplateSshKey            `json:"sshKeys" tfschema:"-"`
-	GithubInstallationId                  int                         `json:"githubInstallationId" tfschema:",omitempty"`
-	VcsConnectionId                       string                      `json:"vcsConnectionId" tfschema:",omitempty"`
-	BitbucketClientKey                    string                      `json:"bitbucketClientKey" tfschema:",omitempty"`
+	TokenId                               string                      `json:"tokenId"                               tfschema:",omitempty"`
+	SshKeys                               []TemplateSshKey            `json:"sshKeys"                               tfschema:"-"`
+	GithubInstallationId                  int                         `json:"githubInstallationId"                  tfschema:",omitempty"`
+	VcsConnectionId                       string                      `json:"vcsConnectionId"                       tfschema:",omitempty"`
+	BitbucketClientKey                    string                      `json:"bitbucketClientKey"                    tfschema:",omitempty"`
 	IsAzureDevops                         bool                        `json:"isAzureDevOps"`
 	IsBitbucketServer                     bool                        `json:"isBitbucketServer"`
-	IsGitHubEnterprise                    bool                        `json:"isGitHubEnterprise" tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise                    bool                        `json:"isGitLabEnterprise" tfschema:"is_gitlab_enterprise"`
-	Retry                                 TemplateRetry               `json:"retry" tfschema:"-"`
-	RootPath                              string                      `json:"rootPath" tfschema:",omitempty"`
+	IsGitHubEnterprise                    bool                        `json:"isGitHubEnterprise"                    tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise                    bool                        `json:"isGitLabEnterprise"                    tfschema:"is_gitlab_enterprise"`
+	Retry                                 TemplateRetry               `json:"retry"                                 tfschema:"-"`
+	RootPath                              string                      `json:"rootPath"                              tfschema:",omitempty"`
 	CreateNewEnvironmentsFromPullRequests bool                        `json:"createNewEnvironmentsFromPullRequests"`
 	DiscoveryFileConfiguration            *DiscoveryFileConfiguration `json:"discoveryFileConfiguration"`
 }

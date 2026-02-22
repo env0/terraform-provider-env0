@@ -33,6 +33,7 @@ var _ = Describe("Provider Client", func() {
 
 	Describe("Get All Providers", func() {
 		var returnedProviders []Provider
+
 		mockProviders := []Provider{mockProvider}
 
 		BeforeEach(func() {

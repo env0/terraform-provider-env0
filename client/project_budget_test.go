@@ -27,6 +27,7 @@ var _ = Describe("Project Budget Client", func() {
 					*response = mockProjectBudget
 				})
 			httpCall.Times(1)
+
 			returnedProjectBudget, _ = apiClient.ProjectBudget(mockProjectBudget.ProjectId)
 		})
 
@@ -41,6 +42,7 @@ var _ = Describe("Project Budget Client", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("/costs/project/"+mockProjectBudget.ProjectId+"/budget", gomock.Nil())
 			httpCall.Times(1)
+
 			err = apiClient.ProjectBudgetDelete(mockProjectBudget.ProjectId)
 		})
 
@@ -56,6 +58,7 @@ var _ = Describe("Project Budget Client", func() {
 
 		BeforeEach(func() {
 			var updateProjectBudgetPayload ProjectBudgetUpdatePayload
+
 			_ = copier.Copy(&updateProjectBudgetPayload, &mockProjectBudget)
 
 			httpCall = mockHttpClient.EXPECT().
@@ -64,6 +67,7 @@ var _ = Describe("Project Budget Client", func() {
 					*response = mockProjectBudget
 				})
 			httpCall.Times(1)
+
 			returnedProjectBudget, _ = apiClient.ProjectBudgetUpdate(mockProjectBudget.ProjectId, &updateProjectBudgetPayload)
 		})
 

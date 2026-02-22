@@ -3,7 +3,7 @@ package client
 type GitToken struct {
 	Id             string `json:"id"`
 	Name           string `json:"name"`
-	Value          string `json:"value" tfschema:"-"`
+	Value          string `json:"value"          tfschema:"-"`
 	OrganizationId string `json:"organizationId"`
 }
 

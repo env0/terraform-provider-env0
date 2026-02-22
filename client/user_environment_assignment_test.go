@@ -26,10 +26,11 @@ var _ = Describe("User Environment Assignment", func() {
 	errorMock := errors.New("error")
 
 	Describe("AssignUserToEnvironment", func() {
-
 		Describe("Successful", func() {
-			var actualResult *UserRoleEnvironmentAssignment
-			var err error
+			var (
+				actualResult *UserRoleEnvironmentAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -38,7 +39,6 @@ var _ = Describe("User Environment Assignment", func() {
 						*response = *expectedResponse
 					}).Times(1)
 				actualResult, err = apiClient.AssignUserRoleToEnvironment(assignPayload)
-
 			})
 
 			It("Should send POST request with params", func() {
@@ -55,8 +55,10 @@ var _ = Describe("User Environment Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult *UserRoleEnvironmentAssignment
-			var err error
+			var (
+				actualResult *UserRoleEnvironmentAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -92,10 +94,11 @@ var _ = Describe("User Environment Assignment", func() {
 	})
 
 	Describe("UserEnvironmentAssignments", func() {
-
 		Describe("Successful", func() {
-			var actualResult []UserRoleEnvironmentAssignment
-			var err error
+			var (
+				actualResult []UserRoleEnvironmentAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -104,7 +107,6 @@ var _ = Describe("User Environment Assignment", func() {
 						*response = []UserRoleEnvironmentAssignment{*expectedResponse}
 					}).Times(1)
 				actualResult, err = apiClient.UserRoleEnvironmentAssignments(environmentId)
-
 			})
 
 			It("Should send GET request with params", func() {
@@ -121,8 +123,10 @@ var _ = Describe("User Environment Assignment", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult []UserRoleEnvironmentAssignment
-			var err error
+			var (
+				actualResult []UserRoleEnvironmentAssignment
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().

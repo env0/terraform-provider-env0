@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"slices"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -93,36 +94,22 @@ func resourceVariableSetAssignmentUpdate(ctx context.Context, d *schema.Resource
 			continue
 		}
 
-		found := false
-
 		apiSetId := apiConfigurationSet.Id
-		for _, schemaSetId := range assignmentSchema.SetIds {
-			if apiSetId == schemaSetId {
-				found = true
 
-				break
-			}
-		}
-
-		if !found {
+		if !slices.Contains(assignmentSchema.SetIds, apiSetId) {
 			toDelete = append(toDelete, apiSetId)
 		}
 	}
 
 	// In Schema but not in API - add.
 	for _, schemaSetId := range assignmentSchema.SetIds {
-		found := false
-
-		for _, apiConfigurationSet := range apiConfigurationSets {
-			apiSetId := apiConfigurationSet.Id
-			if schemaSetId == apiSetId {
-				found = true
-
-				break
-			}
-		}
-
-		if !found {
+		index := slices.IndexFunc(
+			apiConfigurationSets,
+			func(apiConfigurationSet client.ConfigurationSet) bool {
+				return schemaSetId == apiConfigurationSet.Id
+			},
+		)
+		if index == -1 {
 			toAdd = append(toAdd, schemaSetId)
 		}
 	}
@@ -196,15 +183,7 @@ func resourceVariableSetAssignmentRead(ctx context.Context, d *schema.ResourceDa
 		}
 
 		apiSetId := apiConfigurationSet.Id
-		found := false
-
-		for _, schemaSetId := range assignmentSchema.SetIds {
-			if schemaSetId == apiSetId {
-				found = true
-
-				break
-			}
-		}
+		found := slices.Contains(assignmentSchema.SetIds, apiSetId)
 
 		if !found {
 			newSchemaSetIds = append(newSchemaSetIds, apiSetId)

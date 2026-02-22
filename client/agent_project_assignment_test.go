@@ -28,10 +28,11 @@ var _ = Describe("Agent Project Assignment", func() {
 	errorMock := errors.New("error")
 
 	Describe("assign agents to projects", func() {
-
 		Describe("success", func() {
-			var results *ProjectsAgentsAssignments
-			var err error
+			var (
+				results *ProjectsAgentsAssignments
+				err     error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall().Times(1)
@@ -42,7 +43,6 @@ var _ = Describe("Agent Project Assignment", func() {
 						*response = expectedResponse
 					})
 				results, err = apiClient.AssignAgentsToProjects(mapping)
-
 			})
 
 			It("should return results", func() {
@@ -55,8 +55,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("failure", func() {
-			var results *ProjectsAgentsAssignments
-			var err error
+			var (
+				results *ProjectsAgentsAssignments
+				err     error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall().Times(1)
@@ -79,8 +81,10 @@ var _ = Describe("Agent Project Assignment", func() {
 
 	Describe("ProjectsAgentsAssignments", func() {
 		Describe("success", func() {
-			var results *ProjectsAgentsAssignments
-			var err error
+			var (
+				results *ProjectsAgentsAssignments
+				err     error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall().Times(1)
@@ -103,8 +107,10 @@ var _ = Describe("Agent Project Assignment", func() {
 		})
 
 		Describe("failure", func() {
-			var results *ProjectsAgentsAssignments
-			var err error
+			var (
+				results *ProjectsAgentsAssignments
+				err     error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall().Times(1)

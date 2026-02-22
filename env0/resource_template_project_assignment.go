@@ -62,8 +62,8 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 	apiClient := meta.(client.ApiClientInterface)
 
 	templateId := d.Get("template_id").(string)
-	template, err := apiClient.Template(templateId)
 
+	template, err := apiClient.Template(templateId)
 	if err != nil {
 		return diag.Errorf("could not get template (%s): %v", d.Id(), err)
 	}

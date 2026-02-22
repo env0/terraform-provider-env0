@@ -2,13 +2,13 @@ package client
 
 type TeamRoleAssignmentPayload struct {
 	TeamId string `json:"teamId"`
-	Role   string `json:"role" tfschema:"role_id"`
+	Role   string `json:"role"   tfschema:"role_id"`
 	Id     string `json:"id"`
 }
 
 type TeamRoleAssignmentCreateOrUpdatePayload struct {
 	TeamId         string `json:"teamId"`
-	Role           string `json:"role" tfschema:"role_id"`
+	Role           string `json:"role"                     tfschema:"role_id"`
 	EnvironmentId  string `json:"environmentId,omitempty"`
 	OrganizationId string `json:"organizationId,omitempty"`
 	ProjectId      string `json:"projectId,omitempty"`

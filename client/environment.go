@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -111,48 +112,48 @@ type Environment struct {
 	Id                          string        `json:"id"`
 	Name                        string        `json:"name"`
 	ProjectId                   string        `json:"projectId"`
-	WorkspaceName               string        `json:"workspaceName,omitempty" tfschema:"workspace"`
-	RequiresApproval            *bool         `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty" tfschema:"deploy_on_push,omitempty"`
-	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty" tfschema:"run_plan_on_pull_requests,omitempty"`
+	WorkspaceName               string        `json:"workspaceName,omitempty"               tfschema:"workspace"`
+	RequiresApproval            *bool         `json:"requiresApproval,omitempty"            tfschema:"-"`
+	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"        tfschema:"deploy_on_push,omitempty"`
+	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"  tfschema:"run_plan_on_pull_requests,omitempty"`
 	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
 	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
 	Status                      string        `json:"status"`
-	LifespanEndAt               string        `json:"lifespanEndAt" tfschema:"ttl,omitempty"`
-	LatestDeploymentLogId       string        `json:"latestDeploymentLogId" tfschema:"deployment_id"`
+	LifespanEndAt               string        `json:"lifespanEndAt"                         tfschema:"ttl,omitempty"`
+	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"                 tfschema:"deployment_id"`
 	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
 	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
-	VcsPrCommentsEnabled        bool          `json:"vcsPrCommentsEnabled" tfschema:"-"`
-	BlueprintId                 string        `json:"blueprintId" tfschema:"-"`
-	IsRemoteBackend             *bool         `json:"isRemoteBackend" tfschema:"-"`
-	IsArchived                  *bool         `json:"isArchived" tfschema:"-"`
+	VcsPrCommentsEnabled        bool          `json:"vcsPrCommentsEnabled"                  tfschema:"-"`
+	BlueprintId                 string        `json:"blueprintId"                           tfschema:"-"`
+	IsRemoteBackend             *bool         `json:"isRemoteBackend"                       tfschema:"-"`
+	IsArchived                  *bool         `json:"isArchived"                            tfschema:"-"`
 	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
 	K8sNamespace                string        `json:"k8sNamespace"`
-	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint" tfschema:"-"`
+	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint"                  tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
 	Name                        string                   `json:"name"`
 	ProjectId                   string                   `json:"projectId"`
-	DeployRequest               *DeployRequest           `json:"deployRequest" tfschema:"-"`
-	WorkspaceName               string                   `json:"workspaceName,omitempty" tfschema:"workspace"`
-	RequiresApproval            *bool                    `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool                    `json:"continuousDeployment,omitempty" tfschema:"-"`
-	PullRequestPlanDeployments  *bool                    `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	DeployRequest               *DeployRequest           `json:"deployRequest"                         tfschema:"-"`
+	WorkspaceName               string                   `json:"workspaceName,omitempty"               tfschema:"workspace"`
+	RequiresApproval            *bool                    `json:"requiresApproval,omitempty"            tfschema:"-"`
+	ContinuousDeployment        *bool                    `json:"continuousDeployment,omitempty"        tfschema:"-"`
+	PullRequestPlanDeployments  *bool                    `json:"pullRequestPlanDeployments,omitempty"  tfschema:"-"`
 	AutoDeployOnPathChangesOnly *bool                    `json:"autoDeployOnPathChangesOnly,omitempty" tfchema:"-"`
 	AutoDeployByCustomGlob      string                   `json:"autoDeployByCustomGlob"`
-	ConfigurationChanges        *ConfigurationChanges    `json:"configurationChanges,omitempty" tfschema:"-"`
-	TTL                         *TTL                     `json:"ttl,omitempty" tfschema:"-"`
+	ConfigurationChanges        *ConfigurationChanges    `json:"configurationChanges,omitempty"        tfschema:"-"`
+	TTL                         *TTL                     `json:"ttl,omitempty"                         tfschema:"-"`
 	TerragruntWorkingDirectory  string                   `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string                   `json:"vcsCommandsAlias"`
-	VcsPrCommentsEnabled        *bool                    `json:"vcsPrCommentsEnabled,omitempty" tfschema:"-"`
-	IsRemoteBackend             *bool                    `json:"isRemoteBackend,omitempty" tfschema:"-"`
+	VcsPrCommentsEnabled        *bool                    `json:"vcsPrCommentsEnabled,omitempty"        tfschema:"-"`
+	IsRemoteBackend             *bool                    `json:"isRemoteBackend,omitempty"             tfschema:"-"`
 	Type                        string                   `json:"type,omitempty"`
-	DriftDetectionRequest       *DriftDetectionRequest   `json:"driftDetectionRequest,omitempty" tfschema:"-"`
-	PreventAutoDeploy           *bool                    `json:"preventAutoDeploy,omitempty" tfschema:"-"`
+	DriftDetectionRequest       *DriftDetectionRequest   `json:"driftDetectionRequest,omitempty"       tfschema:"-"`
+	PreventAutoDeploy           *bool                    `json:"preventAutoDeploy,omitempty"           tfschema:"-"`
 	K8sNamespace                string                   `json:"k8sNamespace,omitempty"`
-	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty" tfschema:"-"`
+	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty"     tfschema:"-"`
 	IsRemoteApplyEnabled        bool                     `json:"isRemoteApplyEnabled"`
 }
 
@@ -206,9 +207,7 @@ func (create EnvironmentCreateWithoutTemplate) MarshalJSON() ([]byte, error) {
 	}
 
 	// 3. Merged the maps.
-	for k, v := range ecm {
-		tcm[k] = v
-	}
+	maps.Copy(tcm, ecm)
 
 	// 4. Marshal the merged map back to JSON.
 	return json.Marshal(tcm)
@@ -219,13 +218,13 @@ type EnvironmentUpdate struct {
 	AutoDeployByCustomGlob      string `json:"autoDeployByCustomGlob"`
 	TerragruntWorkingDirectory  string `json:"terragruntWorkingDirectory,omitempty"`
 	VcsCommandsAlias            string `json:"vcsCommandsAlias,omitempty"`
-	VcsPrCommentsEnabled        *bool  `json:"vcsPrCommentsEnabled,omitempty" tfschema:"-"`
-	RequiresApproval            *bool  `json:"requiresApproval,omitempty" tfschema:"-"`
-	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty" tfschema:"-"`
-	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty" tfschema:"-"`
+	VcsPrCommentsEnabled        *bool  `json:"vcsPrCommentsEnabled,omitempty"        tfschema:"-"`
+	RequiresApproval            *bool  `json:"requiresApproval,omitempty"            tfschema:"-"`
+	ContinuousDeployment        *bool  `json:"continuousDeployment,omitempty"        tfschema:"-"`
+	PullRequestPlanDeployments  *bool  `json:"pullRequestPlanDeployments,omitempty"  tfschema:"-"`
 	AutoDeployOnPathChangesOnly *bool  `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:"-"`
-	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty" tfschema:"-"`
-	IsArchived                  *bool  `json:"isArchived,omitempty" tfschema:"-"`
+	IsRemoteBackend             *bool  `json:"isRemoteBackend,omitempty"             tfschema:"-"`
+	IsArchived                  *bool  `json:"isArchived,omitempty"                  tfschema:"-"`
 	IsRemoteApplyEnabled        bool   `json:"isRemoteApplyEnabled"`
 }
 

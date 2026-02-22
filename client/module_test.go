@@ -40,10 +40,12 @@ var _ = Describe("Module Client", func() {
 
 	Describe("Get All Modules", func() {
 		var returnedModules []Module
+
 		mockModules := []Module{mockModule}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/modules", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request any, response *[]Module) {
@@ -66,8 +68,10 @@ var _ = Describe("Module Client", func() {
 	})
 
 	Describe("Create Module", func() {
-		var createdModule *Module
-		var err error
+		var (
+			createdModule *Module
+			err           error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -125,8 +129,10 @@ var _ = Describe("Module Client", func() {
 	})
 
 	Describe("Update Module", func() {
-		var updatedModule *Module
-		var err error
+		var (
+			updatedModule *Module
+			err           error
+		)
 
 		updatedMockModule := mockModule
 		updatedMockModule.ModuleName = "updated-module-name"

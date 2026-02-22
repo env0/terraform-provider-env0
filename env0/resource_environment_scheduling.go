@@ -46,7 +46,6 @@ func resourceEnvironmentSchedulingRead(ctx context.Context, d *schema.ResourceDa
 	environmentId := d.Id()
 
 	environmentScheduling, err := apiClient.EnvironmentScheduling(environmentId)
-
 	if err != nil {
 		return diag.Errorf("could not get environment scheduling: %v", err)
 	}

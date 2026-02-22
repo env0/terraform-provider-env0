@@ -47,11 +47,11 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 		valueType := reflect.TypeOf(value)
 
 		switch valueType {
-		case reflect.TypeOf(0):
+		case reflect.TypeFor[int]():
 			hclFields += fmt.Sprintf("\n\t%s = %d", key, value.(int))
-		case reflect.TypeOf(false):
+		case reflect.TypeFor[bool]():
 			hclFields += fmt.Sprintf("\n\t%s = %t", key, value.(bool))
-		case reflect.TypeOf([]string{}):
+		case reflect.TypeFor[[]string]():
 			arrayValueString := ""
 
 			for _, arrayValue := range value.([]string) {
@@ -61,7 +61,7 @@ func hclConfigCreate(source TFSource, resourceType string, resourceName string, 
 			arrayValueString = arrayValueString[:len(arrayValueString)-1]
 
 			hclFields += fmt.Sprintf("\n\t%s = [%s]", key, arrayValueString)
-		case reflect.TypeOf([]int{}):
+		case reflect.TypeFor[[]int]():
 			arrayValueString := ""
 
 			for _, arrayValue := range value.([]int) {

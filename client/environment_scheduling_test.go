@@ -32,7 +32,6 @@ var _ = Describe("EnvironmentScheduling", func() {
 						*response = mockEnvironmentSchedulingPayload
 					}).Times(1)
 				environmentSchedulingResponse, _ = apiClient.EnvironmentSchedulingUpdate(mockEnvironmentId, mockEnvironmentSchedulingPayload)
-
 			})
 
 			It("Should send PUT request with params", func() {
@@ -64,9 +63,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 
 				Expect(err).To(BeEquivalentTo(mockError))
 			})
-
 		})
-
 	})
 
 	Describe("Get", func() {
@@ -99,7 +96,6 @@ var _ = Describe("EnvironmentScheduling", func() {
 					Times(1)
 
 				_, err = apiClient.EnvironmentScheduling(mockEnvironmentId)
-
 			})
 
 			It("Should send GET request", func() {
@@ -110,7 +106,6 @@ var _ = Describe("EnvironmentScheduling", func() {
 				Expect(err).To(Equal(mockError))
 			})
 		})
-
 	})
 
 	Describe("Delete", func() {
@@ -133,6 +128,7 @@ var _ = Describe("EnvironmentScheduling", func() {
 
 		Describe("Fail", func() {
 			var err error
+
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Put("/scheduling/environments/"+mockEnvironmentId, gomock.Any(), gomock.Any()).
@@ -146,5 +142,4 @@ var _ = Describe("EnvironmentScheduling", func() {
 			})
 		})
 	})
-
 })

@@ -15,8 +15,8 @@ type CustomFlowCreatePayload struct {
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
-	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
-	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsGitLab             bool             `json:"isGitLab"                       tfschema:"is_gitlab"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"                  tfschema:"is_azure_devops"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
 
@@ -32,18 +32,18 @@ type CustomFlow struct {
 	Id                   string           `json:"id"`
 	Name                 string           `json:"name"`
 	Repository           string           `json:"repository"`
-	Path                 string           `json:"path" tfschema:",omitempty"`
-	Revision             string           `json:"revision" tfschema:",omitempty"`
-	TokenId              string           `json:"tokenId" tfschema:",omitempty"`
+	Path                 string           `json:"path"                 tfschema:",omitempty"`
+	Revision             string           `json:"revision"             tfschema:",omitempty"`
+	TokenId              string           `json:"tokenId"              tfschema:",omitempty"`
 	SshKeys              []TemplateSshKey `json:"sshKeys"`
 	GithubInstallationId int              `json:"githubInstallationId" tfschema:",omitempty"`
-	VcsConnectionId      string           `json:"vcsConnectionId" tfschema:",omitempty"`
-	BitbucketClientKey   string           `json:"bitbucketClientKey" tfschema:",omitempty"`
+	VcsConnectionId      string           `json:"vcsConnectionId"      tfschema:",omitempty"`
+	BitbucketClientKey   string           `json:"bitbucketClientKey"   tfschema:",omitempty"`
 	IsBitbucketServer    bool             `json:"isBitbucketServer"`
 	IsGitlabEnterprise   bool             `json:"isGitLabEnterprise"`
 	IsGithubEnterprise   bool             `json:"isGitHubEnterprise"`
-	IsGitLab             bool             `json:"isGitLab" tfschema:"is_gitlab"`
-	IsAzureDevOps        bool             `json:"isAzureDevOps" tfschema:"is_azure_devops"`
+	IsGitLab             bool             `json:"isGitLab"             tfschema:"is_gitlab"`
+	IsAzureDevOps        bool             `json:"isAzureDevOps"        tfschema:"is_azure_devops"`
 	IsTerragruntRunAll   bool             `json:"isTerragruntRunAll"`
 }
 

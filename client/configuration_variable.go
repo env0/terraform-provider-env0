@@ -51,7 +51,7 @@ type ConfigurationVariableOverwrites struct {
 
 type ConfigurationVariable struct {
 	ScopeId        string                           `json:"scopeId,omitempty"`
-	Value          string                           `json:"value" tfschema:"-"`
+	Value          string                           `json:"value"                    tfschema:"-"`
 	OrganizationId string                           `json:"organizationId,omitempty"`
 	UserId         string                           `json:"userId,omitempty"`
 	IsSensitive    *bool                            `json:"isSensitive,omitempty"`
@@ -59,7 +59,7 @@ type ConfigurationVariable struct {
 	Id             string                           `json:"id,omitempty"`
 	Name           string                           `json:"name"`
 	Description    string                           `json:"description,omitempty"`
-	Type           *ConfigurationVariableType       `json:"type,omitempty" tfschema:",omitempty"`
+	Type           *ConfigurationVariableType       `json:"type,omitempty"           tfschema:",omitempty"`
 	Schema         *ConfigurationVariableSchema     `json:"schema,omitempty"`
 	ToDelete       *bool                            `json:"toDelete,omitempty"`
 	IsReadOnly     *bool                            `json:"isReadonly,omitempty"`
@@ -103,7 +103,6 @@ func (client *ApiClient) ConfigurationVariablesById(id string) (ConfigurationVar
 	var result ConfigurationVariable
 
 	err := client.http.Get("/configuration/"+id, nil, &result)
-
 	if err != nil {
 		return ConfigurationVariable{}, err
 	}

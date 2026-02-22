@@ -22,8 +22,10 @@ var _ = Describe("Policy", func() {
 	}
 
 	Describe("Policy", func() {
-		var policy Policy
-		var err error
+		var (
+			policy Policy
+			err    error
+		)
 
 		path := "/policies?projectId=" + mockPolicy.ProjectId
 
@@ -76,9 +78,12 @@ var _ = Describe("Policy", func() {
 			DriftDetectionEnabled: true,
 			AutoDriftRemediation:  "CODE_TO_CLOUD",
 		}
+
 		Describe("Success", func() {
-			var updatedPolicy Policy
-			var err error
+			var (
+				updatedPolicy Policy
+				err           error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().

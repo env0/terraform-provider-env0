@@ -63,6 +63,8 @@ resource "env0_team_project_assignment" "role_assignment_custom_role_example" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import env0_team_project_assignment.example team-id_project-id
 ```

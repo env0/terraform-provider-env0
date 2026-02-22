@@ -8,12 +8,14 @@ import (
 )
 
 var _ = Describe("TeamRoleAssignment", func() {
-	const dummyProjectAssignmentId = "dummyId"
-	const dummyProjectId = "dummyProjectId"
-	const dummyEnvironmentId = "dummyEnvironmentId"
-	const dummyOrganizationId = "dummyOrganizationId"
-	const dummyProjectRole = "Admin"
-	const dummyTeamId = "dummyTeamId"
+	const (
+		dummyProjectAssignmentId = "dummyId"
+		dummyProjectId           = "dummyProjectId"
+		dummyEnvironmentId       = "dummyEnvironmentId"
+		dummyOrganizationId      = "dummyOrganizationId"
+		dummyProjectRole         = "Admin"
+		dummyTeamId              = "dummyTeamId"
+	)
 
 	mockTeamRoleAssignment := TeamRoleAssignmentPayload{
 		Id:     dummyProjectAssignmentId,
@@ -26,6 +28,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 	Describe("CreateOrUpdate", func() {
 		Describe("ProjectId", func() {
 			var assignment *TeamRoleAssignmentPayload
+
 			BeforeEach(func() {
 				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
 					TeamId:    dummyTeamId,
@@ -38,7 +41,6 @@ var _ = Describe("TeamRoleAssignment", func() {
 						*response = mockTeamRoleAssignment
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
-
 			})
 
 			It("Should send PUT request with params", func() {})
@@ -50,6 +52,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 
 		Describe("EnvironmentId", func() {
 			var assignment *TeamRoleAssignmentPayload
+
 			BeforeEach(func() {
 				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
 					TeamId:        dummyTeamId,
@@ -62,7 +65,6 @@ var _ = Describe("TeamRoleAssignment", func() {
 						*response = mockTeamRoleAssignment
 					}).Times(1)
 				assignment, _ = apiClient.TeamRoleAssignmentCreateOrUpdate(&createPayload)
-
 			})
 
 			It("Should send PUT request with params", func() {})
@@ -74,6 +76,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 
 		Describe("OrganizationId", func() {
 			var assignment *TeamRoleAssignmentPayload
+
 			BeforeEach(func() {
 				createPayload := TeamRoleAssignmentCreateOrUpdatePayload{
 					TeamId:         dummyTeamId,
@@ -98,6 +101,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 
 	Describe("Get Project Assignments", func() {
 		var assignments []TeamRoleAssignmentPayload
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"projectId": dummyProjectId}, gomock.Any()).
@@ -116,6 +120,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 
 	Describe("Get Environment Assignments", func() {
 		var assignments []TeamRoleAssignmentPayload
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"environmentId": dummyEnvironmentId}, gomock.Any()).
@@ -134,6 +139,7 @@ var _ = Describe("TeamRoleAssignment", func() {
 
 	Describe("Get Organization Assignments", func() {
 		var assignments []TeamRoleAssignmentPayload
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/roles/assignments/teams", map[string]string{"organizationId": dummyOrganizationId}, gomock.Any()).
@@ -194,5 +200,4 @@ var _ = Describe("TeamRoleAssignment", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
-
 })

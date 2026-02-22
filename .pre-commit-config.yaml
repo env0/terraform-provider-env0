@@ -1,16 +1,22 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: ^docs/|examples|tests/integration/
       - id: end-of-file-fixer
         exclude: ^docs/|examples/|tests/integration/
       - id: check-yaml
-  - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.0
+  - repo: local
     hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: go-imports
+      - id: golangci-lint
+        name: golangci-lint
+        entry: golangci-lint run --fix
+        types: [go]
+        language: system
+        pass_filenames: false
       - id: go-mod-tidy
+        name: go-mod-tidy
+        entry: go mod tidy
+        language: system
+        pass_filenames: false

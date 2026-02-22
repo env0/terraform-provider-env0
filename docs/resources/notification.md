@@ -51,6 +51,8 @@ resource "env0_notification_project_assignment" "test_assignment" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import env0_notification.by_id ddda7b30-6789-4d24-937c-22322754934e
 terraform import env0_notification.by_name "Example Notification"

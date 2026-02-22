@@ -42,7 +42,6 @@ func resourceWorkflowTriggersRead(ctx context.Context, d *schema.ResourceData, m
 	environmentId := d.Get("environment_id").(string)
 
 	triggers, err := apiClient.WorkflowTrigger(environmentId)
-
 	if err != nil {
 		return diag.Errorf("could not get workflow triggers: %v", err)
 	}

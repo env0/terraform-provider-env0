@@ -18,10 +18,12 @@ var _ = Describe("ApiKey Client", func() {
 
 	Describe("Get All ApiKeys", func() {
 		var returnedApiKeys []ApiKey
+
 		mockApiKeys := []ApiKey{mockApiKey}
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request any, response *[]ApiKey) {
@@ -44,8 +46,10 @@ var _ = Describe("ApiKey Client", func() {
 	})
 
 	Describe("Create ApiKeys", func() {
-		var createdApiKey *ApiKey
-		var err error
+		var (
+			createdApiKey *ApiKey
+			err           error
+		)
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
@@ -103,12 +107,16 @@ var _ = Describe("ApiKey Client", func() {
 	})
 
 	Describe("Get Oidc Sub", func() {
-		var returnedOidcSub string
-		var err error
+		var (
+			returnedOidcSub string
+			err             error
+		)
+
 		mockedOidcSub := "oidc sub 1234"
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/api-keys/oidc-sub", map[string]string{"organizationId": organizationId}, gomock.Any()).
 				Do(func(path string, request any, response *string) {

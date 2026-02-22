@@ -43,6 +43,8 @@ resource "env0_ssh_key" "tested" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import env0_ssh_key.by_id 89987941-dd6d-4a73-b88d-5212842135c8
 terraform import env0_ssh_key.by_name Github-ssh-key

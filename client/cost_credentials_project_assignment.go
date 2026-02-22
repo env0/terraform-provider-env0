@@ -12,7 +12,6 @@ func (client *ApiClient) AssignCostCredentialsToProject(projectId string, creden
 	err := client.http.Put("/costs/project/"+projectId+"/credentials", map[string]string{
 		"credentialsId": credentialId,
 	}, &result)
-
 	if err != nil {
 		return result, err
 	}
@@ -26,8 +25,8 @@ func (client *ApiClient) RemoveCostCredentialsFromProject(projectId string, cred
 
 func (client *ApiClient) CostCredentialIdsInProject(projectId string) ([]CostCredentialProjectAssignment, error) {
 	var result []CostCredentialProjectAssignment
-	err := client.http.Get("/costs/project/"+projectId+"/credentials", nil, &result)
 
+	err := client.http.Get("/costs/project/"+projectId+"/credentials", nil, &result)
 	if err != nil {
 		return nil, err
 	}

@@ -20,8 +20,10 @@ var _ = Describe("Agent Client", func() {
 		expectedResponse := []Agent{mockAgent}
 
 		Describe("Successful", func() {
-			var actualResult []Agent
-			var err error
+			var (
+				actualResult []Agent
+				err          error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall()
@@ -52,8 +54,10 @@ var _ = Describe("Agent Client", func() {
 		})
 
 		Describe("Failure", func() {
-			var actualResult []Agent
-			var err error
+			var (
+				actualResult []Agent
+				err          error
+			)
 
 			BeforeEach(func() {
 				mockOrganizationIdCall()
@@ -80,8 +84,10 @@ var _ = Describe("Agent Client", func() {
 		agentId := "id"
 
 		Describe("Successful", func() {
-			var actualResult string
-			var err error
+			var (
+				actualResult string
+				err          error
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
@@ -106,8 +112,10 @@ var _ = Describe("Agent Client", func() {
 		})
 
 		Describe("Failure", func() {
-			var err error
-			var actualResult string
+			var (
+				err          error
+				actualResult string
+			)
 
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().

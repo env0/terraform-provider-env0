@@ -21,8 +21,10 @@ var _ = Describe("Organization", func() {
 	}
 
 	Describe("Organization", func() {
-		var organization Organization
-		var err error
+		var (
+			organization Organization
+			err          error
+		)
 
 		Describe("Success", func() {
 			BeforeEach(func() {
@@ -104,12 +106,15 @@ var _ = Describe("Organization", func() {
 		updatedMockOrganization.AllowMergeableBypassForPrApply = true
 		updatedMockOrganization.DefaultTtl = &hour12
 
-		var updatedOrganization *Organization
-		var err error
+		var (
+			updatedOrganization *Organization
+			err                 error
+		)
 
 		Describe("Success", func() {
 			BeforeEach(func() {
 				mockOrganizationIdCall()
+
 				updateOrganizationPolicyPayload := OrganizationPolicyUpdatePayload{
 					DefaultTtl:                          &hour12,
 					DoNotConsiderMergeCommitsForPrPlans: &t,
@@ -146,13 +151,16 @@ var _ = Describe("Organization", func() {
 		updatedMockOrganization.DefaultTtl = nil
 		updatedMockOrganization.MaxTtl = nil
 
-		var updatedOrganization *Organization
-		var err error
+		var (
+			updatedOrganization *Organization
+			err                 error
+		)
 
 		emptyString := ""
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			originalUpdatePayload := OrganizationPolicyUpdatePayload{
 				DefaultTtl: &emptyString,
 				MaxTtl:     &emptyString,

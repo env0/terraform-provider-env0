@@ -21,7 +21,7 @@ type Organization struct {
 	CreatedAt                           string  `json:"createdAt"`
 	UpdatedAt                           string  `json:"updatedAt"`
 	Role                                string  `json:"role"`
-	IsSelfHostedK8s                     bool    `json:"isSelfHostedK8s" tfschema:"is_self_hosted"`
+	IsSelfHostedK8s                     bool    `json:"isSelfHostedK8s"                     tfschema:"is_self_hosted"`
 }
 
 type OrganizationPolicyUpdatePayload struct {

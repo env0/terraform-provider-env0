@@ -65,7 +65,6 @@ func resourceEnvironmentDriftRead(ctx context.Context, d *schema.ResourceData, m
 	environmentId := d.Id()
 
 	drift, err := apiClient.EnvironmentDriftDetection(environmentId)
-
 	if err != nil {
 		return diag.Errorf("could not get environment drift detection: %v", err)
 	}

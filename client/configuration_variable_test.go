@@ -54,6 +54,7 @@ var _ = Describe("Configuration Variable", func() {
 		Describe("Schema", func() {
 			It("On schema type is free text, enum should be nil", func() {
 				var parsedPayload ConfigurationVariable
+
 				_ = json.Unmarshal([]byte(`{"schema": {"type": "string"}}`), &parsedPayload)
 				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
 				Expect(parsedPayload.Schema.Enum).Should(BeNil())
@@ -61,6 +62,7 @@ var _ = Describe("Configuration Variable", func() {
 
 			It("On schema type is dropdown, enum should be present", func() {
 				var parsedPayload ConfigurationVariable
+
 				_ = json.Unmarshal([]byte(`{"schema": {"type": "string", "enum": ["hello"]}}`), &parsedPayload)
 				Expect(parsedPayload.Schema.Type).Should(Equal("string"))
 				Expect(parsedPayload.Schema.Enum).Should(BeEquivalentTo([]string{"hello"}))
@@ -70,6 +72,7 @@ var _ = Describe("Configuration Variable", func() {
 		Describe("Enums", func() {
 			It("Should convert enums correctly", func() {
 				var parsedPayload ConfigurationVariable
+
 				_ = json.Unmarshal([]byte(`{"scope":"PROJECT", "type": 1}`), &parsedPayload)
 				Expect(parsedPayload.Scope).Should(Equal(ScopeProject))
 				Expect(*parsedPayload.Type).Should(Equal(ConfigurationVariableTypeTerraform))
@@ -79,7 +82,9 @@ var _ = Describe("Configuration Variable", func() {
 
 	Describe("ConfigurationVariablesById", func() {
 		id := "configurationId"
+
 		var found ConfigurationVariable
+
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
 				Get("/configuration/"+id, nil, gomock.Any()).
@@ -174,6 +179,7 @@ var _ = Describe("Configuration Variable", func() {
 
 		DescribeTable("Create with different schema format", func(schemaFormat Format) {
 			var mockWithFormat = ConfigurationVariable{}
+
 			_ = copier.Copy(&mockWithFormat, &mockConfigurationVariable)
 			mockWithFormat.Schema.Format = schemaFormat
 			SetCreateRequestExpectation(mockWithFormat)
@@ -190,7 +196,6 @@ var _ = Describe("Configuration Variable", func() {
 	})
 
 	Describe("ConfigurationVariableDelete", func() {
-
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("configuration/"+mockConfigurationVariable.Id, nil)
 			_ = apiClient.ConfigurationVariableDelete(mockConfigurationVariable.Id)
@@ -268,6 +273,7 @@ var _ = Describe("Configuration Variable", func() {
 		scopeId := mockTemplateConfigurationVariable.ScopeId
 
 		var returnedVariables []ConfigurationVariable
+
 		mockVariables := []ConfigurationVariable{mockTemplateConfigurationVariable}
 		expectedParams := map[string]string{"organizationId": organizationId, "blueprintId": scopeId}
 
