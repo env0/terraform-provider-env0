@@ -45,3 +45,4 @@ data "env0_project" "with_parent_id_filter" {
 - `description` (String) textual description of the project
 - `hierarchy` (String) the hierarchy of the project
 - `role` (String) role of the authenticated user (through api key) in the project
+- `tags` (List of String) tags of the project

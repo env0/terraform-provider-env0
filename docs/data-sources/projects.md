@@ -38,3 +38,4 @@ Read-Only:
 - `is_archived` (Boolean)
 - `name` (String)
 - `parent_project_id` (String)
+- `tags` (List of String)

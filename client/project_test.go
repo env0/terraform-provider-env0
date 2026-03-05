@@ -41,6 +41,7 @@ var _ = Describe("Project", func() {
 					Name:            projectName,
 					Description:     projectDescription,
 					ParentProjectId: parentProjectId,
+					Tags:            []string{"tag1", "tag2"},
 				},
 				organizationId,
 			}
@@ -55,6 +56,7 @@ var _ = Describe("Project", func() {
 				Name:            projectName,
 				Description:     projectDescription,
 				ParentProjectId: parentProjectId,
+				Tags:            []string{"tag1", "tag2"},
 			})
 		})
 
@@ -95,6 +97,7 @@ var _ = Describe("Project", func() {
 			payload := ProjectUpdatePayload{
 				Name:        "newName",
 				Description: "newDesc",
+				Tags:        []string{"tag3"},
 			}
 
 			mockedResponse = mockProject

@@ -1400,6 +1400,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Organization() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Organization", reflect.TypeOf((*MockApiClientInterface)(nil).Organization))
 }
 
+// OrganizationEnvironments mocks base method.
+func (m *MockApiClientInterface) OrganizationEnvironments(organizationId string) ([]Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrganizationEnvironments", organizationId)
+	ret0, _ := ret[0].([]Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrganizationEnvironments indicates an expected call of OrganizationEnvironments.
+func (mr *MockApiClientInterfaceMockRecorder) OrganizationEnvironments(organizationId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrganizationEnvironments", reflect.TypeOf((*MockApiClientInterface)(nil).OrganizationEnvironments), organizationId)
+}
+
 // OrganizationId mocks base method.
 func (m *MockApiClientInterface) OrganizationId() (string, error) {
 	m.ctrl.T.Helper()

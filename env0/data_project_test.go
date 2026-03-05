@@ -19,6 +19,7 @@ func TestProjectDataSource(t *testing.T) {
 		Role:            "role0",
 		Description:     "A project's description",
 		ParentProjectId: "parent_id",
+		Tags:            []string{"tag1", "tag2"},
 	}
 
 	archivedProject := client.Project{
@@ -83,6 +84,8 @@ func TestProjectDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "role", project.Role),
 						resource.TestCheckResourceAttr(accessor, "description", project.Description),
 						resource.TestCheckResourceAttr(accessor, "parent_project_id", project.ParentProjectId),
+					resource.TestCheckResourceAttr(accessor, "tags.0", "tag1"),
+					resource.TestCheckResourceAttr(accessor, "tags.1", "tag2"),
 					),
 				},
 			},

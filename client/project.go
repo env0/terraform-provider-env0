@@ -1,29 +1,32 @@
 package client
 
 type Project struct {
-	IsArchived      bool   `json:"isArchived"`
-	OrganizationId  string `json:"organizationId"`
-	UpdatedAt       string `json:"updatedAt"`
-	CreatedAt       string `json:"createdAt"`
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	CreatedBy       string `json:"createdBy"`
-	Role            string `json:"role"`
-	CreatedByUser   User   `json:"createdByUser"`
-	Description     string `json:"description"`
-	ParentProjectId string `json:"parentProjectId,omitempty" tfschema:",omitempty"`
-	Hierarchy       string `json:"hierarchy"`
+	IsArchived      bool     `json:"isArchived"`
+	OrganizationId  string   `json:"organizationId"`
+	UpdatedAt       string   `json:"updatedAt"`
+	CreatedAt       string   `json:"createdAt"`
+	Id              string   `json:"id"`
+	Name            string   `json:"name"`
+	CreatedBy       string   `json:"createdBy"`
+	Role            string   `json:"role"`
+	CreatedByUser   User     `json:"createdByUser"`
+	Description     string   `json:"description"`
+	ParentProjectId string   `json:"parentProjectId,omitempty" tfschema:",omitempty"`
+	Hierarchy       string   `json:"hierarchy"`
+	Tags            []string `json:"tags" tfschema:"tags"`
 }
 
 type ProjectCreatePayload struct {
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	ParentProjectId string `json:"parentProjectId,omitempty"`
+	Name            string   `json:"name"`
+	Description     string   `json:"description"`
+	ParentProjectId string   `json:"parentProjectId,omitempty"`
+	Tags            []string `json:"tags"`
 }
 
 type ProjectUpdatePayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
 }
 
 type ModuleTestingProject struct {
