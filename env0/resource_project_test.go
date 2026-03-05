@@ -89,6 +89,75 @@ func TestUnitProjectResource(t *testing.T) {
 		})
 	})
 
+	projectWithTags := client.Project{
+		Id:          "id0",
+		Name:        "name0",
+		Description: "description0",
+		Tags:        []string{"tag1", "tag2"},
+	}
+
+	updatedProjectWithTags := client.Project{
+		Id:          projectWithTags.Id,
+		Name:        "new name",
+		Description: "new description",
+		Tags:        []string{"tag3"},
+	}
+
+	t.Run("Test project with tags", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        projectWithTags.Name,
+						"description": projectWithTags.Description,
+						"tags":        projectWithTags.Tags,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", projectWithTags.Id),
+						resource.TestCheckResourceAttr(accessor, "name", projectWithTags.Name),
+						resource.TestCheckResourceAttr(accessor, "description", projectWithTags.Description),
+						resource.TestCheckResourceAttr(accessor, "tags.0", "tag1"),
+						resource.TestCheckResourceAttr(accessor, "tags.1", "tag2"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        updatedProjectWithTags.Name,
+						"description": updatedProjectWithTags.Description,
+						"tags":        updatedProjectWithTags.Tags,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", updatedProjectWithTags.Id),
+						resource.TestCheckResourceAttr(accessor, "name", updatedProjectWithTags.Name),
+						resource.TestCheckResourceAttr(accessor, "description", updatedProjectWithTags.Description),
+						resource.TestCheckResourceAttr(accessor, "tags.0", "tag3"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        projectWithTags.Name,
+				Description: projectWithTags.Description,
+				Tags:        projectWithTags.Tags,
+			}).Times(1).Return(projectWithTags, nil)
+			mock.EXPECT().ProjectUpdate(updatedProjectWithTags.Id, client.ProjectUpdatePayload{
+				Name:        updatedProjectWithTags.Name,
+				Description: updatedProjectWithTags.Description,
+				Tags:        updatedProjectWithTags.Tags,
+			}).Times(1).Return(updatedProjectWithTags, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Project(gomock.Any()).Times(2).Return(projectWithTags, nil),              // 1 after create, 1 before update
+				mock.EXPECT().Project(gomock.Any()).Times(1).Return(updatedProjectWithTags, nil),       // 1 after update
+				mock.EXPECT().ProjectEnvironments(projectWithTags.Id).Times(1).Return([]client.Environment{}, nil),
+			)
+
+			mock.EXPECT().ProjectDelete(projectWithTags.Id).Times(1)
+		})
+	})
+
 	t.Run("Test sub-project", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
