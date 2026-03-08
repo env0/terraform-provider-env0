@@ -13,7 +13,7 @@ type Project struct {
 	Description     string   `json:"description"`
 	ParentProjectId string   `json:"parentProjectId,omitempty" tfschema:",omitempty"`
 	Hierarchy       string   `json:"hierarchy"`
-	Tags            []string `json:"tags" tfschema:"tags"`
+	Tags            []string `json:"tags"                      tfschema:"tags"`
 }
 
 type ProjectCreatePayload struct {
