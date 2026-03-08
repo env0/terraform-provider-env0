@@ -68,6 +68,14 @@ func resourceProject() *schema.Resource {
 				Description: "If set, the project becomes a 'sub-project' of the parent project. See https://docs.env0.com/docs/sub-projects",
 				Optional:    true,
 			},
+			"tags": {
+				Type:        schema.TypeList,
+				Description: "tags for the project",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
