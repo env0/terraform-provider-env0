@@ -149,8 +149,8 @@ func TestUnitProjectResource(t *testing.T) {
 			}).Times(1).Return(updatedProjectWithTags, nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Project(gomock.Any()).Times(2).Return(projectWithTags, nil),              // 1 after create, 1 before update
-				mock.EXPECT().Project(gomock.Any()).Times(1).Return(updatedProjectWithTags, nil),       // 1 after update
+				mock.EXPECT().Project(gomock.Any()).Times(2).Return(projectWithTags, nil),        // 1 after create, 1 before update
+				mock.EXPECT().Project(gomock.Any()).Times(1).Return(updatedProjectWithTags, nil), // 1 after update
 				mock.EXPECT().ProjectEnvironments(projectWithTags.Id).Times(1).Return([]client.Environment{}, nil),
 			)
 
