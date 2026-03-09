@@ -7,9 +7,40 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Label when approved
-        uses: pullreminders/label-when-approved-action@master
-        env:
-          APPROVALS: "1"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADD_LABEL: "ready to merge"
-          REMOVE_LABEL: "pending%20final%20review"
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const reviews = await github.rest.pulls.listReviews({
+              owner,
+              repo,
+              pull_number,
+            });
+
+            const approvals = reviews.data.filter(r => r.state === 'APPROVED');
+
+            if (approvals.length < 1) {
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pull_number,
+              labels: ['ready to merge'],
+            });
+
+            try {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: pull_number,
+                name: 'pending final review',
+              });
+            } catch (e) {
+              if (e.status !== 404) {
+                throw e;
+              }
+            }
