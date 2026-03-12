@@ -411,6 +411,11 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
+	d.Set("is_inactive", false)
+	if environment.IsArchived != nil {
+		d.Set("is_inactive", *environment.IsArchived)
+	}
+
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("vcs_pr_comments_enabled"); !exists {
 		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore any drifts if not explicitly configured in the environment resource.
