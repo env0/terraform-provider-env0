@@ -411,12 +411,6 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		return fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
-	d.Set("is_inactive", false)
-
-	if environment.IsArchived != nil {
-		d.Set("is_inactive", *environment.IsArchived)
-	}
-
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("vcs_pr_comments_enabled"); !exists {
 		// VcsPrCommentsEnabled may have been "forced" to be 'true', ignore any drifts if not explicitly configured in the environment resource.
@@ -692,6 +686,12 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 
 	if err := setEnvironmentSchema(ctx, d, environment, environmentConfigurationVariables, environmentVariableSetIds); err != nil {
 		return diag.FromErr(err)
+	}
+
+	d.Set("is_inactive", false)
+
+	if environment.IsArchived != nil {
+		d.Set("is_inactive", *environment.IsArchived)
 	}
 
 	if err := setSubEnvironmentSchema(d, apiClient); err != nil {
@@ -1522,12 +1522,6 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
-	}
-
-	d.Set("is_inactive", false) // default is false.
-
-	if environment.IsArchived != nil {
-		d.Set("is_inactive", *environment.IsArchived)
 	}
 
 	d.Set("force_destroy", false)
