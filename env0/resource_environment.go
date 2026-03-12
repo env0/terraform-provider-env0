@@ -688,6 +688,12 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
+	d.Set("is_inactive", false)
+
+	if environment.IsArchived != nil {
+		d.Set("is_inactive", *environment.IsArchived)
+	}
+
 	if err := setSubEnvironmentSchema(d, apiClient); err != nil {
 		return diag.Errorf("could not set sub environment schema: %v", err)
 	}
@@ -1516,12 +1522,6 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	if environment.AutoDeployOnPathChangesOnly != nil {
 		d.Set("auto_deploy_on_path_changes_only", *environment.AutoDeployOnPathChangesOnly)
-	}
-
-	d.Set("is_inactive", false) // default is false.
-
-	if environment.IsArchived != nil {
-		d.Set("is_inactive", *environment.IsArchived)
 	}
 
 	d.Set("force_destroy", false)

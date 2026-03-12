@@ -344,6 +344,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 			updatedEnvironmentCopy := updatedEnvironment
 			updatedEnvironmentCopy.VcsPrCommentsEnabled = false
+			updatedEnvironmentCopy.IsArchived = nil
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
@@ -2683,12 +2684,244 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
+	testIsInactive := func() {
+		inactiveTestEnv := client.Environment{
+			Id:        uuid.New().String(),
+			Name:      "is-inactive-test-env",
+			ProjectId: "project-id",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: templateId,
+			},
+		}
+
+		inactiveTestTemplate := client.Template{
+			ProjectId: inactiveTestEnv.ProjectId,
+		}
+
+		buildIsInactiveConfig := func(includeIsInactive bool, isInactiveValue bool) string {
+			config := map[string]any{
+				"name":          inactiveTestEnv.Name,
+				"project_id":    inactiveTestEnv.ProjectId,
+				"template_id":   templateId,
+				"force_destroy": true,
+			}
+			if includeIsInactive {
+				config["is_inactive"] = isInactiveValue
+			}
+
+			return resourceConfigCreate(resourceType, resourceName, config)
+		}
+
+		baseCreatePayload := client.EnvironmentCreate{
+			Name:      inactiveTestEnv.Name,
+			ProjectId: inactiveTestEnv.ProjectId,
+			DeployRequest: &client.DeployRequest{
+				BlueprintId: templateId,
+			},
+		}
+
+		envActive := inactiveTestEnv
+		envInactive := inactiveTestEnv
+		envInactive.IsArchived = new(true)
+
+		t.Run("is_inactive - false to true", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(true, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, true),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(true),
+				}).Times(1).Return(envInactive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envInactive, nil),
+				)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+
+		t.Run("is_inactive - true to false", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, true),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(true),
+				}).Times(1).Return(envInactive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(false),
+				}).Times(1).Return(envActive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(5).Return(nil, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envInactive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envActive, nil),
+				)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+
+		t.Run("is_inactive - remove field that was false", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(true, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
+				mock.EXPECT().Environment(gomock.Any()).Times(3).Return(envActive, nil)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+
+		t.Run("is_inactive - remove field that was true", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, true),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+					},
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(true),
+				}).Times(1).Return(envInactive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(false),
+				}).Times(1).Return(envActive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(5).Return(nil, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envInactive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envActive, nil),
+				)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+
+		t.Run("is_inactive - add field as true", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, true),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "true"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().EnvironmentUpdate(envActive.Id, client.EnvironmentUpdate{
+					Name:       envActive.Name,
+					IsArchived: new(true),
+				}).Times(1).Return(envInactive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
+				gomock.InOrder(
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
+					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envInactive, nil),
+				)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+
+		t.Run("is_inactive - add field as false", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: buildIsInactiveConfig(false, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+					{
+						Config: buildIsInactiveConfig(true, false),
+						Check:  resource.TestCheckResourceAttr(accessor, "is_inactive", "false"),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(inactiveTestTemplate, nil)
+				mock.EXPECT().EnvironmentCreate(baseCreatePayload).Times(1).Return(envActive, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
+				mock.EXPECT().Environment(gomock.Any()).Times(3).Return(envActive, nil)
+				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
+			})
+		})
+	}
+
 	testSuccess()
 	testTTL()
 	testTriggers()
 	testForceDestroy()
 	testValidationFailures()
 	testApiFailures()
+	testIsInactive()
 }
 
 func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
