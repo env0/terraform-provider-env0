@@ -412,6 +412,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	}
 
 	d.Set("is_inactive", false)
+
 	if environment.IsArchived != nil {
 		d.Set("is_inactive", *environment.IsArchived)
 	}

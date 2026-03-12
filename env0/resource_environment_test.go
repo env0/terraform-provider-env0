@@ -2708,6 +2708,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			if includeIsInactive {
 				config["is_inactive"] = isInactiveValue
 			}
+
 			return resourceConfigCreate(resourceType, resourceName, config)
 		}
 
