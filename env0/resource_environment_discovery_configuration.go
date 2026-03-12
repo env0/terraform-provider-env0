@@ -334,10 +334,7 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
 	}
 
-	// If vcs_connection_id is set in config, ignore github_installation_id from backend to avoid drift
-	if _, ok := d.GetOk("vcs_connection_id"); ok {
-		res.GithubInstallationId = 0
-	}
+	suppressVcsFieldDrift("", &res.GithubInstallationId, &res.VcsConnectionId, d)
 
 	if err := setResourceEnvironmentDiscoveryConfiguration(d, res); err != nil {
 		return diag.FromErr(err)
@@ -411,10 +408,7 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
 	}
 
-	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
-	if vcsConnectionIdOk {
-		getPayload.GithubInstallationId = 0
-	}
+	suppressVcsFieldDrift("", &getPayload.GithubInstallationId, &getPayload.VcsConnectionId, d)
 
 	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {
 		return diag.FromErr(err)
