@@ -39,6 +39,124 @@ func (m *MockApiClientInterface) EXPECT() *MockApiClientInterfaceMockRecorder {
 	return m.recorder
 }
 
+// AgentPool mocks base method.
+func (m *MockApiClientInterface) AgentPool(id string) (*AgentPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentPool", id)
+	ret0, _ := ret[0].(*AgentPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentPool indicates an expected call of AgentPool.
+func (mr *MockApiClientInterfaceMockRecorder) AgentPool(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentPool", reflect.TypeOf((*MockApiClientInterface)(nil).AgentPool), id)
+}
+
+// AgentPoolCreate mocks base method.
+func (m *MockApiClientInterface) AgentPoolCreate(payload AgentPoolCreatePayload) (*AgentPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentPoolCreate", payload)
+	ret0, _ := ret[0].(*AgentPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentPoolCreate indicates an expected call of AgentPoolCreate.
+func (mr *MockApiClientInterfaceMockRecorder) AgentPoolCreate(payload any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentPoolCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AgentPoolCreate), payload)
+}
+
+// AgentPoolDelete mocks base method.
+func (m *MockApiClientInterface) AgentPoolDelete(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentPoolDelete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AgentPoolDelete indicates an expected call of AgentPoolDelete.
+func (mr *MockApiClientInterfaceMockRecorder) AgentPoolDelete(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentPoolDelete", reflect.TypeOf((*MockApiClientInterface)(nil).AgentPoolDelete), id)
+}
+
+// AgentPoolUpdate mocks base method.
+func (m *MockApiClientInterface) AgentPoolUpdate(id string, payload AgentPoolUpdatePayload) (*AgentPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentPoolUpdate", id, payload)
+	ret0, _ := ret[0].(*AgentPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentPoolUpdate indicates an expected call of AgentPoolUpdate.
+func (mr *MockApiClientInterfaceMockRecorder) AgentPoolUpdate(id, payload any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentPoolUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).AgentPoolUpdate), id, payload)
+}
+
+// AgentPools mocks base method.
+func (m *MockApiClientInterface) AgentPools() ([]AgentPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentPools")
+	ret0, _ := ret[0].([]AgentPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentPools indicates an expected call of AgentPools.
+func (mr *MockApiClientInterfaceMockRecorder) AgentPools() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentPools", reflect.TypeOf((*MockApiClientInterface)(nil).AgentPools))
+}
+
+// AgentSecretCreate mocks base method.
+func (m *MockApiClientInterface) AgentSecretCreate(agentId string, payload AgentSecretCreatePayload) (*AgentSecret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentSecretCreate", agentId, payload)
+	ret0, _ := ret[0].(*AgentSecret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentSecretCreate indicates an expected call of AgentSecretCreate.
+func (mr *MockApiClientInterfaceMockRecorder) AgentSecretCreate(agentId, payload any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentSecretCreate", reflect.TypeOf((*MockApiClientInterface)(nil).AgentSecretCreate), agentId, payload)
+}
+
+// AgentSecretDelete mocks base method.
+func (m *MockApiClientInterface) AgentSecretDelete(agentId, secretId string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentSecretDelete", agentId, secretId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AgentSecretDelete indicates an expected call of AgentSecretDelete.
+func (mr *MockApiClientInterfaceMockRecorder) AgentSecretDelete(agentId, secretId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentSecretDelete", reflect.TypeOf((*MockApiClientInterface)(nil).AgentSecretDelete), agentId, secretId)
+}
+
+// AgentSecrets mocks base method.
+func (m *MockApiClientInterface) AgentSecrets(agentId string) ([]AgentSecret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AgentSecrets", agentId)
+	ret0, _ := ret[0].([]AgentSecret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AgentSecrets indicates an expected call of AgentSecrets.
+func (mr *MockApiClientInterfaceMockRecorder) AgentSecrets(agentId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AgentSecrets", reflect.TypeOf((*MockApiClientInterface)(nil).AgentSecrets), agentId)
+}
+
 // AgentValues mocks base method.
 func (m *MockApiClientInterface) AgentValues(id string) (string, error) {
 	m.ctrl.T.Helper()
