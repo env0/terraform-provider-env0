@@ -71,7 +71,7 @@ type AgentSecret struct {
 	AgentId     string `json:"agentId"`
 	Description string `json:"description,omitempty"`
 	CreatedAt   string `json:"createdAt,omitempty"`
-	CreatedBy   string `json:"createdBy,omitempty"`
+	CreatedBy   any    `json:"createdBy,omitempty"`
 }
 
 type AgentSecretCreatePayload struct {
