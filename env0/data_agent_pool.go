@@ -68,6 +68,7 @@ func dataAgentPoolRead(ctx context.Context, d *schema.ResourceData, meta any) di
 	apiClient := meta.(client.ApiClientInterface)
 
 	var agentPool *client.AgentPool
+
 	var err error
 
 	id, ok := d.GetOk("id")
