@@ -53,11 +53,6 @@ func resourceAgentPool() *schema.Resource {
 							Description: "the AWS region for self-hosted logs",
 							Required:    true,
 						},
-						"external_id": {
-							Type:        schema.TypeString,
-							Description: "the external id for assuming the role",
-							Optional:    true,
-						},
 					},
 				},
 			},
@@ -83,10 +78,6 @@ func agentPoolLogsFromSchema(d *schema.ResourceData) *client.AgentPoolLogsConfig
 		Region:    logsMap["region"].(string),
 	}
 
-	if v, ok := logsMap["external_id"].(string); ok && v != "" {
-		selfHosted.ExternalId = v
-	}
-
 	return &client.AgentPoolLogsConfig{
 		Dynamo: &client.AgentPoolDynamoLogs{
 			SelfHosted: selfHosted,
@@ -102,9 +93,8 @@ func agentPoolLogsToSchema(logs *client.AgentPoolLogsConfig) []any {
 	sh := logs.Dynamo.SelfHosted
 
 	return []any{map[string]any{
-		"account_id":  sh.AccountId,
-		"region":      sh.Region,
-		"external_id": sh.ExternalId,
+		"account_id": sh.AccountId,
+		"region":     sh.Region,
 	}}
 }
 
@@ -134,7 +124,9 @@ func resourceAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta a
 	logs := agentPoolLogsFromSchema(d)
 	if logs != nil {
 		updatePayload := client.AgentPoolUpdatePayload{
-			Logs: logs,
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+			Logs:        logs,
 		}
 
 		_, err := apiClient.AgentPoolUpdate(agentPool.Id, updatePayload)

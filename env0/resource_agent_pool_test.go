@@ -138,9 +138,8 @@ func TestUnitAgentPoolResource(t *testing.T) {
 		logs := &client.AgentPoolLogsConfig{
 			Dynamo: &client.AgentPoolDynamoLogs{
 				SelfHosted: &client.AgentPoolSelfHostedLogs{
-					AccountId:  "123456789",
-					Region:     "us-east-1",
-					ExternalId: "ext-id",
+					AccountId: "123456789",
+					Region:    "us-east-1",
 				},
 			},
 		}
@@ -160,20 +159,17 @@ func TestUnitAgentPoolResource(t *testing.T) {
 							name = "%s"
 
 							logs {
-								account_id  = "%s"
-								region      = "%s"
-								external_id = "%s"
+								account_id = "%s"
+								region     = "%s"
 							}
 						}
 					`, resourceType, resourceName, poolWithLogs.Name,
 						logs.Dynamo.SelfHosted.AccountId,
-						logs.Dynamo.SelfHosted.Region,
-						logs.Dynamo.SelfHosted.ExternalId),
+						logs.Dynamo.SelfHosted.Region),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", poolWithLogs.Id),
 						resource.TestCheckResourceAttr(accessor, "logs.0.account_id", logs.Dynamo.SelfHosted.AccountId),
 						resource.TestCheckResourceAttr(accessor, "logs.0.region", logs.Dynamo.SelfHosted.Region),
-						resource.TestCheckResourceAttr(accessor, "logs.0.external_id", logs.Dynamo.SelfHosted.ExternalId),
 					),
 				},
 			},
@@ -189,8 +185,9 @@ func TestUnitAgentPoolResource(t *testing.T) {
 					Name:     poolWithLogs.Name,
 					AgentKey: poolWithLogs.AgentKey,
 				}, nil),
-				// PATCH to set logs after create
+				// PATCH to set logs after create (includes name/description to prevent wipe)
 				mock.EXPECT().AgentPoolUpdate(poolWithLogs.Id, client.AgentPoolUpdatePayload{
+					Name: poolWithLogs.Name,
 					Logs: logs,
 				}).Times(1).Return(&poolWithLogs, nil),
 				// Read after create + pre-destroy refresh

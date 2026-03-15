@@ -52,11 +52,6 @@ func dataAgentPool() *schema.Resource {
 							Description: "the AWS region for self-hosted logs",
 							Computed:    true,
 						},
-						"external_id": {
-							Type:        schema.TypeString,
-							Description: "the external id for assuming the role",
-							Computed:    true,
-						},
 					},
 				},
 			},
