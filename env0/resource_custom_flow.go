@@ -54,10 +54,7 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta an
 		return ResourceGetFailure(ctx, "custom flow", d, err)
 	}
 
-	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
-	if vcsConnectionIdOk {
-		customFlow.GithubInstallationId = 0
-	}
+	suppressVcsFieldDrift("", &customFlow.GithubInstallationId, &customFlow.VcsConnectionId, d)
 
 	if err := writeResourceData(customFlow, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)

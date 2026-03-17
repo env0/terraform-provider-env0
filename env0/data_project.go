@@ -68,6 +68,14 @@ func dataProject() *schema.Resource {
 				Description: "the hierarchy of the project",
 				Computed:    true,
 			},
+			"tags": {
+				Type:        schema.TypeList,
+				Description: "tags of the project",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }

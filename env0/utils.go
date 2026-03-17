@@ -511,3 +511,29 @@ func lastUnderscoreSplit(s string) []string {
 
 	return []string{s[:lastIndex], s[lastIndex+1:]}
 }
+
+// suppressVcsFieldDrift zeroes out the VCS field that the user did NOT specify,
+// preventing false drift when the backend auto-populates one field from the other.
+// When only one field is set, zeros out the other. When both are set (e.g., after
+// import), neither is zeroed to avoid data loss.
+// The prefix parameter supports nested schemas (e.g., "without_template_settings").
+func suppressVcsFieldDrift(prefix string, githubInstallationId *int, vcsConnectionId *string, d *schema.ResourceData) {
+	vcsKey := "vcs_connection_id"
+	ghKey := "github_installation_id"
+
+	if prefix != "" {
+		vcsKey = prefix + ".0." + vcsKey
+		ghKey = prefix + ".0." + ghKey
+	}
+
+	_, vcsOk := d.GetOk(vcsKey)
+	_, ghOk := d.GetOk(ghKey)
+
+	if vcsOk && !ghOk {
+		*githubInstallationId = 0
+	}
+
+	if ghOk && !vcsOk {
+		*vcsConnectionId = ""
+	}
+}

@@ -61,10 +61,7 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 		return nil
 	}
 
-	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
-	if vcsConnectionIdOk {
-		approvalPolicy.GithubInstallationId = 0
-	}
+	suppressVcsFieldDrift("", &approvalPolicy.GithubInstallationId, &approvalPolicy.VcsConnectionId, d)
 
 	if err := writeResourceData(&approvalPolicy, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
