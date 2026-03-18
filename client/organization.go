@@ -14,6 +14,7 @@ type Organization struct {
 	DoNotConsiderMergeCommitsForPrPlans bool    `json:"doNotConsiderMergeCommitsForPrPlans"`
 	EnableOidc                          bool    `json:"enableOidc"`
 	EnforcePrCommenterPermissions       bool    `json:"enforcePrCommenterPermissions"`
+	AllowMergeableBypassForPrApply      bool    `json:"allowMergeableBypassForPrApply"`
 	Description                         string  `json:"description"`
 	PhotoUrl                            string  `json:"photoUrl"`
 	CreatedBy                           string  `json:"createdBy"`
@@ -30,6 +31,7 @@ type OrganizationPolicyUpdatePayload struct {
 	DoNotConsiderMergeCommitsForPrPlans *bool   `json:"doNotConsiderMergeCommitsForPrPlans,omitempty"`
 	EnableOidc                          *bool   `json:"enableOidc,omitempty"`
 	EnforcePrCommenterPermissions       *bool   `json:"enforcePrCommenterPermissions,omitempty"`
+	AllowMergeableBypassForPrApply      *bool   `json:"allowMergeableBypassForPrApply,omitempty"`
 }
 
 func (client *ApiClient) Organization() (Organization, error) {
