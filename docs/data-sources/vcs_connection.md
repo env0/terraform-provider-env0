@@ -9,31 +9,46 @@ description: |-
 
 Returns the VCS connection details by access scope and connection type.
 
+The `access_scope` value can be found in the env0 UI under **Organization Settings > VCS**, where it appears as a column in the VCS connections table.
+
 ## Example Usage
 
 The `access_scope` format depends on the VCS provider type:
 
-- **GitHub (cloud)**: `Organization:<org-name>` or `User:<username>`
-- **Bitbucket (cloud)**: `Workspace:<workspace-slug>`
-- **GitLab (cloud)**: the username or `Token:<token-name>`
-- **Self-hosted VCS** (GitHubEnterprise, GitLabEnterprise, BitBucketServer): `url:<base-url>`
+- **GitHub**: `Organization:<org-name>` or `User:<username>`
+- **Bitbucket**: `Workspace:<workspace-slug>`
+- **GitLab**: `User:<username>` or `Token:<token-name>`
+- **Azure DevOps**: `User:<display-name>`
+- **Self-hosted** (GitHubEnterprise, GitLabEnterprise, BitBucketServer): `url:<base-url>` or `url:<repository-url>`
 
 ```terraform
-# GitHub cloud - organization
+# GitHub - organization
 data "env0_vcs_connection" "github_org" {
   access_scope    = "Organization:my-org"
   connection_type = "DeploymentPipeline"
 }
 
-# GitHub cloud - user
+# GitHub - user
 data "env0_vcs_connection" "github_user" {
   access_scope    = "User:my-username"
   connection_type = "DeploymentPipeline"
 }
 
-# Bitbucket cloud - workspace
+# Bitbucket - workspace
 data "env0_vcs_connection" "bitbucket" {
   access_scope    = "Workspace:my-workspace"
+  connection_type = "DeploymentPipeline"
+}
+
+# GitLab - token
+data "env0_vcs_connection" "gitlab" {
+  access_scope    = "Token:my-token-name"
+  connection_type = "DeploymentPipeline"
+}
+
+# Azure DevOps
+data "env0_vcs_connection" "azure" {
+  access_scope    = "User:my-display-name"
   connection_type = "DeploymentPipeline"
 }
 
@@ -71,7 +86,7 @@ resource "env0_template" "example" {
 
 ### Required
 
-- `access_scope` (String) the access scope of the VCS connection. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, or 'url:<base-url>' for self-hosted VCS
+- `access_scope` (String) the access scope of the VCS connection, as shown in the env0 UI under Organization Settings > VCS. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, 'User:<username>' or 'Token:<token-name>' for GitLab, 'User:<display-name>' for Azure DevOps, or 'url:<base-url>' for self-hosted VCS
 - `connection_type` (String) the connection type. Valid values: 'DeploymentPipeline' or 'CodeWrite'
 
 ### Read-Only
