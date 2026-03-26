@@ -107,6 +107,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_module_testing_project":    dataModuleTestingProject(),
 				"env0_variable_set":              dataVariableSet(),
 				"env0_github_installation_id":    dataGithubInstallationId(),
+				"env0_vcs_connection":            dataVcsConnection(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"env0_project":                                   resourceProject(),

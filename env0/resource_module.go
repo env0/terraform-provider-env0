@@ -68,18 +68,21 @@ func resourceModule() *schema.Resource {
 				Description:   "the git token id to be used",
 				Optional:      true,
 				ConflictsWith: []string{"github_installation_id", "bitbucket_client_key"},
+				Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
 			},
 			"token_name": {
 				Type:         schema.TypeString,
 				Description:  "the token name used for integration with GitLab",
 				Optional:     true,
 				RequiredWith: []string{"token_id"},
+				Deprecated:   "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
 			},
 			"github_installation_id": {
 				Type:          schema.TypeInt,
 				Description:   "the env0 application installation id on the relevant Github repository",
 				Optional:      true,
 				ConflictsWith: []string{"token_id", "bitbucket_client_key", "vcs_connection_id"},
+				Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
 			},
 			"vcs_connection_id": {
 				Type:          schema.TypeString,
@@ -92,6 +95,7 @@ func resourceModule() *schema.Resource {
 				Description:   "the client key used for integration with Bitbucket",
 				Optional:      true,
 				ConflictsWith: []string{"token_id", "github_installation_id", "vcs_connection_id"},
+				Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
 			},
 			"ssh_keys": {
 				Type:        schema.TypeList,
