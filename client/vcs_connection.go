@@ -1,11 +1,13 @@
 package client
 
 type VcsConnection struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Url         string `json:"url"`
-	VcsAgentKey string `json:"vcsAgentKey"`
+	Id                   string `json:"id"`
+	Name                 string `json:"name"`
+	Type                 string `json:"type"`
+	Url                  string `json:"url"`
+	VcsAgentKey          string `json:"vcsAgentKey"`
+	GithubInstallationId int    `json:"githubInstallationId"`
+	BitbucketClientKey   string `json:"bitbucketClientKey"`
 }
 
 type VcsConnectionCreatePayload struct {
