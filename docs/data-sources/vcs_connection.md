@@ -95,4 +95,4 @@ resource "env0_template" "example" {
 - `name` (String) the name of the VCS connection
 - `type` (String) the VCS type (e.g. GitHub, GitLab, BitBucket, AzureDevOps, GitHubEnterprise, GitLabEnterprise, BitBucketServer)
 - `url` (String) the URL of the VCS server (for self-hosted VCS connections)
-- `vcs_agent_key` (String) the VCS agent key
+- `vcs_agent_key` (String) the VCS agent key (only applicable to self-hosted VCS connections)

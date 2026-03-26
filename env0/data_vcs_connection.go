@@ -47,7 +47,7 @@ func dataVcsConnection() *schema.Resource {
 			},
 			"vcs_agent_key": {
 				Type:        schema.TypeString,
-				Description: "the VCS agent key",
+				Description: "the VCS agent key (only applicable to self-hosted VCS connections)",
 				Computed:    true,
 			},
 		},
