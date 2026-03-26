@@ -140,7 +140,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "github repository id",
 				Optional:    true,
-				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"vcs_connection_id": {
 				Type:        schema.TypeString,
@@ -151,7 +151,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "bitbucket client",
 				Optional:    true,
-				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"gitlab_project_id": {
 				Type:        schema.TypeInt,
@@ -188,7 +188,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "a token id to be used with 'gitlab' or 'azure_devops'",
 				Optional:    true,
-				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection data source)",
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"root_path": {
 				Type:        schema.TypeString,
