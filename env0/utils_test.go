@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"errors"
 	"math"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestReadResourceDataModule(t *testing.T) {
@@ -470,4 +472,88 @@ func TestLastSplit(t *testing.T) {
 	assert.Equal(t, []string{"a_", ""}, lastUnderscoreSplit("a__"))
 
 	assert.Equal(t, []string{"abc"}, lastUnderscoreSplit("abc"))
+}
+
+func TestEnrichVcsConnectionId(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mock := client.NewMockApiClientInterface(ctrl)
+
+	vcsConnections := []client.VcsConnection{
+		{
+			Id:                   "conn-github-123",
+			Name:                 "github-connection",
+			GithubInstallationId: 12345,
+		},
+		{
+			Id:                 "conn-bitbucket-456",
+			Name:               "bitbucket-connection",
+			BitbucketClientKey: "bb-key-abc",
+		},
+	}
+
+	t.Run("enriches vcs_connection_id from github_installation_id", func(t *testing.T) {
+		mock.EXPECT().VcsConnections().Times(1).Return(vcsConnections, nil)
+
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 12345, "", &vcsConnectionId)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "conn-github-123", vcsConnectionId)
+	})
+
+	t.Run("enriches vcs_connection_id from bitbucket_client_key", func(t *testing.T) {
+		mock.EXPECT().VcsConnections().Times(1).Return(vcsConnections, nil)
+
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 0, "bb-key-abc", &vcsConnectionId)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "conn-bitbucket-456", vcsConnectionId)
+	})
+
+	t.Run("no-op when vcs_connection_id is already set", func(t *testing.T) {
+		vcsConnectionId := "already-set"
+		err := enrichVcsConnectionId(mock, 12345, "", &vcsConnectionId)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "already-set", vcsConnectionId)
+	})
+
+	t.Run("no-op when neither github_installation_id nor bitbucket_client_key is set", func(t *testing.T) {
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 0, "", &vcsConnectionId)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "", vcsConnectionId)
+	})
+
+	t.Run("error when no matching vcs connection found for github_installation_id", func(t *testing.T) {
+		mock.EXPECT().VcsConnections().Times(1).Return(vcsConnections, nil)
+
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 99999, "", &vcsConnectionId)
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "could not find a VCS connection")
+	})
+
+	t.Run("error when no matching vcs connection found for bitbucket_client_key", func(t *testing.T) {
+		mock.EXPECT().VcsConnections().Times(1).Return(vcsConnections, nil)
+
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 0, "nonexistent-key", &vcsConnectionId)
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "could not find a VCS connection")
+	})
+
+	t.Run("error when VcsConnections API call fails", func(t *testing.T) {
+		mock.EXPECT().VcsConnections().Times(1).Return(nil, errors.New("api error"))
+
+		vcsConnectionId := ""
+		err := enrichVcsConnectionId(mock, 12345, "", &vcsConnectionId)
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "api error")
+	})
 }

@@ -12,6 +12,7 @@ import (
 
 	"slices"
 
+	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -536,4 +537,36 @@ func suppressVcsFieldDrift(prefix string, githubInstallationId *int, vcsConnecti
 	if ghOk && !vcsOk {
 		*vcsConnectionId = ""
 	}
+}
+
+// enrichVcsConnectionId looks up the VCS connection ID from github_installation_id or
+// bitbucket_client_key when the user hasn't explicitly set vcs_connection_id.
+// This maintains backwards compatibility after the move to VCS connections for GitHub.
+func enrichVcsConnectionId(apiClient client.ApiClientInterface, githubInstallationId int, bitbucketClientKey string, vcsConnectionId *string) error {
+	if *vcsConnectionId != "" {
+		return nil
+	}
+
+	if githubInstallationId == 0 && bitbucketClientKey == "" {
+		return nil
+	}
+
+	connections, err := apiClient.VcsConnections()
+	if err != nil {
+		return fmt.Errorf("failed to fetch VCS connections: %w", err)
+	}
+
+	for _, conn := range connections {
+		if githubInstallationId != 0 && conn.GithubInstallationId == githubInstallationId {
+			*vcsConnectionId = conn.Id
+			return nil
+		}
+
+		if bitbucketClientKey != "" && conn.BitbucketClientKey == bitbucketClientKey {
+			*vcsConnectionId = conn.Id
+			return nil
+		}
+	}
+
+	return fmt.Errorf("could not find a VCS connection matching the provided github_installation_id or bitbucket_client_key")
 }
