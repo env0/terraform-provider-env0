@@ -188,6 +188,15 @@ func resourceModuleCreate(ctx context.Context, d *schema.ResourceData, meta any)
 		return diag.Errorf("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set if 'module_test_enabled' is enabled (set to 'true')")
 	}
 
+	ghId := 0
+	if payload.GithubInstallationId != nil {
+		ghId = *payload.GithubInstallationId
+	}
+
+	if err := enrichVcsConnectionId(apiClient, ghId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
+	}
+
 	module, err := apiClient.ModuleCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create module: %v", err)
@@ -239,6 +248,15 @@ func resourceModuleUpdate(ctx context.Context, d *schema.ResourceData, meta any)
 
 	if !payload.ModuleTestEnabled && (payload.RunTestsOnPullRequest || payload.OpentofuVersion != "") {
 		return diag.Errorf("'run_tests_on_pull_request' and/or 'opentofu_version' may only be set if 'module_test_enabled' is enabled (set to 'true')")
+	}
+
+	ghId := 0
+	if payload.GithubInstallationId != nil {
+		ghId = *payload.GithubInstallationId
+	}
+
+	if err := enrichVcsConnectionId(apiClient, ghId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if _, err := apiClient.ModuleUpdate(d.Id(), payload); err != nil {

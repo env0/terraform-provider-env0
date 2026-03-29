@@ -36,6 +36,10 @@ func resourceApprovalPolicyCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
+	if err := enrichVcsConnectionId(apiClient, payload.GithubInstallationId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
+	}
+
 	approvalPolicy, err := apiClient.ApprovalPolicyCreate(&payload)
 	if err != nil {
 		return diag.Errorf("failed to create approval policy: %v", err)
@@ -76,6 +80,10 @@ func resourceApprovalPolicyUpdate(ctx context.Context, d *schema.ResourceData, m
 	var payload client.ApprovalPolicyUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if err := enrichVcsConnectionId(apiClient, payload.GithubInstallationId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if _, err := apiClient.ApprovalPolicyUpdate(&payload); err != nil {

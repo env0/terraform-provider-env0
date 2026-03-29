@@ -315,6 +315,10 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("invalid environment discovery payload: %v", err)
 	}
 
+	if err := enrichVcsConnectionId(apiClient, putPayload.GithubInstallationId, putPayload.BitbucketClientKey, &putPayload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if putPayload.DiscoveryFileConfiguration == nil {
 		discoveryReadSshKeyHelper(&putPayload, d)
 		templateCreatePayloadRetryOnHelper("", d, "deploy", &putPayload.Retry.OnDeploy)

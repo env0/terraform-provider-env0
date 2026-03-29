@@ -580,6 +580,10 @@ func createEnvironmentWithoutTemplate(d *schema.ResourceData, apiClient client.A
 		return client.Environment{}, client.EnvironmentCreate{}, diagError
 	}
 
+	if err := enrichVcsConnectionId(apiClient, templatePayload.GithubInstallationId, templatePayload.BitbucketClientKey, &templatePayload.VcsConnectionId); err != nil {
+		return client.Environment{}, client.EnvironmentCreate{}, diag.FromErr(err)
+	}
+
 	environmentPayload, diagError := getCreatePayload(d, apiClient, templatePayload.Type)
 	if diagError != nil {
 		return client.Environment{}, client.EnvironmentCreate{}, diagError
@@ -835,6 +839,10 @@ func updateTemplate(d *schema.ResourceData, apiClient client.ApiClientInterface)
 	payload, problem := templateCreatePayloadFromParameters("without_template_settings.0", d)
 	if problem != nil {
 		return problem
+	}
+
+	if err := enrichVcsConnectionId(apiClient, payload.GithubInstallationId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	templateId := d.Get("without_template_settings.0.id").(string)

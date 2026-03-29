@@ -296,6 +296,10 @@ func resourceTemplateCreate(ctx context.Context, d *schema.ResourceData, meta an
 		return problem
 	}
 
+	if err := enrichVcsConnectionId(apiClient, request.GithubInstallationId, request.BitbucketClientKey, &request.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
+	}
+
 	template, err := apiClient.TemplateCreate(request)
 	if err != nil {
 		return diag.Errorf("could not create template: %v", err)
@@ -334,6 +338,10 @@ func resourceTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta an
 	request, problem := templateCreatePayloadFromParameters("", d)
 	if problem != nil {
 		return problem
+	}
+
+	if err := enrichVcsConnectionId(apiClient, request.GithubInstallationId, request.BitbucketClientKey, &request.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	_, err := apiClient.TemplateUpdate(d.Id(), request)

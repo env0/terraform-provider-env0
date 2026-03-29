@@ -36,6 +36,10 @@ func resourceCustomFlowCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("invalid custom flow payload: %v", err)
 	}
 
+	if err := enrichVcsConnectionId(apiClient, payload.GithubInstallationId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
+	}
+
 	customFlow, err := apiClient.CustomFlowCreate(payload)
 	if err != nil {
 		return diag.Errorf("could not create custom flow: %v", err)
@@ -73,6 +77,10 @@ func resourceCustomFlowUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if err := payload.Invalidate(); err != nil {
 		return diag.Errorf("invalid custom flow payload: %v", err)
+	}
+
+	if err := enrichVcsConnectionId(apiClient, payload.GithubInstallationId, payload.BitbucketClientKey, &payload.VcsConnectionId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if _, err := apiClient.CustomFlowUpdate(d.Id(), payload); err != nil {
