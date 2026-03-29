@@ -843,6 +843,44 @@ func TestUnitTemplateResource(t *testing.T) {
 				updateTemplateCreateTemplate.Type = "cloudformation"
 			}
 
+			// For GitHub/Bitbucket VCS types without an explicit vcs_connection_id,
+			// enrichVcsConnectionId will call VcsConnections() and set VcsConnectionId.
+			var vcsConnections []client.VcsConnection
+			if templateUseCase.template.GithubInstallationId != 0 && templateUseCase.template.VcsConnectionId == "" {
+				vcsConnections = append(vcsConnections, client.VcsConnection{Id: "vcs-conn-enriched", GithubInstallationId: templateUseCase.template.GithubInstallationId})
+				templateCreatePayload.VcsConnectionId = "vcs-conn-enriched"
+			}
+			if templateUseCase.updatedTemplate.GithubInstallationId != 0 && templateUseCase.updatedTemplate.VcsConnectionId == "" {
+				found := false
+				for _, vc := range vcsConnections {
+					if vc.GithubInstallationId == templateUseCase.updatedTemplate.GithubInstallationId {
+						found = true
+						break
+					}
+				}
+				if !found {
+					vcsConnections = append(vcsConnections, client.VcsConnection{Id: "vcs-conn-enriched", GithubInstallationId: templateUseCase.updatedTemplate.GithubInstallationId})
+				}
+				updateTemplateCreateTemplate.VcsConnectionId = "vcs-conn-enriched"
+			}
+			if templateUseCase.template.BitbucketClientKey != "" && templateUseCase.template.VcsConnectionId == "" {
+				vcsConnections = append(vcsConnections, client.VcsConnection{Id: "vcs-conn-enriched", BitbucketClientKey: templateUseCase.template.BitbucketClientKey})
+				templateCreatePayload.VcsConnectionId = "vcs-conn-enriched"
+			}
+			if templateUseCase.updatedTemplate.BitbucketClientKey != "" && templateUseCase.updatedTemplate.VcsConnectionId == "" {
+				found := false
+				for _, vc := range vcsConnections {
+					if vc.BitbucketClientKey == templateUseCase.updatedTemplate.BitbucketClientKey {
+						found = true
+						break
+					}
+				}
+				if !found {
+					vcsConnections = append(vcsConnections, client.VcsConnection{Id: "vcs-conn-enriched", BitbucketClientKey: templateUseCase.updatedTemplate.BitbucketClientKey})
+				}
+				updateTemplateCreateTemplate.VcsConnectionId = "vcs-conn-enriched"
+			}
+
 			testCase := resource.TestCase{
 				Steps: []resource.TestStep{
 					{
@@ -857,6 +895,9 @@ func TestUnitTemplateResource(t *testing.T) {
 			}
 
 			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				if len(vcsConnections) > 0 {
+					mock.EXPECT().VcsConnections().AnyTimes().Return(vcsConnections, nil)
+				}
 				gomock.InOrder(
 					mock.EXPECT().Template(templateUseCase.template.Id).Times(2).Return(templateUseCase.template, nil),        // 1 after create, 1 before update
 					mock.EXPECT().Template(templateUseCase.template.Id).Times(1).Return(templateUseCase.updatedTemplate, nil), // 1 after update
@@ -1707,11 +1748,15 @@ func TestUnitTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 456},
+			}, nil)
 			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
 				Name:                 template.Name,
 				Repository:           template.Repository,
 				Type:                 template.Type,
 				GithubInstallationId: 456,
+				VcsConnectionId:      "vcs-conn-enriched",
 				TerraformVersion:     "0.15.1",
 			}).Times(1).Return(template, nil)
 			mock.EXPECT().Template(template.Id).Times(1).Return(templateFromBackend, nil)

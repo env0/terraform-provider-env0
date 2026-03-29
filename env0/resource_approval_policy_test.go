@@ -67,6 +67,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		TokenId:              approvalPolicy.TokenId,
 		GithubInstallationId: approvalPolicy.GithubInstallationId,
 		IsGithubEnterprise:   approvalPolicy.IsGithubEnterprise,
+		VcsConnectionId:      "vcs-conn-enriched",
 	}
 
 	updatePayload := client.ApprovalPolicyUpdatePayload{
@@ -128,6 +129,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(2).Return(template, nil),
@@ -190,6 +194,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(template.Id).Times(2).Return(deletedTemplate, nil),
@@ -249,6 +256,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(template.Id).Times(2).Return(client.Template{}, http.NewMockFailedResponseError(404)),
@@ -275,6 +285,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(nil, errors.New("error"))
 		})
 	})
@@ -308,6 +321,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(2).Return(template, nil),
@@ -341,6 +357,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(3).Return(template, nil),
@@ -374,6 +393,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
@@ -407,6 +429,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
@@ -442,6 +467,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),
@@ -476,6 +504,9 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: approvalPolicy.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
 				mock.EXPECT().Template(approvalPolicy.Id).Times(1).Return(template, nil),

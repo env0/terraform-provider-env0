@@ -3011,6 +3011,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		Repository:           template.Repository,
 		Description:          template.Description,
 		GithubInstallationId: template.GithubInstallationId,
+		VcsConnectionId:      "vcs-conn-enriched",
 		IsGitlabEnterprise:   template.IsGitlabEnterprise,
 		IsGitlab:             template.IsGitlab,
 		TokenId:              template.TokenId,
@@ -3032,6 +3033,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		Repository:           updatedTemplate.Repository,
 		Description:          updatedTemplate.Description,
 		GithubInstallationId: updatedTemplate.GithubInstallationId,
+		VcsConnectionId:      "vcs-conn-enriched",
 		IsGitlabEnterprise:   updatedTemplate.IsGitlabEnterprise,
 		IsGitlab:             updatedTemplate.IsGitlab,
 		TokenId:              updatedTemplate.TokenId,
@@ -3189,6 +3191,10 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: template.GithubInstallationId},
+				{Id: "vcs-conn-enriched", GithubInstallationId: updatedTemplate.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				// Step1
 				// Create
@@ -3262,6 +3268,9 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: template.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				// Create
 				mock.EXPECT().EnvironmentCreateWithoutTemplate(createPayload).Times(1).Return(environmentWithBluePrint, nil),

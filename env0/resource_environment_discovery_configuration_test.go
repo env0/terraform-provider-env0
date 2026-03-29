@@ -29,6 +29,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:                       "default",
 			OpentofuVersion:                       "1.6.2",
 			GithubInstallationId:                  12345,
+			VcsConnectionId:                       "vcs-conn-enriched",
 			RootPath:                              "/path",
 			CreateNewEnvironmentsFromPullRequests: true,
 		}
@@ -56,6 +57,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			OpentofuVersion:                       "1.6.3",
 			TerragruntVersion:                     "0.63.0",
 			GithubInstallationId:                  3213,
+			VcsConnectionId:                       "vcs-conn-enriched",
 			TerragruntTfBinary:                    "opentofu",
 			RootPath:                              "/path2",
 			CreateNewEnvironmentsFromPullRequests: true,
@@ -136,6 +138,10 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+				{Id: "vcs-conn-enriched", GithubInstallationId: 3213},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(2).Return(&getPayload, nil),
@@ -155,6 +161,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			TerraformVersion:     "1.6.2",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 		}
 
 		getPayload := client.EnvironmentDiscoveryPayload{
@@ -194,6 +201,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
@@ -210,6 +220,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			EnvironmentPlacement: "topProject",
 			WorkspaceNaming:      "default",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 		}
 
 		getPayload := client.EnvironmentDiscoveryPayload{
@@ -246,6 +257,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
@@ -265,6 +279,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			EnvironmentPlacement: "topProject",
 			WorkspaceNaming:      "default",
 			BitbucketClientKey:   "key",
+			VcsConnectionId:      "vcs-conn-enriched",
 		}
 
 		getPayload := client.EnvironmentDiscoveryPayload{
@@ -310,6 +325,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", BitbucketClientKey: "key"},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
@@ -448,6 +466,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			TerraformVersion:     "1.6.2",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 			SshKeys:              sshKeys,
 		}
 
@@ -493,6 +512,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(1).Return(&getPayload, nil),
@@ -510,6 +532,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			TerraformVersion:     "1.6.2",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 			Retry: client.TemplateRetry{
 				OnDeploy: &client.TemplateRetryOn{
 					Times:      3,
@@ -541,6 +564,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			TerraformVersion:     "1.6.2",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 			Retry: client.TemplateRetry{
 				OnDestroy: &client.TemplateRetryOn{
 					Times: 1,
@@ -614,6 +638,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(2).Return(&getPayload, nil),
@@ -639,7 +666,11 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 1234},
+			}, nil)
+		})
 	})
 
 	t.Run("error: terraform with no version", func(t *testing.T) {
@@ -658,7 +689,11 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 1234},
+			}, nil)
+		})
 	})
 
 	t.Run("error: terragrunt with no version", func(t *testing.T) {
@@ -677,7 +712,11 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 1234},
+			}, nil)
+		})
 	})
 
 	t.Run("error: opentofu (with terragrunt) version not set", func(t *testing.T) {
@@ -697,7 +736,11 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 1234},
+			}, nil)
+		})
 	})
 
 	t.Run("error: opentofu (with terragrunt) version not set", func(t *testing.T) {
@@ -718,7 +761,11 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			},
 		}
 
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 1234},
+			}, nil)
+		})
 	})
 
 	t.Run("import", func(t *testing.T) {
@@ -730,6 +777,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			WorkspaceNaming:      "default",
 			OpentofuVersion:      "1.6.2",
 			GithubInstallationId: 12345,
+			VcsConnectionId:      "vcs-conn-enriched",
 		}
 
 		getPayload := client.EnvironmentDiscoveryPayload{
@@ -764,6 +812,9 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: 12345},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().PutEnvironmentDiscovery(projectId, &putPayload).Times(1).Return(&getPayload, nil),
 				mock.EXPECT().GetEnvironmentDiscovery(projectId).Times(3).Return(&getPayload, nil),

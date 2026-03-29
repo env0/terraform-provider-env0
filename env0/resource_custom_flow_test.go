@@ -47,6 +47,7 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		TokenId:              customFlow.TokenId,
 		GithubInstallationId: customFlow.GithubInstallationId,
 		IsGithubEnterprise:   customFlow.IsGithubEnterprise,
+		VcsConnectionId:      "vcs-conn-enriched",
 	}
 
 	updatePayload := client.CustomFlowCreatePayload{
@@ -105,6 +106,9 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: customFlow.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowCreate(createPayload).Times(1).Return(&customFlow, nil),
 				mock.EXPECT().CustomFlow(customFlow.Id).Times(2).Return(&customFlow, nil),
@@ -134,6 +138,9 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: customFlow.GithubInstallationId},
+			}, nil)
 			mock.EXPECT().CustomFlowCreate(createPayload).Times(1).Return(nil, errors.New("error"))
 		})
 	})
@@ -167,6 +174,9 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: customFlow.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowCreate(createPayload).Times(1).Return(&customFlow, nil),
 				mock.EXPECT().CustomFlow(customFlow.Id).Times(2).Return(&customFlow, nil),
@@ -200,6 +210,9 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: customFlow.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowCreate(createPayload).Times(1).Return(&customFlow, nil),
 				mock.EXPECT().CustomFlow(customFlow.Id).Times(1).Return(&customFlow, nil),
@@ -234,6 +247,9 @@ func TestUnitCustomFlowResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", GithubInstallationId: customFlow.GithubInstallationId},
+			}, nil)
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowCreate(createPayload).Times(1).Return(&customFlow, nil),
 				mock.EXPECT().CustomFlow(customFlow.Id).Times(3).Return(&customFlow, nil),

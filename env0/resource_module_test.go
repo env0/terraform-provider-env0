@@ -139,6 +139,10 @@ func TestUnitModuleResource(t *testing.T) {
 				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", BitbucketClientKey: *updatedModule.BitbucketClientKey},
+			}, nil)
+
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
 				ModuleName:           updatedModule.ModuleName,
 				ModuleProvider:       updatedModule.ModuleProvider,
@@ -149,6 +153,7 @@ func TestUnitModuleResource(t *testing.T) {
 				IsGitlab:             false,
 				GithubInstallationId: nil,
 				BitbucketClientKey:   *updatedModule.BitbucketClientKey,
+				VcsConnectionId:      "vcs-conn-enriched",
 				Path:                 updatedModule.Path,
 				TagPrefix:            updatedModule.TagPrefix,
 				ModuleTestEnabled:    updatedModule.ModuleTestEnabled,
@@ -329,6 +334,10 @@ func TestUnitModuleResource(t *testing.T) {
 				OpentofuVersion:       module.OpentofuVersion,
 			}).Times(1).Return(&module, nil)
 
+			mock.EXPECT().VcsConnections().AnyTimes().Return([]client.VcsConnection{
+				{Id: "vcs-conn-enriched", BitbucketClientKey: *updatedModule.BitbucketClientKey},
+			}, nil)
+
 			mock.EXPECT().ModuleUpdate(updatedModule.Id, client.ModuleUpdatePayload{
 				ModuleName:           updatedModule.ModuleName,
 				ModuleProvider:       updatedModule.ModuleProvider,
@@ -339,6 +348,7 @@ func TestUnitModuleResource(t *testing.T) {
 				IsGitlab:             false,
 				GithubInstallationId: nil,
 				BitbucketClientKey:   *updatedModule.BitbucketClientKey,
+				VcsConnectionId:      "vcs-conn-enriched",
 				Path:                 updatedModule.Path,
 			}).Times(1).Return(nil, errors.New("error"))
 
