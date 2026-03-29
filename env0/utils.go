@@ -568,5 +568,5 @@ func enrichVcsConnectionId(apiClient client.ApiClientInterface, githubInstallati
 		}
 	}
 
-	return fmt.Errorf("could not find a VCS connection matching the provided github_installation_id or bitbucket_client_key")
+	return nil
 }
