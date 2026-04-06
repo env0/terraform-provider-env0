@@ -342,4 +342,34 @@ func TestUnitAgentPoolResource(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("Import Non-404 Error Does Not Fall Back To Name", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        agentPool.Name,
+						"description": agentPool.Description,
+					}),
+				},
+				{
+					ResourceName:  resourceNameImport,
+					ImportState:   true,
+					ImportStateId: "some-id",
+					ExpectError:   regexp.MustCompile("could not get agent pool"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().AgentPoolCreate(gomock.Any()).Times(1).Return(&agentPool, nil),
+				// Read after create + pre-import refresh
+				mock.EXPECT().AgentPool(agentPool.Id).Times(2).Return(&agentPool, nil),
+				// Import: API returns 500, should NOT fall back to name lookup
+				mock.EXPECT().AgentPool("some-id").Times(1).Return(nil, errors.New("server error")),
+				mock.EXPECT().AgentPoolDelete(agentPool.Id).Times(1).Return(nil),
+			)
+		})
+	})
 }

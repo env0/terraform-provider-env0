@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -194,9 +195,14 @@ func getAgentPoolByName(name string, meta any) (*client.AgentPool, error) {
 func resourceAgentPoolImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
-	// Try by id first; fall back to name lookup.
+	// Try by id first; fall back to name lookup only on not-found.
 	agentPool, err := apiClient.AgentPool(d.Id())
 	if err != nil {
+		var notFoundError *client.NotFoundError
+		if !errors.As(err, &notFoundError) {
+			return nil, fmt.Errorf("could not get agent pool: %w", err)
+		}
+
 		tflog.Info(ctx, "Agent pool not found by id, trying by name", map[string]any{"id": d.Id()})
 
 		agentPool, err = getAgentPoolByName(d.Id(), meta)
