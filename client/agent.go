@@ -4,6 +4,7 @@ type Agent struct {
 	AgentKey string `json:"agentKey"`
 }
 
+// Deprecated: use AgentPools() instead.
 func (client *ApiClient) Agents() ([]Agent, error) {
 	organizationId, err := client.OrganizationId()
 	if err != nil {
@@ -19,6 +20,7 @@ func (client *ApiClient) Agents() ([]Agent, error) {
 	return result, nil
 }
 
+// Deprecated: use AgentPool() and AgentSecrets() instead.
 func (client *ApiClient) AgentValues(id string) (string, error) {
 	var result string
 	if err := client.http.Get("/agents/"+id+"/values", nil, &result); err != nil {
