@@ -11,7 +11,7 @@ import (
 func dataAgentValues() *schema.Resource {
 	return &schema.Resource{
 		ReadContext:        dataAgentValuesRead,
-		DeprecationMessage: "use env0_agent_pool data source instead",
+		DeprecationMessage: "use env0_agent_pool data source instead. Not supported for self-hosted agents v5.0.0+. See https://docs.envzero.com/guides/admin-guide/self-hosted-kubernetes-agent/overview",
 
 		Schema: map[string]*schema.Schema{
 			"agent_key": {
