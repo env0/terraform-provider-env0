@@ -53,9 +53,10 @@ type AgentPool struct {
 }
 
 type AgentPoolCreatePayload struct {
-	OrganizationId string `json:"organizationId"`
-	Name           string `json:"name"`
-	Description    string `json:"description,omitempty"`
+	OrganizationId string               `json:"organizationId"`
+	Name           string               `json:"name"`
+	Description    string               `json:"description,omitempty"`
+	Logs           *AgentPoolLogsConfig `json:"logs,omitempty"`
 }
 
 type AgentPoolUpdatePayload struct {

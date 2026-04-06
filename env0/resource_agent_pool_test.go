@@ -177,16 +177,7 @@ func TestUnitAgentPoolResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
-				// Create (POST) — no logs in create payload
 				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
-					Name: poolWithLogs.Name,
-				}).Times(1).Return(&client.AgentPool{
-					Id:       poolWithLogs.Id,
-					Name:     poolWithLogs.Name,
-					AgentKey: poolWithLogs.AgentKey,
-				}, nil),
-				// PATCH to set logs after create (includes name/description to prevent wipe)
-				mock.EXPECT().AgentPoolUpdate(poolWithLogs.Id, client.AgentPoolUpdatePayload{
 					Name: poolWithLogs.Name,
 					Logs: logs,
 				}).Times(1).Return(&poolWithLogs, nil),
@@ -286,36 +277,6 @@ func TestUnitAgentPoolResource(t *testing.T) {
 				mock.EXPECT().AgentPool(poolNoLogs.Id).Times(2).Return(&poolNoLogs, nil),
 				mock.EXPECT().AgentPoolDelete(poolNoLogs.Id).Times(1).Return(nil),
 			)
-		})
-	})
-
-	t.Run("Create With Logs PATCH Failure", func(t *testing.T) {
-		testCase := resource.TestCase{
-			Steps: []resource.TestStep{
-				{
-					Config: fmt.Sprintf(`
-						resource "%s" "%s" {
-							name = "pool-logs-fail"
-
-							logs {
-								account_id = "123456789"
-								region     = "us-east-1"
-							}
-						}
-					`, resourceType, resourceName),
-					ExpectError: regexp.MustCompile("failed to set logs configuration"),
-				},
-			},
-		}
-
-		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().AgentPoolCreate(gomock.Any()).Times(1).Return(&client.AgentPool{
-				Id:   "id-logs-fail",
-				Name: "pool-logs-fail",
-			}, nil)
-			mock.EXPECT().AgentPoolUpdate(gomock.Any(), gomock.Any()).Times(1).Return(nil, errors.New("error"))
-			// Resource is in state (SetId called before PATCH), so Terraform cleans up on failure
-			mock.EXPECT().AgentPoolDelete("id-logs-fail").Times(1).Return(nil)
 		})
 	})
 

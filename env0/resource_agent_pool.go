@@ -111,6 +111,7 @@ func resourceAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta a
 	payload := client.AgentPoolCreatePayload{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
+		Logs:        agentPoolLogsFromSchema(d),
 	}
 
 	agentPool, err := apiClient.AgentPoolCreate(payload)
@@ -119,21 +120,6 @@ func resourceAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta a
 	}
 
 	d.SetId(agentPool.Id)
-
-	// Logs can only be set via PATCH after creation.
-	logs := agentPoolLogsFromSchema(d)
-	if logs != nil {
-		updatePayload := client.AgentPoolUpdatePayload{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			Logs:        logs,
-		}
-
-		_, err := apiClient.AgentPoolUpdate(agentPool.Id, updatePayload)
-		if err != nil {
-			return diag.Errorf("agent pool created successfully but failed to set logs configuration: %v", err)
-		}
-	}
 
 	return resourceAgentPoolRead(ctx, d, meta)
 }
