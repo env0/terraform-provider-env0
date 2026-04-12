@@ -6,9 +6,17 @@ resource "random_string" "random" {
   min_lower = 8
 }
 
+data "env0_organization" "this" {}
+
 resource "env0_agent_pool" "test_pool" {
   name        = "Test-Agent-Pool-041-${random_string.random.result}"
   description = var.second_run ? "updated description" : "initial description"
+
+  logs {
+    account_id  = "test-account"
+    region      = "us-east-1"
+    external_id = data.env0_organization.this.id
+  }
 }
 
 data "env0_agent_pool" "by_name" {
@@ -40,6 +48,18 @@ output "data_by_name_description" {
 
 output "data_by_id_description" {
   value = data.env0_agent_pool.by_id.description
+}
+
+output "logs_account_id" {
+  value = data.env0_agent_pool.by_id.logs.account_id
+}
+
+output "logs_region" {
+  value = data.env0_agent_pool.by_id.logs.region
+}
+
+output "logs_external_id" {
+  value = data.env0_agent_pool.by_id.logs.external_id
 }
 
 output "secret_agent_id" {
