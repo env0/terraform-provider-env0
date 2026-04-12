@@ -138,8 +138,9 @@ func TestUnitAgentPoolResource(t *testing.T) {
 		logs := &client.AgentPoolLogsConfig{
 			Dynamo: &client.AgentPoolDynamoLogs{
 				SelfHosted: &client.AgentPoolSelfHostedLogs{
-					AccountId: "123456789",
-					Region:    "us-east-1",
+					AccountId:  "123456789",
+					Region:     "us-east-1",
+					ExternalId: "ext-123",
 				},
 			},
 		}
@@ -159,17 +160,20 @@ func TestUnitAgentPoolResource(t *testing.T) {
 							name = "%s"
 
 							logs {
-								account_id = "%s"
-								region     = "%s"
+								account_id  = "%s"
+								region      = "%s"
+								external_id = "%s"
 							}
 						}
 					`, resourceType, resourceName, poolWithLogs.Name,
 						logs.Dynamo.SelfHosted.AccountId,
-						logs.Dynamo.SelfHosted.Region),
+						logs.Dynamo.SelfHosted.Region,
+						logs.Dynamo.SelfHosted.ExternalId),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", poolWithLogs.Id),
 						resource.TestCheckResourceAttr(accessor, "logs.0.account_id", logs.Dynamo.SelfHosted.AccountId),
 						resource.TestCheckResourceAttr(accessor, "logs.0.region", logs.Dynamo.SelfHosted.Region),
+						resource.TestCheckResourceAttr(accessor, "logs.0.external_id", logs.Dynamo.SelfHosted.ExternalId),
 					),
 				},
 			},
@@ -192,8 +196,9 @@ func TestUnitAgentPoolResource(t *testing.T) {
 		logs := &client.AgentPoolLogsConfig{
 			Dynamo: &client.AgentPoolDynamoLogs{
 				SelfHosted: &client.AgentPoolSelfHostedLogs{
-					AccountId: "111111111",
-					Region:    "eu-west-1",
+					AccountId:  "111111111",
+					Region:     "eu-west-1",
+					ExternalId: "ext-456",
 				},
 			},
 		}
@@ -230,16 +235,19 @@ func TestUnitAgentPoolResource(t *testing.T) {
 							name = "%s"
 
 							logs {
-								account_id = "%s"
-								region     = "%s"
+								account_id  = "%s"
+								region      = "%s"
+								external_id = "%s"
 							}
 						}
 					`, resourceType, resourceName, poolNoLogs.Name,
 						logs.Dynamo.SelfHosted.AccountId,
-						logs.Dynamo.SelfHosted.Region),
+						logs.Dynamo.SelfHosted.Region,
+						logs.Dynamo.SelfHosted.ExternalId),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "logs.0.account_id", logs.Dynamo.SelfHosted.AccountId),
 						resource.TestCheckResourceAttr(accessor, "logs.0.region", logs.Dynamo.SelfHosted.Region),
+						resource.TestCheckResourceAttr(accessor, "logs.0.external_id", logs.Dynamo.SelfHosted.ExternalId),
 					),
 				},
 				{

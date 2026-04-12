@@ -1376,7 +1376,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						varType = "terraform"
 					}
 
-					format.WriteString(fmt.Sprintf(`configuration{
+					fmt.Fprintf(&format, `configuration{
 									name = "%s"
 									value = "%s"
 									type = "%s"
@@ -1385,7 +1385,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 									}
 
 							`, variable.Name,
-						variable.Value, varType, variable.Regex, schemaFormat))
+						variable.Value, varType, variable.Regex, schemaFormat)
 				}
 
 				return format.String()

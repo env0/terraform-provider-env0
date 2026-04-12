@@ -33,8 +33,9 @@ func (client *ApiClient) AgentValues(id string) (string, error) {
 // Agent Pool types and methods (self-service agents)
 
 type AgentPoolSelfHostedLogs struct {
-	AccountId string `json:"accountId"`
-	Region    string `json:"region"`
+	AccountId  string `json:"accountId"`
+	Region     string `json:"region"`
+	ExternalId string `json:"externalId"`
 }
 
 type AgentPoolDynamoLogs struct {

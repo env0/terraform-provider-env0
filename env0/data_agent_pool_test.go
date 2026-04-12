@@ -84,8 +84,9 @@ func TestAgentPoolDataSource(t *testing.T) {
 			Logs: &client.AgentPoolLogsConfig{
 				Dynamo: &client.AgentPoolDynamoLogs{
 					SelfHosted: &client.AgentPoolSelfHostedLogs{
-						AccountId: "123456789",
-						Region:    "us-east-1",
+						AccountId:  "123456789",
+						Region:     "us-east-1",
+						ExternalId: "ext-123",
 					},
 				},
 			},
@@ -100,6 +101,7 @@ func TestAgentPoolDataSource(t *testing.T) {
 							resource.TestCheckResourceAttr(accessor, "id", agentPoolWithLogs.Id),
 							resource.TestCheckResourceAttr(accessor, "logs.0.account_id", "123456789"),
 							resource.TestCheckResourceAttr(accessor, "logs.0.region", "us-east-1"),
+							resource.TestCheckResourceAttr(accessor, "logs.0.external_id", "ext-123"),
 						),
 					},
 				},
