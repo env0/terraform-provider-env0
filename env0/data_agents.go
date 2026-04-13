@@ -10,6 +10,8 @@ import (
 
 func dataAgents() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "use `env0_agent_pool` unstead",
+
 		ReadContext: agentsRead,
 
 		Schema: map[string]*schema.Schema{
