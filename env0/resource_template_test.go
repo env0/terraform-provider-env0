@@ -1719,7 +1719,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		})
 	})
 
-	t.Run("vcs_connection_id suppresses all backend-populated legacy VCS fields", func(t *testing.T) {
+	t.Run("vcs_connection_id suppresses backend-populated github_installation_id", func(t *testing.T) {
 		template := client.Template{
 			Id:               "id0",
 			Name:             "template0",
@@ -1735,10 +1735,6 @@ func TestUnitTemplateResource(t *testing.T) {
 			Repository:           "env0/repo",
 			VcsConnectionId:      "vcs-conn-123",
 			GithubInstallationId: 456,
-			BitbucketClientKey:   "bb-key-789",
-			TokenId:              "tok-abc",
-			IsAzureDevOps:        true,
-			IsGitlab:             true,
 			Type:                 "terraform",
 			TerraformVersion:     "0.15.1",
 		}
@@ -1754,13 +1750,165 @@ func TestUnitTemplateResource(t *testing.T) {
 						"vcs_connection_id": "vcs-conn-123",
 					}),
 					Check: resource.ComposeAggregateTestCheckFunc(
-						resource.TestCheckResourceAttr(resourceFullName, "id", template.Id),
 						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", "vcs-conn-123"),
 						resource.TestCheckNoResourceAttr(resourceFullName, "github_installation_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             template.Name,
+				Repository:       template.Repository,
+				Type:             template.Type,
+				VcsConnectionId:  "vcs-conn-123",
+				TerraformVersion: "0.15.1",
+			}).Times(1).Return(template, nil)
+			mock.EXPECT().Template(template.Id).Times(1).Return(templateFromBackend, nil)
+			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("vcs_connection_id suppresses backend-populated bitbucket_client_key", func(t *testing.T) {
+		template := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		templateFromBackend := client.Template{
+			Id:                 "id0",
+			Name:               "template0",
+			Repository:         "env0/repo",
+			VcsConnectionId:    "vcs-conn-123",
+			BitbucketClientKey: "bb-key-789",
+			Type:               "terraform",
+			TerraformVersion:   "0.15.1",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"terraform_version": "0.15.1",
+						"vcs_connection_id": "vcs-conn-123",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", "vcs-conn-123"),
 						resource.TestCheckNoResourceAttr(resourceFullName, "bitbucket_client_key"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             template.Name,
+				Repository:       template.Repository,
+				Type:             template.Type,
+				VcsConnectionId:  "vcs-conn-123",
+				TerraformVersion: "0.15.1",
+			}).Times(1).Return(template, nil)
+			mock.EXPECT().Template(template.Id).Times(1).Return(templateFromBackend, nil)
+			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("vcs_connection_id suppresses backend-populated token_id and is_gitlab", func(t *testing.T) {
+		template := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		templateFromBackend := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			TokenId:          "tok-abc",
+			IsGitlab:         true,
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"terraform_version": "0.15.1",
+						"vcs_connection_id": "vcs-conn-123",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", "vcs-conn-123"),
+						resource.TestCheckNoResourceAttr(resourceFullName, "token_id"),
+						resource.TestCheckResourceAttr(resourceFullName, "is_gitlab", "false"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().TemplateCreate(client.TemplateCreatePayload{
+				Name:             template.Name,
+				Repository:       template.Repository,
+				Type:             template.Type,
+				VcsConnectionId:  "vcs-conn-123",
+				TerraformVersion: "0.15.1",
+			}).Times(1).Return(template, nil)
+			mock.EXPECT().Template(template.Id).Times(1).Return(templateFromBackend, nil)
+			mock.EXPECT().TemplateDelete(template.Id).Times(1).Return(nil)
+		})
+	})
+
+	t.Run("vcs_connection_id suppresses backend-populated token_id and is_azure_devops", func(t *testing.T) {
+		template := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		templateFromBackend := client.Template{
+			Id:               "id0",
+			Name:             "template0",
+			Repository:       "env0/repo",
+			VcsConnectionId:  "vcs-conn-123",
+			TokenId:          "tok-abc",
+			IsAzureDevOps:    true,
+			Type:             "terraform",
+			TerraformVersion: "0.15.1",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              "template0",
+						"repository":        "env0/repo",
+						"type":              "terraform",
+						"terraform_version": "0.15.1",
+						"vcs_connection_id": "vcs-conn-123",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceFullName, "vcs_connection_id", "vcs-conn-123"),
 						resource.TestCheckNoResourceAttr(resourceFullName, "token_id"),
 						resource.TestCheckResourceAttr(resourceFullName, "is_azure_devops", "false"),
-						resource.TestCheckResourceAttr(resourceFullName, "is_gitlab", "false"),
 					),
 				},
 			},
