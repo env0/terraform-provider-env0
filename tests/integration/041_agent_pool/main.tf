@@ -51,17 +51,17 @@ output "data_by_id_description" {
 }
 
 output "logs_account_id" {
-  value = data.env0_agent_pool.by_id.logs.account_id
+  value = data.env0_agent_pool.by_id.logs[0].account_id
 }
 
 output "logs_region" {
-  value = data.env0_agent_pool.by_id.logs.region
+  value = data.env0_agent_pool.by_id.logs[0].region
 }
 
 output "logs_external_id" {
-  value = data.env0_agent_pool.by_id.logs.external_id
+  value = data.env0_agent_pool.by_id.logs[0].external_id
 }
 
-output "secret_agent_id" {
+output "agent_secret_id" {
   value = env0_agent_secret.test_secret.agent_id
 }
