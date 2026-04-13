@@ -105,6 +105,14 @@ type ApiClientInterface interface {
 	ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error)
 	Agents() ([]Agent, error)
 	AgentValues(id string) (string, error)
+	AgentPools() ([]AgentPool, error)
+	AgentPoolCreate(payload AgentPoolCreatePayload) (*AgentPool, error)
+	AgentPool(id string) (*AgentPool, error)
+	AgentPoolUpdate(id string, payload AgentPoolUpdatePayload) (*AgentPool, error)
+	AgentPoolDelete(id string) error
+	AgentSecretCreate(agentId string, payload AgentSecretCreatePayload) (*AgentSecret, error)
+	AgentSecrets(agentId string) ([]AgentSecret, error)
+	AgentSecretDelete(agentId string, secretId string) error
 	Users() ([]OrganizationUser, error)
 	AssignUserToProject(projectId string, payload *AssignUserToProjectPayload) (*UserProjectAssignment, error)
 	RemoveUserFromProject(projectId string, userId string) error
