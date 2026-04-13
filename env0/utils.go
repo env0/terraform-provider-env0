@@ -534,6 +534,7 @@ func suppressVcsFieldDrift(prefix string, fields VcsFields, d *schema.ResourceDa
 		if prefix != "" {
 			return prefix + ".0." + name
 		}
+
 		return name
 	}
 
@@ -548,6 +549,7 @@ func suppressVcsFieldDrift(prefix string, fields VcsFields, d *schema.ResourceDa
 	}
 
 	anyLegacySet := false
+
 	for _, k := range legacyKeys {
 		if _, ok := d.GetOk(key(k)); ok {
 			anyLegacySet = true
@@ -559,15 +561,19 @@ func suppressVcsFieldDrift(prefix string, fields VcsFields, d *schema.ResourceDa
 		if fields.GithubInstallationId != nil {
 			*fields.GithubInstallationId = 0
 		}
+
 		if fields.BitbucketClientKey != nil {
 			*fields.BitbucketClientKey = ""
 		}
+
 		if fields.TokenId != nil {
 			*fields.TokenId = ""
 		}
+
 		if fields.IsAzureDevOps != nil {
 			*fields.IsAzureDevOps = false
 		}
+
 		if fields.IsGitlab != nil {
 			*fields.IsGitlab = false
 		}
