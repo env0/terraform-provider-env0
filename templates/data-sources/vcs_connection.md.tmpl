@@ -1,0 +1,24 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: ""
+description: |-
+  {{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+The `access_scope` format depends on the VCS provider type:
+
+- **GitHub**: `Organization:<org-name>` or `User:<username>`
+- **Bitbucket**: `Workspace:<workspace-slug>`
+- **GitLab**: `User:<username>` or `Token:<token-name>`
+- **Azure DevOps**: `User:<display-name>`
+- **Self-hosted** (GitHubEnterprise, GitLabEnterprise, BitBucketServer): `url:<base-url>` or `url:<repository-url>`
+
+## Example Usage
+
+{{ tffile "examples/data-sources/env0_vcs_connection/data-source.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
