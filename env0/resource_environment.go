@@ -18,6 +18,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// stripIsRequired removes the deprecated is_required field from configuration changes
+// so it is not sent to the server (ENG-1345).
+func stripIsRequired(changes client.ConfigurationChanges) client.ConfigurationChanges {
+	for i := range changes {
+		changes[i].IsRequired = nil
+	}
+	return changes
+}
+
 type SubEnvironment struct {
 	Id                       string
 	Alias                    string
@@ -49,7 +58,7 @@ func getSubEnvironments(d *schema.ResourceData) ([]SubEnvironment, error) {
 
 		configurationPrefix := prefix + ".configuration"
 		if configuration, ok := d.GetOk(configurationPrefix); ok {
-			subEnvironment.Configuration = getConfigurationVariablesFromSchema(configuration.([]any))
+			subEnvironment.Configuration = stripIsRequired(getConfigurationVariablesFromSchema(configuration.([]any)))
 
 			for i := range subEnvironment.Configuration {
 				subEnvironment.Configuration[i].Scope = client.ScopeEnvironment
@@ -139,6 +148,10 @@ func resourceEnvironment() *schema.Resource {
 				Description: "is the variable required",
 				Optional:    true,
 				Default:     false,
+				Deprecated:  "is_required is deprecated and will be removed in a future version. It has no effect in the configuration block context since the value is already supplied.",
+				DiffSuppressFunc: func(_, _, _ string, _ *schema.ResourceData) bool {
+					return true
+				},
 			},
 			"regex": {
 				Type:        schema.TypeString,
@@ -525,9 +538,8 @@ func createVariable(configurationVariable *client.ConfigurationVariable) any {
 		variable["is_read_only"] = configurationVariable.IsReadOnly
 	}
 
-	if configurationVariable.IsRequired != nil {
-		variable["is_required"] = configurationVariable.IsRequired
-	}
+	// is_required is deprecated (ENG-1345) - do not read from API to avoid drift,
+	// since it is no longer sent to the server.
 
 	if configurationVariable.Schema != nil {
 		variable["schema_type"] = configurationVariable.Schema.Type
@@ -893,7 +905,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 
 		for i, subEnvironment := range subEnvironments {
 			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]any)
-			configurationChanges := getConfigurationVariablesFromSchema(configuration)
+			configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration))
 
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeEnvironment, apiClient)
 			if err != nil {
@@ -1113,7 +1125,7 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	}
 
 	if configuration, ok := d.GetOk("configuration"); ok {
-		configurationChanges := getConfigurationVariablesFromSchema(configuration.([]any))
+		configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration.([]any)))
 		payload.ConfigurationChanges = &configurationChanges
 	}
 
@@ -1313,7 +1325,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 		}
 
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
-			configurationChanges := getConfigurationVariablesFromSchema(configuration.([]any))
+			configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration.([]any)))
 			scope := client.ScopeEnvironment
 
 			if _, ok := d.GetOk("sub_environment_configuration"); ok {
