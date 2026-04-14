@@ -41,8 +41,8 @@ resource "env0_approval_policy_assignment" "assignment" {
 
 ### Optional
 
-- `bitbucket_client_key` (String) the bitbucket client key used for integration
-- `github_installation_id` (Number) the env0 application installation id on the relevant github repository
+- `bitbucket_client_key` (String, Deprecated) the bitbucket client key used for integration
+- `github_installation_id` (Number, Deprecated) the env0 application installation id on the relevant github repository
 - `gitlab_project_id` (Number, Deprecated) the project id of the relevant repository (deprecated)
 - `is_azure_devops` (Boolean) true if this approval policy integrates with azure dev ops repository
 - `is_bitbucket_server` (Boolean) true if this approval policy uses bitbucket server repository
@@ -52,7 +52,7 @@ resource "env0_approval_policy_assignment" "assignment" {
 - `path` (String) terraform / terragrunt file folder inside source code. Should be the full path including the .yaml/.yml file
 - `revision` (String) source code revision (branch / tag) to use
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
-- `token_id` (String) the git token id to be used
+- `token_id` (String, Deprecated) the git token id to be used
 - `vcs_connection_id` (String) the VCS connection id to be used
 
 ### Read-Only

@@ -56,10 +56,10 @@ resource "env0_environment_discovery_configuration" "discovery_file_example" {
 ### Optional
 
 - `auto_deploy_by_custom_glob` (String) If specified, deploy/plan on changes matching the given pattern (glob). Otherwise, deploy on template folder changes only
-- `bitbucket_client_key` (String) bitbucket client
+- `bitbucket_client_key` (String, Deprecated) bitbucket client
 - `create_new_environments_from_pull_requests` (Boolean) create new environments from pull requests (default: false)
 - `environment_placement` (String) the environment placement strategy with the project.
-- `github_installation_id` (Number) github repository id
+- `github_installation_id` (Number, Deprecated) github repository id
 - `gitlab_project_id` (Number, Deprecated) gitlab project id (deprecated)
 - `glob_pattern` (String) the environments glob pattern. Any match to this pattern will result in an Environment creation and plan
 - `is_azure_devops` (Boolean) set to true if azure devops is used
@@ -80,7 +80,7 @@ resource "env0_environment_discovery_configuration" "discovery_file_example" {
 - `terraform_version` (String) the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.
 - `terragrunt_tf_binary` (String) The binary to use with Terragrunt. Valid values: 'opentofu' and 'terraform' (default: 'opentofu')
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.52.0)
-- `token_id` (String) a token id to be used with 'gitlab' or 'azure_devops'
+- `token_id` (String, Deprecated) a token id to be used with 'gitlab' or 'azure_devops'
 - `type` (String) the infrastructure type use. Valid values: 'opentofu', 'terraform', 'terragrunt', 'workflow' (default: 'opentofu')
 - `vcs_connection_id` (String) the VCS connection id to be used
 - `workspace_naming` (String) the Workspace namimg strategy.

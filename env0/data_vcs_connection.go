@@ -11,6 +11,7 @@ import (
 
 func dataVcsConnection() *schema.Resource {
 	return &schema.Resource{
+		Description: "Returns a VCS connection by access scope and connection type. The access_scope value can be found in the env0 UI under Organization Settings > VCS.",
 		ReadContext: dataVcsConnectionRead,
 
 		Schema: map[string]*schema.Schema{
