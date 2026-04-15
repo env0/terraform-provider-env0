@@ -12,6 +12,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -3643,4 +3644,65 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			)
 		})
 	})
+}
+
+func TestStripIsRequired(t *testing.T) {
+	t.Run("nils out IsRequired from all entries", func(t *testing.T) {
+		isRequiredTrue := true
+		isRequiredFalse := false
+
+		changes := client.ConfigurationChanges{
+			{Name: "var1", Value: "val1", IsRequired: &isRequiredTrue},
+			{Name: "var2", Value: "val2", IsRequired: &isRequiredFalse},
+			{Name: "var3", Value: "val3", IsRequired: nil},
+		}
+
+		result := stripIsRequired(changes)
+
+		for _, change := range result {
+			assert.Nil(t, change.IsRequired, "IsRequired should be nil for variable %s", change.Name)
+		}
+	})
+
+	t.Run("preserves other fields", func(t *testing.T) {
+		isRequired := true
+		isSensitive := true
+
+		changes := client.ConfigurationChanges{
+			{Name: "var1", Value: "val1", IsRequired: &isRequired, IsSensitive: &isSensitive, Description: "desc"},
+		}
+
+		result := stripIsRequired(changes)
+
+		assert.Equal(t, "var1", result[0].Name)
+		assert.Equal(t, "val1", result[0].Value)
+		assert.Equal(t, &isSensitive, result[0].IsSensitive)
+		assert.Equal(t, "desc", result[0].Description)
+	})
+
+	t.Run("handles empty slice", func(t *testing.T) {
+		changes := client.ConfigurationChanges{}
+		result := stripIsRequired(changes)
+		assert.Empty(t, result)
+	})
+}
+
+func TestCreateVariableOmitsIsRequired(t *testing.T) {
+	isRequired := true
+	isReadOnly := false
+
+	configVar := &client.ConfigurationVariable{
+		Name:       "test_var",
+		Value:      "test_value",
+		IsRequired: &isRequired,
+		IsReadOnly: &isReadOnly,
+	}
+
+	result := createVariable(configVar).(map[string]any)
+
+	assert.Equal(t, "test_var", result["name"])
+	assert.Equal(t, "test_value", result["value"])
+	assert.Equal(t, &isReadOnly, result["is_read_only"])
+	_, hasIsRequired := result["is_required"]
+	assert.False(t, hasIsRequired, "is_required should not be set in the variable map")
 }
