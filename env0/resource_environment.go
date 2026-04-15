@@ -24,6 +24,7 @@ func stripIsRequired(changes client.ConfigurationChanges) client.ConfigurationCh
 	for i := range changes {
 		changes[i].IsRequired = nil
 	}
+
 	return changes
 }
 
