@@ -21,7 +21,7 @@ variable "agent_custom_configuration" {
 }
 
 resource "env0_agent_pool" "default" {
-  name = "default sefl-hosted agent"
+  name = "default self-hosted agent"
 }
 
 resource "env0_agent_secret" "first" {
