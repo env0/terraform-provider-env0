@@ -40,9 +40,16 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
   github_installation_id = 12345
 }
 
+# Discovery by file - uses repository_regex to match repos by '<owner>/<repo>' pattern.
+# Use '|' to separate multiple patterns.
+# Examples:
+#   "my-org/.*"                     - all repos in my-org
+#   "my-org/.*|other-org/.*"        - all repos in both orgs
+#   "my-org/web-.*|my-org/api-.*"   - repos starting with 'web-' or 'api-' in my-org
+#   "my-org/my-repo"                - a single specific repo
 resource "env0_environment_discovery_configuration" "discovery_file_example" {
   project_id       = data.env0_project.project.id
-  repository_regex = "env0-example/.*|acme-corp/web.*|company/web-frontend"
+  repository_regex = "my-org/.*|other-org/web-.*|third-org/specific-repo"
 }
 ```
 
@@ -69,7 +76,7 @@ resource "env0_environment_discovery_configuration" "discovery_file_example" {
 - `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all' (default: false)
 - `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.
 - `repository` (String) the repository to run discovery on
-- `repository_regex` (String) Regex to select repositories for discovery-file configuration (enables discoveryFileConfiguration mode)
+- `repository_regex` (String) Regex to match repositories for environment discovery by file. The pattern is matched against the repository path in the format '<owner>/<repo>'. Use '|' to match multiple patterns (e.g. 'org1/.*|org2/web-.*' to match all repos in org1 and repos starting with 'web-' in org2). Cannot be used with 'repository' or 'glob_pattern'
 - `retries_on_deploy` (Number) number of times to retry when deploy fails (between 1 and 3)
 - `retries_on_destroy` (Number) number of times to retry when destroy fails (between 1 and 3)
 - `retry_on_deploy_only_when_matches_regex` (String) retry (on deploy) if error matches the specified regex

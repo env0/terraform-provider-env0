@@ -25,7 +25,14 @@ resource "env0_environment_discovery_configuration" "terragrunt_example" {
   github_installation_id = 12345
 }
 
+# Discovery by file - uses repository_regex to match repos by '<owner>/<repo>' pattern.
+# Use '|' to separate multiple patterns.
+# Examples:
+#   "my-org/.*"                     - all repos in my-org
+#   "my-org/.*|other-org/.*"        - all repos in both orgs
+#   "my-org/web-.*|my-org/api-.*"   - repos starting with 'web-' or 'api-' in my-org
+#   "my-org/my-repo"                - a single specific repo
 resource "env0_environment_discovery_configuration" "discovery_file_example" {
   project_id       = data.env0_project.project.id
-  repository_regex = "env0-example/.*|acme-corp/web.*|company/web-frontend"
+  repository_regex = "my-org/.*|other-org/web-.*|third-org/specific-repo"
 }
