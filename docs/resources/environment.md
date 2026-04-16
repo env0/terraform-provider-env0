@@ -106,7 +106,7 @@ Optional:
 
 - `description` (String) description for the variable
 - `is_read_only` (Boolean) is the variable read only
-- `is_required` (Boolean) is the variable required
+- `is_required` (Boolean, Deprecated) is the variable required
 - `is_sensitive` (Boolean) should the variable value be hidden
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `schema_enum` (List of String) a list of possible variable values
@@ -145,7 +145,7 @@ Optional:
 
 - `description` (String) description for the variable
 - `is_read_only` (Boolean) is the variable read only
-- `is_required` (Boolean) is the variable required
+- `is_required` (Boolean, Deprecated) is the variable required
 - `is_sensitive` (Boolean) should the variable value be hidden
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `schema_enum` (List of String) a list of possible variable values
