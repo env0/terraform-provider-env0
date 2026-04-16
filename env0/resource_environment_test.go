@@ -1473,7 +1473,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				configurationVariables.Scope = client.ScopeDeployment
 				configurationVariables.IsSensitive = &isSensitive
 				configurationVariables.IsReadOnly = new(false)
-				configurationVariables.IsRequired = new(false)
 				configurationVariables.Value = configurationVariables.Schema.Enum[0]
 
 				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(templateInSlice, nil)
@@ -1502,7 +1501,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				redeployConfigurationVariables[0].Scope = client.ScopeDeployment
 				redeployConfigurationVariables[0].IsSensitive = &isSensitive
 				redeployConfigurationVariables[0].IsReadOnly = new(false)
-				redeployConfigurationVariables[0].IsRequired = new(false)
 
 				deployRequest := client.DeployRequest{
 					BlueprintId:          environment.LatestDeploymentLog.BlueprintId,
@@ -1617,7 +1615,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				IsSensitive: new(true),
 				Scope:       client.ScopeDeployment,
 				IsReadOnly:  new(false),
-				IsRequired:  new(false),
 			}
 
 			redeployConfigurationVariable := client.ConfigurationVariable{
@@ -1628,7 +1625,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				IsSensitive: new(true),
 				Scope:       client.ScopeDeployment,
 				IsReadOnly:  new(false),
-				IsRequired:  new(false),
 			}
 
 			environmentResource := fmt.Sprintf(`
@@ -3369,7 +3365,6 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				Scope:       client.ScopeEnvironment,
 				IsSensitive: new(false),
 				IsReadOnly:  new(false),
-				IsRequired:  new(false),
 				Schema: &client.ConfigurationVariableSchema{
 					Type: "string",
 				},
@@ -3386,7 +3381,6 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		Scope:       client.ScopeEnvironment,
 		IsSensitive: new(false),
 		IsReadOnly:  new(false),
-		IsRequired:  new(false),
 		Schema: &client.ConfigurationVariableSchema{
 			Type: "string",
 		},
@@ -3433,7 +3427,6 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				Scope:       client.ScopeDeployment,
 				IsSensitive: new(false),
 				IsReadOnly:  new(false),
-				IsRequired:  new(false),
 				Schema: &client.ConfigurationVariableSchema{
 					Type: "string",
 				},
@@ -3641,6 +3634,100 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				// Destroy
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
+		})
+	})
+}
+
+func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
+	resourceType := "env0_environment"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+
+	environment := client.Environment{
+		Id:        "env-id",
+		Name:      "my-environment",
+		ProjectId: "project-id",
+		LatestDeploymentLog: client.DeploymentLog{
+			BlueprintId:       "template-id",
+			BlueprintRevision: "revision",
+		},
+	}
+
+	template := client.Template{
+		ProjectId: environment.ProjectId,
+	}
+
+	varType := client.ConfigurationVariableTypeEnvironment
+	varSchema := client.ConfigurationVariableSchema{
+		Type: "string",
+	}
+
+	t.Run("Create with is_required true should not send is_required to the API", func(t *testing.T) {
+		// HCL config sets is_required = true, but the API call should not include it.
+		environmentResource := fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				project_id = "%s"
+				template_id = "%s"
+				revision = "%s"
+				force_destroy = true
+				configuration {
+					name = "my_var"
+					value = "my_value"
+					is_required = true
+				}
+			}`,
+			resourceType, resourceName, environment.Name,
+			environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+			environment.LatestDeploymentLog.BlueprintRevision,
+		)
+
+		// The expected create payload should have IsRequired nil (stripped).
+		expectedConfigChange := client.ConfigurationVariable{
+			Name:        "my_var",
+			Value:       "my_value",
+			Scope:       client.ScopeDeployment,
+			IsSensitive: new(false),
+			IsReadOnly:  new(false),
+			Schema:      &varSchema,
+			Type:        &varType,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: environmentResource,
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+						resource.TestCheckResourceAttr(accessor, "name", environment.Name),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.name", "my_var"),
+						resource.TestCheckResourceAttr(accessor, "configuration.0.value", "my_value"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+			mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+				Name:      environment.Name,
+				ProjectId: environment.ProjectId,
+				DeployRequest: &client.DeployRequest{
+					BlueprintId:       environment.LatestDeploymentLog.BlueprintId,
+					BlueprintRevision: environment.LatestDeploymentLog.BlueprintRevision,
+				},
+				ConfigurationChanges: &client.ConfigurationChanges{expectedConfigChange},
+			}).Times(1).Return(environment, nil)
+
+			// API returns the variable with IsRequired set - should not cause drift.
+			apiReturnedVar := expectedConfigChange
+			apiReturnedVar.IsRequired = new(true)
+
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{apiReturnedVar}, nil)
+			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
+
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
 }
