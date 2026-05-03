@@ -10,7 +10,8 @@ import (
 
 func dataAgentValues() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataAgentValuesRead,
+		ReadContext:        dataAgentValuesRead,
+		DeprecationMessage: "Not supported for agent pools created through UI, API or provider. Use `env0_agent_pool` and `env0_agent_secret` resource instead.",
 
 		Schema: map[string]*schema.Schema{
 			"agent_key": {
