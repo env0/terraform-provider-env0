@@ -33,9 +33,9 @@ resource "env0_module" "example" {
 
 ### Optional
 
-- `bitbucket_client_key` (String) the client key used for integration with Bitbucket
+- `bitbucket_client_key` (String, Deprecated) the client key used for integration with Bitbucket
 - `description` (String) description of the module
-- `github_installation_id` (Number) the env0 application installation id on the relevant Github repository
+- `github_installation_id` (Number, Deprecated) the env0 application installation id on the relevant Github repository
 - `is_azure_devops` (Boolean) true if this module integrates with azure dev ops
 - `is_bitbucket_server` (Boolean) true if this module integrates with Bitbucket Server
 - `is_github_enterprise` (Boolean) true if this module integrates with GitHub Enterprise
@@ -47,8 +47,8 @@ resource "env0_module" "example" {
 - `run_tests_on_pull_request` (Boolean) set to 'true' to run tests on pull request (defaults to 'false'). Can only be enabled if 'module_test_enabled' is enabled
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
 - `tag_prefix` (String) a tag prefix for the module
-- `token_id` (String) the git token id to be used
-- `token_name` (String) the token name used for integration with GitLab
+- `token_id` (String, Deprecated) the git token id to be used
+- `token_name` (String, Deprecated) the token name used for integration with GitLab
 - `vcs_connection_id` (String) the VCS connection id to be used
 
 ### Read-Only

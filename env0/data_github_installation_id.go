@@ -10,7 +10,8 @@ import (
 
 func dataGithubInstallationId() *schema.Resource {
 	return &schema.Resource{
-		Description: "returns the github installation id of a git hub repositroy",
+		Description:        "returns the github installation id of a git hub repositroy",
+		DeprecationMessage: "use env0_vcs_connection data source with access_scope instead to obtain the VCS connection id",
 
 		ReadContext: dataGithubInstallationIdRead,
 

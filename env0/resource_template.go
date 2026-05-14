@@ -141,6 +141,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "the env0 application installation id on the relevant github repository",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("github_installation_id", "path"),
+			Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"vcs_connection_id": {
 			Type:          schema.TypeString,
@@ -153,6 +154,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "the git token id to be used",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("token_id", "is_azure_devops", "path"),
+			Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"gitlab_project_id": {
 			Type:        schema.TypeInt,
@@ -190,6 +192,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Description:   "the bitbucket client key used for integration",
 			Optional:      true,
 			ConflictsWith: allVCSAttributesBut("bitbucket_client_key", "path"),
+			Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"is_bitbucket_server": {
 			Type:          schema.TypeBool,
@@ -248,6 +251,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Optional:    true,
 			Description: "token name for Gitlab",
+			Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"is_gitlab": {
 			Type:        schema.TypeBool,

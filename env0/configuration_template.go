@@ -48,6 +48,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 			Type:        schema.TypeString,
 			Description: "the git token id to be used",
 			Optional:    true,
+			Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"ssh_keys": {
 			Type:        schema.TypeList,
@@ -69,6 +70,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 			Description:   "the env0 application installation id on the relevant github repository",
 			Optional:      true,
 			ConflictsWith: []string{"vcs_connection_id"},
+			Deprecated:    "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"vcs_connection_id": {
 			Type:          schema.TypeString,
@@ -80,6 +82,7 @@ func getConfigurationTemplateSchema(templateType TemplateType) map[string]*schem
 			Type:        schema.TypeString,
 			Description: "the bitbucket client key used for integration",
 			Optional:    true,
+			Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 		},
 		"is_bitbucket_server": {
 			Type:        schema.TypeBool,

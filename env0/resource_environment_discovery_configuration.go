@@ -40,7 +40,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"repository_regex": {
 				Type:        schema.TypeString,
-				Description: "Regex to select repositories for discovery-file configuration (enables discoveryFileConfiguration mode)",
+				Description: "Regex to match repositories for environment discovery by file. The pattern is matched against the repository path in the format '<owner>/<repo>'. Use '|' to match multiple patterns (e.g. 'org1/.*|org2/web-.*' to match all repos in org1 and repos starting with 'web-' in org2). Cannot be used with 'repository' or 'glob_pattern'",
 				Optional:    true,
 			},
 			"type": {
@@ -140,6 +140,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "github repository id",
 				Optional:    true,
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"vcs_connection_id": {
 				Type:        schema.TypeString,
@@ -150,6 +151,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "bitbucket client",
 				Optional:    true,
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"gitlab_project_id": {
 				Type:        schema.TypeInt,
@@ -186,6 +188,7 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "a token id to be used with 'gitlab' or 'azure_devops'",
 				Optional:    true,
+				Deprecated:  "use vcs_connection_id instead (obtained from the env0_vcs_connection resource or data source)",
 			},
 			"root_path": {
 				Type:        schema.TypeString,
