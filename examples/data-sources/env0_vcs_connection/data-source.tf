@@ -18,13 +18,13 @@ data "env0_vcs_connection" "bitbucket" {
 
 # GitLab - token
 data "env0_vcs_connection" "gitlab" {
-  access_scope    = "Token:my-token-name"
+  access_scope    = "my-token-name"
   connection_type = "DeploymentPipeline"
 }
 
 # Azure DevOps
 data "env0_vcs_connection" "azure" {
-  access_scope    = "User:my-display-name"
+  access_scope    = "my-display-name"
   connection_type = "DeploymentPipeline"
 }
 

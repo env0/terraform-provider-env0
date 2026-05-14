@@ -17,7 +17,7 @@ func dataVcsConnection() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"access_scope": {
 				Type:        schema.TypeString,
-				Description: "the access scope of the VCS connection. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, or 'url:<base-url>' for self-hosted VCS",
+				Description: "the access scope of the VCS connection. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, '<username>' or '<token-name>' for GitLab, '<display-name>' for Azure DevOps, or 'url:<base-url>' for self-hosted VCS",
 				Required:    true,
 			},
 			"connection_type": {

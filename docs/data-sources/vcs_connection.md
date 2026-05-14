@@ -13,8 +13,8 @@ The `access_scope` format depends on the VCS provider type:
 
 - **GitHub**: `Organization:<org-name>` or `User:<username>`
 - **Bitbucket**: `Workspace:<workspace-slug>`
-- **GitLab**: `User:<username>` or `Token:<token-name>`
-- **Azure DevOps**: `User:<display-name>`
+- **GitLab**: `<username>` or `<token-name>`
+- **Azure DevOps**: `<display-name>`
 - **Self-hosted** (GitHubEnterprise, GitLabEnterprise, BitBucketServer): `url:<base-url>` or `url:<repository-url>`
 
 ## Example Usage
@@ -40,13 +40,13 @@ data "env0_vcs_connection" "bitbucket" {
 
 # GitLab - token
 data "env0_vcs_connection" "gitlab" {
-  access_scope    = "Token:my-token-name"
+  access_scope    = "my-token-name"
   connection_type = "DeploymentPipeline"
 }
 
 # Azure DevOps
 data "env0_vcs_connection" "azure" {
-  access_scope    = "User:my-display-name"
+  access_scope    = "my-display-name"
   connection_type = "DeploymentPipeline"
 }
 
@@ -81,7 +81,7 @@ resource "env0_template" "example" {
 
 ### Required
 
-- `access_scope` (String) the access scope of the VCS connection. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, or 'url:<base-url>' for self-hosted VCS
+- `access_scope` (String) the access scope of the VCS connection. The format depends on the VCS type: 'Organization:<org-name>' or 'User:<username>' for GitHub, 'Workspace:<workspace-slug>' for Bitbucket, '<username>' or '<token-name>' for GitLab, '<display-name>' for Azure DevOps, or 'url:<base-url>' for self-hosted VCS
 - `connection_type` (String) the connection type. Valid values: 'DeploymentPipeline' or 'CodeWrite'
 
 ### Read-Only
