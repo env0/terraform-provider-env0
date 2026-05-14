@@ -337,7 +337,13 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
 	}
 
-	suppressVcsFieldDrift("", &res.GithubInstallationId, &res.VcsConnectionId, d)
+	suppressVcsFieldDrift("", VcsFields{
+		GithubInstallationId: &res.GithubInstallationId,
+		VcsConnectionId:      &res.VcsConnectionId,
+		BitbucketClientKey:   &res.BitbucketClientKey,
+		TokenId:              &res.TokenId,
+		IsAzureDevOps:        &res.IsAzureDevops,
+	}, d)
 
 	if err := setResourceEnvironmentDiscoveryConfiguration(d, res); err != nil {
 		return diag.FromErr(err)
@@ -411,7 +417,13 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
 	}
 
-	suppressVcsFieldDrift("", &getPayload.GithubInstallationId, &getPayload.VcsConnectionId, d)
+	suppressVcsFieldDrift("", VcsFields{
+		GithubInstallationId: &getPayload.GithubInstallationId,
+		VcsConnectionId:      &getPayload.VcsConnectionId,
+		BitbucketClientKey:   &getPayload.BitbucketClientKey,
+		TokenId:              &getPayload.TokenId,
+		IsAzureDevOps:        &getPayload.IsAzureDevops,
+	}, d)
 
 	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {
 		return diag.FromErr(err)

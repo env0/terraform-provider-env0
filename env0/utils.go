@@ -512,28 +512,76 @@ func lastUnderscoreSplit(s string) []string {
 	return []string{s[:lastIndex], s[lastIndex+1:]}
 }
 
-// suppressVcsFieldDrift zeroes out the VCS field that the user did NOT specify,
-// preventing false drift when the backend auto-populates one field from the other.
-// When only one field is set, zeros out the other. When both are set (e.g., after
-// import), neither is zeroed to avoid data loss.
+// VcsFields holds pointers to all VCS-related fields on a resource struct.
+// Nil pointers are safely skipped (e.g., IsGitlab is absent from environment discovery).
+type VcsFields struct {
+	GithubInstallationId *int
+	VcsConnectionId      *string
+	BitbucketClientKey   *string
+	TokenId              *string
+	IsAzureDevOps        *bool
+	IsGitlab             *bool
+}
+
+// suppressVcsFieldDrift zeroes out VCS fields that the user did NOT specify,
+// preventing false drift when the backend auto-populates fields.
+// When vcs_connection_id is set, all legacy fields are zeroed.
+// When any legacy field is set, vcs_connection_id is zeroed.
+// When both sides are set (e.g., after import), neither is zeroed.
 // The prefix parameter supports nested schemas (e.g., "without_template_settings").
-func suppressVcsFieldDrift(prefix string, githubInstallationId *int, vcsConnectionId *string, d *schema.ResourceData) {
-	vcsKey := "vcs_connection_id"
-	ghKey := "github_installation_id"
+func suppressVcsFieldDrift(prefix string, fields VcsFields, d *schema.ResourceData) {
+	key := func(name string) string {
+		if prefix != "" {
+			return prefix + ".0." + name
+		}
 
-	if prefix != "" {
-		vcsKey = prefix + ".0." + vcsKey
-		ghKey = prefix + ".0." + ghKey
+		return name
 	}
 
-	_, vcsOk := d.GetOk(vcsKey)
-	_, ghOk := d.GetOk(ghKey)
+	_, vcsOk := d.GetOk(key("vcs_connection_id"))
 
-	if vcsOk && !ghOk {
-		*githubInstallationId = 0
+	legacyKeys := []string{
+		"github_installation_id",
+		"bitbucket_client_key",
+		"token_id",
+		"is_azure_devops",
+		"is_gitlab",
 	}
 
-	if ghOk && !vcsOk {
-		*vcsConnectionId = ""
+	anyLegacySet := false
+
+	for _, k := range legacyKeys {
+		if _, ok := d.GetOk(key(k)); ok {
+			anyLegacySet = true
+			break
+		}
+	}
+
+	if vcsOk && !anyLegacySet {
+		if fields.GithubInstallationId != nil {
+			*fields.GithubInstallationId = 0
+		}
+
+		if fields.BitbucketClientKey != nil {
+			*fields.BitbucketClientKey = ""
+		}
+
+		if fields.TokenId != nil {
+			*fields.TokenId = ""
+		}
+
+		if fields.IsAzureDevOps != nil {
+			*fields.IsAzureDevOps = false
+		}
+
+		if fields.IsGitlab != nil {
+			*fields.IsGitlab = false
+		}
+	}
+
+	if anyLegacySet && !vcsOk {
+		if fields.VcsConnectionId != nil {
+			*fields.VcsConnectionId = ""
+		}
 	}
 }

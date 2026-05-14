@@ -54,7 +54,14 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta an
 		return ResourceGetFailure(ctx, "custom flow", d, err)
 	}
 
-	suppressVcsFieldDrift("", &customFlow.GithubInstallationId, &customFlow.VcsConnectionId, d)
+	suppressVcsFieldDrift("", VcsFields{
+		GithubInstallationId: &customFlow.GithubInstallationId,
+		VcsConnectionId:      &customFlow.VcsConnectionId,
+		BitbucketClientKey:   &customFlow.BitbucketClientKey,
+		TokenId:              &customFlow.TokenId,
+		IsAzureDevOps:        &customFlow.IsAzureDevOps,
+		IsGitlab:             &customFlow.IsGitLab,
+	}, d)
 
 	if err := writeResourceData(customFlow, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)

@@ -441,8 +441,15 @@ func templateRead(prefix string, template client.Template, d *schema.ResourceDat
 		}
 	}
 
-	// Avoid drifts: the backend automatically populates one VCS field from the other.
-	suppressVcsFieldDrift(prefix, &template.GithubInstallationId, &template.VcsConnectionId, d)
+	// Avoid drifts: the backend automatically populates VCS fields from one another.
+	suppressVcsFieldDrift(prefix, VcsFields{
+		GithubInstallationId: &template.GithubInstallationId,
+		VcsConnectionId:      &template.VcsConnectionId,
+		BitbucketClientKey:   &template.BitbucketClientKey,
+		TokenId:              &template.TokenId,
+		IsAzureDevOps:        &template.IsAzureDevOps,
+		IsGitlab:             &template.IsGitlab,
+	}, d)
 
 	if err := writeResourceDataEx(prefix, &template, d); err != nil {
 		return fmt.Errorf("schema resource data serialization failed: %w", err)

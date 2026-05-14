@@ -61,7 +61,14 @@ func resourceApprovalPolicyRead(ctx context.Context, d *schema.ResourceData, met
 		return nil
 	}
 
-	suppressVcsFieldDrift("", &approvalPolicy.GithubInstallationId, &approvalPolicy.VcsConnectionId, d)
+	suppressVcsFieldDrift("", VcsFields{
+		GithubInstallationId: &approvalPolicy.GithubInstallationId,
+		VcsConnectionId:      &approvalPolicy.VcsConnectionId,
+		BitbucketClientKey:   &approvalPolicy.BitbucketClientKey,
+		TokenId:              &approvalPolicy.TokenId,
+		IsAzureDevOps:        &approvalPolicy.IsAzureDevOps,
+		IsGitlab:             &approvalPolicy.IsGitlab,
+	}, d)
 
 	if err := writeResourceData(&approvalPolicy, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
