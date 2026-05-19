@@ -728,9 +728,8 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 	return nil
 }
 
-func setSubEnvironmentSchema(d *schema.ResourceData, apiClient client.ApiClientInterface) any {
+func setSubEnvironmentSchema(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
 	iSubEnvironments, ok := d.GetOk("sub_environment_configuration")
-
 	if !ok {
 		return nil
 	}
@@ -741,25 +740,73 @@ func setSubEnvironmentSchema(d *schema.ResourceData, apiClient client.ApiClientI
 	for _, iSubEnvironment := range subEnvironmentsList {
 		subEnvironment := iSubEnvironment.(map[string]any)
 
-		environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironment["id"].(string))
+		subEnvId, _ := subEnvironment["id"].(string)
+		if subEnvId == "" {
+			newSubEnvironments = append(newSubEnvironments, subEnvironment)
+			continue
+		}
+
+		remoteVariables, err := apiClient.ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvId)
 		if err != nil {
-			return fmt.Errorf("could not fetch environment configuration variables for sub environment %s: %w", subEnvironment["id"].(string), err)
+			return fmt.Errorf("could not fetch environment configuration variables for sub environment %s: %w", subEnvId, err)
 		}
 
-		newConfiguration := make([]any, 0, len(environmentConfigurationVariables))
-
-		for _, variable := range environmentConfigurationVariables {
-			newConfiguration = append(newConfiguration, createVariable(&variable))
-		}
-
-		subEnvironment["configuration"] = newConfiguration
-
+		stateVariables, _ := subEnvironment["configuration"].([]any)
+		subEnvironment["configuration"] = mergeSubEnvironmentConfiguration(stateVariables, remoteVariables)
 		newSubEnvironments = append(newSubEnvironments, subEnvironment)
 	}
 
 	d.Set("sub_environment_configuration", newSubEnvironments)
 
 	return nil
+}
+
+// mergeSubEnvironmentConfiguration aligns state variable order to the schema (TF code) and
+// appends remote-only variables as drift. Sensitive variable values come back redacted from
+// the API, so the schema value is kept to avoid false drift; the API value is never compared.
+func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables client.ConfigurationChanges) []any {
+	merged := make([]any, 0, len(stateVariables))
+
+	for _, ivariable := range stateVariables {
+		variable := ivariable.(map[string]any)
+		variableName := variable["name"].(string)
+
+		for i := range remoteVariables {
+			remote := &remoteVariables[i]
+			if remote.Name != variableName {
+				continue
+			}
+
+			newVariable := createVariable(remote).(map[string]any)
+
+			if remote.IsSensitive != nil && *remote.IsSensitive {
+				newVariable["value"] = variable["value"]
+			}
+
+			merged = append(merged, newVariable)
+
+			break
+		}
+	}
+
+	for i := range remoteVariables {
+		remote := &remoteVariables[i]
+
+		found := false
+
+		for _, ivariable := range stateVariables {
+			if ivariable.(map[string]any)["name"].(string) == remote.Name {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			merged = append(merged, createVariable(remote))
+		}
+	}
+
+	return merged
 }
 
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
