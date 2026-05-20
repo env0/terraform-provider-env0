@@ -12,6 +12,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"go.uber.org/mock/gomock"
 )
 
@@ -3700,6 +3701,22 @@ func TestMergeSubEnvironmentConfiguration(t *testing.T) {
 		}
 	})
 
+	t.Run("preserves schema value when schema marks sensitive but API does not", func(t *testing.T) {
+		state := []any{map[string]any{"name": "secret", "value": "real-secret", "is_sensitive": true}}
+		remote := client.ConfigurationChanges{remoteVar("secret", "stale-from-api", nil)}
+
+		merged := mergeSubEnvironmentConfiguration(state, remote)
+
+		if len(merged) != 1 {
+			t.Fatalf("expected 1 var, got %d", len(merged))
+		}
+
+		got := merged[0].(map[string]any)["value"]
+		if got != "real-secret" {
+			t.Fatalf("schema-sensitive value not preserved: got %q", got)
+		}
+	})
+
 	t.Run("appends remote-only vars as drift", func(t *testing.T) {
 		state := []any{stateVar("a", "av")}
 		remote := client.ConfigurationChanges{
@@ -3734,6 +3751,67 @@ func TestMergeSubEnvironmentConfiguration(t *testing.T) {
 
 		if merged[0].(map[string]any)["name"] != "a" {
 			t.Fatalf("expected only 'a' var, got %v", merged[0])
+		}
+	})
+}
+
+func TestSetSubEnvironmentSchema(t *testing.T) {
+	t.Run("skips API call when sub-env id is empty (initial deploy not yet propagated)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mock := client.NewMockApiClientInterface(ctrl)
+
+		d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]any{
+			"name":        "env",
+			"project_id":  "p",
+			"template_id": "t",
+			"sub_environment_configuration": []any{
+				map[string]any{
+					"alias": "rootService1",
+					"configuration": []any{
+						map[string]any{"name": "ALPHA", "value": "av"},
+					},
+				},
+			},
+		})
+
+		if err := setSubEnvironmentSchema(d, mock); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("propagates API errors as wrapped error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().
+			ConfigurationVariablesByScope(client.ScopeEnvironment, "sub-1").
+			Return(nil, errors.New("boom"))
+
+		d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, map[string]any{
+			"name":        "env",
+			"project_id":  "p",
+			"template_id": "t",
+			"sub_environment_configuration": []any{
+				map[string]any{
+					"id":    "sub-1",
+					"alias": "rootService1",
+					"configuration": []any{
+						map[string]any{"name": "ALPHA", "value": "av"},
+					},
+				},
+			},
+		})
+
+		err := setSubEnvironmentSchema(d, mock)
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+
+		if !strings.Contains(err.Error(), "sub-1") || !strings.Contains(err.Error(), "boom") {
+			t.Fatalf("expected wrapped error mentioning sub-1 and boom, got %q", err.Error())
 		}
 	})
 }

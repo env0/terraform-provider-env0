@@ -761,15 +761,16 @@ func setSubEnvironmentSchema(d *schema.ResourceData, apiClient client.ApiClientI
 	return nil
 }
 
-// mergeSubEnvironmentConfiguration aligns state variable order to the schema (TF code) and
-// appends remote-only variables as drift. Sensitive variable values come back redacted from
-// the API, so the schema value is kept to avoid false drift; the API value is never compared.
+// API returns a redacted value for sensitive variables, so the schema value is kept.
+// Consequence: remote value edits on sensitive variables are not detected — comparing values
+// would reintroduce the perpetual drift this function exists to fix.
 func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables client.ConfigurationChanges) []any {
 	merged := make([]any, 0, len(stateVariables))
 
 	for _, ivariable := range stateVariables {
 		variable := ivariable.(map[string]any)
 		variableName := variable["name"].(string)
+		schemaIsSensitive, _ := variable["is_sensitive"].(bool)
 
 		for i := range remoteVariables {
 			remote := &remoteVariables[i]
@@ -779,7 +780,8 @@ func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables clie
 
 			newVariable := createVariable(remote).(map[string]any)
 
-			if remote.IsSensitive != nil && *remote.IsSensitive {
+			remoteIsSensitive := remote.IsSensitive != nil && *remote.IsSensitive
+			if remoteIsSensitive || schemaIsSensitive {
 				newVariable["value"] = variable["value"]
 			}
 
@@ -789,9 +791,7 @@ func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables clie
 		}
 	}
 
-	for i := range remoteVariables {
-		remote := &remoteVariables[i]
-
+	for _, remote := range remoteVariables {
 		found := false
 
 		for _, ivariable := range stateVariables {
@@ -802,7 +802,7 @@ func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables clie
 		}
 
 		if !found {
-			merged = append(merged, createVariable(remote))
+			merged = append(merged, createVariable(&remote))
 		}
 	}
 
