@@ -686,6 +686,61 @@ func TestUnitModuleResource(t *testing.T) {
 		})
 	})
 
+	t.Run("legacy VCS field ignores vcs_connection_id from backend to avoid drift", func(t *testing.T) {
+		legacyModule := client.Module{
+			ModuleName:     "legacy-module",
+			ModuleProvider: "provider1",
+			Repository:     "repository1",
+			TokenId:        "tokenid",
+			OrganizationId: "org1",
+			Author:         author,
+			AuthorId:       "author1",
+			Id:             uuid.NewString(),
+		}
+
+		legacyModuleFromBackend := client.Module{
+			ModuleName:      legacyModule.ModuleName,
+			ModuleProvider:  legacyModule.ModuleProvider,
+			Repository:      legacyModule.Repository,
+			TokenId:         legacyModule.TokenId,
+			VcsConnectionId: new("vcs-conn-123"),
+			OrganizationId:  legacyModule.OrganizationId,
+			Author:          legacyModule.Author,
+			AuthorId:        legacyModule.AuthorId,
+			Id:              legacyModule.Id,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":     legacyModule.ModuleName,
+						"module_provider": legacyModule.ModuleProvider,
+						"repository":      legacyModule.Repository,
+						"token_id":        legacyModule.TokenId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", legacyModule.Id),
+						resource.TestCheckResourceAttr(accessor, "module_name", legacyModule.ModuleName),
+						resource.TestCheckResourceAttr(accessor, "token_id", legacyModule.TokenId),
+						resource.TestCheckNoResourceAttr(accessor, "vcs_connection_id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:     legacyModule.ModuleName,
+				ModuleProvider: legacyModule.ModuleProvider,
+				Repository:     legacyModule.Repository,
+				TokenId:        legacyModule.TokenId,
+			}).Times(1).Return(&legacyModule, nil)
+			mock.EXPECT().Module(legacyModule.Id).Times(1).Return(&legacyModuleFromBackend, nil)
+			mock.EXPECT().ModuleDelete(legacyModule.Id).Times(1)
+		})
+	})
+
 	t.Run("vcs_connection_id and github_installation_id are mutually exclusive", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

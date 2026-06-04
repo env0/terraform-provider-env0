@@ -217,10 +217,15 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta any) d
 		return nil
 	}
 
-	_, vcsConnectionIdOk := d.GetOk("vcs_connection_id")
-	if vcsConnectionIdOk {
-		module.GithubInstallationId = nil
-	}
+	// Avoid drifts: the backend automatically populates VCS fields from one another.
+	suppressVcsFieldDrift("", VcsFields{
+		GithubInstallationId: module.GithubInstallationId,
+		VcsConnectionId:      module.VcsConnectionId,
+		BitbucketClientKey:   module.BitbucketClientKey,
+		TokenId:              &module.TokenId,
+		IsAzureDevOps:        &module.IsAzureDevOps,
+		IsGitlab:             &module.IsGitlab,
+	}, d)
 
 	if err := writeResourceData(module, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
