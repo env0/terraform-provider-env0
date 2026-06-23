@@ -23,9 +23,10 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 	updatedDuration := 2 * duration
 
 	awsCredentialsResource := map[string]any{
-		"name":     "test",
-		"role_arn": "11111",
-		"duration": strconv.Itoa(duration),
+		"name":         "test",
+		"role_arn":     "11111",
+		"duration":     strconv.Itoa(duration),
+		"token_format": "v2",
 	}
 
 	updatedAwsCredentialsResource := map[string]any{
@@ -37,8 +38,9 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 	createPayload := client.AwsCredentialsCreatePayload{
 		Name: awsCredentialsResource["name"].(string),
 		Value: client.AwsCredentialsValuePayload{
-			RoleArn:  awsCredentialsResource["role_arn"].(string),
-			Duration: duration,
+			RoleArn:     awsCredentialsResource["role_arn"].(string),
+			Duration:    duration,
+			TokenFormat: awsCredentialsResource["token_format"].(string),
 		},
 		Type: client.AwsOidcCredentialsType,
 	}
@@ -81,6 +83,7 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "role_arn", awsCredentialsResource["role_arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 					resource.TestCheckResourceAttr(accessor, "duration", awsCredentialsResource["duration"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", awsCredentialsResource["token_format"].(string)),
 				),
 			},
 			{
@@ -90,6 +93,7 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "role_arn", updatedAwsCredentialsResource["role_arn"].(string)),
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
 					resource.TestCheckResourceAttr(accessor, "duration", updatedAwsCredentialsResource["duration"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", ""),
 				),
 			},
 		},
@@ -144,7 +148,7 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           awsCredentialsResource["name"].(string),
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"role_arn", "duration"},
+					ImportStateVerifyIgnore: []string{"role_arn", "duration", "token_format"},
 				},
 			},
 		}
@@ -171,7 +175,7 @@ func TestUnitAwsOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           returnValues.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"role_arn", "duration"},
+					ImportStateVerifyIgnore: []string{"role_arn", "duration", "token_format"},
 				},
 			},
 		}
