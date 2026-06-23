@@ -42,6 +42,7 @@ type AzureCredentialsValuePayload struct {
 	SubscriptionId string `json:"subscriptionId"`
 	TenantId       string `json:"tenantId"`
 	ProjectId      string `json:"projectId,omitempty"`
+	TokenFormat    string `json:"tokenFormat,omitempty"`
 }
 
 type AwsCredentialsCreatePayload struct {
@@ -58,6 +59,7 @@ type AwsCredentialsValuePayload struct {
 	AccessKeyId     string `json:"accessKeyId,omitempty"`
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`
 	ProjectId       string `json:"projectId,omitempty"`
+	TokenFormat     string `json:"tokenFormat,omitempty"`
 }
 
 type GoogleCostCredentialsCreatePayload struct {
@@ -85,6 +87,7 @@ type GcpCredentialsValuePayload struct {
 	ProjectId                          string `json:"projectId,omitempty"`
 	ServiceAccountKey                  string `json:"serviceAccountKey,omitempty"`
 	CredentialConfigurationFileContent string `json:"credentialConfigurationFileContent,omitempty"`
+	TokenFormat                        string `json:"tokenFormat,omitempty"`
 }
 
 type VaultCredentialsValuePayload struct {
@@ -93,6 +96,7 @@ type VaultCredentialsValuePayload struct {
 	RoleName           string `json:"roleName"`
 	Version            string `json:"version"`
 	Namespace          string `json:"namespace,omitempty"`
+	TokenFormat        string `json:"tokenFormat,omitempty"`
 }
 
 type VaultCredentialsCreatePayload struct {
