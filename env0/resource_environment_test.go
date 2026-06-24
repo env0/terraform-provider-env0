@@ -2011,6 +2011,201 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("prevent_auto_deploy - update persists configuration without deploying", func(t *testing.T) {
+			templateId := "template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "my-environment",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       templateId,
+					BlueprintRevision: "revision",
+				},
+			}
+
+			varType := client.ConfigurationVariableTypeEnvironment
+			varSchema := client.ConfigurationVariableSchema{Type: "string"}
+
+			existingVariable := client.ConfigurationVariable{
+				Id:     "var-id",
+				Name:   "FOO",
+				Value:  "bar",
+				Type:   &varType,
+				Schema: &varSchema,
+			}
+			updatedVariable := existingVariable
+			updatedVariable.Value = "baz"
+
+			resourceConfig := func(revision string, value string) string {
+				return fmt.Sprintf(`
+				resource "%s" "%s" {
+					name                = "%s"
+					project_id          = "%s"
+					template_id         = "%s"
+					revision            = "%s"
+					prevent_auto_deploy = true
+					force_destroy       = true
+					configuration {
+						name  = "FOO"
+						value = "%s"
+					}
+				}`,
+					resourceType, resourceName, environment.Name, environment.ProjectId,
+					templateId, revision, value,
+				)
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfig("revision", "bar"),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "revision", "revision"),
+							resource.TestCheckResourceAttr(accessor, "prevent_auto_deploy", "true"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "bar"),
+						),
+					},
+					{
+						Config: resourceConfig("updated-revision", "baz"),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "revision", "updated-revision"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "baz"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().Environment(environment.Id).AnyTimes().Return(environment, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).AnyTimes().Return(nil, nil)
+
+				persisted := false
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().DoAndReturn(
+					func(_ client.Scope, _ string) ([]client.ConfigurationVariable, error) {
+						if persisted {
+							return client.ConfigurationChanges{updatedVariable}, nil
+						}
+
+						return client.ConfigurationChanges{existingVariable}, nil
+					},
+				)
+
+				mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{
+					Id: existingVariable.Id,
+					CommonParams: client.ConfigurationVariableCreateParams{
+						Name:    "FOO",
+						Value:   "baz",
+						Scope:   client.ScopeEnvironment,
+						ScopeId: environment.Id,
+						Type:    client.ConfigurationVariableTypeEnvironment,
+					},
+				}).Times(1).DoAndReturn(
+					func(_ client.ConfigurationVariableUpdateParams) (client.ConfigurationVariable, error) {
+						persisted = true
+
+						return updatedVariable, nil
+					},
+				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
+		t.Run("prevent_auto_deploy - update persists variable sets without deploying", func(t *testing.T) {
+			templateId := "template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "my-environment",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       templateId,
+					BlueprintRevision: "revision",
+				},
+			}
+
+			vs1 := client.ConfigurationSet{Id: "vs-1", AssignmentScope: "environment"}
+			vs2 := client.ConfigurationSet{Id: "vs-2", AssignmentScope: "environment"}
+			vs3 := client.ConfigurationSet{Id: "vs-3", AssignmentScope: "environment"}
+
+			resourceConfig := func(setA string, setB string) string {
+				return fmt.Sprintf(`
+				resource "%s" "%s" {
+					name                = "%s"
+					project_id          = "%s"
+					template_id         = "%s"
+					revision            = "revision"
+					prevent_auto_deploy = true
+					force_destroy       = true
+					variable_sets       = ["%s", "%s"]
+				}`,
+					resourceType, resourceName, environment.Name, environment.ProjectId,
+					templateId, setA, setB,
+				)
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfig(vs1.Id, vs2.Id),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", environment.Id),
+							resource.TestCheckResourceAttr(accessor, "prevent_auto_deploy", "true"),
+							resource.TestCheckResourceAttr(accessor, "variable_sets.0", vs1.Id),
+							resource.TestCheckResourceAttr(accessor, "variable_sets.1", vs2.Id),
+						),
+					},
+					{
+						Config: resourceConfig(vs2.Id, vs3.Id),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "variable_sets.0", vs2.Id),
+							resource.TestCheckResourceAttr(accessor, "variable_sets.1", vs3.Id),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).AnyTimes().Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().Environment(environment.Id).AnyTimes().Return(environment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().Return(client.ConfigurationChanges{}, nil)
+
+				assigned := []client.ConfigurationSet{vs1, vs2}
+
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).AnyTimes().DoAndReturn(
+					func(_ string, _ string) ([]client.ConfigurationSet, error) {
+						return assigned, nil
+					},
+				)
+
+				mock.EXPECT().AssignConfigurationSets("environment", environment.Id, []string{vs3.Id}).Times(1).DoAndReturn(
+					func(_ string, _ string, _ []string) error {
+						assigned = []client.ConfigurationSet{vs2, vs3}
+
+						return nil
+					},
+				)
+
+				mock.EXPECT().UnassignConfigurationSets("environment", environment.Id, []string{vs1.Id}).Times(1).DoAndReturn(
+					func(_ string, _ string, _ []string) error {
+						assigned = []client.ConfigurationSet{vs2, vs3}
+
+						return nil
+					},
+				)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
 		t.Run("No drift with unspecified fields", func(t *testing.T) {
 			truthyValue := true
 			falseyValue := false
@@ -3635,6 +3830,122 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				// Destroy
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
+		})
+	})
+
+	t.Run("prevent_auto_deploy - update persists sub environment configuration without deploying", func(t *testing.T) {
+		subEnvId := "subenv1id"
+		alias := "alias1"
+
+		workflowEnvironment := client.Environment{
+			Id:               uuid.New().String(),
+			Name:             "my-workflow",
+			ProjectId:        template.ProjectId,
+			BlueprintId:      "workflow-template-id",
+			RequiresApproval: new(false),
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: "workflow-template-id",
+				WorkflowFile: &client.WorkflowFile{
+					Environments: map[string]client.WorkflowSubEnvironment{
+						alias: {EnvironmentId: subEnvId},
+					},
+				},
+			},
+		}
+
+		varType := client.ConfigurationVariableTypeEnvironment
+		varSchema := client.ConfigurationVariableSchema{Type: "string"}
+
+		existingSubVar := client.ConfigurationVariable{
+			Id:     "sub-var-id",
+			Name:   "name",
+			Value:  "value",
+			Type:   &varType,
+			Schema: &varSchema,
+		}
+		updatedSubVar := existingSubVar
+		updatedSubVar.Value = "value2"
+
+		resourceConfig := func(value string) string {
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name                = "%s"
+				project_id          = "%s"
+				template_id         = "%s"
+				prevent_auto_deploy = true
+				force_destroy       = true
+				sub_environment_configuration {
+					alias    = "%s"
+					revision = "revision1"
+					configuration {
+						name  = "name"
+						value = "%s"
+					}
+				}
+			}`,
+				resourceType, resourceName, workflowEnvironment.Name, workflowEnvironment.ProjectId,
+				workflowEnvironment.BlueprintId, alias, value,
+			)
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfig("value"),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", workflowEnvironment.Id),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", subEnvId),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", "value"),
+					),
+				},
+				{
+					Config: resourceConfig("value2"),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.configuration.0.value", "value2"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().Template(workflowEnvironment.BlueprintId).AnyTimes().Return(template, nil)
+			mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(workflowEnvironment, nil)
+
+			mock.EXPECT().Environment(workflowEnvironment.Id).AnyTimes().Return(workflowEnvironment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, workflowEnvironment.Id).AnyTimes().Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", workflowEnvironment.Id).AnyTimes().Return(nil, nil)
+
+			persisted := false
+
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvId).AnyTimes().DoAndReturn(
+				func(_ client.Scope, _ string) ([]client.ConfigurationVariable, error) {
+					if persisted {
+						return client.ConfigurationChanges{updatedSubVar}, nil
+					}
+
+					return client.ConfigurationChanges{existingSubVar}, nil
+				},
+			)
+
+			// The sub environment variable must be persisted directly, without a deployment.
+			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{
+				Id: existingSubVar.Id,
+				CommonParams: client.ConfigurationVariableCreateParams{
+					Name:    "name",
+					Value:   "value2",
+					Scope:   client.ScopeEnvironment,
+					ScopeId: subEnvId,
+					Type:    client.ConfigurationVariableTypeEnvironment,
+				},
+			}).Times(1).DoAndReturn(
+				func(_ client.ConfigurationVariableUpdateParams) (client.ConfigurationVariable, error) {
+					persisted = true
+
+					return updatedSubVar, nil
+				},
+			)
+
+			mock.EXPECT().EnvironmentDestroy(workflowEnvironment.Id).Times(1)
 		})
 	})
 }
