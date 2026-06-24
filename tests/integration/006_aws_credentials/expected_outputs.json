@@ -1,4 +1,5 @@
 {
   "name_by_arn": "Test Role arn ",
-  "name_access_key": "Test Role access key "
+  "name_access_key": "Test Role access key ",
+  "aws_oidc_token_format": "v2"
 }

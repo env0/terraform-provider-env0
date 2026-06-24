@@ -1,3 +1,4 @@
 {
-  "azure_cred_name": "test azure credentials 1 "
+  "azure_cred_name": "test azure credentials 1 ",
+  "azure_oidc_token_format": "v2"
 }

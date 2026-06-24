@@ -17,6 +17,7 @@ resource "env0_azure_oidc_credentials" "oidc_credentials" {
   client_id       = "client_id"
   subscription_id = var.second_run ? "subscription_id2" : "subscription_id1"
   tenant_id       = "tenant_id"
+  token_format    = "v2"
 }
 
 data "env0_azure_oidc_credentials" "oidc_credentials" {
@@ -30,6 +31,10 @@ data "env0_azure_credentials" "azure_cred" {
 
 output "azure_cred_name" {
   value = replace(data.env0_azure_credentials.azure_cred.name, random_string.random.result, "")
+}
+
+output "azure_oidc_token_format" {
+  value = env0_azure_oidc_credentials.oidc_credentials.token_format
 }
 
 
