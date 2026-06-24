@@ -17,7 +17,7 @@ resource "env0_azure_oidc_credentials" "oidc_credentials" {
   client_id       = "client_id"
   subscription_id = var.second_run ? "subscription_id2" : "subscription_id1"
   tenant_id       = "tenant_id"
-  token_format    = "v2"
+  token_format    = var.second_run ? "v1" : "v2"
 }
 
 data "env0_azure_oidc_credentials" "oidc_credentials" {

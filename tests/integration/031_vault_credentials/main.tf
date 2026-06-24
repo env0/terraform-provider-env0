@@ -11,7 +11,7 @@ resource "env0_vault_oidc_credentials" "oidc_credentials" {
   role_name             = "role_name"
   jwt_auth_backend_path = var.second_run ? "path2" : "path1"
   namespace             = "namespace"
-  token_format          = "v2"
+  token_format          = var.second_run ? "v1" : "v2"
 }
 
 data "env0_vault_oidc_credentials" "oidc_credentials" {

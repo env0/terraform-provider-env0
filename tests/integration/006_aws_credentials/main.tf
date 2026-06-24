@@ -30,7 +30,7 @@ resource "env0_aws_oidc_credentials" "oidc_credentials" {
   name         = "Test Oidc Credentials ${random_string.random.result}"
   role_arn     = var.second_run ? "Role ARN2" : "Role ARN1"
   duration     = 7200
-  token_format = "v2"
+  token_format = var.second_run ? "v1" : "v2"
 }
 
 data "env0_aws_oidc_credentials" "oidc_credentials" {
