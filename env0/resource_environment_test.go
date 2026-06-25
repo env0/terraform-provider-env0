@@ -2117,6 +2117,122 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("prevent_auto_deploy - update creates and deletes configuration without deploying", func(t *testing.T) {
+			templateId := "template-id"
+
+			environment := client.Environment{
+				Id:        uuid.New().String(),
+				Name:      "my-environment",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       templateId,
+					BlueprintRevision: "revision",
+				},
+			}
+
+			varType := client.ConfigurationVariableTypeEnvironment
+			varSchema := client.ConfigurationVariableSchema{Type: "string"}
+
+			// Present in env0 before the update; removed from the config on the 2nd step (delete branch).
+			droppedVariable := client.ConfigurationVariable{
+				Id:     "dropped-id",
+				Name:   "DROP_ME",
+				Value:  "old",
+				Type:   &varType,
+				Schema: &varSchema,
+			}
+			// Added to the config on the 2nd step (create branch).
+			addedVariable := client.ConfigurationVariable{
+				Id:     "added-id",
+				Name:   "ADD_ME",
+				Value:  "new",
+				Type:   &varType,
+				Schema: &varSchema,
+			}
+
+			resourceConfig := func(name string, value string) string {
+				return fmt.Sprintf(`
+				resource "%s" "%s" {
+					name                = "%s"
+					project_id          = "%s"
+					template_id         = "%s"
+					revision            = "revision"
+					prevent_auto_deploy = true
+					force_destroy       = true
+					configuration {
+						name  = "%s"
+						value = "%s"
+					}
+				}`,
+					resourceType, resourceName, environment.Name, environment.ProjectId,
+					templateId, name, value,
+				)
+			}
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfig("DROP_ME", "old"),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "configuration.0.name", "DROP_ME"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "old"),
+						),
+					},
+					{
+						// DROP_ME is removed (delete branch) and ADD_ME is added (create branch).
+						Config: resourceConfig("ADD_ME", "new"),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "configuration.0.name", "ADD_ME"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", "new"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
+
+				mock.EXPECT().Environment(environment.Id).AnyTimes().Return(environment, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).AnyTimes().Return(nil, nil)
+
+				// Before the update env0 holds DROP_ME; after it holds ADD_ME.
+				persisted := false
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().DoAndReturn(
+					func(_ client.Scope, _ string) ([]client.ConfigurationVariable, error) {
+						if persisted {
+							return client.ConfigurationChanges{addedVariable}, nil
+						}
+
+						return client.ConfigurationChanges{droppedVariable}, nil
+					},
+				)
+
+				// create branch: the new variable is created directly (no deployment).
+				mock.EXPECT().ConfigurationVariableCreate(client.ConfigurationVariableCreateParams{
+					Name:    "ADD_ME",
+					Value:   "new",
+					Scope:   client.ScopeEnvironment,
+					ScopeId: environment.Id,
+					Type:    client.ConfigurationVariableTypeEnvironment,
+				}).Times(1).DoAndReturn(
+					func(_ client.ConfigurationVariableCreateParams) (client.ConfigurationVariable, error) {
+						persisted = true
+
+						return addedVariable, nil
+					},
+				)
+
+				// delete branch: the removed variable is deleted directly (no deployment).
+				mock.EXPECT().ConfigurationVariableDelete(droppedVariable.Id).Times(1).Return(nil)
+
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+
+				// EnvironmentDeploy and ConfigurationVariableUpdate must not be called.
+			})
+		})
+
 		t.Run("prevent_auto_deploy - update persists variable sets without deploying", func(t *testing.T) {
 			templateId := "template-id"
 

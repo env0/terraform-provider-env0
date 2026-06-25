@@ -272,7 +272,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"prevent_auto_deploy": {
 				Type:        schema.TypeBool,
-				Description: "use this flag to prevent the provider from triggering a deployment (run) when the environment is created or updated. On update, changes to 'configuration' and 'variable_sets' are still saved to env0 without a deployment, while changes to 'revision' and 'template_id' are only applied by your next deployment",
+				Description: "use this flag to prevent the provider from triggering a deployment (run) when the environment is created or updated. On update, changes to 'configuration', 'sub_environment_configuration' variables and 'variable_sets' are still saved to env0 without a deployment, while changes to 'revision' and 'template_id' are only applied by your next deployment",
 				Optional:    true,
 			},
 			"terragrunt_working_directory": {
@@ -433,6 +433,13 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	}
 
 	if !isTemplateless(d) {
+		// When prevent_auto_deploy is set the provider never queues a deployment, so revision and
+		// template_id are managed declaratively in Terraform and applied by the user's own deploy.
+		// Overwriting them from the latest deployment log would otherwise cause perpetual drift.
+		// Trade-off (by design): genuine external changes to these fields are not detected, and a
+		// revision change is kept in state but only takes effect on the user's next deployment.
+		// setEnvironmentSchema is shared with the environment data source (which has no
+		// prevent_auto_deploy field) - the comma-ok assertion safely defaults it to false there.
 		preventAutoDeploy, _ := d.Get("prevent_auto_deploy").(bool)
 		if environment.LatestDeploymentLog.BlueprintId != "" && !preventAutoDeploy {
 			d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
@@ -1022,6 +1029,12 @@ func updateWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInter
 	return nil
 }
 
+// updateEnvironmentConfigurationWithoutDeploy persists the environment's top-level configuration
+// variables directly, without a deployment. For a regular environment the scope is ENVIRONMENT; for
+// a workflow environment it is WORKFLOW. The WORKFLOW-scoped direct create/update path is unique to
+// this prevent_auto_deploy flow (the deploy path ships workflow vars in the deploy payload), but the
+// backend supports it: /configuration accepts WORKFLOW-scoped writes and the matching
+// workflowEnvironmentId read returns them (verified via an API round-trip on the dev stack).
 func updateEnvironmentConfigurationWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
 	scope := getEnvironmentConfigurationScope(d)
 
@@ -1046,6 +1059,14 @@ func updateSubEnvironmentsConfigurationWithoutDeploy(d *schema.ResourceData, api
 
 	for i, subEnvironment := range subEnvironments {
 		if subEnvironment.Id == "" {
+			continue
+		}
+
+		// Only touch a sub-environment's variables when its own configuration block changed.
+		// updateWithoutDeploy is entered on any sub_environment_configuration change (including
+		// non-variable fields like workspace/approve_plan_automatically), so without this guard we
+		// would recompute deltas and could update/delete variables the user never touched.
+		if !d.HasChange(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)) {
 			continue
 		}
 
@@ -1087,6 +1108,12 @@ func updateVariableSetsWithoutDeploy(d *schema.ResourceData, apiClient client.Ap
 	return nil
 }
 
+// applyConfigurationChangesWithoutDeploy persists configuration variable changes one by one
+// (create/update/delete) directly to the given scope, without a deployment. Unlike the deploy
+// endpoint - which applies all changes atomically - these are sequential per-variable calls, so a
+// mid-loop failure leaves the environment partially applied and returns an error; Terraform
+// re-reconciles the remaining changes on the next apply. This matches the standalone
+// env0_configuration_variable resource's behaviour.
 func applyConfigurationChangesWithoutDeploy(configurationChanges client.ConfigurationChanges, scope client.Scope, scopeId string, apiClient client.ApiClientInterface) error {
 	for i := range configurationChanges {
 		change := configurationChanges[i]
