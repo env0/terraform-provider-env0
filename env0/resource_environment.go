@@ -272,7 +272,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"prevent_auto_deploy": {
 				Type:        schema.TypeBool,
-				Description: "use this flag to prevent auto deploy on environment creation",
+				Description: "use this flag to prevent the provider from triggering a deployment (run) when the environment is created or updated. On update, changes to 'configuration', 'sub_environment_configuration' variables and 'variable_sets' are still saved to env0 without a deployment, while changes to 'revision' and 'template_id' are only applied by your next deployment",
 				Optional:    true,
 			},
 			"terragrunt_working_directory": {
@@ -433,7 +433,15 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	}
 
 	if !isTemplateless(d) {
-		if environment.LatestDeploymentLog.BlueprintId != "" {
+		// When prevent_auto_deploy is set the provider never queues a deployment, so revision and
+		// template_id are managed declaratively in Terraform and applied by the user's own deploy.
+		// Overwriting them from the latest deployment log would otherwise cause perpetual drift.
+		// Trade-off (by design): genuine external changes to these fields are not detected, and a
+		// revision change is kept in state but only takes effect on the user's next deployment.
+		// setEnvironmentSchema is shared with the environment data source (which has no
+		// prevent_auto_deploy field) - the comma-ok assertion safely defaults it to false there.
+		preventAutoDeploy, _ := d.Get("prevent_auto_deploy").(bool)
+		if environment.LatestDeploymentLog.BlueprintId != "" && !preventAutoDeploy {
 			d.Set("template_id", environment.LatestDeploymentLog.BlueprintId)
 			d.Set("revision", environment.LatestDeploymentLog.BlueprintRevision)
 		}
@@ -844,7 +852,11 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if shouldDeploy(d) {
-		if err := deploy(d, apiClient); err != nil {
+		if d.Get("prevent_auto_deploy").(bool) {
+			if diagErr := updateWithoutDeploy(d, apiClient); diagErr != nil {
+				return diagErr
+			}
+		} else if err := deploy(d, apiClient); err != nil {
 			return err
 		}
 	}
@@ -924,6 +936,21 @@ func updateDriftDetection(d *schema.ResourceData, apiClient client.ApiClientInte
 	return nil
 }
 
+func getEnvironmentConfigurationScope(d *schema.ResourceData) client.Scope {
+	if _, ok := d.GetOk("sub_environment_configuration"); ok {
+		return client.ScopeWorkflow
+	}
+
+	return client.ScopeEnvironment
+}
+
+func getSubEnvironmentConfigurationChanges(d *schema.ResourceData, index int, subEnvironmentId string, apiClient client.ApiClientInterface) (client.ConfigurationChanges, error) {
+	configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", index)).([]any)
+	configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration))
+
+	return getUpdateConfigurationVariables(configurationChanges, subEnvironmentId, client.ScopeEnvironment, apiClient)
+}
+
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	deployPayload, err := getDeployPayload(d, apiClient, true)
 	if err != nil {
@@ -952,10 +979,7 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
 		for i, subEnvironment := range subEnvironments {
-			configuration := d.Get(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)).([]any)
-			configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration))
-
-			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, subEnvironment.Id, client.ScopeEnvironment, apiClient)
+			configurationChanges, err := getSubEnvironmentConfigurationChanges(d, i, subEnvironment.Id, apiClient)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -981,6 +1005,177 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	d.Set("deployment_id", deployResponse.Id)
 
 	return nil
+}
+
+func updateWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	if d.HasChange("configuration") {
+		if err := updateEnvironmentConfigurationWithoutDeploy(d, apiClient); err != nil {
+			return diag.Errorf("could not update environment configuration variables: %v", err)
+		}
+	}
+
+	if d.HasChange("sub_environment_configuration") {
+		if err := updateSubEnvironmentsConfigurationWithoutDeploy(d, apiClient); err != nil {
+			return diag.Errorf("could not update sub environment configuration variables: %v", err)
+		}
+	}
+
+	if d.HasChange("variable_sets") {
+		if err := updateVariableSetsWithoutDeploy(d, apiClient); err != nil {
+			return diag.Errorf("could not update variable sets: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// updateEnvironmentConfigurationWithoutDeploy persists the environment's top-level configuration
+// variables directly, without a deployment. For a regular environment the scope is ENVIRONMENT; for
+// a workflow environment it is WORKFLOW. The WORKFLOW-scoped direct create/update path is unique to
+// this prevent_auto_deploy flow (the deploy path ships workflow vars in the deploy payload), but the
+// backend supports it: /configuration accepts WORKFLOW-scoped writes and the matching
+// workflowEnvironmentId read returns them (verified via an API round-trip on the dev stack).
+func updateEnvironmentConfigurationWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	scope := getEnvironmentConfigurationScope(d)
+
+	var configurationChanges client.ConfigurationChanges
+	if configuration, ok := d.GetOk("configuration"); ok {
+		configurationChanges = stripIsRequired(getConfigurationVariablesFromSchema(configuration.([]any)))
+	}
+
+	configurationChanges, err := getUpdateConfigurationVariables(configurationChanges, d.Id(), scope, apiClient)
+	if err != nil {
+		return err
+	}
+
+	return applyConfigurationChangesWithoutDeploy(configurationChanges, scope, d.Id(), apiClient)
+}
+
+func updateSubEnvironmentsConfigurationWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	subEnvironments, err := getSubEnvironments(d)
+	if err != nil {
+		return fmt.Errorf("failed to extract sub environments from resource data: %w", err)
+	}
+
+	for i, subEnvironment := range subEnvironments {
+		if subEnvironment.Id == "" {
+			continue
+		}
+
+		// Only touch a sub-environment's variables when its own configuration block changed.
+		// updateWithoutDeploy is entered on any sub_environment_configuration change (including
+		// non-variable fields like workspace/approve_plan_automatically), so without this guard we
+		// would recompute deltas and could update/delete variables the user never touched.
+		if !d.HasChange(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)) {
+			continue
+		}
+
+		configurationChanges, err := getSubEnvironmentConfigurationChanges(d, i, subEnvironment.Id, apiClient)
+		if err != nil {
+			return err
+		}
+
+		if err := applyConfigurationChangesWithoutDeploy(configurationChanges, client.ScopeEnvironment, subEnvironment.Id, apiClient); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func updateVariableSetsWithoutDeploy(d *schema.ResourceData, apiClient client.ApiClientInterface) error {
+	changes, err := getEnvironmentConfigurationSetChanges(d, apiClient)
+	if err != nil {
+		if errors.Is(err, ErrNoChanges) {
+			return nil
+		}
+
+		return err
+	}
+
+	if len(changes.Assign) > 0 {
+		if err := apiClient.AssignConfigurationSets(client.ENVIRONMENT, d.Id(), changes.Assign); err != nil {
+			return fmt.Errorf("could not assign variable sets: %w", err)
+		}
+	}
+
+	if len(changes.Unassign) > 0 {
+		if err := apiClient.UnassignConfigurationSets(client.ENVIRONMENT, d.Id(), changes.Unassign); err != nil {
+			return fmt.Errorf("could not unassign variable sets: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// applyConfigurationChangesWithoutDeploy persists configuration variable changes one by one
+// (create/update/delete) directly to the given scope, without a deployment. Unlike the deploy
+// endpoint - which applies all changes atomically - these are sequential per-variable calls, so a
+// mid-loop failure leaves the environment partially applied and returns an error; Terraform
+// re-reconciles the remaining changes on the next apply. This matches the standalone
+// env0_configuration_variable resource's behaviour.
+func applyConfigurationChangesWithoutDeploy(configurationChanges client.ConfigurationChanges, scope client.Scope, scopeId string, apiClient client.ApiClientInterface) error {
+	for i := range configurationChanges {
+		change := configurationChanges[i]
+
+		if change.ToDelete != nil && *change.ToDelete {
+			if err := apiClient.ConfigurationVariableDelete(change.Id); err != nil {
+				return fmt.Errorf("could not delete configuration variable %q: %w", change.Name, err)
+			}
+
+			continue
+		}
+
+		params := configurationVariableCreateParams(change, scope, scopeId)
+
+		if change.Id != "" {
+			if _, err := apiClient.ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{Id: change.Id, CommonParams: params}); err != nil {
+				return fmt.Errorf("could not update configuration variable %q: %w", change.Name, err)
+			}
+
+			continue
+		}
+
+		if _, err := apiClient.ConfigurationVariableCreate(params); err != nil {
+			return fmt.Errorf("could not create configuration variable %q: %w", change.Name, err)
+		}
+	}
+
+	return nil
+}
+
+func configurationVariableCreateParams(change client.ConfigurationVariable, scope client.Scope, scopeId string) client.ConfigurationVariableCreateParams {
+	params := client.ConfigurationVariableCreateParams{
+		Name:        change.Name,
+		Value:       change.Value,
+		Scope:       scope,
+		ScopeId:     scopeId,
+		Description: change.Description,
+		Regex:       change.Regex,
+	}
+
+	if change.Type != nil {
+		params.Type = *change.Type
+	}
+
+	if change.IsSensitive != nil {
+		params.IsSensitive = *change.IsSensitive
+	}
+
+	if change.IsReadOnly != nil {
+		params.IsReadOnly = *change.IsReadOnly
+	}
+
+	if change.IsRequired != nil {
+		params.IsRequired = *change.IsRequired
+	}
+
+	if change.Schema != nil {
+		params.EnumValues = change.Schema.Enum
+		params.Format = change.Schema.Format
+	}
+
+	return params
 }
 
 func update(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
@@ -1374,11 +1569,7 @@ func getDeployPayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 
 		if configuration, ok := d.GetOk("configuration"); ok && isRedeploy {
 			configurationChanges := stripIsRequired(getConfigurationVariablesFromSchema(configuration.([]any)))
-			scope := client.ScopeEnvironment
-
-			if _, ok := d.GetOk("sub_environment_configuration"); ok {
-				scope = client.ScopeWorkflow
-			}
+			scope := getEnvironmentConfigurationScope(d)
 
 			configurationChanges, err = getUpdateConfigurationVariables(configurationChanges, d.Get("id").(string), scope, apiClient)
 			if err != nil {
