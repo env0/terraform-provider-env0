@@ -44,6 +44,14 @@ resource "env0_variable_set" "organization_scope_example" {
     type            = "terraform"
     format          = "dropdown"
   }
+
+  variable {
+    name         = "n6"
+    value        = "v6"
+    type         = "terraform"
+    format       = "text"
+    is_read_only = true
+  }
 }
 
 resource "env0_variable_set" "project_scope_example" {
