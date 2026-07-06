@@ -59,6 +59,14 @@ resource "env0_variable_set" "organization_scope_example" {
     type            = "terraform"
     format          = "dropdown"
   }
+
+  variable {
+    name         = "n6"
+    value        = "v6"
+    type         = "terraform"
+    format       = "text"
+    is_read_only = true
+  }
 }
 
 resource "env0_variable_set" "project_scope_example" {
@@ -113,6 +121,7 @@ Optional:
 
 - `dropdown_values` (List of String) a list of variable values for 'dropdown' format
 - `format` (String) the value format: 'text' (free text), 'dropdown' (dropdown list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.
+- `is_read_only` (Boolean) is the variable read-only, i.e. it cannot be overridden in a lower scope (defaults to 'false')
 - `is_sensitive` (Boolean) is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be sensitive.
 - `type` (String) variable type: terraform or environment (defaults to 'environment')
 - `value` (String) variable value for 'hcl', 'json', or 'text' format
