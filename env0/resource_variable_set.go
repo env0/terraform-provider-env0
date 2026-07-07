@@ -43,6 +43,12 @@ var variableSetVariableSchema *schema.Resource = &schema.Resource{
 			Optional:    true,
 			Default:     false,
 		},
+		"is_read_only": {
+			Type:        schema.TypeBool,
+			Description: "is the variable read-only, i.e. it cannot be overridden in a lower scope (defaults to 'false')",
+			Optional:    true,
+			Default:     false,
+		},
 		"format": {
 			Type:             schema.TypeString,
 			Description:      "the value format: 'text' (free text), 'dropdown' (dropdown list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.",
@@ -107,6 +113,13 @@ func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, err
 	}
 
 	res.IsSensitive = &isSensitive
+
+	isReadOnly, ok := d["is_read_only"].(bool)
+	if !ok {
+		isReadOnly = false
+	}
+
+	res.IsReadOnly = &isReadOnly
 
 	variableType := d["type"].(string)
 	if variableType == client.TERRAFORM {
@@ -196,6 +209,12 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (any, erro
 			ivariable["is_sensitive"] = false
 		} else {
 			ivariable["is_sensitive"] = true
+		}
+
+		if variable.IsReadOnly == nil || !*variable.IsReadOnly {
+			ivariable["is_read_only"] = false
+		} else {
+			ivariable["is_read_only"] = true
 		}
 
 		switch {

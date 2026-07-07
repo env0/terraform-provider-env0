@@ -30,6 +30,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Value:          "v1",
 		OrganizationId: organizationId,
 		IsSensitive:    new(false),
+		IsReadOnly:     new(false),
 		Scope:          "SET",
 		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
@@ -46,6 +47,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Value:          "v2",
 		OrganizationId: organizationId,
 		IsSensitive:    new(true),
+		IsReadOnly:     new(false),
 		Scope:          "SET",
 		Type:           (*client.ConfigurationVariableType)(new(0)),
 		Schema: &client.ConfigurationVariableSchema{
@@ -63,6 +65,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Value:          "sdzdfsdfsd",
 		OrganizationId: organizationId,
 		IsSensitive:    new(false),
+		IsReadOnly:     new(false),
 		Scope:          "SET",
 		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
@@ -79,6 +82,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Value:          "{}",
 		OrganizationId: organizationId,
 		IsSensitive:    new(false),
+		IsReadOnly:     new(false),
 		Scope:          "SET",
 		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
@@ -95,6 +99,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 		Value:          "o1",
 		OrganizationId: organizationId,
 		IsSensitive:    new(false),
+		IsReadOnly:     new(false),
 		Scope:          "SET",
 		Type:           (*client.ConfigurationVariableType)(new(1)),
 		Schema: &client.ConfigurationVariableSchema{
@@ -109,6 +114,23 @@ func TestUnitVariableSetResource(t *testing.T) {
 	dropdownVariableWithScopeId.Id = "iddropdownvariable"
 	dropdownVariableWithScopeId.ScopeId = configurationSet.Id
 
+	readOnlyVariable := client.ConfigurationVariable{
+		Name:           "ro1",
+		Value:          "rov1",
+		OrganizationId: organizationId,
+		IsSensitive:    new(false),
+		IsReadOnly:     new(true),
+		Scope:          "SET",
+		Type:           (*client.ConfigurationVariableType)(new(1)),
+		Schema: &client.ConfigurationVariableSchema{
+			Type: "string",
+		},
+	}
+
+	readOnlyVariableWithScopeId := readOnlyVariable
+	readOnlyVariableWithScopeId.Id = "idreadonlyvariable"
+	readOnlyVariableWithScopeId.ScopeId = configurationSet.Id
+
 	t.Run("basic - organization scope", func(t *testing.T) {
 		createPayload := client.CreateConfigurationSetPayload{
 			Name:        configurationSet.Name,
@@ -120,6 +142,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 				hclVariable,
 				jsonVariable,
 				dropdownVariable,
+				readOnlyVariable,
 			},
 		}
 
@@ -165,12 +188,21 @@ func TestUnitVariableSetResource(t *testing.T) {
 							type = "terraform"
 							format = "dropdown"
 						}
+
+						variable {
+							name = "%s"
+							value = "%s"
+							type = "terraform"
+							format = "text"
+							is_read_only = true
+						}
 					}`, resourceType, resourceName, createPayload.Name, createPayload.Description,
 						textVariable.Name, textVariable.Value,
 						sensitiveTextVariable.Name, sensitiveTextVariable.Value,
 						hclVariable.Name, hclVariable.Value,
 						jsonVariable.Name, jsonVariable.Value,
 						dropdownVariable.Name,
+						readOnlyVariable.Name, readOnlyVariable.Value,
 					),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", configurationSet.Id),
@@ -199,6 +231,12 @@ func TestUnitVariableSetResource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "variable.4.name", dropdownVariable.Name),
 						resource.TestCheckResourceAttr(accessor, "variable.4.type", "terraform"),
 						resource.TestCheckResourceAttr(accessor, "variable.4.format", "dropdown"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.is_read_only", "false"),
+						resource.TestCheckResourceAttr(accessor, "variable.5.value", readOnlyVariable.Value),
+						resource.TestCheckResourceAttr(accessor, "variable.5.name", readOnlyVariable.Name),
+						resource.TestCheckResourceAttr(accessor, "variable.5.type", "terraform"),
+						resource.TestCheckResourceAttr(accessor, "variable.5.format", "text"),
+						resource.TestCheckResourceAttr(accessor, "variable.5.is_read_only", "true"),
 					),
 				},
 			},
@@ -216,6 +254,7 @@ func TestUnitVariableSetResource(t *testing.T) {
 					hclVariableWithScopeId,
 					jsonVariableWithScopeId,
 					dropdownVariableWithScopeId,
+					readOnlyVariableWithScopeId,
 				}, nil),
 				mock.EXPECT().ConfigurationSetDelete(configurationSet.Id).Times(1).Return(nil),
 			)
