@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitProjectPolicyResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_project_policy"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

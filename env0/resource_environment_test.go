@@ -17,6 +17,7 @@ import (
 )
 
 func TestUnitEnvironmentResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName
@@ -3233,6 +3234,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 }
 
 func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -3658,6 +3660,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 }
 
 func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -4244,6 +4247,7 @@ func TestSetSubEnvironmentSchema(t *testing.T) {
 }
 
 func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

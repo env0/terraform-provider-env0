@@ -10,6 +10,7 @@ import (
 )
 
 func TestProjectsDataSource(t *testing.T) {
+	t.Parallel()
 	project1 := client.Project{
 		Id:              "id0",
 		Name:            "my-project-1",

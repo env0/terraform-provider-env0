@@ -10,6 +10,7 @@ import (
 )
 
 func TestSourceCodeVariablesDataSource(t *testing.T) {
+	t.Parallel()
 	template := client.Template{
 		Id:               "id0",
 		Name:             "template0",

@@ -9,6 +9,7 @@ import (
 )
 
 func TestGpgKeyDataSource(t *testing.T) {
+	t.Parallel()
 	gpgKey := client.GpgKey{
 		Id:      "id0",
 		Name:    "name0",

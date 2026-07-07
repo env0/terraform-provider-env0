@@ -10,6 +10,7 @@ import (
 )
 
 func TestCustomRolesDataSource(t *testing.T) {
+	t.Parallel()
 	role1 := client.Role{
 		Id:   "id0",
 		Name: "name0",

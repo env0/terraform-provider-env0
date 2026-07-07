@@ -10,6 +10,7 @@ import (
 )
 
 func TestCustomFlowDataSource(t *testing.T) {
+	t.Parallel()
 	customFlow := client.CustomFlow{
 		Id:         "id0",
 		Name:       "name0",

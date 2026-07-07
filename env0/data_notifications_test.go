@@ -10,6 +10,7 @@ import (
 )
 
 func TestNotificationsDataSource(t *testing.T) {
+	t.Parallel()
 	notification1 := client.Notification{
 		Id:    "id0",
 		Name:  "name0",

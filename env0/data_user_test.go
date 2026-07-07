@@ -9,6 +9,7 @@ import (
 )
 
 func TestUserDataSource(t *testing.T) {
+	t.Parallel()
 	user := client.OrganizationUser{
 		User: client.User{
 			Email:  "a@b.com",

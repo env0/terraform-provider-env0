@@ -13,6 +13,7 @@ import (
 )
 
 func TestUnitApiKeyResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_api_key"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

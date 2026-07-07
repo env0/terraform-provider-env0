@@ -10,6 +10,7 @@ import (
 )
 
 func TestVariableSetDataSource(t *testing.T) {
+	t.Parallel()
 	projectId := "project_id"
 	organizationId := "organization_id"
 

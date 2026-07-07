@@ -13,6 +13,7 @@ import (
 )
 
 func TestUnitAzureCredentialsResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_azure_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

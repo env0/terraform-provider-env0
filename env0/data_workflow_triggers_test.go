@@ -10,6 +10,7 @@ import (
 )
 
 func TestWorkflowTriggerDataSource(t *testing.T) {
+	t.Parallel()
 	trigger := client.WorkflowTrigger{
 		Id: "id0",
 	}

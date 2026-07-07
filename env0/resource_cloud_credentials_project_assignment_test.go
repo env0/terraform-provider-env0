@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitResourceCloudCredentialsProjectAssignmentResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_cloud_credentials_project_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

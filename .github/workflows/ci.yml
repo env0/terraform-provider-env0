@@ -60,8 +60,9 @@ jobs:
         run: |
           echo "Using Terraform at: $TF_PATH"
           echo "Terraform version: $TERRAFORM_VERSION"
-          # Run tests with detailed logging and increased timeout
-          TF_LOG=DEBUG go test -timeout 20m -v ./...
+          # Tests run terraform per step; -parallel oversubscribes the runner since steps are IO/process-bound.
+          # TF_LOG=DEBUG omitted on purpose (huge per-invocation overhead); re-run locally with it to debug a failure.
+          go test -timeout 20m -parallel 16 ./...
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
@@ -78,5 +79,13 @@ jobs:
         run: apk add opentofu
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Cache Go modules and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            /go/pkg/mod
+            /root/.cache/go-build
+          key: integ-go-${{ hashFiles('go.sum') }}
+          restore-keys: integ-go-
       - name: Run Harness tests
         run: go run tests/harness.go

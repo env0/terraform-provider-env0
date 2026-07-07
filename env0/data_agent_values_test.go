@@ -10,6 +10,7 @@ import (
 )
 
 func TestAgentValues(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_agent_values"
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)

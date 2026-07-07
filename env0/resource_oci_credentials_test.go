@@ -13,6 +13,7 @@ import (
 )
 
 func TestUnitOciCredentialsResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_oci_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

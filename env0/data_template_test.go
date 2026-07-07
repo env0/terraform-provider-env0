@@ -9,6 +9,7 @@ import (
 )
 
 func TestUnitTemplateData(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_template"
 	resourceName := "test"
 	resourceFullName := dataSourceAccessor(resourceType, resourceName)

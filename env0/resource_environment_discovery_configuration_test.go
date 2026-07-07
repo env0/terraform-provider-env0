@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment_discovery_configuration"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitEnvironmentStateAccessResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_environment_state_access"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

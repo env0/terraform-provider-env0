@@ -12,6 +12,7 @@ import (
 )
 
 func TestUnitOrganizationPolicyResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_organization_policy"
 	resourceName := "test"
 	organizationId := "org"

@@ -14,6 +14,7 @@ import (
 )
 
 func TestUnitAzureCloudConfigurationResource(t *testing.T) {
+	t.Parallel()
 	resourceType := "env0_azure_cloud_configuration"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

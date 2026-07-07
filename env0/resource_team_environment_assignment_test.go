@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitTeamEnvironmntAssignmentResource(t *testing.T) {
+	t.Parallel()
 	teamId := "tid"
 	environmentId := "eid"
 	id := "id"
