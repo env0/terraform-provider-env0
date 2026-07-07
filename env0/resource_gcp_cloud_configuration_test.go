@@ -15,6 +15,7 @@ import (
 
 func TestUnitGcpCloudConfigurationResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_gcp_cloud_configuration"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

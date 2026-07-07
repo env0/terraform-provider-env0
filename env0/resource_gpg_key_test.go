@@ -13,6 +13,7 @@ import (
 
 func TestUnitGpgKeyyResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_gpg_key"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

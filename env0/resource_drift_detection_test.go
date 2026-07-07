@@ -10,6 +10,7 @@ import (
 
 func TestUnitEnvironmentDriftDetectionResource(t *testing.T) {
 	t.Parallel()
+
 	environmentId := "environment0"
 	resourceType := "env0_environment_drift_detection"
 	resourceName := "test"

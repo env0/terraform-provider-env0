@@ -10,6 +10,7 @@ import (
 
 func TestApiKeyDataSource(t *testing.T) {
 	t.Parallel()
+
 	apiKey := client.ApiKey{
 		Id:           "id0",
 		Name:         "name0",

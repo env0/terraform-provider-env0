@@ -13,6 +13,7 @@ import (
 
 func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_custom_flow_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

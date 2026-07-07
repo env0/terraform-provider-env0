@@ -10,6 +10,7 @@ import (
 
 func TestTeamDataSource(t *testing.T) {
 	t.Parallel()
+
 	team := client.Team{
 		Id:          "id0",
 		Name:        "my-team-1",

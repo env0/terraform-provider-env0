@@ -13,6 +13,7 @@ import (
 
 func TestUnitConfigurationVariableData(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)

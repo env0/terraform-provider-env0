@@ -9,6 +9,7 @@ import (
 
 func TestIpRangesDataSource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_ip_ranges"
 	resourceName := "ip_ranges"
 	accessor := dataSourceAccessor(resourceType, resourceName)

@@ -13,6 +13,7 @@ import (
 
 func TestUnitAwsCostCredentialsResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_aws_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -158,6 +159,7 @@ func TestUnitAwsCostCredentialsResource(t *testing.T) {
 
 func TestUnitAzureCostCredentialsResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_azure_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -298,6 +300,7 @@ func TestUnitAzureCostCredentialsResource(t *testing.T) {
 
 func TestUnitGoogleCostCredentialsResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_gcp_cost_credentials"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

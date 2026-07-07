@@ -11,6 +11,7 @@ import (
 
 func TestUnitTeamProjectAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_team_project_assignment"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

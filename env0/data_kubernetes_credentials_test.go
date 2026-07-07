@@ -12,6 +12,7 @@ import (
 
 func TestKubernetesCredentialsDataSource(t *testing.T) {
 	t.Parallel()
+
 	tests := [][]string{
 		{"env0_aws_eks_credentials", string(client.AwsEksCredentialsType)},
 		{"env0_azure_aks_credentials", string(client.AzureAksCredentialsType)},

@@ -11,6 +11,7 @@ import (
 
 func TestAgentsDataSource(t *testing.T) {
 	t.Parallel()
+
 	agent1 := client.Agent{
 		AgentKey: "akey1",
 	}

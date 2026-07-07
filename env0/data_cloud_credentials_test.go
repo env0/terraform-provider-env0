@@ -11,6 +11,7 @@ import (
 
 func TestCloudCredentialsDataSource(t *testing.T) {
 	t.Parallel()
+
 	credentials1 := client.Credentials{
 		Id:   "id0",
 		Name: "name0",

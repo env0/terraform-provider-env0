@@ -13,6 +13,7 @@ import (
 
 func TestUnitNotificationResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_notification"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

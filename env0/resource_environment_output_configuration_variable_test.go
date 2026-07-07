@@ -14,6 +14,7 @@ import (
 
 func TestUnitEnvironmentOutputConfigurationVariableResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_environment_output_configuration_variable"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

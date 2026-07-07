@@ -10,6 +10,7 @@ import (
 
 func TestUnitVariableSetAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_variable_set_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

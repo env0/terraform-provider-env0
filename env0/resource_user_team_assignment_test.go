@@ -14,6 +14,7 @@ import (
 
 func TestUnitUserTeamAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	userId := "uid"
 	teamId := "tid"
 

@@ -11,6 +11,7 @@ import (
 
 func TestEnvironmentsDataSource(t *testing.T) {
 	t.Parallel()
+
 	env1 := client.Environment{
 		Id:         "env1",
 		Name:       "Environment 1",

@@ -12,6 +12,7 @@ import (
 
 func TestUnitNotificationProjectAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_notification_project_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

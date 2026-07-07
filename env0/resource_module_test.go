@@ -13,6 +13,7 @@ import (
 
 func TestUnitModuleResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_module"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

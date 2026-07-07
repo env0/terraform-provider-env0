@@ -12,6 +12,7 @@ import (
 
 func TestUnitWorkflowTriggerResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_workflow_trigger"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

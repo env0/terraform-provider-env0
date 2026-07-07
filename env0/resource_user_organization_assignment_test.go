@@ -21,6 +21,7 @@ func getOrgUser(userId, role string) client.OrganizationUser {
 
 func TestUnitUserOrganizationAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	userId := "uid"
 	updatedUserId := "uid2"
 	role := "Admin"

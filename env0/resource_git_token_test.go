@@ -13,6 +13,7 @@ import (
 
 func TestUnitGitTokenResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_git_token"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

@@ -10,6 +10,7 @@ import (
 
 func TestPolicyDataSource(t *testing.T) {
 	t.Parallel()
+
 	policy := client.Policy{
 		Id:                          "id0",
 		ProjectId:                   "project0",

@@ -15,6 +15,7 @@ type TestCredentialsCase struct {
 
 func TestCredentialsDataSource(t *testing.T) {
 	t.Parallel()
+
 	testCases := []TestCredentialsCase{
 		{
 			credentialsType: "AWS_ASSUMED_ROLE_FOR_DEPLOYMENT",

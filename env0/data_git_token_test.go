@@ -12,6 +12,7 @@ import (
 
 func TestGitTokenDataSource(t *testing.T) {
 	t.Parallel()
+
 	gitToken := client.GitToken{
 		Id:   "id0",
 		Name: "name0",

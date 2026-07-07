@@ -10,6 +10,7 @@ import (
 
 func TestUnitSshKeyResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_ssh_key"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

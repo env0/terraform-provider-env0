@@ -11,6 +11,7 @@ import (
 
 func TestEnvironmentDataSource(t *testing.T) {
 	t.Parallel()
+
 	template := client.Template{
 		Id:                   "template-id",
 		TokenId:              "tokenId",

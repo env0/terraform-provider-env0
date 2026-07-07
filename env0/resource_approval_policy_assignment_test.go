@@ -13,6 +13,7 @@ import (
 
 func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_approval_policy_assignment"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

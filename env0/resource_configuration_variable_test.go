@@ -18,6 +18,7 @@ import (
 
 func TestUnitConfigurationVariableResource(t *testing.T) {
 	t.Parallel()
+
 	resourceType := "env0_configuration_variable"
 	resourceName := "test"
 	isReadonly := true
