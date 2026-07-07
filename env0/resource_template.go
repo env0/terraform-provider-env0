@@ -216,7 +216,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		"is_terragrunt_run_all": {
 			Type:        schema.TypeBool,
 			Optional:    true,
-			Description: "true if this template should execute run-all commands on multiple modules (check https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#the-run-all-command for additional details). Can only be true with 'terragrunt' template type and terragrunt version 0.28.1 and above",
+			Description: "true if this template should execute run-all commands on multiple modules (check https://docs.terragrunt.com/reference/cli/commands/run/#running-multiple-units for additional details). Can only be true with 'terragrunt' template type and terragrunt version 0.28.1 and above",
 			Default:     "false",
 		},
 		"is_azure_devops": {
