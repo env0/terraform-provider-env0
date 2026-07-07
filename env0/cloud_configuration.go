@@ -90,9 +90,12 @@ func getCloudConfigurationFromApi(apiClient client.ApiClientInterface, id string
 		return nil, fmt.Errorf("failed to json unmarshal %s configuration: %w", cloudAccount.Provider, err)
 	}
 
-	cloudAccount.Configuration = configuration
+	// Return a copy rather than mutating the cloudAccount returned by the API client in place: the
+	// client may hand back a shared instance, and concurrent reads would otherwise race on Configuration.
+	cloudAccountCopy := *cloudAccount
+	cloudAccountCopy.Configuration = configuration
 
-	return cloudAccount, nil
+	return &cloudAccountCopy, nil
 }
 
 func createCloudConfiguration(d *schema.ResourceData, meta any, provider string) diag.Diagnostics {
