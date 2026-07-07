@@ -1,7 +1,12 @@
-# This GitHub action can publish assets for release when a tag is created.
-# Currently its setup to run on any tag that matches the pattern "v*" (ie. v0.1.0).
+# This GitHub action publishes release assets to the Terraform Public Registry.
 #
-# This uses an action (paultyng/ghaction-import-gpg) that assumes you set your
+# It runs either:
+#   - manually via the "Run workflow" button (workflow_dispatch) — pick a bump
+#     (patch/minor/major); the next tag is computed from the latest tag, created,
+#     and pushed for you; or
+#   - automatically when a "v*.*.*" tag is pushed (the legacy flow).
+#
+# This uses an action (crazy-max/ghaction-import-gpg) that assumes you set your
 # private key in the `GPG_PRIVATE_KEY` secret and passphrase in the `PASSPHRASE`
 # secret. If you would rather own your own GPG handling, please fork this action
 # or use an alternative one for key handling.
@@ -11,22 +16,57 @@
 #
 name: release
 on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
   push:
     tags:
       - "v*.*.*"
+
+permissions:
+  contents: write
 
 env:
   GO_VERSION: "1.26"
 
 jobs:
   goreleaser:
-    environment: release
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Unshallow
-        run: git fetch --prune --unshallow
+        with:
+          fetch-depth: 0
+      - name: Create and push tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          latest=$(git tag --sort=-v:refname | head -n1)
+          latest=${latest#v}
+          IFS='.' read -r ma mi pa <<< "$latest"
+          case "${{ inputs.bump }}" in
+            major) ma=$((ma+1)); mi=0; pa=0;;
+            minor) mi=$((mi+1)); pa=0;;
+            patch) pa=$((pa+1));;
+          esac
+          new="v${ma}.${mi}.${pa}"
+          if git rev-parse "$new" >/dev/null 2>&1; then
+            echo "::error::tag $new already exists"; exit 1
+          fi
+          echo "Bumping $latest -> $new"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$new"
+          # Pushed with the default GITHUB_TOKEN, so GitHub does NOT re-trigger
+          # the push:tags run above — no double release.
+          git push origin "$new"
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
