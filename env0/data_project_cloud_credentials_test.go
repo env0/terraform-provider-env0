@@ -10,6 +10,8 @@ import (
 )
 
 func TestProjectCloudCredentialsDataSource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_project_cloud_credentials"
 	resourceName := "test_project_cloud_credentials"
 	accessor := dataSourceAccessor(resourceType, resourceName)

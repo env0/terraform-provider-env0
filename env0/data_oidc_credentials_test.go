@@ -11,6 +11,8 @@ import (
 )
 
 func TestOidcCredentialDataSource(t *testing.T) {
+	t.Parallel()
+
 	tests := [][]string{
 		{"env0_aws_oidc_credentials", string(client.AwsOidcCredentialsType)},
 		{"env0_azure_oidc_credentials", string(client.AzureOidcCredentialsType)},

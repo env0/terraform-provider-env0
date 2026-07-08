@@ -12,6 +12,8 @@ import (
 )
 
 func TestProjectDataSource(t *testing.T) {
+	t.Parallel()
+
 	project := client.Project{
 		Id:              "id0",
 		Name:            "my-project-1",

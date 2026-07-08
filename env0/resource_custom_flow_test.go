@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitCustomFlowResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_custom_flow"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

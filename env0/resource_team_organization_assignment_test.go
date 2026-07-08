@@ -11,6 +11,8 @@ import (
 )
 
 func TestUnitTeamOrganizationAssignmentResource(t *testing.T) {
+	t.Parallel()
+
 	teamId := "tid"
 	organizationId := "oid"
 

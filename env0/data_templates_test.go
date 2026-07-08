@@ -10,6 +10,8 @@ import (
 )
 
 func TestTemplatesDataSource(t *testing.T) {
+	t.Parallel()
+
 	template1 := client.Template{
 		Id:   "id0",
 		Name: "name0",
