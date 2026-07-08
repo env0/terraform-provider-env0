@@ -1,9 +1,8 @@
 name: Docs
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 env:
   GO_VERSION: "1.26"
@@ -19,10 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # Check out the PR head branch (not the merge ref) so generated-doc
+          # changes can be committed straight back onto it.
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Unshallow
-        run: git fetch --prune --unshallow
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -34,6 +33,7 @@ jobs:
       - name: Update generated docs
         run: ./generate-docs.sh
       - name: Commit changes
+        # Only commits & pushes when generate-docs.sh produced a diff.
         uses: EndBug/add-and-commit@v9
         with:
           author_name: update generated docs action
