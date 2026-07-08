@@ -3,6 +3,10 @@ on:
   pull_request:
     types: [opened]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   add-assignee:
     runs-on: ubuntu-24.04

@@ -5,6 +5,10 @@ on:
       - "opened"
       - "edited"
       - "reopened"
+
+permissions:
+  contents: read
+
 jobs:
   check-commit-message:
     name: "PR Title"
