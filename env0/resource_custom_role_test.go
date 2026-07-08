@@ -14,6 +14,8 @@ import (
 )
 
 func TestUnitCustomRoleResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_custom_role"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

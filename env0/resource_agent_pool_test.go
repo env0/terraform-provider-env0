@@ -12,6 +12,8 @@ import (
 )
 
 func TestUnitAgentPoolResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_agent_pool"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

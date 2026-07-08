@@ -10,6 +10,8 @@ import (
 )
 
 func TestModuleTestingProjectDataSource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_module_testing_project"
 	resourceName := "test"
 	accessor := dataSourceAccessor(resourceType, resourceName)

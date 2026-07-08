@@ -10,6 +10,8 @@ import (
 )
 
 func TestAgentPoolDataSource(t *testing.T) {
+	t.Parallel()
+
 	agentPool := client.AgentPool{
 		Id:          "id0",
 		Name:        "pool0",

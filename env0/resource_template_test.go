@@ -12,6 +12,8 @@ import (
 )
 
 func TestUnitTemplateResource(t *testing.T) {
+	t.Parallel()
+
 	const resourceType = "env0_template"
 
 	const resourceName = "test"

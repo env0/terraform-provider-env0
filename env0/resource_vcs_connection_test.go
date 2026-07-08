@@ -12,6 +12,8 @@ import (
 )
 
 func TestUnitVcsConnectionResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_vcs_connection"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

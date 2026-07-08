@@ -9,6 +9,8 @@ import (
 )
 
 func TestUnitEnvironmentSchedulingResource(t *testing.T) {
+	t.Parallel()
+
 	environmentId := "environment0"
 	resourceType := "env0_environment_scheduling"
 	resourceName := "test"

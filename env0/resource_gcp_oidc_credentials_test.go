@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitGcpOidcCredentialsResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_gcp_oidc_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName
@@ -21,6 +23,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 	gcpCredentialsResource := map[string]any{
 		"name":                                  "test",
 		"credential_configuration_file_content": "content1",
+		"token_format":                          "v2",
 	}
 
 	updatedGcpCredentialsResource := map[string]any{
@@ -32,6 +35,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 		Name: gcpCredentialsResource["name"].(string),
 		Value: client.GcpCredentialsValuePayload{
 			CredentialConfigurationFileContent: gcpCredentialsResource["credential_configuration_file_content"].(string),
+			TokenFormat:                        gcpCredentialsResource["token_format"].(string),
 		},
 		Type: client.GcpOidcCredentialsType,
 	}
@@ -72,6 +76,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "id", returnValues.Id),
 					resource.TestCheckResourceAttr(accessor, "name", gcpCredentialsResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "credential_configuration_file_content", gcpCredentialsResource["credential_configuration_file_content"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", gcpCredentialsResource["token_format"].(string)),
 				),
 			},
 			{
@@ -80,6 +85,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "id", updateReturnValues.Id),
 					resource.TestCheckResourceAttr(accessor, "name", updatedGcpCredentialsResource["name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "credential_configuration_file_content", updatedGcpCredentialsResource["credential_configuration_file_content"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", ""),
 				),
 			},
 		},
@@ -134,7 +140,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           gcpCredentialsResource["name"].(string),
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"credential_configuration_file_content"},
+					ImportStateVerifyIgnore: []string{"credential_configuration_file_content", "token_format"},
 				},
 			},
 		}
@@ -161,7 +167,7 @@ func TestUnitGcpOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           returnValues.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"credential_configuration_file_content"},
+					ImportStateVerifyIgnore: []string{"credential_configuration_file_content", "token_format"},
 				},
 			},
 		}

@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitAzureOidcCredentialsResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_azure_oidc_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName
@@ -23,6 +25,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 		"tenant_id":       "tenantid1",
 		"subscription_id": "subscriptionid1",
 		"client_id":       "clientid1",
+		"token_format":    "v2",
 	}
 
 	updatedAzureCredentialsResource := map[string]any{
@@ -38,6 +41,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 			TenantId:       azureCredentialsResource["tenant_id"].(string),
 			SubscriptionId: azureCredentialsResource["subscription_id"].(string),
 			ClientId:       azureCredentialsResource["client_id"].(string),
+			TokenFormat:    azureCredentialsResource["token_format"].(string),
 		},
 		Type: client.AzureOidcCredentialsType,
 	}
@@ -82,6 +86,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "tenant_id", azureCredentialsResource["tenant_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "subscription_id", azureCredentialsResource["subscription_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "client_id", azureCredentialsResource["client_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", azureCredentialsResource["token_format"].(string)),
 				),
 			},
 			{
@@ -92,6 +97,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "tenant_id", updatedAzureCredentialsResource["tenant_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "subscription_id", updatedAzureCredentialsResource["subscription_id"].(string)),
 					resource.TestCheckResourceAttr(accessor, "client_id", updatedAzureCredentialsResource["client_id"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", ""),
 				),
 			},
 		},
@@ -146,7 +152,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           azureCredentialsResource["name"].(string),
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"tenant_id", "subscription_id", "client_id"},
+					ImportStateVerifyIgnore: []string{"tenant_id", "subscription_id", "client_id", "token_format"},
 				},
 			},
 		}
@@ -173,7 +179,7 @@ func TestUnitAzureOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           returnValues.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"tenant_id", "subscription_id", "client_id"},
+					ImportStateVerifyIgnore: []string{"tenant_id", "subscription_id", "client_id", "token_format"},
 				},
 			},
 		}

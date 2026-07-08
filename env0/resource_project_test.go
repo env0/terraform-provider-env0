@@ -11,6 +11,8 @@ import (
 )
 
 func TestUnitProjectResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_project"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)
@@ -225,6 +227,8 @@ func TestUnitProjectInvalidParams(t *testing.T) {
 }
 
 func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_project"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

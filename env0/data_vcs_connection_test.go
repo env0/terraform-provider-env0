@@ -9,6 +9,8 @@ import (
 )
 
 func TestVcsConnectionDataSource(t *testing.T) {
+	t.Parallel()
+
 	deployConnection := client.VcsConnection{
 		Id:             "id0",
 		Name:           "connection0",

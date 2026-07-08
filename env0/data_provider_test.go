@@ -10,6 +10,8 @@ import (
 )
 
 func TestProviderDataSource(t *testing.T) {
+	t.Parallel()
+
 	provider := client.Provider{
 		Id:          "id0",
 		Type:        "type0",
