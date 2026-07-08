@@ -11,6 +11,9 @@ env:
   GO_VERSION: "1.26"
   TERRAFORM_VERSION: 1.11.4
 
+permissions:
+  contents: read
+
 jobs:
   unit-tests:
     name: Unit Tests

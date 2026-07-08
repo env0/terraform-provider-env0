@@ -8,6 +8,9 @@ on:
 env:
   GO_VERSION: "1.26"
 
+permissions:
+  contents: write
+
 jobs:
   generate-docs:
     name: Generate Docs
@@ -16,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.ENV0_BOT_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unshallow
         run: git fetch --prune --unshallow
