@@ -32,6 +32,7 @@ resource "env0_gcp_oidc_credentials" "credentials" {
 ### Optional
 
 - `project_id` (String) the env0 project id to associate the credentials with
+- `token_format` (String) the OIDC token format. One of: "v1" (default, legacy single-audience) or "v2" (per-provider audience). Leave unset for v1
 
 ### Read-Only
 
