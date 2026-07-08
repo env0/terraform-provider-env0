@@ -202,15 +202,15 @@ go generate ./...
 ## Documentation
 
 - Docs are generated using github.com/hashicorp/terraform-plugin-docs
-- Run `./generate-docs.sh` to generate docs
-- Must be run manually before releasing a version
+- The `Docs` GitHub Action regenerates docs on every PR and commits any changes back to the PR branch, so generated docs stay in sync automatically — no manual step is needed.
+- You can run `./generate-docs.sh` locally to preview changes if you want.
 - Please add an example to `examples/<resources or data-sources>/env0_<name>` dir and make sure it is added to the docs.
 
 ## Release
 
 To release a version to the [Terraform Public Registry](https://registry.terraform.io/providers/env0/env0/latest?pollNotifications=true):
 
-1. Validate that all status checks are ✅ on `main` branch (specifically that docs generation is complete)
+1. Validate that all status checks are ✅ on `main` branch (generated docs are kept in sync per-PR, so `main` should already be current)
 2. Go to **Actions → release → Run workflow**, select the branch (`main`) and the version bump (`patch`/`minor`/`major`), then **Run workflow**. It computes the next tag from the latest one, creates & pushes it, and publishes the release with binaries — no approval needed.
 3. The Registry will automatically pick up on the new version.
 
