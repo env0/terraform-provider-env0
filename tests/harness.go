@@ -186,6 +186,7 @@ func terraformDestroy(testName string) {
 	log.Println("Running destroy to clean up in", testName)
 
 	destroy := exec.Command("tofu", "destroy", "-auto-approve", "-var", "second_run=0")
+	destroy.Env = os.Environ()
 	destroy.Dir = TESTS_FOLDER + "/" + testName
 
 	if err := destroy.Run(); err != nil {
