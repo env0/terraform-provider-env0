@@ -27,9 +27,10 @@ data "env0_aws_credentials" "my_role_by_access_key" {
 }
 
 resource "env0_aws_oidc_credentials" "oidc_credentials" {
-  name     = "Test Oidc Credentials ${random_string.random.result}"
-  role_arn = var.second_run ? "Role ARN2" : "Role ARN1"
-  duration = 7200
+  name         = "Test Oidc Credentials ${random_string.random.result}"
+  role_arn     = var.second_run ? "Role ARN2" : "Role ARN1"
+  duration     = 7200
+  token_format = var.second_run ? "v1" : "v2"
 }
 
 data "env0_aws_oidc_credentials" "oidc_credentials" {
@@ -43,4 +44,8 @@ output "name_by_arn" {
 
 output "name_access_key" {
   value = replace(data.env0_aws_credentials.my_role_by_access_key.name, random_string.random.result, "")
+}
+
+output "aws_oidc_token_format" {
+  value = env0_aws_oidc_credentials.oidc_credentials.token_format
 }

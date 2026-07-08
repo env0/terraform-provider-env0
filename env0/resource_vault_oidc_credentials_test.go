@@ -27,6 +27,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 		"role_name":             "rolename1",
 		"jwt_auth_backend_path": "path1",
 		"namespace":             "namespace1",
+		"token_format":          "v2",
 	}
 
 	updatedVaultCredentialsResource := map[string]any{
@@ -45,6 +46,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 			RoleName:           vaultCredentialsResource["role_name"].(string),
 			JwtAuthBackendPath: vaultCredentialsResource["jwt_auth_backend_path"].(string),
 			Namespace:          vaultCredentialsResource["namespace"].(string),
+			TokenFormat:        vaultCredentialsResource["token_format"].(string),
 		},
 		Type: client.VaultOidcCredentialsType,
 	}
@@ -92,6 +94,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "role_name", vaultCredentialsResource["role_name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "jwt_auth_backend_path", vaultCredentialsResource["jwt_auth_backend_path"].(string)),
 					resource.TestCheckResourceAttr(accessor, "namespace", vaultCredentialsResource["namespace"].(string)),
+					resource.TestCheckResourceAttr(accessor, "token_format", vaultCredentialsResource["token_format"].(string)),
 				),
 			},
 			{
@@ -104,6 +107,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 					resource.TestCheckResourceAttr(accessor, "role_name", updatedVaultCredentialsResource["role_name"].(string)),
 					resource.TestCheckResourceAttr(accessor, "jwt_auth_backend_path", updatedVaultCredentialsResource["jwt_auth_backend_path"].(string)),
 					resource.TestCheckResourceAttr(accessor, "namespace", ""),
+					resource.TestCheckResourceAttr(accessor, "token_format", ""),
 				),
 			},
 		},
@@ -158,7 +162,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           vaultCredentialsResource["name"].(string),
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"address", "version", "role_name", "jwt_auth_backend_path", "namespace"},
+					ImportStateVerifyIgnore: []string{"address", "version", "role_name", "jwt_auth_backend_path", "namespace", "token_format"},
 				},
 			},
 		}
@@ -185,7 +189,7 @@ func TestUnitVaultOidcCredentialsResource(t *testing.T) {
 					ImportState:             true,
 					ImportStateId:           returnValues.Id,
 					ImportStateVerify:       true,
-					ImportStateVerifyIgnore: []string{"address", "version", "role_name", "jwt_auth_backend_path", "namespace"},
+					ImportStateVerifyIgnore: []string{"address", "version", "role_name", "jwt_auth_backend_path", "namespace", "token_format"},
 				},
 			},
 		}

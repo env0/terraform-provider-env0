@@ -11,10 +11,15 @@ resource "env0_vault_oidc_credentials" "oidc_credentials" {
   role_name             = "role_name"
   jwt_auth_backend_path = var.second_run ? "path2" : "path1"
   namespace             = "namespace"
+  token_format          = var.second_run ? "v1" : "v2"
 }
 
 data "env0_vault_oidc_credentials" "oidc_credentials" {
   name       = "test vault oidc credentials ${random_string.random.result}"
   depends_on = [env0_vault_oidc_credentials.oidc_credentials]
+}
+
+output "vault_oidc_token_format" {
+  value = env0_vault_oidc_credentials.oidc_credentials.token_format
 }
 

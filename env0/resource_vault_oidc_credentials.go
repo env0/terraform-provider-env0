@@ -50,6 +50,12 @@ func resourceVaultOidcCredentials() *schema.Resource {
 				Description: "an optional vault namespace",
 				Optional:    true,
 			},
+			"token_format": {
+				Type:             schema.TypeString,
+				Description:      "the OIDC token format. One of: \"v1\" (default, legacy single-audience) or \"v2\" (per-provider audience). Leave unset for v1",
+				Optional:         true,
+				ValidateDiagFunc: NewStringInValidator([]string{"v1", "v2"}),
+			},
 			"project_id": {
 				Type:        schema.TypeString,
 				Description: "the env0 project id to associate the credentials with",

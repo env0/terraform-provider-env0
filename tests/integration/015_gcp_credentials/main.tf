@@ -30,6 +30,7 @@ resource "env0_gcp_oidc_credentials" "oidc_credentials" {
   credential_configuration_file_content = jsonencode({
     "key" : "value"
   })
+  token_format = var.second_run ? "v1" : "v2"
 }
 
 data "env0_gcp_oidc_credentials" "gcp_credentials" {
@@ -45,4 +46,8 @@ output "gcp_cred_name" {
 
 output "gcp_cred_name_with_project_id" {
   value = data.env0_gcp_credentials.gcp_cred_with_project_id.name
+}
+
+output "gcp_oidc_token_format" {
+  value = env0_gcp_oidc_credentials.oidc_credentials.token_format
 }
