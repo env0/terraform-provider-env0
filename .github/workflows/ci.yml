@@ -15,7 +15,9 @@ jobs:
   unit-tests:
     name: Unit Tests
     timeout-minutes: 15
-    runs-on: ubuntu-24.04
+    # 8-vCPU runner: Go Test runs with -race (CPU-bound), so more cores + RAM cut wall time.
+    # Integration tests stay on the standard runner — they're backend-bound, not runner-bound.
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
