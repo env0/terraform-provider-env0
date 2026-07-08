@@ -61,9 +61,10 @@ jobs:
           echo "Using Terraform at: $TF_PATH"
           echo "Terraform version: $TERRAFORM_VERSION"
           # -race keeps the data-race detector (APO-185); -parallel oversubscribes the
-          # runner since terraform-per-step is IO/process-bound. TF_LOG=DEBUG/-v omitted
-          # on purpose (huge per-invocation overhead) — re-run locally with them to debug.
-          go test -race -timeout 20m -parallel 16 ./...
+          # runner since terraform-per-step is IO/process-bound. TF_LOG_PROVIDER=info
+          # surfaces provider logs on failing tests at ~no cost (measured); full
+          # TF_LOG=DEBUG/-v omitted on purpose (huge per-invocation overhead).
+          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 ./...
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
