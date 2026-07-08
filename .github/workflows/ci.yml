@@ -60,8 +60,8 @@ jobs:
         run: |
           echo "Using Terraform at: $TF_PATH"
           echo "Terraform version: $TERRAFORM_VERSION"
-          # Run tests with detailed logging and increased timeout
-          TF_LOG=DEBUG go test -timeout 20m -v ./...
+          # Run tests with the race detector, detailed logging and increased timeout
+          TF_LOG=DEBUG go test -race -timeout 20m -v ./...
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
