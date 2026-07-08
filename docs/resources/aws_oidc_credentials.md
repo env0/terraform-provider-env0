@@ -32,6 +32,7 @@ resource "env0_aws_oidc_credentials" "credentials" {
 
 - `duration` (Number) the session duration in seconds. If set must be one of the following: 3600 (1h), 7200 (2h), 14400 (4h), 18000 (5h default), 28800 (8h), 43200 (12h)
 - `project_id` (String) the env0 project id to associate the credentials with
+- `token_format` (String) the OIDC token format. One of: "v1" (default, legacy single-audience) or "v2" (per-provider audience). Leave unset for v1
 
 ### Read-Only
 
