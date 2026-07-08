@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitAwsEksCredentialsResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_aws_eks_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

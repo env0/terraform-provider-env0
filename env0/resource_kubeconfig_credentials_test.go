@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitKubeconfigCredentialsResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_kubeconfig_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

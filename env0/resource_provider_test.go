@@ -12,6 +12,8 @@ import (
 )
 
 func TestUnitProviderResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_provider"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

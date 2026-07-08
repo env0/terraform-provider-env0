@@ -17,6 +17,8 @@ import (
 )
 
 func TestUnitApprovalPolicyResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_approval_policy"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

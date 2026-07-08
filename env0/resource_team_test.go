@@ -12,6 +12,8 @@ import (
 )
 
 func TestUnitTeamResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_team"
 	resourceName := "test"
 	accessor := resourceAccessor(resourceType, resourceName)

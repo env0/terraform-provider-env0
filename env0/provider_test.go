@@ -27,12 +27,17 @@ type testRestyClientSuite struct {
 	url    string
 }
 
-func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
-	t.Helper()
-
+// TestMain sets the shared env vars once, before any test runs. Doing this per-call in runUnitTest
+// would be a data race now that top-level tests run with t.Parallel().
+func TestMain(m *testing.M) {
 	os.Setenv("TF_ACC", "1")
 	os.Setenv("ENV0_API_KEY", "value")
 	os.Setenv("ENV0_API_SECRET", "value")
+	os.Exit(m.Run())
+}
+
+func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
+	t.Helper()
 
 	testPattern := os.Getenv("TEST_PATTERN")
 	if testPattern != "" && !strings.Contains(t.Name(), testPattern) {

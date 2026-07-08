@@ -13,6 +13,8 @@ import (
 )
 
 func TestUnitGcpOidcCredentialsResource(t *testing.T) {
+	t.Parallel()
+
 	resourceType := "env0_gcp_oidc_credentials"
 	resourceName := "test"
 	resourceNameImport := resourceType + "." + resourceName

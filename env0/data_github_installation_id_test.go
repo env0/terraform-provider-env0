@@ -11,6 +11,8 @@ import (
 )
 
 func TestGithubInstallationIdDataSource(t *testing.T) {
+	t.Parallel()
+
 	mockToken := client.VscToken{
 		Token: 12345,
 	}

@@ -11,6 +11,8 @@ import (
 )
 
 func TestModuleDataSource(t *testing.T) {
+	t.Parallel()
+
 	module := client.Module{
 		Id:             "id0",
 		ModuleName:     "module0",

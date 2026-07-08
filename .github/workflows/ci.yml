@@ -15,7 +15,9 @@ jobs:
   unit-tests:
     name: Unit Tests
     timeout-minutes: 15
-    runs-on: ubuntu-24.04
+    # 8-vCPU runner: Go Test runs with -race (CPU-bound), so more cores + RAM cut wall time.
+    # Integration tests stay on the standard runner — they're backend-bound, not runner-bound.
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
@@ -60,8 +62,11 @@ jobs:
         run: |
           echo "Using Terraform at: $TF_PATH"
           echo "Terraform version: $TERRAFORM_VERSION"
-          # Run tests with the race detector, detailed logging and increased timeout
-          TF_LOG=DEBUG go test -race -timeout 20m -v ./...
+          # -race keeps the data-race detector (APO-185); -parallel oversubscribes the
+          # runner since terraform-per-step is IO/process-bound. TF_LOG_PROVIDER=info
+          # surfaces provider logs on failing tests at ~no cost (measured); full
+          # TF_LOG=DEBUG/-v omitted on purpose (huge per-invocation overhead).
+          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 ./...
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
@@ -78,5 +83,13 @@ jobs:
         run: apk add opentofu
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Cache Go modules and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            /go/pkg/mod
+            /root/.cache/go-build
+          key: integ-go-${{ hashFiles('go.sum') }}
+          restore-keys: integ-go-
       - name: Run Harness tests
         run: go run tests/harness.go
