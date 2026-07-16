@@ -1,6 +1,7 @@
 package client_test
 
 import (
+	"encoding/json"
 	"errors"
 
 	. "github.com/env0/terraform-provider-env0/client"
@@ -121,6 +122,55 @@ var _ = Describe("Policy", func() {
 
 				_, err := apiClient.PolicyUpdate(updatePolicyPayload)
 				Expect(expectedErr).Should(Equal(err))
+			})
+		})
+
+		Describe("TTL serialization", func() {
+			It("serializes empty TTL values as explicit nulls", func() {
+				empty := ""
+				payload := PolicyUpdatePayload{
+					ProjectId:  "project0",
+					MaxTtl:     &empty,
+					DefaultTtl: &empty,
+				}
+
+				serialized, err := json.Marshal(payload)
+				Expect(err).NotTo(HaveOccurred())
+
+				var body map[string]any
+				Expect(json.Unmarshal(serialized, &body)).To(Succeed())
+				Expect(body).To(HaveKey("maxTtl"))
+				Expect(body["maxTtl"]).To(BeNil())
+				Expect(body).To(HaveKey("defaultTtl"))
+				Expect(body["defaultTtl"]).To(BeNil())
+			})
+
+			It("omits unset TTL values", func() {
+				serialized, err := json.Marshal(PolicyUpdatePayload{ProjectId: "project0"})
+				Expect(err).NotTo(HaveOccurred())
+
+				var body map[string]any
+				Expect(json.Unmarshal(serialized, &body)).To(Succeed())
+				Expect(body).NotTo(HaveKey("maxTtl"))
+				Expect(body).NotTo(HaveKey("defaultTtl"))
+			})
+
+			It("preserves concrete TTL values", func() {
+				maxTtl := "1-M"
+				defaultTtl := "1-w"
+				payload := PolicyUpdatePayload{
+					ProjectId:  "project0",
+					MaxTtl:     &maxTtl,
+					DefaultTtl: &defaultTtl,
+				}
+
+				serialized, err := json.Marshal(payload)
+				Expect(err).NotTo(HaveOccurred())
+
+				var body map[string]any
+				Expect(json.Unmarshal(serialized, &body)).To(Succeed())
+				Expect(body).To(HaveKeyWithValue("maxTtl", maxTtl))
+				Expect(body).To(HaveKeyWithValue("defaultTtl", defaultTtl))
 			})
 		})
 	})

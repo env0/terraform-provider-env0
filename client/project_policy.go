@@ -1,5 +1,7 @@
 package client
 
+import "encoding/json"
+
 type Policy struct {
 	Id                          string  `json:"id"                                  tfschema:"-"`
 	ProjectId                   string  `json:"projectId"`
@@ -24,24 +26,51 @@ type Policy struct {
 }
 
 type PolicyUpdatePayload struct {
-	ProjectId                   string `json:"projectId"`
-	NumberOfEnvironments        int    `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal   int    `json:"numberOfEnvironmentsTotal,omitempty"`
-	RequiresApprovalDefault     bool   `json:"requiresApprovalDefault"`
-	IncludeCostEstimation       bool   `json:"includeCostEstimation"`
-	SkipApplyWhenPlanIsEmpty    bool   `json:"skipApplyWhenPlanIsEmpty"`
-	DisableDestroyEnvironments  bool   `json:"disableDestroyEnvironments"`
-	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
-	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
-	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
-	MaxTtl                      string `json:"maxTtl,omitempty"`
-	DefaultTtl                  string `json:"defaultTtl,omitempty"`
-	ForceRemoteBackend          bool   `json:"forceRemoteBackend"`
-	DriftDetectionCron          string `json:"driftDetectionCron"`
-	DriftDetectionEnabled       bool   `json:"driftDetectionEnabled"`
-	AutoDriftRemediation        string `json:"autoDriftRemediation,omitempty"`
-	VcsPrCommentsEnabledDefault bool   `json:"vcsPrCommentsEnabledDefault"`
-	OutputsAsInputsEnabled      bool   `json:"outputsAsInputsEnabled"`
+	ProjectId                   string  `json:"projectId"`
+	NumberOfEnvironments        int     `json:"numberOfEnvironments,omitempty"`
+	NumberOfEnvironmentsTotal   int     `json:"numberOfEnvironmentsTotal,omitempty"`
+	RequiresApprovalDefault     bool    `json:"requiresApprovalDefault"`
+	IncludeCostEstimation       bool    `json:"includeCostEstimation"`
+	SkipApplyWhenPlanIsEmpty    bool    `json:"skipApplyWhenPlanIsEmpty"`
+	DisableDestroyEnvironments  bool    `json:"disableDestroyEnvironments"`
+	SkipRedundantDeployments    bool    `json:"skipRedundantDeployments"`
+	RunPullRequestPlanDefault   bool    `json:"runPullRequestPlanDefault"`
+	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
+	MaxTtl                      *string `json:"-"`
+	DefaultTtl                  *string `json:"-"`
+	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
+	DriftDetectionCron          string  `json:"driftDetectionCron"`
+	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
+	AutoDriftRemediation        string  `json:"autoDriftRemediation,omitempty"`
+	VcsPrCommentsEnabledDefault bool    `json:"vcsPrCommentsEnabledDefault"`
+	OutputsAsInputsEnabled      bool    `json:"outputsAsInputsEnabled"`
+}
+
+// MarshalJSON preserves the API's three TTL states: omitted, concrete, and explicit null.
+func (payload PolicyUpdatePayload) MarshalJSON() ([]byte, error) {
+	type policyUpdatePayloadAlias PolicyUpdatePayload
+
+	return json.Marshal(struct {
+		policyUpdatePayloadAlias
+		MaxTtl     any `json:"maxTtl,omitempty"`
+		DefaultTtl any `json:"defaultTtl,omitempty"`
+	}{
+		policyUpdatePayloadAlias: policyUpdatePayloadAlias(payload),
+		MaxTtl:                   nullablePolicyTtl(payload.MaxTtl),
+		DefaultTtl:               nullablePolicyTtl(payload.DefaultTtl),
+	})
+}
+
+func nullablePolicyTtl(ttl *string) any {
+	if ttl == nil {
+		return nil
+	}
+
+	if *ttl == "" {
+		return (*string)(nil)
+	}
+
+	return ttl
 }
 
 // Policy retrieves a policy from the API

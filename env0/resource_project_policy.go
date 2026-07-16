@@ -181,21 +181,24 @@ func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
+	maxTtl := *payload.MaxTtl
+	defaultTtl := *payload.DefaultTtl
+
 	// Validate if one is "inherit", the other must be too.
-	if (payload.MaxTtl == INHERIT || payload.DefaultTtl == INHERIT) && payload.MaxTtl != payload.DefaultTtl {
+	if (maxTtl == INHERIT || defaultTtl == INHERIT) && maxTtl != defaultTtl {
 		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
 	}
 
-	if err := validateTtl(&payload.DefaultTtl, &payload.MaxTtl); err != nil {
+	if err := validateTtl(payload.DefaultTtl, payload.MaxTtl); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if payload.DefaultTtl == INFINITE {
-		payload.DefaultTtl = ""
+	if defaultTtl == INFINITE {
+		payload.DefaultTtl = new("")
 	}
 
-	if payload.MaxTtl == INFINITE {
-		payload.MaxTtl = ""
+	if maxTtl == INFINITE {
+		payload.MaxTtl = new("")
 	}
 
 	if payload.DriftDetectionCron != "" {
