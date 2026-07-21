@@ -202,23 +202,27 @@ func terraformDestroy(testName string) {
 // terraformInit retries `tofu init` because provider downloads from the public
 // registry occasionally time out with transient network errors.
 func terraformInit(testName string) ([]byte, error) {
-	var output []byte
-	var err error
+	var lastErr error
 
 	for attempt := 1; attempt <= initMaxAttempts; attempt++ {
-		output, err = terraformCommand(testName, "init")
+		output, err := terraformCommand(testName, "init")
 		if err == nil {
 			return output, nil
 		}
 
+		lastErr = err
+
+		log.Printf("tofu init failed in %s (attempt %d/%d), reason: %v", testName, attempt, initMaxAttempts, err)
+
 		if attempt < initMaxAttempts {
 			backoff := time.Duration(attempt*5) * time.Second
-			log.Printf("tofu init failed in %s (attempt %d/%d), retrying in %s: %v", testName, attempt, initMaxAttempts, backoff, err)
+
+			log.Printf("retrying tofu init in %s (%s)", testName, backoff)
 			time.Sleep(backoff)
 		}
 	}
 
-	return output, err
+	return nil, lastErr
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
