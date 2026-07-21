@@ -12,9 +12,12 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 const TESTS_FOLDER = "tests/integration"
+
+const initMaxAttempts = 3
 
 func main() {
 	if err := compileProvider(); err != nil {
@@ -79,7 +82,7 @@ func runTest(testName string, destroy bool) (bool, error) {
 
 	log.Println("Running test ", testName)
 
-	_, err := terraformCommand(testName, "init")
+	_, err := terraformInit(testName)
 	if err != nil {
 		return false, err
 	}
@@ -194,6 +197,28 @@ func terraformDestroy(testName string) {
 	}
 
 	log.Println("Done running tofu destroy in", testName)
+}
+
+// terraformInit retries `tofu init` because provider downloads from the public
+// registry occasionally time out with transient network errors.
+func terraformInit(testName string) ([]byte, error) {
+	var output []byte
+	var err error
+
+	for attempt := 1; attempt <= initMaxAttempts; attempt++ {
+		output, err = terraformCommand(testName, "init")
+		if err == nil {
+			return output, nil
+		}
+
+		if attempt < initMaxAttempts {
+			backoff := time.Duration(attempt*5) * time.Second
+			log.Printf("tofu init failed in %s (attempt %d/%d), retrying in %s: %v", testName, attempt, initMaxAttempts, backoff, err)
+			time.Sleep(backoff)
+		}
+	}
+
+	return output, err
 }
 
 func terraformCommand(testName string, arg ...string) ([]byte, error) {
