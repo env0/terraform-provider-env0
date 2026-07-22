@@ -35,6 +35,7 @@ type ApiClientInterface interface {
 	ModuleTestingProject() (*ModuleTestingProject, error)
 	Template(id string) (Template, error)
 	Templates() ([]Template, error)
+	TemplatesByName(name string) ([]Template, error)
 	TemplateCreate(payload TemplateCreatePayload) (Template, error)
 	TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error)
 	TemplateDelete(id string) error
