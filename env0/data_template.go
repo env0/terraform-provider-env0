@@ -183,7 +183,7 @@ func dataTemplateRead(ctx context.Context, d *schema.ResourceData, meta any) dia
 func getTemplateByName(name any, meta any) (client.Template, diag.Diagnostics) {
 	apiClient := meta.(client.ApiClientInterface)
 
-	templates, err := apiClient.Templates()
+	templates, err := apiClient.TemplatesByName(name.(string))
 	if err != nil {
 		return client.Template{}, diag.Errorf("Could not query templates: %v", err)
 	}

@@ -2324,6 +2324,21 @@ func (mr *MockApiClientInterfaceMockRecorder) Templates() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Templates", reflect.TypeOf((*MockApiClientInterface)(nil).Templates))
 }
 
+// TemplatesByName mocks base method.
+func (m *MockApiClientInterface) TemplatesByName(name string) ([]Template, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TemplatesByName", name)
+	ret0, _ := ret[0].([]Template)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TemplatesByName indicates an expected call of TemplatesByName.
+func (mr *MockApiClientInterfaceMockRecorder) TemplatesByName(name any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TemplatesByName", reflect.TypeOf((*MockApiClientInterface)(nil).TemplatesByName), name)
+}
+
 // UnassignConfigurationSets mocks base method.
 func (m *MockApiClientInterface) UnassignConfigurationSets(arg0, arg1 string, arg2 []string) error {
 	m.ctrl.T.Helper()

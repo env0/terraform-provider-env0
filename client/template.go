@@ -299,6 +299,22 @@ func (client *ApiClient) Templates() ([]Template, error) {
 	return result, err
 }
 
+func (client *ApiClient) TemplatesByName(name string) ([]Template, error) {
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []Template
+
+	err = client.http.Get("/blueprints", map[string]string{"organizationId": organizationId, "name": name}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssignmentToProjectPayload) (Template, error) {
 	var result Template
 	if payload.ProjectId == "" {

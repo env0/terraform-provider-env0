@@ -90,6 +90,36 @@ var _ = Describe("Templates Client", func() {
 		})
 	})
 
+	Describe("TemplatesByName", func() {
+		var returnedTemplates []Template
+
+		mockTemplates := []Template{mockTemplate}
+
+		BeforeEach(func() {
+			mockOrganizationIdCall()
+
+			expectedPayload := map[string]string{"organizationId": organizationId, "name": mockTemplate.Name}
+			httpCall = mockHttpClient.EXPECT().
+				Get("/blueprints", expectedPayload, gomock.Any()).
+				Do(func(path string, request any, response *[]Template) {
+					*response = mockTemplates
+				})
+			returnedTemplates, _ = apiClient.TemplatesByName(mockTemplate.Name)
+		})
+
+		It("Should get organization id", func() {
+			organizationIdCall.Times(1)
+		})
+
+		It("Should send GET request with name filter", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should return template", func() {
+			Expect(returnedTemplates).To(Equal(mockTemplates))
+		})
+	})
+
 	Describe("TemplateCreate", func() {
 		var (
 			createdTemplate Template
