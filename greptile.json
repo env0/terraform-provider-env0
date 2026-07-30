@@ -1,0 +1,11 @@
+{
+  "skipReview": "AUTOMATIC",
+
+  "labels": [
+    "ai-review/greptile",
+    "ai-review/force-greptile"
+  ],
+
+  "triggerOnDrafts": false,
+  "triggerOnUpdates": false
+}

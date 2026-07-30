@@ -1,0 +1,44 @@
+# Routes each PR to exactly one AI reviewer, to cut Greptile spend:
+#
+#   small and simple  -> Copilot   (cheap)
+#   everything else   -> Greptile  (expensive, deeper)
+#   draft or bot      -> neither
+#
+# Logic lives in env0/gh-workflows and tracks its main branch.
+#
+# This repo is PUBLIC: PRs from forks get a read-only token, so the router skips
+# them. External contributions therefore get no AI review.
+#
+# Greptile is stopped from reviewing the PRs Copilot now covers by greptile.json
+# in this repo root ("skipReview": "AUTOMATIC"). Both parts are required — the
+# workflow alone does not reduce Greptile usage.
+#
+# Escape hatches: label a PR ai-review/force-greptile or ai-review/force-copilot
+# to override the size decision.
+
+name: AI review
+
+on:
+  pull_request:
+    types:
+      - opened            # route new PRs
+      - ready_for_review  # route drafts once they go ready
+      - reopened
+      - labeled           # honour ai-review/force-* overrides
+      - synchronize       # escalate copilot -> greptile if a PR outgrows the
+                          # thresholds; never downgrades
+
+jobs:
+  route:
+    uses: env0/gh-workflows/.github/workflows/ai-review-router.yml@main
+    # Required: a reusable workflow cannot grant itself more than the calling
+    # job already has.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    with:
+      dry_run: false
+      max_churn: 100
+      max_files: 5
+      greptile_trigger: comment
