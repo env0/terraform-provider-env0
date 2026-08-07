@@ -1,6 +1,7 @@
 package client_test
 
 import (
+	"encoding/json"
 	"errors"
 
 	. "github.com/env0/terraform-provider-env0/client"
@@ -122,6 +123,52 @@ var _ = Describe("Policy", func() {
 				_, err := apiClient.PolicyUpdate(updatePolicyPayload)
 				Expect(expectedErr).Should(Equal(err))
 			})
+		})
+	})
+
+	Describe("PolicyUpdatePayload ttl serialization", func() {
+		marshalToMap := func(payload PolicyUpdatePayload) map[string]any {
+			serialized, err := json.Marshal(payload)
+			Expect(err).To(BeNil())
+
+			var body map[string]any
+			Expect(json.Unmarshal(serialized, &body)).To(Succeed())
+
+			return body
+		}
+
+		It("Should serialize an unset ttl as an explicit null rather than omitting it", func() {
+			body := marshalToMap(PolicyUpdatePayload{ProjectId: "project0"})
+
+			Expect(body).To(HaveKey("maxTtl"))
+			Expect(body).To(HaveKey("defaultTtl"))
+			Expect(body["maxTtl"]).To(BeNil())
+			Expect(body["defaultTtl"]).To(BeNil())
+		})
+
+		It("Should serialize an infinite max ttl as null alongside a finite default ttl", func() {
+			defaultTtl := "7-h"
+			body := marshalToMap(PolicyUpdatePayload{ProjectId: "project0", DefaultTtl: &defaultTtl})
+
+			Expect(body).To(HaveKey("maxTtl"))
+			Expect(body["maxTtl"]).To(BeNil())
+			Expect(body["defaultTtl"]).To(Equal("7-h"))
+		})
+
+		It("Should serialize finite ttls as their string values", func() {
+			maxTtl, defaultTtl := "1-M", "7-h"
+			body := marshalToMap(PolicyUpdatePayload{ProjectId: "project0", MaxTtl: &maxTtl, DefaultTtl: &defaultTtl})
+
+			Expect(body["maxTtl"]).To(Equal("1-M"))
+			Expect(body["defaultTtl"]).To(Equal("7-h"))
+		})
+
+		It("Should serialize inherited ttls as their string values", func() {
+			maxTtl, defaultTtl := "inherit", "inherit"
+			body := marshalToMap(PolicyUpdatePayload{ProjectId: "project0", MaxTtl: &maxTtl, DefaultTtl: &defaultTtl})
+
+			Expect(body["maxTtl"]).To(Equal("inherit"))
+			Expect(body["defaultTtl"]).To(Equal("inherit"))
 		})
 	})
 })

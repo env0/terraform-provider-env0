@@ -90,14 +90,14 @@ func resourceProjectPolicy() *schema.Resource {
 			},
 			"max_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
+				Description:      "the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Set to 'Infinite' for environments that never expire. Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl",
 				Optional:         true,
 				Default:          INHERIT,
 				ValidateDiagFunc: ValidateTtl,
 			},
 			"default_ttl": {
 				Type:             schema.TypeString,
-				Description:      "the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
+				Description:      "the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Set to 'Infinite' for environments that never expire (requires max_ttl to be 'Infinite' as well). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl",
 				Optional:         true,
 				Default:          INHERIT,
 				ValidateDiagFunc: ValidateTtl,
@@ -167,7 +167,27 @@ func resourceProjectPolicyRead(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
+	if err := writePolicyInfiniteTtls(&policy, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
 	d.SetId(projectId)
+
+	return nil
+}
+
+func writePolicyInfiniteTtls(policy *client.Policy, d *schema.ResourceData) error {
+	if policy.MaxTtl == nil {
+		if err := d.Set("max_ttl", INFINITE); err != nil {
+			return err
+		}
+	}
+
+	if policy.DefaultTtl == nil {
+		if err := d.Set("default_ttl", INFINITE); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -181,21 +201,31 @@ func resourceProjectPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
 	}
 
-	// Validate if one is "inherit", the other must be too.
-	if (payload.MaxTtl == INHERIT || payload.DefaultTtl == INHERIT) && payload.MaxTtl != payload.DefaultTtl {
+	maxTtl, defaultTtl := INHERIT, INHERIT
+	if payload.MaxTtl != nil {
+		maxTtl = *payload.MaxTtl
+	}
+
+	if payload.DefaultTtl != nil {
+		defaultTtl = *payload.DefaultTtl
+	}
+
+	payload.MaxTtl, payload.DefaultTtl = &maxTtl, &defaultTtl
+
+	if (maxTtl == INHERIT || defaultTtl == INHERIT) && maxTtl != defaultTtl {
 		return diag.Errorf("max_ttl and default_ttl must both inherit organization settings or override them")
 	}
 
-	if err := validateTtl(&payload.DefaultTtl, &payload.MaxTtl); err != nil {
+	if err := validateTtl(payload.DefaultTtl, payload.MaxTtl); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if payload.DefaultTtl == INFINITE {
-		payload.DefaultTtl = ""
+	if defaultTtl == INFINITE {
+		payload.DefaultTtl = nil
 	}
 
-	if payload.MaxTtl == INFINITE {
-		payload.MaxTtl = ""
+	if maxTtl == INFINITE {
+		payload.MaxTtl = nil
 	}
 
 	if payload.DriftDetectionCron != "" {
@@ -214,9 +244,13 @@ func resourceProjectPolicyDelete(ctx context.Context, d *schema.ResourceData, me
 
 	projectId := d.Id()
 
+	inheritMaxTtl, inheritDefaultTtl := INHERIT, INHERIT
+
 	payload := client.PolicyUpdatePayload{
 		ProjectId:               projectId,
 		RequiresApprovalDefault: true,
+		MaxTtl:                  &inheritMaxTtl,
+		DefaultTtl:              &inheritDefaultTtl,
 	}
 
 	policy, err := apiClient.PolicyUpdate(payload)
@@ -244,6 +278,10 @@ func resourceProjectPolicyImport(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(projectId)
 
 	if err := writeResourceData(&policy, d); err != nil {
+		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
+	}
+
+	if err := writePolicyInfiniteTtls(&policy, d); err != nil {
 		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
