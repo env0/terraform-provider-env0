@@ -24,24 +24,24 @@ type Policy struct {
 }
 
 type PolicyUpdatePayload struct {
-	ProjectId                   string `json:"projectId"`
-	NumberOfEnvironments        int    `json:"numberOfEnvironments,omitempty"`
-	NumberOfEnvironmentsTotal   int    `json:"numberOfEnvironmentsTotal,omitempty"`
-	RequiresApprovalDefault     bool   `json:"requiresApprovalDefault"`
-	IncludeCostEstimation       bool   `json:"includeCostEstimation"`
-	SkipApplyWhenPlanIsEmpty    bool   `json:"skipApplyWhenPlanIsEmpty"`
-	DisableDestroyEnvironments  bool   `json:"disableDestroyEnvironments"`
-	SkipRedundantDeployments    bool   `json:"skipRedundantDeployments"`
-	RunPullRequestPlanDefault   bool   `json:"runPullRequestPlanDefault"`
-	ContinuousDeploymentDefault bool   `json:"continuousDeploymentDefault"`
-	MaxTtl                      string `json:"maxTtl,omitempty"`
-	DefaultTtl                  string `json:"defaultTtl,omitempty"`
-	ForceRemoteBackend          bool   `json:"forceRemoteBackend"`
-	DriftDetectionCron          string `json:"driftDetectionCron"`
-	DriftDetectionEnabled       bool   `json:"driftDetectionEnabled"`
-	AutoDriftRemediation        string `json:"autoDriftRemediation,omitempty"`
-	VcsPrCommentsEnabledDefault bool   `json:"vcsPrCommentsEnabledDefault"`
-	OutputsAsInputsEnabled      bool   `json:"outputsAsInputsEnabled"`
+	ProjectId                   string  `json:"projectId"`
+	NumberOfEnvironments        int     `json:"numberOfEnvironments,omitempty"`
+	NumberOfEnvironmentsTotal   int     `json:"numberOfEnvironmentsTotal,omitempty"`
+	RequiresApprovalDefault     bool    `json:"requiresApprovalDefault"`
+	IncludeCostEstimation       bool    `json:"includeCostEstimation"`
+	SkipApplyWhenPlanIsEmpty    bool    `json:"skipApplyWhenPlanIsEmpty"`
+	DisableDestroyEnvironments  bool    `json:"disableDestroyEnvironments"`
+	SkipRedundantDeployments    bool    `json:"skipRedundantDeployments"`
+	RunPullRequestPlanDefault   bool    `json:"runPullRequestPlanDefault"`
+	ContinuousDeploymentDefault bool    `json:"continuousDeploymentDefault"`
+	MaxTtl                      *string `json:"maxTtl"`
+	DefaultTtl                  *string `json:"defaultTtl"`
+	ForceRemoteBackend          bool    `json:"forceRemoteBackend"`
+	DriftDetectionCron          string  `json:"driftDetectionCron"`
+	DriftDetectionEnabled       bool    `json:"driftDetectionEnabled"`
+	AutoDriftRemediation        string  `json:"autoDriftRemediation,omitempty"`
+	VcsPrCommentsEnabledDefault bool    `json:"vcsPrCommentsEnabledDefault"`
+	OutputsAsInputsEnabled      bool    `json:"outputsAsInputsEnabled"`
 }
 
 // Policy retrieves a policy from the API
