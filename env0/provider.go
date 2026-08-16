@@ -182,6 +182,12 @@ func Provider(version string) plugin.ProviderFunc {
 	}
 }
 
+const (
+	retryCount = 10
+	// Attempts allowed for the integration-test-only empty-list retry, counting the first request.
+	emptyListMaxAttempts = 3
+)
+
 func createRestyClient(ctx context.Context) *resty.Client {
 	var isIntegrationTest bool
 
@@ -191,8 +197,8 @@ func createRestyClient(ctx context.Context) *resty.Client {
 
 	subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
 
-	return resty.New().SetRetryCount(10).
-		SetRetryWaitTime(time.Second + 5).
+	return resty.New().SetRetryCount(retryCount).
+		SetRetryWaitTime(time.Second).
 		SetRetryMaxWaitTime(time.Second * 30).
 		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 			if r != nil {
@@ -229,8 +235,16 @@ func createRestyClient(ctx context.Context) *resty.Client {
 				return true
 			}
 
+			// An empty list is a legitimate answer for most list endpoints, so this only covers
+			// read-after-write lag in the integration tests and gets its own small attempt cap.
+			// Sharing the 10-attempt ladder above made every genuinely-empty list (an environment
+			// with no variable sets, a project with no environments) cost ~2.5 minutes.
 			if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL})
+				if r.Request.Attempt >= emptyListMaxAttempts {
+					return false
+				}
+
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt})
 
 				return true
 			}

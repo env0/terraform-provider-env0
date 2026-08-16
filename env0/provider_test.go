@@ -202,3 +202,27 @@ func TestRestyClientSuite(t *testing.T) {
 	}
 	suite.Run(t, s)
 }
+
+// An empty list is a legitimate answer for most list endpoints. The integration-test-only
+// retry that covers read-after-write lag must stop after emptyListMaxAttempts, or every
+// genuinely-empty list pays the full retry ladder.
+func TestRestyClientEmptyListRetryIsCapped(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "1")
+
+	client := createRestyClient(context.Background())
+	url := "http://fake.env0.com/empty-list"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+	defer httpmock.Deactivate()
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusOK, "[]"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusOK, res.StatusCode())
+		assert.Equal(t, "[]", res.String())
+	}
+
+	assert.Equal(t, emptyListMaxAttempts, httpmock.GetTotalCallCount())
+}
