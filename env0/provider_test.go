@@ -213,7 +213,9 @@ func TestRestyClientEmptyListRetryIsCapped(t *testing.T) {
 	url := "http://fake.env0.com/empty-list"
 
 	httpmock.ActivateNonDefault(client.GetClient())
+
 	defer httpmock.Deactivate()
+
 	httpmock.Reset()
 	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusOK, "[]"))
 
