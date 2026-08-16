@@ -186,6 +186,8 @@ const (
 	retryCount = 10
 	// Attempts allowed for the integration-test-only empty-list retry, counting the first request.
 	emptyListMaxAttempts = 3
+	// Attempts allowed for the integration-test-only 404 retry, counting the first request.
+	notFoundMaxAttempts = 5
 )
 
 func createRestyClient(ctx context.Context) *resty.Client {
@@ -220,10 +222,23 @@ func createRestyClient(ctx context.Context) *resty.Client {
 				return true
 			}
 
-			// When running integration tests 404 may occur due to "database eventual consistency".
 			// Retry when there's a 5xx error. Otherwise do not retry.
-			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+			if r.StatusCode() >= 500 {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+
+				return true
+			}
+
+			// When running integration tests 404 may occur due to "database eventual consistency".
+			// Some endpoints answer 404 by design (e.g. /api-keys/oidc-sub for an organization with
+			// no OIDC configured, read by every env0_organization data source), so this gets its own
+			// small attempt cap rather than the full ladder above.
+			if isIntegrationTest && r.StatusCode() == 404 {
+				if r.Request.Attempt >= notFoundMaxAttempts {
+					return false
+				}
+
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt})
 
 				return true
 			}
