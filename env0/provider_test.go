@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/utils"
@@ -201,4 +202,87 @@ func TestRestyClientSuite(t *testing.T) {
 		url:    "http://fake.env0.com/fake",
 	}
 	suite.Run(t, s)
+}
+
+// createRetryTestClient returns a client with the production retry conditions but a negligible
+// backoff, so asserting on attempt counts doesn't pay the real ladder's wall time.
+func createRetryTestClient(t *testing.T) *resty.Client {
+	t.Helper()
+
+	return createRestyClient(context.Background()).
+		SetRetryWaitTime(time.Millisecond).
+		SetRetryMaxWaitTime(time.Millisecond)
+}
+
+// An empty list is a legitimate answer for most list endpoints. The integration-test-only
+// retry that covers read-after-write lag must stop after emptyListMaxAttempts, or every
+// genuinely-empty list pays the full retry ladder.
+func TestRestyClientEmptyListRetryIsCapped(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "1")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/empty-list"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusOK, "[]"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusOK, res.StatusCode())
+		assert.Equal(t, "[]", res.String())
+	}
+
+	assert.Equal(t, emptyListMaxAttempts, httpmock.GetTotalCallCount())
+}
+
+// Some endpoints answer 404 by design, so the integration-test retry that covers database
+// eventual consistency must stop after notFoundMaxAttempts.
+func TestRestyClientNotFoundRetryIsCapped(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "1")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/not-found"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusNotFound, "NOT FOUND"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusNotFound, res.StatusCode())
+	}
+
+	assert.Equal(t, notFoundMaxAttempts, httpmock.GetTotalCallCount())
+}
+
+// Outside the integration tests a 404 is never retried.
+func TestRestyClientNotFoundIsNotRetried(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/not-found-no-integration"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusNotFound, "NOT FOUND"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusNotFound, res.StatusCode())
+	}
+
+	assert.Equal(t, 1, httpmock.GetTotalCallCount())
 }
