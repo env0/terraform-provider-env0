@@ -1,4 +1,5 @@
 {
   "revision": "master",
-  "terragrunt_working_directory": "/second-dir"
+  "terragrunt_working_directory": "/second-dir",
+  "environment_tags_team": "eng,payments"
 }

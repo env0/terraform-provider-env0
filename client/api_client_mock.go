@@ -1145,6 +1145,21 @@ func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTTL(arg0, arg1 an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTTL", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTTL), arg0, arg1)
 }
 
+// EnvironmentUpdateTags mocks base method.
+func (m *MockApiClientInterface) EnvironmentUpdateTags(arg0 string, arg1 EnvironmentTags) (Environment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnvironmentUpdateTags", arg0, arg1)
+	ret0, _ := ret[0].(Environment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EnvironmentUpdateTags indicates an expected call of EnvironmentUpdateTags.
+func (mr *MockApiClientInterfaceMockRecorder) EnvironmentUpdateTags(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvironmentUpdateTags", reflect.TypeOf((*MockApiClientInterface)(nil).EnvironmentUpdateTags), arg0, arg1)
+}
+
 // EnvironmentsByName mocks base method.
 func (m *MockApiClientInterface) EnvironmentsByName(arg0 string) ([]Environment, error) {
 	m.ctrl.T.Helper()

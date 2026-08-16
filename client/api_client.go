@@ -74,6 +74,7 @@ type ApiClientInterface interface {
 	EnvironmentUpdate(id string, payload EnvironmentUpdate) (Environment, error)
 	EnvironmentDeploy(id string, payload DeployRequest) (EnvironmentDeployResponse, error)
 	EnvironmentUpdateTTL(id string, payload TTL) (Environment, error)
+	EnvironmentUpdateTags(id string, payload EnvironmentTags) (Environment, error)
 	EnvironmentMove(id string, projectId string) error
 	EnvironmentScheduling(environmentId string) (EnvironmentScheduling, error)
 	EnvironmentSchedulingUpdate(environmentId string, payload EnvironmentScheduling) (EnvironmentScheduling, error)

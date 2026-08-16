@@ -108,29 +108,35 @@ type ConfigurationSetChanges struct {
 	Unassign []string `json:"unassign,omitempty"`
 }
 
+// A tag key holds a list of values. Terraform's TypeMap can't hold lists, so the provider joins the values
+// with a comma - the tag charset forbids commas, so the join is lossless.
+// In an update payload this is an RFC 7396 merge-patch: a key's values replace wholesale, a nil value removes the key.
+type EnvironmentTags map[string][]string
+
 type Environment struct {
-	Id                          string        `json:"id"`
-	Name                        string        `json:"name"`
-	ProjectId                   string        `json:"projectId"`
-	WorkspaceName               string        `json:"workspaceName,omitempty"               tfschema:"workspace"`
-	RequiresApproval            *bool         `json:"requiresApproval,omitempty"            tfschema:"-"`
-	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"        tfschema:"deploy_on_push,omitempty"`
-	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"  tfschema:"run_plan_on_pull_requests,omitempty"`
-	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
-	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
-	Status                      string        `json:"status"`
-	LifespanEndAt               string        `json:"lifespanEndAt"                         tfschema:"ttl,omitempty"`
-	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"                 tfschema:"deployment_id"`
-	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
-	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
-	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
-	VcsPrCommentsEnabled        bool          `json:"vcsPrCommentsEnabled"                  tfschema:"-"`
-	BlueprintId                 string        `json:"blueprintId"                           tfschema:"-"`
-	IsRemoteBackend             *bool         `json:"isRemoteBackend"                       tfschema:"-"`
-	IsArchived                  *bool         `json:"isArchived"                            tfschema:"-"`
-	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
-	K8sNamespace                string        `json:"k8sNamespace"`
-	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint"                  tfschema:"-"`
+	Id                          string          `json:"id"`
+	Name                        string          `json:"name"`
+	ProjectId                   string          `json:"projectId"`
+	WorkspaceName               string          `json:"workspaceName,omitempty"               tfschema:"workspace"`
+	RequiresApproval            *bool           `json:"requiresApproval,omitempty"            tfschema:"-"`
+	ContinuousDeployment        *bool           `json:"continuousDeployment,omitempty"        tfschema:"deploy_on_push,omitempty"`
+	PullRequestPlanDeployments  *bool           `json:"pullRequestPlanDeployments,omitempty"  tfschema:"run_plan_on_pull_requests,omitempty"`
+	AutoDeployOnPathChangesOnly *bool           `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
+	AutoDeployByCustomGlob      string          `json:"autoDeployByCustomGlob,omitempty"`
+	Status                      string          `json:"status"`
+	LifespanEndAt               string          `json:"lifespanEndAt"                         tfschema:"ttl,omitempty"`
+	LatestDeploymentLogId       string          `json:"latestDeploymentLogId"                 tfschema:"deployment_id"`
+	LatestDeploymentLog         DeploymentLog   `json:"latestDeploymentLog"`
+	TerragruntWorkingDirectory  string          `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string          `json:"vcsCommandsAlias"`
+	VcsPrCommentsEnabled        bool            `json:"vcsPrCommentsEnabled"                  tfschema:"-"`
+	BlueprintId                 string          `json:"blueprintId"                           tfschema:"-"`
+	IsRemoteBackend             *bool           `json:"isRemoteBackend"                       tfschema:"-"`
+	IsArchived                  *bool           `json:"isArchived"                            tfschema:"-"`
+	IsRemoteApplyEnabled        bool            `json:"isRemoteApplyEnabled"`
+	K8sNamespace                string          `json:"k8sNamespace"`
+	IsSingleUseBlueprint        bool            `json:"isSingleUseBlueprint"                  tfschema:"-"`
+	Tags                        EnvironmentTags `json:"tags,omitempty"                        tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
@@ -155,6 +161,7 @@ type EnvironmentCreate struct {
 	K8sNamespace                string                   `json:"k8sNamespace,omitempty"`
 	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty"     tfschema:"-"`
 	IsRemoteApplyEnabled        bool                     `json:"isRemoteApplyEnabled"`
+	Tags                        EnvironmentTags          `json:"tags,omitempty"                        tfschema:"-"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
@@ -344,6 +351,17 @@ func (client *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environme
 	var result Environment
 
 	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)
+	if err != nil {
+		return Environment{}, err
+	}
+
+	return result, nil
+}
+
+func (client *ApiClient) EnvironmentUpdateTags(id string, payload EnvironmentTags) (Environment, error) {
+	var result Environment
+
+	err := client.http.Put("/environments/"+id+"/tags", payload, &result)
 	if err != nil {
 		return Environment{}, err
 	}
