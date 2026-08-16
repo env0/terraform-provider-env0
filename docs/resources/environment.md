@@ -79,6 +79,8 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `sub_environment_configuration` (Block List) the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
+- `tags` (Map of String) the environment's tags. Keys and values may contain letters, digits, spaces and the characters _ . : / + - @ (up to 50 key-value pairs).
+A key may hold several values - join them with a comma (for example: "eng,payments").
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable. Please note that changing this attribute will require environment redeploy
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one

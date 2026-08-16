@@ -453,6 +453,42 @@ var _ = Describe("Environment Client", func() {
 		})
 	})
 
+	Describe("EnvironmentUpdateTags", func() {
+		Describe("Success", func() {
+			var (
+				updatedEnvironment Environment
+				err                error
+			)
+
+			BeforeEach(func() {
+				updateTagsRequest := EnvironmentTags{
+					"team":      {"eng", "payments"},
+					"stale-key": nil,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/environments/"+mockEnvironment.Id+"/tags", updateTagsRequest, gomock.Any()).
+					Do(func(path string, request any, response *Environment) {
+						*response = mockEnvironment
+					})
+
+				updatedEnvironment, err = apiClient.EnvironmentUpdateTags(mockEnvironment.Id, updateTagsRequest)
+			})
+
+			It("Should send Put request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return the environment received from API", func() {
+				Expect(updatedEnvironment).To(Equal(mockEnvironment))
+			})
+		})
+	})
+
 	Describe("Environment Move", func() {
 		var err error
 

@@ -30,6 +30,10 @@ func TestEnvironmentDataSource(t *testing.T) {
 		PullRequestPlanDeployments:  &boolean,
 		AutoDeployOnPathChangesOnly: &boolean,
 		ContinuousDeployment:        &boolean,
+		Tags: client.EnvironmentTags{
+			"team":  {"eng", "payments"},
+			"owner": {"alice"},
+		},
 		LatestDeploymentLog: client.DeploymentLog{
 			BlueprintId:       template.Id,
 			BlueprintRevision: "revision",
@@ -94,6 +98,8 @@ func TestEnvironmentDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", "id_compute"),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.alias", "db"),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "id_db"),
+						resource.TestCheckResourceAttr(accessor, "tags.team", "eng,payments"),
+						resource.TestCheckResourceAttr(accessor, "tags.owner", "alice"),
 					),
 				},
 			},
