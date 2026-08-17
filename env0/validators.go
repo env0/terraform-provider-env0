@@ -150,8 +150,16 @@ func ValidateTags(i any, path cty.Path) diag.Diagnostics {
 
 	for key, value := range i.(map[string]any) {
 		for _, v := range strings.Split(value.(string), ",") {
-			if v == "" || v != strings.TrimSpace(v) {
-				diags = append(diags, diag.Errorf("tag %q: a value may not be empty or padded with spaces - join a key's values with a comma and no space (for example: \"eng,payments\"), got: %q", key, value)...)
+			if v == "" {
+				diags = append(diags, diag.Errorf("tag %q: value %q has an empty entry - a key's values are joined with a comma and no spaces (for example: \"eng,payments\")", key, value)...)
+
+				break
+			}
+
+			// A padded value is stored verbatim by the API, and then no longer matches an unpadded tag filter.
+			// The environment itself imports fine - it is only the configuration that has to drop the padding.
+			if v != strings.TrimSpace(v) {
+				diags = append(diags, diag.Errorf("tag %q: value %q has a leading or trailing space - a key's values are joined with a comma and no spaces (for example: \"eng,payments\"). If this tag was created outside terraform, drop the padding here and apply to normalize it", key, value)...)
 
 				break
 			}

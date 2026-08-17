@@ -163,6 +163,17 @@ func TestValidateTags(t *testing.T) {
 			expectError: true,
 		},
 		{
+			// legal server-side, so it can arrive by import - but it silently stops matching a filter on "alice"
+			name:        "padded single value",
+			tags:        map[string]any{"owner": " alice"},
+			expectError: true,
+		},
+		{
+			name:        "trailing space on a single value",
+			tags:        map[string]any{"owner": "alice "},
+			expectError: true,
+		},
+		{
 			name:        "empty segment",
 			tags:        map[string]any{"team": "eng,,payments"},
 			expectError: true,
