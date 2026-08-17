@@ -75,6 +75,13 @@ resource "env0_environment" "example" {
   revision                   = "master"
   vcs_commands_alias         = "alias"
   drift_detection_cron       = var.second_run ? "*/5 * * * *" : "*/10 * * * *"
+  tags = var.second_run ? {
+    team          = "eng,payments"
+    "cost-center" = "123"
+    } : {
+    team  = "eng,payments"
+    owner = "alice"
+  }
 }
 
 resource "env0_environment" "move_environment" {
@@ -174,6 +181,10 @@ data "env0_environment" "test" {
 
 output "revision" {
   value = data.env0_environment.test.revision
+}
+
+output "environment_tags_team" {
+  value = data.env0_environment.test.tags["team"]
 }
 
 output "terragrunt_working_directory" {

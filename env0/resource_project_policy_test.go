@@ -147,8 +147,8 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					SkipApplyWhenPlanIsEmpty:    policy.SkipApplyWhenPlanIsEmpty,
 					DisableDestroyEnvironments:  policy.DisableDestroyEnvironments,
 					SkipRedundantDeployments:    policy.SkipRedundantDeployments,
-					MaxTtl:                      "inherit",
-					DefaultTtl:                  "inherit",
+					MaxTtl:                      new("inherit"),
+					DefaultTtl:                  new("inherit"),
 					ForceRemoteBackend:          true,
 					DriftDetectionEnabled:       true,
 					DriftDetectionCron:          policy.DriftDetectionCron,
@@ -167,8 +167,8 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					SkipApplyWhenPlanIsEmpty:   updatedPolicy.SkipApplyWhenPlanIsEmpty,
 					DisableDestroyEnvironments: updatedPolicy.DisableDestroyEnvironments,
 					SkipRedundantDeployments:   updatedPolicy.SkipRedundantDeployments,
-					MaxTtl:                     "",
-					DefaultTtl:                 *updatedPolicy.DefaultTtl,
+					MaxTtl:                     nil,
+					DefaultTtl:                 updatedPolicy.DefaultTtl,
 					ForceRemoteBackend:         updatedPolicy.ForceRemoteBackend,
 					DriftDetectionEnabled:      updatedPolicy.DriftDetectionEnabled,
 					DriftDetectionCron:         updatedPolicy.DriftDetectionCron,
@@ -186,6 +186,8 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 					DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
 					SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
 					ForceRemoteBackend:         resetPolicy.ForceRemoteBackend,
+					MaxTtl:                     new("inherit"),
+					DefaultTtl:                 new("inherit"),
 				}).Times(1).Return(resetPolicy, nil),
 			)
 		})
@@ -204,6 +206,8 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 			SkipRedundantDeployments:   true,
 			UpdatedBy:                  "updater0",
 			AutoDriftRemediation:       "DISABLED",
+			MaxTtl:                     new("inherit"),
+			DefaultTtl:                 new("inherit"),
 		}
 
 		testCaseForDefault := resource.TestCase{
@@ -246,8 +250,8 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 				SkipApplyWhenPlanIsEmpty:   policy.SkipApplyWhenPlanIsEmpty,
 				DisableDestroyEnvironments: policy.DisableDestroyEnvironments,
 				SkipRedundantDeployments:   policy.SkipRedundantDeployments,
-				DefaultTtl:                 "inherit",
-				MaxTtl:                     "inherit",
+				DefaultTtl:                 new("inherit"),
+				MaxTtl:                     new("inherit"),
 				AutoDriftRemediation:       "DISABLED",
 			}).Times(1).Return(policy, nil)
 
@@ -262,6 +266,107 @@ func TestUnitProjectPolicyResource(t *testing.T) {
 				SkipApplyWhenPlanIsEmpty:   resetPolicy.SkipApplyWhenPlanIsEmpty,
 				DisableDestroyEnvironments: resetPolicy.DisableDestroyEnvironments,
 				SkipRedundantDeployments:   resetPolicy.SkipRedundantDeployments,
+				MaxTtl:                     new("inherit"),
+				DefaultTtl:                 new("inherit"),
+			}).Times(1).Return(resetPolicy, nil)
+		})
+	})
+
+	t.Run("both ttls infinite", func(t *testing.T) {
+		infinitePolicy := client.Policy{
+			Id:                      "id0",
+			ProjectId:               "project0",
+			RequiresApprovalDefault: true,
+			UpdatedBy:               "updater0",
+			AutoDriftRemediation:    "DISABLED",
+			// An infinite ttl comes back from the API as a null.
+			MaxTtl:     nil,
+			DefaultTtl: nil,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id":  infinitePolicy.ProjectId,
+						"max_ttl":     "Infinite",
+						"default_ttl": "Infinite",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "project_id", infinitePolicy.ProjectId),
+						resource.TestCheckResourceAttr(accessor, "max_ttl", "Infinite"),
+						resource.TestCheckResourceAttr(accessor, "default_ttl", "Infinite"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				// Both ttls must reach the API as explicit nulls. Omitting them would
+				// leave the project on the inherited organization policy.
+				mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+					ProjectId:               infinitePolicy.ProjectId,
+					RequiresApprovalDefault: true,
+					AutoDriftRemediation:    "DISABLED",
+					MaxTtl:                  nil,
+					DefaultTtl:              nil,
+				}).Times(1).Return(infinitePolicy, nil),
+				// Reading the nulls back must restore "Infinite", otherwise the
+				// post-apply plan would not be empty.
+				mock.EXPECT().Policy(gomock.Any()).Times(1).Return(infinitePolicy, nil),
+				mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+					ProjectId:               infinitePolicy.ProjectId,
+					RequiresApprovalDefault: true,
+					MaxTtl:                  new("inherit"),
+					DefaultTtl:              new("inherit"),
+				}).Times(1).Return(resetPolicy, nil),
+			)
+		})
+	})
+
+	t.Run("empty ttl is treated as inherit, not infinite", func(t *testing.T) {
+		inheritPolicy := client.Policy{
+			Id:                      "id0",
+			ProjectId:               "project0",
+			RequiresApprovalDefault: true,
+			UpdatedBy:               "updater0",
+			AutoDriftRemediation:    "DISABLED",
+			MaxTtl:                  new("inherit"),
+			DefaultTtl:              new("inherit"),
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"project_id": inheritPolicy.ProjectId,
+						"max_ttl":    "",
+					}),
+					// An empty max_ttl is read back from the API as "inherit", so it never
+					// matches the configured "" - a pre-existing perpetual diff, unrelated
+					// to this fix. What matters here is the payload asserted below.
+					ExpectNonEmptyPlan: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// An empty ttl must not become a null - that would silently grant the
+			// project an infinite ttl.
+			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+				ProjectId:               inheritPolicy.ProjectId,
+				RequiresApprovalDefault: true,
+				AutoDriftRemediation:    "DISABLED",
+				MaxTtl:                  new("inherit"),
+				DefaultTtl:              new("inherit"),
+			}).Times(1).Return(inheritPolicy, nil)
+			mock.EXPECT().Policy(gomock.Any()).AnyTimes().Return(inheritPolicy, nil)
+			mock.EXPECT().PolicyUpdate(client.PolicyUpdatePayload{
+				ProjectId:               inheritPolicy.ProjectId,
+				RequiresApprovalDefault: true,
+				MaxTtl:                  new("inherit"),
+				DefaultTtl:              new("inherit"),
 			}).Times(1).Return(resetPolicy, nil)
 		})
 	})

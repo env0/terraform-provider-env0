@@ -89,3 +89,13 @@ resource "env0_project_policy" "test_policy_smart_remediation" {
   drift_detection_cron          = "0 7 * * *"
   auto_drift_remediation        = "SMART_REMEDIATION"
 }
+
+# Reading these back asserts that "Infinite" survives the round-trip to the API.
+# Before the explicit-null fix the provider dropped the field and these read "inherit".
+output "infinite_policy_max_ttl" {
+  value = env0_project_policy.test_policy_infinite.max_ttl
+}
+
+output "infinite_policy_default_ttl" {
+  value = env0_project_policy.test_policy_infinite.default_ttl
+}

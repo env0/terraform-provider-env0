@@ -100,6 +100,14 @@ func dataEnvironment() *schema.Resource {
 				Description: "The token id used for repo integrations (Used by Gitlab or Azure DevOps)",
 				Computed:    true,
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Description: "the environment's tags. A key holding several values returns them joined with a comma",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"sub_environment_configuration": {
 				Type:        schema.TypeList,
 				Description: "the sub environments of the workflow environment. (Empty for non workflow environments)",

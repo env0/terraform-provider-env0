@@ -42,12 +42,12 @@ resource "env0_project_policy" "example" {
 
 - `auto_drift_remediation` (String) Auto drift remediation strategy (DISABLED, CODE_TO_CLOUD, CLOUD_TO_CODE, SMART_REMEDIATION). Defaults to DISABLED
 - `continuous_deployment_default` (Boolean) Redeploy on every push to the git branch default value
-- `default_ttl` (String) the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
+- `default_ttl` (String) the default environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Set to 'Infinite' for environments that never expire (requires max_ttl to be 'Infinite' as well). Default value is 'inherit' which inherits the organization policy. must be equal or shorter than max_ttl
 - `disable_destroy_environments` (Boolean) Disallow destroying environment in the project
 - `drift_detection_cron` (String) default cron expression for new environments
 - `force_remote_backend` (Boolean) if 'true' all environments created in this project will be forced to use env0 remote backend. Default is 'false'
 - `include_cost_estimation` (Boolean) Enable cost estimation for the project
-- `max_ttl` (String) the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl
+- `max_ttl` (String) the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Set to 'Infinite' for environments that never expire. Default value is 'inherit' which inherits the organization policy. must be equal or longer than default_ttl
 - `number_of_environments` (Number) Max number of environments a single user can have in this project.
 Omitting removes the restriction.
 - `number_of_environments_total` (Number) Max number of environments in this project.

@@ -1,1 +1,4 @@
-{}
+{
+  "infinite_policy_max_ttl": "Infinite",
+  "infinite_policy_default_ttl": "4-d"
+}
