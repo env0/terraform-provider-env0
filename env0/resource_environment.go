@@ -240,11 +240,12 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"tags": {
 				Type:        schema.TypeMap,
-				Description: "the environment's tags. Keys and values may contain letters, digits, spaces and the characters _ . : / + - @ (up to 50 key-value pairs).\nA key may hold several values - join them with a comma (for example: \"eng,payments\").",
+				Description: "the environment's tags. Keys and values may contain letters, digits, spaces and the characters _ . : / + - @ (up to 50 key-value pairs).\nA key may hold several values - join them with a comma and no space (for example: \"eng,payments\").",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				ValidateDiagFunc: ValidateTags,
 			},
 			"output": {
 				Type:        schema.TypeString,

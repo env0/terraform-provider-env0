@@ -142,6 +142,25 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 	}
 }
 
+// A tag value is a comma-joined list of the key's values. A space is legal inside a value, so padding around the
+// separator would otherwise be stored verbatim ("eng, payments" -> ["eng", " payments"]) and the environment would
+// silently stop matching a filter on "payments". Trimming instead would leave config and state permanently unequal.
+func ValidateTags(i any, path cty.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for key, value := range i.(map[string]any) {
+		for _, v := range strings.Split(value.(string), ",") {
+			if v == "" || v != strings.TrimSpace(v) {
+				diags = append(diags, diag.Errorf("tag %q: a value may not be empty or padded with spaces - join a key's values with a comma and no space (for example: \"eng,payments\"), got: %q", key, value)...)
+
+				break
+			}
+		}
+	}
+
+	return diags
+}
+
 func ValidateUrl(i any, path cty.Path) diag.Diagnostics {
 	v := i.(string)
 
