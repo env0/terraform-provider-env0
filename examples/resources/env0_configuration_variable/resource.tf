@@ -20,7 +20,7 @@ resource "env0_configuration_variable" "json_variable" {
   format = "JSON"
 }
 
-# Workflow scope: set template_id to the workflow template and omit sub_environment_alias.
+# Workflow template scope: set template_id to the workflow template and omit sub_environment_alias.
 # The variable is applied to every sub environment of the workflow.
 resource "env0_configuration_variable" "workflow_example" {
   name        = "WORKFLOW_VARIABLE"
@@ -31,6 +31,7 @@ resource "env0_configuration_variable" "workflow_example" {
 
 # Sub environment scope: set both template_id and sub_environment_alias.
 # The variable is applied only to the matching sub environment.
+# If the same variable name exists at both scopes, this one overrides the workflow template value.
 resource "env0_configuration_variable" "sub_environment_example" {
   name                  = "SUB_ENVIRONMENT_VARIABLE"
   value                 = "sub env value"

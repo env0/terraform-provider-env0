@@ -72,7 +72,7 @@ func resourceConfigurationVariable() *schema.Resource {
 			},
 			"sub_environment_alias": {
 				Type:         schema.TypeString,
-				Description:  "create the variable for sub templates of a workflow. Requires template_id to be set.",
+				Description:  "create the variable for a specific sub environment of a workflow. Requires template_id to be set. Omit to apply the variable to every sub environment of the workflow template.",
 				Optional:     true,
 				ForceNew:     true,
 				RequiredWith: []string{"template_id"},
