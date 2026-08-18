@@ -179,6 +179,22 @@ func TestValidateTags(t *testing.T) {
 			expectError: true,
 		},
 		{
+			name:        "space inside a key is legal",
+			tags:        map[string]any{"cost center": "platform"},
+			expectError: false,
+		},
+		{
+			// legal server-side, so it can arrive by import - but the key silently stops matching a filter on "owner"
+			name:        "padded key",
+			tags:        map[string]any{" owner": "alice"},
+			expectError: true,
+		},
+		{
+			name:        "trailing space on a key",
+			tags:        map[string]any{"owner ": "alice"},
+			expectError: true,
+		},
+		{
 			name:        "no tags",
 			tags:        map[string]any{},
 			expectError: false,
