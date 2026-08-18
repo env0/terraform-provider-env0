@@ -523,12 +523,23 @@ type VcsFields struct {
 	IsGitlab             *bool
 }
 
+// copyPtr returns a pointer to a copy of the pointee, so writing through the result leaves the original untouched.
+func copyPtr[T any](p *T) *T {
+	if p == nil {
+		return nil
+	}
+
+	return new(*p)
+}
+
 // suppressVcsFieldDrift zeroes out VCS fields that the user did NOT specify,
 // preventing false drift when the backend auto-populates fields.
 // When vcs_connection_id is set, all legacy fields are zeroed.
 // When any legacy field is set, vcs_connection_id is zeroed.
 // When both sides are set (e.g., after import), neither is zeroed.
 // The prefix parameter supports nested schemas (e.g., "without_template_settings").
+// It writes through the pointers in fields, so callers pass pointers into a copy rather than into an object they do
+// not own - mutating an API response in place races with any other goroutine still reading it.
 func suppressVcsFieldDrift(prefix string, fields VcsFields, d *schema.ResourceData) {
 	key := func(name string) string {
 		if prefix != "" {

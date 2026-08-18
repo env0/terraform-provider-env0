@@ -337,15 +337,18 @@ func resourceEnvironmentDiscoveryConfigurationPut(ctx context.Context, d *schema
 		return diag.Errorf("enable/update environment discovery configuration request failed: %s", err.Error())
 	}
 
+	// suppressVcsFieldDrift writes through these pointers, so it gets a copy - the object the client returned is not ours to mutate.
+	payload := *res
+
 	suppressVcsFieldDrift("", VcsFields{
-		GithubInstallationId: &res.GithubInstallationId,
-		VcsConnectionId:      &res.VcsConnectionId,
-		BitbucketClientKey:   &res.BitbucketClientKey,
-		TokenId:              &res.TokenId,
-		IsAzureDevOps:        &res.IsAzureDevops,
+		GithubInstallationId: &payload.GithubInstallationId,
+		VcsConnectionId:      &payload.VcsConnectionId,
+		BitbucketClientKey:   &payload.BitbucketClientKey,
+		TokenId:              &payload.TokenId,
+		IsAzureDevOps:        &payload.IsAzureDevops,
 	}, d)
 
-	if err := setResourceEnvironmentDiscoveryConfiguration(d, res); err != nil {
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, &payload); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -417,15 +420,18 @@ func resourceEnvironmentDiscoveryConfigurationGet(ctx context.Context, d *schema
 		return ResourceGetFailure(ctx, "environment_discovery_configuration", d, err)
 	}
 
+	// suppressVcsFieldDrift writes through these pointers, so it gets a copy - the object the client returned is not ours to mutate.
+	payload := *getPayload
+
 	suppressVcsFieldDrift("", VcsFields{
-		GithubInstallationId: &getPayload.GithubInstallationId,
-		VcsConnectionId:      &getPayload.VcsConnectionId,
-		BitbucketClientKey:   &getPayload.BitbucketClientKey,
-		TokenId:              &getPayload.TokenId,
-		IsAzureDevOps:        &getPayload.IsAzureDevops,
+		GithubInstallationId: &payload.GithubInstallationId,
+		VcsConnectionId:      &payload.VcsConnectionId,
+		BitbucketClientKey:   &payload.BitbucketClientKey,
+		TokenId:              &payload.TokenId,
+		IsAzureDevOps:        &payload.IsAzureDevops,
 	}, d)
 
-	if err := setResourceEnvironmentDiscoveryConfiguration(d, getPayload); err != nil {
+	if err := setResourceEnvironmentDiscoveryConfiguration(d, &payload); err != nil {
 		return diag.FromErr(err)
 	}
 
