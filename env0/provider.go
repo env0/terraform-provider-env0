@@ -3,6 +3,7 @@ package env0
 import (
 	"context"
 	"math/rand/v2"
+	nethttp "net/http"
 	"os"
 	"time"
 
@@ -184,19 +185,16 @@ func Provider(version string) plugin.ProviderFunc {
 }
 
 const (
-	// Same value as net/http's StatusTooManyRequests, spelled out because importing net/http
-	// here would shadow the provider's own http client package.
-	tooManyRequests = 429
-
 	retryCount = 10
-	// Backoff bounds for retries that aren't rate limits (5xx, networking failures).
+	// Backoff bounds for every retry. Resty applies them to the no-response case (networking
+	// failures) itself, before retryWaitTimeFor gets a say, so both ladders share the cap.
 	retryWaitTime    = time.Second
 	retryMaxWaitTime = time.Second * 30
 	// A 429 is produced by a limit measured over a minute-sized window (API gateway and WAF),
 	// so waiting a second or two only burns another attempt on a request that is still blocked.
-	// Start much higher and allow a whole window to pass before the last attempt gives up.
-	rateLimitWaitTime    = time.Second * 5
-	rateLimitMaxWaitTime = time.Minute
+	// Start much higher than a 5xx does. A Retry-After longer than retryMaxWaitTime is still
+	// honored in full: the rate limiter is paused for its whole duration (see http.NewHttpClient).
+	rateLimitWaitTime = http.DefaultRateLimitPause
 	// Attempts allowed for the integration-test-only empty-list retry, counting the first request.
 	emptyListMaxAttempts = 3
 	// Attempts allowed for the integration-test-only 404 retry, counting the first request.
@@ -208,12 +206,14 @@ const (
 
 // retryWaitTimeFor returns how long to wait before the next attempt of a failed request.
 // Resty clamps the result to the client's [retry wait time, retry max wait time] range, which is
-// what lets the tests shrink the ladder to something that doesn't cost wall time.
+// what lets the tests shrink the ladder to something that doesn't cost wall time. The clamp also
+// means the first non-429 wait is exactly retryWaitTime rather than a jittered value below it,
+// which is what resty's own default backoff did before this function existed.
 func retryWaitTimeFor(r *resty.Response) time.Duration {
 	// Attempt counts the request that just failed, so the first backoff uses exponent 0.
 	exponent := max(r.Request.Attempt-1, 0)
 
-	if r.StatusCode() != tooManyRequests {
+	if r.StatusCode() != nethttp.StatusTooManyRequests {
 		return jitterBackoff(retryWaitTime, retryMaxWaitTime, exponent)
 	}
 
@@ -223,7 +223,7 @@ func retryWaitTimeFor(r *resty.Response) time.Duration {
 		return retryAfter + jitter(retryAfter/4)
 	}
 
-	return jitterBackoff(rateLimitWaitTime, rateLimitMaxWaitTime, exponent)
+	return jitterBackoff(rateLimitWaitTime, retryMaxWaitTime, exponent)
 }
 
 // jitterBackoff doubles base once per previous attempt, up to maxWait, and randomizes the result
@@ -264,8 +264,7 @@ func createRestyClient(ctx context.Context) *resty.Client {
 
 	return resty.New().SetRetryCount(retryCount).
 		SetRetryWaitTime(retryWaitTime).
-		// The upper bound of both ladders: retryWaitTimeFor caps the non-rate-limit one itself.
-		SetRetryMaxWaitTime(rateLimitMaxWaitTime).
+		SetRetryMaxWaitTime(retryMaxWaitTime).
 		SetRetryAfter(func(c *resty.Client, r *resty.Response) (time.Duration, error) {
 			return retryWaitTimeFor(r), nil
 		}).
@@ -313,7 +312,7 @@ func createRestyClient(ctx context.Context) *resty.Client {
 			// Retry on rate limiting (429 Too Many Requests). The client rate limiter is paused
 			// for the whole client when this response is seen (see http.NewHttpClient), so the
 			// backoff below is only the extra wait this specific request takes.
-			if r.StatusCode() == tooManyRequests {
+			if r.StatusCode() == nethttp.StatusTooManyRequests {
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "Rate limited, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt, "retry after": r.Header().Get("Retry-After")})
 
 				return true

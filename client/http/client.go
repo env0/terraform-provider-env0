@@ -11,11 +11,12 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// How long the rate limiter holds back every request after a 429 that carries no Retry-After
-// header. The limit is enforced server side (API gateway and WAF), so the whole client has to
-// idle: retrying only the blocked request while its siblings keep firing is what turns a single
-// 429 into thousands of blocked requests.
-const defaultRateLimitPause = 5 * time.Second
+// DefaultRateLimitPause is how long the rate limiter holds back every request after a 429 that
+// carries no Retry-After header. The limit is enforced server side (API gateway and WAF), so the
+// whole client has to idle: retrying only the blocked request while its siblings keep firing is
+// what turns a single 429 into thousands of blocked requests. The provider's 429 backoff starts
+// from the same value, so the two can't drift apart.
+const DefaultRateLimitPause = 5 * time.Second
 
 type HttpClientInterface interface {
 	Get(path string, params map[string]string, response any) error
@@ -60,6 +61,9 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 // applyRateLimiter wires the limiter into the resty middleware rather than into HttpClient's
 // request builder, so that retried attempts count against the limit as well. Otherwise a run
 // that starts getting 429s or 5xx answers sends the retries on top of the allowed rate.
+//
+// The hooks are appended to the resty client, so it must not be handed to NewHttpClient twice:
+// a second call would register a second Wait and halve the effective rate.
 func applyRateLimiter(client *resty.Client, rateLimiter ratelimiter.RateLimiter) {
 	client.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 		return rateLimiter.Wait(r.Context())
@@ -72,7 +76,7 @@ func applyRateLimiter(client *resty.Client, rateLimiter ratelimiter.RateLimiter)
 
 		pause, ok := ParseRetryAfter(r.Header().Get("Retry-After"))
 		if !ok {
-			pause = defaultRateLimitPause
+			pause = DefaultRateLimitPause
 		}
 
 		rateLimiter.Pause(pause)

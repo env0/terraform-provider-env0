@@ -82,9 +82,13 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 			httpClient = createClient(2, 200*time.Millisecond)
 
-			var response string
+			done := make(chan struct{})
 
 			go func() {
+				defer close(done)
+
+				var response string
+
 				_ = httpClient.Get(path, nil, &response)
 			}()
 
@@ -94,7 +98,7 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+path]).To(Equal(2))
 
-			time.Sleep(300 * time.Millisecond)
+			Eventually(done, 3*time.Second).Should(BeClosed())
 
 			callCount = httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+path]).To(Equal(4))
@@ -115,21 +119,29 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 			httpClient = createClient(10, time.Minute)
 
-			var response string
+			var rateLimitedResponse string
 
-			Expect(httpClient.Get(path, nil, &response)).ToNot(BeNil())
+			Expect(httpClient.Get(path, nil, &rateLimitedResponse)).To(HaveOccurred())
+
+			done := make(chan struct{})
 
 			go func() {
+				defer close(done)
+
+				var response string
+
 				_ = httpClient.Get(TestEndpoint, nil, &response)
 			}()
 
+			// The 429 holds back a request to an endpoint that never answered 429 itself.
 			time.Sleep(100 * time.Millisecond)
 
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(0))
 
-			// Retry-After said one second, after which the held back request goes out.
-			time.Sleep(time.Second)
+			// Retry-After said one second, after which the held back request goes out (plus the
+			// limiter's wake-up spread).
+			Eventually(done, 3*time.Second).Should(BeClosed())
 
 			callCount = httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(1))

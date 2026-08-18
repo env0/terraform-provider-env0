@@ -158,6 +158,52 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			Expect(time.Since(start)).To(BeNumerically(">=", 90*time.Millisecond))
 		})
 
+		// A pause is one shared deadline, so without a spread every waiter resumes in the same
+		// instant and the burst the caller's jittered backoff avoided happens anyway.
+		It("should spread the wake-up of requests waiting out a pause", func() {
+			const waiters = 10
+
+			limiter = NewSlidingWindowLimiter(waiters, time.Minute)
+			limiter.Pause(200 * time.Millisecond)
+
+			var (
+				mu        sync.Mutex
+				wakeTimes []time.Time
+				wg        sync.WaitGroup
+			)
+
+			for range waiters {
+				wg.Add(1)
+
+				go func() {
+					defer wg.Done()
+
+					Expect(limiter.Wait(context.Background())).To(BeNil())
+
+					mu.Lock()
+					defer mu.Unlock()
+
+					wakeTimes = append(wakeTimes, time.Now())
+				}()
+			}
+
+			wg.Wait()
+
+			earliest, latest := wakeTimes[0], wakeTimes[0]
+
+			for _, wakeTime := range wakeTimes {
+				if wakeTime.Before(earliest) {
+					earliest = wakeTime
+				}
+
+				if wakeTime.After(latest) {
+					latest = wakeTime
+				}
+			}
+
+			Expect(latest.Sub(earliest)).To(BeNumerically(">", 5*time.Millisecond))
+		})
+
 		It("should respect context cancellation while paused", func() {
 			limiter = NewSlidingWindowLimiter(10, time.Minute)
 

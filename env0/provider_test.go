@@ -335,7 +335,7 @@ func TestRetryWaitTimeFor(t *testing.T) {
 		{"5xx third retry", http.StatusInternalServerError, 3, "", retryWaitTime * 2, retryWaitTime * 4},
 		{"5xx is capped", http.StatusInternalServerError, retryCount, "", retryMaxWaitTime / 2, retryMaxWaitTime},
 		{"429 first retry", http.StatusTooManyRequests, 1, "", rateLimitWaitTime / 2, rateLimitWaitTime},
-		{"429 is capped", http.StatusTooManyRequests, retryCount, "", rateLimitMaxWaitTime / 2, rateLimitMaxWaitTime},
+		{"429 is capped", http.StatusTooManyRequests, retryCount, "", retryMaxWaitTime / 2, retryMaxWaitTime},
 		{"429 with retry after seconds", http.StatusTooManyRequests, 1, "8", time.Second * 8, time.Second * 10},
 		{"429 with unparsable retry after", http.StatusTooManyRequests, 1, "soon", rateLimitWaitTime / 2, rateLimitWaitTime},
 	}
@@ -350,10 +350,13 @@ func TestRetryWaitTimeFor(t *testing.T) {
 	}
 }
 
-// The 429 ladder must not collapse to the 5xx one: a 429 always waits longer than a 5xx would
-// have waited on the same attempt.
+// The 429 ladder must not collapse to the 5xx one: while the shared cap isn't binding yet, a 429
+// waits strictly longer than a 5xx would have waited on the same attempt. Once both ladders
+// saturate at retryMaxWaitTime they converge by design, so only the climbing attempts are checked.
 func TestRetryWaitTimeForRateLimitWaitsLongerThan5xx(t *testing.T) {
-	for attempt := 1; attempt <= retryCount; attempt++ {
+	const climbingAttempts = 4
+
+	for attempt := 1; attempt <= climbingAttempts; attempt++ {
 		rateLimited := retryWaitTimeFor(newRetryTestResponse(http.StatusTooManyRequests, attempt, ""))
 		serverError := retryWaitTimeFor(newRetryTestResponse(http.StatusInternalServerError, attempt, ""))
 

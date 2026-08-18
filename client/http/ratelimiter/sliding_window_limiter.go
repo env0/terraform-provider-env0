@@ -2,8 +2,17 @@ package ratelimiter
 
 import (
 	"context"
+	"math/rand/v2"
 	"sync"
 	"time"
+)
+
+// Spread applied to the wake-up of requests waiting out a pause. A pause is one shared deadline,
+// so without it every waiter resumes in the same instant and hits the server as one burst - the
+// behaviour the caller's jittered backoff is trying to avoid. Capped so a short pause stays short.
+const (
+	pauseWakeupSpread    = 0.25
+	pauseWakeupSpreadMax = time.Second
 )
 
 // SlidingWindowLimiter implements sliding window rate limiting.
@@ -133,8 +142,18 @@ func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
 	}
 
 	if pause := l.pausedUntil.Sub(now); pause > delay {
-		delay = pause
+		delay = pause + pauseWakeupJitter(pause)
 	}
 
 	return delay
+}
+
+// pauseWakeupJitter returns a random extra wait in [0, min(pause*pauseWakeupSpread, pauseWakeupSpreadMax)).
+func pauseWakeupJitter(pause time.Duration) time.Duration {
+	spread := min(time.Duration(float64(pause)*pauseWakeupSpread), pauseWakeupSpreadMax)
+	if spread <= 0 {
+		return 0
+	}
+
+	return rand.N(spread)
 }
