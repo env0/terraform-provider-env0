@@ -1,6 +1,7 @@
 package env0
 
 import (
+	"context"
 	"math"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestReadResourceDataModule(t *testing.T) {
@@ -468,4 +470,54 @@ func TestLastSplit(t *testing.T) {
 	assert.Equal(t, []string{"a_", ""}, lastUnderscoreSplit("a__"))
 
 	assert.Equal(t, []string{"abc"}, lastUnderscoreSplit("abc"))
+}
+
+// The unit-test mocks hand the same fixture pointer to every call, so a read that zeroes VCS fields in place both
+// races with concurrent reads of that fixture and blanks the fields the next step expects to see.
+func TestVcsDriftSuppressionLeavesTheApiObjectAlone(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("custom flow", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		customFlow := client.CustomFlow{Id: "id", Name: "name", Repository: "repo", TokenId: "token", VcsConnectionId: "vcs-id"}
+
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().CustomFlow("id").Times(1).Return(&customFlow, nil)
+
+		d := schema.TestResourceDataRaw(t, resourceCustomFlow().Schema, map[string]any{
+			"name":              "name",
+			"repository":        "repo",
+			"vcs_connection_id": "vcs-id",
+		})
+		d.SetId("id")
+
+		require.False(t, resourceCustomFlowRead(ctx, d, mock).HasError())
+		assert.Equal(t, "token", customFlow.TokenId, "read zeroed a field on the object the client returned")
+	})
+
+	t.Run("module", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		// vcs_connection_id is the field zeroed here, and on a module it is a pointer - a shallow copy still shares it.
+		module := client.Module{Id: "id", ModuleName: "name", ModuleProvider: "provider", Repository: "repo",
+			GithubInstallationId: new(1000), VcsConnectionId: new("vcs-id")}
+
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Module("id").Times(1).Return(&module, nil)
+
+		d := schema.TestResourceDataRaw(t, resourceModule().Schema, map[string]any{
+			"module_name":            "name",
+			"module_provider":        "provider",
+			"repository":             "repo",
+			"github_installation_id": 1000,
+		})
+		d.SetId("id")
+
+		require.False(t, resourceModuleRead(ctx, d, mock).HasError())
+		require.NotNil(t, module.VcsConnectionId)
+		assert.Equal(t, "vcs-id", *module.VcsConnectionId, "read zeroed a field on the object the client returned")
+	})
 }
