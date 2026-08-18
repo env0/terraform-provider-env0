@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"net/http"
 	"time"
 
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
@@ -62,6 +63,90 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 		Expect(err).To(BeNil())
 		Expect(response).To(Equal(SuccessResponse))
 	}
+
+	Context("with rate limiting applied to retries", func() {
+		// Retried attempts used to bypass the limiter, so a run that started failing sent its
+		// retries on top of the allowed rate - which is what kept the WAF blocking requests.
+		It("should count retried attempts against the limit", func() {
+			const path = "/server-error"
+
+			httpmock.RegisterResponder("GET", BaseUrl+path,
+				httpmock.NewStringResponder(http.StatusInternalServerError, "BAD"))
+
+			restClient.SetRetryCount(3).
+				SetRetryWaitTime(time.Millisecond).
+				SetRetryMaxWaitTime(time.Millisecond).
+				AddRetryCondition(func(r *resty.Response, err error) bool {
+					return r.StatusCode() >= http.StatusInternalServerError
+				})
+
+			httpClient = createClient(2, 200*time.Millisecond)
+
+			done := make(chan struct{})
+
+			go func() {
+				defer close(done)
+
+				var response string
+
+				_ = httpClient.Get(path, nil, &response)
+			}()
+
+			// Only the window's budget goes out immediately, the retries wait for a free slot.
+			time.Sleep(20 * time.Millisecond)
+
+			callCount := httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+path]).To(Equal(2))
+
+			Eventually(done, 3*time.Second).Should(BeClosed())
+
+			callCount = httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+path]).To(Equal(4))
+		})
+
+		// A 429 is a server side limit, so the entire client has to back off. Retrying only the
+		// blocked request while its siblings keep firing is what turns one 429 into thousands.
+		It("should pause every request after a 429", func() {
+			const path = "/rate-limited"
+
+			httpmock.RegisterResponder("GET", BaseUrl+path,
+				func(*http.Request) (*http.Response, error) {
+					res := httpmock.NewStringResponse(http.StatusTooManyRequests, "TOO MANY REQUESTS")
+					res.Header.Set("Retry-After", "1")
+
+					return res, nil
+				})
+
+			httpClient = createClient(10, time.Minute)
+
+			var rateLimitedResponse string
+
+			Expect(httpClient.Get(path, nil, &rateLimitedResponse)).To(HaveOccurred())
+
+			done := make(chan struct{})
+
+			go func() {
+				defer close(done)
+
+				var response string
+
+				_ = httpClient.Get(TestEndpoint, nil, &response)
+			}()
+
+			// The 429 holds back a request to an endpoint that never answered 429 itself.
+			time.Sleep(100 * time.Millisecond)
+
+			callCount := httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(0))
+
+			// Retry-After said one second, after which the held back request goes out (plus the
+			// limiter's wake-up spread).
+			Eventually(done, 3*time.Second).Should(BeClosed())
+
+			callCount = httpmock.GetCallCountInfo()
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(1))
+		})
+	})
 
 	Context("with client rate limiting tests", func() {
 		// These tests verify our HTTP client's rate limiting behavior

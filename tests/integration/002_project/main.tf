@@ -81,12 +81,12 @@ resource "env0_project" "project_by_path1" {
 }
 
 resource "env0_project" "project_by_path2" {
-  name = "project-${random_string.random.result}-p2"
+  name              = "project-${random_string.random.result}-p2"
   parent_project_id = env0_project.project_by_path1.id
 }
 
 resource "env0_project" "project_by_path3" {
-  name = "project-${random_string.random.result}-p3"
+  name              = "project-${random_string.random.result}-p3"
   parent_project_id = env0_project.project_by_path2.id
 }
 

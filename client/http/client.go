@@ -3,12 +3,20 @@ package http
 //go:generate mockgen -destination=client_mock.go -package=http . HttpClientInterface
 
 import (
-	"context"
+	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client/http/ratelimiter"
 	"github.com/go-resty/resty/v2"
 )
+
+// DefaultRateLimitPause is how long the rate limiter holds back every request after a 429 that
+// carries no Retry-After header. The limit is enforced server side (API gateway and WAF), so the
+// whole client has to idle: retrying only the blocked request while its siblings keep firing is
+// what turns a single 429 into thousands of blocked requests. The provider's 429 backoff starts
+// from the same value, so the two can't drift apart.
+const DefaultRateLimitPause = 5 * time.Second
 
 type HttpClientInterface interface {
 	Get(path string, params map[string]string, response any) error
@@ -19,11 +27,10 @@ type HttpClientInterface interface {
 }
 
 type HttpClient struct {
-	ApiKey      string
-	ApiSecret   string
-	Endpoint    string
-	client      *resty.Client
-	rateLimiter *ratelimiter.RateLimiter
+	ApiKey    string
+	ApiSecret string
+	Endpoint  string
+	client    *resty.Client
 }
 
 type HttpClientConfig struct {
@@ -36,26 +43,49 @@ type HttpClientConfig struct {
 }
 
 func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
+	restClient := config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent)
+
+	if config.RateLimiter != nil {
+		applyRateLimiter(restClient, config.RateLimiter)
+	}
+
 	httpClient := &HttpClient{
-		ApiKey:      config.ApiKey,
-		ApiSecret:   config.ApiSecret,
-		client:      config.RestClient.SetBaseURL(config.ApiEndpoint).SetHeader("User-Agent", config.UserAgent),
-		rateLimiter: &config.RateLimiter,
+		ApiKey:    config.ApiKey,
+		ApiSecret: config.ApiSecret,
+		client:    restClient,
 	}
 
 	return httpClient, nil
 }
 
-func (client *HttpClient) request() *resty.Request {
-	if *client.rateLimiter != nil {
-		ctx := context.Background()
+// applyRateLimiter wires the limiter into the resty middleware rather than into HttpClient's
+// request builder, so that retried attempts count against the limit as well. Otherwise a run
+// that starts getting 429s or 5xx answers sends the retries on top of the allowed rate.
+//
+// The hooks are appended to the resty client, so it must not be handed to NewHttpClient twice:
+// a second call would register a second Wait and halve the effective rate.
+func applyRateLimiter(client *resty.Client, rateLimiter ratelimiter.RateLimiter) {
+	client.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+		return rateLimiter.Wait(r.Context())
+	})
 
-		err := (*client.rateLimiter).Wait(ctx)
-		if err != nil {
-			return client.client.R().SetError(err)
+	client.OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
+		if r.StatusCode() != http.StatusTooManyRequests {
+			return nil
 		}
-	}
 
+		pause, ok := ParseRetryAfter(r.Header().Get("Retry-After"))
+		if !ok {
+			pause = DefaultRateLimitPause
+		}
+
+		rateLimiter.Pause(pause)
+
+		return nil
+	})
+}
+
+func (client *HttpClient) request() *resty.Request {
 	return client.client.R().SetBasicAuth(client.ApiKey, client.ApiSecret)
 }
 
