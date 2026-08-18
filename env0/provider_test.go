@@ -286,3 +286,89 @@ func TestRestyClientNotFoundIsNotRetried(t *testing.T) {
 
 	assert.Equal(t, 1, httpmock.GetTotalCallCount())
 }
+
+// A 429 is the failure this provider has to survive: the whole retry ladder is spent on it.
+func TestRestyClientRateLimitIsRetried(t *testing.T) {
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/rate-limited"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusTooManyRequests, "TOO MANY REQUESTS"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusTooManyRequests, res.StatusCode())
+	}
+
+	assert.Equal(t, retryCount+1, httpmock.GetTotalCallCount())
+}
+
+func newRetryTestResponse(statusCode int, attempt int, retryAfter string) *resty.Response {
+	header := http.Header{}
+	if retryAfter != "" {
+		header.Set("Retry-After", retryAfter)
+	}
+
+	return &resty.Response{
+		Request:     &resty.Request{Attempt: attempt},
+		RawResponse: &http.Response{StatusCode: statusCode, Header: header},
+	}
+}
+
+// A 429 comes from a minute-sized window, so its ladder has to start higher and climb further
+// than the one used for a 5xx, and it has to follow Retry-After when the response supplies it.
+func TestRetryWaitTimeFor(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		attempt    int
+		retryAfter string
+		min        time.Duration
+		max        time.Duration
+	}{
+		{"5xx first retry", http.StatusInternalServerError, 1, "", retryWaitTime / 2, retryWaitTime},
+		{"5xx third retry", http.StatusInternalServerError, 3, "", retryWaitTime * 2, retryWaitTime * 4},
+		{"5xx is capped", http.StatusInternalServerError, retryCount, "", retryMaxWaitTime / 2, retryMaxWaitTime},
+		{"429 first retry", http.StatusTooManyRequests, 1, "", rateLimitWaitTime / 2, rateLimitWaitTime},
+		{"429 is capped", http.StatusTooManyRequests, retryCount, "", rateLimitMaxWaitTime / 2, rateLimitMaxWaitTime},
+		{"429 with retry after seconds", http.StatusTooManyRequests, 1, "8", time.Second * 8, time.Second * 10},
+		{"429 with unparsable retry after", http.StatusTooManyRequests, 1, "soon", rateLimitWaitTime / 2, rateLimitWaitTime},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			waitTime := retryWaitTimeFor(newRetryTestResponse(tt.statusCode, tt.attempt, tt.retryAfter))
+
+			assert.GreaterOrEqual(t, waitTime, tt.min)
+			assert.LessOrEqual(t, waitTime, tt.max)
+		})
+	}
+}
+
+// The 429 ladder must not collapse to the 5xx one: a 429 always waits longer than a 5xx would
+// have waited on the same attempt.
+func TestRetryWaitTimeForRateLimitWaitsLongerThan5xx(t *testing.T) {
+	for attempt := 1; attempt <= retryCount; attempt++ {
+		rateLimited := retryWaitTimeFor(newRetryTestResponse(http.StatusTooManyRequests, attempt, ""))
+		serverError := retryWaitTimeFor(newRetryTestResponse(http.StatusInternalServerError, attempt, ""))
+
+		assert.Greater(t, rateLimited, serverError, "attempt %d", attempt)
+	}
+}
+
+// Requests blocked in the same window all get the same Retry-After. Retrying them all the moment
+// it expires is what got the provider blocked by the WAF, so the wait is jittered.
+func TestRetryWaitTimeForRateLimitIsJittered(t *testing.T) {
+	waitTimes := map[time.Duration]bool{}
+
+	for range 20 {
+		waitTimes[retryWaitTimeFor(newRetryTestResponse(http.StatusTooManyRequests, 1, "10"))] = true
+	}
+
+	assert.Greater(t, len(waitTimes), 1)
+}

@@ -12,6 +12,9 @@ type SlidingWindowLimiter struct {
 	maxRequests int
 	window      time.Duration
 	requests    []time.Time
+	// No request is allowed before this point in time, regardless of the window budget.
+	// Set by Pause when the server pushes back (429).
+	pausedUntil time.Time
 	mu          sync.Mutex
 }
 
@@ -38,6 +41,10 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	now := time.Now()
 	l.cleanup(now)
 
+	if now.Before(l.pausedUntil) {
+		return false
+	}
+
 	if len(l.requests) < l.maxRequests {
 		l.requests = append(l.requests, now)
 
@@ -45,6 +52,22 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	}
 
 	return false
+}
+
+// Pause blocks all requests for at least d, extending an existing pause but never shortening it.
+// A paused limiter keeps its window budget: requests resume as soon as the pause expires.
+func (l *SlidingWindowLimiter) Pause(d time.Duration) {
+	if d <= 0 {
+		return
+	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	until := time.Now().Add(d)
+	if until.After(l.pausedUntil) {
+		l.pausedUntil = until
+	}
 }
 
 // Wait blocks until a request can be made, then records it.
@@ -101,12 +124,17 @@ func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
 	now := time.Now()
 	l.cleanup(now)
 
-	if len(l.requests) < l.maxRequests {
-		return 0
+	delay := time.Duration(0)
+
+	if len(l.requests) >= l.maxRequests {
+		// Wait for the oldest request to expire
+		oldest := l.requests[0]
+		delay = oldest.Add(l.window).Sub(now)
 	}
 
-	// Wait for the oldest request to expire
-	oldest := l.requests[0]
+	if pause := l.pausedUntil.Sub(now); pause > delay {
+		delay = pause
+	}
 
-	return oldest.Add(l.window).Sub(now)
+	return delay
 }
