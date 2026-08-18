@@ -126,6 +126,89 @@ func TestValidateNotEmptyString(t *testing.T) {
 	}
 }
 
+func TestValidateTags(t *testing.T) {
+	tests := []struct {
+		name        string
+		tags        map[string]any
+		expectError bool
+	}{
+		{
+			name:        "single value",
+			tags:        map[string]any{"owner": "alice"},
+			expectError: false,
+		},
+		{
+			name:        "multi value joined with no space",
+			tags:        map[string]any{"team": "eng,payments"},
+			expectError: false,
+		},
+		{
+			name:        "space inside a value is legal",
+			tags:        map[string]any{"team": "platform eng,payments"},
+			expectError: false,
+		},
+		{
+			name:        "space after the separator",
+			tags:        map[string]any{"team": "eng, payments"},
+			expectError: true,
+		},
+		{
+			name:        "space before the separator",
+			tags:        map[string]any{"team": "eng ,payments"},
+			expectError: true,
+		},
+		{
+			name:        "empty value",
+			tags:        map[string]any{"team": ""},
+			expectError: true,
+		},
+		{
+			// legal server-side, so it can arrive by import - but it silently stops matching a filter on "alice"
+			name:        "padded single value",
+			tags:        map[string]any{"owner": " alice"},
+			expectError: true,
+		},
+		{
+			name:        "trailing space on a single value",
+			tags:        map[string]any{"owner": "alice "},
+			expectError: true,
+		},
+		{
+			name:        "empty segment",
+			tags:        map[string]any{"team": "eng,,payments"},
+			expectError: true,
+		},
+		{
+			name:        "space inside a key is legal",
+			tags:        map[string]any{"cost center": "platform"},
+			expectError: false,
+		},
+		{
+			// legal server-side, so it can arrive by import - but the key silently stops matching a filter on "owner"
+			name:        "padded key",
+			tags:        map[string]any{" owner": "alice"},
+			expectError: true,
+		},
+		{
+			name:        "trailing space on a key",
+			tags:        map[string]any{"owner ": "alice"},
+			expectError: true,
+		},
+		{
+			name:        "no tags",
+			tags:        map[string]any{},
+			expectError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := ValidateTags(tt.tags, cty.Path{})
+			assert.Equal(t, tt.expectError, diags.HasError())
+		})
+	}
+}
+
 func TestValidateRetries(t *testing.T) {
 	tests := []struct {
 		name        string
