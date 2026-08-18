@@ -54,16 +54,19 @@ func resourceCustomFlowRead(ctx context.Context, d *schema.ResourceData, meta an
 		return ResourceGetFailure(ctx, "custom flow", d, err)
 	}
 
+	// suppressVcsFieldDrift writes through these pointers, so it gets a copy - the object the client returned is not ours to mutate.
+	flow := *customFlow
+
 	suppressVcsFieldDrift("", VcsFields{
-		GithubInstallationId: &customFlow.GithubInstallationId,
-		VcsConnectionId:      &customFlow.VcsConnectionId,
-		BitbucketClientKey:   &customFlow.BitbucketClientKey,
-		TokenId:              &customFlow.TokenId,
-		IsAzureDevOps:        &customFlow.IsAzureDevOps,
-		IsGitlab:             &customFlow.IsGitLab,
+		GithubInstallationId: &flow.GithubInstallationId,
+		VcsConnectionId:      &flow.VcsConnectionId,
+		BitbucketClientKey:   &flow.BitbucketClientKey,
+		TokenId:              &flow.TokenId,
+		IsAzureDevOps:        &flow.IsAzureDevOps,
+		IsGitlab:             &flow.IsGitLab,
 	}, d)
 
-	if err := writeResourceData(customFlow, d); err != nil {
+	if err := writeResourceData(&flow, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
