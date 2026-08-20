@@ -17,9 +17,10 @@ const ENVIRONMENT = "environment"
 // rather than merging, and resources is excluded by that default today.
 const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
 
-// Same rationale as environmentExcludeFields. This endpoint returns the deployment log as the response
-// root, so the field names carry no latestDeploymentLog prefix.
-const deploymentLogExcludeFields = "plan,resources"
+// EnvironmentDeploymentLog is used only while polling a destroy and its caller reads only Status. Exclude
+// the large response fields that are discarded on every poll. This endpoint returns the deployment log as
+// the response root, so the field names carry no latestDeploymentLog prefix.
+const deploymentLogExcludeFields = "plan,resources,output,costEstimation"
 
 type ConfigurationVariableType int
 
@@ -263,18 +264,21 @@ func (client *ApiClient) EnvironmentsByName(name string) ([]Environment, error) 
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
 		"name":           name,
+		"excludeFields":  environmentExcludeFields,
 	})
 }
 
 func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
 	return getAll(client, map[string]string{
-		"projectId": projectId,
+		"projectId":     projectId,
+		"excludeFields": environmentExcludeFields,
 	})
 }
 
 func (client *ApiClient) OrganizationEnvironments(organizationId string) ([]Environment, error) {
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
+		"excludeFields":  environmentExcludeFields,
 	})
 }
 
