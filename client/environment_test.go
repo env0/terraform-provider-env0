@@ -177,10 +177,14 @@ var _ = Describe("Environment Client", func() {
 			err         error
 		)
 
+		expectedParams := map[string]string{
+			"exclude_fields": "latestDeploymentLog.plan,latestDeploymentLog.resources",
+		}
+
 		Describe("Success", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments/"+mockEnvironment.Id, nil, gomock.Any()).
+					Get("/environments/"+mockEnvironment.Id, expectedParams, gomock.Any()).
 					Do(func(path string, request any, response *Environment) {
 						*response = mockEnvironment
 					})
@@ -188,7 +192,7 @@ var _ = Describe("Environment Client", func() {
 				environment, err = apiClient.Environment(mockEnvironment.Id)
 			})
 
-			It("Should send GET request", func() {
+			It("Should send GET request excluding the deployment log plan and resources", func() {
 				httpCall.Times(1)
 			})
 
@@ -201,7 +205,7 @@ var _ = Describe("Environment Client", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments/"+mockEnvironment.Id, nil, gomock.Any()).
+					Get("/environments/"+mockEnvironment.Id, expectedParams, gomock.Any()).
 					Return(expectedErr)
 
 				_, err = apiClient.Environment(mockEnvironment.Id)
@@ -522,7 +526,9 @@ var _ = Describe("Environment Client", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Get("/environments/deployments/"+mockDeployment.Id, nil, gomock.Any()).
+				Get("/environments/deployments/"+mockDeployment.Id, map[string]string{
+					"exclude_fields": "plan,resources",
+				}, gomock.Any()).
 				Do(func(path string, request any, response *DeploymentLog) {
 					*response = mockDeployment
 				}).Times(1)
@@ -536,6 +542,10 @@ var _ = Describe("Environment Client", func() {
 
 		It("Should not return an error", func() {
 			Expect(err).To(BeNil())
+		})
+
+		It("Should send GET request excluding the plan and resources", func() {
+			httpCall.Times(1)
 		})
 	})
 })

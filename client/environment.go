@@ -10,6 +10,17 @@ import (
 
 const ENVIRONMENT = "environment"
 
+// The API embeds the latest deployment log's full parsed plan in the environment response. The provider
+// never reads it - DeploymentLog below has no Plan or Resources field, so json.Unmarshal drops both - but
+// on environments with a large plan the response exceeds the 6 MB Lambda cap and the GET fails with a 502.
+// Both fields must be listed: the endpoint replaces its default exclusion list with the one sent here
+// rather than merging, and resources is excluded by that default today.
+const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
+
+// Same rationale as environmentExcludeFields. This endpoint returns the deployment log as the response
+// root, so the field names carry no latestDeploymentLog prefix.
+const deploymentLogExcludeFields = "plan,resources"
+
 type ConfigurationVariableType int
 
 func (c *ConfigurationVariableType) ReadResourceData(fieldName string, d *schema.ResourceData) error {
@@ -270,7 +281,9 @@ func (client *ApiClient) OrganizationEnvironments(organizationId string) ([]Envi
 func (client *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
 
-	err := client.http.Get("/environments/"+id, nil, &result)
+	err := client.http.Get("/environments/"+id, map[string]string{
+		"exclude_fields": environmentExcludeFields,
+	}, &result)
 	if err != nil {
 		return Environment{}, err
 	}
@@ -281,7 +294,9 @@ func (client *ApiClient) Environment(id string) (Environment, error) {
 func (client *ApiClient) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
 	var result DeploymentLog
 
-	err := client.http.Get("/environments/deployments/"+id, nil, &result)
+	err := client.http.Get("/environments/deployments/"+id, map[string]string{
+		"exclude_fields": deploymentLogExcludeFields,
+	}, &result)
 	if err != nil {
 		return nil, err
 	}
