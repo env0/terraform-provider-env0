@@ -142,6 +142,41 @@ func NewRoleValidator(supportedBuiltInRoles []string) schema.SchemaValidateDiagF
 	}
 }
 
+// A tag value is a comma-joined list of the key's values. A space is legal inside a value, so padding around the
+// separator would otherwise be stored verbatim ("eng, payments" -> ["eng", " payments"]) and the environment would
+// silently stop matching a filter on "payments". Trimming instead would leave config and state permanently unequal.
+// A padded key fails the same way, so it is rejected too.
+func ValidateTags(i any, path cty.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for key, value := range i.(map[string]any) {
+		// A padded key has the same silent failure as a padded value: it is stored verbatim and stops matching an unpadded tag filter.
+		if key != strings.TrimSpace(key) {
+			diags = append(diags, diag.Errorf("tag %q: the key has a leading or trailing space - a space inside a key is legal, but padding is not. If this tag was created outside terraform, drop the padding here and apply to normalize it", key)...)
+
+			continue
+		}
+
+		for _, v := range strings.Split(value.(string), ",") {
+			if v == "" {
+				diags = append(diags, diag.Errorf("tag %q: value %q has an empty entry - a key's values are joined with a comma and no spaces (for example: \"eng,payments\")", key, value)...)
+
+				break
+			}
+
+			// A padded value is stored verbatim by the API, and then no longer matches an unpadded tag filter.
+			// The environment itself imports fine - it is only the configuration that has to drop the padding.
+			if v != strings.TrimSpace(v) {
+				diags = append(diags, diag.Errorf("tag %q: value %q has a leading or trailing space - a key's values are joined with a comma and no spaces (for example: \"eng,payments\"). If this tag was created outside terraform, drop the padding here and apply to normalize it", key, value)...)
+
+				break
+			}
+		}
+	}
+
+	return diags
+}
+
 func ValidateUrl(i any, path cty.Path) diag.Diagnostics {
 	v := i.(string)
 

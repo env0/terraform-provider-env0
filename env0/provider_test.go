@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/utils"
@@ -201,4 +202,176 @@ func TestRestyClientSuite(t *testing.T) {
 		url:    "http://fake.env0.com/fake",
 	}
 	suite.Run(t, s)
+}
+
+// createRetryTestClient returns a client with the production retry conditions but a negligible
+// backoff, so asserting on attempt counts doesn't pay the real ladder's wall time.
+func createRetryTestClient(t *testing.T) *resty.Client {
+	t.Helper()
+
+	return createRestyClient(context.Background()).
+		SetRetryWaitTime(time.Millisecond).
+		SetRetryMaxWaitTime(time.Millisecond)
+}
+
+// An empty list is a legitimate answer for most list endpoints. The integration-test-only
+// retry that covers read-after-write lag must stop after emptyListMaxAttempts, or every
+// genuinely-empty list pays the full retry ladder.
+func TestRestyClientEmptyListRetryIsCapped(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "1")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/empty-list"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusOK, "[]"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusOK, res.StatusCode())
+		assert.Equal(t, "[]", res.String())
+	}
+
+	assert.Equal(t, emptyListMaxAttempts, httpmock.GetTotalCallCount())
+}
+
+// Some endpoints answer 404 by design, so the integration-test retry that covers database
+// eventual consistency must stop after notFoundMaxAttempts.
+func TestRestyClientNotFoundRetryIsCapped(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "1")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/not-found"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusNotFound, "NOT FOUND"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusNotFound, res.StatusCode())
+	}
+
+	assert.Equal(t, notFoundMaxAttempts, httpmock.GetTotalCallCount())
+}
+
+// Outside the integration tests a 404 is never retried.
+func TestRestyClientNotFoundIsNotRetried(t *testing.T) {
+	t.Setenv("INTEGRATION_TESTS", "")
+
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/not-found-no-integration"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusNotFound, "NOT FOUND"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusNotFound, res.StatusCode())
+	}
+
+	assert.Equal(t, 1, httpmock.GetTotalCallCount())
+}
+
+// A 429 is the failure this provider has to survive: the whole retry ladder is spent on it.
+func TestRestyClientRateLimitIsRetried(t *testing.T) {
+	client := createRetryTestClient(t)
+	url := "http://fake.env0.com/rate-limited"
+
+	httpmock.ActivateNonDefault(client.GetClient())
+
+	defer httpmock.Deactivate()
+
+	httpmock.Reset()
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(http.StatusTooManyRequests, "TOO MANY REQUESTS"))
+
+	res, err := client.R().Get(url)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusTooManyRequests, res.StatusCode())
+	}
+
+	assert.Equal(t, retryCount+1, httpmock.GetTotalCallCount())
+}
+
+func newRetryTestResponse(statusCode int, attempt int, retryAfter string) *resty.Response {
+	header := http.Header{}
+	if retryAfter != "" {
+		header.Set("Retry-After", retryAfter)
+	}
+
+	return &resty.Response{
+		Request:     &resty.Request{Attempt: attempt},
+		RawResponse: &http.Response{StatusCode: statusCode, Header: header},
+	}
+}
+
+// A 429 comes from a minute-sized window, so its ladder has to start higher and climb further
+// than the one used for a 5xx, and it has to follow Retry-After when the response supplies it.
+func TestRetryWaitTimeFor(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		attempt    int
+		retryAfter string
+		min        time.Duration
+		max        time.Duration
+	}{
+		{"5xx first retry", http.StatusInternalServerError, 1, "", retryWaitTime / 2, retryWaitTime},
+		{"5xx third retry", http.StatusInternalServerError, 3, "", retryWaitTime * 2, retryWaitTime * 4},
+		{"5xx is capped", http.StatusInternalServerError, retryCount, "", retryMaxWaitTime / 2, retryMaxWaitTime},
+		{"429 first retry", http.StatusTooManyRequests, 1, "", rateLimitWaitTime / 2, rateLimitWaitTime},
+		{"429 is capped", http.StatusTooManyRequests, retryCount, "", retryMaxWaitTime / 2, retryMaxWaitTime},
+		{"429 with retry after seconds", http.StatusTooManyRequests, 1, "8", time.Second * 8, time.Second * 10},
+		{"429 with unparsable retry after", http.StatusTooManyRequests, 1, "soon", rateLimitWaitTime / 2, rateLimitWaitTime},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			waitTime := retryWaitTimeFor(newRetryTestResponse(tt.statusCode, tt.attempt, tt.retryAfter))
+
+			assert.GreaterOrEqual(t, waitTime, tt.min)
+			assert.LessOrEqual(t, waitTime, tt.max)
+		})
+	}
+}
+
+// The 429 ladder must not collapse to the 5xx one: while the shared cap isn't binding yet, a 429
+// waits strictly longer than a 5xx would have waited on the same attempt. Once both ladders
+// saturate at retryMaxWaitTime they converge by design, so only the climbing attempts are checked.
+func TestRetryWaitTimeForRateLimitWaitsLongerThan5xx(t *testing.T) {
+	const climbingAttempts = 4
+
+	for attempt := 1; attempt <= climbingAttempts; attempt++ {
+		rateLimited := retryWaitTimeFor(newRetryTestResponse(http.StatusTooManyRequests, attempt, ""))
+		serverError := retryWaitTimeFor(newRetryTestResponse(http.StatusInternalServerError, attempt, ""))
+
+		assert.Greater(t, rateLimited, serverError, "attempt %d", attempt)
+	}
+}
+
+// Requests blocked in the same window all get the same Retry-After. Retrying them all the moment
+// it expires is what got the provider blocked by the WAF, so the wait is jittered.
+func TestRetryWaitTimeForRateLimitIsJittered(t *testing.T) {
+	waitTimes := map[time.Duration]bool{}
+
+	for range 20 {
+		waitTimes[retryWaitTimeFor(newRetryTestResponse(http.StatusTooManyRequests, 1, "10"))] = true
+	}
+
+	assert.Greater(t, len(waitTimes), 1)
 }

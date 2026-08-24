@@ -4249,6 +4249,99 @@ func TestSetSubEnvironmentSchema(t *testing.T) {
 	})
 }
 
+func TestUnitEnvironmentTags(t *testing.T) {
+	resourceType := "env0_environment"
+	resourceName := "test"
+	accessor := resourceAccessor(resourceType, resourceName)
+
+	environment := client.Environment{
+		Id:        "env-id",
+		Name:      "my-environment",
+		ProjectId: "project-id",
+		LatestDeploymentLog: client.DeploymentLog{
+			BlueprintId: "template-id",
+		},
+		Tags: client.EnvironmentTags{
+			"team":  {"eng", "payments"},
+			"owner": {"alice"},
+		},
+	}
+
+	updatedEnvironment := environment
+	updatedEnvironment.Tags = client.EnvironmentTags{
+		"team":        {"eng"},
+		"cost-center": {"123"},
+	}
+
+	template := client.Template{
+		ProjectId: environment.ProjectId,
+	}
+
+	environmentResource := func(tags string) string {
+		return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				project_id = "%s"
+				template_id = "%s"
+				force_destroy = true
+				tags = %s
+			}`,
+			resourceType, resourceName, environment.Name,
+			environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+			tags,
+		)
+	}
+
+	testCase := resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				Config: environmentResource(`{ team = "eng,payments", owner = "alice" }`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(accessor, "tags.team", "eng,payments"),
+					resource.TestCheckResourceAttr(accessor, "tags.owner", "alice"),
+				),
+			},
+			{
+				Config: environmentResource(`{ team = "eng", "cost-center" = "123" }`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(accessor, "tags.team", "eng"),
+					resource.TestCheckResourceAttr(accessor, "tags.cost-center", "123"),
+					resource.TestCheckNoResourceAttr(accessor, "tags.owner"),
+				),
+			},
+		},
+	}
+
+	runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+		mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+		mock.EXPECT().EnvironmentCreate(client.EnvironmentCreate{
+			Name:      environment.Name,
+			ProjectId: environment.ProjectId,
+			DeployRequest: &client.DeployRequest{
+				BlueprintId: environment.LatestDeploymentLog.BlueprintId,
+			},
+			Tags: environment.Tags,
+		}).Times(1).Return(environment, nil)
+
+		// 'owner' was dropped from the configuration, so the merge-patch removes it with a null.
+		mock.EXPECT().EnvironmentUpdateTags(environment.Id, client.EnvironmentTags{
+			"team":        {"eng"},
+			"cost-center": {"123"},
+			"owner":       nil,
+		}).Times(1).Return(updatedEnvironment, nil)
+
+		mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
+		mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(3).Return(nil, nil)
+
+		gomock.InOrder(
+			mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil),        // 1 after create, 1 before update
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(updatedEnvironment, nil), // 1 after update
+		)
+
+		mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+	})
+}
+
 func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
 	t.Parallel()
 

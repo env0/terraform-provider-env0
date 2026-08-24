@@ -238,6 +238,15 @@ func resourceEnvironment() *schema.Resource {
 				Description: "id of the last deployment",
 				Computed:    true,
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Description: "the environment's tags. Keys and values may contain letters, digits, spaces and the characters _ . : / + - @ (up to 50 key-value pairs).\nA key may hold several values - join them with a comma and no space (for example: \"eng,payments\").",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				ValidateDiagFunc: ValidateTags,
+			},
 			"output": {
 				Type:        schema.TypeString,
 				Description: "the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'",
@@ -492,6 +501,8 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		}
 	}
 
+	d.Set("tags", tagsToSchema(environment.Tags))
+
 	setEnvironmentConfigurationSchema(ctx, d, configurationVariables)
 
 	if d.Get("variable_sets") != nil {
@@ -517,6 +528,26 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	}
 
 	return nil
+}
+
+func tagsToSchema(tags client.EnvironmentTags) map[string]any {
+	res := map[string]any{}
+
+	for key, values := range tags {
+		res[key] = strings.Join(values, ",")
+	}
+
+	return res
+}
+
+func getTagsFromSchema(d *schema.ResourceData) client.EnvironmentTags {
+	tags := client.EnvironmentTags{}
+
+	for key, value := range d.Get("tags").(map[string]any) {
+		tags[key] = strings.Split(value.(string), ",")
+	}
+
+	return tags
 }
 
 func createVariable(configurationVariable *client.ConfigurationVariable) any {
@@ -851,6 +882,12 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.HasChange("tags") {
+		if err := updateTags(d, apiClient); err != nil {
+			return err
+		}
+	}
+
 	if shouldDeploy(d) {
 		if d.Get("prevent_auto_deploy").(bool) {
 			if diagErr := updateWithoutDeploy(d, apiClient); diagErr != nil {
@@ -931,6 +968,25 @@ func updateDriftDetection(d *schema.ResourceData, apiClient client.ApiClientInte
 		}); err != nil {
 			return diag.Errorf("could not update drift detection: %v", err)
 		}
+	}
+
+	return nil
+}
+
+// The endpoint applies an RFC 7396 merge-patch, so keys dropped from the configuration must be sent explicitly as null.
+func updateTags(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
+	oldTags, _ := d.GetChange("tags")
+
+	patch := getTagsFromSchema(d)
+
+	for key := range oldTags.(map[string]any) {
+		if _, ok := patch[key]; !ok {
+			patch[key] = nil
+		}
+	}
+
+	if _, err := apiClient.EnvironmentUpdateTags(d.Id(), patch); err != nil {
+		return diag.Errorf("could not update environment tags: %v", err)
 	}
 
 	return nil
@@ -1375,6 +1431,10 @@ func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterfac
 	if ttl, ok := d.GetOk("ttl"); ok {
 		ttlPayload := getTTl(ttl.(string))
 		payload.TTL = &ttlPayload
+	}
+
+	if tags := getTagsFromSchema(d); len(tags) > 0 {
+		payload.Tags = tags
 	}
 
 	if drift_detection_cron, ok := d.GetOk("drift_detection_cron"); ok && drift_detection_cron.(string) != "" {

@@ -96,6 +96,126 @@ var _ = Describe("SlidingWindowLimiter", func() {
 		})
 	})
 
+	Describe("Pause", func() {
+		It("should block requests that the window would have allowed", func() {
+			limiter = NewSlidingWindowLimiter(10, time.Minute)
+
+			limiter.Pause(100 * time.Millisecond)
+			Expect(limiter.Allow()).To(BeFalse())
+
+			time.Sleep(150 * time.Millisecond)
+
+			Expect(limiter.Allow()).To(BeTrue())
+		})
+
+		It("should not consume the window budget while paused", func() {
+			limiter = NewSlidingWindowLimiter(2, time.Minute)
+
+			limiter.Pause(50 * time.Millisecond)
+			Expect(limiter.Allow()).To(BeFalse())
+			Expect(limiter.Allow()).To(BeFalse())
+
+			time.Sleep(100 * time.Millisecond)
+
+			Expect(limiter.Allow()).To(BeTrue())
+			Expect(limiter.Allow()).To(BeTrue())
+			Expect(limiter.Allow()).To(BeFalse())
+		})
+
+		It("should extend an existing pause but never shorten it", func() {
+			limiter = NewSlidingWindowLimiter(10, time.Minute)
+
+			limiter.Pause(200 * time.Millisecond)
+			limiter.Pause(10 * time.Millisecond)
+
+			time.Sleep(100 * time.Millisecond)
+
+			Expect(limiter.Allow()).To(BeFalse())
+
+			time.Sleep(150 * time.Millisecond)
+
+			Expect(limiter.Allow()).To(BeTrue())
+		})
+
+		It("should ignore a non positive pause", func() {
+			limiter = NewSlidingWindowLimiter(10, time.Minute)
+
+			limiter.Pause(0)
+			limiter.Pause(-time.Minute)
+
+			Expect(limiter.Allow()).To(BeTrue())
+		})
+
+		It("should make Wait block until the pause expires", func() {
+			limiter = NewSlidingWindowLimiter(10, time.Minute)
+
+			limiter.Pause(100 * time.Millisecond)
+
+			start := time.Now()
+			err := limiter.Wait(context.Background())
+
+			Expect(err).To(BeNil())
+			Expect(time.Since(start)).To(BeNumerically(">=", 90*time.Millisecond))
+		})
+
+		// A pause is one shared deadline, so without a spread every waiter resumes in the same
+		// instant and the burst the caller's jittered backoff avoided happens anyway.
+		It("should spread the wake-up of requests waiting out a pause", func() {
+			const waiters = 10
+
+			limiter = NewSlidingWindowLimiter(waiters, time.Minute)
+			limiter.Pause(200 * time.Millisecond)
+
+			var (
+				mu        sync.Mutex
+				wakeTimes []time.Time
+				wg        sync.WaitGroup
+			)
+
+			for range waiters {
+				wg.Add(1)
+
+				go func() {
+					defer wg.Done()
+
+					Expect(limiter.Wait(context.Background())).To(BeNil())
+
+					mu.Lock()
+					defer mu.Unlock()
+
+					wakeTimes = append(wakeTimes, time.Now())
+				}()
+			}
+
+			wg.Wait()
+
+			earliest, latest := wakeTimes[0], wakeTimes[0]
+
+			for _, wakeTime := range wakeTimes {
+				if wakeTime.Before(earliest) {
+					earliest = wakeTime
+				}
+
+				if wakeTime.After(latest) {
+					latest = wakeTime
+				}
+			}
+
+			Expect(latest.Sub(earliest)).To(BeNumerically(">", 5*time.Millisecond))
+		})
+
+		It("should respect context cancellation while paused", func() {
+			limiter = NewSlidingWindowLimiter(10, time.Minute)
+
+			limiter.Pause(time.Minute)
+
+			ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+			defer cancel()
+
+			Expect(limiter.Wait(ctx)).To(Equal(context.DeadlineExceeded))
+		})
+	})
+
 	Describe("Wait", func() {
 		BeforeEach(func() {
 			limiter = NewSlidingWindowLimiter(2, 100*time.Millisecond)

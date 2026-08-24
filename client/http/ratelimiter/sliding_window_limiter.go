@@ -2,8 +2,17 @@ package ratelimiter
 
 import (
 	"context"
+	"math/rand/v2"
 	"sync"
 	"time"
+)
+
+// Spread applied to the wake-up of requests waiting out a pause. A pause is one shared deadline,
+// so without it every waiter resumes in the same instant and hits the server as one burst - the
+// behaviour the caller's jittered backoff is trying to avoid. Capped so a short pause stays short.
+const (
+	pauseWakeupSpread    = 0.25
+	pauseWakeupSpreadMax = time.Second
 )
 
 // SlidingWindowLimiter implements sliding window rate limiting.
@@ -12,6 +21,9 @@ type SlidingWindowLimiter struct {
 	maxRequests int
 	window      time.Duration
 	requests    []time.Time
+	// No request is allowed before this point in time, regardless of the window budget.
+	// Set by Pause when the server pushes back (429).
+	pausedUntil time.Time
 	mu          sync.Mutex
 }
 
@@ -38,6 +50,10 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	now := time.Now()
 	l.cleanup(now)
 
+	if now.Before(l.pausedUntil) {
+		return false
+	}
+
 	if len(l.requests) < l.maxRequests {
 		l.requests = append(l.requests, now)
 
@@ -45,6 +61,22 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	}
 
 	return false
+}
+
+// Pause blocks all requests for at least d, extending an existing pause but never shortening it.
+// A paused limiter keeps its window budget: requests resume as soon as the pause expires.
+func (l *SlidingWindowLimiter) Pause(d time.Duration) {
+	if d <= 0 {
+		return
+	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	until := time.Now().Add(d)
+	if until.After(l.pausedUntil) {
+		l.pausedUntil = until
+	}
 }
 
 // Wait blocks until a request can be made, then records it.
@@ -101,12 +133,27 @@ func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
 	now := time.Now()
 	l.cleanup(now)
 
-	if len(l.requests) < l.maxRequests {
+	delay := time.Duration(0)
+
+	if len(l.requests) >= l.maxRequests {
+		// Wait for the oldest request to expire
+		oldest := l.requests[0]
+		delay = oldest.Add(l.window).Sub(now)
+	}
+
+	if pause := l.pausedUntil.Sub(now); pause > delay {
+		delay = pause + pauseWakeupJitter(pause)
+	}
+
+	return delay
+}
+
+// pauseWakeupJitter returns a random extra wait in [0, min(pause*pauseWakeupSpread, pauseWakeupSpreadMax)).
+func pauseWakeupJitter(pause time.Duration) time.Duration {
+	spread := min(time.Duration(float64(pause)*pauseWakeupSpread), pauseWakeupSpreadMax)
+	if spread <= 0 {
 		return 0
 	}
 
-	// Wait for the oldest request to expire
-	oldest := l.requests[0]
-
-	return oldest.Add(l.window).Sub(now)
+	return rand.N(spread)
 }

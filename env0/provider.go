@@ -2,6 +2,8 @@ package env0
 
 import (
 	"context"
+	"math/rand/v2"
+	nethttp "net/http"
 	"os"
 	"time"
 
@@ -182,6 +184,75 @@ func Provider(version string) plugin.ProviderFunc {
 	}
 }
 
+const (
+	retryCount = 10
+	// Backoff bounds for every retry. Resty applies them to the no-response case (networking
+	// failures) itself, before retryWaitTimeFor gets a say, so both ladders share the cap.
+	retryWaitTime    = time.Second
+	retryMaxWaitTime = time.Second * 30
+	// A 429 is produced by a limit measured over a minute-sized window (API gateway and WAF),
+	// so waiting a second or two only burns another attempt on a request that is still blocked.
+	// Start much higher than a 5xx does. A Retry-After longer than retryMaxWaitTime is still
+	// honored in full: the rate limiter is paused for its whole duration (see http.NewHttpClient).
+	rateLimitWaitTime = http.DefaultRateLimitPause
+	// Attempts allowed for the integration-test-only empty-list retry, counting the first request.
+	emptyListMaxAttempts = 3
+	// Attempts allowed for the integration-test-only 404 retry, counting the first request.
+	notFoundMaxAttempts = 5
+	// Maximum requests the provider sends per minute, shared by all of Terraform's parallel
+	// operations. Retried attempts count against it too.
+	maxRequestsPerMinute = 950
+)
+
+// retryWaitTimeFor returns how long to wait before the next attempt of a failed request.
+// Resty clamps the result to the client's [retry wait time, retry max wait time] range, which is
+// what lets the tests shrink the ladder to something that doesn't cost wall time. The clamp also
+// means the first non-429 wait is exactly retryWaitTime rather than a jittered value below it,
+// which is what resty's own default backoff did before this function existed.
+func retryWaitTimeFor(r *resty.Response) time.Duration {
+	// Attempt counts the request that just failed, so the first backoff uses exponent 0.
+	exponent := max(r.Request.Attempt-1, 0)
+
+	if r.StatusCode() != nethttp.StatusTooManyRequests {
+		return jitterBackoff(retryWaitTime, retryMaxWaitTime, exponent)
+	}
+
+	if retryAfter, ok := http.ParseRetryAfter(r.Header().Get("Retry-After")); ok {
+		// Every request blocked in the same window gets the same Retry-After, so add jitter to
+		// keep them from coming back as a single burst the moment it expires.
+		return retryAfter + jitter(retryAfter/4)
+	}
+
+	return jitterBackoff(rateLimitWaitTime, retryMaxWaitTime, exponent)
+}
+
+// jitterBackoff doubles base once per previous attempt, up to maxWait, and randomizes the result
+// over [wait/2, wait) so requests that failed together don't retry in lockstep.
+func jitterBackoff(base, maxWait time.Duration, exponent int) time.Duration {
+	wait := base
+
+	for range exponent {
+		if wait >= maxWait {
+			break
+		}
+
+		wait *= 2
+	}
+
+	wait = min(wait, maxWait)
+
+	return wait/2 + jitter(wait/2)
+}
+
+// jitter returns a random duration in [0, d).
+func jitter(d time.Duration) time.Duration {
+	if d <= 0 {
+		return 0
+	}
+
+	return rand.N(d)
+}
+
 func createRestyClient(ctx context.Context) *resty.Client {
 	var isIntegrationTest bool
 
@@ -191,9 +262,12 @@ func createRestyClient(ctx context.Context) *resty.Client {
 
 	subCtx := tflog.NewSubsystem(ctx, "env0_api_client")
 
-	return resty.New().SetRetryCount(10).
-		SetRetryWaitTime(time.Second + 5).
-		SetRetryMaxWaitTime(time.Second * 30).
+	return resty.New().SetRetryCount(retryCount).
+		SetRetryWaitTime(retryWaitTime).
+		SetRetryMaxWaitTime(retryMaxWaitTime).
+		SetRetryAfter(func(c *resty.Client, r *resty.Response) (time.Duration, error) {
+			return retryWaitTimeFor(r), nil
+		}).
 		OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
 			if r != nil {
 				tflog.SubsystemInfo(subCtx, "env0_api_client", "Sending request", map[string]any{"method": r.Method, "url": r.URL})
@@ -214,23 +288,46 @@ func createRestyClient(ctx context.Context) *resty.Client {
 				return true
 			}
 
-			// When running integration tests 404 may occur due to "database eventual consistency".
 			// Retry when there's a 5xx error. Otherwise do not retry.
-			if r.StatusCode() >= 500 || (isIntegrationTest && r.StatusCode() == 404) {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed or not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
+			if r.StatusCode() >= 500 {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a failed response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "status code": r.StatusCode()})
 
 				return true
 			}
 
-			// Retry on rate limiting (429 Too Many Requests)
-			if r.StatusCode() == 429 {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Rate limited, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL})
+			// When running integration tests 404 may occur due to "database eventual consistency".
+			// Some endpoints answer 404 by design (e.g. /api-keys/oidc-sub for an organization with
+			// no OIDC configured, read by every env0_organization data source), so this gets its own
+			// small attempt cap rather than the full ladder above.
+			if isIntegrationTest && r.StatusCode() == 404 {
+				if r.Request.Attempt >= notFoundMaxAttempts {
+					return false
+				}
+
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received a not found response, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt})
 
 				return true
 			}
 
+			// Retry on rate limiting (429 Too Many Requests). The client rate limiter is paused
+			// for the whole client when this response is seen (see http.NewHttpClient), so the
+			// backoff below is only the extra wait this specific request takes.
+			if r.StatusCode() == nethttp.StatusTooManyRequests {
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Rate limited, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt, "retry after": r.Header().Get("Retry-After")})
+
+				return true
+			}
+
+			// An empty list is a legitimate answer for most list endpoints, so this only covers
+			// read-after-write lag in the integration tests and gets its own small attempt cap.
+			// Sharing the 10-attempt ladder above made every genuinely-empty list (an environment
+			// with no variable sets, a project with no environments) cost ~2.5 minutes.
 			if r.StatusCode() == 200 && isIntegrationTest && r.String() == "[]" {
-				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL})
+				if r.Request.Attempt >= emptyListMaxAttempts {
+					return false
+				}
+
+				tflog.SubsystemWarn(subCtx, "env0_api_client", "Received an empty list , retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt})
 
 				return true
 			}
@@ -260,7 +357,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			UserAgent:   userAgent,
 			RestClient:  createRestyClient(ctx),
 			// env0 backend allows 1000 requests / minute
-			RateLimiter: ratelimiter.NewSlidingWindowLimiter(950, time.Minute),
+			RateLimiter: ratelimiter.NewSlidingWindowLimiter(maxRequestsPerMinute, time.Minute),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}

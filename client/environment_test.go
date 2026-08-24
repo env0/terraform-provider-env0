@@ -15,6 +15,7 @@ import (
 
 const full_page = 100
 const partial_page = 33
+const expectedEnvironmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
 
 var _ = Describe("Environment Client", func() {
 	const (
@@ -49,6 +50,7 @@ var _ = Describe("Environment Client", func() {
 						"offset":         "0",
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
+						"excludeFields":  expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Do(func(path string, request any, response *[]Environment) {
 						*response = mockEnvironments
@@ -85,6 +87,7 @@ var _ = Describe("Environment Client", func() {
 						"limit":          "100",
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
+						"excludeFields":  expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP1
@@ -96,6 +99,7 @@ var _ = Describe("Environment Client", func() {
 						"limit":          "100",
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
+						"excludeFields":  expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP2
@@ -124,9 +128,10 @@ var _ = Describe("Environment Client", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
-						"offset":    "0",
-						"limit":     "100",
-						"projectId": projectId,
+						"offset":        "0",
+						"limit":         "100",
+						"projectId":     projectId,
+						"excludeFields": expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP1
@@ -134,9 +139,10 @@ var _ = Describe("Environment Client", func() {
 
 				httpCall2 = mockHttpClient.EXPECT().
 					Get("/environments", map[string]string{
-						"offset":    "100",
-						"limit":     "100",
-						"projectId": projectId,
+						"offset":        "100",
+						"limit":         "100",
+						"projectId":     projectId,
+						"excludeFields": expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Do(func(path string, request any, response *[]Environment) {
 						*response = environmentsP2
@@ -148,6 +154,25 @@ var _ = Describe("Environment Client", func() {
 			It("Should return the environments", func() {
 				Expect(environments).To(Equal(append(environmentsP1, environmentsP2...)))
 			})
+		})
+
+		It("Should exclude unused deployment log fields from organization environments", func() {
+			mockHttpClient.EXPECT().
+				Get("/environments", map[string]string{
+					"offset":         "0",
+					"limit":          "100",
+					"organizationId": organizationId,
+					"excludeFields":  expectedEnvironmentExcludeFields,
+				}, gomock.Any()).
+				Do(func(path string, request any, response *[]Environment) {
+					*response = mockEnvironments
+				}).
+				Times(1)
+
+			environments, err = apiClient.OrganizationEnvironments(organizationId)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(environments).To(Equal(mockEnvironments))
 		})
 
 		Describe("Failure", func() {
@@ -162,6 +187,7 @@ var _ = Describe("Environment Client", func() {
 						"offset":         "0",
 						"organizationId": organizationId,
 						"name":           mockEnvironment.Name,
+						"excludeFields":  expectedEnvironmentExcludeFields,
 					}, gomock.Any()).
 					Return(expectedErr)
 
@@ -177,10 +203,14 @@ var _ = Describe("Environment Client", func() {
 			err         error
 		)
 
+		expectedParams := map[string]string{
+			"exclude_fields": expectedEnvironmentExcludeFields,
+		}
+
 		Describe("Success", func() {
 			BeforeEach(func() {
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments/"+mockEnvironment.Id, nil, gomock.Any()).
+					Get("/environments/"+mockEnvironment.Id, expectedParams, gomock.Any()).
 					Do(func(path string, request any, response *Environment) {
 						*response = mockEnvironment
 					})
@@ -188,7 +218,7 @@ var _ = Describe("Environment Client", func() {
 				environment, err = apiClient.Environment(mockEnvironment.Id)
 			})
 
-			It("Should send GET request", func() {
+			It("Should send GET request excluding the deployment log plan and resources", func() {
 				httpCall.Times(1)
 			})
 
@@ -201,7 +231,7 @@ var _ = Describe("Environment Client", func() {
 			It("On error from server return the error", func() {
 				expectedErr := errors.New("some error")
 				httpCall = mockHttpClient.EXPECT().
-					Get("/environments/"+mockEnvironment.Id, nil, gomock.Any()).
+					Get("/environments/"+mockEnvironment.Id, expectedParams, gomock.Any()).
 					Return(expectedErr)
 
 				_, err = apiClient.Environment(mockEnvironment.Id)
@@ -453,6 +483,42 @@ var _ = Describe("Environment Client", func() {
 		})
 	})
 
+	Describe("EnvironmentUpdateTags", func() {
+		Describe("Success", func() {
+			var (
+				updatedEnvironment Environment
+				err                error
+			)
+
+			BeforeEach(func() {
+				updateTagsRequest := EnvironmentTags{
+					"team":      {"eng", "payments"},
+					"stale-key": nil,
+				}
+
+				httpCall = mockHttpClient.EXPECT().
+					Put("/environments/"+mockEnvironment.Id+"/tags", updateTagsRequest, gomock.Any()).
+					Do(func(path string, request any, response *Environment) {
+						*response = mockEnvironment
+					})
+
+				updatedEnvironment, err = apiClient.EnvironmentUpdateTags(mockEnvironment.Id, updateTagsRequest)
+			})
+
+			It("Should send Put request with expected payload", func() {
+				httpCall.Times(1)
+			})
+
+			It("Should not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+
+			It("Should return the environment received from API", func() {
+				Expect(updatedEnvironment).To(Equal(mockEnvironment))
+			})
+		})
+	})
+
 	Describe("Environment Move", func() {
 		var err error
 
@@ -486,7 +552,9 @@ var _ = Describe("Environment Client", func() {
 
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().
-				Get("/environments/deployments/"+mockDeployment.Id, nil, gomock.Any()).
+				Get("/environments/deployments/"+mockDeployment.Id, map[string]string{
+					"exclude_fields": "plan,resources,output,costEstimation",
+				}, gomock.Any()).
 				Do(func(path string, request any, response *DeploymentLog) {
 					*response = mockDeployment
 				}).Times(1)
@@ -500,6 +568,10 @@ var _ = Describe("Environment Client", func() {
 
 		It("Should not return an error", func() {
 			Expect(err).To(BeNil())
+		})
+
+		It("Should send GET request excluding unused deployment log fields", func() {
+			httpCall.Times(1)
 		})
 	})
 })

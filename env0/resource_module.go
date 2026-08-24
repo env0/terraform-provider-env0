@@ -218,16 +218,23 @@ func resourceModuleRead(ctx context.Context, d *schema.ResourceData, meta any) d
 	}
 
 	// Avoid drifts: the backend automatically populates VCS fields from one another.
+	// suppressVcsFieldDrift writes through these pointers, so it gets a copy - the object the client returned is not
+	// ours to mutate. These three fields are pointers, so they need copies of their own.
+	m := *module
+	m.GithubInstallationId = copyPtr(module.GithubInstallationId)
+	m.VcsConnectionId = copyPtr(module.VcsConnectionId)
+	m.BitbucketClientKey = copyPtr(module.BitbucketClientKey)
+
 	suppressVcsFieldDrift("", VcsFields{
-		GithubInstallationId: module.GithubInstallationId,
-		VcsConnectionId:      module.VcsConnectionId,
-		BitbucketClientKey:   module.BitbucketClientKey,
-		TokenId:              &module.TokenId,
-		IsAzureDevOps:        &module.IsAzureDevOps,
-		IsGitlab:             &module.IsGitlab,
+		GithubInstallationId: m.GithubInstallationId,
+		VcsConnectionId:      m.VcsConnectionId,
+		BitbucketClientKey:   m.BitbucketClientKey,
+		TokenId:              &m.TokenId,
+		IsAzureDevOps:        &m.IsAzureDevOps,
+		IsGitlab:             &m.IsGitlab,
 	}, d)
 
-	if err := writeResourceData(module, d); err != nil {
+	if err := writeResourceData(&m, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 

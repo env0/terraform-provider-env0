@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 15
     # 8-vCPU runner: Go Test runs with -race (CPU-bound), so more cores + RAM cut wall time.
     # Integration tests stay on the standard runner — they're backend-bound, not runner-bound.
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ${{ vars.LARGE_RUNNER_LABEL }}
     steps:
       - name: Install Go
         uses: actions/setup-go@v5

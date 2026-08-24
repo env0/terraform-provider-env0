@@ -53,6 +53,7 @@ output "environment_name" {
 - `run_plan_on_pull_requests` (Boolean) does pr plan enable
 - `status` (String) the status of the environment
 - `sub_environment_configuration` (List of Object) the sub environments of the workflow environment. (Empty for non workflow environments) (see [below for nested schema](#nestedatt--sub_environment_configuration))
+- `tags` (Map of String) the environment's tags. A key holding several values returns them joined with a comma
 - `template_id` (String) the template id the environment is to be created from
 - `token_id` (String) The token id used for repo integrations (Used by Gitlab or Azure DevOps)
 

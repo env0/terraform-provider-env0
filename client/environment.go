@@ -10,6 +10,18 @@ import (
 
 const ENVIRONMENT = "environment"
 
+// The API embeds the latest deployment log's full parsed plan in the environment response. The provider
+// never reads it - DeploymentLog below has no Plan or Resources field, so json.Unmarshal drops both - but
+// on environments with a large plan the response exceeds the 6 MB Lambda cap and the GET fails with a 502.
+// Both fields must be listed: the endpoint replaces its default exclusion list with the one sent here
+// rather than merging, and resources is excluded by that default today.
+const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
+
+// EnvironmentDeploymentLog is used only while polling a destroy and its caller reads only Status. Exclude
+// the large response fields that are discarded on every poll. This endpoint returns the deployment log as
+// the response root, so the field names carry no latestDeploymentLog prefix.
+const deploymentLogExcludeFields = "plan,resources,output,costEstimation"
+
 type ConfigurationVariableType int
 
 func (c *ConfigurationVariableType) ReadResourceData(fieldName string, d *schema.ResourceData) error {
@@ -108,29 +120,35 @@ type ConfigurationSetChanges struct {
 	Unassign []string `json:"unassign,omitempty"`
 }
 
+// A tag key holds a list of values. Terraform's TypeMap can't hold lists, so the provider joins the values
+// with a comma - the tag charset forbids commas, so the join is lossless.
+// In an update payload this is an RFC 7396 merge-patch: a key's values replace wholesale, a nil value removes the key.
+type EnvironmentTags map[string][]string
+
 type Environment struct {
-	Id                          string        `json:"id"`
-	Name                        string        `json:"name"`
-	ProjectId                   string        `json:"projectId"`
-	WorkspaceName               string        `json:"workspaceName,omitempty"               tfschema:"workspace"`
-	RequiresApproval            *bool         `json:"requiresApproval,omitempty"            tfschema:"-"`
-	ContinuousDeployment        *bool         `json:"continuousDeployment,omitempty"        tfschema:"deploy_on_push,omitempty"`
-	PullRequestPlanDeployments  *bool         `json:"pullRequestPlanDeployments,omitempty"  tfschema:"run_plan_on_pull_requests,omitempty"`
-	AutoDeployOnPathChangesOnly *bool         `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
-	AutoDeployByCustomGlob      string        `json:"autoDeployByCustomGlob,omitempty"`
-	Status                      string        `json:"status"`
-	LifespanEndAt               string        `json:"lifespanEndAt"                         tfschema:"ttl,omitempty"`
-	LatestDeploymentLogId       string        `json:"latestDeploymentLogId"                 tfschema:"deployment_id"`
-	LatestDeploymentLog         DeploymentLog `json:"latestDeploymentLog"`
-	TerragruntWorkingDirectory  string        `json:"terragruntWorkingDirectory,omitempty"`
-	VcsCommandsAlias            string        `json:"vcsCommandsAlias"`
-	VcsPrCommentsEnabled        bool          `json:"vcsPrCommentsEnabled"                  tfschema:"-"`
-	BlueprintId                 string        `json:"blueprintId"                           tfschema:"-"`
-	IsRemoteBackend             *bool         `json:"isRemoteBackend"                       tfschema:"-"`
-	IsArchived                  *bool         `json:"isArchived"                            tfschema:"-"`
-	IsRemoteApplyEnabled        bool          `json:"isRemoteApplyEnabled"`
-	K8sNamespace                string        `json:"k8sNamespace"`
-	IsSingleUseBlueprint        bool          `json:"isSingleUseBlueprint"                  tfschema:"-"`
+	Id                          string          `json:"id"`
+	Name                        string          `json:"name"`
+	ProjectId                   string          `json:"projectId"`
+	WorkspaceName               string          `json:"workspaceName,omitempty"               tfschema:"workspace"`
+	RequiresApproval            *bool           `json:"requiresApproval,omitempty"            tfschema:"-"`
+	ContinuousDeployment        *bool           `json:"continuousDeployment,omitempty"        tfschema:"deploy_on_push,omitempty"`
+	PullRequestPlanDeployments  *bool           `json:"pullRequestPlanDeployments,omitempty"  tfschema:"run_plan_on_pull_requests,omitempty"`
+	AutoDeployOnPathChangesOnly *bool           `json:"autoDeployOnPathChangesOnly,omitempty" tfschema:",omitempty"`
+	AutoDeployByCustomGlob      string          `json:"autoDeployByCustomGlob,omitempty"`
+	Status                      string          `json:"status"`
+	LifespanEndAt               string          `json:"lifespanEndAt"                         tfschema:"ttl,omitempty"`
+	LatestDeploymentLogId       string          `json:"latestDeploymentLogId"                 tfschema:"deployment_id"`
+	LatestDeploymentLog         DeploymentLog   `json:"latestDeploymentLog"`
+	TerragruntWorkingDirectory  string          `json:"terragruntWorkingDirectory,omitempty"`
+	VcsCommandsAlias            string          `json:"vcsCommandsAlias"`
+	VcsPrCommentsEnabled        bool            `json:"vcsPrCommentsEnabled"                  tfschema:"-"`
+	BlueprintId                 string          `json:"blueprintId"                           tfschema:"-"`
+	IsRemoteBackend             *bool           `json:"isRemoteBackend"                       tfschema:"-"`
+	IsArchived                  *bool           `json:"isArchived"                            tfschema:"-"`
+	IsRemoteApplyEnabled        bool            `json:"isRemoteApplyEnabled"`
+	K8sNamespace                string          `json:"k8sNamespace"`
+	IsSingleUseBlueprint        bool            `json:"isSingleUseBlueprint"                  tfschema:"-"`
+	Tags                        EnvironmentTags `json:"tags,omitempty"                        tfschema:"-"`
 }
 
 type EnvironmentCreate struct {
@@ -155,6 +173,7 @@ type EnvironmentCreate struct {
 	K8sNamespace                string                   `json:"k8sNamespace,omitempty"`
 	ConfigurationSetChanges     *ConfigurationSetChanges `json:"configurationSetChanges,omitempty"     tfschema:"-"`
 	IsRemoteApplyEnabled        bool                     `json:"isRemoteApplyEnabled"`
+	Tags                        EnvironmentTags          `json:"tags,omitempty"                        tfschema:"-"`
 }
 
 // When converted to JSON needs to be flattened. See custom MarshalJSON below.
@@ -245,25 +264,30 @@ func (client *ApiClient) EnvironmentsByName(name string) ([]Environment, error) 
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
 		"name":           name,
+		"excludeFields":  environmentExcludeFields,
 	})
 }
 
 func (client *ApiClient) ProjectEnvironments(projectId string) ([]Environment, error) {
 	return getAll(client, map[string]string{
-		"projectId": projectId,
+		"projectId":     projectId,
+		"excludeFields": environmentExcludeFields,
 	})
 }
 
 func (client *ApiClient) OrganizationEnvironments(organizationId string) ([]Environment, error) {
 	return getAll(client, map[string]string{
 		"organizationId": organizationId,
+		"excludeFields":  environmentExcludeFields,
 	})
 }
 
 func (client *ApiClient) Environment(id string) (Environment, error) {
 	var result Environment
 
-	err := client.http.Get("/environments/"+id, nil, &result)
+	err := client.http.Get("/environments/"+id, map[string]string{
+		"exclude_fields": environmentExcludeFields,
+	}, &result)
 	if err != nil {
 		return Environment{}, err
 	}
@@ -274,7 +298,9 @@ func (client *ApiClient) Environment(id string) (Environment, error) {
 func (client *ApiClient) EnvironmentDeploymentLog(id string) (*DeploymentLog, error) {
 	var result DeploymentLog
 
-	err := client.http.Get("/environments/deployments/"+id, nil, &result)
+	err := client.http.Get("/environments/deployments/"+id, map[string]string{
+		"exclude_fields": deploymentLogExcludeFields,
+	}, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -344,6 +370,17 @@ func (client *ApiClient) EnvironmentUpdateTTL(id string, payload TTL) (Environme
 	var result Environment
 
 	err := client.http.Put("/environments/"+id+"/ttl", payload, &result)
+	if err != nil {
+		return Environment{}, err
+	}
+
+	return result, nil
+}
+
+func (client *ApiClient) EnvironmentUpdateTags(id string, payload EnvironmentTags) (Environment, error) {
+	var result Environment
+
+	err := client.http.Put("/environments/"+id+"/tags", payload, &result)
 	if err != nil {
 		return Environment{}, err
 	}
