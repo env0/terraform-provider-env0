@@ -69,7 +69,7 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"sub_environment_alias": {
 				Type:         schema.TypeString,
-				Description:  "search for the variable for sub templates of a workflow. Requires template_id as well",
+				Description:  "search for the variable for a specific sub environment of a workflow. Requires template_id as well. Omit to search the workflow template scope, which applies to every sub environment.",
 				Optional:     true,
 				RequiredWith: []string{"template_id"},
 			},
