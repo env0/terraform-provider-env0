@@ -77,8 +77,6 @@ type ModuleCreatePayloadWith struct {
 	OrganizationId string `json:"organizationId"`
 }
 
-// OpentofuVersion is deliberately not 'omitempty': an empty version must be sent so that the backend clears a
-// previously set version - for example when module tests are disabled.
 type ModuleUpdatePayload struct {
 	ModuleName            string         `json:"moduleName,omitempty"`
 	ModuleProvider        string         `json:"moduleProvider,omitempty"`
