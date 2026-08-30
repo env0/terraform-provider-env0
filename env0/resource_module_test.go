@@ -167,6 +167,89 @@ func TestUnitModuleResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Success - disabling module test clears the opentofu version", func(t *testing.T) {
+		moduleWithTestsDisabled := module
+		moduleWithTestsDisabled.ModuleTestEnabled = false
+		moduleWithTestsDisabled.RunTestsOnPullRequest = false
+		moduleWithTestsDisabled.OpentofuVersion = ""
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":               module.ModuleName,
+						"module_provider":           module.ModuleProvider,
+						"repository":                module.Repository,
+						"description":               module.Description,
+						"token_id":                  module.TokenId,
+						"token_name":                module.TokenName,
+						"path":                      module.Path,
+						"tag_prefix":                module.TagPrefix,
+						"module_test_enabled":       module.ModuleTestEnabled,
+						"run_tests_on_pull_request": module.RunTestsOnPullRequest,
+						"opentofu_version":          module.OpentofuVersion,
+					}),
+					Check: resource.TestCheckResourceAttr(accessor, "opentofu_version", module.OpentofuVersion),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"module_name":         module.ModuleName,
+						"module_provider":     module.ModuleProvider,
+						"repository":          module.Repository,
+						"description":         module.Description,
+						"token_id":            module.TokenId,
+						"token_name":          module.TokenName,
+						"path":                module.Path,
+						"tag_prefix":          module.TagPrefix,
+						"module_test_enabled": false,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "module_test_enabled", "false"),
+						resource.TestCheckResourceAttr(accessor, "run_tests_on_pull_request", "false"),
+						resource.TestCheckResourceAttr(accessor, "opentofu_version", ""),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ModuleCreate(client.ModuleCreatePayload{
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     module.ModuleTestEnabled,
+				RunTestsOnPullRequest: module.RunTestsOnPullRequest,
+				OpentofuVersion:       module.OpentofuVersion,
+			}).Times(1).Return(&module, nil)
+
+			mock.EXPECT().ModuleUpdate(module.Id, client.ModuleUpdatePayload{
+				ModuleName:            module.ModuleName,
+				ModuleProvider:        module.ModuleProvider,
+				Repository:            module.Repository,
+				Description:           module.Description,
+				TokenId:               module.TokenId,
+				TokenName:             module.TokenName,
+				Path:                  module.Path,
+				TagPrefix:             module.TagPrefix,
+				ModuleTestEnabled:     false,
+				RunTestsOnPullRequest: false,
+				OpentofuVersion:       "",
+			}).Times(1).Return(&moduleWithTestsDisabled, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Module(module.Id).Times(2).Return(&module, nil),
+				mock.EXPECT().Module(module.Id).Times(1).Return(&moduleWithTestsDisabled, nil),
+			)
+
+			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+		})
+	})
+
 	t.Run("Create Failure", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

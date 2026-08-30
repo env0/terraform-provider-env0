@@ -1,10 +1,14 @@
 package client_test
 
 import (
+	"encoding/json"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	"go.uber.org/mock/gomock"
 )
 
@@ -16,6 +20,25 @@ var _ = Describe("Module Client", func() {
 		Repository:     "repository-name",
 		Path:           "path",
 	}
+
+	Describe("ModuleUpdatePayload", func() {
+		DescribeTable("Opentofu Version",
+			func(value string, expected types.GomegaMatcher) {
+				payload := ModuleUpdatePayload{
+					OpentofuVersion: value,
+				}
+				jsonPayload, _ := json.Marshal(payload)
+
+				var parsedPayload map[string]any
+
+				_ = json.Unmarshal(jsonPayload, &parsedPayload)
+				Expect(parsedPayload["opentofuVersion"]).To(expected)
+			},
+			Entry("Has value", "1.7.0", BeEquivalentTo("1.7.0")),
+			// An empty version must still be serialized, otherwise the backend keeps the previously set version.
+			Entry("No value", "", BeEquivalentTo("")),
+		)
+	})
 
 	Describe("Get Single Module", func() {
 		var returnedModule *Module
