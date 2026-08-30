@@ -77,6 +77,8 @@ type ModuleCreatePayloadWith struct {
 	OrganizationId string `json:"organizationId"`
 }
 
+// OpentofuVersion is deliberately not 'omitempty': an empty version must be sent so that the backend clears a
+// previously set version - for example when module tests are disabled.
 type ModuleUpdatePayload struct {
 	ModuleName            string         `json:"moduleName,omitempty"`
 	ModuleProvider        string         `json:"moduleProvider,omitempty"`
@@ -90,15 +92,15 @@ type ModuleUpdatePayload struct {
 	BitbucketClientKey    string         `json:"bitbucketClientKey"`
 	IsGitlab              bool           `json:"isGitLab"`
 	IsBitbucketServer     bool           `json:"isBitbucketServer"`
-	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise"        tfschema:"is_github_enterprise"`
-	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise"        tfschema:"is_gitlab_enterprise"`
+	IsGitHubEnterprise    bool           `json:"isGitHubEnterprise"       tfschema:"is_github_enterprise"`
+	IsGitLabEnterprise    bool           `json:"isGitLabEnterprise"       tfschema:"is_gitlab_enterprise"`
 	SshKeys               []ModuleSshKey `json:"sshkeys"`
 	Path                  string         `json:"path"`
 	TagPrefix             string         `json:"tagPrefix,omitempty"`
 	ModuleTestEnabled     bool           `json:"moduleTestEnabled"`
 	RunTestsOnPullRequest bool           `json:"runTestsOnPullRequest"`
-	OpentofuVersion       string         `json:"opentofuVersion,omitempty"`
-	IsAzureDevOps         bool           `json:"isAzureDevOps"             tfschema:"is_azure_devops"`
+	OpentofuVersion       string         `json:"opentofuVersion"`
+	IsAzureDevOps         bool           `json:"isAzureDevOps"            tfschema:"is_azure_devops"`
 }
 
 func (payload *ModuleUpdatePayload) Invalidate() error {
