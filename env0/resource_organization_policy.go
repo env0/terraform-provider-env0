@@ -57,6 +57,12 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Default:     false,
 				Description: "set to 'true' to allow bypassing the PR mergeability check for env0/Apply status checks on GitHub (defaults to 'false')",
 			},
+			"enable_post_merge_pr_comments": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "set to 'true' to comment on a merged pull request when a deployment it triggered is waiting for approval or has failed (defaults to 'false'). cannot be enabled together with the organization's 'Disable PR Comments' policy",
+			},
 		},
 	}
 }

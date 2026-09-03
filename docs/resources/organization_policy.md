@@ -30,6 +30,7 @@ resource "env0_organization_policy" "policy_example" {
 - `do_not_consider_merge_commits_for_pr_plans` (Boolean)
 - `do_not_report_skipped_status_checks` (Boolean)
 - `enable_oidc` (Boolean) set to 'true' to enable OIDC token (JWT) availability during env0 deployments (defaults to 'false')
+- `enable_post_merge_pr_comments` (Boolean) set to 'true' to comment on a merged pull request when a deployment it triggered is waiting for approval or has failed (defaults to 'false'). cannot be enabled together with the organization's 'Disable PR Comments' policy
 - `enforce_pr_commenter_permissions` (Boolean) set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false')
 - `max_ttl` (String) the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Omit for infinite ttl. must be equal or longer than default_ttl
 
