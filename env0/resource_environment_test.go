@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -4577,4 +4578,17 @@ func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
+}
+
+// HasChanges never consults ForceNew, so the list and the schema can drift apart in both directions.
+func TestUnitEnvironmentForceNewFields(t *testing.T) {
+	var forceNew []string
+
+	for name, fieldSchema := range resourceEnvironment().Schema {
+		if fieldSchema.ForceNew {
+			forceNew = append(forceNew, name)
+		}
+	}
+
+	assert.ElementsMatch(t, environmentForceNewFields, forceNew)
 }

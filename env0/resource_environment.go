@@ -197,7 +197,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"workspace": {
 				Type:        schema.TypeString,
-				Description: "the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
+				Description: "the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
@@ -288,7 +288,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
-				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
+				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				ForceNew:    true,
 				Optional:    true,
 			},
@@ -388,7 +388,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"k8s_namespace": {
 				Type:        schema.TypeString,
-				Description: "kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one, so 'force_destroy' must already be true in the state. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
+				Description: "kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				Optional:    true,
 				ForceNew:    true,
 			},
