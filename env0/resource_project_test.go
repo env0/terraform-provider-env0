@@ -297,6 +297,47 @@ func TestUnitProjectMoveValidation(t *testing.T) {
 		})
 	})
 
+	t.Run("Parent removed", func(t *testing.T) {
+		rootedSubProject := client.Project{
+			Id:        subProject.Id,
+			Name:      subProject.Name,
+			Hierarchy: subProject.Id,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":              subProject.Name,
+						"parent_project_id": project.Id,
+					}),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name": subProject.Name,
+					}),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+					Name:            subProject.Name,
+					ParentProjectId: project.Id,
+				}).Times(1).Return(subProject, nil),
+				mock.EXPECT().Project(subProject.Id).Times(2).Return(subProject, nil),
+				mock.EXPECT().ProjectMove(subProject.Id, "").Times(1).Return(nil),
+				mock.EXPECT().ProjectUpdate(subProject.Id, client.ProjectUpdatePayload{
+					Name: subProject.Name,
+				}).Times(1).Return(rootedSubProject, nil),
+				mock.EXPECT().Project(subProject.Id).Times(1).Return(rootedSubProject, nil),
+				mock.EXPECT().ProjectEnvironments(subProject.Id).Times(1).Return([]client.Environment{}, nil),
+				mock.EXPECT().ProjectDelete(subProject.Id).Times(1),
+			)
+		})
+	})
+
 	t.Run("Parent lookup fails", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
