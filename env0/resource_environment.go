@@ -273,7 +273,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "Destroy safeguard. Must be enabled before delete/destroy",
+				Description: "Destroy safeguard. Must be enabled before delete/destroy. It is read from the state and not from the configuration, so enabling it in the same apply that removes the environment passes the plan and then fails at the destroy step. Set it to 'true' and apply once, before removing the resource",
 				Optional:    true,
 			},
 			"is_remote_backend": {

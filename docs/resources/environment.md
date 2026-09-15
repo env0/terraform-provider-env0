@@ -79,7 +79,7 @@ When used 'auto_deploy_on_path_changes_only' must be configured to true and 'dep
 - `deploy_on_push` (Boolean) should run terraform deploy on push events.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `drift_detection_cron` (String) cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)
-- `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
+- `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy. It is read from the state and not from the configuration, so enabling it in the same apply that removes the environment passes the plan and then fails at the destroy step. Set it to 'true' and apply once, before removing the resource
 - `id` (String) the environment's id
 - `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field. Note: it's not allowed to create an inactive environment
 - `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled
