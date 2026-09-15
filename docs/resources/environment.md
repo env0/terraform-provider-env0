@@ -79,12 +79,12 @@ When used 'auto_deploy_on_path_changes_only' must be configured to true and 'dep
 - `deploy_on_push` (Boolean) should run terraform deploy on push events.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
 - `drift_detection_cron` (String) cron expression for scheduled drift detection of the environment (cannot be used with resource_drift_detection resource)
-- `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy
+- `force_destroy` (Boolean) Destroy safeguard. Must be enabled before delete/destroy. It is read from the state and not from the configuration, so enabling it in the same apply that removes the environment passes the plan and then fails at the destroy step. Set it to 'true' and apply once, before removing the resource
 - `id` (String) the environment's id
 - `is_inactive` (Boolean) If 'true', it marks the environment as inactive. It can be re-activated by setting it to 'false' or removing this field. Note: it's not allowed to create an inactive environment
 - `is_remote_apply_enabled` (Boolean) enables remote apply when set to true (defaults to false). Can only be enabled when is_remote_backend and approve_plan_automatically are enabled
 - `is_remote_backend` (Boolean) should use remote backend
-- `k8s_namespace` (String) kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one
+- `k8s_namespace` (String) kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
 - `output` (String) the deployment log output. Returns a json string. It can be either a map of key-value, or an array of (in case of Terragrunt run-all) of moduleName and a map of key-value. Note: if the deployment is still in progress returns 'null'
 - `prevent_auto_deploy` (Boolean) use this flag to prevent the provider from triggering a deployment (run) when the environment is created or updated. On update, changes to 'configuration', 'sub_environment_configuration' variables and 'variable_sets' are still saved to env0 without a deployment, while changes to 'revision' and 'template_id' are only applied by your next deployment
 - `removal_strategy` (String) by default when removing an environment, it gets destroyed. Setting this value to 'mark_as_archived' will force the environment to be archived instead of tying to destroy it ('Mark as inactive' in the UI)
@@ -96,14 +96,14 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 A key may hold several values - join them with a comma and no space (for example: "eng,payments").
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable. Please note that changing this attribute will require environment redeploy
-- `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one
+- `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - `variable_sets` (List of String) a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
 - `vcs_pr_comments_enabled` (Boolean) set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration
-- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.
+- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
-- `workspace` (String) the terraform workspace name of the environment
+- `workspace` (String) the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
 
 ### Read-Only
 

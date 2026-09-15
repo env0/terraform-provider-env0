@@ -168,6 +168,8 @@ func resourceEnvironment() *schema.Resource {
 		UpdateContext: resourceEnvironmentUpdate,
 		DeleteContext: resourceEnvironmentDelete,
 
+		CustomizeDiff: resourceEnvironmentCustomizeDiff,
+
 		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
 
 		Schema: map[string]*schema.Schema{
@@ -195,7 +197,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"workspace": {
 				Type:        schema.TypeString,
-				Description: "the terraform workspace name of the environment",
+				Description: "the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
@@ -271,7 +273,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "Destroy safeguard. Must be enabled before delete/destroy",
+				Description: "Destroy safeguard. Must be enabled before delete/destroy. It is read from the state and not from the configuration, so enabling it in the same apply that removes the environment passes the plan and then fails at the destroy step. Set it to 'true' and apply once, before removing the resource",
 				Optional:    true,
 			},
 			"is_remote_backend": {
@@ -286,7 +288,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"terragrunt_working_directory": {
 				Type:        schema.TypeString,
-				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one",
+				Description: "The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				ForceNew:    true,
 				Optional:    true,
 			},
@@ -386,7 +388,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"k8s_namespace": {
 				Type:        schema.TypeString,
-				Description: "kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one",
+				Description: "kubernetes (or helm) namespace to be used. If modified deletes current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed",
 				Optional:    true,
 				ForceNew:    true,
 			},
@@ -401,12 +403,37 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"wait_for_destroy": {
 				Type:        schema.TypeBool,
-				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes.",
+				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.",
 				Default:     false,
 				Optional:    true,
 			},
 		},
 	}
+}
+
+var environmentForceNewFields = []string{"workspace", "terragrunt_working_directory", "k8s_namespace"}
+
+func resourceEnvironmentCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ any) error {
+	return validateReplaceIsAllowed(d)
+}
+
+// Delete runs against prior state, so the removal strategy and the safeguard are read from there
+// rather than from the new configuration.
+func validateReplaceIsAllowed(d *schema.ResourceDiff) error {
+	if d.Id() == "" || !d.HasChanges(environmentForceNewFields...) {
+		return nil
+	}
+
+	if removalStrategy, _ := d.GetChange("removal_strategy"); removalStrategy.(string) == "mark_as_archived" {
+		return nil
+	}
+
+	if forceDestroy, _ := d.GetChange("force_destroy"); forceDestroy.(bool) {
+		return nil
+	}
+
+	return fmt.Errorf(`changing %s replaces the environment, which destroys it first. "force_destroy" must already be true in the state: set it and apply once before changing these fields`,
+		strings.Join(environmentForceNewFields, ", "))
 }
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {

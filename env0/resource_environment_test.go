@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -2715,6 +2716,146 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	}
 
+	testReplaceValidation := func() {
+		newWorkspaceName := "new-workspace-name"
+
+		baseEnvironment := client.Environment{
+			Id:            environment.Id,
+			Name:          "my-environment",
+			ProjectId:     "project-id",
+			WorkspaceName: environment.WorkspaceName,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: templateId,
+			},
+		}
+
+		replacedEnvironment := client.Environment{
+			Id:            "replaced-environment-id",
+			Name:          baseEnvironment.Name,
+			ProjectId:     baseEnvironment.ProjectId,
+			WorkspaceName: newWorkspaceName,
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: templateId,
+			},
+		}
+
+		config := func(fields map[string]any) string {
+			base := map[string]any{
+				"name":        baseEnvironment.Name,
+				"project_id":  baseEnvironment.ProjectId,
+				"template_id": templateId,
+				"workspace":   baseEnvironment.WorkspaceName,
+			}
+
+			for key, value := range fields {
+				base[key] = value
+			}
+
+			return resourceConfigCreate(resourceType, resourceName, base)
+		}
+
+		expectReads := func(mock *client.MockApiClientInterface, environments ...client.Environment) {
+			for _, environment := range environments {
+				mock.EXPECT().Environment(environment.Id).AnyTimes().Return(environment, nil)
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().Return(client.ConfigurationChanges{}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).AnyTimes().Return(nil, nil)
+			}
+		}
+
+		t.Run("replace fails at plan when force_destroy is not already in the state", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: config(nil),
+						Check:  resource.TestCheckResourceAttr(accessor, "workspace", baseEnvironment.WorkspaceName),
+					},
+					{
+						Config: config(map[string]any{
+							"workspace":     newWorkspaceName,
+							"force_destroy": true,
+						}),
+						ExpectError: regexp.MustCompile(`changing workspace, terragrunt_working_directory, k8s_namespace replaces the environment`),
+					},
+					{
+						Config: config(map[string]any{"force_destroy": true}),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(baseEnvironment, nil)
+				expectReads(mock, baseEnvironment)
+				mock.EXPECT().EnvironmentDestroy(baseEnvironment.Id).Times(1)
+			})
+		})
+
+		t.Run("replace succeeds when force_destroy is already true in the state", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: config(map[string]any{"force_destroy": true}),
+						Check:  resource.TestCheckResourceAttr(accessor, "workspace", baseEnvironment.WorkspaceName),
+					},
+					{
+						Config: config(map[string]any{
+							"workspace":     newWorkspaceName,
+							"force_destroy": true,
+						}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "id", replacedEnvironment.Id),
+							resource.TestCheckResourceAttr(accessor, "workspace", newWorkspaceName),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(2).Return(template, nil)
+
+				gomock.InOrder(
+					mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(baseEnvironment, nil),
+					mock.EXPECT().EnvironmentDestroy(baseEnvironment.Id).Times(1),
+					mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(replacedEnvironment, nil),
+				)
+
+				expectReads(mock, baseEnvironment, replacedEnvironment)
+				mock.EXPECT().EnvironmentDestroy(replacedEnvironment.Id).Times(1)
+			})
+		})
+
+		t.Run("replace plans without force_destroy when removal_strategy is mark_as_archived", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: config(map[string]any{"removal_strategy": "mark_as_archived"}),
+						Check:  resource.TestCheckResourceAttr(accessor, "workspace", baseEnvironment.WorkspaceName),
+					},
+					{
+						Config: config(map[string]any{
+							"workspace":        newWorkspaceName,
+							"removal_strategy": "mark_as_archived",
+						}),
+						Check: resource.TestCheckResourceAttr(accessor, "workspace", newWorkspaceName),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().Template(templateId).Times(2).Return(template, nil)
+
+				gomock.InOrder(
+					mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(baseEnvironment, nil),
+					mock.EXPECT().EnvironmentMarkAsArchived(baseEnvironment.Id).Times(1),
+					mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(replacedEnvironment, nil),
+				)
+
+				expectReads(mock, baseEnvironment, replacedEnvironment)
+				mock.EXPECT().EnvironmentMarkAsArchived(replacedEnvironment.Id).Times(1)
+			})
+		})
+	}
+
 	testValidationFailures := func() {
 		t.Run("Failure in validation while glob is enabled and pathChanges no", func(t *testing.T) {
 			autoDeployWithCustomGlobEnabled := resource.TestCase{
@@ -3229,6 +3370,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 	testTTL()
 	testTriggers()
 	testForceDestroy()
+	testReplaceValidation()
 	testValidationFailures()
 	testApiFailures()
 	testIsInactive()
@@ -4436,4 +4578,17 @@ func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
+}
+
+// HasChanges never consults ForceNew, so the list and the schema can drift apart in both directions.
+func TestUnitEnvironmentForceNewFields(t *testing.T) {
+	var forceNew []string
+
+	for name, fieldSchema := range resourceEnvironment().Schema {
+		if fieldSchema.ForceNew {
+			forceNew = append(forceNew, name)
+		}
+	}
+
+	assert.ElementsMatch(t, environmentForceNewFields, forceNew)
 }
