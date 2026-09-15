@@ -163,6 +163,8 @@ func resourceEnvironment() *schema.Resource {
 	}
 
 	return &schema.Resource{
+		Description: "An env0 environment. Updates run as several env0 API calls in a fixed order and do not wait for the deployment they trigger; see 'Update behavior' below.",
+
 		CreateContext: resourceEnvironmentCreate,
 		ReadContext:   resourceEnvironmentRead,
 		UpdateContext: resourceEnvironmentUpdate,
