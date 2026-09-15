@@ -84,7 +84,7 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func resourceProjectCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+func resourceProjectCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta any) error {
 	if d.Id() == "" || !d.HasChange("parent_project_id") {
 		return nil
 	}
