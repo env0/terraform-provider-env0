@@ -163,8 +163,8 @@ func resourceEnvironment() *schema.Resource {
 	}
 
 	return &schema.Resource{
-		Description: "Note: updating an environment issues several env0 API calls in a fixed order - project move, template update, environment update, TTL, drift detection, tags, and finally the deployment - and there is no rollback. If one of them fails, the changes before it are already applied and the ones after it are not; the next plan re-diffs whatever is left and can be applied again.\n\n" +
-			"Note: the provider does not wait for the deployment it triggers. The apply returns once the deployment is queued, so the state holds the new 'revision' and 'configuration' while env0 may still be running the previous ones, or while that deployment fails. The next refresh reads back what is actually deployed and the plan re-diffs it.",
+		Description: "Note: updating an environment issues several env0 API calls in a fixed order - project move, template update, environment update, TTL, drift detection, tags, and last a deployment (or, with 'prevent_auto_deploy', direct writes of 'configuration', 'sub_environment_configuration' and 'variable_sets'). Each step runs only when its own fields changed, and there is no rollback. If a step fails, the steps before it are already applied and the ones after it are not; the next plan re-diffs the rest and can be applied again.\n\n" +
+			"Note: the provider does not wait for the deployment it triggers. The apply returns once the deployment is queued, so the state holds the new 'revision' and 'configuration' while env0 may still be running the previous ones. A refresh does not correct this: 'revision' and 'template_id' are read from the latest deployment log whatever its status, so a queued, running or failed deployment reads back the revision it attempted and the next plan is quiet. Check the deployment in env0 to confirm it succeeded.",
 
 		CreateContext: resourceEnvironmentCreate,
 		ReadContext:   resourceEnvironmentRead,
