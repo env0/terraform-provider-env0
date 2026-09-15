@@ -159,8 +159,9 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 			continue
 		}
 
-		// A successfully destroyed environment may stay unarchived (e.g. a scheduled destroy),
-		// but its status is INACTIVE and it no longer holds infrastructure.
+		// Guard for environments that ended up INACTIVE without being archived (e.g. a
+		// scheduled destroy, see ENG-2846): they hold no infrastructure and must not
+		// block the project deletion.
 		if env.Status == "INACTIVE" {
 			continue
 		}
