@@ -2,8 +2,11 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -31,6 +34,7 @@ func resourceProject() *schema.Resource {
 		ReadContext:   resourceProjectRead,
 		UpdateContext: resourceProjectUpdate,
 		DeleteContext: resourceProjectDelete,
+		CustomizeDiff: resourceProjectCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceProjectImport},
 
@@ -65,7 +69,7 @@ func resourceProject() *schema.Resource {
 			},
 			"parent_project_id": {
 				Type:        schema.TypeString,
-				Description: "If set, the project becomes a 'sub-project' of the parent project. See https://docs.env0.com/docs/sub-projects",
+				Description: "If set, the project becomes a 'sub-project' of the parent project. Changing it moves the project, with every environment and sub-project under it, under the new parent in place. Inherited variables and role visibility change accordingly. Set to \"\" to make it a top-level project. See https://docs.env0.com/docs/sub-projects",
 				Optional:    true,
 			},
 			"tags": {
@@ -78,6 +82,36 @@ func resourceProject() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceProjectCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+	if d.Id() == "" || !d.HasChange("parent_project_id") {
+		return nil
+	}
+
+	newParentId := d.Get("parent_project_id").(string)
+
+	// Empty also means the new parent is not known yet at plan time.
+	if newParentId == "" {
+		return nil
+	}
+
+	if newParentId == d.Id() {
+		return errors.New("a project cannot be its own parent")
+	}
+
+	apiClient := meta.(client.ApiClientInterface)
+
+	newParent, err := apiClient.Project(newParentId)
+	if err != nil {
+		return fmt.Errorf("could not validate parent project '%s': %w", newParentId, err)
+	}
+
+	if slices.Contains(strings.Split(newParent.Hierarchy, "|"), d.Id()) {
+		return fmt.Errorf("cannot move project under '%s': it is one of its own sub-projects", newParentId)
+	}
+
+	return nil
 }
 
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {

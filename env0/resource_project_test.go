@@ -43,6 +43,12 @@ func TestUnitProjectResource(t *testing.T) {
 		ParentProjectId: "other_parent_id",
 	}
 
+	newParentProject := client.Project{
+		Id:        updatedSubproject.ParentProjectId,
+		Name:      "other parent name",
+		Hierarchy: updatedSubproject.ParentProjectId,
+	}
+
 	t.Run("Test project", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -193,6 +199,9 @@ func TestUnitProjectResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// The test harness plans the move step three times; the validator looks the new parent up on each.
+			mock.EXPECT().Project(newParentProject.Id).Times(3).Return(newParentProject, nil)
+
 			gomock.InOrder(
 				mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
 					Name:            subProject.Name,
@@ -209,6 +218,101 @@ func TestUnitProjectResource(t *testing.T) {
 				mock.EXPECT().ProjectEnvironments(subProject.Id).Times(1).Return([]client.Environment{}, nil),
 				mock.EXPECT().ProjectDelete(subProject.Id).Times(1),
 			)
+		})
+	})
+}
+
+func TestUnitProjectMoveValidation(t *testing.T) {
+	t.Parallel()
+
+	resourceType := "env0_project"
+	resourceName := "test"
+
+	project := client.Project{
+		Id:        "id0",
+		Name:      "name0",
+		Hierarchy: "id0",
+	}
+
+	subProject := client.Project{
+		Id:              "subProjectId",
+		Name:            "sub project name",
+		ParentProjectId: project.Id,
+		Hierarchy:       project.Id + "|subProjectId",
+	}
+
+	createConfig := resourceConfigCreate(resourceType, resourceName, map[string]any{
+		"name": project.Name,
+	})
+
+	moveConfig := func(parentProjectId string) string {
+		return resourceConfigCreate(resourceType, resourceName, map[string]any{
+			"name":              project.Name,
+			"parent_project_id": parentProjectId,
+		})
+	}
+
+	expectCreateAndDestroy := func(mock *client.MockApiClientInterface, projectReads int) {
+		mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{Name: project.Name}).Times(1).Return(project, nil)
+		mock.EXPECT().Project(project.Id).Times(projectReads).Return(project, nil)
+		mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil)
+		mock.EXPECT().ProjectDelete(project.Id).Times(1)
+	}
+
+	t.Run("Parent is the project itself", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createConfig,
+				},
+				{
+					Config:      moveConfig(project.Id),
+					ExpectError: regexp.MustCompile("a project cannot be its own parent"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// No lookup of the new parent: the id is rejected without calling the API.
+			expectCreateAndDestroy(mock, 2)
+		})
+	})
+
+	t.Run("Parent is a sub-project of the project", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createConfig,
+				},
+				{
+					Config:      moveConfig(subProject.Id),
+					ExpectError: regexp.MustCompile("cannot move project under '" + subProject.Id + "': it is one of its own sub-projects"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			expectCreateAndDestroy(mock, 2)
+			mock.EXPECT().Project(subProject.Id).Times(1).Return(subProject, nil)
+		})
+	})
+
+	t.Run("Parent lookup fails", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createConfig,
+				},
+				{
+					Config:      moveConfig(subProject.Id),
+					ExpectError: regexp.MustCompile("could not validate parent project '" + subProject.Id + "': error"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			expectCreateAndDestroy(mock, 2)
+			mock.EXPECT().Project(subProject.Id).Times(1).Return(client.Project{}, errors.New("error"))
 		})
 	})
 }
