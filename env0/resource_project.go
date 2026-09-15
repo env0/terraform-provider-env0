@@ -155,11 +155,19 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 	}
 
 	for _, env := range envs {
-		if env.IsArchived == nil || !*env.IsArchived {
-			return &ActiveEnvironmentError{
-				retry:   true,
-				message: fmt.Sprintf("found an active environment %s (remove the environment or use the force_destroy flag)", env.Name),
-			}
+		if env.IsArchived != nil && *env.IsArchived {
+			continue
+		}
+
+		// A successfully destroyed environment may stay unarchived (e.g. a scheduled destroy),
+		// but its status is INACTIVE and it no longer holds infrastructure.
+		if env.Status == "INACTIVE" {
+			continue
+		}
+
+		return &ActiveEnvironmentError{
+			retry:   true,
+			message: fmt.Sprintf("found an active environment %s - its infrastructure may still exist (remove the environment or use the force_destroy flag)", env.Name),
 		}
 	}
 
