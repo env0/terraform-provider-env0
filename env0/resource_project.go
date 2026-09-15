@@ -53,13 +53,13 @@ func resourceProject() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "Destroy the project even when environments exist",
+				Description: "Allow the project to be deleted even when it still contains environments. Note: deleting a project archives it and its environments, it does not destroy environment infrastructure. Deployed cloud resources keep existing (and billing), continuous deployment, PR plans and scheduled deployments are disabled, and archiving cannot be undone",
 				Optional:    true,
 				Default:     false,
 			},
 			"wait": {
 				Type:        schema.TypeBool,
-				Description: "Wait for all environments to be destroyed before destroying this project (up to 10 minutes)",
+				Description: "Wait for the project's environments to be destroyed or archived before deleting it (up to 10 minutes)",
 				Optional:    true,
 				Default:     false,
 			},
