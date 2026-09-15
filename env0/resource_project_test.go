@@ -272,6 +272,82 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		})
 	})
 
+	t.Run("Success With Inactive Unarchived Environment", func(t *testing.T) {
+		inactiveEnvironment := client.Environment{
+			Name:   "destroyed-by-schedule",
+			Status: "INACTIVE",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        project.Name,
+						"description": project.Description,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", project.Id),
+						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+			mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil)
+			mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{inactiveEnvironment}, nil)
+			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
+
+	t.Run("Failure With Failed Destroy Environment", func(t *testing.T) {
+		failedEnvironment := client.Environment{
+			Name:   "failed-destroy",
+			Status: "FAILED",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        project.Name,
+						"description": project.Description,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", project.Id),
+						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name": project.Name,
+					}),
+					Destroy:     true,
+					ExpectError: regexp.MustCompile("could not delete project: found an active environment " + failedEnvironment.Name + " - its infrastructure may still exist"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{failedEnvironment}, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),
+			)
+
+			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
+
 	t.Run("Failure Without Force Destroy", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
