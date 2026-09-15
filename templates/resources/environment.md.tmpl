@@ -16,9 +16,9 @@ description: |-
 
 ## Update behavior
 
-An update issues several env0 API calls in a fixed order: project move, template update, environment update, TTL, drift detection, tags, and last a deployment (or, with `prevent_auto_deploy`, direct writes of `configuration`, `sub_environment_configuration` and `variable_sets`). Each step runs only when its own fields changed, and there is no rollback. If a step fails, the steps before it are already applied and the ones after it are not; the next plan re-diffs the rest and can be applied again.
+Updating an environment applies changes as a sequence of independent steps: project move, template update, environment update, TTL, drift detection, tags, and last a deployment (or, with `prevent_auto_deploy`, direct writes of `configuration`, `sub_environment_configuration` and `variable_sets`). Each step runs only when its own fields changed. If a step fails, earlier steps stay applied and the next apply can complete the rest.
 
-The provider does not wait for the deployment it triggers. The apply returns once the deployment is queued, so the state holds the new `revision` and `configuration` while env0 may still be running the previous ones. A refresh does not correct this: `revision` and `template_id` are read from the latest deployment log whatever its status, so a queued, running or failed deployment reads back the revision it attempted and the next plan is quiet. There is no equivalent of `wait_for_destroy` for deployments, so a deployment's outcome is not reflected in the apply result.
+Deployments triggered by an update are asynchronous: the apply returns once the deployment is queued, and env0 runs it in the background. The state holds the requested `revision` and `configuration` from the moment the apply returns, whether or not the deployment later succeeds. A failed or still-running deployment is not surfaced as drift, because `revision` and `template_id` are read back from the latest deployment log whatever its status. There is no equivalent of `wait_for_destroy` for deployments, so the apply result does not reflect the deployment's outcome.
 
 {{ .SchemaMarkdown | trimspace }}
 
