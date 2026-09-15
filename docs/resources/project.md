@@ -29,10 +29,10 @@ resource "env0_project" "example" {
 ### Optional
 
 - `description` (String) description of the project
-- `force_destroy` (Boolean) Destroy the project even when environments exist
+- `force_destroy` (Boolean) Allow the project to be deleted even when it still contains environments. Note: deleting a project archives it and its environments, it does not destroy environment infrastructure. Deployed cloud resources keep existing (and billing), continuous deployment, PR plans and scheduled deployments are disabled, and archiving cannot be undone
 - `parent_project_id` (String) If set, the project becomes a 'sub-project' of the parent project. See https://docs.env0.com/docs/sub-projects
 - `tags` (List of String) tags for the project
-- `wait` (Boolean) Wait for all environments to be destroyed before destroying this project (up to 10 minutes)
+- `wait` (Boolean) Wait for the project's environments to be destroyed or archived before deleting it (up to 10 minutes)
 
 ### Read-Only
 
