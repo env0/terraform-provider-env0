@@ -4752,6 +4752,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 	t.Parallel()
 
 	deploymentId := "deployment-id"
+	stubApprovalHint := func() string { return "in the env0 UI" }
 
 	deploymentWithStatus := func(status string) *client.DeploymentLog {
 		return &client.DeploymentLog{Id: deploymentId, Status: status}
@@ -4767,7 +4768,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
-		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false)
+		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
 		if !errors.Is(err, context.Canceled) {
 			t.Fatalf("expected context.Canceled, got: %v", err)
 		}
@@ -4784,7 +4785,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		mock := client.NewMockApiClientInterface(ctrl)
 		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil)
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true, stubApprovalHint)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
 		}
@@ -4804,7 +4805,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 			mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 		)
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
 		}
@@ -4823,7 +4824,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 
 		startTime := time.Now()
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false, stubApprovalHint)
 		if err == nil || !strings.Contains(err.Error(), "timeout! last 'destroy' deployment status was 'QUEUED'") {
 			t.Fatalf("expected a timeout error, got: %v", err)
 		}

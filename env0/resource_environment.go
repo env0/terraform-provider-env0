@@ -1355,11 +1355,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		if requiresApproval {
-			tflog.Warn(ctx, "the destroy deployment requires approval in env0 before it runs", map[string]any{"deploymentId": res.Id, "approvalHint": approvalHint()})
-		}
-
-		status, err := waitForDeployment(ctx, apiClient, res.Id, "destroy", d.Timeout(schema.TimeoutDelete), false)
+		status, err := waitForDeployment(ctx, apiClient, res.Id, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint)
 		if err != nil {
 			if status == deploymentWaitingForUser {
 				return diag.Errorf("destroy deployment '%s' is waiting for approval in env0, approve it %s and run the destroy again", res.Id, approvalHint())
@@ -1391,7 +1387,9 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 // waitForDeployment polls a deployment until it reaches a terminal status, the timeout elapses or ctx is
 // cancelled. It returns the last observed deployment status. When returnOnApproval is true a deployment in
 // WAITING_FOR_USER returns immediately instead of polling until a user approves it in the env0 UI.
-func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string, deploymentType string, timeout time.Duration, returnOnApproval bool) (string, error) {
+// approvalHint is resolved lazily on the first WAITING_FOR_USER and logged so the user gets the approval
+// link as soon as the deployment starts waiting rather than only when the wait times out.
+func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string, deploymentType string, timeout time.Duration, returnOnApproval bool, approvalHint func() string) (string, error) {
 	waitInterval := time.Second * 10
 
 	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and clamping timeout to 10 seconds.
@@ -1406,6 +1404,8 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 	defer timer.Stop()
 
 	var status string
+
+	loggedApprovalHint := false
 
 	for {
 		deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
@@ -1430,7 +1430,13 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 				return status, nil
 			}
 
-			tflog.Warn(ctx, "waiting for user approval (env0 UI) to proceed with deployment", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+			if !loggedApprovalHint {
+				tflog.Warn(ctx, fmt.Sprintf("deployment is waiting for approval in env0, approve it %s to proceed", approvalHint()), map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+
+				loggedApprovalHint = true
+			} else {
+				tflog.Warn(ctx, "deployment is still waiting for approval in env0", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+			}
 		}
 
 		select {
