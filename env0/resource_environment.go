@@ -461,11 +461,6 @@ func validateMoveIsAllowed(d *schema.ResourceDiff, apiClient client.ApiClientInt
 		return nil
 	}
 
-	// A templateless environment owns a single-use template, so no assignment applies to it.
-	if _, ok := d.GetOk("template_id"); !ok {
-		return nil
-	}
-
 	environment, err := apiClient.Environment(d.Id())
 	if err != nil {
 		return fmt.Errorf("could not get environment '%s': %w", d.Id(), err)
@@ -480,9 +475,14 @@ func validateMoveIsAllowed(d *schema.ResourceDiff, apiClient client.ApiClientInt
 		return fmt.Errorf("cannot move an environment while a deployment is in progress (status '%s')", environment.Status)
 	}
 
-	templateId := d.Get("template_id").(string)
+	// A templateless environment owns a single-use template, kept under
+	// "without_template_settings.0.id", that no assignment applies to.
+	templateId, ok := d.GetOk("template_id")
+	if !ok {
+		return nil
+	}
 
-	template, err := apiClient.Template(templateId)
+	template, err := apiClient.Template(templateId.(string))
 	if err != nil {
 		return fmt.Errorf("could not get template '%s': %w", templateId, err)
 	}

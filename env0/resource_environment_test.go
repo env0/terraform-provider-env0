@@ -3971,6 +3971,36 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
+
+	t.Run("move fails at plan while a deployment is in progress", func(t *testing.T) {
+		deployingEnvironment := environment
+		deployingEnvironment.Status = "DEPLOY_IN_PROGRESS"
+
+		movedEnvironment := environment
+		movedEnvironment.ProjectId = "target-project-id"
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment, template),
+				},
+				{
+					Config:      createEnvironmentResourceConfig(movedEnvironment, template),
+					ExpectError: regexp.MustCompile("cannot move an environment while a deployment is in progress"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().EnvironmentCreateWithoutTemplate(gomock.Any()).Times(1).Return(environmentWithBluePrint, nil)
+			mock.EXPECT().Environment(environment.Id).AnyTimes().Return(deployingEnvironment, nil)
+			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).AnyTimes().Return(client.ConfigurationChanges{}, nil)
+			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).AnyTimes().Return(nil, nil)
+			// The single-use template is read back on every read, never for an assignment check.
+			mock.EXPECT().Template(template.Id).AnyTimes().Return(template, nil)
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+		})
+	})
 }
 
 func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
