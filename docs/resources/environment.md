@@ -59,6 +59,22 @@ resource "env0_environment" "example_with_hcl_configuration" {
     schema_format = "HCL"
   }
 }
+
+# During destroy, wait for the env0 destroy deployment to finish.
+# The wait is bounded by the 'delete' timeout of the 'timeouts' block,
+# defaulting to 30 minutes.
+resource "env0_environment" "example_with_destroy_timeout" {
+  name        = "environment with a bounded destroy wait"
+  project_id  = data.env0_project.default_project.id
+  template_id = data.env0_template.example.id
+
+  force_destroy    = true
+  wait_for_destroy = true
+
+  timeouts {
+    delete = "45m"
+  }
+}
 ```
 
 ## Update behavior
@@ -103,11 +119,12 @@ A key may hold several values - join them with a comma and no space (for example
 - `template_id` (String) the template id the environment is to be created from.
 Important note: the template must first be assigned to the same project as the environment (project_id). Use 'env0_template_project_assignment' to assign the template to the project. In addition, be sure to leverage 'depends_on' if applicable. Please note that changing this attribute will require environment redeploy
 - `terragrunt_working_directory` (String) The working directory path to be used by a Terragrunt template. If left empty '/' is used. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `ttl` (String) the date the environment should be destroyed at (iso format). omitting this attribute will result in infinite ttl.
 - `variable_sets` (List of String) a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
 - `vcs_pr_comments_enabled` (Boolean) set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration
-- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.
+- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 30 minutes). Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
 - `workspace` (String) the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
 
@@ -174,6 +191,14 @@ Optional:
 - `schema_type` (String) the type the variable
 - `type` (String) variable type (allowed values are: terraform, environment)
 
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String)
 
 
 <a id="nestedblock--without_template_settings"></a>

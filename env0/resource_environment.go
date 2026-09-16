@@ -18,6 +18,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const defaultDeploymentTimeout = 30 * time.Minute
+
 // stripIsRequired removes the deprecated is_required field from configuration changes
 // so it is not sent to the server (ENG-1345).
 func stripIsRequired(changes client.ConfigurationChanges) client.ConfigurationChanges {
@@ -173,6 +175,10 @@ func resourceEnvironment() *schema.Resource {
 		CustomizeDiff: resourceEnvironmentCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
+
+		Timeouts: &schema.ResourceTimeout{
+			Delete: schema.DefaultTimeout(defaultDeploymentTimeout),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -405,7 +411,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"wait_for_destroy": {
 				Type:        schema.TypeBool,
-				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. Times out after 30 minutes. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.",
+				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 30 minutes). Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.",
 				Default:     false,
 				Optional:    true,
 			},
@@ -1333,7 +1339,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		if err := waitForEnvironmentDestroy(ctx, apiClient, res.Id); err != nil {
+		if _, err := waitForDeployment(ctx, apiClient, res.Id, "destroy", d.Timeout(schema.TimeoutDelete), false); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1341,58 +1347,64 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func waitForEnvironmentDestroy(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string) error {
+// waitForDeployment polls a deployment until it reaches a terminal status, the timeout elapses or ctx is
+// cancelled. It returns the last observed deployment status. When returnOnApproval is true a deployment in
+// WAITING_FOR_USER returns immediately instead of polling until a user approves it in the env0 UI.
+func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string, deploymentType string, timeout time.Duration, returnOnApproval bool) (string, error) {
 	waitInterval := time.Second * 10
-	timeout := time.Minute * 30
 
-	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and timeout to 10 seconds.
+	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and clamping timeout to 10 seconds.
 		waitInterval = time.Second
-		timeout = time.Second * 10
+		timeout = min(timeout, time.Second*10)
 	}
 
 	ticker := time.NewTicker(waitInterval) // When invoked - check the status.
-	timer := time.NewTimer(timeout)        // When invoked - timeout.
-	results := make(chan error)
+	defer ticker.Stop()
 
-	go func() {
-		for {
-			deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
-			if err != nil {
-				results <- fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
+	timer := time.NewTimer(timeout) // When invoked - timeout.
+	defer timer.Stop()
 
-				return
-			}
+	var status string
 
-			if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, deployment.Status) {
-				results <- fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", deployment.Status)
-
-				return
-			}
-
-			if deployment.Status == "SUCCESS" {
-				results <- nil
-
-				return
-			}
-
-			tflog.Info(ctx, "current 'destroy' deployment status", map[string]any{"deploymentId": deploymentId, "status": deployment.Status})
-
-			if deployment.Status == "WAITING_FOR_USER" {
-				tflog.Warn(ctx, "waiting for user approval (Env0 UI) to proceed with 'destroy' deployment")
-			}
-
-			select {
-			case <-timer.C:
-				results <- fmt.Errorf("timeout! last 'destroy' deployment status was '%s'", deployment.Status)
-
-				return
-			case <-ticker.C:
-				continue
-			}
+	for {
+		deployment, err := apiClient.EnvironmentDeploymentLog(deploymentId)
+		if err != nil {
+			return status, fmt.Errorf("failed to get environment deployment '%s': %w", deploymentId, err)
 		}
-	}()
 
-	return <-results
+		status = deployment.Status
+
+		if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, status) {
+			return status, fmt.Errorf("failed to wait for environment %s to complete, deployment status is: %s", deploymentType, status)
+		}
+
+		if status == "SUCCESS" {
+			return status, nil
+		}
+
+		tflog.Info(ctx, "current deployment status", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType, "status": status})
+
+		if status == "WAITING_FOR_USER" {
+			if returnOnApproval {
+				return status, nil
+			}
+
+			tflog.Warn(ctx, "waiting for user approval (env0 UI) to proceed with deployment", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+		}
+
+		select {
+		case <-timer.C:
+			return status, fmt.Errorf("timeout! last '%s' deployment status was '%s'", deploymentType, status)
+		case <-ctx.Done():
+			// The SDK applies the resource timeout as a context deadline, so it usually fires before the timer.
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return status, fmt.Errorf("timeout! last '%s' deployment status was '%s'", deploymentType, status)
+			}
+
+			return status, ctx.Err()
+		case <-ticker.C:
+		}
+	}
 }
 
 func getCreatePayload(d *schema.ResourceData, apiClient client.ApiClientInterface, templateType string) (client.EnvironmentCreate, diag.Diagnostics) {
