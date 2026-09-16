@@ -18,7 +18,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const defaultDeploymentTimeout = 30 * time.Minute
+const (
+	defaultDeploymentTimeout = 30 * time.Minute
+	deploymentWaitingForUser = "WAITING_FOR_USER"
+)
 
 // stripIsRequired removes the deprecated is_required field from configuration changes
 // so it is not sent to the server (ENG-1345).
@@ -177,6 +180,8 @@ func resourceEnvironment() *schema.Resource {
 		Importer: &schema.ResourceImporter{StateContext: resourceEnvironmentImport},
 
 		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(defaultDeploymentTimeout),
+			Update: schema.DefaultTimeout(defaultDeploymentTimeout),
 			Delete: schema.DefaultTimeout(defaultDeploymentTimeout),
 		},
 
@@ -415,6 +420,12 @@ func resourceEnvironment() *schema.Resource {
 				Default:     false,
 				Optional:    true,
 			},
+			"wait_for_deployment": {
+				Type:        schema.TypeBool,
+				Description: "(Important note: this option is experimental, please report any issues found). Waits for deployments triggered by the provider on create and update to finish before returning, so 'output' holds real values in the same apply. A deployment that is waiting for approval in the env0 UI is reported as a warning and does not block. A failed or timed-out deployment fails the apply; on create, 'force_destroy' is additionally stored as 'true' in the state so the tainted environment can be replaced by the next apply. After a failed update the state keeps the new 'revision' and 'configuration' while env0 still runs the old ones - the next plan re-diffs and retries. The wait is bounded by the 'create' and 'update' timeouts of the 'timeouts' block (defaults to 30 minutes).",
+				Default:     false,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -502,11 +513,7 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 		d.Set("without_template_settings", settings)
 	}
 
-	if len(environment.LatestDeploymentLog.Output) == 0 {
-		d.Set("output", "null")
-	} else {
-		d.Set("output", string(environment.LatestDeploymentLog.Output))
-	}
+	setEnvironmentOutput(d, environment)
 
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	if _, exists := d.GetOkExists("approve_plan_automatically"); exists && environment.RequiresApproval != nil {
@@ -563,6 +570,14 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 	}
 
 	return nil
+}
+
+func setEnvironmentOutput(d *schema.ResourceData, environment client.Environment) {
+	if len(environment.LatestDeploymentLog.Output) == 0 {
+		d.Set("output", "null")
+	} else {
+		d.Set("output", string(environment.LatestDeploymentLog.Output))
+	}
 }
 
 func tagsToSchema(tags client.EnvironmentTags) map[string]any {
@@ -728,7 +743,18 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	return nil
+	if !d.Get("wait_for_deployment").(bool) || d.Get("prevent_auto_deploy").(bool) || environment.LatestDeploymentLogId == "" {
+		return nil
+	}
+
+	diags := awaitDeployment(ctx, d, apiClient, environment.LatestDeploymentLogId, schema.TimeoutCreate)
+	if diags.HasError() {
+		// Terraform taints the resource and the next apply replaces it. That replace runs Delete, which
+		// reads force_destroy from prior state and never sees the configuration, so lift it here.
+		d.Set("force_destroy", true)
+	}
+
+	return diags
 }
 
 func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient client.ApiClientInterface) ([]string, error) {
@@ -928,8 +954,15 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 			if diagErr := updateWithoutDeploy(d, apiClient); diagErr != nil {
 				return diagErr
 			}
-		} else if err := deploy(d, apiClient); err != nil {
-			return err
+		} else {
+			if err := deploy(d, apiClient); err != nil {
+				return err
+			}
+
+			// Unlike create, a failed update must not touch force_destroy: Terraform does not taint on update.
+			if d.Get("wait_for_deployment").(bool) {
+				return awaitDeployment(ctx, d, apiClient, d.Get("deployment_id").(string), schema.TimeoutUpdate)
+			}
 		}
 	}
 
@@ -1347,6 +1380,35 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
+// A deployment parked on user approval returns a warning rather than holding the apply open for a
+// click in the env0 UI.
+func awaitDeployment(ctx context.Context, d *schema.ResourceData, apiClient client.ApiClientInterface, deploymentId string, timeoutKey string) diag.Diagnostics {
+	name := d.Get("name").(string)
+
+	status, err := waitForDeployment(ctx, apiClient, deploymentId, "deploy", d.Timeout(timeoutKey), true)
+	if err != nil {
+		return diag.Errorf("deployment '%s' of environment '%s' did not succeed: %v", deploymentId, name, err)
+	}
+
+	if status == deploymentWaitingForUser {
+		return diag.Diagnostics{{
+			Severity: diag.Warning,
+			Summary:  "env0 deployment is waiting for approval",
+			Detail:   fmt.Sprintf("Deployment '%s' of environment '%s' is waiting for approval in the env0 UI. Terraform did not wait for it; 'output' will refresh once it is applied.", deploymentId, name),
+		}}
+	}
+
+	environment, err := apiClient.Environment(d.Id())
+	if err != nil {
+		return diag.Errorf("could not get environment after deployment '%s' finished: %v", deploymentId, err)
+	}
+
+	d.Set("deployment_id", environment.LatestDeploymentLogId)
+	setEnvironmentOutput(d, environment)
+
+	return nil
+}
+
 // waitForDeployment polls a deployment until it reaches a terminal status, the timeout elapses or ctx is
 // cancelled. It returns the last observed deployment status. When returnOnApproval is true a deployment in
 // WAITING_FOR_USER returns immediately instead of polling until a user approves it in the env0 UI.
@@ -1384,7 +1446,7 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 
 		tflog.Info(ctx, "current deployment status", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType, "status": status})
 
-		if status == "WAITING_FOR_USER" {
+		if status == deploymentWaitingForUser {
 			if returnOnApproval {
 				return status, nil
 			}
@@ -1878,6 +1940,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 
 	d.Set("force_destroy", false)
 	d.Set("wait_for_destroy", false)
+	d.Set("wait_for_deployment", false)
 	d.Set("removal_strategy", "destroy")
 
 	d.Set("vcs_pr_comments_enabled", environment.VcsCommandsAlias != "" || environment.VcsPrCommentsEnabled)
