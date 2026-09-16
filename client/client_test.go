@@ -32,7 +32,7 @@ var _ = BeforeSuite(func() {
 
 var _ = BeforeEach(func() {
 	mockHttpClient = http.NewMockHttpClientInterface(ctrl)
-	apiClient = NewApiClient(mockHttpClient, defaultOrganizationId)
+	apiClient = NewApiClient(mockHttpClient, defaultOrganizationId, "https://api.env0.com/")
 })
 
 var _ = AfterSuite(func() {

@@ -363,7 +363,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}
 		}
 
-		apiClient := client.NewApiClient(httpClient, d.Get("organization_id").(string))
+		apiClient := client.NewApiClient(httpClient, d.Get("organization_id").(string), d.Get("api_endpoint").(string))
 
 		// organizations fetched to cache Auth0 API response.
 		if _, err := apiClient.OrganizationId(); err != nil {

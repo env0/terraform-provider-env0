@@ -8,12 +8,14 @@ import (
 
 type ApiClient struct {
 	http                  http.HttpClientInterface
+	apiEndpoint           string
 	cachedOrganizationId  string
 	defaultOrganizationId string
 	memoizedGetTeams      func(string) ([]Team, error)
 }
 
 type ApiClientInterface interface {
+	ApiEndpoint() string
 	ConfigurationVariablesByScope(scope Scope, scopeId string) ([]ConfigurationVariable, error)
 	ConfigurationVariablesById(id string) (ConfigurationVariable, error)
 	ConfigurationVariableCreate(params ConfigurationVariableCreateParams) (ConfigurationVariable, error)
@@ -188,9 +190,10 @@ type ApiClientInterface interface {
 	VcsConnections() ([]VcsConnection, error)
 }
 
-func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string) ApiClientInterface {
+func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string, apiEndpoint string) ApiClientInterface {
 	apiClient := &ApiClient{
 		http:                  client,
+		apiEndpoint:           apiEndpoint,
 		cachedOrganizationId:  "",
 		defaultOrganizationId: defaultOrganizationId,
 	}
@@ -198,4 +201,8 @@ func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string)
 	apiClient.memoizedGetTeams = memoize(apiClient.GetTeams)
 
 	return apiClient
+}
+
+func (client *ApiClient) ApiEndpoint() string {
+	return client.apiEndpoint
 }
