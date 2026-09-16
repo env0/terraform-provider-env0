@@ -221,6 +221,33 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 		})
 	})
 
+	t.Run("a deployment superseded while waiting is reported", func(t *testing.T) {
+		supersededEnvironment := environment
+		supersededEnvironment.LatestDeploymentLogId = "another-deployment-log-id"
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: config(nil),
+					Check:  resource.TestCheckResourceAttr(accessor, "deployment_id", "another-deployment-log-id"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			calls := []any{
+				mock.EXPECT().Template(templateId).Times(1).Return(template, nil),
+				mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+				mock.EXPECT().EnvironmentDeploymentLog(deploymentLogId).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(supersededEnvironment, nil),
+			}
+			calls = append(calls, expectRead(mock, supersededEnvironment)...)
+			calls = append(calls, expectTeardownDestroy(mock))
+
+			gomock.InOrder(calls...)
+		})
+	})
+
 	t.Run("without the flag nothing is polled", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

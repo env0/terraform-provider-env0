@@ -1406,6 +1406,18 @@ func awaitDeployment(ctx context.Context, d *schema.ResourceData, apiClient clie
 	d.Set("deployment_id", environment.LatestDeploymentLogId)
 	setEnvironmentOutput(d, environment)
 
+	// env0 can start another run (a queued push build, drift detection) the moment this one finishes.
+	// Read takes both attributes from whatever is latest, so pinning them to the awaited deployment here
+	// would not survive the next refresh - report the divergence instead of presenting another run's
+	// output as this apply's result.
+	if environment.LatestDeploymentLogId != deploymentId {
+		return diag.Diagnostics{{
+			Severity: diag.Warning,
+			Summary:  "env0 started another deployment while Terraform was waiting",
+			Detail:   fmt.Sprintf("Deployment '%s' of environment '%s' succeeded, but '%s' has since become the environment's latest deployment. 'deployment_id' and 'output' describe that one.", deploymentId, name, environment.LatestDeploymentLogId),
+		}}
+	}
+
 	return nil
 }
 
