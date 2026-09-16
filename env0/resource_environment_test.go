@@ -1,12 +1,14 @@
 package env0
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
@@ -1015,6 +1017,64 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
 				})
+			})
+
+			t.Run("delete timeout is honoured", func(t *testing.T) {
+				configWithTimeout := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					wait_for_destroy = true
+					force_destroy = true
+
+					timeouts {
+						delete = "2s"
+					}
+				}`, resourceType, resourceName, environment.Name, environment.ProjectId, templateId)
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithTimeout,
+							Check:  check,
+						},
+						{
+							Config:      configWithTimeout,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile("timeout! last 'destroy' deployment status was 'IN_PROGRESS'"),
+						},
+					},
+				}
+
+				var destroyStartTime time.Time
+
+				var destroyWaitDuration time.Duration
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Do(func(string) {
+							destroyStartTime = time.Now()
+						}).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Do(func(string) {
+							destroyWaitDuration = time.Since(destroyStartTime)
+						}).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+
+				if destroyWaitDuration == 0 || destroyWaitDuration > time.Second*8 {
+					t.Fatalf("expected the configured 2s delete timeout to bound the destroy wait, but it took %s", destroyWaitDuration)
+				}
 			})
 		})
 
@@ -4577,6 +4637,96 @@ func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
 
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
+	})
+}
+
+func TestUnitWaitForDeployment(t *testing.T) {
+	t.Parallel()
+
+	deploymentId := "deployment-id"
+
+	deploymentWithStatus := func(status string) *client.DeploymentLog {
+		return &client.DeploymentLog{Id: deploymentId, Status: status}
+	}
+
+	t.Run("cancelled context stops the poll", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("IN_PROGRESS"), nil)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false)
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("expected context.Canceled, got: %v", err)
+		}
+
+		if status != "IN_PROGRESS" {
+			t.Fatalf("expected last status 'IN_PROGRESS', got: %s", status)
+		}
+	})
+
+	t.Run("returns on approval when returnOnApproval is true", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil)
+
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true)
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		if status != "WAITING_FOR_USER" {
+			t.Fatalf("expected status 'WAITING_FOR_USER', got: %s", status)
+		}
+	})
+
+	t.Run("keeps polling on approval when returnOnApproval is false", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		gomock.InOrder(
+			mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
+			mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+		)
+
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false)
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		if status != "SUCCESS" {
+			t.Fatalf("expected status 'SUCCESS', got: %s", status)
+		}
+	})
+
+	t.Run("times out with the given timeout", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("QUEUED"), nil)
+
+		startTime := time.Now()
+
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false)
+		if err == nil || !strings.Contains(err.Error(), "timeout! last 'destroy' deployment status was 'QUEUED'") {
+			t.Fatalf("expected a timeout error, got: %v", err)
+		}
+
+		if status != "QUEUED" {
+			t.Fatalf("expected last status 'QUEUED', got: %s", status)
+		}
+
+		if elapsed := time.Since(startTime); elapsed > time.Millisecond*900 {
+			t.Fatalf("expected the poll to time out after roughly 100ms, but it took %s", elapsed)
+		}
 	})
 }
 

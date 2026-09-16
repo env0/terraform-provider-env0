@@ -17,7 +17,7 @@ const ENVIRONMENT = "environment"
 // rather than merging, and resources is excluded by that default today.
 const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
 
-// EnvironmentDeploymentLog is used only while polling a destroy and its caller reads only Status. Exclude
+// EnvironmentDeploymentLog is used only while polling a deployment and its caller reads only Status. Exclude
 // the large response fields that are discarded on every poll. This endpoint returns the deployment log as
 // the response root, so the field names carry no latestDeploymentLog prefix.
 const deploymentLogExcludeFields = "plan,resources,output,costEstimation"

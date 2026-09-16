@@ -44,3 +44,19 @@ resource "env0_environment" "example_with_hcl_configuration" {
     schema_format = "HCL"
   }
 }
+
+# During destroy, wait for the env0 destroy deployment to finish.
+# The wait is bounded by the 'delete' timeout of the 'timeouts' block,
+# defaulting to 30 minutes.
+resource "env0_environment" "example_with_destroy_timeout" {
+  name        = "environment with a bounded destroy wait"
+  project_id  = data.env0_project.default_project.id
+  template_id = data.env0_template.example.id
+
+  force_destroy    = true
+  wait_for_destroy = true
+
+  timeouts {
+    delete = "45m"
+  }
+}
