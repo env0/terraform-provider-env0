@@ -222,6 +222,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -297,6 +298,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, movedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", movedEnvironment.Id).Times(1).Return(nil, nil),
 
+					mock.EXPECT().Environment(movedEnvironment.Id).Times(1).Return(movedEnvironment, nil),
 					mock.EXPECT().EnvironmentDestroy(movedEnvironment.Id).Times(1),
 				)
 			})
@@ -381,6 +383,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironmentCopy, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -434,6 +437,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -571,6 +575,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(updatedConfigurationSets2, nil),
 
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -659,6 +664,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(updatedEnvironment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -722,6 +728,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -839,6 +846,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(updatedEnvironment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 					mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -912,6 +920,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("IN_PROGRESS"), nil),
@@ -945,8 +954,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("CANCELLED"), nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
@@ -978,8 +989,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(nil, errors.New("error")),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
@@ -1011,9 +1024,11 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("QUEUED"), nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
@@ -1062,10 +1077,12 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Do(func(string) {
 							destroyStartTime = time.Now()
 						}).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Do(func(string) {
 							destroyWaitDuration = time.Since(destroyStartTime)
 						}).Return(destroyResponse, nil),
@@ -1107,8 +1124,10 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 					)
@@ -1141,6 +1160,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
 					)
 				})
@@ -1368,6 +1388,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					K8sNamespace:    environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(environment.Id).Times(3).Return(environment, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(3).Return(nil, nil)
@@ -1409,6 +1430,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(client.Environment{}, errors.New("error"))
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -1493,6 +1515,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -1577,6 +1600,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -1785,6 +1809,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -1856,6 +1881,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2000,6 +2026,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().EnvironmentDeploy(environment.Id, environmentDeploy).Times(1).Return(client.EnvironmentDeployResponse{Id: "did"}, nil),
 					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{redeployConfigurationVariable}, nil),
+					mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 					mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 				)
 			})
@@ -2073,6 +2100,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2155,6 +2183,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2274,6 +2303,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, updatedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil),
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2654,6 +2684,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Environment(environmentWithAPIFields.Id).Times(1).Return(environmentWithAPIFields, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environmentWithAPIFields.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environmentWithAPIFields.Id).Times(1).Return(nil, nil)
+				mock.EXPECT().Environment(environmentWithAPIFields.Id).Times(1).Return(environmentWithAPIFields, nil)
 				mock.EXPECT().EnvironmentDestroy(environmentWithAPIFields.Id).Times(1)
 			})
 		})
@@ -2731,6 +2762,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2803,6 +2835,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(updatedEnvironment, nil), // 1 after update
 				)
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -2974,7 +3007,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(5).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(5).Return(nil, nil)
-				mock.EXPECT().Environment(gomock.Any()).Times(5).Return(environment, nil)
+				mock.EXPECT().Environment(gomock.Any()).Times(6).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(1)
 			})
 		})
@@ -3161,6 +3194,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environment, nil)
 				mock.EXPECT().ConfigurationVariablesByScope(gomock.Any(), gomock.Any()).Times(1).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", gomock.Any()).Times(1).Return(nil, nil)
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -3292,6 +3326,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					IsArchived:                 new(true),
 				}).Times(1).Return(client.Environment{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -3337,6 +3372,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					BlueprintRevision: updatedEnvironment.LatestDeploymentLog.BlueprintRevision,
 				}).Times(1).Return(client.EnvironmentDeployResponse{}, errors.New("error"))
 				mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil) // 1 after create, 1 before update
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(2).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(3).Return(nil, nil)
@@ -3370,6 +3406,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					K8sNamespace:               environment.K8sNamespace,
 				}).Times(1).Return(environment, nil)
 				mock.EXPECT().Environment(gomock.Any()).Return(client.Environment{}, errors.New("error"))
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(0).Return(client.ConfigurationChanges{}, nil)
 			})
@@ -3395,6 +3432,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil)
 			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 			mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil)
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(nil, http.NewMockFailedResponseError(400))
 		})
 	})
@@ -3466,6 +3504,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envInactive, nil),
 				)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3506,6 +3545,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envInactive, nil),
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envActive, nil),
 				)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3530,6 +3570,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(3).Return(envActive, nil)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3570,6 +3611,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envInactive, nil),
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envActive, nil),
 				)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3601,6 +3643,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(envActive, nil),
 					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(envInactive, nil),
 				)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3625,6 +3668,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, envActive.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", envActive.Id).Times(3).Return(nil, nil)
 				mock.EXPECT().Environment(gomock.Any()).Times(3).Return(envActive, nil)
+				mock.EXPECT().Environment(envActive.Id).Times(1).Return(envActive, nil)
 				mock.EXPECT().EnvironmentDestroy(envActive.Id).Times(1)
 			})
 		})
@@ -3954,6 +3998,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 				mock.EXPECT().Template(template.Id).Times(1).Return(updatedTemplate, nil),
 
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
@@ -4003,6 +4048,7 @@ func TestUnitEnvironmentWithoutTemplateResource(t *testing.T) {
 				mock.EXPECT().Template(template.Id).Times(1).Return(template, nil),
 
 				// Destroy
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
@@ -4356,6 +4402,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironmentWithId.Id).Times(1).Return(updatedSubEnvironment.Configuration, nil),
 
 				// Destroy
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1),
 			)
 		})
@@ -4473,6 +4520,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				},
 			)
 
+			mock.EXPECT().Environment(workflowEnvironment.Id).Times(1).Return(workflowEnvironment, nil)
 			mock.EXPECT().EnvironmentDestroy(workflowEnvironment.Id).Times(1)
 		})
 	})
@@ -4744,6 +4792,7 @@ func TestUnitEnvironmentTags(t *testing.T) {
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(updatedEnvironment, nil), // 1 after update
 		)
 
+		mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 		mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 	})
 }
@@ -4839,6 +4888,7 @@ func TestUnitEnvironmentIsRequiredDeprecated(t *testing.T) {
 			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 		})
 	})
@@ -4925,6 +4975,11 @@ func TestUnitWaitForDeployment(t *testing.T) {
 			t.Fatalf("expected a timeout error, got: %v", err)
 		}
 
+		var timeoutErr *deploymentTimeoutError
+		if !errors.As(err, &timeoutErr) {
+			t.Fatalf("expected a *deploymentTimeoutError, got: %T", err)
+		}
+
 		if status != "QUEUED" {
 			t.Fatalf("expected last status 'QUEUED', got: %s", status)
 		}
@@ -4952,6 +5007,7 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 
 		ctrl := gomock.NewController(t)
 		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
 		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
 		mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
 		mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
@@ -4969,6 +5025,7 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 
 		ctrl := gomock.NewController(t)
 		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
 		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
 		mock.EXPECT().ApiEndpoint().Times(1).Return("https://self-hosted.example.com/")
 
@@ -4989,6 +5046,23 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true, "approve_plan_automatically": false}), mock)
 
 		assert.Empty(t, diags)
+	})
+
+	t.Run("a failed status read during the wait is not reported as waiting for approval", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+		mock.EXPECT().EnvironmentDeploymentLog("deployment0").Times(1).Return(nil, errors.New("api is down"))
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true, "wait_for_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Error, diags[0].Severity)
+		assert.Contains(t, diags[0].Summary, "api is down")
+		assert.NotContains(t, diags[0].Summary, "waiting for approval")
 	})
 }
 

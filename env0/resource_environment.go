@@ -1331,25 +1331,20 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
-	// Delete runs against prior state, so the approval requirement is read from there.
-	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
-	approveAutomatically, approveAutomaticallySet := d.GetOkExists("approve_plan_automatically")
-	requiresApproval := approveAutomaticallySet && !approveAutomatically.(bool)
-
 	var deploymentId string
 
 	// A previous destroy may already be parked waiting for approval. Reuse it instead of queuing a
-	// duplicate destroy behind it, and skip the destroy when the environment is already inactive.
-	if requiresApproval {
-		if environment, err := apiClient.Environment(d.Id()); err == nil {
-			if environment.Status == environmentStatusInactive {
-				return nil
-			}
+	// duplicate destroy behind it, and skip the destroy when the environment is already inactive. The
+	// check cannot be gated on 'approve_plan_automatically' in the state: the approval requirement may
+	// be inherited from a policy.
+	if environment, err := apiClient.Environment(d.Id()); err == nil {
+		if environment.Status == environmentStatusInactive {
+			return nil
+		}
 
-			if environment.LatestDeploymentLog.Type == "destroy" && environment.LatestDeploymentLog.Status == deploymentWaitingForUserStatus {
-				deploymentId = environment.LatestDeploymentLog.Id
-				tflog.Info(ctx, "reusing the destroy deployment that is already waiting for approval", map[string]any{"deploymentId": deploymentId})
-			}
+		if environment.LatestDeploymentLog.Type == "destroy" && environment.LatestDeploymentLog.Status == deploymentWaitingForUserStatus {
+			deploymentId = environment.LatestDeploymentLog.Id
+			tflog.Info(ctx, "reusing the destroy deployment that is already waiting for approval", map[string]any{"deploymentId": deploymentId})
 		}
 	}
 
@@ -1381,9 +1376,11 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		status, err := waitForDeployment(ctx, apiClient, deploymentId, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint)
-		if err != nil {
-			if status == deploymentWaitingForUserStatus {
+		if _, err := waitForDeployment(ctx, apiClient, deploymentId, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint); err != nil {
+			// Only the wait timing out while the deployment is waiting for approval means "approve and
+			// rerun". Any other error (a failed status read, an interrupt) is reported as-is.
+			var timeoutErr *deploymentTimeoutError
+			if errors.As(err, &timeoutErr) && timeoutErr.status == deploymentWaitingForUserStatus {
 				return diag.Errorf("destroy deployment '%s' is waiting for approval in env0, approve it %s and run the destroy again", deploymentId, approvalHint())
 			}
 
@@ -1402,6 +1399,17 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		Summary:  fmt.Sprintf("destroy deployment '%s' was triggered but not verified", deploymentId),
 		Detail:   detail,
 	}}
+}
+
+// deploymentTimeoutError marks the wait timing out, so callers can tell "the deployment is still waiting"
+// apart from a failed status read or a cancelled context.
+type deploymentTimeoutError struct {
+	deploymentType string
+	status         string
+}
+
+func (e *deploymentTimeoutError) Error() string {
+	return fmt.Sprintf("timeout! last '%s' deployment status was '%s'", e.deploymentType, e.status)
 }
 
 // waitForDeployment polls a deployment until it reaches a terminal status, the timeout elapses or ctx is
@@ -1461,11 +1469,11 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 
 		select {
 		case <-timer.C:
-			return status, fmt.Errorf("timeout! last '%s' deployment status was '%s'", deploymentType, status)
+			return status, &deploymentTimeoutError{deploymentType: deploymentType, status: status}
 		case <-ctx.Done():
 			// The SDK applies the resource timeout as a context deadline, so it usually fires before the timer.
 			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-				return status, fmt.Errorf("timeout! last '%s' deployment status was '%s'", deploymentType, status)
+				return status, &deploymentTimeoutError{deploymentType: deploymentType, status: status}
 			}
 
 			return status, ctx.Err()
