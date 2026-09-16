@@ -194,7 +194,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"project_id": {
 				Type:        schema.TypeString,
-				Description: "project id of the environment",
+				Description: "project id of the environment. Changing it moves the environment to the other project in place, with no redeploy. The template must already be assigned to the target project when the apply starts, so add the 'env0_template_project_assignment' and apply it before the one that moves the environment. Project-level credentials and project-scoped variables of the old project stop applying and the target project's apply instead, and the environment's outputs, drift causes and cost records are re-keyed to the target project. Environments with a local backend cannot be moved",
 				Required:    true,
 			},
 			"template_id": {
@@ -421,8 +421,12 @@ func resourceEnvironment() *schema.Resource {
 
 var environmentForceNewFields = []string{"workspace", "terragrunt_working_directory", "k8s_namespace"}
 
-func resourceEnvironmentCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ any) error {
-	return validateReplaceIsAllowed(d)
+func resourceEnvironmentCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta any) error {
+	if err := validateReplaceIsAllowed(d); err != nil {
+		return err
+	}
+
+	return validateMoveIsAllowed(d, meta.(client.ApiClientInterface))
 }
 
 // Delete runs against prior state, so the removal strategy and the safeguard are read from there
@@ -442,6 +446,48 @@ func validateReplaceIsAllowed(d *schema.ResourceDiff) error {
 
 	return fmt.Errorf(`changing %s replaces the environment, which destroys it first. "force_destroy" must already be true in the state: set it and apply once before changing these fields`,
 		strings.Join(environmentForceNewFields, ", "))
+}
+
+// Changing "project_id" moves the environment. The server's move preconditions are not visible in
+// the diff, so read the environment to check the ones a plan can.
+func validateMoveIsAllowed(d *schema.ResourceDiff, apiClient client.ApiClientInterface) error {
+	if d.Id() == "" || !d.HasChange("project_id") {
+		return nil
+	}
+
+	targetProjectId, ok := d.GetOk("project_id")
+	// Empty also means the target is not known yet at plan time.
+	if !ok {
+		return nil
+	}
+
+	// A templateless environment owns a single-use template, so no assignment applies to it.
+	if _, ok := d.GetOk("template_id"); !ok {
+		return nil
+	}
+
+	environment, err := apiClient.Environment(d.Id())
+	if err != nil {
+		return fmt.Errorf("could not get environment '%s': %w", d.Id(), err)
+	}
+
+	// Only reachable when the plan skipped the refresh; the server 400s on a no-op move.
+	if environment.ProjectId == targetProjectId.(string) {
+		return fmt.Errorf("the environment is already in project '%s'", targetProjectId)
+	}
+
+	if strings.Contains(environment.Status, "IN_PROGRESS") || environment.Status == "ABORTING" {
+		return fmt.Errorf("cannot move an environment while a deployment is in progress (status '%s')", environment.Status)
+	}
+
+	templateId := d.Get("template_id").(string)
+
+	template, err := apiClient.Template(templateId)
+	if err != nil {
+		return fmt.Errorf("could not get template '%s': %w", templateId, err)
+	}
+
+	return validateTemplateProjectAssignment(d, &template)
 }
 
 func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environment client.Environment, configurationVariables client.ConfigurationChanges, variableSetsIds []string) error {
@@ -625,12 +671,18 @@ func createVariable(configurationVariable *client.ConfigurationVariable) any {
 	return variable
 }
 
+// Both *schema.ResourceData and *schema.ResourceDiff satisfy this, so create and plan share the rule.
+type projectIdGetter interface {
+	GetOk(key string) (any, bool)
+}
+
 // Validate that the template is assigned to the "project_id".
-func validateTemplateProjectAssignment(d *schema.ResourceData, template *client.Template) error {
-	projectId := d.Get("project_id").(string)
+func validateTemplateProjectAssignment(d projectIdGetter, template *client.Template) error {
+	value, _ := d.GetOk("project_id")
+	projectId, _ := value.(string)
 
 	if projectId != template.ProjectId && !stringInSlice(projectId, template.ProjectIds) {
-		return errors.New("could not create environment: template is not assigned to project")
+		return fmt.Errorf("template is not assigned to project '%s': assign it with 'env0_template_project_assignment'", projectId)
 	}
 
 	return nil
@@ -645,7 +697,7 @@ func createEnvironmentWithTemplate(d *schema.ResourceData, apiClient client.ApiC
 	}
 
 	if err := validateTemplateProjectAssignment(d, &template); err != nil {
-		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("%v", err)
+		return client.Environment{}, client.EnvironmentCreate{}, diag.Errorf("could not create environment: %v", err)
 	}
 
 	environmentPayload, diagError := getCreatePayload(d, apiClient, template.Type)

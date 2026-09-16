@@ -89,7 +89,7 @@ Deployments triggered by an update are asynchronous: the apply returns once the 
 ### Required
 
 - `name` (String) the environment's name
-- `project_id` (String) project id of the environment
+- `project_id` (String) project id of the environment. Changing it moves the environment to the other project in place, with no redeploy. The template must already be assigned to the target project when the apply starts, so add the 'env0_template_project_assignment' and apply it before the one that moves the environment. Project-level credentials and project-scoped variables of the old project stop applying and the target project's apply instead, and the environment's outputs, drift causes and cost records are re-keyed to the target project. Environments with a local backend cannot be moved
 
 ### Optional
 
