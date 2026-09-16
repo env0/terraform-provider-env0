@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	defaultDeploymentTimeout = 30 * time.Minute
-	deploymentWaitingForUser = "WAITING_FOR_USER"
+	defaultDeploymentTimeout       = 30 * time.Minute
+	deploymentWaitingForUserStatus = "WAITING_FOR_USER"
+	environmentStatusInactive      = "INACTIVE"
 )
 
 // stripIsRequired removes the deprecated is_required field from configuration changes
@@ -227,7 +228,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
-				Description: "should deployments be approved automatically. Note: when set to false, destroys are gated as well - a destroy deployment waits for approval in the env0 UI before it runs",
+				Description: "should deployments be approved automatically. When set to false, any deployment that modifies resources (apply, targeted apply, destroy) waits for manual approval in the env0 UI before it runs",
 				Optional:    true,
 			},
 			"deploy_on_push": {
@@ -414,7 +415,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"wait_for_destroy": {
 				Type:        schema.TypeBool,
-				Description: "(Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 30 minutes). If the destroy requires approval ('approve_plan_automatically' is false), the wait keeps pending until the destroy is approved in env0 or the 'delete' timeout expires; on timeout the error links to the deployment waiting for the approval and the environment stays in the state. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.",
+				Description: "(experimental) wait for the destroy to finish (environment status 'INACTIVE'), bounded by the 'delete' timeout of the 'timeouts' block (default 30 minutes). A destroy that requires approval keeps waiting until it is approved in env0; on timeout the error links to the waiting deployment and the environment stays in the state. Set to true when changing 'workspace', 'terragrunt_working_directory' or 'k8s_namespace', so the replacement environment is created only after the old one is destroyed.",
 				Default:     false,
 				Optional:    true,
 			},
@@ -1330,24 +1331,49 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
-	res, err := apiClient.EnvironmentDestroy(d.Id())
-	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
-			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]any{"id": d.Id(), "error": frerr.Error()})
-
-			return nil
-		}
-
-		return diag.Errorf("could not delete environment: %v", err)
-	}
-
 	// Delete runs against prior state, so the approval requirement is read from there.
 	//nolint:staticcheck // https://github.com/hashicorp/terraform-plugin-sdk/issues/817
 	approveAutomatically, approveAutomaticallySet := d.GetOkExists("approve_plan_automatically")
 	requiresApproval := approveAutomaticallySet && !approveAutomatically.(bool)
 
+	var deploymentId string
+
+	// A previous destroy may already be parked waiting for approval. Reuse it instead of queuing a
+	// duplicate destroy behind it, and skip the destroy when the environment is already inactive.
+	if requiresApproval {
+		if environment, err := apiClient.Environment(d.Id()); err == nil {
+			if environment.Status == environmentStatusInactive {
+				return nil
+			}
+
+			if environment.LatestDeploymentLog.Type == "destroy" && environment.LatestDeploymentLog.Status == deploymentWaitingForUserStatus {
+				deploymentId = environment.LatestDeploymentLog.Id
+				tflog.Info(ctx, "reusing the destroy deployment that is already waiting for approval", map[string]any{"deploymentId": deploymentId})
+			}
+		}
+	}
+
+	if deploymentId == "" {
+		res, err := apiClient.EnvironmentDestroy(d.Id())
+		if err != nil {
+			if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
+				tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]any{"id": d.Id(), "error": frerr.Error()})
+
+				return nil
+			}
+
+			return diag.Errorf("could not delete environment: %v", err)
+		}
+
+		if res == nil {
+			return nil
+		}
+
+		deploymentId = res.Id
+	}
+
 	approvalHint := func() string {
-		if url := deploymentUrl(apiClient, d.Get("project_id").(string), d.Id(), res.Id); url != "" {
+		if url := deploymentUrl(apiClient, d.Get("project_id").(string), d.Id(), deploymentId); url != "" {
 			return "at " + url
 		}
 
@@ -1355,10 +1381,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		status, err := waitForDeployment(ctx, apiClient, res.Id, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint)
+		status, err := waitForDeployment(ctx, apiClient, deploymentId, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint)
 		if err != nil {
-			if status == deploymentWaitingForUser {
-				return diag.Errorf("destroy deployment '%s' is waiting for approval in env0, approve it %s and run the destroy again", res.Id, approvalHint())
+			if status == deploymentWaitingForUserStatus {
+				return diag.Errorf("destroy deployment '%s' is waiting for approval in env0, approve it %s and run the destroy again", deploymentId, approvalHint())
 			}
 
 			return diag.FromErr(err)
@@ -1367,19 +1393,13 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return nil
 	}
 
-	if res == nil {
-		return nil
-	}
-
-	detail := "The provider did not wait for the destroy to finish ('wait_for_destroy' is false), so its result is not verified. The environment was removed from the Terraform state and is no longer managed by Terraform."
-
-	if requiresApproval {
-		detail += fmt.Sprintf(" The destroy will only run once it is approved %s.", approvalHint())
-	}
+	// The provider cannot always tell whether an approval gates the destroy (the requirement may be
+	// inherited from a policy), so the approval hint is phrased conditionally and always included.
+	detail := fmt.Sprintf("The provider did not wait for the destroy to finish ('wait_for_destroy' is false), so its result is not verified. The environment was removed from the Terraform state and is no longer managed by Terraform. If the environment requires approval, the destroy will only run once it is approved %s.", approvalHint())
 
 	return diag.Diagnostics{{
 		Severity: diag.Warning,
-		Summary:  fmt.Sprintf("destroy deployment '%s' was triggered but not verified", res.Id),
+		Summary:  fmt.Sprintf("destroy deployment '%s' was triggered but not verified", deploymentId),
 		Detail:   detail,
 	}}
 }
@@ -1425,7 +1445,7 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 
 		tflog.Info(ctx, "current deployment status", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType, "status": status})
 
-		if status == deploymentWaitingForUser {
+		if status == deploymentWaitingForUserStatus {
 			if returnOnApproval {
 				return status, nil
 			}

@@ -17,9 +17,9 @@ func TestUnitUiBaseUrl(t *testing.T) {
 		{"https://api.env0.com/", "https://app.env0.com"},
 		{"https://api.env0.com", "https://app.env0.com"},
 		{"https://api-dev.dev.env0.com/", "https://dev.dev.env0.com"},
-		{"https://api-bors.dev.env0.com/", "https://bors.dev.env0.com"},
-		{"https://api-pr-1234.dev.env0.com/", "http://pr-1234.dev.env0.com"},
+		{"https://api-pr-1234.dev.env0.com/", "https://pr-1234.dev.env0.com"},
 		{"https://self-hosted.example.com/", ""},
+		{"https://api-suffix.example.com/", ""},
 		{"https://api-.dev.env0.com/", ""},
 		{"", ""},
 	}

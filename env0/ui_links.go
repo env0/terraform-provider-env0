@@ -8,13 +8,12 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 )
 
-// uiBaseUrl maps an env0 API endpoint to the matching web UI base URL. The mapping mirrors the
-// FRONTEND_BASE_URL convention of the env0 stages: prod serves the UI from app.env0.com and every
-// other stage from <stage>.dev.env0.com, where only the dev and bors stages are behind https.
-// An unrecognized endpoint (e.g. self hosted) returns an empty string.
+// uiBaseUrl maps an env0 API endpoint to the matching web UI base URL. The prod API serves the UI
+// from app.env0.com; any other env0 endpoint of the form api-<host> serves it from <host> on the
+// same scheme. An unrecognized endpoint (e.g. self hosted) returns an empty string.
 func uiBaseUrl(apiEndpoint string) string {
 	parsed, err := url.Parse(strings.TrimSuffix(apiEndpoint, "/"))
-	if err != nil || parsed.Host == "" {
+	if err != nil || parsed.Host == "" || parsed.Scheme == "" {
 		return ""
 	}
 
@@ -22,19 +21,12 @@ func uiBaseUrl(apiEndpoint string) string {
 		return "https://app.env0.com"
 	}
 
-	stage, found := strings.CutPrefix(parsed.Host, "api-")
-	stage, foundSuffix := strings.CutSuffix(stage, ".dev.env0.com")
-
-	if !found || !foundSuffix || stage == "" {
+	host, found := strings.CutPrefix(parsed.Host, "api-")
+	if !found || strings.HasPrefix(host, ".") || !strings.HasSuffix(host, ".env0.com") {
 		return ""
 	}
 
-	scheme := "http"
-	if stage == "dev" || stage == "bors" {
-		scheme = "https"
-	}
-
-	return fmt.Sprintf("%s://%s.dev.env0.com", scheme, stage)
+	return fmt.Sprintf("%s://%s", parsed.Scheme, host)
 }
 
 // deploymentUrl returns the web UI link for a deployment, the page where a deployment waiting for

@@ -194,7 +194,7 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 		}
 
 		// Guard for environments that ended up INACTIVE without being archived.
-		if env.Status == "INACTIVE" {
+		if env.Status == environmentStatusInactive {
 			continue
 		}
 
