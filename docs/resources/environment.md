@@ -93,7 +93,7 @@ Deployments triggered by an update are asynchronous: the apply returns once the 
 
 ### Optional
 
-- `approve_plan_automatically` (Boolean) should deployments require manual approvals
+- `approve_plan_automatically` (Boolean) should deployments be approved automatically. Note: when set to false, destroys are gated as well - a destroy deployment waits for approval in the env0 UI before it runs
 - `auto_deploy_by_custom_glob` (String) redeploy on file filter pattern.
 When used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.
 - `auto_deploy_on_path_changes_only` (Boolean) redeploy only on path changes only
@@ -124,7 +124,7 @@ Important note: the template must first be assigned to the same project as the e
 - `variable_sets` (List of String) a list of IDs of variable sets to assign to this environment. Note: must not be used with 'env0_variable_set_assignment'
 - `vcs_commands_alias` (String) set an alias for this environment in favor of running VCS commands using PR comments against it. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments
 - `vcs_pr_comments_enabled` (Boolean) set to 'true' to enable running VCS PR plan/apply commands using PR comments. This can be set to 'true' (enabled) without setting alias in 'vcs_commands_alias'. Additional details: https://docs.env0.com/docs/plan-and-apply-from-pr-comments#configuration
-- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 30 minutes). Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.
+- `wait_for_destroy` (Boolean) (Important note: this option is experimental, please report any issues found). During destroy, waits for the environment status to be 'INACTIVE'. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 30 minutes). If the destroy requires approval ('approve_plan_automatically' is false), the wait keeps pending until the destroy is approved in env0 or the 'delete' timeout expires; on timeout the error links to the deployment waiting for the approval and the environment stays in the state. Set this to true when changing a field that replaces the environment ('workspace', 'terragrunt_working_directory' or 'k8s_namespace'), so the new environment is created only after the old one is destroyed.
 - `without_template_settings` (Block List, Max: 1) settings for creating an environment without a template (see [below for nested schema](#nestedblock--without_template_settings))
 - `workspace` (String) the terraform workspace name of the environment. Note: modifying this field destroys the current environment and creates a new one, so 'force_destroy' must already be true in the state unless 'removal_strategy' is 'mark_as_archived'. Set 'wait_for_destroy' to true when changing this field so the new environment is created only after the old one is destroyed
 

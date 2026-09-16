@@ -1076,6 +1076,114 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					t.Fatalf("expected the configured 2s delete timeout to bound the destroy wait, but it took %s", destroyWaitDuration)
 				}
 			})
+
+			t.Run("destroy waiting for approval keeps pending and fails on the timeout with an approval link", func(t *testing.T) {
+				approvalUrl := fmt.Sprintf("https://dev.dev.env0.com/p/%s/environments/%s/deployments/%s?organizationId=organization0", environment.ProjectId, environment.Id, deploymentLog.Id)
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+						{
+							Config:      config,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile(fmt.Sprintf("destroy deployment '%s' is waiting for approval in env0, approve it at %s", deploymentLog.Id, regexp.QuoteMeta(approvalUrl))),
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					mock.EXPECT().ApiEndpoint().AnyTimes().Return("https://api-dev.dev.env0.com/")
+					mock.EXPECT().OrganizationId().AnyTimes().Return("organization0", nil)
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+
+			t.Run("destroy without wait warns that the destroy is not verified", func(t *testing.T) {
+				configWithoutWait := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":          environment.Name,
+					"project_id":    environment.ProjectId,
+					"template_id":   templateId,
+					"force_destroy": true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithoutWait,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+					)
+				})
+			})
+
+			t.Run("destroy without wait warns with an approval link when the environment requires approval", func(t *testing.T) {
+				deployRequestWithApproval := *environmentCreate.DeployRequest
+				deployRequestWithApproval.UserRequiresApproval = new(true)
+
+				environmentCreateWithApproval := environmentCreate
+				environmentCreateWithApproval.RequiresApproval = new(true)
+				environmentCreateWithApproval.DeployRequest = &deployRequestWithApproval
+
+				environmentWithApproval := environment
+				environmentWithApproval.RequiresApproval = new(true)
+
+				configWithApproval := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":                       environment.Name,
+					"project_id":                 environment.ProjectId,
+					"template_id":                templateId,
+					"approve_plan_automatically": false,
+					"force_destroy":              true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithApproval,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+					mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreateWithApproval).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+					)
+				})
+			})
 		})
 
 		t.Run("Mark as archived", func(t *testing.T) {
