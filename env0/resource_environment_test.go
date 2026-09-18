@@ -3416,6 +3416,92 @@ func TestUnitEnvironmentResource(t *testing.T) {
 		})
 	})
 
+	// The environment can go away between the read and the call that removes it.
+	t.Run("delete drops an environment the destroy endpoint reports as gone", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(nil, http.NewMockFailedResponseError(404)),
+			)
+		})
+	})
+
+	t.Run("delete drops an environment the archive endpoint reports as gone", func(t *testing.T) {
+		archivedEnvironment := client.Environment{
+			Id:        uuid.New().String(),
+			Name:      "name",
+			ProjectId: "project-id",
+			LatestDeploymentLog: client.DeploymentLog{
+				BlueprintId: templateId,
+			},
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":             archivedEnvironment.Name,
+						"project_id":       archivedEnvironment.ProjectId,
+						"template_id":      templateId,
+						"removal_strategy": "mark_as_archived",
+					}),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().Template(templateId).Times(1).Return(template, nil),
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(archivedEnvironment, nil),
+				mock.EXPECT().Environment(archivedEnvironment.Id).Times(1).Return(archivedEnvironment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, archivedEnvironment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", archivedEnvironment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().Environment(archivedEnvironment.Id).Times(1).Return(archivedEnvironment, nil),
+				mock.EXPECT().EnvironmentMarkAsArchived(archivedEnvironment.Id).Times(1).Return(http.NewMockFailedResponseError(404)),
+			)
+		})
+	})
+
+	t.Run("delete does not archive an environment that is already archived", func(t *testing.T) {
+		archivedEnvironment := environment
+		archivedEnvironment.Status = "INACTIVE"
+		archivedEnvironment.IsArchived = new(true)
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: createEnvironmentResourceConfig(environment),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(environment, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(archivedEnvironment, nil),
+			)
+			mock.EXPECT().EnvironmentDestroy(gomock.Any()).Times(0)
+			mock.EXPECT().EnvironmentMarkAsArchived(gomock.Any()).Times(0)
+		})
+	})
+
 	testDeleteOfUndeployedEnvironment := func(name string, status string) {
 		t.Run(name, func(t *testing.T) {
 			undeployedEnvironment := environment

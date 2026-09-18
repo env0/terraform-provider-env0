@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -1363,12 +1362,17 @@ func getEnvironmentVariableSetIdsFromSchema(d *schema.ResourceData) []string {
 func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
+	// An environment that is gone is already deleted, whichever call reports it.
+	dropFromState := func() diag.Diagnostics {
+		tflog.Warn(ctx, "Environment not found, removing from state", map[string]any{"id": d.Id()})
+
+		return nil
+	}
+
 	environment, err := apiClient.Environment(d.Id())
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-			tflog.Warn(ctx, "Environment not found, removing from state", map[string]any{"id": d.Id()})
-
-			return nil
+		if driftDetected(err) {
+			return dropFromState()
 		}
 
 		return diag.Errorf("could not get environment: %v", err)
@@ -1380,6 +1384,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		}
 
 		if err := apiClient.EnvironmentMarkAsArchived(d.Id()); err != nil {
+			if driftDetected(err) {
+				return dropFromState()
+			}
+
 			return diag.Errorf("could not archive the environment: %v", err)
 		}
 
@@ -1404,10 +1412,8 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.NotFound() {
-			tflog.Warn(ctx, "Environment not found, removing from state", map[string]any{"id": d.Id()})
-
-			return nil
+		if driftDetected(err) {
+			return dropFromState()
 		}
 
 		return diag.Errorf("could not delete environment: %v", err)
