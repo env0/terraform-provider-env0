@@ -19,6 +19,11 @@ import (
 
 const defaultDeploymentTimeout = 30 * time.Minute
 
+const (
+	environmentStatusInactive      = "INACTIVE"
+	environmentStatusNeverDeployed = "NEVER_DEPLOYED"
+)
+
 // stripIsRequired removes the deprecated is_required field from configuration changes
 // so it is not sent to the server (ENG-1345).
 func stripIsRequired(changes client.ConfigurationChanges) client.ConfigurationChanges {
@@ -1363,16 +1368,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	apiClient := meta.(client.ApiClientInterface)
 
 	// An environment that is gone is already deleted, whichever call reports it.
-	dropFromState := func() diag.Diagnostics {
+	warnGone := func() {
 		tflog.Warn(ctx, "Environment not found, removing from state", map[string]any{"id": d.Id()})
-
-		return nil
 	}
 
 	environment, err := apiClient.Environment(d.Id())
 	if err != nil {
 		if driftDetected(err) {
-			return dropFromState()
+			warnGone()
+
+			return nil
 		}
 
 		return diag.Errorf("could not get environment: %v", err)
@@ -1385,7 +1390,9 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 		if err := apiClient.EnvironmentMarkAsArchived(d.Id()); err != nil {
 			if driftDetected(err) {
-				return dropFromState()
+				warnGone()
+
+				return nil
 			}
 
 			return diag.Errorf("could not archive the environment: %v", err)
@@ -1406,14 +1413,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// Destroying an environment with nothing deployed either fails or queues a redundant
 	// destroy run, so archive it instead.
-	if environment.Status == "INACTIVE" || environment.Status == "NEVER_DEPLOYED" {
+	if environment.Status == environmentStatusInactive || environment.Status == environmentStatusNeverDeployed {
 		return archive()
 	}
 
 	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
 		if driftDetected(err) {
-			return dropFromState()
+			warnGone()
+
+			return nil
 		}
 
 		return diag.Errorf("could not delete environment: %v", err)
