@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -21,6 +20,11 @@ import (
 const (
 	defaultDeploymentTimeout = 30 * time.Minute
 	deploymentWaitingForUser = "WAITING_FOR_USER"
+)
+
+const (
+	environmentStatusInactive      = "INACTIVE"
+	environmentStatusNeverDeployed = "NEVER_DEPLOYED"
 )
 
 // stripIsRequired removes the deprecated is_required field from configuration changes
@@ -831,7 +835,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 
 	environment, err := apiClient.Environment(d.Id())
 	if err != nil {
-		return diag.Errorf("could not get environment: %v", err)
+		return ResourceGetFailure(ctx, "environment", d, err)
 	}
 
 	scope := client.ScopeEnvironment
@@ -1396,14 +1400,42 @@ func getEnvironmentVariableSetIdsFromSchema(d *schema.ResourceData) []string {
 func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
-	markAsArchived := d.Get("removal_strategy").(string) == "mark_as_archived"
+	// An environment that is gone is already deleted, whichever call reports it.
+	warnGone := func() {
+		tflog.Warn(ctx, "Environment not found, removing from state", map[string]any{"id": d.Id()})
+	}
 
-	if markAsArchived {
+	environment, err := apiClient.Environment(d.Id())
+	if err != nil {
+		if driftDetected(err) {
+			warnGone()
+
+			return nil
+		}
+
+		return diag.Errorf("could not get environment: %v", err)
+	}
+
+	archive := func() diag.Diagnostics {
+		if environment.IsArchived != nil && *environment.IsArchived {
+			return nil
+		}
+
 		if err := apiClient.EnvironmentMarkAsArchived(d.Id()); err != nil {
+			if driftDetected(err) {
+				warnGone()
+
+				return nil
+			}
+
 			return diag.Errorf("could not archive the environment: %v", err)
 		}
 
 		return nil
+	}
+
+	if d.Get("removal_strategy").(string) == "mark_as_archived" {
+		return archive()
 	}
 
 	canDestroy := d.Get("force_destroy")
@@ -1412,10 +1444,16 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf(`must enable "force_destroy" safeguard in order to destroy`)
 	}
 
+	// Destroying an environment with nothing deployed either fails or queues a redundant
+	// destroy run, so archive it instead.
+	if environment.Status == environmentStatusInactive || environment.Status == environmentStatusNeverDeployed {
+		return archive()
+	}
+
 	res, err := apiClient.EnvironmentDestroy(d.Id())
 	if err != nil {
-		if frerr, ok := err.(*http.FailedResponseError); ok && frerr.BadRequest() {
-			tflog.Warn(ctx, "Could not delete environment. Already deleted?", map[string]any{"id": d.Id(), "error": frerr.Error()})
+		if driftDetected(err) {
+			warnGone()
 
 			return nil
 		}
