@@ -1,12 +1,17 @@
 package env0
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"regexp"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"go.uber.org/mock/gomock"
 )
 
@@ -534,29 +539,35 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		})
 	})
 
-	t.Run("Test wait", func(t *testing.T) {
+	t.Run("Test wait gives up at the delete timeout", func(t *testing.T) {
+		// A delete timeout below the acceptance-test poll interval (1s) makes the wait poll exactly once
+		// before it gives up, so the mock below is not a race. TestUnitWaitForProjectEnvironmentsToBeArchived
+		// covers that the wait really is bounded by the timeout.
+		configWithTimeout := fmt.Sprintf(`
+		resource "%s" "%s" {
+			name = "%s"
+			description = "%s"
+			wait = true
+
+			timeouts {
+				delete = "500ms"
+			}
+		}`, resourceType, resourceName, project.Name, project.Description)
+
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
-						"name":        project.Name,
-						"description": project.Description,
-						"wait":        "true",
-					}),
+					Config: configWithTimeout,
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "id", project.Id),
-						resource.TestCheckResourceAttr(accessor, "name", project.Name),
-						resource.TestCheckResourceAttr(accessor, "description", project.Description),
 						resource.TestCheckResourceAttr(accessor, "force_destroy", "false"),
 						resource.TestCheckResourceAttr(accessor, "wait", "true"),
 					),
 				},
 				{
-					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
-						"name": project.Name,
-					}),
+					Config:      configWithTimeout,
 					Destroy:     true,
-					ExpectError: regexp.MustCompile("could not delete project: found an active environment"),
+					ExpectError: regexp.MustCompile("could not delete project: timeout! found an active environment " + environment.Name),
 				},
 			},
 		}
@@ -569,13 +580,126 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 
 			gomock.InOrder(
 				mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil),
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // First time wait - an environment is still active.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return(nil, errors.New("random error")),        // Second time return some random error to force the test to stop waiting.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // Third time fail and expect the error.
-				mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil),            // These calls are for destroying the project at the end of test (return no environments so it won't fail).
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil), // The wait's only poll - still blocked.
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{}, nil),            // The framework's final destroy - nothing left to wait for.
 			)
 
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
 		})
+	})
+
+	t.Run("Test wait returns once the environment is archived", func(t *testing.T) {
+		archivedEnvironment := environment
+		isArchived := true
+		archivedEnvironment.IsArchived = &isArchived
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":        project.Name,
+						"description": project.Description,
+						"wait":        "true",
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", project.Id),
+						resource.TestCheckResourceAttr(accessor, "wait", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment}, nil),
+				mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{archivedEnvironment}, nil),
+			)
+
+			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
+}
+
+func TestUnitWaitForProjectEnvironmentsToBeArchived(t *testing.T) {
+	t.Parallel()
+
+	projectId := "id0"
+	activeEnvironment := client.Environment{Name: "name1"}
+
+	resourceDataFor := func(t *testing.T, forceDestroy bool) *schema.ResourceData {
+		t.Helper()
+
+		d := schema.TestResourceDataRaw(t, resourceProject().Schema, map[string]any{
+			"name":          "name0",
+			"wait":          true,
+			"force_destroy": forceDestroy,
+		})
+		d.SetId(projectId)
+
+		return d
+	}
+
+	t.Run("a cancelled context ends the wait", func(t *testing.T) {
+		t.Parallel()
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return([]client.Environment{activeEnvironment}, nil)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		err := waitForProjectEnvironmentsToBeArchived(ctx, resourceDataFor(t, false), mock, time.Minute)
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("expected context.Canceled, got: %v", err)
+		}
+	})
+
+	t.Run("a timeout names the blocking environment", func(t *testing.T) {
+		t.Parallel()
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		mock.EXPECT().ProjectEnvironments(projectId).MinTimes(1).Return([]client.Environment{activeEnvironment}, nil)
+
+		startTime := time.Now()
+
+		err := waitForProjectEnvironmentsToBeArchived(context.Background(), resourceDataFor(t, false), mock, time.Millisecond*100)
+		if err == nil || !strings.Contains(err.Error(), "timeout! found an active environment "+activeEnvironment.Name) {
+			t.Fatalf("expected a timeout error naming the environment, got: %v", err)
+		}
+
+		if elapsed := time.Since(startTime); elapsed > time.Millisecond*900 {
+			t.Fatalf("expected the wait to time out after roughly 100ms, but it took %s", elapsed)
+		}
+	})
+
+	t.Run("an error that is not an active environment is returned immediately", func(t *testing.T) {
+		t.Parallel()
+
+		apiError := errors.New("api is down")
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return(nil, apiError)
+
+		err := waitForProjectEnvironmentsToBeArchived(context.Background(), resourceDataFor(t, false), mock, time.Minute)
+		if !errors.Is(err, apiError) {
+			t.Fatalf("expected the api error, got: %v", err)
+		}
+	})
+
+	t.Run("force_destroy skips the wait", func(t *testing.T) {
+		t.Parallel()
+
+		// No ProjectEnvironments call is expected - the assert short-circuits on force_destroy.
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+
+		if err := waitForProjectEnvironmentsToBeArchived(context.Background(), resourceDataFor(t, true), mock, time.Minute); err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
 	})
 }
