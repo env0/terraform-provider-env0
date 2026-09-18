@@ -65,9 +65,13 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 	}
 
 	// The teardown destroy only reaches EnvironmentDestroy when "force_destroy" is true in the state, so
-	// expecting the call is how a lifted safeguard is asserted after a failed create.
-	expectTeardownDestroy := func(mock *client.MockApiClientInterface) any {
-		return mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(&client.EnvironmentDestroyResponse{Id: deploymentLogId}, nil)
+	// expecting the call is how a lifted safeguard is asserted after a failed create. Delete reads the
+	// environment first to tell a missing or undeployed one from a live one.
+	expectTeardownDestroy := func(mock *client.MockApiClientInterface) []any {
+		return []any{
+			mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+			mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(&client.EnvironmentDestroyResponse{Id: deploymentLogId}, nil),
+		}
 	}
 
 	expectRead := func(mock *client.MockApiClientInterface, env client.Environment) []any {
@@ -101,7 +105,7 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(deployedEnvironment, nil),
 			}
 			calls = append(calls, expectRead(mock, deployedEnvironment)...)
-			calls = append(calls, expectTeardownDestroy(mock))
+			calls = append(calls, expectTeardownDestroy(mock)...)
 
 			gomock.InOrder(calls...)
 		})
@@ -127,7 +131,7 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 				mock.EXPECT().EnvironmentDeploymentLog(deploymentLogId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
 			}
 			calls = append(calls, expectRead(mock, environment)...)
-			calls = append(calls, expectTeardownDestroy(mock))
+			calls = append(calls, expectTeardownDestroy(mock)...)
 
 			gomock.InOrder(calls...)
 		})
@@ -144,12 +148,14 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
+			calls := []any{
 				mock.EXPECT().Template(templateId).Times(1).Return(template, nil),
 				mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
 				mock.EXPECT().EnvironmentDeploymentLog(deploymentLogId).Times(1).Return(deploymentWithStatus("FAILURE"), nil),
-				expectTeardownDestroy(mock),
-			)
+			}
+			calls = append(calls, expectTeardownDestroy(mock)...)
+
+			gomock.InOrder(calls...)
 		})
 	})
 
@@ -164,12 +170,14 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			gomock.InOrder(
+			calls := []any{
 				mock.EXPECT().Template(templateId).Times(1).Return(template, nil),
 				mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
 				mock.EXPECT().EnvironmentDeploymentLog(deploymentLogId).AnyTimes().Return(deploymentWithStatus("IN_PROGRESS"), nil),
-				expectTeardownDestroy(mock),
-			)
+			}
+			calls = append(calls, expectTeardownDestroy(mock)...)
+
+			gomock.InOrder(calls...)
 		})
 	})
 
@@ -242,7 +250,7 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 				mock.EXPECT().Environment(environment.Id).Times(1).Return(supersededEnvironment, nil),
 			}
 			calls = append(calls, expectRead(mock, supersededEnvironment)...)
-			calls = append(calls, expectTeardownDestroy(mock))
+			calls = append(calls, expectTeardownDestroy(mock)...)
 
 			gomock.InOrder(calls...)
 		})
@@ -265,7 +273,7 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 				mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
 			}
 			calls = append(calls, expectRead(mock, environment)...)
-			calls = append(calls, expectTeardownDestroy(mock))
+			calls = append(calls, expectTeardownDestroy(mock)...)
 
 			gomock.InOrder(calls...)
 		})
