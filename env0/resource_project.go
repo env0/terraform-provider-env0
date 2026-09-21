@@ -60,7 +60,7 @@ func resourceProject() *schema.Resource {
 			},
 			"force_destroy": {
 				Type:        schema.TypeBool,
-				Description: "Allow the project to be deleted even when it still contains environments. Note: deleting a project archives it and its environments, it does not destroy environment infrastructure. Deployed cloud resources keep existing (and billing), continuous deployment, PR plans and scheduled deployments are disabled, and archiving cannot be undone",
+				Description: "Archive the project even when it still contains active environments. Note: env0 archives the project rather than deleting it, and it does not destroy the environments in it: every one of them is marked inactive and its continuous deployment, PR plans and scheduled deployments are disabled, while its cloud resources keep running (and billing). Archiving cannot be undone, and the call fails when the project has active sub-projects, with or without this flag",
 				Optional:    true,
 				Default:     false,
 			},
@@ -192,12 +192,7 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 	}
 
 	for _, env := range envs {
-		if env.IsArchived != nil && *env.IsArchived {
-			continue
-		}
-
-		// Guard for environments that ended up INACTIVE without being archived.
-		if env.Status == "INACTIVE" {
+		if !isEnvironmentActive(env) {
 			continue
 		}
 
@@ -207,6 +202,54 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 	}
 
 	return nil
+}
+
+// An active environment is one whose infrastructure may still exist: not archived, and not left
+// INACTIVE without being archived by a destroy that succeeded.
+func isEnvironmentActive(env client.Environment) bool {
+	if env.IsArchived != nil && *env.IsArchived {
+		return false
+	}
+
+	return env.Status != "INACTIVE"
+}
+
+// orphanedEnvironmentsWarning names the active environments that archiving the project will leave
+// running with no env0 automation. The plan says only that the project will be destroyed, so without
+// this the user never learns their infrastructure survived. Call it before the delete: afterwards
+// every environment is archived and the list has nothing to report.
+func orphanedEnvironmentsWarning(d *schema.ResourceData, meta any) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	envs, err := apiClient.ProjectEnvironments(d.Id())
+	if err != nil {
+		// force_destroy means "archive it regardless", so a list that fails downgrades the warning
+		// rather than failing a delete that would otherwise go through.
+		return diag.Diagnostics{{
+			Severity: diag.Warning,
+			Summary:  "could not list the environments this project will orphan",
+			Detail:   fmt.Sprintf("Archiving project '%s' leaves any active environment in it running with no env0 automation, and listing them failed: %v. Check the project in env0.", d.Get("name").(string), err),
+		}}
+	}
+
+	var names []string
+
+	for _, env := range envs {
+		if isEnvironmentActive(env) {
+			names = append(names, env.Name)
+		}
+	}
+
+	if len(names) == 0 {
+		return nil
+	}
+
+	return diag.Diagnostics{{
+		Severity: diag.Warning,
+		Summary:  "env0 did not destroy the environments in this project",
+		Detail: fmt.Sprintf("Archiving project '%s' marked these active environments inactive and disabled their continuous deployment, PR plans and scheduled deployments, but their cloud resources keep running (and billing): %s. Destroy them in env0 to remove that infrastructure.",
+			d.Get("name").(string), strings.Join(names, ", ")),
+	}}
 }
 
 // waitForProjectEnvironmentsToBeArchived polls until no environment blocks the project delete, the
@@ -260,8 +303,12 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta any
 
 	id := d.Id()
 
-	// force_destroy short-circuits the assert, so there is nothing for the wait to do.
-	if d.Get("wait").(bool) && !d.Get("force_destroy").(bool) {
+	var orphanWarning diag.Diagnostics
+
+	// force_destroy short-circuits the assert, so there is nothing for the wait to do either.
+	if d.Get("force_destroy").(bool) {
+		orphanWarning = orphanedEnvironmentsWarning(d, meta)
+	} else if d.Get("wait").(bool) {
 		if err := waitForProjectEnvironmentsToBeArchived(ctx, d, meta, d.Timeout(schema.TimeoutDelete)); err != nil {
 			return diag.Errorf("could not delete project: %v", err)
 		}
@@ -269,11 +316,12 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta any
 		return diag.Errorf("could not delete project: %v", err)
 	}
 
+	// Errors here reach the user as the server wrote them, "active sub-projects" included.
 	if err := apiClient.ProjectDelete(id); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
 	}
 
-	return nil
+	return orphanWarning
 }
 
 func resourceProjectImport(ctx context.Context, d *schema.ResourceData, meta any) ([]*schema.ResourceData, error) {

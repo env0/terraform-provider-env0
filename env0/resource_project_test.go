@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"go.uber.org/mock/gomock"
@@ -393,6 +394,10 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 		Name: "name1",
 	}
 
+	otherEnvironment := client.Environment{
+		Name: "name2",
+	}
+
 	t.Run("Success With Force Destroy", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
@@ -418,7 +423,46 @@ func TestUnitProjectResourceDestroyWithEnvironments(t *testing.T) {
 				Description: project.Description,
 			}).Times(1).Return(project, nil)
 			mock.EXPECT().Project(gomock.Any()).Times(1).Return(project, nil)
+			// Listed for the orphan warning; the archive goes ahead whatever is in the project.
+			mock.EXPECT().ProjectEnvironments(project.Id).Times(1).Return([]client.Environment{environment, otherEnvironment}, nil)
 			mock.EXPECT().ProjectDelete(project.Id).Times(1)
+		})
+	})
+
+	t.Run("Force Destroy Surfaces The Active Sub Projects Error", func(t *testing.T) {
+		subProjectsError := errors.New("400: {\"message\":\"Cannot archive a project with active sub projects\"}")
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":          project.Name,
+						"description":   project.Description,
+						"force_destroy": true,
+					}),
+					Check: resource.TestCheckResourceAttr(accessor, "id", project.Id),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":          project.Name,
+						"description":   project.Description,
+						"force_destroy": true,
+					}),
+					Destroy:     true,
+					ExpectError: regexp.MustCompile(regexp.QuoteMeta(subProjectsError.Error())),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().ProjectCreate(client.ProjectCreatePayload{
+				Name:        project.Name,
+				Description: project.Description,
+			}).Times(1).Return(project, nil)
+			mock.EXPECT().Project(gomock.Any()).Times(2).Return(project, nil)
+			mock.EXPECT().ProjectEnvironments(project.Id).Times(2).Return([]client.Environment{}, nil)
+			mock.EXPECT().ProjectDelete(project.Id).Times(1).Return(subProjectsError)
+			mock.EXPECT().ProjectDelete(project.Id).Times(1).Return(nil) // The framework's final destroy.
 		})
 	})
 
@@ -700,6 +744,139 @@ func TestUnitWaitForProjectEnvironmentsToBeArchived(t *testing.T) {
 
 		if err := waitForProjectEnvironmentsToBeArchived(context.Background(), resourceDataFor(t, true), mock, time.Minute); err != nil {
 			t.Fatalf("expected no error, got: %v", err)
+		}
+	})
+}
+
+// Delete's warning cannot be asserted through the acceptance framework: TestStep has no
+// ExpectWarning, and utils.TestReporter.Cleanup runs gomock's verification immediately instead of
+// registering it, so an unmet Times(1) there is never reported. Both are asserted here instead.
+func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
+	t.Parallel()
+
+	projectId := "id0"
+	projectName := "name0"
+
+	archived := true
+	archivedEnvironment := client.Environment{Name: "archived", IsArchived: &archived}
+	destroyedEnvironment := client.Environment{Name: "destroyed-by-schedule", Status: "INACTIVE"}
+
+	resourceDataFor := func(t *testing.T, forceDestroy bool) *schema.ResourceData {
+		t.Helper()
+
+		d := schema.TestResourceDataRaw(t, resourceProject().Schema, map[string]any{
+			"name":          projectName,
+			"force_destroy": forceDestroy,
+		})
+		d.SetId(projectId)
+
+		return d
+	}
+
+	t.Run("the warning names every environment the archive orphans", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []client.Environment{
+			{Name: "first"},
+			archivedEnvironment,
+			{Name: "second"},
+			destroyedEnvironment,
+		}
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		gomock.InOrder(
+			mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return(envs, nil),
+			mock.EXPECT().ProjectDelete(projectId).Times(1).Return(nil), // Archived regardless.
+		)
+
+		diags := resourceProjectDelete(context.Background(), resourceDataFor(t, true), mock)
+		if len(diags) != 1 || diags[0].Severity != diag.Warning {
+			t.Fatalf("expected one warning, got: %v", diags)
+		}
+
+		detail := diags[0].Detail
+		for _, name := range []string{"first", "second", projectName} {
+			if !strings.Contains(detail, name) {
+				t.Errorf("expected the warning to name %q, got: %s", name, detail)
+			}
+		}
+
+		// Neither has infrastructure left to orphan, so naming them would be a false alarm.
+		for _, name := range []string{archivedEnvironment.Name, destroyedEnvironment.Name} {
+			if strings.Contains(detail, name) {
+				t.Errorf("expected the warning not to name %q, got: %s", name, detail)
+			}
+		}
+	})
+
+	t.Run("no warning when the project has nothing active to orphan", func(t *testing.T) {
+		t.Parallel()
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		gomock.InOrder(
+			mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return([]client.Environment{archivedEnvironment, destroyedEnvironment}, nil),
+			mock.EXPECT().ProjectDelete(projectId).Times(1).Return(nil),
+		)
+
+		if diags := resourceProjectDelete(context.Background(), resourceDataFor(t, true), mock); diags != nil {
+			t.Fatalf("expected no diagnostics, got: %v", diags)
+		}
+	})
+
+	t.Run("a failed list warns and the archive still goes through", func(t *testing.T) {
+		t.Parallel()
+
+		listErr := errors.New("api is down")
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		gomock.InOrder(
+			mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return(nil, listErr),
+			mock.EXPECT().ProjectDelete(projectId).Times(1).Return(nil),
+		)
+
+		diags := resourceProjectDelete(context.Background(), resourceDataFor(t, true), mock)
+		if len(diags) != 1 || diags[0].Severity != diag.Warning {
+			t.Fatalf("expected one warning, got: %v", diags)
+		}
+
+		if !strings.Contains(diags[0].Detail, listErr.Error()) {
+			t.Fatalf("expected the warning to carry the list error, got: %s", diags[0].Detail)
+		}
+	})
+
+	t.Run("the active sub-projects error reaches the user unchanged", func(t *testing.T) {
+		t.Parallel()
+
+		subProjectsError := errors.New(`400 Bad Request: {"message":"Cannot archive a project with active sub projects"}`)
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		gomock.InOrder(
+			mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return([]client.Environment{{Name: "first"}}, nil),
+			mock.EXPECT().ProjectDelete(projectId).Times(1).Return(subProjectsError),
+		)
+
+		diags := resourceProjectDelete(context.Background(), resourceDataFor(t, true), mock)
+		if len(diags) != 1 || diags[0].Severity != diag.Error {
+			t.Fatalf("expected one error, got: %v", diags)
+		}
+
+		// The server's message, and no orphan warning next to it - nothing was archived.
+		if !strings.Contains(diags[0].Summary, subProjectsError.Error()) {
+			t.Fatalf("expected the server error verbatim, got: %s", diags[0].Summary)
+		}
+	})
+
+	t.Run("without force_destroy the environments are not listed twice", func(t *testing.T) {
+		t.Parallel()
+
+		mock := client.NewMockApiClientInterface(gomock.NewController(t))
+		gomock.InOrder(
+			mock.EXPECT().ProjectEnvironments(projectId).Times(1).Return([]client.Environment{archivedEnvironment}, nil),
+			mock.EXPECT().ProjectDelete(projectId).Times(1).Return(nil),
+		)
+
+		if diags := resourceProjectDelete(context.Background(), resourceDataFor(t, false), mock); diags != nil {
+			t.Fatalf("expected no diagnostics, got: %v", diags)
 		}
 	})
 }

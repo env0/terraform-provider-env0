@@ -43,7 +43,7 @@ resource "env0_project" "example_with_destroy_wait" {
 ### Optional
 
 - `description` (String) description of the project
-- `force_destroy` (Boolean) Allow the project to be deleted even when it still contains environments. Note: deleting a project archives it and its environments, it does not destroy environment infrastructure. Deployed cloud resources keep existing (and billing), continuous deployment, PR plans and scheduled deployments are disabled, and archiving cannot be undone
+- `force_destroy` (Boolean) Archive the project even when it still contains active environments. Note: env0 archives the project rather than deleting it, and it does not destroy the environments in it: every one of them is marked inactive and its continuous deployment, PR plans and scheduled deployments are disabled, while its cloud resources keep running (and billing). Archiving cannot be undone, and the call fails when the project has active sub-projects, with or without this flag
 - `parent_project_id` (String) If set, the project becomes a 'sub-project' of the parent project. Changing it moves the project, with every environment and sub-project under it, under the new parent in place. Inherited variables and role visibility change accordingly. Set to "" to make it a top-level project. See https://docs.env0.com/docs/sub-projects
 - `tags` (List of String) tags for the project
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
