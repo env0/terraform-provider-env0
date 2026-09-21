@@ -247,7 +247,7 @@ func orphanedEnvironmentsWarning(d *schema.ResourceData, meta any) diag.Diagnost
 	return diag.Diagnostics{{
 		Severity: diag.Warning,
 		Summary:  "env0 did not destroy the environments in this project",
-		Detail: fmt.Sprintf("Archiving project '%s' marked these active environments inactive and disabled their continuous deployment, PR plans and scheduled deployments, but their cloud resources keep running (and billing): %s. Destroy them in env0 to remove that infrastructure.",
+		Detail: fmt.Sprintf("Archiving project '%s' marked these active environments inactive and disabled their continuous deployment, PR plans and scheduled deployments, but their cloud resources keep running (and billing): %s. That list was read just before the archive, so check the project in env0 for the full set and destroy them there to remove the infrastructure.",
 			d.Get("name").(string), strings.Join(names, ", ")),
 	}}
 }
