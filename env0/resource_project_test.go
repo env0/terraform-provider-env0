@@ -758,8 +758,8 @@ func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 	projectName := "name0"
 
 	archived := true
-	archivedEnvironment := client.Environment{Name: "archived", IsArchived: &archived}
-	destroyedEnvironment := client.Environment{Name: "destroyed-by-schedule", Status: "INACTIVE"}
+	archivedEnvironment := client.Environment{Id: "archived-id", Name: "archived", IsArchived: &archived}
+	destroyedEnvironment := client.Environment{Id: "destroyed-id", Name: "destroyed-by-schedule", Status: "INACTIVE"}
 
 	resourceDataFor := func(t *testing.T, forceDestroy bool) *schema.ResourceData {
 		t.Helper()
@@ -777,9 +777,9 @@ func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 		t.Parallel()
 
 		envs := []client.Environment{
-			{Name: "first"},
+			{Id: "first-id", Name: "first"},
 			archivedEnvironment,
-			{Name: "second"},
+			{Id: "second-id", Name: "second"},
 			destroyedEnvironment,
 		}
 
@@ -795,16 +795,16 @@ func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 		}
 
 		detail := diags[0].Detail
-		for _, name := range []string{"first", "second", projectName} {
-			if !strings.Contains(detail, name) {
-				t.Errorf("expected the warning to name %q, got: %s", name, detail)
+		for _, want := range []string{"first (first-id)", "second (second-id)", projectName, projectId} {
+			if !strings.Contains(detail, want) {
+				t.Errorf("expected the warning to carry %q, got: %s", want, detail)
 			}
 		}
 
 		// Neither has infrastructure left to orphan, so naming them would be a false alarm.
-		for _, name := range []string{archivedEnvironment.Name, destroyedEnvironment.Name} {
-			if strings.Contains(detail, name) {
-				t.Errorf("expected the warning not to name %q, got: %s", name, detail)
+		for _, unwanted := range []string{archivedEnvironment.Name, archivedEnvironment.Id, destroyedEnvironment.Name, destroyedEnvironment.Id} {
+			if strings.Contains(detail, unwanted) {
+				t.Errorf("expected the warning not to carry %q, got: %s", unwanted, detail)
 			}
 		}
 	})
@@ -839,8 +839,10 @@ func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 			t.Fatalf("expected one warning, got: %v", diags)
 		}
 
-		if !strings.Contains(diags[0].Detail, listErr.Error()) {
-			t.Fatalf("expected the warning to carry the list error, got: %s", diags[0].Detail)
+		for _, want := range []string{listErr.Error(), projectId} {
+			if !strings.Contains(diags[0].Detail, want) {
+				t.Fatalf("expected the warning to carry %q, got: %s", want, diags[0].Detail)
+			}
 		}
 	})
 
@@ -866,7 +868,7 @@ func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 		}
 	})
 
-	t.Run("without force_destroy the environments are not listed twice", func(t *testing.T) {
+	t.Run("without force_destroy the non-force path is unchanged", func(t *testing.T) {
 		t.Parallel()
 
 		mock := client.NewMockApiClientInterface(gomock.NewController(t))

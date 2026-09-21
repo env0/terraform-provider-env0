@@ -228,27 +228,27 @@ func orphanedEnvironmentsWarning(d *schema.ResourceData, meta any) diag.Diagnost
 		return diag.Diagnostics{{
 			Severity: diag.Warning,
 			Summary:  "could not list the environments this project will orphan",
-			Detail:   fmt.Sprintf("Archiving project '%s' leaves any active environment in it running with no env0 automation, and listing them failed: %v. Check the project in env0.", d.Get("name").(string), err),
+			Detail:   fmt.Sprintf("Archiving project '%s' (%s) leaves any active environment in it running with no env0 automation, and listing them failed: %v. Check the project in env0.", d.Get("name").(string), d.Id(), err),
 		}}
 	}
 
-	var names []string
+	var orphaned []string
 
 	for _, env := range envs {
 		if isEnvironmentActive(env) {
-			names = append(names, env.Name)
+			orphaned = append(orphaned, fmt.Sprintf("%s (%s)", env.Name, env.Id))
 		}
 	}
 
-	if len(names) == 0 {
+	if len(orphaned) == 0 {
 		return nil
 	}
 
 	return diag.Diagnostics{{
 		Severity: diag.Warning,
 		Summary:  "env0 did not destroy the environments in this project",
-		Detail: fmt.Sprintf("Archiving project '%s' marked these active environments inactive and disabled their continuous deployment, PR plans and scheduled deployments, but their cloud resources keep running (and billing): %s. That list was read just before the archive, so check the project in env0 for the full set and destroy them there to remove the infrastructure.",
-			d.Get("name").(string), strings.Join(names, ", ")),
+		Detail: fmt.Sprintf("Archiving project '%s' (%s) marked these active environments inactive and disabled their continuous deployment, PR plans and scheduled deployments, but their cloud resources keep running (and billing): %s. That list was read just before the archive, so check the project in env0 for the full set and destroy them there to remove the infrastructure.",
+			d.Get("name").(string), d.Id(), strings.Join(orphaned, ", ")),
 	}}
 }
 
