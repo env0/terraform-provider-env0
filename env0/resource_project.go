@@ -17,7 +17,7 @@ import (
 )
 
 const defaultProjectDestroyTimeout = time.Minute * 10
-const PROJECT_DESTROY_WAIT_INTERVAL = time.Second * 10
+const projectDestroyWaitInterval = time.Second * 10
 
 type ActiveEnvironmentError struct {
 	message string
@@ -212,7 +212,7 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 // waitForProjectEnvironmentsToBeArchived polls until no environment blocks the project delete, the
 // timeout elapses or ctx is cancelled. A timeout names the environment that was still blocking.
 func waitForProjectEnvironmentsToBeArchived(ctx context.Context, d *schema.ResourceData, meta any, timeout time.Duration) error {
-	waitInterval := PROJECT_DESTROY_WAIT_INTERVAL
+	waitInterval := projectDestroyWaitInterval
 
 	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and clamping timeout to 10 seconds.
 		waitInterval = time.Second
@@ -242,7 +242,9 @@ func waitForProjectEnvironmentsToBeArchived(ctx context.Context, d *schema.Resou
 		case <-timer.C:
 			return fmt.Errorf("timeout! %w", err)
 		case <-ctx.Done():
-			// The SDK applies the resource timeout as a context deadline, so it usually fires before the timer.
+			// Under a real apply this is the branch that fires: the SDK wraps Delete in
+			// context.WithTimeout(ctx, d.Timeout(TimeoutDelete)), so the same deadline is on ctx and starts
+			// fractionally earlier. The timer only bounds direct callers that pass a context without one.
 			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 				return fmt.Errorf("timeout! %w", err)
 			}
