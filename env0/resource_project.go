@@ -16,12 +16,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const PROJECT_DESTROY_TOTAL_WAIT_TIME = time.Minute * 10
-const PROJECT_DESTROY_WAIT_INTERVAL = time.Second * 10
+const defaultProjectDestroyTimeout = time.Minute * 10
+const projectDestroyWaitInterval = time.Second * 10
 
 type ActiveEnvironmentError struct {
 	message string
-	retry   bool
 }
 
 func (e *ActiveEnvironmentError) Error() string {
@@ -37,6 +36,10 @@ func resourceProject() *schema.Resource {
 		CustomizeDiff: resourceProjectCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceProjectImport},
+
+		Timeouts: &schema.ResourceTimeout{
+			Delete: schema.DefaultTimeout(defaultProjectDestroyTimeout),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -63,7 +66,7 @@ func resourceProject() *schema.Resource {
 			},
 			"wait": {
 				Type:        schema.TypeBool,
-				Description: "Wait for the project's environments to be destroyed or archived before deleting it (up to 10 minutes)",
+				Description: "Wait for the project's environments to be destroyed or archived before deleting it. The wait is bounded by the 'delete' timeout of the 'timeouts' block (defaults to 10 minutes)",
 				Optional:    true,
 				Default:     false,
 			},
@@ -199,7 +202,6 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 		}
 
 		return &ActiveEnvironmentError{
-			retry:   true,
 			message: fmt.Sprintf("found an active environment %s - its infrastructure may still exist (remove the environment or use the force_destroy flag)", env.Name),
 		}
 	}
@@ -207,49 +209,63 @@ func resourceProjectAssertCanDelete(d *schema.ResourceData, meta any) error {
 	return nil
 }
 
+// waitForProjectEnvironmentsToBeArchived polls until no environment blocks the project delete, the
+// timeout elapses or ctx is cancelled. A timeout names the environment that was still blocking.
+func waitForProjectEnvironmentsToBeArchived(ctx context.Context, d *schema.ResourceData, meta any, timeout time.Duration) error {
+	waitInterval := projectDestroyWaitInterval
+
+	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and clamping timeout to 10 seconds.
+		waitInterval = time.Second
+		timeout = min(timeout, time.Second*10)
+	}
+
+	ticker := time.NewTicker(waitInterval) // When invoked - check whether the project can be deleted.
+	defer ticker.Stop()
+
+	timer := time.NewTimer(timeout) // When invoked - timeout.
+	defer timer.Stop()
+
+	for {
+		err := resourceProjectAssertCanDelete(d, meta)
+		if err == nil {
+			return nil
+		}
+
+		var activeEnvironmentError *ActiveEnvironmentError
+		if !errors.As(err, &activeEnvironmentError) {
+			return err
+		}
+
+		tflog.Info(ctx, "waiting for the project's environments to be destroyed or archived", map[string]any{"projectId": d.Id(), "reason": err.Error()})
+
+		select {
+		case <-timer.C:
+			return fmt.Errorf("timeout! %w", err)
+		case <-ctx.Done():
+			// Under a real apply this is the branch that fires: the SDK wraps Delete in
+			// context.WithTimeout(ctx, d.Timeout(TimeoutDelete)), so the same deadline is on ctx and starts
+			// fractionally earlier. The timer only bounds direct callers that pass a context without one.
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return fmt.Errorf("timeout! %w", err)
+			}
+
+			return ctx.Err()
+		case <-ticker.C:
+		}
+	}
+}
+
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	apiClient := meta.(client.ApiClientInterface)
 
 	id := d.Id()
 
-	if d.Get("wait").(bool) {
-		waitInterval := PROJECT_DESTROY_WAIT_INTERVAL
-		if os.Getenv("TF_ACC") == "1" { // For acceptance tests.
-			waitInterval = time.Second
+	// force_destroy short-circuits the assert, so there is nothing for the wait to do.
+	if d.Get("wait").(bool) && !d.Get("force_destroy").(bool) {
+		if err := waitForProjectEnvironmentsToBeArchived(ctx, d, meta, d.Timeout(schema.TimeoutDelete)); err != nil {
+			return diag.Errorf("could not delete project: %v", err)
 		}
-
-		ticker := time.NewTicker(waitInterval)                  // When invoked check if project can be deleted.
-		timer := time.NewTimer(PROJECT_DESTROY_TOTAL_WAIT_TIME) // When invoked wait time has elapsed.
-		done := make(chan bool)
-
-		go func() {
-			for {
-				select {
-				case <-timer.C:
-					done <- true
-
-					return
-				case <-ticker.C:
-					err := resourceProjectAssertCanDelete(d, meta)
-					if err != nil {
-						if aeerr, ok := err.(*ActiveEnvironmentError); ok {
-							if aeerr.retry {
-								continue
-							}
-						}
-					}
-
-					done <- true
-
-					return
-				}
-			}
-		}()
-
-		<-done
-	}
-
-	if err := resourceProjectAssertCanDelete(d, meta); err != nil {
+	} else if err := resourceProjectAssertCanDelete(d, meta); err != nil {
 		return diag.Errorf("could not delete project: %v", err)
 	}
 
