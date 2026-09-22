@@ -2,6 +2,7 @@ package http_test
 
 import (
 	"net/http"
+	"sync"
 	"time"
 
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
@@ -56,12 +57,27 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 		return client
 	}
 
-	makeRequest := func(client *httpModule.HttpClient) {
+	makeRequest := func(wg *sync.WaitGroup, client *httpModule.HttpClient) {
+		defer GinkgoRecover()
+		defer wg.Done()
+
 		var response string
 
 		err := client.Get(TestEndpoint, nil, &response)
 		Expect(err).To(BeNil())
 		Expect(response).To(Equal(SuccessResponse))
+	}
+
+	// Teardown resets the mock transport, so the spec has to outlive every request it started.
+	requestsDone := func(wg *sync.WaitGroup) chan struct{} {
+		done := make(chan struct{})
+
+		go func() {
+			wg.Wait()
+			close(done)
+		}()
+
+		return done
 	}
 
 	Context("with rate limiting applied to retries", func() {
@@ -155,13 +171,15 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 			httpClient = createClient(maxConcurrentRequests, 100*time.Millisecond)
 
-			// Make a series of requests that should all succeed immediately
+			var wg sync.WaitGroup
+
+			wg.Add(maxConcurrentRequests)
+
 			for range maxConcurrentRequests {
-				go makeRequest(httpClient)
+				go makeRequest(&wg, httpClient)
 			}
 
-			// Verify all requests were made successfully
-			time.Sleep(5 * time.Millisecond)
+			Eventually(requestsDone(&wg), 3*time.Second).Should(BeClosed())
 
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(maxConcurrentRequests))
@@ -172,9 +190,13 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 			httpClient = createClient(maxConcurrentRequests, 100*time.Millisecond)
 
+			var wg sync.WaitGroup
+
+			wg.Add(maxConcurrentRequests * 2)
+
 			// Make more requests that allowed in the window
 			for range maxConcurrentRequests * 2 {
-				go makeRequest(httpClient)
+				go makeRequest(&wg, httpClient)
 			}
 
 			// Verify that only requests up to the limit was made immediately
@@ -183,9 +205,8 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 			callCount := httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(maxConcurrentRequests))
 
-			time.Sleep(100 * time.Millisecond)
+			Eventually(requestsDone(&wg), 3*time.Second).Should(BeClosed())
 
-			// verify that all requests was made
 			callCount = httpmock.GetCallCountInfo()
 			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(maxConcurrentRequests * 2))
 		})
