@@ -93,7 +93,7 @@ Deployments triggered by an update are asynchronous: the apply returns once the 
 
 ### Optional
 
-- `approve_plan_automatically` (Boolean) should deployments be approved automatically. When set to false, any deployment that modifies resources (apply, targeted apply, destroy) waits for manual approval in the env0 UI before it runs
+- `approve_plan_automatically` (Boolean) should deployments be approved automatically. When set to false, any deployment that modifies resources (apply or destroy) waits for manual approval in the env0 UI after the plan, before the apply runs
 - `auto_deploy_by_custom_glob` (String) redeploy on file filter pattern.
 When used 'auto_deploy_on_path_changes_only' must be configured to true and 'deploy_on_push' or 'run_plan_on_pull_requests' must be configured to true.
 - `auto_deploy_on_path_changes_only` (Boolean) redeploy only on path changes only

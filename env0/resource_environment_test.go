@@ -1134,7 +1134,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				})
 			})
 
-			t.Run("destroy without wait warns that the destroy is not verified", func(t *testing.T) {
+			t.Run("destroy without wait stays quiet when no approval is required", func(t *testing.T) {
 				configWithoutWait := resourceConfigCreate(resourceType, resourceName, map[string]any{
 					"name":          environment.Name,
 					"project_id":    environment.ProjectId,
@@ -1151,9 +1151,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 					},
 				}
 
+				// No ApiEndpoint/OrganizationId expectations: a teardown that does not require approval
+				// must not warn, so the approval link is never built.
 				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-					mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
-					mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
 					gomock.InOrder(
 						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
 						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
@@ -1166,7 +1166,9 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				})
 			})
 
-			t.Run("destroy without wait warns with an approval link when the environment requires approval", func(t *testing.T) {
+			// The harness cannot assert warning diagnostics; the warning itself is covered by
+			// TestUnitResourceEnvironmentDeleteWarning. This only exercises the flow end to end.
+			t.Run("destroy without wait completes when the environment requires approval", func(t *testing.T) {
 				deployRequestWithApproval := *environmentCreate.DeployRequest
 				deployRequestWithApproval.UserRequiresApproval = new(true)
 
@@ -4914,7 +4916,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
-		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
+		status, err := waitForDeployment(ctx, mock, deploymentId, time.Minute, stubApprovalHint)
 		if !errors.Is(err, context.Canceled) {
 			t.Fatalf("expected context.Canceled, got: %v", err)
 		}
@@ -4924,24 +4926,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		}
 	})
 
-	t.Run("returns on approval when returnOnApproval is true", func(t *testing.T) {
-		t.Parallel()
-
-		ctrl := gomock.NewController(t)
-		mock := client.NewMockApiClientInterface(ctrl)
-		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil)
-
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true, stubApprovalHint)
-		if err != nil {
-			t.Fatalf("expected no error, got: %v", err)
-		}
-
-		if status != "WAITING_FOR_USER" {
-			t.Fatalf("expected status 'WAITING_FOR_USER', got: %s", status)
-		}
-	})
-
-	t.Run("keeps polling on approval when returnOnApproval is false", func(t *testing.T) {
+	t.Run("keeps polling while the deployment is waiting for approval", func(t *testing.T) {
 		t.Parallel()
 
 		ctrl := gomock.NewController(t)
@@ -4951,7 +4936,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 			mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 		)
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, time.Minute, stubApprovalHint)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
 		}
@@ -4970,7 +4955,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 
 		startTime := time.Now()
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false, stubApprovalHint)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, time.Millisecond*100, stubApprovalHint)
 		if err == nil || !strings.Contains(err.Error(), "timeout! last 'destroy' deployment status was 'QUEUED'") {
 			t.Fatalf("expected a timeout error, got: %v", err)
 		}
@@ -5002,12 +4987,12 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 		return d
 	}
 
-	t.Run("warns with the deployment id and a conditional approval link", func(t *testing.T) {
+	t.Run("warns with the deployment id and the approval link when the environment requires approval", func(t *testing.T) {
 		t.Parallel()
 
 		ctrl := gomock.NewController(t)
 		mock := client.NewMockApiClientInterface(ctrl)
-		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0", RequiresApproval: new(true)}, nil)
 		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
 		mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
 		mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
@@ -5016,8 +5001,21 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 
 		assert.Len(t, diags, 1)
 		assert.Equal(t, diag.Warning, diags[0].Severity)
-		assert.Equal(t, "destroy deployment 'deployment0' was triggered but not verified", diags[0].Summary)
-		assert.Contains(t, diags[0].Detail, "If the environment requires approval, the destroy will only run once it is approved at https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0.")
+		assert.Equal(t, "destroy deployment 'deployment0' requires approval and was not verified", diags[0].Summary)
+		assert.Contains(t, diags[0].Detail, "the destroy will pause after the plan and only run once it is approved at https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0.")
+	})
+
+	t.Run("stays quiet when the environment does not require approval", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Empty(t, diags)
 	})
 
 	t.Run("falls back to a generic approval hint for an unknown api endpoint", func(t *testing.T) {
@@ -5025,7 +5023,7 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 
 		ctrl := gomock.NewController(t)
 		mock := client.NewMockApiClientInterface(ctrl)
-		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0", RequiresApproval: new(true)}, nil)
 		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
 		mock.EXPECT().ApiEndpoint().Times(1).Return("https://self-hosted.example.com/")
 

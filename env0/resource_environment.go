@@ -228,7 +228,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"approve_plan_automatically": {
 				Type:        schema.TypeBool,
-				Description: "should deployments be approved automatically. When set to false, any deployment that modifies resources (apply, targeted apply, destroy) waits for manual approval in the env0 UI before it runs",
+				Description: "should deployments be approved automatically. When set to false, any deployment that modifies resources (apply or destroy) waits for manual approval in the env0 UI after the plan, before the apply runs",
 				Optional:    true,
 			},
 			"deploy_on_push": {
@@ -1333,14 +1333,22 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	var deploymentId string
 
+	requiresApproval := false
+
 	// A previous destroy may already be parked waiting for approval. Reuse it instead of queuing a
 	// duplicate destroy behind it, and skip the destroy when the environment is already inactive. The
-	// check cannot be gated on 'approve_plan_automatically' in the state: the approval requirement may
-	// be inherited from a policy.
+	// check cannot rely on 'approve_plan_automatically' in the state: 'requiresApproval' on the
+	// environment is the authoritative request-time signal. Note that a destroy still QUEUED behind
+	// another run is not visible in the latest deployment log (it is only written on the transition to
+	// IN_PROGRESS), so a rerun in that window still queues a duplicate.
 	if environment, err := apiClient.Environment(d.Id()); err == nil {
 		if environment.Status == environmentStatusInactive {
+			tflog.Info(ctx, "the environment is already inactive, skipping the destroy", map[string]any{"id": d.Id()})
+
 			return nil
 		}
+
+		requiresApproval = environment.RequiresApproval != nil && *environment.RequiresApproval
 
 		if environment.LatestDeploymentLog.Type == "destroy" && environment.LatestDeploymentLog.Status == deploymentWaitingForUserStatus {
 			deploymentId = environment.LatestDeploymentLog.Id
@@ -1360,6 +1368,8 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("could not delete environment: %v", err)
 		}
 
+		// EnvironmentDestroy never returns (nil, nil) in production; this only guards test mocks that
+		// stub the call without a return value.
 		if res == nil {
 			return nil
 		}
@@ -1367,6 +1377,8 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		deploymentId = res.Id
 	}
 
+	// Lazy on purpose: the clean paths below return without building the link, so they never touch
+	// ApiEndpoint or OrganizationId.
 	approvalHint := func() string {
 		if url := deploymentUrl(apiClient, d.Get("project_id").(string), d.Id(), deploymentId); url != "" {
 			return "at " + url
@@ -1376,7 +1388,7 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.Get("wait_for_destroy").(bool) {
-		if _, err := waitForDeployment(ctx, apiClient, deploymentId, "destroy", d.Timeout(schema.TimeoutDelete), false, approvalHint); err != nil {
+		if _, err := waitForDeployment(ctx, apiClient, deploymentId, d.Timeout(schema.TimeoutDelete), approvalHint); err != nil {
 			// Only the wait timing out while the deployment is waiting for approval means "approve and
 			// rerun". Any other error (a failed status read, an interrupt) is reported as-is.
 			var timeoutErr *deploymentTimeoutError
@@ -1390,13 +1402,18 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 		return nil
 	}
 
-	// The provider cannot always tell whether an approval gates the destroy (the requirement may be
-	// inherited from a policy), so the approval hint is phrased conditionally and always included.
-	detail := fmt.Sprintf("The provider did not wait for the destroy to finish ('wait_for_destroy' is false), so its result is not verified. The environment was removed from the Terraform state and is no longer managed by Terraform. If the environment requires approval, the destroy will only run once it is approved %s.", approvalHint())
+	// An approval decided agent-side after the plan (an OPA approval policy returning 'pending', or
+	// ENV0_REQUIRES_APPROVAL=true from a custom flow) cannot be predicted here, so those destroys stay
+	// unverified silently, as they did before the warning existed.
+	if !requiresApproval {
+		return nil
+	}
+
+	detail := fmt.Sprintf("The provider did not wait for the destroy to finish ('wait_for_destroy' is false). The environment requires approval, so the destroy will pause after the plan and only run once it is approved %s. The environment was removed from the Terraform state and is no longer managed by Terraform.", approvalHint())
 
 	return diag.Diagnostics{{
 		Severity: diag.Warning,
-		Summary:  fmt.Sprintf("destroy deployment '%s' was triggered but not verified", deploymentId),
+		Summary:  fmt.Sprintf("destroy deployment '%s' requires approval and was not verified", deploymentId),
 		Detail:   detail,
 	}}
 }
@@ -1404,20 +1421,20 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 // deploymentTimeoutError marks the wait timing out, so callers can tell "the deployment is still waiting"
 // apart from a failed status read or a cancelled context.
 type deploymentTimeoutError struct {
-	deploymentType string
-	status         string
+	status string
 }
 
 func (e *deploymentTimeoutError) Error() string {
-	return fmt.Sprintf("timeout! last '%s' deployment status was '%s'", e.deploymentType, e.status)
+	return fmt.Sprintf("timeout! last 'destroy' deployment status was '%s'", e.status)
 }
 
-// waitForDeployment polls a deployment until it reaches a terminal status, the timeout elapses or ctx is
-// cancelled. It returns the last observed deployment status. When returnOnApproval is true a deployment in
-// WAITING_FOR_USER returns immediately instead of polling until a user approves it in the env0 UI.
-// approvalHint is resolved lazily on the first WAITING_FOR_USER and logged so the user gets the approval
-// link as soon as the deployment starts waiting rather than only when the wait times out.
-func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string, deploymentType string, timeout time.Duration, returnOnApproval bool, approvalHint func() string) (string, error) {
+// waitForDeployment polls a destroy deployment until it reaches a terminal status, the timeout elapses or ctx is
+// cancelled. It returns the last observed deployment status. A deployment in WAITING_FOR_USER keeps the
+// wait pending, so an approval in env0 completes it. approvalHint is resolved lazily on the first
+// WAITING_FOR_USER and logged, so the user gets the approval link as soon as the deployment starts
+// waiting rather than only when the wait times out, and a wait that never hits the approval gate never
+// builds the link.
+func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface, deploymentId string, timeout time.Duration, approvalHint func() string) (string, error) {
 	waitInterval := time.Second * 10
 
 	if os.Getenv("TF_ACC") == "1" { // For acceptance tests reducing interval to 1 second and clamping timeout to 10 seconds.
@@ -1444,36 +1461,32 @@ func waitForDeployment(ctx context.Context, apiClient client.ApiClientInterface,
 		status = deployment.Status
 
 		if slices.Contains([]string{"TIMEOUT", "FAILURE", "CANCELLED", "INTERNAL_FAILURE", "ABORTING", "ABORTED", "SKIPPED", "NEVER_DEPLOYED"}, status) {
-			return status, fmt.Errorf("failed to wait for environment %s to complete, deployment status is: %s", deploymentType, status)
+			return status, fmt.Errorf("failed to wait for environment destroy to complete, deployment status is: %s", status)
 		}
 
 		if status == "SUCCESS" {
 			return status, nil
 		}
 
-		tflog.Info(ctx, "current deployment status", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType, "status": status})
+		tflog.Info(ctx, "current deployment status", map[string]any{"deploymentId": deploymentId, "status": status})
 
 		if status == deploymentWaitingForUserStatus {
-			if returnOnApproval {
-				return status, nil
-			}
-
 			if !loggedApprovalHint {
-				tflog.Warn(ctx, fmt.Sprintf("deployment is waiting for approval in env0, approve it %s to proceed", approvalHint()), map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+				tflog.Warn(ctx, fmt.Sprintf("deployment is waiting for approval in env0, approve it %s to proceed", approvalHint()), map[string]any{"deploymentId": deploymentId})
 
 				loggedApprovalHint = true
 			} else {
-				tflog.Warn(ctx, "deployment is still waiting for approval in env0", map[string]any{"deploymentId": deploymentId, "deploymentType": deploymentType})
+				tflog.Warn(ctx, "deployment is still waiting for approval in env0", map[string]any{"deploymentId": deploymentId})
 			}
 		}
 
 		select {
 		case <-timer.C:
-			return status, &deploymentTimeoutError{deploymentType: deploymentType, status: status}
+			return status, &deploymentTimeoutError{status: status}
 		case <-ctx.Done():
 			// The SDK applies the resource timeout as a context deadline, so it usually fires before the timer.
 			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-				return status, &deploymentTimeoutError{deploymentType: deploymentType, status: status}
+				return status, &deploymentTimeoutError{status: status}
 			}
 
 			return status, ctx.Err()
