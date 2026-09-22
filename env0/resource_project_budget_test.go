@@ -134,7 +134,7 @@ func TestUnitProjectBudgetResource(t *testing.T) {
 					Thresholds: projectBudget.Thresholds,
 				}).Times(1).Return(projectBudget, nil),
 				mock.EXPECT().ProjectBudget(projectBudget.ProjectId).Times(1).Return(nil, &client.NotFoundError{}),
-				mock.EXPECT().ProjectBudgetDelete(projectBudget.ProjectId).Times(1).Return(nil),
+				// Drift removes the resource from state, so the framework's final destroy has nothing to delete.
 			)
 		})
 	})

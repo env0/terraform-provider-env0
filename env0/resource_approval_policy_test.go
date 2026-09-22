@@ -194,7 +194,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
-				mock.EXPECT().Template(template.Id).Times(2).Return(deletedTemplate, nil),
+				mock.EXPECT().Template(template.Id).Times(1).Return(deletedTemplate, nil),
 			)
 		})
 	})
@@ -253,7 +253,7 @@ func TestUnitApprovalPolicyResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().ApprovalPolicyCreate(&createPayload).Times(1).Return(&approvalPolicy, nil),
-				mock.EXPECT().Template(template.Id).Times(2).Return(client.Template{}, http.NewMockFailedResponseError(404)),
+				mock.EXPECT().Template(template.Id).Times(1).Return(client.Template{}, http.NewMockFailedResponseError(404)),
 			)
 		})
 	})

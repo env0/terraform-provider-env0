@@ -98,7 +98,6 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
-			mock.EXPECT().OrganizationId().Times(1).Return("org-1", nil)
 			mock.EXPECT().VcsConnectionCreate(gomock.Any()).Times(1).Return(nil, errors.New("error"))
 		})
 	})

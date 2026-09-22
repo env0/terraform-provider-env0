@@ -662,8 +662,8 @@ func TestUnitModuleResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			mock.EXPECT().ModuleCreate(gomock.Any()).Times(1).Return(&module, nil)
 			mock.EXPECT().Module(module.Id).Times(1).Return(&module, nil)
-			mock.EXPECT().Module(module.Id).Times(2).Return(&deletedModule, nil)
-			mock.EXPECT().ModuleDelete(module.Id).Times(1)
+			mock.EXPECT().Module(module.Id).Times(1).Return(&deletedModule, nil)
+			// Drift removes the resource from state, so the framework's final destroy has nothing to delete.
 		})
 	})
 
