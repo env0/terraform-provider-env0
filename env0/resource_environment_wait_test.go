@@ -125,6 +125,10 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 		}
 
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			// The waiting-for-approval warning includes the approval link.
+			mock.EXPECT().ApiEndpoint().AnyTimes().Return("https://api-dev.dev.env0.com/")
+			mock.EXPECT().OrganizationId().AnyTimes().Return("organization0", nil)
+
 			calls := []any{
 				mock.EXPECT().Template(templateId).Times(1).Return(template, nil),
 				mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),

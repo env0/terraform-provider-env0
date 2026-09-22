@@ -13,6 +13,7 @@ import (
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/assert"
@@ -1101,6 +1102,215 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				if destroyWaitDuration == 0 || destroyWaitDuration > time.Second*8 {
 					t.Fatalf("expected the configured 2s delete timeout to bound the destroy wait, but it took %s", destroyWaitDuration)
 				}
+			})
+
+			t.Run("destroy waiting for approval keeps pending and fails on the timeout with an approval link", func(t *testing.T) {
+				approvalUrl := fmt.Sprintf("https://dev.dev.env0.com/p/%s/environments/%s/deployments/%s?organizationId=organization0", environment.ProjectId, environment.Id, deploymentLog.Id)
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: config,
+							Check:  check,
+						},
+						{
+							Config:      config,
+							Destroy:     true,
+							ExpectError: regexp.MustCompile(fmt.Sprintf("destroy deployment '%s' is waiting for approval in env0, approve it at %s", deploymentLog.Id, regexp.QuoteMeta(approvalUrl))),
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					mock.EXPECT().ApiEndpoint().AnyTimes().Return("https://api-dev.dev.env0.com/")
+					mock.EXPECT().OrganizationId().AnyTimes().Return("organization0", nil)
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).AnyTimes().Return(deploymentWithStatus("WAITING_FOR_USER"), nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+						mock.EXPECT().EnvironmentDeploymentLog(deploymentLog.Id).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
+					)
+				})
+			})
+
+			t.Run("destroy without wait stays quiet when no approval is required", func(t *testing.T) {
+				configWithoutWait := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":          environment.Name,
+					"project_id":    environment.ProjectId,
+					"template_id":   templateId,
+					"force_destroy": true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithoutWait,
+							Check:  check,
+						},
+					},
+				}
+
+				// No ApiEndpoint/OrganizationId expectations: a teardown that does not require approval
+				// must not warn, so the approval link is never built.
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreate).Times(1).Return(environment, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+					)
+				})
+			})
+
+			// The harness cannot assert warning diagnostics; the warning itself is covered by
+			// TestUnitResourceEnvironmentDeleteWarning. This only exercises the flow end to end.
+			t.Run("destroy without wait completes when the environment requires approval", func(t *testing.T) {
+				deployRequestWithApproval := *environmentCreate.DeployRequest
+				deployRequestWithApproval.UserRequiresApproval = new(true)
+
+				environmentCreateWithApproval := environmentCreate
+				environmentCreateWithApproval.RequiresApproval = new(true)
+				environmentCreateWithApproval.DeployRequest = &deployRequestWithApproval
+
+				environmentWithApproval := environment
+				environmentWithApproval.RequiresApproval = new(true)
+
+				configWithApproval := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":                       environment.Name,
+					"project_id":                 environment.ProjectId,
+					"template_id":                templateId,
+					"approve_plan_automatically": false,
+					"force_destroy":              true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithApproval,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+					mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreateWithApproval).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1).Return(destroyResponse, nil),
+					)
+				})
+			})
+
+			t.Run("destroy reuses a destroy deployment that is already waiting for approval", func(t *testing.T) {
+				deployRequestWithApproval := *environmentCreate.DeployRequest
+				deployRequestWithApproval.UserRequiresApproval = new(true)
+
+				environmentCreateWithApproval := environmentCreate
+				environmentCreateWithApproval.RequiresApproval = new(true)
+				environmentCreateWithApproval.DeployRequest = &deployRequestWithApproval
+
+				environmentWithApproval := environment
+				environmentWithApproval.RequiresApproval = new(true)
+
+				environmentWithParkedDestroy := environmentWithApproval
+				environmentWithParkedDestroy.LatestDeploymentLog = client.DeploymentLog{
+					Id:     deploymentLog.Id,
+					Type:   "destroy",
+					Status: "WAITING_FOR_USER",
+				}
+
+				configWithApproval := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":                       environment.Name,
+					"project_id":                 environment.ProjectId,
+					"template_id":                templateId,
+					"approve_plan_automatically": false,
+					"force_destroy":              true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithApproval,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+					mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreateWithApproval).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithParkedDestroy, nil),
+					)
+				})
+			})
+
+			t.Run("destroy archives when the environment is already inactive", func(t *testing.T) {
+				deployRequestWithApproval := *environmentCreate.DeployRequest
+				deployRequestWithApproval.UserRequiresApproval = new(true)
+
+				environmentCreateWithApproval := environmentCreate
+				environmentCreateWithApproval.RequiresApproval = new(true)
+				environmentCreateWithApproval.DeployRequest = &deployRequestWithApproval
+
+				environmentWithApproval := environment
+				environmentWithApproval.RequiresApproval = new(true)
+
+				inactiveEnvironment := environmentWithApproval
+				inactiveEnvironment.Status = "INACTIVE"
+
+				configWithApproval := resourceConfigCreate(resourceType, resourceName, map[string]any{
+					"name":                       environment.Name,
+					"project_id":                 environment.ProjectId,
+					"template_id":                templateId,
+					"approve_plan_automatically": false,
+					"force_destroy":              true,
+				})
+
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{
+						{
+							Config: configWithApproval,
+							Check:  check,
+						},
+					},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+					gomock.InOrder(
+						mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil),
+						mock.EXPECT().EnvironmentCreate(environmentCreateWithApproval).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(environmentWithApproval, nil),
+						mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
+						mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+						mock.EXPECT().Environment(environment.Id).Times(1).Return(inactiveEnvironment, nil),
+						mock.EXPECT().EnvironmentMarkAsArchived(environment.Id).Times(1).Return(nil),
+					)
+				})
 			})
 		})
 
@@ -2739,7 +2949,7 @@ func TestUnitEnvironmentResource(t *testing.T) {
 
 				gomock.InOrder(
 					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environment, nil),            // 1 after create, 1 before update
-					mock.EXPECT().Environment(gomock.Any()).Times(1).Return(environmentAfterUpdate, nil), // 1 after update
+					mock.EXPECT().Environment(gomock.Any()).Times(2).Return(environmentAfterUpdate, nil), // 1 after update, 1 before destroy (approval pre-check)
 				)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
@@ -4647,6 +4857,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				},
 			)
 
+			mock.EXPECT().Environment(workflowEnvironment.Id).Times(1).Return(workflowEnvironment, nil)
 			mock.EXPECT().EnvironmentDestroy(workflowEnvironment.Id).Times(1)
 		})
 	})
@@ -5024,6 +5235,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 	t.Parallel()
 
 	deploymentId := "deployment-id"
+	stubApprovalHint := func() string { return "in the env0 UI" }
 
 	deploymentWithStatus := func(status string) *client.DeploymentLog {
 		return &client.DeploymentLog{Id: deploymentId, Status: status}
@@ -5039,7 +5251,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
-		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false)
+		status, err := waitForDeployment(ctx, mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
 		if !errors.Is(err, context.Canceled) {
 			t.Fatalf("expected context.Canceled, got: %v", err)
 		}
@@ -5056,7 +5268,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		mock := client.NewMockApiClientInterface(ctrl)
 		mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("WAITING_FOR_USER"), nil)
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "deploy", time.Minute, true, stubApprovalHint)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
 		}
@@ -5066,7 +5278,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		}
 	})
 
-	t.Run("keeps polling on approval when returnOnApproval is false", func(t *testing.T) {
+	t.Run("keeps polling while the deployment is waiting for approval", func(t *testing.T) {
 		t.Parallel()
 
 		ctrl := gomock.NewController(t)
@@ -5076,7 +5288,7 @@ func TestUnitWaitForDeployment(t *testing.T) {
 			mock.EXPECT().EnvironmentDeploymentLog(deploymentId).Times(1).Return(deploymentWithStatus("SUCCESS"), nil),
 		)
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Minute, false, stubApprovalHint)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
 		}
@@ -5095,9 +5307,14 @@ func TestUnitWaitForDeployment(t *testing.T) {
 
 		startTime := time.Now()
 
-		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false)
+		status, err := waitForDeployment(context.Background(), mock, deploymentId, "destroy", time.Millisecond*100, false, stubApprovalHint)
 		if err == nil || !strings.Contains(err.Error(), "timeout! last 'destroy' deployment status was 'QUEUED'") {
 			t.Fatalf("expected a timeout error, got: %v", err)
+		}
+
+		var timeoutErr *deploymentTimeoutError
+		if !errors.As(err, &timeoutErr) {
+			t.Fatalf("expected a *deploymentTimeoutError, got: %T", err)
 		}
 
 		if status != "QUEUED" {
@@ -5107,6 +5324,118 @@ func TestUnitWaitForDeployment(t *testing.T) {
 		if elapsed := time.Since(startTime); elapsed > time.Millisecond*900 {
 			t.Fatalf("expected the poll to time out after roughly 100ms, but it took %s", elapsed)
 		}
+	})
+}
+
+func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
+	t.Parallel()
+
+	newResourceData := func(t *testing.T, raw map[string]any) *schema.ResourceData {
+		t.Helper()
+
+		d := schema.TestResourceDataRaw(t, resourceEnvironment().Schema, raw)
+		d.SetId("environment0")
+
+		return d
+	}
+
+	t.Run("warns with the deployment id and the approval link when the environment requires approval", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0", RequiresApproval: new(true)}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+		mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+		mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Warning, diags[0].Severity)
+		assert.Equal(t, "destroy deployment 'deployment0' requires approval and was not verified", diags[0].Summary)
+		assert.Contains(t, diags[0].Detail, "the destroy will pause after the plan and only run once it is approved at https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0.")
+	})
+
+	t.Run("warns when reusing a parked destroy even without requiresApproval on the environment", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		// RequiresApproval is unset (e.g. the approval was decided agent-side), but the parked destroy
+		// is proof enough.
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{
+			Id:                  "environment0",
+			LatestDeploymentLog: client.DeploymentLog{Id: "deployment0", Type: "destroy", Status: "WAITING_FOR_USER"},
+		}, nil)
+		mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+		mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Warning, diags[0].Severity)
+		assert.Equal(t, "destroy deployment 'deployment0' requires approval and was not verified", diags[0].Summary)
+		assert.Contains(t, diags[0].Detail, "https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0")
+	})
+
+	t.Run("stays quiet when the environment does not require approval", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Empty(t, diags)
+	})
+
+	t.Run("falls back to a generic approval hint for an unknown api endpoint", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0", RequiresApproval: new(true)}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+		mock.EXPECT().ApiEndpoint().Times(1).Return("https://self-hosted.example.com/")
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Warning, diags[0].Severity)
+		assert.Contains(t, diags[0].Detail, "approved in the env0 UI")
+	})
+
+	t.Run("archives instead of destroying when the environment is already inactive", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0", Status: "INACTIVE"}, nil)
+		mock.EXPECT().EnvironmentMarkAsArchived("environment0").Times(1).Return(nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true, "approve_plan_automatically": false}), mock)
+
+		assert.Empty(t, diags)
+	})
+
+	t.Run("a failed status read during the wait is not reported as waiting for approval", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{Id: "environment0"}, nil)
+		mock.EXPECT().EnvironmentDestroy("environment0").Times(1).Return(&client.EnvironmentDestroyResponse{Id: "deployment0"}, nil)
+		mock.EXPECT().EnvironmentDeploymentLog("deployment0").Times(1).Return(nil, errors.New("api is down"))
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true, "wait_for_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Error, diags[0].Severity)
+		assert.Contains(t, diags[0].Summary, "api is down")
+		assert.NotContains(t, diags[0].Summary, "waiting for approval")
 	})
 }
 

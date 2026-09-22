@@ -185,6 +185,20 @@ func (mr *MockApiClientInterfaceMockRecorder) Agents() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Agents", reflect.TypeOf((*MockApiClientInterface)(nil).Agents))
 }
 
+// ApiEndpoint mocks base method.
+func (m *MockApiClientInterface) ApiEndpoint() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApiEndpoint")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// ApiEndpoint indicates an expected call of ApiEndpoint.
+func (mr *MockApiClientInterfaceMockRecorder) ApiEndpoint() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiEndpoint", reflect.TypeOf((*MockApiClientInterface)(nil).ApiEndpoint))
+}
+
 // ApiKeyCreate mocks base method.
 func (m *MockApiClientInterface) ApiKeyCreate(arg0 ApiKeyCreatePayload) (*ApiKey, error) {
 	m.ctrl.T.Helper()

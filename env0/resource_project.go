@@ -211,7 +211,7 @@ func isEnvironmentActive(env client.Environment) bool {
 		return false
 	}
 
-	return env.Status != "INACTIVE"
+	return env.Status != environmentStatusInactive
 }
 
 // orphanedEnvironmentsWarning names the active environments that archiving the project will leave
