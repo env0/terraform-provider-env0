@@ -5357,6 +5357,28 @@ func TestUnitResourceEnvironmentDeleteWarning(t *testing.T) {
 		assert.Contains(t, diags[0].Detail, "the destroy will pause after the plan and only run once it is approved at https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0.")
 	})
 
+	t.Run("warns when reusing a parked destroy even without requiresApproval on the environment", func(t *testing.T) {
+		t.Parallel()
+
+		ctrl := gomock.NewController(t)
+		mock := client.NewMockApiClientInterface(ctrl)
+		// RequiresApproval is unset (e.g. the approval was decided agent-side), but the parked destroy
+		// is proof enough.
+		mock.EXPECT().Environment("environment0").Times(1).Return(client.Environment{
+			Id:                  "environment0",
+			LatestDeploymentLog: client.DeploymentLog{Id: "deployment0", Type: "destroy", Status: "WAITING_FOR_USER"},
+		}, nil)
+		mock.EXPECT().ApiEndpoint().Times(1).Return("https://api-dev.dev.env0.com/")
+		mock.EXPECT().OrganizationId().Times(1).Return("organization0", nil)
+
+		diags := resourceEnvironmentDelete(context.Background(), newResourceData(t, map[string]any{"project_id": "project0", "force_destroy": true}), mock)
+
+		assert.Len(t, diags, 1)
+		assert.Equal(t, diag.Warning, diags[0].Severity)
+		assert.Equal(t, "destroy deployment 'deployment0' requires approval and was not verified", diags[0].Summary)
+		assert.Contains(t, diags[0].Detail, "https://dev.dev.env0.com/p/project0/environments/environment0/deployments/deployment0?organizationId=organization0")
+	})
+
 	t.Run("stays quiet when the environment does not require approval", func(t *testing.T) {
 		t.Parallel()
 

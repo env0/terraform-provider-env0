@@ -1464,6 +1464,10 @@ func resourceEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta
 	// window still queues a duplicate.
 	if environment.LatestDeploymentLog.Type == "destroy" && environment.LatestDeploymentLog.Status == deploymentWaitingForUser {
 		deploymentId = environment.LatestDeploymentLog.Id
+		// A destroy observed waiting for approval is proof the approval gates it, even when the
+		// requirement was decided agent-side and 'requiresApproval' on the environment is not set.
+		requiresApproval = true
+
 		tflog.Info(ctx, "reusing the destroy deployment that is already waiting for approval", map[string]any{"deploymentId": deploymentId})
 	}
 
