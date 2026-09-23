@@ -113,7 +113,7 @@ func TestUnitResourceCustomFlowAssignmentResource(t *testing.T) {
 			gomock.InOrder(
 				mock.EXPECT().CustomFlowAssign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
 				mock.EXPECT().CustomFlowGetAssignments([]client.CustomFlowAssignment{assignment}).Times(1).Return([]client.CustomFlowAssignment{anotherAssignment}, nil),
-				mock.EXPECT().CustomFlowUnassign([]client.CustomFlowAssignment{assignment}).Times(1).Return(nil),
+				// Drift removes the resource from state, so the framework's final destroy has nothing to delete.
 			)
 		})
 	})

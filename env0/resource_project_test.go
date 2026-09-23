@@ -749,8 +749,7 @@ func TestUnitWaitForProjectEnvironmentsToBeArchived(t *testing.T) {
 }
 
 // Delete's warning cannot be asserted through the acceptance framework: TestStep has no
-// ExpectWarning, and utils.TestReporter.Cleanup runs gomock's verification immediately instead of
-// registering it, so an unmet Times(1) there is never reported. Both are asserted here instead.
+// ExpectWarning. The warning and the calls behind it are asserted here instead.
 func TestUnitProjectDeleteWithForceDestroy(t *testing.T) {
 	t.Parallel()
 

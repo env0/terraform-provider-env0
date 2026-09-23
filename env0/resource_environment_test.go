@@ -2953,7 +2953,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				)
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(3).Return(client.ConfigurationChanges{}, nil)
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", updatedEnvironment.Id).Times(3).Return(nil, nil)
-				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil)
 				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
 			})
 		})
@@ -3132,7 +3131,6 @@ func TestUnitEnvironmentResource(t *testing.T) {
 				)
 
 				expectReads(mock, baseEnvironment, replacedEnvironment)
-				mock.EXPECT().Environment(replacedEnvironment.Id).Times(1).Return(replacedEnvironment, nil)
 				mock.EXPECT().EnvironmentDestroy(replacedEnvironment.Id).Times(1)
 			})
 		})
@@ -4857,7 +4855,6 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				},
 			)
 
-			mock.EXPECT().Environment(workflowEnvironment.Id).Times(1).Return(workflowEnvironment, nil)
 			mock.EXPECT().EnvironmentDestroy(workflowEnvironment.Id).Times(1)
 		})
 	})

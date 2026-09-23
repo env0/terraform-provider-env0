@@ -186,7 +186,7 @@ func TestUnitWorkflowTriggerResource(t *testing.T) {
 				mock.EXPECT().SubscribeWorkflowTrigger(environmentId, client.WorkflowTriggerEnvironments{
 					DownstreamEnvironmentIds: []string{triggerId},
 				}).Times(1).Return(nil),
-				mock.EXPECT().WorkflowTrigger(environmentId).Times(2).Return([]client.WorkflowTrigger{
+				mock.EXPECT().WorkflowTrigger(environmentId).Times(1).Return([]client.WorkflowTrigger{
 					{
 						Id: otherTriggerId,
 					},

@@ -146,7 +146,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
 				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return(nil, &client.NotFoundError{}),
-				mock.EXPECT().ApprovalPolicyUnassign(id).Times(1).Return(nil),
+				// Drift removes the resource from state, so the framework's final destroy has nothing to delete.
 			)
 		})
 	})
@@ -181,7 +181,7 @@ func TestUnitResourceApprovalPolicyAssignmentResource(t *testing.T) {
 				mock.EXPECT().Template(assignment.BlueprintId).Times(1).Return(validTemplate, nil),
 				mock.EXPECT().ApprovalPolicyAssign(&assignment).Times(1).Return(&assignment, nil),
 				mock.EXPECT().ApprovalPolicyByScope(string(assignment.Scope), assignment.ScopeId).Times(1).Return([]client.ApprovalPolicyByScope{approvalPolicyByScopeMismatch}, nil),
-				mock.EXPECT().ApprovalPolicyUnassign(id).Times(1).Return(nil),
+				// Drift removes the resource from state, so the framework's final destroy has nothing to delete.
 			)
 		})
 	})
