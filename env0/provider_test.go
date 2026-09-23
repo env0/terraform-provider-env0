@@ -37,6 +37,12 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// runUnitTest runs an acceptance test case against a mocked api client.
+//
+// The framework runs plan, apply and the closing destroy with -refresh=false, so a resource is read
+// only by the refresh it runs at the start of each step and again after each apply. A test whose
+// read detects drift and clears the id therefore leaves an empty state behind: later steps read
+// nothing, and the closing destroy makes no delete call to expect.
 func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFunc *client.MockApiClientInterface)) {
 	t.Helper()
 
@@ -65,11 +71,6 @@ func runUnitTest(t *testing.T, testCase resource.TestCase, mockFunc func(mockFun
 		},
 	}
 	testCase.PreventPostDestroyRefresh = true
-
-	// The framework runs plan, apply and the closing destroy with -refresh=false, so a resource is
-	// read only by the refresh it runs at the start of each step and again after each apply. A test
-	// whose read detects drift and clears the id therefore leaves an empty state behind: later
-	// steps read nothing, and the closing destroy makes no delete call to expect.
 	resource.ParallelTest(&testReporter, testCase)
 }
 

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -15,7 +16,7 @@ type recordingReporter struct {
 }
 
 func (r *recordingReporter) Errorf(format string, args ...any) {
-	r.errors = append(r.errors, format)
+	r.errors = append(r.errors, fmt.Sprintf(format, args...))
 }
 
 // A minimal gomock mock. The generated client mocks live in package client, which this package
