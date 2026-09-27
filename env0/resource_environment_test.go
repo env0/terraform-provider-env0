@@ -4974,6 +4974,52 @@ func TestMergeSubEnvironmentConfiguration(t *testing.T) {
 			t.Fatalf("expected only 'a' var, got %v", merged[0])
 		}
 	})
+	t.Run("matches same-name vars by type", func(t *testing.T) {
+		terraformType := client.ConfigurationVariableTypeTerraform
+		environmentType := client.ConfigurationVariableTypeEnvironment
+
+		state := []any{
+			map[string]any{"name": "service_code", "value": "env-value", "type": client.ENVIRONMENT},
+			map[string]any{"name": "service_code", "value": "tf-value", "type": client.TERRAFORM},
+		}
+		remote := client.ConfigurationChanges{
+			{Name: "service_code", Value: "tf-value", Type: &terraformType},
+			{Name: "service_code", Value: "env-value", Type: &environmentType},
+		}
+
+		merged := mergeSubEnvironmentConfiguration(state, remote)
+
+		if len(merged) != 2 {
+			t.Fatalf("expected 2 vars, got %d: %v", len(merged), merged)
+		}
+
+		expected := []struct{ value, varType string }{
+			{"env-value", client.ENVIRONMENT},
+			{"tf-value", client.TERRAFORM},
+		}
+
+		for i, want := range expected {
+			got := merged[i].(map[string]any)
+			if got["name"] != "service_code" || got["value"] != want.value || got["type"] != want.varType {
+				t.Fatalf("mismatch at %d: got %v, want value %q type %q", i, got, want.value, want.varType)
+			}
+		}
+	})
+
+	t.Run("state var without type matches remote var with nil type", func(t *testing.T) {
+		state := []any{stateVar("a", "av")}
+		remote := client.ConfigurationChanges{{Name: "a", Value: "av"}}
+
+		merged := mergeSubEnvironmentConfiguration(state, remote)
+
+		if len(merged) != 1 {
+			t.Fatalf("expected 1 var, got %d: %v", len(merged), merged)
+		}
+
+		if merged[0].(map[string]any)["type"] != client.ENVIRONMENT {
+			t.Fatalf("expected environment type, got %v", merged[0])
+		}
+	})
 }
 
 func TestSetSubEnvironmentSchema(t *testing.T) {
