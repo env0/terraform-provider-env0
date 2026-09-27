@@ -4725,6 +4725,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 
 				// Deploy on update
 				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
+				mock.EXPECT().Environment(environment.Id).Times(1).Return(environment, nil),
 				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, subEnvironmentWithId.Id).Times(1).Return(subEnvironment.Configuration, nil),
 				mock.EXPECT().EnvironmentDeploy(environment.Id, deployRequest).Times(1).Return(client.EnvironmentDeployResponse{
 					Id: environment.Id,
@@ -4856,6 +4857,204 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			)
 
 			mock.EXPECT().EnvironmentDestroy(workflowEnvironment.Id).Times(1)
+		})
+	})
+
+	// Regression for ATL-509: the sub environment id in state is positional. When a block is inserted
+	// before existing blocks, each block must still write to the sub environment that matches its alias.
+	type insertedBlockFixture struct {
+		environment  client.Environment
+		variables    map[string]*client.ConfigurationVariable
+		resourceConf func(withInsertedBlock bool) string
+	}
+
+	newInsertedBlockFixture := func(preventAutoDeploy bool) insertedBlockFixture {
+		varType := client.ConfigurationVariableTypeEnvironment
+		varSchema := client.ConfigurationVariableSchema{Type: "string"}
+
+		fixture := insertedBlockFixture{
+			environment: client.Environment{
+				Id:               uuid.New().String(),
+				Name:             "my-workflow",
+				ProjectId:        template.ProjectId,
+				BlueprintId:      "workflow-template-id",
+				RequiresApproval: new(false),
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId: "workflow-template-id",
+					WorkflowFile: &client.WorkflowFile{
+						Environments: map[string]client.WorkflowSubEnvironment{
+							"alias-a": {EnvironmentId: "sub-a-id"},
+							"alias-b": {EnvironmentId: "sub-b-id"},
+						},
+					},
+				},
+			},
+			variables: map[string]*client.ConfigurationVariable{
+				"sub-a-id": {Id: "var-a-id", Name: "var-a", Value: "a1", Type: &varType, Schema: &varSchema},
+				"sub-b-id": {Id: "var-b-id", Name: "var-b", Value: "b1", Type: &varType, Schema: &varSchema},
+			},
+		}
+
+		block := func(alias, name, value string) string {
+			return fmt.Sprintf(`
+				sub_environment_configuration {
+					alias    = "%s"
+					revision = "revision1"
+					configuration {
+						name  = "%s"
+						value = "%s"
+					}
+				}`, alias, name, value)
+		}
+
+		fixture.resourceConf = func(withInsertedBlock bool) string {
+			blocks := block("alias-a", "var-a", "a1") + block("alias-b", "var-b", "b1")
+			if withInsertedBlock {
+				blocks = block("alias-new", "var-new", "new1") + block("alias-a", "var-a", "a2") + block("alias-b", "var-b", "b1")
+			}
+
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name                = "%s"
+				project_id          = "%s"
+				template_id         = "%s"
+				prevent_auto_deploy = %t
+				force_destroy       = true
+				%s
+			}`,
+				resourceType, resourceName, fixture.environment.Name, fixture.environment.ProjectId,
+				fixture.environment.BlueprintId, preventAutoDeploy, blocks,
+			)
+		}
+
+		return fixture
+	}
+
+	mockInsertedBlockReads := func(mock *client.MockApiClientInterface, fixture insertedBlockFixture, environment func() client.Environment) {
+		mock.EXPECT().Template(fixture.environment.BlueprintId).AnyTimes().Return(template, nil)
+		mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).Return(fixture.environment, nil)
+		mock.EXPECT().Environment(fixture.environment.Id).AnyTimes().DoAndReturn(
+			func(_ string) (client.Environment, error) { return environment(), nil },
+		)
+		mock.EXPECT().ConfigurationVariablesByScope(client.ScopeWorkflow, fixture.environment.Id).AnyTimes().Return(client.ConfigurationChanges{}, nil)
+		mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", fixture.environment.Id).AnyTimes().Return(nil, nil)
+		mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, gomock.Any()).AnyTimes().DoAndReturn(
+			func(_ client.Scope, subEnvironmentId string) ([]client.ConfigurationVariable, error) {
+				if variable, ok := fixture.variables[subEnvironmentId]; ok {
+					return client.ConfigurationChanges{*variable}, nil
+				}
+
+				return client.ConfigurationChanges{}, nil
+			},
+		)
+		mock.EXPECT().EnvironmentDestroy(fixture.environment.Id).Times(1)
+	}
+
+	t.Run("prevent_auto_deploy - inserted block does not shift variables to another sub environment", func(t *testing.T) {
+		fixture := newInsertedBlockFixture(true)
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fixture.resourceConf(false),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", "sub-a-id"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "sub-b-id"),
+					),
+				},
+				{
+					Config: fixture.resourceConf(true),
+					// The inserted sub environment is not deployed yet, so its state stays pending.
+					ExpectNonEmptyPlan: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mockInsertedBlockReads(mock, fixture, func() client.Environment { return fixture.environment })
+
+			// Each existing block writes only to the sub environment of its own alias.
+			// No variable is created or deleted: the inserted block has no sub environment yet.
+			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{
+				Id: "var-a-id",
+				CommonParams: client.ConfigurationVariableCreateParams{
+					Name: "var-a", Value: "a2", Scope: client.ScopeEnvironment, ScopeId: "sub-a-id", Type: client.ConfigurationVariableTypeEnvironment,
+				},
+			}).Times(1).DoAndReturn(func(_ client.ConfigurationVariableUpdateParams) (client.ConfigurationVariable, error) {
+				fixture.variables["sub-a-id"].Value = "a2"
+
+				return *fixture.variables["sub-a-id"], nil
+			})
+			mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{
+				Id: "var-b-id",
+				CommonParams: client.ConfigurationVariableCreateParams{
+					Name: "var-b", Value: "b1", Scope: client.ScopeEnvironment, ScopeId: "sub-b-id", Type: client.ConfigurationVariableTypeEnvironment,
+				},
+			}).Times(1).Return(*fixture.variables["sub-b-id"], nil)
+		})
+	})
+
+	t.Run("deploy - inserted block diffs each sub environment against its own variables", func(t *testing.T) {
+		fixture := newInsertedBlockFixture(false)
+
+		deployed := false
+		deployedEnvironment := fixture.environment
+		deployedEnvironment.LatestDeploymentLog.WorkflowFile = &client.WorkflowFile{
+			Environments: map[string]client.WorkflowSubEnvironment{
+				"alias-new": {EnvironmentId: "sub-new-id"},
+				"alias-a":   {EnvironmentId: "sub-a-id"},
+				"alias-b":   {EnvironmentId: "sub-b-id"},
+			},
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fixture.resourceConf(false),
+				},
+				{
+					Config: fixture.resourceConf(true),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mockInsertedBlockReads(mock, fixture, func() client.Environment {
+				if deployed {
+					return deployedEnvironment
+				}
+
+				return fixture.environment
+			})
+
+			mock.EXPECT().EnvironmentDeploy(fixture.environment.Id, gomock.Any()).Times(1).DoAndReturn(
+				func(_ string, payload client.DeployRequest) (client.EnvironmentDeployResponse, error) {
+					changes := map[string][]string{}
+
+					for alias, subEnvironment := range payload.SubEnvironments {
+						for _, change := range subEnvironment.ConfigurationChanges {
+							changes[alias] = append(changes[alias], fmt.Sprintf("%s=%s id=%s delete=%t", change.Name, change.Value, change.Id, change.ToDelete != nil && *change.ToDelete))
+						}
+					}
+
+					// Each alias is diffed against the variables of its own sub environment.
+					// The inserted sub environment is not deployed yet, so it has nothing to update or delete.
+					assert.Equal(t, map[string][]string{
+						"alias-new": {"var-new=new1 id= delete=false"},
+						"alias-a":   {"var-a=a2 id=var-a-id delete=false"},
+						"alias-b":   {"var-b=b1 id=var-b-id delete=false"},
+					}, changes)
+
+					deployed = true
+					fixture.variables["sub-a-id"].Value = "a2"
+					fixture.variables["sub-new-id"] = &client.ConfigurationVariable{
+						Id: "var-new-id", Name: "var-new", Value: "new1",
+						Type: fixture.variables["sub-a-id"].Type, Schema: fixture.variables["sub-a-id"].Schema,
+					}
+
+					return client.EnvironmentDeployResponse{Id: "deployment-id"}, nil
+				},
+			)
 		})
 	})
 }
