@@ -4865,7 +4865,26 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 	type insertedBlockFixture struct {
 		environment  client.Environment
 		variables    map[string]*client.ConfigurationVariable
-		resourceConf func(withInsertedBlock bool) string
+		resourceConf func(blocks ...string) string
+	}
+
+	subEnvironmentBlock := func(alias, name, value string) string {
+		return fmt.Sprintf(`
+				sub_environment_configuration {
+					alias    = "%s"
+					revision = "revision1"
+					configuration {
+						name  = "%s"
+						value = "%s"
+					}
+				}`, alias, name, value)
+	}
+
+	initialBlocks := []string{subEnvironmentBlock("alias-a", "var-a", "a1"), subEnvironmentBlock("alias-b", "var-b", "b1")}
+	insertedBlocks := []string{
+		subEnvironmentBlock("alias-new", "var-new", "new1"),
+		subEnvironmentBlock("alias-a", "var-a", "a2"),
+		subEnvironmentBlock("alias-b", "var-b", "b1"),
 	}
 
 	newInsertedBlockFixture := func(preventAutoDeploy bool) insertedBlockFixture {
@@ -4895,24 +4914,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 			},
 		}
 
-		block := func(alias, name, value string) string {
-			return fmt.Sprintf(`
-				sub_environment_configuration {
-					alias    = "%s"
-					revision = "revision1"
-					configuration {
-						name  = "%s"
-						value = "%s"
-					}
-				}`, alias, name, value)
-		}
-
-		fixture.resourceConf = func(withInsertedBlock bool) string {
-			blocks := block("alias-a", "var-a", "a1") + block("alias-b", "var-b", "b1")
-			if withInsertedBlock {
-				blocks = block("alias-new", "var-new", "new1") + block("alias-a", "var-a", "a2") + block("alias-b", "var-b", "b1")
-			}
-
+		fixture.resourceConf = func(blocks ...string) string {
 			return fmt.Sprintf(`
 			resource "%s" "%s" {
 				name                = "%s"
@@ -4923,7 +4925,7 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 				%s
 			}`,
 				resourceType, resourceName, fixture.environment.Name, fixture.environment.ProjectId,
-				fixture.environment.BlueprintId, preventAutoDeploy, blocks,
+				fixture.environment.BlueprintId, preventAutoDeploy, strings.Join(blocks, ""),
 			)
 		}
 
@@ -4956,16 +4958,23 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: fixture.resourceConf(false),
+					Config: fixture.resourceConf(initialBlocks...),
 					Check: resource.ComposeAggregateTestCheckFunc(
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", "sub-a-id"),
 						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "sub-b-id"),
 					),
 				},
 				{
-					Config: fixture.resourceConf(true),
-					// The inserted sub environment is not deployed yet, so its state stays pending.
-					ExpectNonEmptyPlan: true,
+					Config: fixture.resourceConf(insertedBlocks...),
+				},
+				{
+					// Refresh only: Read must not give the inserted block the id of the block that was at its index.
+					Config: fixture.resourceConf(insertedBlocks...),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", ""),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "sub-a-id"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.2.id", "sub-b-id"),
+					),
 				},
 			},
 		}
@@ -4994,6 +5003,76 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		})
 	})
 
+	t.Run("prevent_auto_deploy - alias without an environment id is not written", func(t *testing.T) {
+		fixture := newInsertedBlockFixture(true)
+		fixture.environment.LatestDeploymentLog.WorkflowFile.Environments["alias-b"] = client.WorkflowSubEnvironment{}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fixture.resourceConf(initialBlocks...),
+				},
+				{
+					Config: fixture.resourceConf(subEnvironmentBlock("alias-a", "var-a", "a1"), subEnvironmentBlock("alias-b", "var-b", "b2")),
+					Check:  resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", ""),
+				},
+			},
+		}
+
+		// No ConfigurationVariable call is expected: alias-b has no sub environment id to write to.
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mockInsertedBlockReads(mock, fixture, func() client.Environment { return fixture.environment })
+		})
+	})
+
+	t.Run("prevent_auto_deploy - swapped blocks update the sub environment of each alias", func(t *testing.T) {
+		fixture := newInsertedBlockFixture(true)
+		fixture.variables["sub-a-id"].Name = "v"
+		fixture.variables["sub-a-id"].Value = "1"
+		fixture.variables["sub-b-id"].Name = "v"
+		fixture.variables["sub-b-id"].Value = "2"
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: fixture.resourceConf(subEnvironmentBlock("alias-a", "v", "1"), subEnvironmentBlock("alias-b", "v", "2")),
+				},
+				{
+					// The configuration at each index is unchanged. Only the aliases moved.
+					Config: fixture.resourceConf(subEnvironmentBlock("alias-b", "v", "1"), subEnvironmentBlock("alias-a", "v", "2")),
+				},
+				{
+					// Refresh only: Read resolves each id from its alias.
+					Config: fixture.resourceConf(subEnvironmentBlock("alias-b", "v", "1"), subEnvironmentBlock("alias-a", "v", "2")),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.0.id", "sub-b-id"),
+						resource.TestCheckResourceAttr(accessor, "sub_environment_configuration.1.id", "sub-a-id"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mockInsertedBlockReads(mock, fixture, func() client.Environment { return fixture.environment })
+
+			for _, update := range []struct{ subEnvironmentId, variableId, value string }{
+				{"sub-a-id", "var-a-id", "2"},
+				{"sub-b-id", "var-b-id", "1"},
+			} {
+				mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{
+					Id: update.variableId,
+					CommonParams: client.ConfigurationVariableCreateParams{
+						Name: "v", Value: update.value, Scope: client.ScopeEnvironment, ScopeId: update.subEnvironmentId, Type: client.ConfigurationVariableTypeEnvironment,
+					},
+				}).Times(1).DoAndReturn(func(_ client.ConfigurationVariableUpdateParams) (client.ConfigurationVariable, error) {
+					fixture.variables[update.subEnvironmentId].Value = update.value
+
+					return *fixture.variables[update.subEnvironmentId], nil
+				})
+			}
+		})
+	})
+
 	t.Run("deploy - inserted block diffs each sub environment against its own variables", func(t *testing.T) {
 		fixture := newInsertedBlockFixture(false)
 
@@ -5010,10 +5089,10 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{
 				{
-					Config: fixture.resourceConf(false),
+					Config: fixture.resourceConf(initialBlocks...),
 				},
 				{
-					Config: fixture.resourceConf(true),
+					Config: fixture.resourceConf(insertedBlocks...),
 				},
 			},
 		}

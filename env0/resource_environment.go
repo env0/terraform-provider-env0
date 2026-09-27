@@ -581,6 +581,10 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
 
+				// The id in state is positional. Clear it, so an alias that is not in the workflow file
+				// does not keep the id of the block that was at this index before.
+				subEnvironment["id"] = ""
+
 				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[alias]
 				if ok {
 					subEnvironment["id"] = workkflowSubEnvironment.EnvironmentId
@@ -1143,7 +1147,10 @@ func getSubEnvironmentIdsByAlias(environmentId string, apiClient client.ApiClien
 
 	if environment.LatestDeploymentLog.WorkflowFile != nil {
 		for alias, subEnvironment := range environment.LatestDeploymentLog.WorkflowFile.Environments {
-			idsByAlias[alias] = subEnvironment.EnvironmentId
+			// An alias without an environment id is not deployed yet.
+			if subEnvironment.EnvironmentId != "" {
+				idsByAlias[alias] = subEnvironment.EnvironmentId
+			}
 		}
 	}
 
