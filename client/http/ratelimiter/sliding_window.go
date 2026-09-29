@@ -3,7 +3,6 @@ package ratelimiter
 import (
 	"context"
 	"math/rand/v2"
-	"sync"
 	"time"
 )
 
@@ -15,8 +14,9 @@ const (
 	pauseWakeupSpreadMax = time.Second
 )
 
-// slidingWindow is the bookkeeping shared by SlidingWindowLimiter and KeyedLimiter. It holds no
-// lock of its own: every method expects the caller to hold the lock that guards it.
+// slidingWindow tracks exact request timestamps to enforce maxRequests per window. KeyedLimiter
+// keeps one per key and one for the total. It holds no lock of its own: every method expects the
+// caller to hold the lock that guards it.
 type slidingWindow struct {
 	maxRequests int
 	window      time.Duration
@@ -82,77 +82,6 @@ func (w *slidingWindow) withPause(now time.Time, delay time.Duration) time.Durat
 	}
 
 	return delay
-}
-
-// SlidingWindowLimiter implements sliding window rate limiting.
-// It tracks exact request timestamps to enforce: maxRequests per window duration.
-type SlidingWindowLimiter struct {
-	slidingWindow
-	mu sync.Mutex
-}
-
-// NewSlidingWindowLimiter creates a new sliding window rate limiter.
-// maxRequests: maximum number of requests allowed
-// window: time window duration
-//
-// Example: NewSlidingWindowLimiter(100, time.Hour) allows 100 requests per hour.
-func NewSlidingWindowLimiter(maxRequests int, window time.Duration) *SlidingWindowLimiter {
-	return &SlidingWindowLimiter{
-		slidingWindow: slidingWindow{
-			maxRequests: maxRequests,
-			window:      window,
-		},
-	}
-}
-
-// Allow returns true if a request can be made immediately.
-// If true, the request is recorded and counts toward the limit.
-// Use this for non-blocking requests where you want to skip if rate limited.
-func (l *SlidingWindowLimiter) Allow() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	now := time.Now()
-	l.cleanup(now)
-
-	if !l.hasRoom(now) {
-		return false
-	}
-
-	l.record(now)
-
-	return true
-}
-
-// Pause blocks all requests for at least d, extending an existing pause but never shortening it.
-// A paused limiter keeps its window budget: requests resume as soon as the pause expires.
-func (l *SlidingWindowLimiter) Pause(d time.Duration) {
-	if d <= 0 {
-		return
-	}
-
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	l.pause(time.Now().Add(d))
-}
-
-// Wait blocks until a request can be made, then records it.
-// Returns an error if the context is canceled or times out.
-// Use this for blocking requests where you want to wait for rate limit clearance.
-func (l *SlidingWindowLimiter) Wait(ctx context.Context) error {
-	return wait(ctx, l.Allow, l.nextAvailable)
-}
-
-// nextAvailable returns how long to wait for the next request slot
-func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	now := time.Now()
-	l.cleanup(now)
-
-	return l.withPause(now, l.windowDelay(now))
 }
 
 // wait retries allow until it succeeds, sleeping for nextAvailable in between.

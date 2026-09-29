@@ -200,7 +200,7 @@ var _ = Describe("Keyed Rate Limiter", func() {
 		It("should not throttle requests to different paths against each other", func() {
 			registerSuccess(http.MethodGet, "/a", "/b")
 
-			httpClient = createClient(2, 200*time.Millisecond)
+			httpClient = createClient(2, time.Second)
 
 			firstDone, secondDone := goRequest(http.MethodGet, "/a"), goRequest(http.MethodGet, "/a")
 			Eventually(firstDone, 100*time.Millisecond).Should(BeClosed())
@@ -218,7 +218,7 @@ var _ = Describe("Keyed Rate Limiter", func() {
 		It("should count requests to one path with different query strings against the same budget", func() {
 			registerSuccess(http.MethodGet, "/a")
 
-			httpClient = createClient(2, 200*time.Millisecond)
+			httpClient = createClient(2, time.Second)
 
 			firstDone, secondDone := goRequest(http.MethodGet, "/a?x=1"), goRequest(http.MethodGet, "/a?x=2")
 			Eventually(firstDone, 100*time.Millisecond).Should(BeClosed())
@@ -245,7 +245,7 @@ var _ = Describe("Keyed Rate Limiter", func() {
 		It("should hold requests to every path to the total limit", func() {
 			registerSuccess(http.MethodGet, "/a", "/b", "/c")
 
-			httpClient = createClientWithTotal(2, 10, 200*time.Millisecond)
+			httpClient = createClientWithTotal(2, 10, time.Second)
 
 			aDone, bDone := goRequest(http.MethodGet, "/a"), goRequest(http.MethodGet, "/b")
 			Eventually(aDone, 100*time.Millisecond).Should(BeClosed())

@@ -85,6 +85,30 @@ var _ = Describe("KeyedLimiter", func() {
 			Expect(limiter.Allow("a")).To(BeTrue())
 			Expect(limiter.Allow("a")).To(BeFalse())
 		})
+
+		It("should free only the requests that left the window", func() {
+			limiter = NewKeyedLimiter(10, 200*time.Millisecond, perKey(3))
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+
+			time.Sleep(50 * time.Millisecond)
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeFalse())
+
+			time.Sleep(160 * time.Millisecond)
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeFalse())
+		})
+
+		It("should handle extremely small windows", func() {
+			limiter = NewKeyedLimiter(1, time.Nanosecond, perKey(1))
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeTrue())
+		})
 	})
 
 	Describe("Pause", func() {
@@ -108,6 +132,64 @@ var _ = Describe("KeyedLimiter", func() {
 			limiter.Pause("a", -time.Minute)
 
 			Expect(limiter.Allow("a")).To(BeTrue())
+		})
+
+		It("should not consume the key's or the total budget while paused", func() {
+			limiter = NewKeyedLimiter(2, time.Minute, perKey(2))
+
+			limiter.Pause("a", 50*time.Millisecond)
+			Expect(limiter.Allow("a")).To(BeFalse())
+			Expect(limiter.Allow("a")).To(BeFalse())
+
+			time.Sleep(100 * time.Millisecond)
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeTrue())
+			Expect(limiter.Allow("a")).To(BeFalse())
+		})
+
+		// A pause is one shared deadline, so without a spread every waiter resumes in the same
+		// instant and the burst the caller's jittered backoff avoided happens anyway.
+		It("should spread the wake-up of requests waiting out a pause", func() {
+			const waiters = 10
+
+			limiter = NewKeyedLimiter(waiters, time.Minute, perKey(waiters))
+			limiter.Pause("a", 200*time.Millisecond)
+
+			var (
+				mu        sync.Mutex
+				wakeTimes []time.Time
+				wg        sync.WaitGroup
+			)
+
+			for range waiters {
+				wg.Go(func() {
+					defer GinkgoRecover()
+
+					Expect(limiter.Wait(context.Background(), "a")).To(BeNil())
+
+					mu.Lock()
+					defer mu.Unlock()
+
+					wakeTimes = append(wakeTimes, time.Now())
+				})
+			}
+
+			wg.Wait()
+
+			earliest, latest := wakeTimes[0], wakeTimes[0]
+
+			for _, wakeTime := range wakeTimes {
+				if wakeTime.Before(earliest) {
+					earliest = wakeTime
+				}
+
+				if wakeTime.After(latest) {
+					latest = wakeTime
+				}
+			}
+
+			Expect(latest.Sub(earliest)).To(BeNumerically(">", 5*time.Millisecond))
 		})
 
 		It("should extend an existing pause but never shorten it", func() {
@@ -179,6 +261,46 @@ var _ = Describe("KeyedLimiter", func() {
 
 			Expect(limiter.Wait(ctx, "a")).To(Equal(context.DeadlineExceeded))
 		})
+
+		It("should respect context cancellation while the key is full", func() {
+			limiter = NewKeyedLimiter(10, 100*time.Millisecond, perKey(1))
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+
+			ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+			defer cancel()
+
+			start := time.Now()
+			err := limiter.Wait(ctx, "a")
+			duration := time.Since(start)
+
+			Expect(err).To(Equal(context.DeadlineExceeded))
+			Expect(duration).To(BeNumerically(">=", 45*time.Millisecond))
+			Expect(duration).To(BeNumerically("<", 70*time.Millisecond))
+		})
+
+		It("should return when the context is canceled during a wait", func() {
+			limiter = NewKeyedLimiter(10, 100*time.Millisecond, perKey(1))
+
+			Expect(limiter.Allow("a")).To(BeTrue())
+
+			ctx, cancel := context.WithCancel(context.Background())
+
+			var (
+				err error
+				wg  sync.WaitGroup
+			)
+
+			wg.Go(func() {
+				err = limiter.Wait(ctx, "a")
+			})
+
+			time.Sleep(25 * time.Millisecond)
+			cancel()
+
+			wg.Wait()
+			Expect(err).To(Equal(context.Canceled))
+		})
 	})
 
 	Describe("Idle keys", func() {
@@ -241,7 +363,39 @@ var _ = Describe("KeyedLimiter", func() {
 			Expect(total).To(Equal(int32(15)))
 		})
 
-		It("should be safe for concurrent Wait calls across keys", func() {
+		It("should hold concurrent Wait calls to the key and total limits", func() {
+			limiter = NewKeyedLimiter(4, time.Minute, perKey(2))
+
+			keys := []string{"a", "b", "c"}
+			counts := make([]int32, len(keys))
+
+			ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+			defer cancel()
+
+			var wg sync.WaitGroup
+
+			for i := range 9 {
+				wg.Go(func() {
+					if limiter.Wait(ctx, keys[i%len(keys)]) == nil {
+						atomic.AddInt32(&counts[i%len(keys)], 1)
+					}
+				})
+			}
+
+			wg.Wait()
+
+			total := int32(0)
+
+			for i := range keys {
+				Expect(counts[i]).To(BeNumerically("<=", 2))
+
+				total += counts[i]
+			}
+
+			Expect(total).To(Equal(int32(4)))
+		})
+
+		It("should let every concurrent waiter through once the window frees up", func() {
 			limiter = NewKeyedLimiter(4, 100*time.Millisecond, perKey(2))
 
 			var wg sync.WaitGroup
@@ -259,6 +413,26 @@ var _ = Describe("KeyedLimiter", func() {
 			for i := range errors {
 				Expect(errors[i]).To(BeNil())
 			}
+		})
+
+		It("should handle very high request rates", func() {
+			limiter = NewKeyedLimiter(100, time.Second, perKey(1000))
+
+			var wg sync.WaitGroup
+
+			successCount := int32(0)
+
+			for i := range 1000 {
+				wg.Go(func() {
+					if limiter.Allow([]string{"a", "b", "c"}[i%3]) {
+						atomic.AddInt32(&successCount, 1)
+					}
+				})
+			}
+
+			wg.Wait()
+
+			Expect(successCount).To(Equal(int32(100)))
 		})
 	})
 })
