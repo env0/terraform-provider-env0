@@ -258,6 +258,70 @@ var _ = Describe("Keyed Rate Limiter", func() {
 		})
 	})
 
+	// The provider's own setup: an endpoint with a trailing slash and a lower limit for the WAF's
+	// critical paths. Guards the keys the hooks build against the ones PerPathRequestLimit matches.
+	Context("with the provider's endpoint and limits", func() {
+		createProviderClient := func(perPath, criticalPath int, window time.Duration) *httpModule.HttpClient {
+			client, err := httpModule.NewHttpClient(httpModule.HttpClientConfig{
+				ApiKey:      ApiKey,
+				ApiSecret:   ApiSecret,
+				ApiEndpoint: BaseUrl + "/",
+				UserAgent:   UserAgent,
+				RestClient:  restClient,
+				RateLimiter: ratelimiter.NewKeyedLimiter(1000, window, httpModule.PerPathRequestLimit(perPath, criticalPath)),
+			})
+			Expect(err).To(BeNil())
+
+			return client
+		}
+
+		It("should hold a critical path to the critical limit", func() {
+			registerSuccess(http.MethodGet, "/environments", "/environments/abc")
+
+			httpClient = createProviderClient(10, 1, time.Second)
+
+			Eventually(goRequest(http.MethodGet, "/environments?projectId=1"), 100*time.Millisecond).Should(BeClosed())
+
+			criticalDone := goRequest(http.MethodGet, "/environments?projectId=2")
+			firstReadDone, secondReadDone := goRequest(http.MethodGet, "/environments/abc"), goRequest(http.MethodGet, "/environments/abc")
+
+			Eventually(firstReadDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(secondReadDone, 100*time.Millisecond).Should(BeClosed())
+			Consistently(criticalDone, 50*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(criticalDone, 3*time.Second).Should(BeClosed())
+		})
+
+		It("should pause the path that answered 429", func() {
+			const path = "/projects"
+
+			calls := 0
+
+			httpmock.RegisterResponder("GET", BaseUrl+path,
+				func(*http.Request) (*http.Response, error) {
+					calls++
+					if calls > 1 {
+						return httpmock.NewStringResponse(200, SuccessResponse), nil
+					}
+
+					res := httpmock.NewStringResponse(http.StatusTooManyRequests, "TOO MANY REQUESTS")
+					res.Header.Set("Retry-After", "1")
+
+					return res, nil
+				})
+
+			httpClient = createProviderClient(10, 10, time.Minute)
+
+			var rateLimitedResponse string
+
+			Expect(httpClient.Get(path+"?organizationId=1", nil, &rateLimitedResponse)).To(HaveOccurred())
+
+			sameDone := goRequest(http.MethodGet, path+"?organizationId=2")
+
+			Consistently(sameDone, 500*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(sameDone, 3*time.Second).Should(BeClosed())
+		})
+	})
+
 	Context("with client rate limiting tests", func() {
 		// These tests verify our HTTP client's rate limiting behavior
 		It("should allow multiple requests up to the limit", func() {

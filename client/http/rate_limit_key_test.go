@@ -22,6 +22,10 @@ var _ = Describe("PerPathRequestLimit", func() {
 		Entry("updating a deployment", "PUT /environments/deployments/abc", 190),
 		Entry("updating an environment", "PUT /environments/abc", 950),
 		Entry("deleting on the environments path", "DELETE /environments", 950),
+		Entry("creating an environment without a template", "POST /environments/without-template", 190),
+		Entry("updating a nested deployment", "PUT /x/environments/deployments/abc", 190),
+		Entry("posting to a path that starts with environments", "POST /environmentsX", 190),
+		Entry("listing a path that starts with environments", "GET /environmentsX", 950),
 		Entry("any other path", "GET /projects/abc", 950),
 	)
 })

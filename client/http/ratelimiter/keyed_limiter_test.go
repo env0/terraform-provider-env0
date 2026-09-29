@@ -416,7 +416,7 @@ var _ = Describe("KeyedLimiter", func() {
 		})
 
 		It("should handle very high request rates", func() {
-			limiter = NewKeyedLimiter(100, time.Second, perKey(1000))
+			limiter = NewKeyedLimiter(100, time.Minute, perKey(1000))
 
 			var wg sync.WaitGroup
 
