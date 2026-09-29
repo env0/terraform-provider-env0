@@ -4946,7 +4946,8 @@ func TestUnitEnvironmentWithSubEnvironment(t *testing.T) {
 					return client.ConfigurationChanges{*variable}, nil
 				}
 
-				return client.ConfigurationChanges{}, nil
+				// A sub environment that is not deployed has no id, so its variables must never be read.
+				return nil, fmt.Errorf("unexpected variables lookup for sub environment id %q", subEnvironmentId)
 			},
 		)
 		mock.EXPECT().EnvironmentDestroy(fixture.environment.Id).Times(1)
