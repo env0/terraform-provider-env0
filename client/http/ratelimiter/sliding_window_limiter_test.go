@@ -30,7 +30,6 @@ var _ = Describe("SlidingWindowLimiter", func() {
 			Expect(limiter.maxRequests).To(Equal(maxRequests))
 			Expect(limiter.window).To(Equal(window))
 			Expect(limiter.requests).To(HaveLen(0))
-			Expect(limiter.requests).To(HaveCap(maxRequests))
 		})
 	})
 

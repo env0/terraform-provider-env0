@@ -15,16 +15,80 @@ const (
 	pauseWakeupSpreadMax = time.Second
 )
 
-// SlidingWindowLimiter implements sliding window rate limiting.
-// It tracks exact request timestamps to enforce: maxRequests per window duration.
-type SlidingWindowLimiter struct {
+// slidingWindow is the bookkeeping shared by SlidingWindowLimiter and KeyedLimiter. It holds no
+// lock of its own: every method expects the caller to hold the lock that guards it.
+type slidingWindow struct {
 	maxRequests int
 	window      time.Duration
 	requests    []time.Time
 	// No request is allowed before this point in time, regardless of the window budget.
 	// Set by Pause when the server pushes back (429).
 	pausedUntil time.Time
-	mu          sync.Mutex
+}
+
+// cleanup removes expired requests from the sliding window
+func (w *slidingWindow) cleanup(now time.Time) {
+	cutoff := now.Add(-w.window)
+
+	// Find first request still within window
+	i := 0
+	for i < len(w.requests) && w.requests[i].Before(cutoff) {
+		i++
+	}
+
+	// Remove expired requests
+	if i > 0 {
+		w.requests = w.requests[i:]
+	}
+}
+
+// hasRoom reports whether a request can go out now. Call cleanup first.
+func (w *slidingWindow) hasRoom(now time.Time) bool {
+	return !now.Before(w.pausedUntil) && len(w.requests) < w.maxRequests
+}
+
+func (w *slidingWindow) record(now time.Time) {
+	w.requests = append(w.requests, now)
+}
+
+// pause extends an existing pause but never shortens it.
+func (w *slidingWindow) pause(until time.Time) {
+	if until.After(w.pausedUntil) {
+		w.pausedUntil = until
+	}
+}
+
+// windowDelay returns how long until the window has a free slot, ignoring any pause. Call cleanup
+// first.
+func (w *slidingWindow) windowDelay(now time.Time) time.Duration {
+	if len(w.requests) < w.maxRequests {
+		return 0
+	}
+
+	// Wait for the oldest request to expire
+	return w.requests[0].Add(w.window).Sub(now)
+}
+
+// idle reports whether dropping the window loses nothing: no request in it and no pause pending.
+// Call cleanup first.
+func (w *slidingWindow) idle(now time.Time) bool {
+	return len(w.requests) == 0 && !now.Before(w.pausedUntil)
+}
+
+// withPause returns delay, or the remaining pause plus a wake-up jitter when the pause is longer.
+func (w *slidingWindow) withPause(now time.Time, delay time.Duration) time.Duration {
+	if pause := w.pausedUntil.Sub(now); pause > delay {
+		return pause + pauseWakeupJitter(pause)
+	}
+
+	return delay
+}
+
+// SlidingWindowLimiter implements sliding window rate limiting.
+// It tracks exact request timestamps to enforce: maxRequests per window duration.
+type SlidingWindowLimiter struct {
+	slidingWindow
+	mu sync.Mutex
 }
 
 // NewSlidingWindowLimiter creates a new sliding window rate limiter.
@@ -34,9 +98,10 @@ type SlidingWindowLimiter struct {
 // Example: NewSlidingWindowLimiter(100, time.Hour) allows 100 requests per hour.
 func NewSlidingWindowLimiter(maxRequests int, window time.Duration) *SlidingWindowLimiter {
 	return &SlidingWindowLimiter{
-		maxRequests: maxRequests,
-		window:      window,
-		requests:    make([]time.Time, 0, maxRequests),
+		slidingWindow: slidingWindow{
+			maxRequests: maxRequests,
+			window:      window,
+		},
 	}
 }
 
@@ -50,17 +115,13 @@ func (l *SlidingWindowLimiter) Allow() bool {
 	now := time.Now()
 	l.cleanup(now)
 
-	if now.Before(l.pausedUntil) {
+	if !l.hasRoom(now) {
 		return false
 	}
 
-	if len(l.requests) < l.maxRequests {
-		l.requests = append(l.requests, now)
+	l.record(now)
 
-		return true
-	}
-
-	return false
+	return true
 }
 
 // Pause blocks all requests for at least d, extending an existing pause but never shortening it.
@@ -73,24 +134,38 @@ func (l *SlidingWindowLimiter) Pause(d time.Duration) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	until := time.Now().Add(d)
-	if until.After(l.pausedUntil) {
-		l.pausedUntil = until
-	}
+	l.pause(time.Now().Add(d))
 }
 
 // Wait blocks until a request can be made, then records it.
 // Returns an error if the context is canceled or times out.
 // Use this for blocking requests where you want to wait for rate limit clearance.
 func (l *SlidingWindowLimiter) Wait(ctx context.Context) error {
+	return wait(ctx, l.Allow, l.nextAvailable)
+}
+
+// nextAvailable returns how long to wait for the next request slot
+func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	now := time.Now()
+	l.cleanup(now)
+
+	return l.withPause(now, l.windowDelay(now))
+}
+
+// wait retries allow until it succeeds, sleeping for nextAvailable in between.
+// Returns an error if the context is canceled or times out.
+func wait(ctx context.Context, allow func() bool, nextAvailable func() time.Duration) error {
 	for {
 		// Try to make the request immediately
-		if l.Allow() {
+		if allow() {
 			return nil
 		}
 
 		// Calculate how long to wait
-		delay := l.nextAvailable()
+		delay := nextAvailable()
 		if delay <= 0 {
 			continue // Should be available now, try again
 		}
@@ -107,45 +182,6 @@ func (l *SlidingWindowLimiter) Wait(ctx context.Context) error {
 			return ctx.Err()
 		}
 	}
-}
-
-// cleanup removes expired requests from the sliding window
-func (l *SlidingWindowLimiter) cleanup(now time.Time) {
-	cutoff := now.Add(-l.window)
-
-	// Find first request still within window
-	i := 0
-	for i < len(l.requests) && l.requests[i].Before(cutoff) {
-		i++
-	}
-
-	// Remove expired requests
-	if i > 0 {
-		l.requests = l.requests[i:]
-	}
-}
-
-// nextAvailable returns how long to wait for the next request slot
-func (l *SlidingWindowLimiter) nextAvailable() time.Duration {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	now := time.Now()
-	l.cleanup(now)
-
-	delay := time.Duration(0)
-
-	if len(l.requests) >= l.maxRequests {
-		// Wait for the oldest request to expire
-		oldest := l.requests[0]
-		delay = oldest.Add(l.window).Sub(now)
-	}
-
-	if pause := l.pausedUntil.Sub(now); pause > delay {
-		delay = pause + pauseWakeupJitter(pause)
-	}
-
-	return delay
 }
 
 // pauseWakeupJitter returns a random extra wait in [0, min(pause*pauseWakeupSpread, pauseWakeupSpreadMax)).
