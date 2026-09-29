@@ -2,6 +2,7 @@ package env0
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/env0/terraform-provider-env0/client"
@@ -17,6 +18,7 @@ func resourceVcsConnection() *schema.Resource {
 		ReadContext:   resourceVcsConnectionRead,
 		UpdateContext: resourceVcsConnectionUpdate,
 		DeleteContext: resourceVcsConnectionDelete,
+		CustomizeDiff: resourceVcsConnectionCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceVcsConnectionImport},
 
@@ -24,22 +26,23 @@ func resourceVcsConnection() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "the VCS type (BitBucketServer, GitLabEnterprise, or GitHubEnterprise)",
+				Description: "the VCS type (BitBucketServer, GitLabEnterprise, GitHubEnterprise, or AzureDevOps)",
 				ValidateDiagFunc: NewStringInValidator([]string{
 					"BitBucketServer",
 					"GitLabEnterprise",
 					"GitHubEnterprise",
+					"AzureDevOps",
 				}),
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "name of the VCS connection",
+				Optional:    true,
+				Description: "name of the VCS connection. Connections created in the env0 UI have no name, so omit it when importing one. An AzureDevOps connection cannot be renamed",
 			},
 			"url": {
 				Type:             schema.TypeString,
-				Required:         true,
-				Description:      "URL of the VCS server. This can either be a 'VCS URL' (e.g.: https://github.com) or 'Repository URL' (E.g.: https://github.com/env0/myrepo)",
+				Optional:         true,
+				Description:      "URL of the VCS server. This can either be a 'VCS URL' (e.g.: https://github.com) or 'Repository URL' (E.g.: https://github.com/env0/myrepo). Required for BitBucketServer, GitLabEnterprise and GitHubEnterprise",
 				ValidateDiagFunc: ValidateUrl,
 			},
 			"vcs_agent_key": {
@@ -47,8 +50,44 @@ func resourceVcsConnection() *schema.Resource {
 				Optional:    true,
 				Description: "VCS agent key. Use a custom agent key or 'ENV0_DEFAULT' to use the default env0 agent",
 			},
+			"token_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "the id of an Azure DevOps OAuth token, created by authorizing Azure DevOps in the env0 UI. Required for AzureDevOps. Destroying the connection also deletes this token",
+				// Older connections don't return their token id, so an imported one may have none in state.
+				DiffSuppressFunc: func(_, oldValue, _ string, d *schema.ResourceData) bool {
+					return oldValue == "" && d.Id() != ""
+				},
+			},
+			"oauth_provider": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "the OAuth method of an AzureDevOps connection's token ('legacy' or 'entra'). Empty means legacy",
+			},
 		},
 	}
+}
+
+func resourceVcsConnectionCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ any) error {
+	if d.Get("type").(string) == "AzureDevOps" {
+		if d.NewValueKnown("token_id") && d.Get("token_id").(string) == "" {
+			return errors.New("token_id is required for AzureDevOps")
+		}
+
+		// The backend ignores AzureDevOps updates, and replacing the connection would delete its token.
+		if d.HasChange("name") && d.Id() != "" {
+			return errors.New("an AzureDevOps VCS connection cannot be renamed")
+		}
+
+		return nil
+	}
+
+	if d.NewValueKnown("url") && d.Get("url").(string) == "" {
+		return fmt.Errorf("url is required for %s", d.Get("type"))
+	}
+
+	return nil
 }
 
 func resourceVcsConnectionCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
@@ -65,6 +104,10 @@ func resourceVcsConnectionCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	d.SetId(vcsConnection.Id)
+
+	if err := d.Set("oauth_provider", vcsConnection.OauthProvider); err != nil {
+		return diag.Errorf("failed to set oauth_provider: %v", err)
+	}
 
 	return nil
 }

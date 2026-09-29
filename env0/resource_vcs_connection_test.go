@@ -223,4 +223,106 @@ func TestUnitVcsConnectionResource(t *testing.T) {
 			mock.EXPECT().VcsConnectionDelete(vcsConnection.Id).Times(1)
 		})
 	})
+
+	t.Run("Azure DevOps", func(t *testing.T) {
+		tokenId := uuid.NewString()
+
+		adoConnection := client.VcsConnection{
+			Id:            uuid.NewString(),
+			Name:          "ado-connection",
+			Type:          "AzureDevOps",
+			OauthProvider: "entra",
+			TokenId:       tokenId,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":     adoConnection.Name,
+						"type":     adoConnection.Type,
+						"token_id": tokenId,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", adoConnection.Id),
+						resource.TestCheckResourceAttr(accessor, "token_id", tokenId),
+						resource.TestCheckResourceAttr(accessor, "oauth_provider", "entra"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":     "renamed-ado-connection",
+						"type":     adoConnection.Type,
+						"token_id": tokenId,
+					}),
+					ExpectError: regexp.MustCompile("an AzureDevOps VCS connection cannot be renamed"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnectionCreate(client.VcsConnectionCreatePayload{
+				Name:    adoConnection.Name,
+				Type:    adoConnection.Type,
+				TokenId: tokenId,
+			}).Times(1).Return(&adoConnection, nil)
+			mock.EXPECT().VcsConnection(adoConnection.Id).AnyTimes().Return(&adoConnection, nil)
+			mock.EXPECT().VcsConnectionDelete(adoConnection.Id).Times(1)
+		})
+	})
+
+	t.Run("Azure DevOps Import", func(t *testing.T) {
+		adoConnection := client.VcsConnection{
+			Id:   uuid.NewString(),
+			Type: "AzureDevOps",
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"type":     adoConnection.Type,
+						"token_id": uuid.NewString(),
+					}),
+					ResourceName:       resourceNameImport,
+					ImportState:        true,
+					ImportStateId:      adoConnection.Id,
+					ImportStatePersist: true,
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"type":     adoConnection.Type,
+						"token_id": uuid.NewString(),
+					}),
+					PlanOnly: true,
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().VcsConnection(adoConnection.Id).AnyTimes().Return(&adoConnection, nil)
+			mock.EXPECT().VcsConnectionDelete(adoConnection.Id).Times(1)
+		})
+	})
+
+	for vcsType, expectedError := range map[string]string{
+		"AzureDevOps":      "token_id is required for AzureDevOps",
+		"GitHubEnterprise": "url is required for GitHubEnterprise",
+	} {
+		t.Run("Missing Required Field "+vcsType, func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+							"name": "test",
+							"type": vcsType,
+						}),
+						ExpectError: regexp.MustCompile(expectedError),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		})
+	}
 }

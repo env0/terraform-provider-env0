@@ -21,3 +21,9 @@ resource "env0_vcs_connection" "bitbucket_server" {
   url  = "https://bitbucket.example.com"
 }
 
+# Create an Azure DevOps VCS connection from a token authorized in the env0 UI
+resource "env0_vcs_connection" "azure_devops" {
+  name     = "azure-devops"
+  type     = "AzureDevOps"
+  token_id = "11111111-1111-1111-1111-111111111111"
+}

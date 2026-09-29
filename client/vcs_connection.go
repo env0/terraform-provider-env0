@@ -8,13 +8,16 @@ type VcsConnection struct {
 	VcsAgentKey    string `json:"vcsAgentKey"`
 	AccessScope    string `json:"accessScope"`
 	ConnectionType string `json:"connectionType"`
+	OauthProvider  string `json:"oauthProvider"`
+	TokenId        string `json:"tokenId"`
 }
 
 type VcsConnectionCreatePayload struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
-	Url         string `json:"url"`
+	Url         string `json:"url,omitempty"`
 	VcsAgentKey string `json:"vcsAgentKey,omitempty"`
+	TokenId     string `json:"tokenId,omitempty"`
 }
 
 type VcsConnectionUpdatePayload struct {
