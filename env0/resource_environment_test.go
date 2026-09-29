@@ -5006,8 +5006,8 @@ func TestMergeSubEnvironmentConfiguration(t *testing.T) {
 		}
 	})
 
-	t.Run("state var without type matches remote var with nil type", func(t *testing.T) {
-		state := []any{stateVar("a", "av")}
+	t.Run("remote var with nil type matches environment state var", func(t *testing.T) {
+		state := []any{map[string]any{"name": "a", "value": "av", "type": client.ENVIRONMENT}}
 		remote := client.ConfigurationChanges{{Name: "a", Value: "av"}}
 
 		merged := mergeSubEnvironmentConfiguration(state, remote)
