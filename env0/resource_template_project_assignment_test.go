@@ -104,9 +104,9 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 				resourceTemplateAssignmentUpdate["project_id"].(string)).Times(1).Return(nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Template(resourceTemplateAssignment["template_id"].(string)).Times(2).
+				mock.EXPECT().CachedTemplate(resourceTemplateAssignment["template_id"].(string)).Times(2).
 					Return(returnValues, nil),
-				mock.EXPECT().Template(resourceTemplateAssignmentUpdate["template_id"].(string)).Times(1).
+				mock.EXPECT().CachedTemplate(resourceTemplateAssignmentUpdate["template_id"].(string)).Times(1).
 					Return(updateReturnValues, nil),
 			)
 		})
@@ -137,11 +137,11 @@ func TestUnitTemplateProjectAssignmentResource(t *testing.T) {
 				resourceTemplateAssignmentUpdate["project_id"].(string)).Times(1).Return(nil)
 
 			gomock.InOrder(
-				mock.EXPECT().Template(resourceTemplateAssignment["template_id"].(string)).Times(1).
+				mock.EXPECT().CachedTemplate(resourceTemplateAssignment["template_id"].(string)).Times(1).
 					Return(returnValues, nil),
-				mock.EXPECT().Template(resourceTemplateAssignment["template_id"].(string)).Times(1).
+				mock.EXPECT().CachedTemplate(resourceTemplateAssignment["template_id"].(string)).Times(1).
 					Return(driftReturnValues, nil),
-				mock.EXPECT().Template(resourceTemplateAssignmentUpdate["template_id"].(string)).Times(1).
+				mock.EXPECT().CachedTemplate(resourceTemplateAssignmentUpdate["template_id"].(string)).Times(1).
 					Return(updateReturnValues, nil),
 			)
 		})

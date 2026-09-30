@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("SlidingWindow Rate Limiter", func() {
+var _ = Describe("Keyed Rate Limiter", func() {
 	const (
 		BaseUrl         = "https://fake.env0.com"
 		ApiKey          = "TEST_KEY"
@@ -42,19 +42,49 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 		httpmock.DeactivateAndReset()
 	})
 
-	createClient := func(maxRequests int, window time.Duration) *httpModule.HttpClient {
+	createClientWithTotal := func(totalRequests, perPathRequests int, window time.Duration) *httpModule.HttpClient {
 		config := httpModule.HttpClientConfig{
 			ApiKey:      ApiKey,
 			ApiSecret:   ApiSecret,
 			ApiEndpoint: BaseUrl,
 			UserAgent:   UserAgent,
 			RestClient:  restClient,
-			RateLimiter: ratelimiter.NewSlidingWindowLimiter(maxRequests, window),
+			RateLimiter: ratelimiter.NewKeyedLimiter(totalRequests, window, func(string) int { return perPathRequests }),
 		}
 		client, err := httpModule.NewHttpClient(config)
 		Expect(err).To(BeNil())
 
 		return client
+	}
+
+	createClient := func(perPathRequests int, window time.Duration) *httpModule.HttpClient {
+		return createClientWithTotal(1000, perPathRequests, window)
+	}
+
+	registerSuccess := func(method string, paths ...string) {
+		for _, path := range paths {
+			httpmock.RegisterResponder(method, BaseUrl+path, httpmock.NewStringResponder(200, SuccessResponse))
+		}
+	}
+
+	// Sends the request in the background and returns a channel closed once it's answered.
+	goRequest := func(method, path string) chan struct{} {
+		done := make(chan struct{})
+
+		go func() {
+			defer close(done)
+
+			var response string
+
+			switch method {
+			case http.MethodGet:
+				_ = httpClient.Get(path, nil, &response)
+			case http.MethodPost:
+				_ = httpClient.Post(path, nil, &response)
+			}
+		}()
+
+		return done
 	}
 
 	makeRequest := func(wg *sync.WaitGroup, client *httpModule.HttpClient) {
@@ -120,13 +150,21 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 			Expect(callCount["GET "+BaseUrl+path]).To(Equal(4))
 		})
 
-		// A 429 is a server side limit, so the entire client has to back off. Retrying only the
-		// blocked request while its siblings keep firing is what turns one 429 into thousands.
-		It("should pause every request after a 429", func() {
+		// The WAF counts per method + path, so a 429 says the path is over its budget. Every request
+		// to that path has to back off - retrying only the blocked one while its siblings keep firing
+		// is what turns one 429 into thousands - but other paths have budget of their own.
+		It("should pause only the path that answered 429", func() {
 			const path = "/rate-limited"
+
+			calls := 0
 
 			httpmock.RegisterResponder("GET", BaseUrl+path,
 				func(*http.Request) (*http.Response, error) {
+					calls++
+					if calls > 1 {
+						return httpmock.NewStringResponse(200, SuccessResponse), nil
+					}
+
 					res := httpmock.NewStringResponse(http.StatusTooManyRequests, "TOO MANY REQUESTS")
 					res.Header.Set("Retry-After", "1")
 
@@ -139,28 +177,148 @@ var _ = Describe("SlidingWindow Rate Limiter", func() {
 
 			Expect(httpClient.Get(path, nil, &rateLimitedResponse)).To(HaveOccurred())
 
-			done := make(chan struct{})
+			otherDone := goRequest(http.MethodGet, TestEndpoint)
+			sameDone := goRequest(http.MethodGet, path)
 
-			go func() {
-				defer close(done)
-
-				var response string
-
-				_ = httpClient.Get(TestEndpoint, nil, &response)
-			}()
-
-			// The 429 holds back a request to an endpoint that never answered 429 itself.
-			time.Sleep(100 * time.Millisecond)
+			// A path that never answered 429 goes out right away, the 429'd one is held back.
+			Eventually(otherDone, 100*time.Millisecond).Should(BeClosed())
 
 			callCount := httpmock.GetCallCountInfo()
-			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(0))
+			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(1))
+			Expect(callCount["GET "+BaseUrl+path]).To(Equal(1))
 
 			// Retry-After said one second, after which the held back request goes out (plus the
 			// limiter's wake-up spread).
-			Eventually(done, 3*time.Second).Should(BeClosed())
+			Eventually(sameDone, 3*time.Second).Should(BeClosed())
 
 			callCount = httpmock.GetCallCountInfo()
-			Expect(callCount["GET "+BaseUrl+TestEndpoint]).To(Equal(1))
+			Expect(callCount["GET "+BaseUrl+path]).To(Equal(2))
+		})
+	})
+
+	Context("with rate limiting per method and path", func() {
+		It("should not throttle requests to different paths against each other", func() {
+			registerSuccess(http.MethodGet, "/a", "/b")
+
+			httpClient = createClient(2, time.Second)
+
+			firstDone, secondDone := goRequest(http.MethodGet, "/a"), goRequest(http.MethodGet, "/a")
+			Eventually(firstDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(secondDone, 100*time.Millisecond).Should(BeClosed())
+
+			thirdDone := goRequest(http.MethodGet, "/a")
+			otherDone := goRequest(http.MethodGet, "/b")
+
+			Eventually(otherDone, 50*time.Millisecond).Should(BeClosed())
+			Consistently(thirdDone, 50*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(thirdDone, 3*time.Second).Should(BeClosed())
+		})
+
+		// The WAF matches the URL path, which doesn't include the query string.
+		It("should count requests to one path with different query strings against the same budget", func() {
+			registerSuccess(http.MethodGet, "/a")
+
+			httpClient = createClient(2, time.Second)
+
+			firstDone, secondDone := goRequest(http.MethodGet, "/a?x=1"), goRequest(http.MethodGet, "/a?x=2")
+			Eventually(firstDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(secondDone, 100*time.Millisecond).Should(BeClosed())
+
+			thirdDone := goRequest(http.MethodGet, "/a?x=3")
+
+			Consistently(thirdDone, 50*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(thirdDone, 3*time.Second).Should(BeClosed())
+		})
+
+		It("should count different methods on the same path separately", func() {
+			registerSuccess(http.MethodGet, "/a")
+			registerSuccess(http.MethodPost, "/a")
+
+			httpClient = createClient(1, time.Minute)
+
+			getDone, postDone := goRequest(http.MethodGet, "/a"), goRequest(http.MethodPost, "/a")
+
+			Eventually(getDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(postDone, 100*time.Millisecond).Should(BeClosed())
+		})
+
+		It("should hold requests to every path to the total limit", func() {
+			registerSuccess(http.MethodGet, "/a", "/b", "/c")
+
+			httpClient = createClientWithTotal(2, 10, time.Second)
+
+			aDone, bDone := goRequest(http.MethodGet, "/a"), goRequest(http.MethodGet, "/b")
+			Eventually(aDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(bDone, 100*time.Millisecond).Should(BeClosed())
+
+			cDone := goRequest(http.MethodGet, "/c")
+
+			Consistently(cDone, 50*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(cDone, 3*time.Second).Should(BeClosed())
+		})
+	})
+
+	// The provider's own setup: an endpoint with a trailing slash and a lower limit for the WAF's
+	// critical paths. Guards the keys the hooks build against the ones PerPathRequestLimit matches.
+	Context("with the provider's endpoint and limits", func() {
+		createProviderClient := func(perPath, criticalPath int, window time.Duration) *httpModule.HttpClient {
+			client, err := httpModule.NewHttpClient(httpModule.HttpClientConfig{
+				ApiKey:      ApiKey,
+				ApiSecret:   ApiSecret,
+				ApiEndpoint: BaseUrl + "/",
+				UserAgent:   UserAgent,
+				RestClient:  restClient,
+				RateLimiter: ratelimiter.NewKeyedLimiter(1000, window, httpModule.PerPathRequestLimit(perPath, criticalPath)),
+			})
+			Expect(err).To(BeNil())
+
+			return client
+		}
+
+		It("should hold a critical path to the critical limit", func() {
+			registerSuccess(http.MethodGet, "/environments", "/environments/abc")
+
+			httpClient = createProviderClient(10, 1, time.Second)
+
+			Eventually(goRequest(http.MethodGet, "/environments?projectId=1"), 100*time.Millisecond).Should(BeClosed())
+
+			criticalDone := goRequest(http.MethodGet, "/environments?projectId=2")
+			firstReadDone, secondReadDone := goRequest(http.MethodGet, "/environments/abc"), goRequest(http.MethodGet, "/environments/abc")
+
+			Eventually(firstReadDone, 100*time.Millisecond).Should(BeClosed())
+			Eventually(secondReadDone, 100*time.Millisecond).Should(BeClosed())
+			Consistently(criticalDone, 50*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(criticalDone, 3*time.Second).Should(BeClosed())
+		})
+
+		It("should pause the path that answered 429", func() {
+			const path = "/projects"
+
+			calls := 0
+
+			httpmock.RegisterResponder("GET", BaseUrl+path,
+				func(*http.Request) (*http.Response, error) {
+					calls++
+					if calls > 1 {
+						return httpmock.NewStringResponse(200, SuccessResponse), nil
+					}
+
+					res := httpmock.NewStringResponse(http.StatusTooManyRequests, "TOO MANY REQUESTS")
+					res.Header.Set("Retry-After", "1")
+
+					return res, nil
+				})
+
+			httpClient = createProviderClient(10, 10, time.Minute)
+
+			var rateLimitedResponse string
+
+			Expect(httpClient.Get(path+"?organizationId=1", nil, &rateLimitedResponse)).To(HaveOccurred())
+
+			sameDone := goRequest(http.MethodGet, path+"?organizationId=2")
+
+			Consistently(sameDone, 500*time.Millisecond).ShouldNot(BeClosed())
+			Eventually(sameDone, 3*time.Second).Should(BeClosed())
 		})
 	})
 
