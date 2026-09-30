@@ -63,7 +63,7 @@ func resourceTemplateProjectAssignmentRead(ctx context.Context, d *schema.Resour
 
 	templateId := d.Get("template_id").(string)
 
-	template, err := apiClient.Template(templateId)
+	template, err := apiClient.CachedTemplate(templateId)
 	if err != nil {
 		return diag.Errorf("could not get template (%s): %v", d.Id(), err)
 	}
