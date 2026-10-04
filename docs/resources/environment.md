@@ -83,6 +83,10 @@ Updating an environment applies changes as a sequence of independent steps: proj
 
 Deployments triggered by an update are asynchronous: the apply returns once the deployment is queued, and env0 runs it in the background. The state holds the requested `revision` and `configuration` from the moment the apply returns, whether or not the deployment later succeeds. A failed or still-running deployment is not surfaced as drift, because `revision` and `template_id` are read back from the latest deployment log whatever its status. There is no equivalent of `wait_for_destroy` for deployments, so the apply result does not reflect the deployment's outcome.
 
+## Workflow sub-environments
+
+For a workflow environment, `sub_environment_configuration` and `env0.workflow.yml` configure the same sub-environments, and fields that exist in both do not always behave the same way. `configuration` is stored on the sub-environment and read back into the state. `workspace` is used only when env0 creates the sub-environment. `approve_plan_automatically` is sent with every deployment the provider triggers and saved on the sub-environment, but a `requiresApproval` set in `env0.workflow.yml` overrides it on the next deployment from any source, and it is not read back into the state. The deprecated `revision` applies only to deployments the provider triggers. See [Terraform provider settings for sub-environments](https://docs.envzero.com/guides/admin-guide/workflows/terraform-provider-sub-environment-settings) for the full table.
+
 ## Deletion behavior
 
 An environment deleted outside Terraform is dropped from the state on the next refresh, and the plan shows a re-create instead of failing.
@@ -119,7 +123,7 @@ If true must specify one of the following - 'github_installation_id' if using Gi
 - `revision` (String) the revision the environment is to be run against. Please note that changing this attribute will require environment redeploy
 - `run_plan_on_pull_requests` (Boolean) should run terraform plan on pull requests creations.
 If true must specify one of the following - 'github_installation_id' if using GitHub, 'gitlab_project_id' and 'token_id' if using GitLab, or 'bitbucket_client_key' if using BitBucket.
-- `sub_environment_configuration` (Block List) the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml' (see [below for nested schema](#nestedblock--sub_environment_configuration))
+- `sub_environment_configuration` (Block List) the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'. Fields that also exist in 'env0.workflow.yml' do not always behave the same way: see https://docs.envzero.com/guides/admin-guide/workflows/terraform-provider-sub-environment-settings for where each field is stored, which deployments honor it and which surface wins (see [below for nested schema](#nestedblock--sub_environment_configuration))
 - `tags` (Map of String) the environment's tags. Keys and values may contain letters, digits, spaces and the characters _ . : / + - @ (up to 50 key-value pairs).
 A key may hold several values - join them with a comma and no space (for example: "eng,payments").
 - `template_id` (String) the template id the environment is to be created from.
@@ -169,10 +173,10 @@ Required:
 
 Optional:
 
-- `approve_plan_automatically` (Boolean) when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval
-- `configuration` (Block List) sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
-- `revision` (String, Deprecated) sub environment revision
-- `workspace` (String) sub environment workspace (overrides the configuration in the yml file)
+- `approve_plan_automatically` (Boolean) when 'true' (default) plans are approved automatically, otherwise ('false') deployments require manual approval. Sent with every deployment the provider triggers (and on create with 'prevent_auto_deploy') and saved on the sub environment as its approval setting, which later deployments from the UI, API or VCS fall back to. A 'requiresApproval' set in 'env0.workflow.yml' overrides it on the next deployment from any source, the value is not read back into the state, and it is not sent on updates when 'prevent_auto_deploy' is true. To make approval hold regardless of what triggers the deployment, set 'requiresApproval' in 'env0.workflow.yml' instead
+- `configuration` (Block List) sub environment configuration variables, stored as environment-scoped variables on the sub environment and read back into the state. Note: do not use with 'env0_configuration_variable' resource (see [below for nested schema](#nestedblock--sub_environment_configuration--configuration))
+- `revision` (String, Deprecated) sub environment revision. Applies only to the deployments the provider triggers; every other deployment uses the 'revision' in 'env0.workflow.yml'
+- `workspace` (String) sub environment workspace. Used only when env0 creates the sub environment, where it overrides the 'workspace' in 'env0.workflow.yml'. Changing it afterwards triggers a deployment but does not change the workspace
 
 Read-Only:
 
