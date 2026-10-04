@@ -12,6 +12,7 @@ type ApiClient struct {
 	cachedOrganizationId  string
 	defaultOrganizationId string
 	memoizedGetTeams      func(string) ([]Team, error)
+	templateCache         *templateCache
 }
 
 type ApiClientInterface interface {
@@ -36,6 +37,7 @@ type ApiClientInterface interface {
 	ProjectMove(id string, targetProjectId string) error
 	ModuleTestingProject() (*ModuleTestingProject, error)
 	Template(id string) (Template, error)
+	CachedTemplate(id string) (Template, error)
 	Templates() ([]Template, error)
 	TemplatesByName(name string) ([]Template, error)
 	TemplateCreate(payload TemplateCreatePayload) (Template, error)
@@ -196,6 +198,7 @@ func NewApiClient(client http.HttpClientInterface, defaultOrganizationId string,
 		apiEndpoint:           apiEndpoint,
 		cachedOrganizationId:  "",
 		defaultOrganizationId: defaultOrganizationId,
+		templateCache:         newTemplateCache(),
 	}
 
 	apiClient.memoizedGetTeams = memoize(apiClient.GetTeams)

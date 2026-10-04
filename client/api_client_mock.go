@@ -436,6 +436,21 @@ func (mr *MockApiClientInterfaceMockRecorder) AssignUserToProject(arg0, arg1 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignUserToProject", reflect.TypeOf((*MockApiClientInterface)(nil).AssignUserToProject), arg0, arg1)
 }
 
+// CachedTemplate mocks base method.
+func (m *MockApiClientInterface) CachedTemplate(arg0 string) (Template, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CachedTemplate", arg0)
+	ret0, _ := ret[0].(Template)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CachedTemplate indicates an expected call of CachedTemplate.
+func (mr *MockApiClientInterfaceMockRecorder) CachedTemplate(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CachedTemplate", reflect.TypeOf((*MockApiClientInterface)(nil).CachedTemplate), arg0)
+}
+
 // CloudAccount mocks base method.
 func (m *MockApiClientInterface) CloudAccount(arg0 string) (*CloudAccount, error) {
 	m.ctrl.T.Helper()

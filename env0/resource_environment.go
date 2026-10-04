@@ -581,6 +581,10 @@ func setEnvironmentSchema(ctx context.Context, d *schema.ResourceData, environme
 
 				alias := d.Get(fmt.Sprintf("sub_environment_configuration.%d.alias", i)).(string)
 
+				// The id in state is positional. Clear it, so an alias that is not in the workflow file
+				// does not keep the id of the block that was at this index before.
+				subEnvironment["id"] = ""
+
 				workkflowSubEnvironment, ok := environment.LatestDeploymentLog.WorkflowFile.Environments[alias]
 				if ok {
 					subEnvironment["id"] = workkflowSubEnvironment.EnvironmentId
@@ -1125,6 +1129,28 @@ func getSubEnvironmentConfigurationChanges(d *schema.ResourceData, index int, su
 	return getUpdateConfigurationVariables(configurationChanges, subEnvironmentId, client.ScopeEnvironment, apiClient)
 }
 
+// getSubEnvironmentIdsByAlias resolves each sub environment id from its alias in the latest workflow file.
+// The id held in state is positional: it is wrong after a block is inserted, removed or moved.
+func getSubEnvironmentIdsByAlias(environmentId string, apiClient client.ApiClientInterface) (map[string]string, error) {
+	environment, err := apiClient.Environment(environmentId)
+	if err != nil {
+		return nil, fmt.Errorf("could not get environment: %w", err)
+	}
+
+	idsByAlias := map[string]string{}
+
+	if environment.LatestDeploymentLog.WorkflowFile != nil {
+		for alias, subEnvironment := range environment.LatestDeploymentLog.WorkflowFile.Environments {
+			// An alias without an environment id is not deployed yet.
+			if subEnvironment.EnvironmentId != "" {
+				idsByAlias[alias] = subEnvironment.EnvironmentId
+			}
+		}
+	}
+
+	return idsByAlias, nil
+}
+
 func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Diagnostics {
 	deployPayload, err := getDeployPayload(d, apiClient, true)
 	if err != nil {
@@ -1152,10 +1178,20 @@ func deploy(d *schema.ResourceData, apiClient client.ApiClientInterface) diag.Di
 	if len(subEnvironments) > 0 {
 		deployPayload.SubEnvironments = make(map[string]client.SubEnvironment)
 
+		subEnvironmentIds, err := getSubEnvironmentIdsByAlias(d.Id(), apiClient)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
 		for i, subEnvironment := range subEnvironments {
-			configurationChanges, err := getSubEnvironmentConfigurationChanges(d, i, subEnvironment.Id, apiClient)
-			if err != nil {
-				return diag.FromErr(err)
+			// A sub environment that is not deployed yet has no variables to diff against.
+			configurationChanges := subEnvironment.Configuration
+
+			if subEnvironmentId, ok := subEnvironmentIds[subEnvironment.Alias]; ok {
+				configurationChanges, err = getSubEnvironmentConfigurationChanges(d, i, subEnvironmentId, apiClient)
+				if err != nil {
+					return diag.FromErr(err)
+				}
 			}
 
 			for i := range configurationChanges {
@@ -1231,8 +1267,14 @@ func updateSubEnvironmentsConfigurationWithoutDeploy(d *schema.ResourceData, api
 		return fmt.Errorf("failed to extract sub environments from resource data: %w", err)
 	}
 
+	subEnvironmentIds, err := getSubEnvironmentIdsByAlias(d.Id(), apiClient)
+	if err != nil {
+		return err
+	}
+
 	for i, subEnvironment := range subEnvironments {
-		if subEnvironment.Id == "" {
+		subEnvironmentId, ok := subEnvironmentIds[subEnvironment.Alias]
+		if !ok {
 			continue
 		}
 
@@ -1240,16 +1282,18 @@ func updateSubEnvironmentsConfigurationWithoutDeploy(d *schema.ResourceData, api
 		// updateWithoutDeploy is entered on any sub_environment_configuration change (including
 		// non-variable fields like workspace/approve_plan_automatically), so without this guard we
 		// would recompute deltas and could update/delete variables the user never touched.
-		if !d.HasChange(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)) {
+		// A changed alias means another block moved to this index, so its variables must be diffed too.
+		if !d.HasChange(fmt.Sprintf("sub_environment_configuration.%d.configuration", i)) &&
+			!d.HasChange(fmt.Sprintf("sub_environment_configuration.%d.alias", i)) {
 			continue
 		}
 
-		configurationChanges, err := getSubEnvironmentConfigurationChanges(d, i, subEnvironment.Id, apiClient)
+		configurationChanges, err := getSubEnvironmentConfigurationChanges(d, i, subEnvironmentId, apiClient)
 		if err != nil {
 			return err
 		}
 
-		if err := applyConfigurationChangesWithoutDeploy(configurationChanges, client.ScopeEnvironment, subEnvironment.Id, apiClient); err != nil {
+		if err := applyConfigurationChangesWithoutDeploy(configurationChanges, client.ScopeEnvironment, subEnvironmentId, apiClient); err != nil {
 			return err
 		}
 	}
