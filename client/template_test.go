@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"sync"
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
@@ -57,6 +58,156 @@ var _ = Describe("Templates Client", func() {
 
 		It("Should return template", func() {
 			Expect(returnedTemplate).To(Equal(mockTemplate))
+		})
+	})
+
+	It("Template should not be cached", func() {
+		mockHttpClient.EXPECT().Get("/blueprints/"+mockTemplate.Id, gomock.Nil(), gomock.Any()).Times(2)
+
+		_, _ = apiClient.Template(mockTemplate.Id)
+		_, _ = apiClient.Template(mockTemplate.Id)
+	})
+
+	Describe("CachedTemplate", func() {
+		mockGet := func(id string) *gomock.Call {
+			return mockHttpClient.EXPECT().
+				Get("/blueprints/"+id, gomock.Nil(), gomock.Any()).
+				Do(func(path string, request any, response *Template) {
+					*response = mockTemplate
+				})
+		}
+
+		It("Should send one GET request for repeated reads", func() {
+			mockGet(mockTemplate.Id).Times(1)
+
+			for range 3 {
+				template, err := apiClient.CachedTemplate(mockTemplate.Id)
+				Expect(err).To(BeNil())
+				Expect(template).To(Equal(mockTemplate))
+			}
+		})
+
+		It("Should cache each template separately", func() {
+			mockGet(mockTemplate.Id).Times(1)
+			mockGet("other-id").Times(1)
+
+			_, _ = apiClient.CachedTemplate(mockTemplate.Id)
+			_, _ = apiClient.CachedTemplate("other-id")
+			_, _ = apiClient.CachedTemplate(mockTemplate.Id)
+			_, _ = apiClient.CachedTemplate("other-id")
+		})
+
+		It("Should send one GET request for concurrent reads", func() {
+			mockGet(mockTemplate.Id).Times(1)
+
+			var wg sync.WaitGroup
+
+			for range 20 {
+				wg.Go(func() {
+					defer GinkgoRecover()
+
+					template, err := apiClient.CachedTemplate(mockTemplate.Id)
+					Expect(err).To(BeNil())
+					Expect(template).To(Equal(mockTemplate))
+				})
+			}
+
+			wg.Wait()
+		})
+
+		It("Should not cache an error", func() {
+			gomock.InOrder(
+				mockHttpClient.EXPECT().Get("/blueprints/"+mockTemplate.Id, gomock.Nil(), gomock.Any()).
+					Times(1).Return(errors.New("error")),
+				mockGet(mockTemplate.Id).Times(1),
+			)
+
+			_, err := apiClient.CachedTemplate(mockTemplate.Id)
+			Expect(err).To(MatchError("error"))
+
+			template, err := apiClient.CachedTemplate(mockTemplate.Id)
+			Expect(err).To(BeNil())
+			Expect(template).To(Equal(mockTemplate))
+		})
+
+		DescribeTable("Should send a new GET request after the template changes",
+			func(change func()) {
+				mockGet(mockTemplate.Id).Times(2)
+				mockGet("other-id").Times(1)
+
+				_, _ = apiClient.CachedTemplate(mockTemplate.Id)
+				_, _ = apiClient.CachedTemplate("other-id")
+
+				change()
+
+				_, _ = apiClient.CachedTemplate(mockTemplate.Id)
+				// Changing one template must not drop another template's entry.
+				_, _ = apiClient.CachedTemplate("other-id")
+			},
+			Entry("TemplateUpdate", func() {
+				mockOrganizationIdCall().Times(1)
+				mockHttpClient.EXPECT().Put("/blueprints/"+mockTemplate.Id, gomock.Any(), gomock.Any()).Times(1)
+
+				_, _ = apiClient.TemplateUpdate(mockTemplate.Id, TemplateCreatePayload{})
+			}),
+			Entry("TemplateDelete", func() {
+				mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id, nil).Times(1)
+
+				_ = apiClient.TemplateDelete(mockTemplate.Id)
+			}),
+			Entry("AssignTemplateToProject", func() {
+				mockHttpClient.EXPECT().Patch("/blueprints/"+mockTemplate.Id+"/projects", gomock.Any(), gomock.Any()).Times(1)
+
+				_, _ = apiClient.AssignTemplateToProject(mockTemplate.Id, TemplateAssignmentToProjectPayload{ProjectId: "project-id"})
+			}),
+			Entry("RemoveTemplateFromProject", func() {
+				mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/project-id", nil).Times(1)
+
+				_ = apiClient.RemoveTemplateFromProject(mockTemplate.Id, "project-id")
+			}),
+			Entry("a failed RemoveTemplateFromProject", func() {
+				// The request may have reached the API before failing, so the entry is dropped anyway.
+				mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/project-id", nil).
+					Times(1).Return(errors.New("error"))
+
+				_ = apiClient.RemoveTemplateFromProject(mockTemplate.Id, "project-id")
+			}),
+		)
+
+		It("Should not store a GET that was in flight when the template changed", func() {
+			started := make(chan struct{})
+			release := make(chan struct{})
+
+			gomock.InOrder(
+				mockHttpClient.EXPECT().Get("/blueprints/"+mockTemplate.Id, gomock.Nil(), gomock.Any()).
+					Times(1).
+					Do(func(path string, request any, response *Template) {
+						close(started)
+						<-release
+
+						*response = mockTemplate
+					}),
+				mockGet(mockTemplate.Id).Times(1),
+			)
+			mockHttpClient.EXPECT().Delete("/blueprints/"+mockTemplate.Id+"/projects/project-id", nil).Times(1)
+
+			done := make(chan struct{})
+
+			go func() {
+				defer GinkgoRecover()
+				defer close(done)
+
+				_, _ = apiClient.CachedTemplate(mockTemplate.Id)
+			}()
+
+			<-started
+
+			_ = apiClient.RemoveTemplateFromProject(mockTemplate.Id, "project-id")
+
+			close(release)
+			<-done
+
+			_, _ = apiClient.CachedTemplate(mockTemplate.Id)
 		})
 	})
 

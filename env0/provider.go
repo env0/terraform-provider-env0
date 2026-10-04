@@ -193,15 +193,22 @@ const (
 	// A 429 is produced by a limit measured over a minute-sized window (API gateway and WAF),
 	// so waiting a second or two only burns another attempt on a request that is still blocked.
 	// Start much higher than a 5xx does. A Retry-After longer than retryMaxWaitTime is still
-	// honored in full: the rate limiter is paused for its whole duration (see http.NewHttpClient).
+	// honored in full: the rate limiter pauses that path for its whole duration (see
+	// http.NewHttpClient).
 	rateLimitWaitTime = http.DefaultRateLimitPause
 	// Attempts allowed for the integration-test-only empty-list retry, counting the first request.
 	emptyListMaxAttempts = 3
 	// Attempts allowed for the integration-test-only 404 retry, counting the first request.
 	notFoundMaxAttempts = 5
-	// Maximum requests the provider sends per minute, shared by all of Terraform's parallel
-	// operations. Retried attempts count against it too.
-	maxRequestsPerMinute = 950
+	// Requests per minute to a single method + path, which is how the WAF counts (1000/60s).
+	// Shared by all of Terraform's parallel operations, and retried attempts count against it too.
+	maxRequestsPerMinutePerPath = 950
+	// The WAF's critical-path rule allows 200/60s per method + path.
+	maxCriticalPathRequestsPerMinute = 190
+	// Every request the provider sends per minute, across all paths. A safety net for the backend,
+	// not a WAF limit: requests from env0's own agents are exempt from the WAF, so this is the only
+	// limit they get. Raise it once prod runs at this rate look clean.
+	maxRequestsPerMinute = 2000
 )
 
 // retryWaitTimeFor returns how long to wait before the next attempt of a failed request.
@@ -309,8 +316,8 @@ func createRestyClient(ctx context.Context) *resty.Client {
 				return true
 			}
 
-			// Retry on rate limiting (429 Too Many Requests). The client rate limiter is paused
-			// for the whole client when this response is seen (see http.NewHttpClient), so the
+			// Retry on rate limiting (429 Too Many Requests). The client rate limiter pauses this
+			// method + path when this response is seen (see http.NewHttpClient), so the
 			// backoff below is only the extra wait this specific request takes.
 			if r.StatusCode() == nethttp.StatusTooManyRequests {
 				tflog.SubsystemWarn(subCtx, "env0_api_client", "Rate limited, retrying request", map[string]any{"method": r.Request.Method, "url": r.Request.URL, "attempt": r.Request.Attempt, "retry after": r.Header().Get("Retry-After")})
@@ -356,8 +363,8 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
 			RestClient:  createRestyClient(ctx),
-			// env0 backend allows 1000 requests / minute
-			RateLimiter: ratelimiter.NewSlidingWindowLimiter(maxRequestsPerMinute, time.Minute),
+			RateLimiter: ratelimiter.NewKeyedLimiter(maxRequestsPerMinute, time.Minute,
+				http.PerPathRequestLimit(maxRequestsPerMinutePerPath, maxCriticalPathRequestsPerMinute)),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}

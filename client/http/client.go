@@ -11,10 +11,10 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// DefaultRateLimitPause is how long the rate limiter holds back every request after a 429 that
-// carries no Retry-After header. The limit is enforced server side (API gateway and WAF), so the
-// whole client has to idle: retrying only the blocked request while its siblings keep firing is
-// what turns a single 429 into thousands of blocked requests. The provider's 429 backoff starts
+// DefaultRateLimitPause is how long the rate limiter holds back requests to a method + path after
+// a 429 that carries no Retry-After header. The WAF counts per method + path, so every request to
+// that path has to idle: retrying only the blocked request while its siblings keep firing is what
+// turns a single 429 into thousands of blocked requests. The provider's 429 backoff starts
 // from the same value, so the two can't drift apart.
 const DefaultRateLimitPause = 5 * time.Second
 
@@ -62,11 +62,13 @@ func NewHttpClient(config HttpClientConfig) (*HttpClient, error) {
 // request builder, so that retried attempts count against the limit as well. Otherwise a run
 // that starts getting 429s or 5xx answers sends the retries on top of the allowed rate.
 //
+// Requests are keyed by method + path, so a 429 pauses only the path that answered it.
+//
 // The hooks are appended to the resty client, so it must not be handed to NewHttpClient twice:
 // a second call would register a second Wait and halve the effective rate.
 func applyRateLimiter(client *resty.Client, rateLimiter ratelimiter.RateLimiter) {
 	client.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
-		return rateLimiter.Wait(r.Context())
+		return rateLimiter.Wait(r.Context(), rateLimitKey(c, r.Method, r.URL))
 	})
 
 	client.OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
@@ -79,7 +81,7 @@ func applyRateLimiter(client *resty.Client, rateLimiter ratelimiter.RateLimiter)
 			pause = DefaultRateLimitPause
 		}
 
-		rateLimiter.Pause(pause)
+		rateLimiter.Pause(rateLimitKey(c, r.Request.Method, r.Request.URL), pause)
 
 		return nil
 	})

@@ -261,11 +261,23 @@ func (client *ApiClient) Template(id string) (Template, error) {
 	return result, nil
 }
 
+// CachedTemplate is Template, cached for the rest of the provider run and dropped when this
+// client changes the template. It is for env0_template_project_assignment only: other callers
+// read blueprints that change through other endpoints (environments, approval policies).
+// Callers must not modify the returned template's slices.
+func (client *ApiClient) CachedTemplate(id string) (Template, error) {
+	return client.templateCache.get(id, client.Template)
+}
+
 func (client *ApiClient) TemplateDelete(id string) error {
+	defer client.templateCache.invalidate(id)
+
 	return client.http.Delete("/blueprints/"+id, nil)
 }
 
 func (client *ApiClient) TemplateUpdate(id string, payload TemplateCreatePayload) (Template, error) {
+	defer client.templateCache.invalidate(id)
+
 	organizationId, err := client.OrganizationId()
 	if err != nil {
 		return Template{}, err
@@ -321,6 +333,8 @@ func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssi
 		return result, errors.New("must specify projectId on assignment to a template")
 	}
 
+	defer client.templateCache.invalidate(id)
+
 	err := client.http.Patch("/blueprints/"+id+"/projects", payload, &result)
 	if err != nil {
 		return result, err
@@ -330,6 +344,8 @@ func (client *ApiClient) AssignTemplateToProject(id string, payload TemplateAssi
 }
 
 func (client *ApiClient) RemoveTemplateFromProject(templateId string, projectId string) error {
+	defer client.templateCache.invalidate(templateId)
+
 	return client.http.Delete("/blueprints/"+templateId+"/projects/"+projectId, nil)
 }
 
