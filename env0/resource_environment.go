@@ -371,13 +371,13 @@ func resourceEnvironment() *schema.Resource {
 						},
 						"configuration": {
 							Type:        schema.TypeList,
-							Description: "sub environment configuration variables, stored as environment-scoped variables on the sub environment and read back into the state. Note: do not use with 'env0_configuration_variable' resource",
+							Description: "sub environment configuration variables, stored as environment-scoped variables on the sub environment and read back into the state, except the values of sensitive variables which the API redacts, so the state value is kept and a secret changed outside Terraform is not detected. Note: do not use with 'env0_configuration_variable' resource",
 							Optional:    true,
 							Elem:        configurationSchema,
 						},
 						"approve_plan_automatically": {
 							Type:        schema.TypeBool,
-							Description: "when 'true' (default) plans are approved automatically, otherwise ('false') deployments require manual approval. Sent with every deployment the provider triggers (and on create with 'prevent_auto_deploy') and saved on the sub environment as its approval setting, which later deployments from the UI, API or VCS fall back to. A 'requiresApproval' set in 'env0.workflow.yml' overrides it on the next deployment from any source, the value is not read back into the state, and it is not sent on updates when 'prevent_auto_deploy' is true. To make approval hold regardless of what triggers the deployment, set 'requiresApproval' in 'env0.workflow.yml' instead",
+							Description: "when 'true' (default) plans are approved automatically, otherwise ('false') deployments require manual approval. Sent with every deployment the provider triggers (and on create with 'prevent_auto_deploy'), where it takes precedence over 'requiresApproval' in 'env0.workflow.yml', and saved on the sub environment as its approval setting. Deployments the provider does not trigger (UI, API, VCS, schedule) do not carry it: they use 'requiresApproval' from 'env0.workflow.yml' when set, otherwise the saved setting. The value is not read back into the state, and it is not sent on updates when 'prevent_auto_deploy' is true. To require approval regardless of what triggers the deployment, set this to 'false' and 'requiresApproval: true' in 'env0.workflow.yml'",
 							Optional:    true,
 							Default:     true,
 						},
