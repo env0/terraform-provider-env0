@@ -929,12 +929,11 @@ func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables clie
 
 	for _, ivariable := range stateVariables {
 		variable := ivariable.(map[string]any)
-		variableName := variable["name"].(string)
 		schemaIsSensitive, _ := variable["is_sensitive"].(bool)
 
 		for i := range remoteVariables {
 			remote := &remoteVariables[i]
-			if remote.Name != variableName {
+			if !matchesStateVariable(*remote, variable) {
 				continue
 			}
 
@@ -952,14 +951,9 @@ func mergeSubEnvironmentConfiguration(stateVariables []any, remoteVariables clie
 	}
 
 	for _, remote := range remoteVariables {
-		found := false
-
-		for _, ivariable := range stateVariables {
-			if ivariable.(map[string]any)["name"].(string) == remote.Name {
-				found = true
-				break
-			}
-		}
+		found := slices.ContainsFunc(stateVariables, func(ivariable any) bool {
+			return matchesStateVariable(remote, ivariable.(map[string]any))
+		})
 
 		if !found {
 			merged = append(merged, createVariable(&remote))
@@ -2058,10 +2052,26 @@ func isVariableExist(variables client.ConfigurationChanges, search client.Config
 	return false, client.ConfigurationVariable{}
 }
 
+// A nil type means environment.
 func typeEqual(variable client.ConfigurationVariable, search client.ConfigurationVariable) bool {
-	return *variable.Type == *search.Type ||
-		variable.Type == nil && *search.Type == client.ConfigurationVariableTypeEnvironment ||
-		search.Type == nil && *variable.Type == client.ConfigurationVariableTypeEnvironment
+	return typeOrDefault(variable.Type) == typeOrDefault(search.Type)
+}
+
+func typeOrDefault(variableType *client.ConfigurationVariableType) client.ConfigurationVariableType {
+	if variableType == nil {
+		return client.ConfigurationVariableTypeEnvironment
+	}
+
+	return *variableType
+}
+
+// State holds the type as "environment" or "terraform". A missing type means environment.
+func matchesStateVariable(remote client.ConfigurationVariable, variable map[string]any) bool {
+	variableName, _ := variable["name"].(string)
+	variableType, _ := variable["type"].(string)
+	stateType, _ := client.GetConfigurationVariableType(variableType)
+
+	return remote.Name == variableName && typeOrDefault(remote.Type) == stateType
 }
 
 func getEnvironmentByName(meta any, name string, projectId string, excludeArchived bool) (client.Environment, diag.Diagnostics) {
