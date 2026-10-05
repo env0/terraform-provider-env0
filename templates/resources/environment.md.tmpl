@@ -20,6 +20,10 @@ Updating an environment applies changes as a sequence of independent steps: proj
 
 Deployments triggered by an update are asynchronous: the apply returns once the deployment is queued, and env0 runs it in the background. The state holds the requested `revision` and `configuration` from the moment the apply returns, whether or not the deployment later succeeds. A failed or still-running deployment is not surfaced as drift, because `revision` and `template_id` are read back from the latest deployment log whatever its status. There is no equivalent of `wait_for_destroy` for deployments, so the apply result does not reflect the deployment's outcome.
 
+## Workflow sub-environments
+
+For a workflow environment, `sub_environment_configuration` and `env0.workflow.yml` configure the same sub-environments, and fields that exist in both do not always behave the same way: some are stored on the sub-environment, some are sent only with deployments the provider triggers, and a deployment's own request value or `requiresApproval` in the file can override `approve_plan_automatically`. Each field's description below states its rule, and [Terraform provider settings for sub-environments](https://docs.envzero.com/guides/admin-guide/workflows/terraform-provider-sub-environment-settings) has the full table.
+
 ## Deletion behavior
 
 An environment deleted outside Terraform is dropped from the state on the next refresh, and the plan shows a re-create instead of failing.

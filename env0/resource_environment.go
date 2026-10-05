@@ -344,7 +344,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"sub_environment_configuration": {
 				Type:        schema.TypeList,
-				Description: "the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'",
+				Description: "the subenvironments for a workflow environment. Template type must be 'workflow'. Must match the configuration as defined in 'env0.workflow.yml'. Fields that also exist in 'env0.workflow.yml' do not always behave the same way: see https://docs.envzero.com/guides/admin-guide/workflows/terraform-provider-sub-environment-settings for where each field is stored, which deployments honor it and which surface wins",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -360,24 +360,24 @@ func resourceEnvironment() *schema.Resource {
 						},
 						"revision": {
 							Type:        schema.TypeString,
-							Description: "sub environment revision",
+							Description: "sub environment revision. Applies only to the deployments the provider triggers; every other deployment uses the 'revision' in 'env0.workflow.yml'",
 							Optional:    true,
-							Deprecated:  "this field is deprecated and no longer used, will be removed in the future",
+							Deprecated:  "remove this field and set 'revision' in 'env0.workflow.yml' instead. While set, it still overrides the file on deployments the provider triggers. It will be removed in the future",
 						},
 						"workspace": {
 							Type:        schema.TypeString,
-							Description: "sub environment workspace (overrides the configuration in the yml file)",
+							Description: "sub environment workspace. Used only when env0 creates the sub environment, where it overrides the 'workspace' in 'env0.workflow.yml'. Changing it afterwards does not change the workspace; it triggers a deployment unless 'prevent_auto_deploy' is true",
 							Optional:    true,
 						},
 						"configuration": {
 							Type:        schema.TypeList,
-							Description: "sub environment configuration variables. Note: do not use with 'env0_configuration_variable' resource",
+							Description: "sub environment configuration variables. Stored as environment-scoped variables on the sub environment and read back into the state. Sensitive values are redacted by the API, so the state value is kept and a secret changed outside Terraform is not detected. Note: do not use with 'env0_configuration_variable' resource",
 							Optional:    true,
 							Elem:        configurationSchema,
 						},
 						"approve_plan_automatically": {
 							Type:        schema.TypeBool,
-							Description: "when 'true' (default) plans are approved automatically, otherwise ('false') deployment require manual approval",
+							Description: "when 'true' (default) plans are approved automatically, otherwise ('false') deployments require manual approval. Sent only with deployments the provider triggers (and on create with 'prevent_auto_deploy'), where it takes precedence over 'requiresApproval' in 'env0.workflow.yml', and saved on the sub environment as its approval setting. Other deployments use their own request value if set (deploy dialog or API), then 'requiresApproval' from 'env0.workflow.yml', then the saved setting. Not read back into the state, and not sent on updates when 'prevent_auto_deploy' is true. To require approval regardless of the trigger, set this to 'false' and 'requiresApproval: true' in 'env0.workflow.yml'",
 							Optional:    true,
 							Default:     true,
 						},
