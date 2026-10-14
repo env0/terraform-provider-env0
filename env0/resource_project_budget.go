@@ -35,7 +35,7 @@ func resourceProjectBudget() *schema.Resource {
 			},
 			"thresholds": {
 				Type:        schema.TypeList,
-				Description: "list of notification thresholds",
+				Description: "list of notification thresholds, as percentages of the budget `amount` (e.g. 80 means 80% of `amount`)",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type:        schema.TypeInt,
