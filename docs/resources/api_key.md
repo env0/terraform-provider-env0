@@ -117,7 +117,7 @@ resource "env0_api_key" "ip_restricted_key" {
 
 ### Optional
 
-- `ip_allowlist` (Set of String) the IP addresses this api key may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist. An empty or omitted list allows any IP. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it
+- `ip_allowlist` (Set of String) the IP addresses this api key may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist, so an empty or omitted list only removes the per-key restriction. A change can take up to an hour to apply on the API. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it
 - `omit_api_key_secret` (Boolean) if set to 'true' will omit the api_key_secret from the state. This would mean that the api_key_secret cannot be used
 - `organization_role` (String) the api key type. 'Admin', 'User' or a custom role id. Defaults to 'Admin'. For more details check https://docs.env0.com/docs/api-keys
 - `project_permissions` (Block Set) Project-specific permissions. Only valid when organization_role is 'User' or a custom role id (see [below for nested schema](#nestedblock--project_permissions))

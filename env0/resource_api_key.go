@@ -99,7 +99,7 @@ func resourceApiKey() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    50,
-				Description: "the IP addresses this api key may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist. An empty or omitted list allows any IP. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it",
+				Description: "the IP addresses this api key may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist, so an empty or omitted list only removes the per-key restriction. A change can take up to an hour to apply on the API. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it",
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					ValidateDiagFunc: validateIpAllowlistEntry,
