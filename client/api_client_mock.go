@@ -228,6 +228,21 @@ func (mr *MockApiClientInterfaceMockRecorder) ApiKeyDelete(arg0 any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyDelete", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyDelete), arg0)
 }
 
+// ApiKeyUpdateIpAllowlist mocks base method.
+func (m *MockApiClientInterface) ApiKeyUpdateIpAllowlist(arg0 string, arg1 []IpAllowlistRule) (*ApiKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApiKeyUpdateIpAllowlist", arg0, arg1)
+	ret0, _ := ret[0].(*ApiKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ApiKeyUpdateIpAllowlist indicates an expected call of ApiKeyUpdateIpAllowlist.
+func (mr *MockApiClientInterfaceMockRecorder) ApiKeyUpdateIpAllowlist(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApiKeyUpdateIpAllowlist", reflect.TypeOf((*MockApiClientInterface)(nil).ApiKeyUpdateIpAllowlist), arg0, arg1)
+}
+
 // ApiKeys mocks base method.
 func (m *MockApiClientInterface) ApiKeys() ([]ApiKey, error) {
 	m.ctrl.T.Helper()

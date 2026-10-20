@@ -16,6 +16,9 @@ func TestApiKeyDataSource(t *testing.T) {
 		Name:         "name0",
 		ApiKeyId:     "keyid0",
 		ApiKeySecret: "secret0",
+		IpAllowlist: []client.IpAllowlistRule{
+			{Type: "range", Start: "198.51.100.40", End: "198.51.100.60", Family: "ipv4"},
+		},
 	}
 
 	otherApiKey := client.ApiKey{
@@ -41,6 +44,8 @@ func TestApiKeyDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "id", apiKey.Id),
 						resource.TestCheckResourceAttr(accessor, "name", apiKey.Name),
 						resource.TestCheckResourceAttr(accessor, "api_key_id", apiKey.ApiKeyId),
+						resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "1"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.40-198.51.100.60"),
 					),
 				},
 			},

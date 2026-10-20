@@ -30,6 +30,12 @@ func dataApiKey() *schema.Resource {
 				Computed:    true,
 				Description: "the api key id",
 			},
+			"ip_allowlist": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "the IP addresses, CIDR subnets and ranges this api key may be used from. Empty when the key allows any IP",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -52,7 +58,7 @@ func dataApiKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.
 		}
 	}
 
-	if err := writeResourceData(apiKey, d); err != nil {
+	if err := writeApiKeyResourceData(apiKey, d); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 

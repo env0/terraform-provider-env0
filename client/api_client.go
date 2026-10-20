@@ -106,6 +106,7 @@ type ApiClientInterface interface {
 	GitTokenDelete(id string) error
 	ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, error)
 	ApiKeyDelete(id string) error
+	ApiKeyUpdateIpAllowlist(id string, rules []IpAllowlistRule) (*ApiKey, error)
 	ApiKeys() ([]ApiKey, error)
 	AssignAgentsToProjects(payload AssignProjectsAgentsAssignmentsPayload) (*ProjectsAgentsAssignments, error)
 	ProjectsAgentsAssignments() (*ProjectsAgentsAssignments, error)

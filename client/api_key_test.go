@@ -1,6 +1,8 @@
 package client_test
 
 import (
+	"encoding/json"
+
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
 	. "github.com/onsi/ginkgo"
@@ -42,6 +44,76 @@ var _ = Describe("ApiKey Client", func() {
 
 		It("Should return ApiKeys", func() {
 			Expect(returnedApiKeys).To(Equal(mockApiKeys))
+		})
+	})
+
+	Describe("Get All ApiKeys with an ip allowlist", func() {
+		var returnedApiKeys []ApiKey
+
+		BeforeEach(func() {
+			mockOrganizationIdCall()
+
+			httpCall = mockHttpClient.EXPECT().
+				Get("/api-keys", map[string]string{"organizationId": organizationId}, gomock.Any()).
+				Do(func(path string, request any, response *[]ApiKey) {
+					Expect(json.Unmarshal([]byte(`[{"id":"id","ipAllowlist":[{"type":"subnet","network":"0.0.0.0","prefix":0,"family":"ipv4"}]}]`), response)).To(Succeed())
+				})
+			returnedApiKeys, _ = apiClient.ApiKeys()
+		})
+
+		It("Should decode the ip allowlist", func() {
+			prefix := 0
+			Expect(returnedApiKeys[0].IpAllowlist).To(Equal([]IpAllowlistRule{
+				{Type: "subnet", Network: "0.0.0.0", Prefix: &prefix, Family: "ipv4"},
+			}))
+		})
+	})
+
+	Describe("Update ApiKey ip allowlist", func() {
+		var (
+			updatedApiKey *ApiKey
+			err           error
+		)
+
+		prefix := 0
+		rules := []IpAllowlistRule{
+			{Type: "address", Address: "198.51.100.7", Family: "ipv4"},
+			{Type: "subnet", Network: "0.0.0.0", Prefix: &prefix, Family: "ipv4"},
+		}
+		mockApiKeyWithAllowlist := mockApiKey
+		mockApiKeyWithAllowlist.IpAllowlist = rules
+
+		BeforeEach(func() {
+			httpCall = mockHttpClient.EXPECT().
+				Put("/api-keys/"+mockApiKey.Id+"/ip-allowlist", ApiKeyUpdateIpAllowlistPayload{IpAllowlist: rules}, gomock.Any()).
+				Do(func(path string, request any, response *ApiKey) {
+					*response = mockApiKeyWithAllowlist
+				})
+
+			updatedApiKey, err = apiClient.ApiKeyUpdateIpAllowlist(mockApiKey.Id, rules)
+		})
+
+		It("Should send PUT request with the rules", func() {
+			httpCall.Times(1)
+		})
+
+		It("Should not return error", func() {
+			Expect(err).To(BeNil())
+		})
+
+		It("Should return the updated ApiKey", func() {
+			Expect(*updatedApiKey).To(Equal(mockApiKeyWithAllowlist))
+		})
+
+		// The server rejects a field that doesn't belong to the rule's type, and a missing prefix.
+		It("Should send only each rule's own fields, and prefix 0", func() {
+			body, _ := json.Marshal(ApiKeyUpdateIpAllowlistPayload{IpAllowlist: rules})
+			Expect(string(body)).To(Equal(`{"ipAllowlist":[{"type":"address","address":"198.51.100.7","family":"ipv4"},{"type":"subnet","network":"0.0.0.0","prefix":0,"family":"ipv4"}]}`))
+		})
+
+		It("Should send an empty list as []", func() {
+			body, _ := json.Marshal(ApiKeyUpdateIpAllowlistPayload{IpAllowlist: []IpAllowlistRule{}})
+			Expect(string(body)).To(Equal(`{"ipAllowlist":[]}`))
 		})
 	})
 

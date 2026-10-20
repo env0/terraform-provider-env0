@@ -37,3 +37,4 @@ data "env0_api_key" "api_key_sample_by_name" {
 ### Read-Only
 
 - `api_key_id` (String) the api key id
+- `ip_allowlist` (Set of String) the IP addresses, CIDR subnets and ranges this api key may be used from. Empty when the key allows any IP
