@@ -1,16 +1,32 @@
 package client
 
 type ApiKey struct {
-	Id               string `json:"id"`
-	Name             string `json:"name"`
-	ApiKeyId         string `json:"apiKeyId"`
-	ApiKeySecret     string `json:"apiKeySecret"     tfschema:",omitempty"`
-	LastUsedAt       string `json:"lastUsedAt"`
-	OrganizationId   string `json:"organizationId"`
-	OrganizationRole string `json:"organizationRole"`
-	CreatedAt        string `json:"createdAt"`
-	CreatedBy        string `json:"createdBy"`
-	CreatedByUser    User   `json:"createdByUser"`
+	Id               string            `json:"id"`
+	Name             string            `json:"name"`
+	ApiKeyId         string            `json:"apiKeyId"`
+	ApiKeySecret     string            `json:"apiKeySecret"     tfschema:",omitempty"`
+	LastUsedAt       string            `json:"lastUsedAt"`
+	OrganizationId   string            `json:"organizationId"`
+	OrganizationRole string            `json:"organizationRole"`
+	CreatedAt        string            `json:"createdAt"`
+	CreatedBy        string            `json:"createdBy"`
+	CreatedByUser    User              `json:"createdByUser"`
+	IpAllowlist      []IpAllowlistRule `json:"ipAllowlist"      tfschema:"-"`
+}
+
+// The server rejects fields that don't belong to the rule's type, so all of them are omitempty.
+type IpAllowlistRule struct {
+	Type    string `json:"type"`
+	Address string `json:"address,omitempty"`
+	Network string `json:"network,omitempty"`
+	Prefix  *int   `json:"prefix,omitempty"` // A pointer, because prefix 0 is valid.
+	Start   string `json:"start,omitempty"`
+	End     string `json:"end,omitempty"`
+	Family  string `json:"family,omitempty"`
+}
+
+type ApiKeyUpdateIpAllowlistPayload struct {
+	IpAllowlist []IpAllowlistRule `json:"ipAllowlist"`
 }
 
 type ProjectPermission struct {
@@ -54,6 +70,15 @@ func (client *ApiClient) ApiKeyCreate(payload ApiKeyCreatePayload) (*ApiKey, err
 
 func (client *ApiClient) ApiKeyDelete(id string) error {
 	return client.http.Delete("/api-keys/"+id, nil)
+}
+
+func (client *ApiClient) ApiKeyUpdateIpAllowlist(id string, rules []IpAllowlistRule) (*ApiKey, error) {
+	var result ApiKey
+	if err := client.http.Put("/api-keys/"+id+"/ip-allowlist", ApiKeyUpdateIpAllowlistPayload{IpAllowlist: rules}, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 func (client *ApiClient) ApiKeys() ([]ApiKey, error) {

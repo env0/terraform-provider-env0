@@ -41,8 +41,13 @@ resource "env0_user_project_assignment" "api_key_project_assignment" {
   role       = var.second_run ? "Viewer" : "Planner"
 }
 
+resource "env0_api_key" "test_api_key_ip_allowlist" {
+  name         = "api-key-ip-allowlist-${random_string.random.result}"
+  ip_allowlist = var.second_run ? ["192.0.2.0/24"] : ["198.51.100.7", "198.51.100.0/28"]
+}
+
 resource "time_sleep" "wait_15_seconds" {
-  depends_on = [env0_api_key.test_api_key]
+  depends_on = [env0_api_key.test_api_key, env0_api_key.test_api_key_ip_allowlist]
 
   create_duration = "15s"
 }
@@ -100,4 +105,17 @@ resource "env0_api_key" "test_api_key_custom_role" {
     project_id   = env0_project.project_resource.id
     project_role = "Planner"
   }
+}
+
+data "env0_api_key" "test_api_key_ip_allowlist" {
+  id         = env0_api_key.test_api_key_ip_allowlist.id
+  depends_on = [time_sleep.wait_15_seconds, env0_api_key.test_api_key_ip_allowlist]
+}
+
+output "ip_allowlist" {
+  value = join(",", env0_api_key.test_api_key_ip_allowlist.ip_allowlist)
+}
+
+output "data_ip_allowlist" {
+  value = join(",", data.env0_api_key.test_api_key_ip_allowlist.ip_allowlist)
 }

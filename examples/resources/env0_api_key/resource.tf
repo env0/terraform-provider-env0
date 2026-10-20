@@ -78,3 +78,16 @@ resource "env0_api_key" "custom_role_key" {
     project_role = "Deployer"
   }
 }
+
+# Example 5: API Key restricted to IP addresses
+# Applies on top of the organization's IP allowlist. Terraform owns the list, so one set in the env0 UI is cleared on the next apply.
+
+resource "env0_api_key" "ip_restricted_key" {
+  name = "ip-restricted-api-key"
+  ip_allowlist = [
+    "198.51.100.7",
+    "198.51.100.0/28",
+    "198.51.100.40-198.51.100.60",
+    "2001:db8::/32",
+  ]
+}

@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/netip"
+	"strconv"
+	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/google/uuid"
@@ -22,6 +25,7 @@ func resourceApiKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApiKeyCreate,
 		ReadContext:   resourceApiKeyRead,
+		UpdateContext: resourceApiKeyUpdate,
 		DeleteContext: resourceApiKeyDelete,
 
 		Importer: &schema.ResourceImporter{StateContext: resourceApiKeyImport},
@@ -91,8 +95,127 @@ func resourceApiKey() *schema.Resource {
 				Computed:    true,
 				Description: "the api key id",
 			},
+			"ip_allowlist": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    50,
+				Description: "the IP addresses this api key may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist, so an empty or omitted list only removes the per-key restriction. A change can take up to an hour to apply on the API. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it",
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validateIpAllowlistEntry,
+				},
+			},
 		},
 	}
+}
+
+func validateIpAllowlistEntry(i any, p cty.Path) diag.Diagnostics {
+	entry := i.(string)
+	if err := checkIpAllowlistEntry(entry); err != nil {
+		return diag.Errorf("invalid ip_allowlist entry '%s': %v. Use an address (198.51.100.7), a CIDR subnet (198.51.100.0/28) or a range (198.51.100.40-198.51.100.60)", entry, err)
+	}
+
+	return nil
+}
+
+// netip matches the server's checks: it rejects IPv4 octets with leading zeros and any whitespace,
+// so an entry that passes is stored and read back unchanged.
+func checkIpAllowlistEntry(entry string) error {
+	if strings.Contains(entry, "/") {
+		_, err := netip.ParsePrefix(entry)
+
+		return err
+	}
+
+	if startText, endText, isRange := strings.Cut(entry, "-"); isRange {
+		start, err := parseIpAllowlistAddr(startText)
+		if err != nil {
+			return err
+		}
+
+		end, err := parseIpAllowlistAddr(endText)
+		if err != nil {
+			return err
+		}
+
+		if start.BitLen() != end.BitLen() {
+			return errors.New("both ends of a range must be in the same IP family")
+		}
+
+		if start.Compare(end) > 0 {
+			return errors.New("the range start is after its end")
+		}
+
+		return nil
+	}
+
+	_, err := parseIpAllowlistAddr(entry)
+
+	return err
+}
+
+func parseIpAllowlistAddr(text string) (netip.Addr, error) {
+	addr, err := netip.ParseAddr(text)
+	if err == nil && addr.Zone() != "" {
+		return addr, errors.New("IPv6 zones are not supported")
+	}
+
+	return addr, err
+}
+
+// Same conversion as the env0 UI. Entries are validated already.
+func toIpAllowlistRules(entries []any) []client.IpAllowlistRule {
+	rules := make([]client.IpAllowlistRule, 0, len(entries))
+
+	for _, e := range entries {
+		entry := e.(string)
+
+		family := "ipv4"
+		if strings.Contains(entry, ":") {
+			family = "ipv6"
+		}
+
+		if network, prefixText, isSubnet := strings.Cut(entry, "/"); isSubnet {
+			prefix, _ := strconv.Atoi(prefixText)
+			rules = append(rules, client.IpAllowlistRule{Type: "subnet", Network: network, Prefix: &prefix, Family: family})
+		} else if start, end, isRange := strings.Cut(entry, "-"); isRange {
+			rules = append(rules, client.IpAllowlistRule{Type: "range", Start: start, End: end, Family: family})
+		} else {
+			rules = append(rules, client.IpAllowlistRule{Type: "address", Address: entry, Family: family})
+		}
+	}
+
+	return rules
+}
+
+func fromIpAllowlistRules(rules []client.IpAllowlistRule) []string {
+	entries := make([]string, 0, len(rules))
+
+	for _, rule := range rules {
+		switch rule.Type {
+		case "subnet":
+			prefix := 0
+			if rule.Prefix != nil {
+				prefix = *rule.Prefix
+			}
+
+			entries = append(entries, fmt.Sprintf("%s/%d", rule.Network, prefix))
+		case "range":
+			entries = append(entries, rule.Start+"-"+rule.End)
+		default:
+			entries = append(entries, rule.Address)
+		}
+	}
+
+	return entries
+}
+
+func writeApiKeyResourceData(apiKey *client.ApiKey, d *schema.ResourceData) error {
+	if err := writeResourceData(apiKey, d); err != nil {
+		return err
+	}
+
+	return d.Set("ip_allowlist", fromIpAllowlistRules(apiKey.IpAllowlist))
 }
 
 func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
@@ -116,7 +239,27 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, meta any)
 		return diag.Errorf("could not create api key: %v", err)
 	}
 
+	var ipAllowlist []client.IpAllowlistRule
+
+	if entries := d.Get("ip_allowlist").(*schema.Set).List(); len(entries) > 0 {
+		withAllowlist, err := apiClient.ApiKeyUpdateIpAllowlist(apiKey.Id, toIpAllowlistRules(entries))
+		if err != nil {
+			// The key was never restricted, so it must not be left behind.
+			if deleteErr := apiClient.ApiKeyDelete(apiKey.Id); deleteErr != nil {
+				return diag.Errorf("could not set the api key ip_allowlist: %v. Deleting the new api key %s also failed, delete it by hand: %v", err, apiKey.Id, deleteErr)
+			}
+
+			return diag.Errorf("could not set the api key ip_allowlist: %v", err)
+		}
+
+		ipAllowlist = withAllowlist.IpAllowlist
+	}
+
 	if err := writeResourceData(apiKey, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	if err := d.Set("ip_allowlist", fromIpAllowlistRules(ipAllowlist)); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -142,7 +285,23 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, meta any) d
 
 	apiKey.ApiKeySecret = "" // Don't override the api key secret currently in the state.
 
-	if err := writeResourceData(apiKey, d); err != nil {
+	if err := writeApiKeyResourceData(apiKey, d); err != nil {
+		return diag.Errorf("schema resource data serialization failed: %v", err)
+	}
+
+	return nil
+}
+
+// Every other attribute forces a new key, so only the ip_allowlist is updated in place.
+func resourceApiKeyUpdate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	apiClient := meta.(client.ApiClientInterface)
+
+	apiKey, err := apiClient.ApiKeyUpdateIpAllowlist(d.Id(), toIpAllowlistRules(d.Get("ip_allowlist").(*schema.Set).List()))
+	if err != nil {
+		return diag.Errorf("could not update api key ip_allowlist: %v", err)
+	}
+
+	if err := d.Set("ip_allowlist", fromIpAllowlistRules(apiKey.IpAllowlist)); err != nil {
 		return diag.Errorf("schema resource data serialization failed: %v", err)
 	}
 
@@ -226,7 +385,7 @@ func resourceApiKeyImport(ctx context.Context, d *schema.ResourceData, meta any)
 		return nil, err
 	}
 
-	if err := writeResourceData(apiKey, d); err != nil {
+	if err := writeApiKeyResourceData(apiKey, d); err != nil {
 		return nil, fmt.Errorf("schema resource data serialization failed: %w", err)
 	}
 
