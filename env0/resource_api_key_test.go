@@ -588,6 +588,41 @@ func TestUnitApiKeyResource(t *testing.T) {
 		})
 	})
 
+	t.Run("ip_allowlist - a failed update returns the error", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         apiKey.Name,
+						"ip_allowlist": []string{"192.0.2.0/24"},
+					}),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         apiKey.Name,
+						"ip_allowlist": []string{"198.51.100.7"},
+					}),
+					ExpectError: regexp.MustCompile("could not update api key ip_allowlist: error"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			store := mockStoredAllowlist(mock, apiKey)
+
+			gomock.InOrder(
+				mock.EXPECT().ApiKeyCreate(gomock.Any()).Times(1).Return(&apiKey, nil),
+				mock.EXPECT().ApiKeyUpdateIpAllowlist(apiKey.Id, updatedAllowlistRules).Times(1).DoAndReturn(
+					func(_ string, rules []client.IpAllowlistRule) (*client.ApiKey, error) { return store(rules), nil },
+				),
+				mock.EXPECT().ApiKeyUpdateIpAllowlist(apiKey.Id, []client.IpAllowlistRule{
+					{Type: "address", Address: "198.51.100.7", Family: "ipv4"},
+				}).Times(1).Return(nil, errors.New("error")),
+				mock.EXPECT().ApiKeyDelete(apiKey.Id).Times(1),
+			)
+		})
+	})
+
 	t.Run("ip_allowlist - invalid entries", func(t *testing.T) {
 		tooMany := make([]string, 51)
 		for i := range tooMany {
