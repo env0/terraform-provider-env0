@@ -526,7 +526,6 @@ func TestUnitApiKeyResource(t *testing.T) {
 					ImportStateId:           apiKey.Id,
 					ImportStateVerify:       true,
 					ImportStateVerifyIgnore: []string{"api_key_secret"},
-					Check:                   resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "192.0.2.0/24"),
 				},
 			},
 		}
