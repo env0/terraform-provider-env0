@@ -33,7 +33,7 @@ func dataApiKey() *schema.Resource {
 			"ip_allowlist": {
 				Type:        schema.TypeSet,
 				Computed:    true,
-				Description: "the IP addresses, CIDR subnets and ranges this api key may be used from. Empty when the key allows any IP",
+				Description: "the IP addresses, CIDR subnets and ranges this api key may be used from. Empty when the key has no restriction of its own; the organization's allowlist still applies",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
