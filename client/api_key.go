@@ -4,14 +4,14 @@ type ApiKey struct {
 	Id               string            `json:"id"`
 	Name             string            `json:"name"`
 	ApiKeyId         string            `json:"apiKeyId"`
-	ApiKeySecret     string            `json:"apiKeySecret"          tfschema:",omitempty"`
+	ApiKeySecret     string            `json:"apiKeySecret"     tfschema:",omitempty"`
 	LastUsedAt       string            `json:"lastUsedAt"`
 	OrganizationId   string            `json:"organizationId"`
 	OrganizationRole string            `json:"organizationRole"`
 	CreatedAt        string            `json:"createdAt"`
 	CreatedBy        string            `json:"createdBy"`
 	CreatedByUser    User              `json:"createdByUser"`
-	IpAllowlist      []IpAllowlistRule `json:"ipAllowlist,omitempty" tfschema:"-"`
+	IpAllowlist      []IpAllowlistRule `json:"ipAllowlist"      tfschema:"-"`
 }
 
 // The server rejects fields that don't belong to the rule's type, so all of them are omitempty.
