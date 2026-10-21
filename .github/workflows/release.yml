@@ -34,7 +34,7 @@ permissions:
   contents: write
 
 env:
-  GO_VERSION: "1.26"
+  GO_VERSION: "1.26.10"
 
 jobs:
   goreleaser:
