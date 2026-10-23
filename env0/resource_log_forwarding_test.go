@@ -126,6 +126,48 @@ func TestUnitLogForwardingResource(t *testing.T) {
 		})
 	})
 
+	// The API upserts by organization and type, so an update of a configuration deleted outside Terraform
+	// (unseen with -refresh=false) creates a new one with a new id.
+	t.Run("Update keeps the id the upsert returns", func(t *testing.T) {
+		store := &logForwardingStore{}
+
+		recreatedDatadog := updatedDatadog
+		recreatedDatadog.Id = uuid.NewString()
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: config("DATADOG", datadogValue, true, false),
+					Check:  resource.TestCheckResourceAttr(accessor, "id", datadog.Id),
+				},
+				{
+					Config: config("DATADOG", datadogValue, true, true),
+					Check:  resource.TestCheckResourceAttr(accessor, "id", recreatedDatadog.Id),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().LogForwardings().AnyTimes().DoAndReturn(store.list)
+			mock.EXPECT().LogForwardingUpsert(createDatadogPayload).Times(1).DoAndReturn(func(client.LogForwardingUpsertPayload) (*client.LogForwarding, error) {
+				store.set(datadog)
+
+				return &datadog, nil
+			})
+			mock.EXPECT().LogForwardingUpsert(client.LogForwardingUpsertPayload{
+				Type:                    client.LogForwardingTypeDatadog,
+				Value:                   datadogPayloadValue,
+				DeploymentLogForwarding: true,
+				AuditLogForwarding:      true,
+			}).Times(1).DoAndReturn(func(client.LogForwardingUpsertPayload) (*client.LogForwarding, error) {
+				store.set(recreatedDatadog)
+
+				return &recreatedDatadog, nil
+			})
+			mock.EXPECT().LogForwardingDelete(recreatedDatadog.Id).Times(1)
+		})
+	})
+
 	t.Run("Reformatted JSON value is not a change", func(t *testing.T) {
 		store := &logForwardingStore{}
 

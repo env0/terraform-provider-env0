@@ -192,9 +192,13 @@ func resourceLogForwardingUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	if _, err := apiClient.LogForwardingUpsert(*payload); err != nil {
+	logForwarding, err := apiClient.LogForwardingUpsert(*payload)
+	if err != nil {
 		return diag.Errorf("could not update log forwarding configuration: %v", err)
 	}
+
+	// The upsert creates a new configuration, with a new id, when this one was deleted outside Terraform.
+	d.SetId(logForwarding.Id)
 
 	return nil
 }
