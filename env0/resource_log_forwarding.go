@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/env0/terraform-provider-env0/client"
-	"github.com/env0/terraform-provider-env0/client/http"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -207,8 +206,7 @@ func resourceLogForwardingDelete(ctx context.Context, d *schema.ResourceData, me
 	apiClient := meta.(client.ApiClientInterface)
 
 	if err := apiClient.LogForwardingDelete(d.Id()); err != nil {
-		var failedResponseError *http.FailedResponseError
-		if errors.As(err, &failedResponseError) && failedResponseError.NotFound() {
+		if driftDetected(err) {
 			return nil
 		}
 
