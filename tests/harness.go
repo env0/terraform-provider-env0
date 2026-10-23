@@ -13,9 +13,21 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/env0/terraform-provider-env0/client"
+	"github.com/env0/terraform-provider-env0/client/http"
+	"github.com/go-resty/resty/v2"
 )
 
 const TESTS_FOLDER = "tests/integration"
+
+// Some resources can't take a random name: the organization keeps one per type. A run killed before its
+// destroy would leave one behind and fail the test on every later run, so these run before the test applies.
+var preTestCleanups = map[string]func(apiClient client.ApiClientInterface) error{
+	"042_log_forwarding": func(apiClient client.ApiClientInterface) error {
+		return deleteLogForwardings(apiClient, client.LogForwardingTypeS3)
+	},
+}
 
 const initMaxAttempts = 3
 
@@ -250,6 +262,12 @@ func runTest(testName string, destroy bool) (passed bool, environments []string,
 
 	log.Println("Running test ", testName)
 
+	if cleanup, ok := preTestCleanups[testName]; ok {
+		if err := runPreTestCleanup(cleanup); err != nil {
+			return false, nil, fmt.Errorf("pre-test cleanup failed: %w", err)
+		}
+	}
+
 	_, err = terraformInit(testName)
 	if err != nil {
 		return false, nil, err
@@ -378,6 +396,47 @@ func collectEnvironments(module stateModule) []string {
 	}
 
 	return environments
+}
+
+func runPreTestCleanup(cleanup func(apiClient client.ApiClientInterface) error) error {
+	apiEndpoint := os.Getenv("ENV0_API_ENDPOINT")
+	if apiEndpoint == "" {
+		apiEndpoint = "https://api.env0.com/"
+	}
+
+	httpClient, err := http.NewHttpClient(http.HttpClientConfig{
+		ApiKey:      os.Getenv("ENV0_API_KEY"),
+		ApiSecret:   os.Getenv("ENV0_API_SECRET"),
+		ApiEndpoint: apiEndpoint,
+		UserAgent:   "terraform-provider-env0-integration-tests",
+		RestClient:  resty.New(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return cleanup(client.NewApiClient(httpClient, os.Getenv("ENV0_ORGANIZATION_ID"), apiEndpoint))
+}
+
+func deleteLogForwardings(apiClient client.ApiClientInterface, logForwardingType client.LogForwardingType) error {
+	logForwardings, err := apiClient.LogForwardings()
+	if err != nil {
+		return err
+	}
+
+	for _, logForwarding := range logForwardings {
+		if logForwarding.Type != logForwardingType {
+			continue
+		}
+
+		log.Println("Deleting leftover", logForwardingType, "log forwarding configuration", logForwarding.Id)
+
+		if err := apiClient.LogForwardingDelete(logForwarding.Id); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // environmentUiUrl returns a link to the environment in the env0 UI, derived from the
