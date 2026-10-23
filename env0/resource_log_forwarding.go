@@ -49,6 +49,7 @@ func resourceLogForwarding() *schema.Resource {
 				Type: schema.TypeString,
 				Description: "the logging service configuration, as a JSON object (use `jsonencode`). Its fields depend on the type, see https://docs.envzero.com/docs/logs-forwarding. " +
 					"With deployment log forwarding, secret fields must be secret references such as `$${ssm:<name>}` unless the organization allows saving secrets on env0. " +
+					"With audit log forwarding, secret fields cannot be secret references, so the secret is stored in the Terraform state in plain text; with both on, the organization must allow saving secrets on env0. " +
 					"Not returned by the env0 API, so changes made outside Terraform are not detected",
 				Required:         true,
 				Sensitive:        true,
