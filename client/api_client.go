@@ -95,6 +95,9 @@ type ApiClientInterface interface {
 	NotificationUpdate(id string, payload NotificationUpdatePayload) (*Notification, error)
 	NotificationProjectAssignments(projectId string) ([]NotificationProjectAssignment, error)
 	NotificationProjectAssignmentUpdate(projectId string, endpointId string, payload NotificationProjectAssignmentUpdatePayload) (*NotificationProjectAssignment, error)
+	LogForwardings() ([]LogForwarding, error)
+	LogForwardingUpsert(payload LogForwardingUpsertPayload) (*LogForwarding, error)
+	LogForwardingDelete(id string) error
 	ModuleCreate(payload ModuleCreatePayload) (*Module, error)
 	Module(id string) (*Module, error)
 	ModuleDelete(id string) error
