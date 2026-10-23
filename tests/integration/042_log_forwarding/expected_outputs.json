@@ -1,0 +1,5 @@
+{
+  "log_forwarding_type": "S3",
+  "audit_log_forwarding": "true",
+  "deployment_log_forwarding": "false"
+}

@@ -1367,6 +1367,50 @@ func (mr *MockApiClientInterfaceMockRecorder) KubernetesCredentialsUpdate(arg0, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KubernetesCredentialsUpdate", reflect.TypeOf((*MockApiClientInterface)(nil).KubernetesCredentialsUpdate), arg0, arg1)
 }
 
+// LogForwardingDelete mocks base method.
+func (m *MockApiClientInterface) LogForwardingDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LogForwardingDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// LogForwardingDelete indicates an expected call of LogForwardingDelete.
+func (mr *MockApiClientInterfaceMockRecorder) LogForwardingDelete(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogForwardingDelete", reflect.TypeOf((*MockApiClientInterface)(nil).LogForwardingDelete), arg0)
+}
+
+// LogForwardingUpsert mocks base method.
+func (m *MockApiClientInterface) LogForwardingUpsert(arg0 LogForwardingUpsertPayload) (*LogForwarding, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LogForwardingUpsert", arg0)
+	ret0, _ := ret[0].(*LogForwarding)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LogForwardingUpsert indicates an expected call of LogForwardingUpsert.
+func (mr *MockApiClientInterfaceMockRecorder) LogForwardingUpsert(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogForwardingUpsert", reflect.TypeOf((*MockApiClientInterface)(nil).LogForwardingUpsert), arg0)
+}
+
+// LogForwardings mocks base method.
+func (m *MockApiClientInterface) LogForwardings() ([]LogForwarding, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LogForwardings")
+	ret0, _ := ret[0].([]LogForwarding)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LogForwardings indicates an expected call of LogForwardings.
+func (mr *MockApiClientInterfaceMockRecorder) LogForwardings() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogForwardings", reflect.TypeOf((*MockApiClientInterface)(nil).LogForwardings))
+}
+
 // Module mocks base method.
 func (m *MockApiClientInterface) Module(arg0 string) (*Module, error) {
 	m.ctrl.T.Helper()
