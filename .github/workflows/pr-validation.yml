@@ -18,6 +18,6 @@ jobs:
       - name: Check Title
         uses: gsactions/commit-message-checker@v2
         with:
-          pattern: '^.*(Feat|Chore|Fix):.*$'
-          error: 'You need at least one of "Feat:|Chore:|Fix:" in PR title prefix.'
+          pattern: '^(feat|fix|chore)(\([^)]+\))?!?: [A-Z].*$'
+          error: 'PR title must start with "feat: ", "fix: " or "chore: " followed by an uppercase letter.'
           excludeDescription: true

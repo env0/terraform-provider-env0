@@ -1,3 +1,4 @@
+version: 2
 # Visit https://goreleaser.com for documentation on how to customize this
 # behavior.
 before:
@@ -32,7 +33,7 @@ builds:
       goarch: arm
   binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
-- format: zip
+- formats: [zip]
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
@@ -50,7 +51,7 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 changelog:
-  skip: false
+  disable: false
   use: github
   groups:
     - title: Features
@@ -66,6 +67,8 @@ changelog:
       - "^.*Update docs.*$"
 release:
   prerelease: auto
+  use_existing_draft: true
+  mode: keep-existing
 
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
