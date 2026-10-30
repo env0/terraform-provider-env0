@@ -1,31 +1,5 @@
-# This GitHub action publishes release assets to the Terraform Public Registry.
-#
-# It runs either:
-#   - manually via the "Run workflow" button (workflow_dispatch) — pick a bump
-#     (patch/minor/major); the next tag is computed from the latest tag, created,
-#     and pushed for you; or
-#   - automatically when a "v*.*.*" tag is pushed (the legacy flow).
-#
-# This uses an action (crazy-max/ghaction-import-gpg) that assumes you set your
-# private key in the `GPG_PRIVATE_KEY` secret and passphrase in the `PASSPHRASE`
-# secret. If you would rather own your own GPG handling, please fork this action
-# or use an alternative one for key handling.
-#
-# You will need to pass the `--batch` flag to `gpg` in your signing step
-# in `goreleaser` to indicate this is being used in a non-interactive mode.
-#
 name: release
 on:
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: "Version bump"
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-        default: patch
   push:
     tags:
       - "v*.*.*"
@@ -39,48 +13,26 @@ env:
 jobs:
   goreleaser:
     runs-on: ubuntu-24.04
+    environment: release
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - name: Create and push tag
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          set -euo pipefail
-          latest=$(git tag --sort=-v:refname | head -n1)
-          latest=${latest#v}
-          IFS='.' read -r ma mi pa <<< "$latest"
-          case "${{ inputs.bump }}" in
-            major) ma=$((ma+1)); mi=0; pa=0;;
-            minor) mi=$((mi+1)); pa=0;;
-            patch) pa=$((pa+1));;
-          esac
-          new="v${ma}.${mi}.${pa}"
-          if git rev-parse "$new" >/dev/null 2>&1; then
-            echo "::error::tag $new already exists"; exit 1
-          fi
-          echo "Bumping $latest -> $new"
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "$new"
-          # Pushed with the default GITHUB_TOKEN, so GitHub does NOT re-trigger
-          # the push:tags run above — no double release.
-          git push origin "$new"
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: "${{ env.GO_VERSION }}"
       - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
         id: import_gpg
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7
         with:
-          version: latest
+          version: "~> v2"
           args: release --clean
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
