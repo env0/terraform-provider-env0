@@ -1,0 +1,39 @@
+// https://docs.renovatebot.com/configuration-options/
+{
+  extends: ["config:recommended", "helpers:pinGitHubActionDigests"],
+  minimumReleaseAge: "3 days",
+  timezone: "Asia/Jerusalem",
+  schedule: ["before 6am on sunday"],
+  rebaseWhen: "conflicted",
+  rangeStrategy: "pin",
+  postUpdateOptions: ["gomodTidy"],
+  labels: ["renovate 🎨"],
+  lockFileMaintenance: {
+    enabled: true,
+  },
+  vulnerabilityAlerts: {
+    schedule: ["at any time"],
+    minimumReleaseAge: null,
+    groupName: null,
+    labels: ["renovate 🎨", "security"],
+  },
+  terraform: {
+    enabled: false,
+  },
+  packageRules: [
+    {
+      matchManagers: ["github-actions"],
+      groupName: "GitHub Actions",
+    },
+    {
+      matchManagers: ["gomod"],
+      matchUpdateTypes: ["minor", "patch", "pin", "digest"],
+      groupName: "non-major",
+    },
+    {
+      matchManagers: ["nvm", "github-actions"],
+      matchDepNames: ["node"],
+      rangeStrategy: "replace",
+    },
+  ],
+}
