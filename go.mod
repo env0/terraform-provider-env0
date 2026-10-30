@@ -14,8 +14,9 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.2
 	github.com/jarcoal/httpmock v1.0.8
 	github.com/jinzhu/copier v0.3.2
-	github.com/onsi/ginkgo v1.16.4
-	github.com/onsi/gomega v1.27.10
+	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/ginkgo/v2 v2.33.1
+	github.com/onsi/gomega v1.40.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0
 	golang.org/x/sync v0.20.0
@@ -82,6 +83,7 @@ require (
 	github.com/yuin/goldmark-meta v1.1.0 // indirect
 	github.com/zclconf/go-cty v1.17.0 // indirect
 	go.abhg.dev/goldmark/frontmatter v0.3.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20260212183809-81e46e3db34a // indirect
 	golang.org/x/mod v0.35.0 // indirect
