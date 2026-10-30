@@ -6,6 +6,8 @@
   schedule: ["before 6am on sunday"],
   rebaseWhen: "conflicted",
   rangeStrategy: "pin",
+  semanticCommits: "disabled",
+  commitMessagePrefix: "fix(deps): ",
   postUpdateOptions: ["gomodTidy"],
   labels: ["renovate 🎨"],
   lockFileMaintenance: {
@@ -24,6 +26,7 @@
     {
       matchManagers: ["github-actions"],
       groupName: "GitHub Actions",
+      commitMessagePrefix: "chore(deps): ",
     },
     {
       matchManagers: ["gomod"],
@@ -34,6 +37,7 @@
       matchManagers: ["nvm", "github-actions"],
       matchDepNames: ["node"],
       rangeStrategy: "replace",
+      commitMessagePrefix: "chore(deps): ",
     },
   ],
 }
