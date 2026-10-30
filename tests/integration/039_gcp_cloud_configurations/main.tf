@@ -11,6 +11,7 @@ resource "env0_gcp_cloud_configuration" "test" {
   gcp_project_id                        = "test-gcp-project"
   credential_configuration_file_content = <<EOF
 {
+  "type": "external_account",
   "audience": "//iam.googleapis.com/projects/578187717855/locations/global/workloadIdentityPools/cloudcompass-wif-pool/providers/cloudcompass-oidc-provider",
   "credential_source": {
     "file": "example.json",
