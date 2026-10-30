@@ -23,11 +23,11 @@ jobs:
     runs-on: ${{ vars.LARGE_RUNNER_LABEL }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Generate mocks
         run: |
           go install go.uber.org/mock/mockgen@v0.3.0
@@ -45,7 +45,7 @@ jobs:
         run: |
           go vet ./...
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: Verify Terraform installation
@@ -57,9 +57,9 @@ jobs:
           chmod +x $(which terraform)
           ls -la $(which terraform)
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@9fae48acfc02a90574d7c304a1758ef9895495fa # v7.0.1
         with:
-          version: v2.9.0
+          version: v2.15.0
       - name: Go Test
         timeout-minutes: 20
         run: |
@@ -79,15 +79,15 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-24.04
-    container: golang:1.26-alpine
+    container: golang:1.27-alpine
     timeout-minutes: 20
     steps:
       - name: Install Opentofu
         run: apk add opentofu
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Cache Go modules and build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             /go/pkg/mod
