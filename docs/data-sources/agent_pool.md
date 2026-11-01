@@ -24,6 +24,7 @@ description: |-
 
 - `agent_key` (String, Deprecated) the agent key identifier. Deprecated: use id instead
 - `description` (String) the agent pool description
+- `ip_allowlist` (Set of String) the IP addresses, CIDR subnets and ranges this agent may be used from. Empty when the agent has no restriction of its own; the organization's allowlist still applies
 - `logs` (List of Object) self-hosted logs configuration (dynamo self-hosted) (see [below for nested schema](#nestedatt--logs))
 
 <a id="nestedatt--logs"></a>

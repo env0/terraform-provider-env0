@@ -62,6 +62,16 @@ func resourceAgentPool() *schema.Resource {
 					},
 				},
 			},
+			"ip_allowlist": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    50,
+				Description: "the IP addresses this agent may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist, so an empty or omitted list only removes the per-agent restriction. A change can take up to an hour to apply. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it",
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validateIpAllowlistEntry,
+				},
+			},
 		},
 	}
 }
@@ -111,6 +121,7 @@ func setAgentPoolSchema(d *schema.ResourceData, agentPool *client.AgentPool) {
 	d.Set("description", agentPool.Description)
 	d.Set("agent_key", agentPool.AgentKey)
 	d.Set("logs", agentPoolLogsToSchema(agentPool.Logs))
+	d.Set("ip_allowlist", fromIpAllowlistRules(agentPool.IpAllowlist))
 }
 
 func resourceAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
@@ -120,6 +131,7 @@ func resourceAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta a
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Logs:        agentPoolLogsFromSchema(d),
+		IpAllowlist: toIpAllowlistRules(d.Get("ip_allowlist").(*schema.Set).List()),
 	}
 
 	agentPool, err := apiClient.AgentPoolCreate(payload)
@@ -152,6 +164,7 @@ func resourceAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, meta a
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Logs:        agentPoolLogsFromSchema(d),
+		IpAllowlist: toIpAllowlistRules(d.Get("ip_allowlist").(*schema.Set).List()),
 	}
 
 	_, err := apiClient.AgentPoolUpdate(d.Id(), payload)

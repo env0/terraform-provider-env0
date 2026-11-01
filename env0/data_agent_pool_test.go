@@ -42,6 +42,7 @@ func TestAgentPoolDataSource(t *testing.T) {
 						resource.TestCheckResourceAttr(accessor, "id", agentPool.Id),
 						resource.TestCheckResourceAttr(accessor, "name", agentPool.Name),
 						resource.TestCheckResourceAttr(accessor, "description", agentPool.Description),
+						resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "0"),
 					),
 				},
 			},
@@ -110,6 +111,39 @@ func TestAgentPoolDataSource(t *testing.T) {
 			},
 			func(mock *client.MockApiClientInterface) {
 				mock.EXPECT().AgentPool(agentPoolWithLogs.Id).AnyTimes().Return(&agentPoolWithLogs, nil)
+			},
+		)
+	})
+
+	t.Run("By ID With IP Allowlist", func(t *testing.T) {
+		prefix := 28
+		agentPoolWithAllowlist := client.AgentPool{
+			Id:       "id-allowlist",
+			Name:     "pool-allowlist",
+			AgentKey: "key-allowlist",
+			IpAllowlist: []client.IpAllowlistRule{
+				{Type: "address", Address: "198.51.100.7", Family: "ipv4"},
+				{Type: "subnet", Network: "198.51.100.0", Prefix: &prefix, Family: "ipv4"},
+				{Type: "range", Start: "198.51.100.40", End: "198.51.100.60", Family: "ipv4"},
+			},
+		}
+
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": agentPoolWithAllowlist.Id}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "3"),
+							resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.7"),
+							resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.0/28"),
+							resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.40-198.51.100.60"),
+						),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().AgentPool(agentPoolWithAllowlist.Id).AnyTimes().Return(&agentPoolWithAllowlist, nil)
 			},
 		)
 	})

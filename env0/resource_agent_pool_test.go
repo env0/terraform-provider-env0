@@ -67,12 +67,14 @@ func TestUnitAgentPoolResource(t *testing.T) {
 				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
 					Name:        agentPool.Name,
 					Description: agentPool.Description,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&agentPool, nil),
 				// Read after create + refresh reads before update
 				mock.EXPECT().AgentPool(agentPool.Id).Times(3).Return(&agentPool, nil),
 				mock.EXPECT().AgentPoolUpdate(agentPool.Id, client.AgentPoolUpdatePayload{
 					Name:        updatedAgentPool.Name,
 					Description: updatedAgentPool.Description,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&updatedAgentPool, nil),
 				// Read after update + refresh before destroy
 				mock.EXPECT().AgentPool(updatedAgentPool.Id).Times(2).Return(&updatedAgentPool, nil),
@@ -184,8 +186,9 @@ func TestUnitAgentPoolResource(t *testing.T) {
 		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
 			gomock.InOrder(
 				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
-					Name: poolWithLogs.Name,
-					Logs: logs,
+					Name:        poolWithLogs.Name,
+					Logs:        logs,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&poolWithLogs, nil),
 				// Read after create + pre-destroy refresh
 				mock.EXPECT().AgentPool(poolWithLogs.Id).Times(2).Return(&poolWithLogs, nil),
@@ -268,20 +271,23 @@ func TestUnitAgentPoolResource(t *testing.T) {
 			gomock.InOrder(
 				// Step 1: create without logs
 				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
-					Name: poolNoLogs.Name,
+					Name:        poolNoLogs.Name,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&poolNoLogs, nil),
 				// Read after create + pre-step-2 refreshes
 				mock.EXPECT().AgentPool(poolNoLogs.Id).Times(3).Return(&poolNoLogs, nil),
 				// Step 2: update to add logs
 				mock.EXPECT().AgentPoolUpdate(poolNoLogs.Id, client.AgentPoolUpdatePayload{
-					Name: poolNoLogs.Name,
-					Logs: logs,
+					Name:        poolNoLogs.Name,
+					Logs:        logs,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&poolWithLogs, nil),
 				// Read after update + pre-step-3 refreshes
 				mock.EXPECT().AgentPool(poolNoLogs.Id).Times(3).Return(&poolWithLogs, nil),
 				// Step 3: update to remove logs (nil logs sent explicitly)
 				mock.EXPECT().AgentPoolUpdate(poolNoLogs.Id, client.AgentPoolUpdatePayload{
-					Name: poolNoLogs.Name,
+					Name:        poolNoLogs.Name,
+					IpAllowlist: []client.IpAllowlistRule{},
 				}).Times(1).Return(&poolNoLogs, nil),
 				// Read after update + pre-destroy refresh
 				mock.EXPECT().AgentPool(poolNoLogs.Id).Times(2).Return(&poolNoLogs, nil),
@@ -381,5 +387,206 @@ func TestUnitAgentPoolResource(t *testing.T) {
 				mock.EXPECT().AgentPoolDelete(agentPool.Id).Times(1).Return(nil),
 			)
 		})
+	})
+
+	allowlistPool := client.AgentPool{Id: agentPool.Id, Name: agentPool.Name, AgentKey: agentPool.AgentKey}
+	prefix := func(bits int) *int { return &bits }
+	allowlistEntries := []string{"198.51.100.7", "198.51.100.0/28", "198.51.100.40-198.51.100.60", "2001:db8::/32"}
+	allowlistRules := []client.IpAllowlistRule{
+		{Type: "address", Address: "198.51.100.7", Family: "ipv4"},
+		{Type: "subnet", Network: "198.51.100.0", Prefix: prefix(28), Family: "ipv4"},
+		{Type: "range", Start: "198.51.100.40", End: "198.51.100.60", Family: "ipv4"},
+		{Type: "subnet", Network: "2001:db8::", Prefix: prefix(32), Family: "ipv6"},
+	}
+	updatedAllowlistRules := []client.IpAllowlistRule{
+		{Type: "subnet", Network: "192.0.2.0", Prefix: prefix(24), Family: "ipv4"},
+	}
+
+	// The fake server keeps the list the way the API does, so a read returns what was last written.
+	mockStoredAllowlist := func(mock *client.MockApiClientInterface, pool client.AgentPool) func(rules []client.IpAllowlistRule) *client.AgentPool {
+		stored := pool
+
+		mock.EXPECT().AgentPool(pool.Id).AnyTimes().DoAndReturn(func(string) (*client.AgentPool, error) {
+			current := stored
+
+			return &current, nil
+		})
+
+		return func(rules []client.IpAllowlistRule) *client.AgentPool {
+			stored.IpAllowlist = rules
+			current := stored
+
+			return &current
+		}
+	}
+
+	t.Run("ip_allowlist - create, update in place and clear", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         agentPool.Name,
+						"ip_allowlist": allowlistEntries,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "4"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.7"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.0/28"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "198.51.100.40-198.51.100.60"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "2001:db8::/32"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         agentPool.Name,
+						"ip_allowlist": []string{"192.0.2.0/24"},
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "1"),
+						resource.TestCheckTypeSetElemAttr(accessor, "ip_allowlist.*", "192.0.2.0/24"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name": agentPool.Name,
+					}),
+					Check: resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "0"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			store := mockStoredAllowlist(mock, allowlistPool)
+
+			gomock.InOrder(
+				mock.EXPECT().AgentPoolCreate(gomock.Cond(func(p client.AgentPoolCreatePayload) bool {
+					return p.Name == agentPool.Name && gomock.InAnyOrder(allowlistRules).Matches(p.IpAllowlist)
+				})).Times(1).DoAndReturn(func(client.AgentPoolCreatePayload) (*client.AgentPool, error) {
+					return store(allowlistRules), nil
+				}),
+				mock.EXPECT().AgentPoolUpdate(agentPool.Id, client.AgentPoolUpdatePayload{
+					Name:        agentPool.Name,
+					IpAllowlist: updatedAllowlistRules,
+				}).Times(1).DoAndReturn(func(string, client.AgentPoolUpdatePayload) (*client.AgentPool, error) {
+					return store(updatedAllowlistRules), nil
+				}),
+				// Non-nil, so the body is "ipAllowlist": [] and not null.
+				mock.EXPECT().AgentPoolUpdate(agentPool.Id, client.AgentPoolUpdatePayload{
+					Name:        agentPool.Name,
+					IpAllowlist: []client.IpAllowlistRule{},
+				}).Times(1).DoAndReturn(func(string, client.AgentPoolUpdatePayload) (*client.AgentPool, error) {
+					return store(nil), nil
+				}),
+				mock.EXPECT().AgentPoolDelete(agentPool.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("ip_allowlist - a list set outside Terraform is cleared", func(t *testing.T) {
+		var store func(rules []client.IpAllowlistRule) *client.AgentPool
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{"name": agentPool.Name}),
+				},
+				{
+					PreConfig: func() { store(updatedAllowlistRules) },
+					Config:    resourceConfigCreate(resourceType, resourceName, map[string]any{"name": agentPool.Name}),
+					Check:     resource.TestCheckResourceAttr(accessor, "ip_allowlist.#", "0"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			store = mockStoredAllowlist(mock, allowlistPool)
+
+			gomock.InOrder(
+				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
+					Name:        agentPool.Name,
+					IpAllowlist: []client.IpAllowlistRule{},
+				}).Times(1).DoAndReturn(func(client.AgentPoolCreatePayload) (*client.AgentPool, error) {
+					return store(nil), nil
+				}),
+				mock.EXPECT().AgentPoolUpdate(agentPool.Id, client.AgentPoolUpdatePayload{
+					Name:        agentPool.Name,
+					IpAllowlist: []client.IpAllowlistRule{},
+				}).Times(1).DoAndReturn(func(string, client.AgentPoolUpdatePayload) (*client.AgentPool, error) {
+					return store(nil), nil
+				}),
+				mock.EXPECT().AgentPoolDelete(agentPool.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("ip_allowlist - import reads the list", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         agentPool.Name,
+						"ip_allowlist": []string{"192.0.2.0/24"},
+					}),
+				},
+				{
+					ResourceName:            resourceNameImport,
+					ImportState:             true,
+					ImportStateId:           agentPool.Id,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"agent_key"},
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			store := mockStoredAllowlist(mock, allowlistPool)
+
+			gomock.InOrder(
+				mock.EXPECT().AgentPoolCreate(client.AgentPoolCreatePayload{
+					Name:        agentPool.Name,
+					IpAllowlist: updatedAllowlistRules,
+				}).Times(1).DoAndReturn(func(client.AgentPoolCreatePayload) (*client.AgentPool, error) {
+					return store(updatedAllowlistRules), nil
+				}),
+				mock.EXPECT().AgentPoolDelete(agentPool.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
+	t.Run("ip_allowlist - invalid entries are rejected", func(t *testing.T) {
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         agentPool.Name,
+						"ip_allowlist": []string{"not-an-ip"},
+					}),
+					ExpectError: regexp.MustCompile("invalid ip_allowlist entry 'not-an-ip'"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+	})
+
+	t.Run("ip_allowlist - more than 50 entries are rejected", func(t *testing.T) {
+		entries := make([]string, 51)
+		for i := range entries {
+			entries[i] = fmt.Sprintf("198.51.100.%d", i)
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"name":         agentPool.Name,
+						"ip_allowlist": entries,
+					}),
+					ExpectError: regexp.MustCompile("ip_allowlist supports 50 item maximum"),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
 	})
 }

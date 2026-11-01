@@ -3,5 +3,7 @@
   "data_by_name_description": "updated description",
   "data_by_id_description": "updated description",
   "logs_account_id": "test-account",
-  "logs_region" : "us-east-1"
+  "logs_region" : "us-east-1",
+  "ip_allowlist": "192.0.2.0/24",
+  "data_ip_allowlist": "192.0.2.0/24"
 }

@@ -53,6 +53,7 @@ type AgentPool struct {
 	AgentKey    string               `json:"agentKey"`
 	CreatedBy   string               `json:"createdBy,omitempty"`
 	Logs        *AgentPoolLogsConfig `json:"logs,omitempty"`
+	IpAllowlist []IpAllowlistRule    `json:"ipAllowlist"`
 }
 
 type AgentPoolCreatePayload struct {
@@ -60,12 +61,14 @@ type AgentPoolCreatePayload struct {
 	Name           string               `json:"name"`
 	Description    string               `json:"description,omitempty"`
 	Logs           *AgentPoolLogsConfig `json:"logs,omitempty"`
+	IpAllowlist    []IpAllowlistRule    `json:"ipAllowlist"`
 }
 
 type AgentPoolUpdatePayload struct {
 	Name        string               `json:"name"`
 	Description string               `json:"description"`
 	Logs        *AgentPoolLogsConfig `json:"logs"`
+	IpAllowlist []IpAllowlistRule    `json:"ipAllowlist"`
 }
 
 type AgentSecret struct {
