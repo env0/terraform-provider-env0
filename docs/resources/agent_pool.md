@@ -50,6 +50,21 @@ resource "helm_release" "this" {
 ```
 
 ```terraform
+# Restricting the IP addresses an agent may be used from
+# Applies on top of the organization's IP allowlist. Terraform owns the list, so one set in the env0 UI is cleared on the next apply.
+
+resource "env0_agent_pool" "ip_restricted_agent" {
+  name = "ip restricted agent"
+  ip_allowlist = [
+    "198.51.100.7",
+    "198.51.100.0/28",
+    "198.51.100.40-198.51.100.60",
+    "2001:db8::/32",
+  ]
+}
+```
+
+```terraform
 # Hosting deployment logs in your AWS account
 
 data "aws_caller_identity" "this" {}
@@ -83,6 +98,7 @@ module "agent_logs" {
 ### Optional
 
 - `description` (String) the agent pool description
+- `ip_allowlist` (Set of String) the IP addresses this agent may be used from: an address ('198.51.100.7'), a CIDR subnet ('198.51.100.0/28') or a range ('198.51.100.40-198.51.100.60'), IPv4 or IPv6. Applies on top of the organization's IP allowlist, so an empty or omitted list only removes the per-agent restriction. A change can take up to an hour to apply. Terraform owns the list: one set in the env0 UI shows as drift and the next apply clears it
 - `logs` (Block List, Max: 1) self-hosted logs configuration (dynamo self-hosted) (see [below for nested schema](#nestedblock--logs))
 
 ### Read-Only

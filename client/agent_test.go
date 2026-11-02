@@ -1,6 +1,7 @@
 package client_test
 
 import (
+	"encoding/json"
 	"errors"
 
 	. "github.com/env0/terraform-provider-env0/client"
@@ -285,6 +286,44 @@ var _ = Describe("Agent Client", func() {
 			It("Should fail if API call fails", func() {
 				Expect(err).To(Equal(errorMock))
 			})
+		})
+	})
+
+	Describe("AgentPool ip allowlist", func() {
+		prefix := 0
+		rules := []IpAllowlistRule{
+			{Type: "address", Address: "198.51.100.7", Family: "ipv4"},
+			{Type: "subnet", Network: "0.0.0.0", Prefix: &prefix, Family: "ipv4"},
+		}
+
+		It("Should decode the ip allowlist", func() {
+			var actualResult *AgentPool
+
+			httpCall = mockHttpClient.EXPECT().
+				Get("/agents/pool-id", nil, gomock.Any()).
+				Do(func(path string, request any, response *AgentPool) {
+					Expect(json.Unmarshal([]byte(`{"id":"pool-id","ipAllowlist":[{"type":"address","address":"198.51.100.7","family":"ipv4"},{"type":"subnet","network":"0.0.0.0","prefix":0,"family":"ipv4"}]}`), response)).To(Succeed())
+				})
+
+			actualResult, _ = apiClient.AgentPool("pool-id")
+
+			Expect(actualResult.IpAllowlist).To(Equal(rules))
+		})
+
+		// The server rejects a field that doesn't belong to the rule's type, and a missing prefix.
+		It("Should send the rules in the create payload, next to logs", func() {
+			body, _ := json.Marshal(AgentPoolCreatePayload{Name: "pool-name", IpAllowlist: rules})
+			Expect(string(body)).To(Equal(`{"organizationId":"","name":"pool-name","ipAllowlist":[{"type":"address","address":"198.51.100.7","family":"ipv4"},{"type":"subnet","network":"0.0.0.0","prefix":0,"family":"ipv4"}]}`))
+		})
+
+		It("Should send the rules in the update payload", func() {
+			body, _ := json.Marshal(AgentPoolUpdatePayload{Name: "pool-name", IpAllowlist: rules})
+			Expect(string(body)).To(Equal(`{"name":"pool-name","description":"","logs":null,"ipAllowlist":[{"type":"address","address":"198.51.100.7","family":"ipv4"},{"type":"subnet","network":"0.0.0.0","prefix":0,"family":"ipv4"}]}`))
+		})
+
+		It("Should send an empty list as [] so a list set in the UI is cleared", func() {
+			body, _ := json.Marshal(AgentPoolUpdatePayload{Name: "pool-name", IpAllowlist: []IpAllowlistRule{}})
+			Expect(string(body)).To(Equal(`{"name":"pool-name","description":"","logs":null,"ipAllowlist":[]}`))
 		})
 	})
 

@@ -60,6 +60,12 @@ func dataAgentPool() *schema.Resource {
 					},
 				},
 			},
+			"ip_allowlist": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "the IP addresses, CIDR subnets and ranges this agent may be used from. Empty when the agent has no restriction of its own; the organization's allowlist still applies",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }

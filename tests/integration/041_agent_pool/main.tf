@@ -17,6 +17,8 @@ resource "env0_agent_pool" "test_pool" {
     region      = "us-east-1"
     external_id = data.env0_organization.this.id
   }
+
+  ip_allowlist = var.second_run ? ["192.0.2.0/24"] : ["198.51.100.7", "198.51.100.0/28"]
 }
 
 data "env0_agent_pool" "by_name" {
@@ -60,6 +62,14 @@ output "logs_region" {
 
 output "logs_external_id" {
   value = data.env0_agent_pool.by_id.logs[0].external_id
+}
+
+output "ip_allowlist" {
+  value = join(",", env0_agent_pool.test_pool.ip_allowlist)
+}
+
+output "data_ip_allowlist" {
+  value = join(",", data.env0_agent_pool.by_id.ip_allowlist)
 }
 
 output "agent_secret_id" {
