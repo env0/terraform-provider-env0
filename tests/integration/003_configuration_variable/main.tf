@@ -95,7 +95,7 @@ output "tested3_enum_2" {
 data "env0_configuration_variable" "tested4" {
   name = "tested4-${random_string.random.result}"
 
-  depends_on = [time_sleep.wait_10_seconds]
+  depends_on = [time_sleep.wait_10_seconds, env0_configuration_variable.tested4]
 }
 
 output "tested4_multi_select" {
