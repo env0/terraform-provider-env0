@@ -127,7 +127,7 @@ func resourceEnvironment() *schema.Resource {
 			},
 			"schema_type": {
 				Type:        schema.TypeString,
-				Description: "the type the variable",
+				Description: "the type of the variable (defaults to 'string'). Set to 'array' for a multi select list: 'schema_enum' lists the options and 'value' is a JSON array of the selected options, e.g. jsonencode([\"a\", \"b\"])",
 				Optional:    true,
 				Default:     "string",
 			},

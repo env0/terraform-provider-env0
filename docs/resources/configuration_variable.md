@@ -28,6 +28,22 @@ resource "env0_configuration_variable" "drop_down" {
   ]
 }
 
+# Multi select list: 'values' are the selected options and must be a subset of 'enum'.
+# Use `values = []` to select nothing.
+resource "env0_configuration_variable" "multi_select" {
+  name         = "ENVIRONMENT_VARIABLE_MULTI_SELECT"
+  multi_select = true
+  enum = [
+    "first option",
+    "second option",
+    "third option"
+  ]
+  values = [
+    "first option",
+    "third option"
+  ]
+}
+
 resource "env0_configuration_variable" "json_variable" {
   name   = "organization_tf_json_var"
   type   = "terraform"
@@ -72,6 +88,7 @@ resource "env0_configuration_variable" "sub_environment_example" {
 - `is_read_only` (Boolean) the value of this variable cannot be edited by lower scopes
 - `is_required` (Boolean) the value of this variable must be set by lower scopes
 - `is_sensitive` (Boolean) is the variable sensitive, defaults to false
+- `multi_select` (Boolean) set to 'true' to create a multi select list variable. Requires 'enum' (the available options) and 'values' (the selected options). Cannot be used with 'value', 'format' or 'is_sensitive'
 - `project_id` (String) create the variable under this project, not globally
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `soft_delete` (Boolean) soft delete the configuration variable, once removed from the configuration it won't be deleted from env0
@@ -79,6 +96,7 @@ resource "env0_configuration_variable" "sub_environment_example" {
 - `template_id` (String) create the variable under this template, not globally
 - `type` (String) default 'environment'. set to 'terraform' to create a terraform variable
 - `value` (String, Sensitive) value for the configuration variable
+- `values` (List of String) the selected options of a multi select list variable (requires 'multi_select'). Each must be one of 'enum', without duplicates. An empty list selects nothing
 
 ### Read-Only
 

@@ -1899,6 +1899,80 @@ func TestUnitEnvironmentResource(t *testing.T) {
 			})
 		})
 
+		t.Run("Create configuration variables - multi select list", func(t *testing.T) {
+			environment := client.Environment{
+				Id:        environment.Id,
+				Name:      "my-environment",
+				ProjectId: "project-id",
+				LatestDeploymentLog: client.DeploymentLog{
+					BlueprintId:       "template-id",
+					BlueprintRevision: "revision",
+				},
+			}
+
+			varType := client.ConfigurationVariableTypeEnvironment
+			configurationVariables := client.ConfigurationVariable{
+				Value: `["a","b"]`,
+				Name:  "my multi select",
+				Type:  &varType,
+				Schema: &client.ConfigurationVariableSchema{
+					Type: "array",
+					Enum: []string{"a", "b", "c"},
+				},
+			}
+
+			environmentResource := fmt.Sprintf(`
+				resource "%s" "%s" {
+					name = "%s"
+					project_id = "%s"
+					template_id = "%s"
+					revision = "%s"
+					force_destroy = true
+					configuration {
+						name = "%s"
+						value = jsonencode(["a", "b"])
+						schema_type = "array"
+						schema_enum = ["a", "b", "c"]
+					}
+				}`,
+				resourceType, resourceName, environment.Name,
+				environment.ProjectId, environment.LatestDeploymentLog.BlueprintId,
+				environment.LatestDeploymentLog.BlueprintRevision, configurationVariables.Name,
+			)
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: environmentResource,
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "configuration.0.value", configurationVariables.Value),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_type", "array"),
+							resource.TestCheckResourceAttr(accessor, "configuration.0.schema_enum.#", "3"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				sentVariable := configurationVariables
+				sentVariable.Scope = client.ScopeDeployment
+				sentVariable.IsSensitive = new(false)
+				sentVariable.IsReadOnly = new(false)
+
+				mock.EXPECT().Template(environment.LatestDeploymentLog.BlueprintId).Times(1).Return(template, nil)
+				mock.EXPECT().EnvironmentCreate(gomock.Any()).Times(1).DoAndReturn(func(payload client.EnvironmentCreate) (client.Environment, error) {
+					assert.Equal(t, client.ConfigurationChanges{sentVariable}, *payload.ConfigurationChanges)
+
+					return environment, nil
+				})
+
+				mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{configurationVariables}, nil)
+				mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil)
+				mock.EXPECT().Environment(environment.Id).Times(2).Return(environment, nil)
+				mock.EXPECT().EnvironmentDestroy(environment.Id).Times(1)
+			})
+		})
+
 		t.Run("Create and redeploy configuration variables - sensitive values", func(t *testing.T) {
 			environment := client.Environment{
 				Id:        environment.Id,

@@ -195,6 +195,45 @@ var _ = Describe("Configuration Variable", func() {
 		)
 	})
 
+	Describe("ConfigurationVariableCreate multi select", func() {
+		BeforeEach(func() {
+			mockOrganizationIdCall()
+
+			expectedRequest := []map[string]any{{
+				"name":           "multi",
+				"description":    "",
+				"isSensitive":    false,
+				"value":          `["a","b"]`,
+				"organizationId": organizationId,
+				"scope":          ScopeGlobal,
+				"type":           ConfigurationVariableTypeEnvironment,
+				"schema":         map[string]any{"type": "array", "enum": []string{"a", "b", "c"}},
+				"isReadonly":     false,
+				"isRequired":     false,
+				"regex":          "",
+			}}
+
+			httpCall = mockHttpClient.EXPECT().
+				Post("configuration", expectedRequest, gomock.Any()).
+				Do(func(path string, request any, response *[]ConfigurationVariable) {
+					*response = []ConfigurationVariable{{Id: "id"}}
+				})
+
+			_, _ = apiClient.ConfigurationVariableCreate(ConfigurationVariableCreateParams{
+				Name:        "multi",
+				Value:       `["a","b"]`,
+				Scope:       ScopeGlobal,
+				Type:        ConfigurationVariableTypeEnvironment,
+				EnumValues:  []string{"a", "b", "c"},
+				MultiSelect: true,
+			})
+		})
+
+		It("Should send schema type array with the enum and a JSON array value", func() {
+			httpCall.Times(1)
+		})
+	})
+
 	Describe("ConfigurationVariableDelete", func() {
 		BeforeEach(func() {
 			httpCall = mockHttpClient.EXPECT().Delete("configuration/"+mockConfigurationVariable.Id, nil)
