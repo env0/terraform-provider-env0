@@ -121,7 +121,14 @@ func resourceOrganizationPolicyDelete(ctx context.Context, d *schema.ResourceDat
 	apiClient := meta.(client.ApiClientInterface)
 
 	// In cases of a "DELETE", update the organization policy to default values.
-	var payload client.OrganizationPolicyUpdatePayload
+	// The API patches policies, so an omitted boolean would keep its current value.
+	payload := client.OrganizationPolicyUpdatePayload{
+		DoNotReportSkippedStatusChecks:      new(false),
+		DoNotConsiderMergeCommitsForPrPlans: new(false),
+		EnableOidc:                          new(false),
+		EnforcePrCommenterPermissions:       new(false),
+		AllowMergeableBypassForPrApply:      new(false),
+	}
 	if _, err := apiClient.OrganizationPolicyUpdate(payload); err != nil {
 		return diag.Errorf("could not update organization policy to default values: %v", err)
 	}

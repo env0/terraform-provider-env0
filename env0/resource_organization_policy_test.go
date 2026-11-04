@@ -110,7 +110,13 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					MaxTtl:                              new(""),
 				}).Times(1).Return(&organizationUpdated, nil),
 				mock.EXPECT().Organization().Times(1).Return(organizationUpdated, nil),
-				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{}).Times(1).Return(&defaultOrganization, nil),
+				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
+					DoNotReportSkippedStatusChecks:      new(false),
+					DoNotConsiderMergeCommitsForPrPlans: new(false),
+					EnableOidc:                          new(false),
+					EnforcePrCommenterPermissions:       new(false),
+					AllowMergeableBypassForPrApply:      new(false),
+				}).Times(1).Return(&defaultOrganization, nil),
 			)
 		})
 	})
