@@ -625,6 +625,117 @@ func TestUnitVariableSetResource(t *testing.T) {
 		})
 	})
 
+	t.Run("multi select", func(t *testing.T) {
+		multiSelectVariable := client.ConfigurationVariable{
+			Name:           "multi1",
+			Value:          `["a","b"]`,
+			OrganizationId: organizationId,
+			IsSensitive:    new(false),
+			IsReadOnly:     new(false),
+			Scope:          "SET",
+			Type:           (*client.ConfigurationVariableType)(new(1)),
+			Schema: &client.ConfigurationVariableSchema{
+				Type: "array",
+				Enum: []string{"a", "b", "c"},
+			},
+		}
+
+		multiSelectVariableWithScopeId := multiSelectVariable
+		multiSelectVariableWithScopeId.Id = "idmultiselectvariable"
+		multiSelectVariableWithScopeId.ScopeId = configurationSet.Id
+
+		emptyMultiSelectVariable := multiSelectVariableWithScopeId
+		emptyMultiSelectVariable.Value = "[]"
+
+		dropdownFromMultiSelect := dropdownVariable
+		dropdownFromMultiSelect.Name = multiSelectVariable.Name
+		dropdownFromMultiSelect.ScopeId = configurationSet.Id
+		dropdownFromMultiSelect.Value = "a"
+		dropdownFromMultiSelect.Schema = &client.ConfigurationVariableSchema{
+			Type: "string",
+			Enum: []string{"a", "b", "c"},
+		}
+
+		dropdownFromMultiSelectRes := dropdownFromMultiSelect
+		dropdownFromMultiSelectRes.Id = multiSelectVariableWithScopeId.Id
+
+		dropdownFromMultiSelect.Id = ""
+
+		variableConfig := func(variableBody string) string {
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				description = "%s"
+
+				variable {
+					name = "%s"
+					type = "terraform"
+					dropdown_values = ["a", "b", "c"]
+					%s
+				}
+			}`, resourceType, resourceName, configurationSet.Name, configurationSet.Description, multiSelectVariable.Name, variableBody)
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: variableConfig(`format = "multi_select"
+					values = ["a", "b"]`),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "multi_select"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.dropdown_values.#", "3"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.values.#", "2"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.values.0", "a"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.values.1", "b"),
+					),
+				},
+				{
+					Config: variableConfig(`format = "multi_select"
+					values = []`),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "multi_select"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.values.#", "0"),
+					),
+				},
+				{
+					Config: variableConfig(`format = "dropdown"`),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "variable.0.format", "dropdown"),
+						resource.TestCheckResourceAttr(accessor, "variable.0.values.#", "0"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().OrganizationId().AnyTimes().Return(organizationId, nil)
+			mock.EXPECT().ConfigurationSet(configurationSet.Id).AnyTimes().Return(&configurationSet, nil)
+
+			gomock.InOrder(
+				mock.EXPECT().ConfigurationSetCreate(&client.CreateConfigurationSetPayload{
+					Name:                    configurationSet.Name,
+					Description:             configurationSet.Description,
+					Scope:                   "organization",
+					ConfigurationProperties: []client.ConfigurationVariable{multiSelectVariable},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{multiSelectVariableWithScopeId}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{emptyMultiSelectVariable},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(3).Return([]client.ConfigurationVariable{emptyMultiSelectVariable}, nil),
+				mock.EXPECT().ConfigurationSetUpdate(configurationSet.Id, &client.UpdateConfigurationSetPayload{
+					Name:                           configurationSet.Name,
+					Description:                    configurationSet.Description,
+					ConfigurationPropertiesChanges: []client.ConfigurationVariable{dropdownFromMultiSelect},
+				}).Times(1).Return(&configurationSet, nil),
+				mock.EXPECT().ConfigurationVariablesBySetId(configurationSet.Id).Times(1).Return([]client.ConfigurationVariable{dropdownFromMultiSelectRes}, nil),
+				mock.EXPECT().ConfigurationSetDelete(configurationSet.Id).Times(1).Return(nil),
+			)
+		})
+	})
+
 	t.Run("failures", func(t *testing.T) {
 		runFailure := func(testName string, config string, errorMessage string) {
 			t.Run(testName, func(t *testing.T) {
@@ -694,6 +805,79 @@ func TestUnitVariableSetResource(t *testing.T) {
 					format = "dropdown"
 				}
 			}`, resourceType, resourceName), "dropdown variable 'a' must have dropdown_values")
+
+		runFailure("multi_select without dropdown_values", fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "fail"
+				description = "description1"
+				scope = "organization"
+
+				variable {
+					name = "a"
+					type = "terraform"
+					format = "multi_select"
+				}
+			}`, resourceType, resourceName), "multi_select variable 'a' must have dropdown_values")
+
+		runFailure("multi_select value not in dropdown_values", fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "fail"
+				description = "description1"
+				scope = "organization"
+
+				variable {
+					name = "a"
+					type = "terraform"
+					format = "multi_select"
+					dropdown_values = ["x", "y"]
+					values = ["z"]
+				}
+			}`, resourceType, resourceName), "value - 'z' is not one of the enum options")
+
+		runFailure("multi_select duplicate values", fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "fail"
+				description = "description1"
+				scope = "organization"
+
+				variable {
+					name = "a"
+					type = "terraform"
+					format = "multi_select"
+					dropdown_values = ["x", "y"]
+					values = ["x", "x"]
+				}
+			}`, resourceType, resourceName), "value - 'x' is selected more than once")
+
+		runFailure("multi_select sensitive", fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "fail"
+				description = "description1"
+				scope = "organization"
+
+				variable {
+					name = "a"
+					type = "terraform"
+					format = "multi_select"
+					dropdown_values = ["x", "y"]
+					is_sensitive = true
+				}
+			}`, resourceType, resourceName), "multi_select variable 'a' cannot be sensitive")
+
+		runFailure("values without multi_select", fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "fail"
+				description = "description1"
+				scope = "organization"
+
+				variable {
+					name = "a"
+					type = "terraform"
+					format = "dropdown"
+					dropdown_values = ["x", "y"]
+					values = ["x"]
+				}
+			}`, resourceType, resourceName), "'values' can only be set for the 'multi_select' format")
 
 		runFailure("invalid json", fmt.Sprintf(`
 			resource "%s" "%s" {
