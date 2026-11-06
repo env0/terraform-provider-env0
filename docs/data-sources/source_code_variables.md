@@ -3,12 +3,12 @@
 page_title: "env0_source_code_variables Data Source - terraform-provider-env0"
 subcategory: ""
 description: |-
-  
+  Extracts the Terraform variables from a template's source code. The API key or user must have one of these permissions in the organization: Create and Edit Templates, Create VCS Environment, or Edit VCS Environment.
 ---
 
 # env0_source_code_variables (Data Source)
 
-
+Extracts the Terraform variables from a template's source code. The API key or user must have one of these permissions in the organization: Create and Edit Templates, Create VCS Environment, or Edit VCS Environment.
 
 ## Example Usage
 
