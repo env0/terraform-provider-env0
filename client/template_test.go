@@ -443,6 +443,7 @@ var _ = Describe("Templates Client", func() {
 
 		BeforeEach(func() {
 			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints/variables-from-repository", expectedParams, gomock.Any()).
 				Do(func(path string, request any, response *[]ConfigurationVariable) {
