@@ -10,6 +10,7 @@ import (
 
 func dataSourceCodeVariables() *schema.Resource {
 	return &schema.Resource{
+		Description: "Extracts the Terraform variables from a template's source code. The API key or user must have one of these permissions in the organization: Create and Edit Templates, Create VCS Environment, or Edit VCS Environment.",
 		ReadContext: dataSourceCodeVariablesRead,
 
 		Schema: map[string]*schema.Schema{
