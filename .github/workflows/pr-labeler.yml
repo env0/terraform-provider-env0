@@ -13,10 +13,10 @@ jobs:
     timeout-minutes: 2
     steps:
       - name: Semantic
-        uses: TimonVS/pr-labeler-action@v4 # Reads from .github/pr-labeler.yml
+        uses: TimonVS/pr-labeler-action@8b99f404a073744885d8021d1de4e40c6eaf38e2 # v4.1.1 # Reads from .github/pr-labeler.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Updated Paths
-        uses: actions/labeler@v4 # Reads from .github/labeler.yml
+        uses: actions/labeler@ac9175f8a1f3625fd0d4fb234536d26811351594 # v4.3.0 # Reads from .github/labeler.yml
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
