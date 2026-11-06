@@ -123,7 +123,6 @@ type VariablesFromRepositoryPayload struct {
 	SshKeyIds            []string `json:"sshKeyIds"`
 	TokenId              string   `json:"tokenId,omitempty"`
 	Repository           string   `json:"repository"`
-	OrganizationId       string   `json:"organizationId,omitempty"`
 }
 
 func (payload *TemplateCreatePayload) Invalidate() error {
@@ -377,14 +376,12 @@ func (client *ApiClient) VariablesFromRepository(payload *VariablesFromRepositor
 		}
 	}
 
-	if params["organizationId"] == "" {
-		organizationId, err := client.OrganizationId()
-		if err != nil {
-			return nil, err
-		}
-
-		params["organizationId"] = organizationId
+	organizationId, err := client.OrganizationId()
+	if err != nil {
+		return nil, err
 	}
+
+	params["organizationId"] = organizationId
 
 	var result []ConfigurationVariable
 	if err := client.http.Get("/blueprints/variables-from-repository", params, &result); err != nil {
