@@ -25,6 +25,11 @@ linters:
     - usestdlibvars
     - wsl_v5
   settings:
+    # goconst >= v2.11 also flags composite literals (map keys, struct fields); keep the old scope.
+    goconst:
+      exclude-types:
+        - Call
+        - CompositeLit
     errcheck:
       exclude-functions:
         - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceData).Set
