@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.4
+      - uses: kentaro-m/auto-assign-action@ed73f90568ce37d22dbbd1a73983738fae329f53 # v1.2.6
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
