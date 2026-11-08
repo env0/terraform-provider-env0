@@ -203,7 +203,7 @@ func writeGithubStepSummary(results []testResult) {
 			failuresExist = true
 		}
 
-		sb.WriteString(fmt.Sprintf("| %s | %s |\n", result.name, status))
+		fmt.Fprintf(&sb, "| %s | %s |\n", result.name, status)
 	}
 
 	if failuresExist {
@@ -214,13 +214,13 @@ func writeGithubStepSummary(results []testResult) {
 				continue
 			}
 
-			sb.WriteString(fmt.Sprintf("\n#### ❌ %s\n\n", result.name))
+			fmt.Fprintf(&sb, "\n#### ❌ %s\n\n", result.name)
 
 			for _, environment := range result.environments {
-				sb.WriteString(fmt.Sprintf("- %s\n", environment))
+				fmt.Fprintf(&sb, "- %s\n", environment)
 			}
 
-			sb.WriteString(fmt.Sprintf("\n```\n%s\n```\n", strings.Join(errorHighlights(result.err), "\n")))
+			fmt.Fprintf(&sb, "\n```\n%s\n```\n", strings.Join(errorHighlights(result.err), "\n"))
 		}
 	}
 

@@ -437,9 +437,12 @@ var _ = Describe("Templates Client", func() {
 			"revision":             payload.Revision,
 			"repository":           payload.Repository,
 			"sshKeyIds":            `["1","2"]`,
+			"organizationId":       organizationId,
 		}
 
 		BeforeEach(func() {
+			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints/variables-from-repository", expectedParams, gomock.Any()).
 				Do(func(path string, request any, response *[]ConfigurationVariable) {

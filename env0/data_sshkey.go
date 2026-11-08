@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v7"
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,7 +40,7 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.
 	var err error
 
 	if name, ok := d.GetOk("name"); ok {
-		sshKey, err = getSshKeyByName(name, meta)
+		sshKey, err = getSshKeyByName(ctx, name, meta)
 		if err != nil {
 			return diag.Errorf("could not read ssh key: %v", err)
 		}
@@ -64,10 +64,13 @@ func dataSshKeyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.
 	return nil
 }
 
-func getSshKeyByName(name any, meta any) (*client.SshKey, error) {
+func getSshKeyByName(ctx context.Context, name any, meta any) (*client.SshKey, error) {
 	apiClient := meta.(client.ApiClientInterface)
 
-	return backoff.RetryWithData(func() (*client.SshKey, error) {
+	expBackOff := backoff.NewExponentialBackOff()
+	expBackOff.MaxInterval = time.Second * 10
+
+	return backoff.Retry(ctx, func() (*client.SshKey, error) {
 		sshKeys, err := apiClient.SshKeys()
 		if err != nil {
 			return nil, err
@@ -90,7 +93,7 @@ func getSshKeyByName(name any, meta any) (*client.SshKey, error) {
 		}
 
 		return &sshKeysByName[0], nil
-	}, backoff.NewExponentialBackOff(backoff.WithMaxElapsedTime(time.Minute*1), backoff.WithMaxInterval(time.Second*10)))
+	}, backoff.WithBackOff(expBackOff), backoff.WithMaxElapsedTime(time.Minute*1))
 }
 
 func getSshKeyById(id any, meta any) (*client.SshKey, error) {
