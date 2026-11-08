@@ -12,8 +12,7 @@ import (
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

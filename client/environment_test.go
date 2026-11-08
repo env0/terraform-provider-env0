@@ -7,7 +7,7 @@ import (
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
