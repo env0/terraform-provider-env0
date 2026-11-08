@@ -118,7 +118,7 @@ var _ = Describe("Http Client", func() {
 	}
 
 	AssertError := func(err error) {
-		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode)+": "+ErrorMessage), "Should return error message")
+		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode)+" "+http.StatusText(ErrorStatusCode)+": "+ErrorMessage), "Should return error message")
 	}
 
 	AssertHttpCall := func(method string, url string) {
