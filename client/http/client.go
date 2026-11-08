@@ -130,7 +130,7 @@ func (client *HttpClient) Get(path string, params map[string]string, response an
 
 	responseType := reflect.TypeOf(response)
 
-	if responseType.Kind() == reflect.Ptr && responseType.Elem().Kind() == reflect.String {
+	if responseType.Kind() == reflect.Pointer && responseType.Elem().Kind() == reflect.String {
 		responseStrPtr := response.(*string)
 
 		result, err := request.Get(path)
