@@ -36,6 +36,15 @@ func (c *templateCache) get(id string, fetch func(string) (Template, error)) (Te
 	c.mu.Unlock()
 
 	result, err, _ := c.group.Do(id, func() (any, error) {
+		// A flight that finished after our miss above may have already cached it.
+		c.mu.Lock()
+		template, ok := c.templates[id]
+		c.mu.Unlock()
+
+		if ok {
+			return template, nil
+		}
+
 		template, err := fetch(id)
 		if err != nil {
 			return Template{}, err

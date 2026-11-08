@@ -69,7 +69,9 @@ jobs:
           # runner since terraform-per-step is IO/process-bound. TF_LOG_PROVIDER=info
           # surfaces provider logs on failing tests at ~no cost (measured); full
           # TF_LOG=DEBUG/-v omitted on purpose (huge per-invocation overhead).
-          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 ./...
+          # Ginkgo v2 suites (client/...) reject -parallel, so they run separately.
+          go test -race -timeout 5m ./client/...
+          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 $(go list ./... | grep -v /client)
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
