@@ -127,7 +127,7 @@ func readResourceDataEx(prefix string, i any, d *schema.ResourceData) error {
 		}
 
 		switch fieldType.Kind() {
-		case reflect.Ptr:
+		case reflect.Pointer:
 			switch fieldType.Elem().Kind() {
 			case reflect.Int:
 				i := dval.(int)
@@ -293,7 +293,7 @@ func writeResourceData(i any, d *schema.ResourceData) error {
 			continue
 		}
 
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			if field.IsNil() {
 				if !parsedField.omitEmpty {
 					if err := d.Set(fieldName, nil); err != nil {
@@ -364,7 +364,7 @@ func writeResourceDataGetSliceValues(i any, name string, d *schema.ResourceData)
 		val := reflect.ValueOf(ivalue)
 		valType := val.Type()
 
-		if valType.Kind() == reflect.Ptr {
+		if valType.Kind() == reflect.Pointer {
 			if val.IsNil() {
 				continue
 			}
@@ -418,7 +418,7 @@ func getResourceDataSliceStructValue(val reflect.Value, name string, d *schema.R
 
 		fieldName := parsedField.name
 
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			if field.IsNil() {
 				continue
 			}
