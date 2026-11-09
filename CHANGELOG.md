@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.1](https://github.com/env0/terraform-provider-env0/compare/v1.36.0...v1.36.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* Reset policy booleans to their defaults when deleting env0_organization_policy (ATL-702) ([#1172](https://github.com/env0/terraform-provider-env0/issues/1172)) ([e6cc195](https://github.com/env0/terraform-provider-env0/commit/e6cc195ea5a1d67e75161a4f7d50431ccb3f52bd))
+
 ## [1.36.0](https://github.com/env0/terraform-provider-env0/compare/v1.35.1...v1.36.0) (2026-11-08)
 
 
