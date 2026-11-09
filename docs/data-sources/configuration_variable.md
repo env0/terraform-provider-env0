@@ -45,5 +45,7 @@ output "aws_default_region" {
 - `enum` (List of String) possible values of this variable
 - `format` (String) specifies the format of the configuration value (HCL/JSON)
 - `is_sensitive` (Boolean) is the variable defined as sensitive
+- `multi_select` (Boolean) is the variable a multi select list
 - `scope` (String) scope of the variable
-- `value` (String, Sensitive) value stored in the variable
+- `value` (String, Sensitive) value stored in the variable. For a multi select list, a JSON array of the selected options (see 'values')
+- `values` (List of String) the selected options of a multi select list variable

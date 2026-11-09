@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const multiSelectFormat = "multi_select"
+
 var variableSetVariableSchema *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"name": {
@@ -24,7 +26,15 @@ var variableSetVariableSchema *schema.Resource = &schema.Resource{
 		},
 		"dropdown_values": {
 			Type:        schema.TypeList,
-			Description: "a list of variable values for 'dropdown' format",
+			Description: "a list of variable values for 'dropdown' and 'multi_select' formats",
+			Optional:    true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"values": {
+			Type:        schema.TypeList,
+			Description: "the selected values for 'multi_select' format. Each must be one of 'dropdown_values'. An empty list selects nothing",
 			Optional:    true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
@@ -39,7 +49,7 @@ var variableSetVariableSchema *schema.Resource = &schema.Resource{
 		},
 		"is_sensitive": {
 			Type:        schema.TypeBool,
-			Description: "is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be sensitive.",
+			Description: "is the value sensitive (defaults to 'false'). Note: 'dropdown' and 'multi_select' value formats cannot be sensitive.",
 			Optional:    true,
 			Default:     false,
 		},
@@ -51,10 +61,10 @@ var variableSetVariableSchema *schema.Resource = &schema.Resource{
 		},
 		"format": {
 			Type:             schema.TypeString,
-			Description:      "the value format: 'text' (free text), 'dropdown' (dropdown list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.",
+			Description:      "the value format: 'text' (free text), 'dropdown' (dropdown list), 'multi_select' (multi select list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.",
 			Optional:         true,
 			Default:          "text",
-			ValidateDiagFunc: NewStringInValidator([]string{"text", "dropdown", "hcl", "json"}),
+			ValidateDiagFunc: NewStringInValidator([]string{"text", "dropdown", multiSelectFormat, "hcl", "json"}),
 		},
 	},
 }
@@ -135,7 +145,13 @@ func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, err
 		res.Value = value
 	}
 
-	switch format := d["format"].(string); format {
+	format := d["format"].(string)
+
+	if values, _ := d["values"].([]any); len(values) > 0 && format != multiSelectFormat {
+		return nil, fmt.Errorf("variable '%s': 'values' can only be set for the 'multi_select' format", res.Name)
+	}
+
+	switch format {
 	case "text":
 		if len(value) == 0 {
 			return nil, fmt.Errorf("free text variable '%s' must have a value", res.Name)
@@ -182,9 +198,54 @@ func getVariableFromSchema(d map[string]any) (*client.ConfigurationVariable, err
 			Type: "string",
 			Enum: values,
 		}
+	case multiSelectFormat:
+		if isSensitive {
+			return nil, fmt.Errorf("multi_select variable '%s' cannot be sensitive", res.Name)
+		}
+
+		ioptions, _ := d["dropdown_values"].([]any)
+		if len(ioptions) == 0 {
+			return nil, fmt.Errorf("multi_select variable '%s' must have dropdown_values", res.Name)
+		}
+
+		options := toStringSlice(ioptions)
+
+		iselected, _ := d["values"].([]any)
+
+		encoded, err := encodeMultiSelectValue(options, toStringSlice(iselected))
+		if err != nil {
+			return nil, fmt.Errorf("multi_select variable '%s': %w", res.Name, err)
+		}
+
+		res.Value = encoded
+		res.Schema = &client.ConfigurationVariableSchema{
+			Type: client.MultiSelectSchemaType,
+			Enum: options,
+		}
 	}
 
 	return &res, nil
+}
+
+func toStringSlice(values []any) []string {
+	res := make([]string, 0, len(values))
+
+	for _, value := range values {
+		str, _ := value.(string)
+		res = append(res, str)
+	}
+
+	return res
+}
+
+func toAnySlice(values []string) []any {
+	res := make([]any, 0, len(values))
+
+	for _, value := range values {
+		res = append(res, value)
+	}
+
+	return res
 }
 
 func getSchemaFromVariables(variables []client.ConfigurationVariable) (any, error) {
@@ -218,6 +279,15 @@ func getSchemaFromVariables(variables []client.ConfigurationVariable) (any, erro
 		}
 
 		switch {
+		case variable.Schema.Type == client.MultiSelectSchemaType:
+			values, err := parseMultiSelectValue(variable.Value)
+			if err != nil {
+				return nil, err
+			}
+
+			ivariable["format"] = multiSelectFormat
+			ivariable["dropdown_values"] = toAnySlice(variable.Schema.Enum)
+			ivariable["values"] = toAnySlice(values)
 		case variable.Schema.Type == "string":
 			if len(variable.Schema.Enum) > 0 {
 				ivariable["format"] = "dropdown"
