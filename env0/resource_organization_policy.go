@@ -49,7 +49,7 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false')",
+				Description: "set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false'). Destroying the resource leaves this setting unchanged",
 			},
 			"allow_mergeable_bypass_for_pr_apply": {
 				Type:        schema.TypeBool,
@@ -121,12 +121,12 @@ func resourceOrganizationPolicyDelete(ctx context.Context, d *schema.ResourceDat
 	apiClient := meta.(client.ApiClientInterface)
 
 	// In cases of a "DELETE", update the organization policy to default values.
-	// The API patches policies, so an omitted boolean would keep its current value.
+	// The API patches policies, so an omitted boolean keeps its current value. EnforcePrCommenterPermissions is
+	// omitted on purpose: turning it off loosens security, and the API rejects that while requireVerifiedVcsUserIds is on.
 	payload := client.OrganizationPolicyUpdatePayload{
 		DoNotReportSkippedStatusChecks:      new(false),
 		DoNotConsiderMergeCommitsForPrPlans: new(false),
 		EnableOidc:                          new(false),
-		EnforcePrCommenterPermissions:       new(false),
 		AllowMergeableBypassForPrApply:      new(false),
 	}
 	if _, err := apiClient.OrganizationPolicyUpdate(payload); err != nil {

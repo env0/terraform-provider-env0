@@ -114,7 +114,6 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 					DoNotReportSkippedStatusChecks:      new(false),
 					DoNotConsiderMergeCommitsForPrPlans: new(false),
 					EnableOidc:                          new(false),
-					EnforcePrCommenterPermissions:       new(false),
 					AllowMergeableBypassForPrApply:      new(false),
 				}).Times(1).Return(&defaultOrganization, nil),
 			)
