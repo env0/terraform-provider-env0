@@ -8,7 +8,7 @@ env:
   ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
   ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
   ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
-  GO_VERSION: "1.26.10"
+  GO_VERSION: "1.27.3"
   TERRAFORM_VERSION: 1.11.4
 
 permissions:
@@ -23,11 +23,11 @@ jobs:
     runs-on: ${{ vars.LARGE_RUNNER_LABEL }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Generate mocks
         run: |
           go install go.uber.org/mock/mockgen@v0.3.0
@@ -45,7 +45,7 @@ jobs:
         run: |
           go vet ./...
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: Verify Terraform installation
@@ -57,9 +57,9 @@ jobs:
           chmod +x $(which terraform)
           ls -la $(which terraform)
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
-          version: v2.9.0
+          version: v2.15.0
       - name: Go Test
         timeout-minutes: 20
         run: |
@@ -69,7 +69,9 @@ jobs:
           # runner since terraform-per-step is IO/process-bound. TF_LOG_PROVIDER=info
           # surfaces provider logs on failing tests at ~no cost (measured); full
           # TF_LOG=DEBUG/-v omitted on purpose (huge per-invocation overhead).
-          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 ./...
+          # Ginkgo v2 suites (client/...) reject -parallel, so they run separately.
+          go test -race -timeout 5m ./client/...
+          TF_LOG_PROVIDER=info go test -race -timeout 20m -parallel 16 $(go list ./... | grep -v /client)
         env:
           TF_ACC: true
           TF_ACC_TERRAFORM_PATH: ${{ env.TF_PATH }}
@@ -78,16 +80,16 @@ jobs:
   # See terraform-provider-env0 README for integration tests prerequisites
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-24.04
-    container: golang:1.26-alpine
+    runs-on: ubuntu-26.04
+    container: golang:1.27-alpine
     timeout-minutes: 20
     steps:
       - name: Install Opentofu
         run: apk add opentofu
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Cache Go modules and build
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             /go/pkg/mod

@@ -93,7 +93,7 @@ resource "env0_template" "example" {
 
 ## Development Setup
 
-> **Required tools:** Go 1.26, [golangci-lint](https://golangci-lint.run/welcome/install/) v2+
+> **Required tools:** Go 1.27, [golangci-lint](https://golangci-lint.run/welcome/install/) v2+
 
 ### Build
 

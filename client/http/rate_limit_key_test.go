@@ -2,8 +2,7 @@ package http_test
 
 import (
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

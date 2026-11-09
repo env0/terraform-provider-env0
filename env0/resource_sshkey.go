@@ -110,7 +110,7 @@ func resourceSshKeyImport(ctx context.Context, d *schema.ResourceData, meta any)
 
 		var sshKey *client.SshKey
 
-		sshKey, getErr = getSshKeyByName(id, meta)
+		sshKey, getErr = getSshKeyByName(ctx, id, meta)
 		d.SetId(sshKey.Id)
 	}
 

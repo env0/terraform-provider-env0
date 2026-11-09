@@ -89,7 +89,8 @@ func validateTtl(defaultTtl *string, maxTtl *string) error {
 	}
 
 	if maxDuration < defaultDuration {
-		return fmt.Errorf("default ttl must not be larger than max ttl: %d %d", defaultTtl, maxTtl)
+		// maxTtl is non-nil here; defaultTtl may be nil (infinite).
+		return fmt.Errorf("default ttl must not be larger than max ttl (%s)", *maxTtl)
 	}
 
 	return nil

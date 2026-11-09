@@ -8,8 +8,7 @@ import (
 
 	. "github.com/env0/terraform-provider-env0/client"
 	"github.com/jinzhu/copier"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 	"go.uber.org/mock/gomock"
@@ -438,9 +437,12 @@ var _ = Describe("Templates Client", func() {
 			"revision":             payload.Revision,
 			"repository":           payload.Repository,
 			"sshKeyIds":            `["1","2"]`,
+			"organizationId":       organizationId,
 		}
 
 		BeforeEach(func() {
+			mockOrganizationIdCall()
+
 			httpCall = mockHttpClient.EXPECT().
 				Get("/blueprints/variables-from-repository", expectedParams, gomock.Any()).
 				Do(func(path string, request any, response *[]ConfigurationVariable) {

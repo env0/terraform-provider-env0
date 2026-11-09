@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	. "github.com/env0/terraform-provider-env0/client"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	gomock "go.uber.org/mock/gomock"
 )

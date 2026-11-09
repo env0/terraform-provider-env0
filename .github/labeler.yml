@@ -1,7 +1,21 @@
-provider: ["env0/**/*"]
-api-client: ["client/**/*"]
-integration-tests: ["tests/**/*"]
-examples: ["examples/**/*"]
-docs: ["docs/**/*"]
-dependency-change: ["go.mod", "go.sum"]
-github-actions: [".github/**/*"]
+provider:
+  - changed-files:
+      - any-glob-to-any-file: "env0/**/*"
+api-client:
+  - changed-files:
+      - any-glob-to-any-file: "client/**/*"
+integration-tests:
+  - changed-files:
+      - any-glob-to-any-file: "tests/**/*"
+examples:
+  - changed-files:
+      - any-glob-to-any-file: "examples/**/*"
+docs:
+  - changed-files:
+      - any-glob-to-any-file: "docs/**/*"
+dependency-change:
+  - changed-files:
+      - any-glob-to-any-file: ["go.mod", "go.sum"]
+github-actions:
+  - changed-files:
+      - any-glob-to-any-file: ".github/**/*"

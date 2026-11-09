@@ -12,8 +12,7 @@ import (
 	httpModule "github.com/env0/terraform-provider-env0/client/http"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
@@ -118,7 +117,7 @@ var _ = Describe("Http Client", func() {
 	}
 
 	AssertError := func(err error) {
-		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode)+": "+ErrorMessage), "Should return error message")
+		Expect(err.Error()).To(Equal(strconv.Itoa(ErrorStatusCode)+" "+http.StatusText(ErrorStatusCode)+": "+ErrorMessage), "Should return error message")
 	}
 
 	AssertHttpCall := func(method string, url string) {
