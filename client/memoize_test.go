@@ -2,7 +2,11 @@ package client_test
 
 import (
 	"errors"
+	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/env0/terraform-provider-env0/client"
 	"github.com/stretchr/testify/assert"
@@ -64,5 +68,44 @@ func TestMemoize(t *testing.T) {
 		assert.Equal(t, expectedError, err2)
 		assert.Nil(t, result2)
 		assert.Equal(t, 1, callCount) // Count shouldn't increase
+	})
+
+	t.Run("should be safe for concurrent calls", func(t *testing.T) {
+		memoized := client.MemoizeExported(func(s string) ([]client.Team, error) {
+			return []client.Team{{Name: s}}, nil
+		})
+
+		var wg sync.WaitGroup
+		for i := range 1000 {
+			name := strconv.Itoa(i % 100)
+			wg.Go(func() {
+				teams, err := memoized(name)
+				assert.NoError(t, err)
+				assert.Equal(t, []client.Team{{Name: name}}, teams)
+			})
+		}
+		wg.Wait()
+	})
+
+	t.Run("should call the function once for concurrent calls with one key", func(t *testing.T) {
+		var callCount atomic.Int32
+		memoized := client.MemoizeExported(func(s string) ([]client.Team, error) {
+			callCount.Add(1)
+			time.Sleep(10 * time.Millisecond)
+
+			return []client.Team{{Name: s}}, nil
+		})
+
+		var wg sync.WaitGroup
+		for range 50 {
+			wg.Go(func() {
+				teams, err := memoized("team")
+				assert.NoError(t, err)
+				assert.Equal(t, []client.Team{{Name: "team"}}, teams)
+			})
+		}
+		wg.Wait()
+
+		assert.Equal(t, int32(1), callCount.Load())
 	})
 }

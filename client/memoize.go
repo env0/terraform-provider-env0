@@ -1,23 +1,36 @@
 package client
 
+import "sync"
+
 type memoizedResult[V any] struct {
+	once  sync.Once
 	value V
 	err   error
 }
 
+// Terraform reads data sources in parallel, so the cache is locked. The lock covers only the map:
+// each key's Once makes concurrent callers for that key share one call to f.
 func memoize[K comparable, V any](f func(K) (V, error)) func(K) (V, error) {
-	cache := make(map[K]memoizedResult[V])
+	var mu sync.Mutex
+
+	cache := make(map[K]*memoizedResult[V])
 
 	return func(key K) (V, error) {
-		if res, ok := cache[key]; ok {
-			return res.value, res.err
+		mu.Lock()
+
+		res, ok := cache[key]
+		if !ok {
+			res = &memoizedResult[V]{}
+			cache[key] = res
 		}
 
-		value, err := f(key)
+		mu.Unlock()
 
-		cache[key] = memoizedResult[V]{value: value, err: err}
+		res.once.Do(func() {
+			res.value, res.err = f(key)
+		})
 
-		return value, err
+		return res.value, res.err
 	}
 }
 
