@@ -5,9 +5,6 @@ on:
     types: [opened, synchronize]
 
 env:
-  ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
-  ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
-  ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
   GO_VERSION: "1.27.3"
   TERRAFORM_VERSION: 1.11.4
 
@@ -83,6 +80,11 @@ jobs:
     runs-on: ubuntu-26.04
     container: golang:1.27-alpine
     timeout-minutes: 20
+    # The API key can deploy in its dev org, so only this job gets it.
+    env:
+      ENV0_API_ENDPOINT: ${{ secrets.ENV0_API_ENDPOINT }}
+      ENV0_API_KEY: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_KEY }} # API Key for organization 'TF-provider-integration-tests' @ dev
+      ENV0_API_SECRET: ${{ secrets.TF_PROVIDER_INTEGRATION_TEST_API_SECRET }}
     steps:
       - name: Install Opentofu
         run: apk add opentofu
