@@ -43,6 +43,14 @@ resource "env0_environment" "example_with_hcl_configuration" {
     EOF
     schema_format = "HCL"
   }
+
+  # Multi select list: 'schema_enum' lists the options and 'value' is a JSON array of the selected options.
+  configuration {
+    name        = "MULTI_SELECT"
+    value       = jsonencode(["a", "c"])
+    schema_type = "array"
+    schema_enum = ["a", "b", "c"]
+  }
 }
 
 # During destroy, wait for the env0 destroy deployment to finish.

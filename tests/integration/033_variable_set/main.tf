@@ -50,6 +50,14 @@ resource "env0_variable_set" "org_scope" {
   }
 
   variable {
+    name            = "n6"
+    dropdown_values = ["o1", "o2", "o3"]
+    values          = var.second_run ? ["o2", "o3"] : ["o1"]
+    type            = "terraform"
+    format          = "multi_select"
+  }
+
+  variable {
     name   = "n55555"
     value  = "abcdef"
     type   = var.second_run ? "terraform" : "environment"

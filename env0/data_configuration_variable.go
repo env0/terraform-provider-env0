@@ -75,7 +75,7 @@ func dataConfigurationVariable() *schema.Resource {
 			},
 			"value": {
 				Type:        schema.TypeString,
-				Description: "value stored in the variable",
+				Description: "value stored in the variable. For a multi select list, a JSON array of the selected options (see 'values')",
 				Computed:    true,
 				Sensitive:   true,
 			},
@@ -96,6 +96,19 @@ func dataConfigurationVariable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:        schema.TypeString,
 					Description: "the configuration variable option",
+				},
+			},
+			"multi_select": {
+				Type:        schema.TypeBool,
+				Description: "is the variable a multi select list",
+				Computed:    true,
+			},
+			"values": {
+				Type:        schema.TypeList,
+				Description: "the selected options of a multi select list variable",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 			"format": {
@@ -147,6 +160,18 @@ func dataConfigurationVariableRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	d.Set("enum", variable.Schema.Enum)
+
+	isMultiSelect := variable.Schema.Type == client.MultiSelectSchemaType
+	d.Set("multi_select", isMultiSelect)
+
+	if isMultiSelect {
+		values, err := parseMultiSelectValue(variable.Value)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.Set("values", values)
+	}
 
 	if variable.Schema.Format != client.Text {
 		d.Set("format", string(variable.Schema.Format))

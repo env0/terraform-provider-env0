@@ -13,6 +13,22 @@ resource "env0_configuration_variable" "drop_down" {
   ]
 }
 
+# Multi select list: 'values' are the selected options and must be a subset of 'enum'.
+# Use `values = []` to select nothing.
+resource "env0_configuration_variable" "multi_select" {
+  name         = "ENVIRONMENT_VARIABLE_MULTI_SELECT"
+  multi_select = true
+  enum = [
+    "first option",
+    "second option",
+    "third option"
+  ]
+  values = [
+    "first option",
+    "third option"
+  ]
+}
+
 resource "env0_configuration_variable" "json_variable" {
   name   = "organization_tf_json_var"
   type   = "terraform"

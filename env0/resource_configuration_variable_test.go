@@ -938,4 +938,192 @@ resource "%s" "test" {
 			mock.EXPECT().ConfigurationVariableDelete(configVar.Id).Times(0)
 		})
 	})
+
+	t.Run("Multi select", func(t *testing.T) {
+		options := []string{"a", "b", "c"}
+
+		multiSelectParams := func(value string) client.ConfigurationVariableCreateParams {
+			return client.ConfigurationVariableCreateParams{
+				Name:        "multi",
+				Value:       value,
+				Scope:       client.ScopeGlobal,
+				Type:        client.ConfigurationVariableTypeEnvironment,
+				EnumValues:  options,
+				MultiSelect: true,
+				Format:      client.Text,
+			}
+		}
+
+		multiSelectVariable := func(value string) client.ConfigurationVariable {
+			return client.ConfigurationVariable{
+				Id:     "multi-id",
+				Name:   "multi",
+				Value:  value,
+				Scope:  client.ScopeGlobal,
+				Schema: &client.ConfigurationVariableSchema{Type: "array", Enum: options},
+			}
+		}
+
+		dropdownParams := client.ConfigurationVariableCreateParams{
+			Name:       "multi",
+			Value:      "a",
+			Scope:      client.ScopeGlobal,
+			Type:       client.ConfigurationVariableTypeEnvironment,
+			EnumValues: options,
+			Format:     client.Text,
+		}
+
+		dropdownVariable := client.ConfigurationVariable{
+			Id:     "multi-id",
+			Name:   "multi",
+			Value:  "a",
+			Scope:  client.ScopeGlobal,
+			Schema: &client.ConfigurationVariableSchema{Type: "string", Enum: options},
+		}
+
+		config := func(body string) string {
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "multi"
+				enum = ["a", "b", "c"]
+				%s
+			}`, resourceType, resourceName, body)
+		}
+
+		t.Run("create, empty selection and switching to and from a dropdown", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: config(`multi_select = true
+						values = ["a", "b"]`),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "true"),
+							resource.TestCheckResourceAttr(accessor, "values.#", "2"),
+							resource.TestCheckResourceAttr(accessor, "values.0", "a"),
+							resource.TestCheckResourceAttr(accessor, "values.1", "b"),
+							resource.TestCheckNoResourceAttr(accessor, "value"),
+						),
+					},
+					{
+						Config: config(`multi_select = true`),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "true"),
+							resource.TestCheckResourceAttr(accessor, "values.#", "0"),
+						),
+					},
+					{
+						Config: config(`value = "a"`),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "false"),
+							resource.TestCheckResourceAttr(accessor, "values.#", "0"),
+							resource.TestCheckResourceAttr(accessor, "value", "a"),
+						),
+					},
+					{
+						Config: config(`multi_select = true
+						values = ["c"]`),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "true"),
+							resource.TestCheckResourceAttr(accessor, "values.0", "c"),
+						),
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				current := multiSelectVariable(`["a","b"]`)
+
+				mock.EXPECT().ConfigurationVariablesById("multi-id").AnyTimes().DoAndReturn(func(string) (client.ConfigurationVariable, error) {
+					return current, nil
+				})
+				mock.EXPECT().ConfigurationVariableCreate(multiSelectParams(`["a","b"]`)).Times(1).Return(current, nil)
+
+				update := func(params client.ConfigurationVariableCreateParams, updated client.ConfigurationVariable) *gomock.Call {
+					return mock.EXPECT().ConfigurationVariableUpdate(client.ConfigurationVariableUpdateParams{CommonParams: params, Id: "multi-id"}).
+						Times(1).DoAndReturn(func(client.ConfigurationVariableUpdateParams) (client.ConfigurationVariable, error) {
+						current = updated
+
+						return updated, nil
+					})
+				}
+
+				gomock.InOrder(
+					update(multiSelectParams("[]"), multiSelectVariable("[]")),
+					update(dropdownParams, dropdownVariable),
+					update(multiSelectParams(`["c"]`), multiSelectVariable(`["c"]`)),
+				)
+
+				mock.EXPECT().ConfigurationVariableDelete("multi-id").Times(1).Return(nil)
+			})
+		})
+
+		t.Run("import", func(t *testing.T) {
+			created := multiSelectVariable(`["b","a"]`)
+			created.Scope = client.ScopeTemplate
+			created.ScopeId = "id0"
+
+			params := multiSelectParams(`["b","a"]`)
+			params.Scope = client.ScopeTemplate
+			params.ScopeId = "id0"
+
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: config(`template_id = "id0"
+						multi_select = true
+						values = ["b", "a"]`),
+					},
+					{
+						ResourceName:      resourceAccessor(resourceType, resourceName),
+						ImportState:       true,
+						ImportStateId:     `{"Scope": "BLUEPRINT", "ScopeId": "id0", "Id": "multi-id"}`,
+						ImportStateVerify: true,
+					},
+				},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariableCreate(params).Times(1).Return(created, nil)
+				mock.EXPECT().ConfigurationVariablesById("multi-id").AnyTimes().Return(created, nil)
+				mock.EXPECT().ConfigurationVariableDelete("multi-id").Times(1).Return(nil)
+			})
+		})
+
+		runFailure := func(testName string, body string, errorMessage string) {
+			t.Run(testName, func(t *testing.T) {
+				testCase := resource.TestCase{
+					Steps: []resource.TestStep{{Config: config(body), ExpectError: regexp.MustCompile(errorMessage)}},
+				}
+
+				runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+			})
+		}
+
+		runFailure("value not in enum", `multi_select = true
+			values = ["a", "z"]`, "value - 'z' is not one of the enum options")
+		runFailure("duplicate values", `multi_select = true
+			values = ["a", "a"]`, "value - 'a' is selected more than once")
+		runFailure("values without multi_select", `values = ["a"]`, `"values": all of`)
+		runFailure("values with multi_select false", `multi_select = false
+			values = ["a"]`, "'values' can only be set when 'multi_select' is true")
+		runFailure("with value", `multi_select = true
+			value = "a"`, `"multi_select": conflicts with value`)
+		runFailure("sensitive", `multi_select = true
+			is_sensitive = true`, `"multi_select": conflicts with is_sensitive`)
+
+		t.Run("without enum", func(t *testing.T) {
+			testCase := resource.TestCase{
+				Steps: []resource.TestStep{{
+					Config: fmt.Sprintf(`
+					resource "%s" "%s" {
+						name = "multi"
+						multi_select = true
+					}`, resourceType, resourceName),
+					ExpectError: regexp.MustCompile("'enum' must be set when 'multi_select' is true"),
+				}},
+			}
+
+			runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {})
+		})
+	})
 }
