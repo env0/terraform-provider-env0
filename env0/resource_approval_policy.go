@@ -131,6 +131,10 @@ func getApprovalPolicyById(id string, meta any) (*client.Template, error) {
 		return nil, fmt.Errorf("template type requires type %s but received type %s", ApprovalPolicy, template.Type)
 	}
 
+	if template.IsDeleted {
+		return nil, fmt.Errorf("approval policy with id %s is deleted", id)
+	}
+
 	return &template, nil
 }
 

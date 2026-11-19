@@ -115,6 +115,16 @@ func TestApprovalPolicyDataSource(t *testing.T) {
 		)
 	})
 
+	t.Run("Throw error when by id and the approval policy is deleted", func(t *testing.T) {
+		deletedApprovalPolicyTemplate := approvalPolicyTemplate
+		deletedApprovalPolicyTemplate.IsDeleted = true
+
+		runUnitTest(t,
+			getErrorTestCase(approvalPolicyFieldsById, "approval policy with id id0 is deleted"),
+			mockTemplateCall(deletedApprovalPolicyTemplate),
+		)
+	})
+
 	t.Run("Throw error when by id and the template is not an approval policy", func(t *testing.T) {
 		customFlowTemplate := approvalPolicyTemplate
 		customFlowTemplate.Type = string(CustomFlow)
