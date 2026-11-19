@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.37.0](https://github.com/env0/terraform-provider-env0/compare/v1.36.0...v1.37.0) (2026-11-19)
+
+
+### Features
+
+* Accept LATEST_ALLOWED_FROM_CODE for Terraform and OpenTofu versions (APO-1641) ([#1180](https://github.com/env0/terraform-provider-env0/issues/1180)) ([f952276](https://github.com/env0/terraform-provider-env0/commit/f9522760b8ab1b71b401f027439747c56759ccd2))
+
+
+### Bug Fixes
+
+* Reset policy booleans to their defaults when deleting env0_organization_policy (ATL-702) ([#1172](https://github.com/env0/terraform-provider-env0/issues/1172)) ([e6cc195](https://github.com/env0/terraform-provider-env0/commit/e6cc195ea5a1d67e75161a4f7d50431ccb3f52bd))
+* Stop the provider crashing on parallel env0_team lookups (APO-1537) ([#1178](https://github.com/env0/terraform-provider-env0/issues/1178)) ([3e01528](https://github.com/env0/terraform-provider-env0/commit/3e015281a4f1e21e0d040406740a20d96f64e893))
+
 ## [1.36.0](https://github.com/env0/terraform-provider-env0/compare/v1.35.1...v1.36.0) (2026-11-08)
 
 
