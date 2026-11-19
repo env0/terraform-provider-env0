@@ -106,6 +106,7 @@ func Provider(version string) plugin.ProviderFunc {
 				"env0_gpg_key":                   dataGpgKey(),
 				"env0_provider":                  dataProvider(),
 				"env0_custom_flow":               dataCustomFlow(),
+				"env0_approval_policy":           dataApprovalPolicy(),
 				"env0_projects":                  dataProjects(),
 				"env0_module_testing_project":    dataModuleTestingProject(),
 				"env0_variable_set":              dataVariableSet(),

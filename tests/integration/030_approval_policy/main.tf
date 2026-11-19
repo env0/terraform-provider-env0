@@ -23,7 +23,11 @@ resource "env0_approval_policy" "test" {
 
 }
 
+data "env0_approval_policy" "by_name" {
+  name = env0_approval_policy.test.name
+}
+
 resource "env0_approval_policy_assignment" "assignment" {
   scope_id     = env0_project.project.id
-  blueprint_id = env0_approval_policy.test.id
+  blueprint_id = var.second_run ? data.env0_approval_policy.by_name.id : env0_approval_policy.test.id
 }
