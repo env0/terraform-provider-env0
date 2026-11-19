@@ -18,12 +18,14 @@ func dataApiKey() *schema.Resource {
 				Description:  "the name of the api key",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "the id of the api key",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"api_key_id": {
 				Type:        schema.TypeString,

@@ -18,12 +18,14 @@ func dataCustomFlow() *schema.Resource {
 				Description:  "The name of the custom flow",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "ID of the custom flow",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}

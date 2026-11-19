@@ -18,12 +18,14 @@ func dataGitToken() *schema.Resource {
 				Description:  "the name of the git token",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "the id of the git token",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}

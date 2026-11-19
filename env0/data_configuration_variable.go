@@ -26,22 +26,26 @@ func dataConfigurationVariable() *schema.Resource {
 				Description:  "the name of the configuration variable",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Description: "a description of the variable",
 				Optional:    true,
+				Computed:    true,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the configuration variable",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"project_id": {
 				Type:          schema.TypeString,

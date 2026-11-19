@@ -18,12 +18,14 @@ func dataAgentPool() *schema.Resource {
 				Description:  "the name of the agent pool",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "the id of the agent pool",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,

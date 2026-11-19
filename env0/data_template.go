@@ -18,12 +18,14 @@ func dataTemplate() *schema.Resource {
 				Description:  "the name of the template",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the template",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,

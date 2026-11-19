@@ -18,12 +18,14 @@ func dataCustomRole() *schema.Resource {
 				Description:  "the name of the custom role",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "the id of the custom role",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}

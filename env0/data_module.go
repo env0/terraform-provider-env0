@@ -18,12 +18,14 @@ func dataModule() *schema.Resource {
 				Description:  "the name of the module",
 				Optional:     true,
 				ExactlyOneOf: []string{"module_name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the module",
 				Optional:     true,
 				ExactlyOneOf: []string{"module_name", "id"},
+				Computed:     true,
 			},
 			"module_provider": {
 				Type:        schema.TypeString,

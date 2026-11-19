@@ -18,12 +18,14 @@ func dataCredentials(cloudType CloudType) *schema.Resource {
 				Description:  "the name of the credentials",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "the id of the credentials",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}
