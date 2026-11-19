@@ -32,11 +32,13 @@ func dataConfigurationVariable() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "a description of the variable",
 				Optional:    true,
+				Computed:    true,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Description: "'terraform' or 'environment'. If specified as an argument, limits searching by variable name only to variables of this type.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"id": {
 				Type:         schema.TypeString,
