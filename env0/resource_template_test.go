@@ -462,6 +462,13 @@ func TestUnitTemplateResource(t *testing.T) {
 		},
 	}
 
+	newestAllowedTemplate := opentofuTemplate
+	newestAllowedTemplate.OpentofuVersion = "LATEST_ALLOWED_FROM_CODE"
+	newestAllowedTemplate.TerraformVersion = "LATEST_ALLOWED_FROM_CODE"
+	newestAllowedUpdatedTemplate := opentofuUpdatedTemplate
+	newestAllowedUpdatedTemplate.OpentofuVersion = "LATEST_ALLOWED_FROM_CODE"
+	newestAllowedUpdatedTemplate.TerraformVersion = "LATEST_ALLOWED_FROM_CODE"
+
 	ansibleTemplate := client.Template{
 		Id:             "ansible",
 		Name:           "template0",
@@ -760,6 +767,7 @@ func TestUnitTemplateResource(t *testing.T) {
 		{"Azure DevOps", azureDevOpsTemplate, azureDevOpsUpdatedTemplate},
 		{"Helm Chart", helmTemplate, helmUpdatedTemplate},
 		{"Opentofu", opentofuTemplate, opentofuUpdatedTemplate},
+		{"Newest allowed versions", newestAllowedTemplate, newestAllowedUpdatedTemplate},
 		{"Ansible", ansibleTemplate, ansibleUpdatedTemplate},
 		{"VCS Connection", vcsConnectionTemplate, vcsConnectionUpdatedTemplate},
 	}

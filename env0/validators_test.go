@@ -250,3 +250,53 @@ func TestValidateRetries(t *testing.T) {
 		})
 	}
 }
+
+func TestNewTerraformVersionValidator(t *testing.T) {
+	tests := []struct {
+		name        string
+		value       string
+		expectError bool
+	}{
+		{name: "version", value: "1.5.7", expectError: false},
+		{name: "lowest allowed by the code", value: "RESOLVE_FROM_TERRAFORM_CODE", expectError: false},
+		{name: "newest allowed by the code", value: "LATEST_ALLOWED_FROM_CODE", expectError: false},
+		{name: "latest", value: "latest", expectError: false},
+		{name: "the OpenTofu keyword", value: "RESOLVE_FROM_CODE", expectError: true},
+		{name: "a partial keyword", value: "LATEST_ALLOWED", expectError: true},
+		{name: "not a version", value: "1.x", expectError: true},
+		{name: "a version with a suffix", value: "1.5.7abc", expectError: true},
+		{name: "a pre-release version", value: "1.5.0-rc1", expectError: true},
+		{name: "a keyword with a prefix", value: "xlatest", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := NewTerraformVersionValidator()(tt.value, cty.Path{})
+			assert.Equal(t, tt.expectError, diags.HasError())
+		})
+	}
+}
+
+func TestNewOpenTofuVersionValidator(t *testing.T) {
+	tests := []struct {
+		name        string
+		value       string
+		expectError bool
+	}{
+		{name: "version", value: "1.13.9", expectError: false},
+		{name: "pre-release version", value: "1.13.0-rc1", expectError: false},
+		{name: "lowest allowed by the code", value: "RESOLVE_FROM_CODE", expectError: false},
+		{name: "newest allowed by the code", value: "LATEST_ALLOWED_FROM_CODE", expectError: false},
+		{name: "latest", value: "latest", expectError: false},
+		{name: "the Terraform keyword", value: "RESOLVE_FROM_TERRAFORM_CODE", expectError: true},
+		{name: "a partial keyword", value: "LATEST_ALLOWED", expectError: true},
+		{name: "not a version", value: "1.x", expectError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := NewOpenTofuVersionValidator()(tt.value, cty.Path{})
+			assert.Equal(t, tt.expectError, diags.HasError())
+		})
+	}
+}

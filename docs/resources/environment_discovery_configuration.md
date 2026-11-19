@@ -74,7 +74,7 @@ resource "env0_environment_discovery_configuration" "discovery_file_example" {
 - `is_github_enterprise` (Boolean) set to true if GitHub Enterprise is used
 - `is_gitlab_enterprise` (Boolean) set to true if GitLab Enterprise is used
 - `is_terragrunt_run_all` (Boolean) If set to 'true', execute terragrunt commands with 'run all' (default: false)
-- `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.
+- `opentofu_version` (String) the Opentofu version to use (example: 1.6.1). Setting to `RESOLVE_FROM_CODE` uses the lowest version that `terraform.required_version` in the Opentofu code allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for OpenTofu.
 - `repository` (String) the repository to run discovery on
 - `repository_regex` (String) Regex to match repositories for environment discovery by file. The pattern is matched against the repository path in the format '<owner>/<repo>'. Use '|' to match multiple patterns (e.g. 'org1/.*|org2/web-.*' to match all repos in org1 and repos starting with 'web-' in org2). Cannot be used with 'repository' or 'glob_pattern'
 - `retries_on_deploy` (Number) number of times to retry when deploy fails (between 1 and 3)
@@ -84,7 +84,7 @@ resource "env0_environment_discovery_configuration" "discovery_file_example" {
 - `root_path` (String) start files Glob matching from this folder only
 - `ssh_key_id` (String) The ssh key id that will be available during deployment
 - `ssh_key_name` (String) The ssh key name that will be available during deployment
-- `terraform_version` (String) the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.
+- `terraform_version` (String) the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` uses the lowest version that `terraform.required_version` allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Terraform.
 - `terragrunt_tf_binary` (String) The binary to use with Terragrunt. Valid values: 'opentofu' and 'terraform' (default: 'opentofu')
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.52.0)
 - `token_id` (String, Deprecated) a token id to be used with 'gitlab' or 'azure_devops'

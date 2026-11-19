@@ -71,15 +71,15 @@ func resourceEnvironmentDiscoveryConfiguration() *schema.Resource {
 			},
 			"terraform_version": {
 				Type:             schema.TypeString,
-				Description:      "the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.",
+				Description:      "the Terraform version to use (example: 1.7.4). Setting to `RESOLVE_FROM_TERRAFORM_CODE` uses the lowest version that `terraform.required_version` allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Terraform.",
 				Optional:         true,
-				ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|RESOLVE_FROM_TERRAFORM_CODE|latest$`),
+				ValidateDiagFunc: NewTerraformVersionValidator(),
 			},
 			"opentofu_version": {
 				Type:             schema.TypeString,
-				Description:      "the Opentofu version to use (example: 1.6.1). Setting to `latest`, the version used will be the most recent one available for OpenTofu.",
+				Description:      "the Opentofu version to use (example: 1.6.1). Setting to `RESOLVE_FROM_CODE` uses the lowest version that `terraform.required_version` in the Opentofu code allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for OpenTofu.",
 				Optional:         true,
-				ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|RESOLVE_FROM_TERRAFORM_CODE|latest$`),
+				ValidateDiagFunc: NewOpenTofuVersionValidator(),
 			},
 			"terragrunt_version": {
 				Type:             schema.TypeString,

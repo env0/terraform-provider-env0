@@ -103,8 +103,12 @@ func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
 	}
 }
 
+func NewTerraformVersionValidator() schema.SchemaValidateDiagFunc {
+	return NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2}|RESOLVE_FROM_TERRAFORM_CODE|LATEST_ALLOWED_FROM_CODE|latest)$`)
+}
+
 func NewOpenTofuVersionValidator() schema.SchemaValidateDiagFunc {
-	return NewRegexValidator(`(?:^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}(?:-.+)?$)|^RESOLVE_FROM_CODE$|^latest$`)
+	return NewRegexValidator(`(?:^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}(?:-.+)?$)|^RESOLVE_FROM_CODE$|^LATEST_ALLOWED_FROM_CODE$|^latest$`)
 }
 
 func ValidateTtl(i any, path cty.Path) diag.Diagnostics {
