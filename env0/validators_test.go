@@ -264,6 +264,9 @@ func TestNewTerraformVersionValidator(t *testing.T) {
 		{name: "the OpenTofu keyword", value: "RESOLVE_FROM_CODE", expectError: true},
 		{name: "a partial keyword", value: "LATEST_ALLOWED", expectError: true},
 		{name: "not a version", value: "1.x", expectError: true},
+		{name: "a version with a suffix", value: "1.5.7abc", expectError: true},
+		{name: "a pre-release version", value: "1.5.0-rc1", expectError: true},
+		{name: "a keyword with a prefix", value: "xlatest", expectError: true},
 	}
 
 	for _, tt := range tests {
