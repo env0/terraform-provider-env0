@@ -121,20 +121,28 @@ func getApprovalPolicyByName(name string, meta any) (*client.ApprovalPolicy, err
 	return &approvalPolicies[0], nil
 }
 
+func getApprovalPolicyById(id string, meta any) (*client.Template, error) {
+	template, err := meta.(client.ApiClientInterface).Template(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if template.Type != string(ApprovalPolicy) {
+		return nil, fmt.Errorf("template type requires type %s but received type %s", ApprovalPolicy, template.Type)
+	}
+
+	if template.IsDeleted {
+		return nil, fmt.Errorf("approval policy with id %s is deleted", id)
+	}
+
+	return &template, nil
+}
+
 func getApprovalPolicy(ctx context.Context, id string, meta any) (any, error) {
 	if _, err := uuid.Parse(id); err == nil {
 		tflog.Info(ctx, "Resolving approval policy by id", map[string]any{"id": id})
 
-		template, err := meta.(client.ApiClientInterface).Template(id)
-		if err != nil {
-			return nil, err
-		}
-
-		if template.Type != string(ApprovalPolicy) {
-			return nil, fmt.Errorf("template type requires type %s but received type %s", ApprovalPolicy, template.Type)
-		}
-
-		return &template, nil
+		return getApprovalPolicyById(id, meta)
 	} else {
 		tflog.Info(ctx, "Resolving approval policy by name", map[string]any{"name": id})
 
