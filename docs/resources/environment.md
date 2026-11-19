@@ -238,7 +238,7 @@ Optional:
 - `is_gitlab_enterprise` (Boolean) true if this template uses gitlab enterprise repository
 - `is_helm_repository` (Boolean) true if this template integrates with a helm repository
 - `is_terragrunt_run_all` (Boolean) true if this template should execute run-all commands on multiple modules (check https://docs.terragrunt.com/reference/cli/commands/run/#running-multiple-units for additional details). Can only be true with 'terragrunt' template type and terragrunt version 0.28.1 and above
-- `opentofu_version` (String) the Opentofu version to use (example: 1.6.2). Setting to 'RESOLVE_FROM_CODE' extracts the version from the Opentofu code during runtime. Setting to `latest`, the version used will be the most recent one available for Opentofu.
+- `opentofu_version` (String) the Opentofu version to use (example: 1.6.2). Setting to `RESOLVE_FROM_CODE` uses the lowest version that `terraform.required_version` in the Opentofu code allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Opentofu.
 - `path` (String) terraform / terragrunt file folder inside source code
 - `retries_on_deploy` (Number) number of times to retry when deploying an environment based on this template
 - `retries_on_destroy` (Number) number of times to retry when destroying an environment based on this template
@@ -246,7 +246,7 @@ Optional:
 - `retry_on_destroy_only_when_matches_regex` (String) if specified, will only retry (on destroy) if error matches specified regex
 - `revision` (String) source code revision (branch / tag) to use
 - `ssh_keys` (List of Map of String) an array of references to 'data_ssh_key' to use when accessing git over ssh
-- `terraform_version` (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.
+- `terraform_version` (String) the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` uses the lowest version that `terraform.required_version` allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Terraform.
 - `terragrunt_tf_binary` (String) the binary to use if the template type is 'terragrunt'. Valid values 'opentofu' and 'terraform'. Defaults to 'opentofu'
 - `terragrunt_version` (String) the Terragrunt version to use (example: 0.36.5)
 - `token_id` (String, Deprecated) the git token id to be used

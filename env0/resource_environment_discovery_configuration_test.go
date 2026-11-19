@@ -55,7 +55,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			Type:                                  "terragrunt",
 			EnvironmentPlacement:                  "topProject",
 			WorkspaceNaming:                       "default",
-			OpentofuVersion:                       "1.6.3",
+			OpentofuVersion:                       "LATEST_ALLOWED_FROM_CODE",
 			TerragruntVersion:                     "0.63.0",
 			GithubInstallationId:                  3213,
 			TerragruntTfBinary:                    "opentofu",
@@ -541,7 +541,7 @@ func TestUnitEnvironmentDiscoveryConfigurationResource(t *testing.T) {
 			Type:                 "terraform",
 			EnvironmentPlacement: "topProject",
 			WorkspaceNaming:      "default",
-			TerraformVersion:     "1.6.2",
+			TerraformVersion:     "LATEST_ALLOWED_FROM_CODE",
 			GithubInstallationId: 12345,
 			Retry: client.TemplateRetry{
 				OnDestroy: &client.TemplateRetryOn{

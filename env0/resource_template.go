@@ -164,9 +164,9 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"terraform_version": {
 			Type:             schema.TypeString,
-			Description:      "the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` defaults to the version of `terraform.required_version` during run-time (resolve from terraform code). Setting to `latest`, the version used will be the most recent one available for Terraform.",
+			Description:      "the Terraform version to use (example: 0.15.1). Setting to `RESOLVE_FROM_TERRAFORM_CODE` uses the lowest version that `terraform.required_version` allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Terraform.",
 			Optional:         true,
-			ValidateDiagFunc: NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2})|RESOLVE_FROM_TERRAFORM_CODE|latest$`),
+			ValidateDiagFunc: NewTerraformVersionValidator(),
 		},
 		"terragrunt_version": {
 			Type:             schema.TypeString,
@@ -176,7 +176,7 @@ func getTemplateSchema(prefix string) map[string]*schema.Schema {
 		},
 		"opentofu_version": {
 			Type:             schema.TypeString,
-			Description:      "the Opentofu version to use (example: 1.6.2). Setting to 'RESOLVE_FROM_CODE' extracts the version from the Opentofu code during runtime. Setting to `latest`, the version used will be the most recent one available for Opentofu.",
+			Description:      "the Opentofu version to use (example: 1.6.2). Setting to `RESOLVE_FROM_CODE` uses the lowest version that `terraform.required_version` in the Opentofu code allows. Setting to `LATEST_ALLOWED_FROM_CODE` uses the newest version it allows. Setting to `latest`, the version used will be the most recent one available for Opentofu.",
 			ValidateDiagFunc: NewOpenTofuVersionValidator(),
 			Optional:         true,
 		},
