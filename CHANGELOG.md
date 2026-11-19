@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.38.0](https://github.com/env0/terraform-provider-env0/compare/v1.37.0...v1.38.0) (2026-11-19)
+
+
+### Features
+
+* Add env0_approval_policy data source (APO-1657) ([#1181](https://github.com/env0/terraform-provider-env0/issues/1181)) ([3c39902](https://github.com/env0/terraform-provider-env0/commit/3c399024c01b2a082d5e0008209a5a2311e7b109))
+
+
+### Bug Fixes
+
+* Mark data source id and lookup attributes as Computed (APO-1657) ([#1182](https://github.com/env0/terraform-provider-env0/issues/1182)) ([059a7fb](https://github.com/env0/terraform-provider-env0/commit/059a7fb57d9a7b392f2a39fe1d626d66e8495692))
+
 ## [1.37.0](https://github.com/env0/terraform-provider-env0/compare/v1.36.0...v1.37.0) (2026-11-19)
 
 
