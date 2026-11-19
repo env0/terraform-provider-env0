@@ -19,12 +19,14 @@ func dataOidcCredentials(credentialsType CloudType) *schema.Resource {
 				Description:  fmt.Sprintf("the name of the %s oidc credentials", credentialsType),
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  fmt.Sprintf("the id of the %s oidc credentials", credentialsType),
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}

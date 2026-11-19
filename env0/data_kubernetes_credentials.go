@@ -19,12 +19,14 @@ func dataKubernetesCredentials(credentialsType CloudType) *schema.Resource {
 				Description:  fmt.Sprintf("the name of %s credentials", credentialsType),
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  fmt.Sprintf("the id of %s credentials", credentialsType),
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 		},
 	}

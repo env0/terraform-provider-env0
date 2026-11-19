@@ -26,6 +26,7 @@ func dataConfigurationVariable() *schema.Resource {
 				Description:  "the name of the configuration variable",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -42,6 +43,7 @@ func dataConfigurationVariable() *schema.Resource {
 				Description:  "id of the configuration variable",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"project_id": {
 				Type:          schema.TypeString,

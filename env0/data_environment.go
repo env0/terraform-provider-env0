@@ -20,12 +20,14 @@ func dataEnvironment() *schema.Resource {
 				Description:  "the environment's id",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Description:  "name of the environment",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"exclude_archived": {
 				Type:          schema.TypeBool,

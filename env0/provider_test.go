@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -380,4 +381,16 @@ func TestRetryWaitTimeForRateLimitIsJittered(t *testing.T) {
 	}
 
 	assert.Greater(t, len(waitTimes), 1)
+}
+
+func TestDataSourceLookupAttributesAreComputed(t *testing.T) {
+	for dataSourceName, dataSource := range Provider("")().DataSourcesMap {
+		for attributeName, attribute := range dataSource.Schema {
+			if attributeName != "id" && !slices.Contains(attribute.ExactlyOneOf, "id") {
+				continue
+			}
+
+			assert.True(t, attribute.Computed, "%s.%s must be Computed so a deferred read plans an unknown value, not null", dataSourceName, attributeName)
+		}
+	}
 }

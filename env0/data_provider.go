@@ -18,12 +18,14 @@ func dataProvider() *schema.Resource {
 				Description:  "the type/name of the provider",
 				Optional:     true,
 				ExactlyOneOf: []string{"type", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "id of the provider",
 				Optional:     true,
 				ExactlyOneOf: []string{"type", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,

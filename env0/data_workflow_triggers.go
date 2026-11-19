@@ -16,6 +16,7 @@ func dataWorkflowTriggers() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"environment_id": {
 				Type:        schema.TypeString,

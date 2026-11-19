@@ -18,12 +18,14 @@ func dataTeam() *schema.Resource {
 				Description:  "The name of the team",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Description:  "ID of the team",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "id"},
+				Computed:     true,
 			},
 			"description": {
 				Type:        schema.TypeString,
