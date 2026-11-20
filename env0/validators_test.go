@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -297,6 +298,50 @@ func TestNewOpenTofuVersionValidator(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			diags := NewOpenTofuVersionValidator()(tt.value, cty.Path{})
 			assert.Equal(t, tt.expectError, diags.HasError())
+		})
+	}
+}
+
+func TestRegexValidatorErrorsNameTheField(t *testing.T) {
+	nestedPath := cty.GetAttrPath("without_template_settings").IndexInt(0).GetAttr("opentofu_version")
+
+	tests := []struct {
+		name      string
+		validator func(any, cty.Path) diag.Diagnostics
+		path      cty.Path
+		summary   string
+	}{
+		{
+			name:      "OpenTofu version inside a block",
+			validator: NewOpenTofuVersionValidator(),
+			path:      nestedPath,
+			summary:   "opentofu_version must be a version such as 1.13.9, or RESOLVE_FROM_CODE, LATEST_ALLOWED_FROM_CODE or latest",
+		},
+		{
+			name:      "Terraform version",
+			validator: NewTerraformVersionValidator(),
+			path:      cty.GetAttrPath("terraform_version"),
+			summary:   "terraform_version must be a version such as 1.5.7, or RESOLVE_FROM_TERRAFORM_CODE, LATEST_ALLOWED_FROM_CODE or latest",
+		},
+		{
+			name:      "any pattern",
+			validator: NewRegexValidator(`^[a-z]+$`),
+			path:      cty.GetAttrPath("module_name"),
+			summary:   "module_name must match pattern ^[a-z]+$",
+		},
+		{
+			name:      "no field in the path",
+			validator: NewRegexValidator(`^[a-z]+$`),
+			path:      cty.Path{},
+			summary:   "must match pattern ^[a-z]+$",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := tt.validator("NOT VALID", tt.path)
+
+			assert.Equal(t, diag.Diagnostics{{Severity: diag.Error, Summary: tt.summary, AttributePath: tt.path}}, diags)
 		})
 	}
 }
