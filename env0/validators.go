@@ -59,15 +59,38 @@ func ValidateRetries(i any, path cty.Path) diag.Diagnostics {
 }
 
 func NewRegexValidator(r string) schema.SchemaValidateDiagFunc {
+	return newRegexValidator(r, "must match pattern "+r)
+}
+
+func newRegexValidator(r string, requirement string) schema.SchemaValidateDiagFunc {
 	cr := regexp.MustCompile(r)
 
 	return func(i any, p cty.Path) diag.Diagnostics {
 		if !cr.MatchString(i.(string)) {
-			return diag.Errorf("must match pattern %v", r)
+			return fieldError(p, requirement)
 		}
 
 		return nil
 	}
+}
+
+// Names the field in the message: inside a dynamic block, Terraform and OpenTofu point only at the resource.
+func fieldError(p cty.Path, requirement string) diag.Diagnostics {
+	return diag.Diagnostics{{
+		Severity:      diag.Error,
+		Summary:       strings.TrimSpace(fieldName(p) + " " + requirement),
+		AttributePath: p,
+	}}
+}
+
+func fieldName(p cty.Path) string {
+	for i := len(p) - 1; i >= 0; i-- {
+		if step, ok := p[i].(cty.GetAttrStep); ok {
+			return step.Name
+		}
+	}
+
+	return ""
 }
 
 func NewStringInValidator(allowedValues []string) schema.SchemaValidateDiagFunc {
@@ -104,11 +127,17 @@ func NewGreaterThanValidator(greaterThan int) schema.SchemaValidateDiagFunc {
 }
 
 func NewTerraformVersionValidator() schema.SchemaValidateDiagFunc {
-	return NewRegexValidator(`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2}|RESOLVE_FROM_TERRAFORM_CODE|LATEST_ALLOWED_FROM_CODE|latest)$`)
+	return newRegexValidator(
+		`^(?:[0-9]\.[0-9]{1,2}\.[0-9]{1,2}|RESOLVE_FROM_TERRAFORM_CODE|LATEST_ALLOWED_FROM_CODE|latest)$`,
+		"must be a version such as 1.5.7, or RESOLVE_FROM_TERRAFORM_CODE, LATEST_ALLOWED_FROM_CODE or latest",
+	)
 }
 
 func NewOpenTofuVersionValidator() schema.SchemaValidateDiagFunc {
-	return NewRegexValidator(`(?:^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}(?:-.+)?$)|^RESOLVE_FROM_CODE$|^LATEST_ALLOWED_FROM_CODE$|^latest$`)
+	return newRegexValidator(
+		`(?:^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}(?:-.+)?$)|^RESOLVE_FROM_CODE$|^LATEST_ALLOWED_FROM_CODE$|^latest$`,
+		"must be a version such as 1.13.9, or RESOLVE_FROM_CODE, LATEST_ALLOWED_FROM_CODE or latest",
+	)
 }
 
 func ValidateTtl(i any, path cty.Path) diag.Diagnostics {
