@@ -817,6 +817,14 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 	return diags
 }
 
+func getManagedEnvironmentConfigurationFromApi(d *schema.ResourceData, apiClient client.ApiClientInterface, scope client.Scope, environmentId string) ([]client.ConfigurationVariable, error) {
+	if _, managed := d.GetOk("configuration"); !managed {
+		return nil, nil
+	}
+
+	return apiClient.ConfigurationVariablesByScope(scope, environmentId)
+}
+
 func getEnvironmentVariableSetIdsFromApi(d *schema.ResourceData, apiClient client.ApiClientInterface) ([]string, error) {
 	environmentVariableSets, err := apiClient.ConfigurationSetsAssignments(strings.ToUpper(client.ENVIRONMENT), d.Id())
 	if err != nil {
@@ -847,7 +855,7 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta a
 		scope = client.ScopeWorkflow
 	}
 
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
+	environmentConfigurationVariables, err := getManagedEnvironmentConfigurationFromApi(d, apiClient, scope, environment.Id)
 	if err != nil {
 		return diag.Errorf("could not get environment configuration variables: %v", err)
 	}
@@ -2148,7 +2156,7 @@ func resourceEnvironmentImport(ctx context.Context, d *schema.ResourceData, meta
 		scope = client.ScopeWorkflow
 	}
 
-	environmentConfigurationVariables, err := apiClient.ConfigurationVariablesByScope(scope, environment.Id)
+	environmentConfigurationVariables, err := getManagedEnvironmentConfigurationFromApi(d, apiClient, scope, environment.Id)
 	if err != nil {
 		return nil, fmt.Errorf("could not get environment configuration variables: %w", err)
 	}
