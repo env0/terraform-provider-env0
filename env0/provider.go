@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )
 
@@ -58,6 +59,13 @@ func Provider(version string) plugin.ProviderFunc {
 					Description: "when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored. This can also be set via the ENV0_ORGANIZATION_ID environment variable.",
 					DefaultFunc: schema.EnvDefaultFunc(apiOrganizationIdEnv, nil),
 					Optional:    true,
+				},
+				"max_requests_per_minute": {
+					Type:             schema.TypeInt,
+					Description:      "the maximum number of requests per minute that the provider sends to the env0 API, across all endpoints. Increase it to refresh large states faster. The per-endpoint limits of the env0 API still apply. This can also be set via the ENV0_MAX_REQUESTS_PER_MINUTE environment variable.",
+					DefaultFunc:      schema.EnvDefaultFunc("ENV0_MAX_REQUESTS_PER_MINUTE", defaultMaxRequestsPerMinute),
+					Optional:         true,
+					ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
@@ -210,7 +218,7 @@ const (
 	// Every request the provider sends per minute, across all paths. A safety net for the backend,
 	// not a WAF limit: requests from env0's own agents are exempt from the WAF, so this is the only
 	// limit they get. Raise it once prod runs at this rate look clean.
-	maxRequestsPerMinute = 2000
+	defaultMaxRequestsPerMinute = 2000
 )
 
 // retryWaitTimeFor returns how long to wait before the next attempt of a failed request.
@@ -345,6 +353,11 @@ func createRestyClient(ctx context.Context) *resty.Client {
 		})
 }
 
+func newRateLimiter(maxRequestsPerMinute int) *ratelimiter.KeyedLimiter {
+	return ratelimiter.NewKeyedLimiter(maxRequestsPerMinute, time.Minute,
+		http.PerPathRequestLimit(maxRequestsPerMinutePerPath, maxCriticalPathRequestsPerMinute))
+}
+
 func configureProvider(version string, p *schema.Provider) schema.ConfigureContextFunc {
 	userAgent := p.UserAgent("terraform-provider-env0", version)
 
@@ -365,8 +378,7 @@ func configureProvider(version string, p *schema.Provider) schema.ConfigureConte
 			ApiEndpoint: d.Get("api_endpoint").(string),
 			UserAgent:   userAgent,
 			RestClient:  createRestyClient(ctx),
-			RateLimiter: ratelimiter.NewKeyedLimiter(maxRequestsPerMinute, time.Minute,
-				http.PerPathRequestLimit(maxRequestsPerMinutePerPath, maxCriticalPathRequestsPerMinute)),
+			RateLimiter: newRateLimiter(d.Get("max_requests_per_minute").(int)),
 		})
 		if err != nil {
 			return nil, diag.Diagnostics{diag.Diagnostic{Severity: diag.Error, Summary: err.Error()}}

@@ -394,3 +394,43 @@ func TestDataSourceLookupAttributesAreComputed(t *testing.T) {
 		}
 	}
 }
+
+func maxRequestsPerMinuteFromConfig(t *testing.T, config map[string]any) int {
+	t.Helper()
+
+	d := schema.TestResourceDataRaw(t, Provider("")().Schema, config)
+
+	return d.Get("max_requests_per_minute").(int)
+}
+
+func TestMaxRequestsPerMinuteDefault(t *testing.T) {
+	assert.Equal(t, defaultMaxRequestsPerMinute, maxRequestsPerMinuteFromConfig(t, map[string]any{}))
+}
+
+func TestMaxRequestsPerMinuteFromConfig(t *testing.T) {
+	assert.Equal(t, 4000, maxRequestsPerMinuteFromConfig(t, map[string]any{"max_requests_per_minute": 4000}))
+}
+
+func TestMaxRequestsPerMinuteFromEnvVar(t *testing.T) {
+	t.Setenv("ENV0_MAX_REQUESTS_PER_MINUTE", "3000")
+
+	assert.Equal(t, 3000, maxRequestsPerMinuteFromConfig(t, map[string]any{}))
+}
+
+func TestMaxRequestsPerMinuteMustBePositive(t *testing.T) {
+	diags := Provider("")().Validate(terraform.NewResourceConfigRaw(map[string]any{"max_requests_per_minute": 0}))
+
+	if assert.True(t, diags.HasError()) {
+		assert.Contains(t, diags[0].Summary, "max_requests_per_minute")
+	}
+}
+
+func TestRateLimiterCapsAllPathsTogether(t *testing.T) {
+	limiter := newRateLimiter(3)
+
+	for _, path := range []string{"/environments/a", "/environments/b", "/configuration"} {
+		assert.True(t, limiter.Allow("GET "+path), path)
+	}
+
+	assert.False(t, limiter.Allow("GET /blueprints/c"))
+}
