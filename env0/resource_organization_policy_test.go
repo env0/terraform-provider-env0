@@ -120,6 +120,70 @@ func TestUnitOrganizationPolicyResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Require destroy environment permission", func(t *testing.T) {
+		organizationRequiringDestroyPermission := client.Organization{
+			Id:                                  organizationId,
+			Name:                                "name",
+			RequireDestroyEnvironmentPermission: true,
+		}
+
+		organizationWithOidc := organizationRequiringDestroyPermission
+		organizationWithOidc.EnableOidc = true
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"require_destroy_environment_permission": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", organizationId),
+						resource.TestCheckResourceAttr(accessor, "require_destroy_environment_permission", "true"),
+					),
+				},
+				{
+					Config: resourceConfigCreate(resourceType, resourceName, map[string]any{
+						"enable_oidc": true,
+					}),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "enable_oidc", "true"),
+						resource.TestCheckResourceAttr(accessor, "require_destroy_environment_permission", "true"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			gomock.InOrder(
+				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
+					DoNotReportSkippedStatusChecks:      new(false),
+					DoNotConsiderMergeCommitsForPrPlans: new(false),
+					EnableOidc:                          new(false),
+					EnforcePrCommenterPermissions:       new(false),
+					AllowMergeableBypassForPrApply:      new(false),
+					RequireDestroyEnvironmentPermission: new(true),
+				}).Times(1).Return(&organizationRequiringDestroyPermission, nil),
+				mock.EXPECT().Organization().Times(2).Return(organizationRequiringDestroyPermission, nil),
+				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
+					MaxTtl:                              new(""),
+					DefaultTtl:                          new(""),
+					DoNotReportSkippedStatusChecks:      new(false),
+					DoNotConsiderMergeCommitsForPrPlans: new(false),
+					EnableOidc:                          new(true),
+					EnforcePrCommenterPermissions:       new(false),
+					AllowMergeableBypassForPrApply:      new(false),
+				}).Times(1).Return(&organizationWithOidc, nil),
+				mock.EXPECT().Organization().Times(1).Return(organizationWithOidc, nil),
+				mock.EXPECT().OrganizationPolicyUpdate(client.OrganizationPolicyUpdatePayload{
+					DoNotReportSkippedStatusChecks:      new(false),
+					DoNotConsiderMergeCommitsForPrPlans: new(false),
+					EnableOidc:                          new(false),
+					AllowMergeableBypassForPrApply:      new(false),
+				}).Times(1).Return(&defaultOrganization, nil),
+			)
+		})
+	})
+
 	t.Run("Create Failure - max smaller than default", func(t *testing.T) {
 		testCase := resource.TestCase{
 			Steps: []resource.TestStep{

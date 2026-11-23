@@ -57,6 +57,12 @@ func resourceOrganizationPolicy() *schema.Resource {
 				Default:     false,
 				Description: "set to 'true' to allow bypassing the PR mergeability check for env0/Apply status checks on GitHub (defaults to 'false')",
 			},
+			"require_destroy_environment_permission": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "set to 'true' to require the 'DESTROY_ENVIRONMENT' permission to destroy an environment, approve a destroy or destroy a workflow sub-environment. The first time it turns on, env0 adds 'DESTROY_ENVIRONMENT' to every custom role with 'RUN_PLAN' or 'RUN_APPLY', so add it to the 'env0_custom_role' resources that keep destroy. Omit it to keep the organization's current setting. Destroying the resource leaves this setting unchanged",
+			},
 		},
 	}
 }
@@ -102,6 +108,10 @@ func resourceOrganizationPolicyCreateOrUpdate(ctx context.Context, d *schema.Res
 	var payload client.OrganizationPolicyUpdatePayload
 	if err := readResourceData(&payload, d); err != nil {
 		return diag.Errorf("schema resource data deserialization failed: %v", err)
+	}
+
+	if d.GetRawConfig().GetAttr("require_destroy_environment_permission").IsNull() {
+		payload.RequireDestroyEnvironmentPermission = nil
 	}
 
 	if err := validateTtl(payload.DefaultTtl, payload.MaxTtl); err != nil {
