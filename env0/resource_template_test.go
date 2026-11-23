@@ -1352,7 +1352,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"token_id":          "abcdefg",
 						"terraform_version": "v0.15.1",
 					}),
-					ExpectError: regexp.MustCompile("must match pattern"),
+					ExpectError: regexp.MustCompile("terraform_version must be a version such as 1.5.7"),
 				},
 			},
 		}
@@ -1371,7 +1371,7 @@ func TestUnitTemplateResource(t *testing.T) {
 						"token_id":         "abcdefg",
 						"opentofu_version": "v0.20.1",
 					}),
-					ExpectError: regexp.MustCompile("must match pattern"),
+					ExpectError: regexp.MustCompile("opentofu_version must be a version such as 1.13.9"),
 				},
 			},
 		}
