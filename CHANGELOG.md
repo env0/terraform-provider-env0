@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.2](https://github.com/env0/terraform-provider-env0/compare/v1.38.1...v1.38.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* Skip unused environment reads during refresh (APO-1734) ([#1187](https://github.com/env0/terraform-provider-env0/issues/1187)) ([fff1e82](https://github.com/env0/terraform-provider-env0/commit/fff1e82e8b7ab9ba24288a992c389a871009826b))
+
 ## [1.38.1](https://github.com/env0/terraform-provider-env0/compare/v1.38.0...v1.38.1) (2026-11-23)
 
 
