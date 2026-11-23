@@ -62,10 +62,10 @@ func Provider(version string) plugin.ProviderFunc {
 				},
 				"max_requests_per_minute": {
 					Type:             schema.TypeInt,
-					Description:      "the maximum number of requests per minute that the provider sends to the env0 API, across all endpoints. Increase it to refresh large states faster. The per-endpoint limits of the env0 API still apply. This can also be set via the ENV0_MAX_REQUESTS_PER_MINUTE environment variable.",
+					Description:      "the maximum number of requests per minute that the provider sends to the env0 API, across all endpoints, from 1 to 5000. Increase it to refresh large states faster. The per-endpoint limits of the env0 API still apply. This can also be set via the ENV0_MAX_REQUESTS_PER_MINUTE environment variable.",
 					DefaultFunc:      schema.EnvDefaultFunc("ENV0_MAX_REQUESTS_PER_MINUTE", defaultMaxRequestsPerMinute),
 					Optional:         true,
-					ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+					ValidateDiagFunc: validation.ToDiagFunc(validation.IntBetween(1, maxAllowedRequestsPerMinute)),
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
@@ -219,6 +219,7 @@ const (
 	// not a WAF limit: requests from env0's own agents are exempt from the WAF, so this is the only
 	// limit they get. Raise it once prod runs at this rate look clean.
 	defaultMaxRequestsPerMinute = 2000
+	maxAllowedRequestsPerMinute = 5000
 )
 
 // retryWaitTimeFor returns how long to wait before the next attempt of a failed request.

@@ -417,12 +417,20 @@ func TestMaxRequestsPerMinuteFromEnvVar(t *testing.T) {
 	assert.Equal(t, 3000, maxRequestsPerMinuteFromConfig(t, map[string]any{}))
 }
 
-func TestMaxRequestsPerMinuteMustBePositive(t *testing.T) {
-	diags := Provider("")().Validate(terraform.NewResourceConfigRaw(map[string]any{"max_requests_per_minute": 0}))
+func TestMaxRequestsPerMinuteOutOfRange(t *testing.T) {
+	for _, value := range []int{0, maxAllowedRequestsPerMinute + 1} {
+		diags := Provider("")().Validate(terraform.NewResourceConfigRaw(map[string]any{"max_requests_per_minute": value}))
 
-	if assert.True(t, diags.HasError()) {
-		assert.Contains(t, diags[0].Summary, "max_requests_per_minute")
+		if assert.True(t, diags.HasError(), value) {
+			assert.Contains(t, diags[0].Summary, "max_requests_per_minute")
+		}
 	}
+}
+
+func TestMaxRequestsPerMinuteAtUpperBound(t *testing.T) {
+	diags := Provider("")().Validate(terraform.NewResourceConfigRaw(map[string]any{"max_requests_per_minute": maxAllowedRequestsPerMinute}))
+
+	assert.False(t, diags.HasError())
 }
 
 func TestRateLimiterCapsAllPathsTogether(t *testing.T) {
