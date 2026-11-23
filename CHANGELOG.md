@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.1](https://github.com/env0/terraform-provider-env0/compare/v1.38.0...v1.38.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* Name the field in pattern validation errors (APO-1641) ([#1184](https://github.com/env0/terraform-provider-env0/issues/1184)) ([b76ea96](https://github.com/env0/terraform-provider-env0/commit/b76ea96af2a88a5507cb6ea3083ea93c26b03827))
+
 ## [1.38.0](https://github.com/env0/terraform-provider-env0/compare/v1.37.0...v1.38.0) (2026-11-19)
 
 
