@@ -25,6 +25,13 @@ resource "env0_configuration_variable" "tested3" {
   enum  = ["First", "Second"]
 }
 
+resource "env0_configuration_variable" "tested4" {
+  name         = "tested4-${random_string.random.result}"
+  multi_select = true
+  enum         = ["First", "Second", "Third"]
+  values       = var.second_run ? ["Second", "Third"] : ["First"]
+}
+
 resource "env0_configuration_variable" "regex_var" {
   project_id = env0_project.test_project.id
   name       = "regex_var"
@@ -34,7 +41,7 @@ resource "env0_configuration_variable" "regex_var" {
 resource "time_sleep" "wait_10_seconds" {
   create_duration = "10s"
 
-  depends_on = [env0_configuration_variable.region_in_project_resource, env0_configuration_variable.tested1, env0_configuration_variable.tested3, env0_configuration_variable.regex_var]
+  depends_on = [env0_configuration_variable.region_in_project_resource, env0_configuration_variable.tested1, env0_configuration_variable.tested3, env0_configuration_variable.tested4, env0_configuration_variable.regex_var]
 }
 
 data "env0_configuration_variable" "region_in_project" {
@@ -82,6 +89,21 @@ output "tested3_enum_1" {
 }
 output "tested3_enum_2" {
   value     = data.env0_configuration_variable.tested3.enum[1]
+  sensitive = true
+}
+
+data "env0_configuration_variable" "tested4" {
+  name = "tested4-${random_string.random.result}"
+
+  depends_on = [time_sleep.wait_10_seconds, env0_configuration_variable.tested4]
+}
+
+output "tested4_multi_select" {
+  value     = tostring(data.env0_configuration_variable.tested4.multi_select)
+  sensitive = true
+}
+output "tested4_values" {
+  value     = join(",", data.env0_configuration_variable.tested4.values)
   sensitive = true
 }
 

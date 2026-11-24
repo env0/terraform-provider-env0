@@ -2,5 +2,7 @@
   "tested1_value": "fake value 1 after update",
   "tested3_enum_1": "First",
   "tested3_enum_2": "Second",
+  "tested4_multi_select": "true",
+  "tested4_values": "Second,Third",
   "regex" : "^test-\\d+$"
 }

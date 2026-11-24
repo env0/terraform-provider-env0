@@ -46,6 +46,14 @@ resource "env0_variable_set" "organization_scope_example" {
   }
 
   variable {
+    name            = "n7"
+    dropdown_values = ["o1", "o2", "o3"]
+    values          = ["o1", "o3"]
+    type            = "terraform"
+    format          = "multi_select"
+  }
+
+  variable {
     name         = "n6"
     value        = "v6"
     type         = "terraform"

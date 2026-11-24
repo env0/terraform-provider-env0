@@ -28,6 +28,8 @@ const (
 	ENVIRONMENT_OUTPUT Format = "ENVIRONMENT_OUTPUT"
 )
 
+const MultiSelectSchemaType = "array"
+
 type ConfigurationVariableSchema struct {
 	Type   string   `json:"type,omitempty"`
 	Enum   []string `json:"enum"`
@@ -76,6 +78,7 @@ type ConfigurationVariableCreateParams struct {
 	ScopeId     string
 	Type        ConfigurationVariableType
 	EnumValues  []string
+	MultiSelect bool
 	Description string
 	Format      Format
 	IsReadOnly  bool
@@ -199,6 +202,10 @@ func (client *ApiClient) ConfigurationVariableCreate(params ConfigurationVariabl
 func getSchema(params ConfigurationVariableCreateParams) map[string]any {
 	schema := map[string]any{
 		"type": "string",
+	}
+
+	if params.MultiSelect {
+		schema["type"] = MultiSelectSchemaType
 	}
 
 	if params.EnumValues != nil {

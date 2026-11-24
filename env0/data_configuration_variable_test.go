@@ -121,6 +121,49 @@ func TestUnitConfigurationVariableData(t *testing.T) {
 			})
 	})
 
+	t.Run("Multi select", func(t *testing.T) {
+		multiSelectVariable := configurationVariable
+		multiSelectVariable.Value = `["a","b"]`
+		multiSelectVariable.Schema = &client.ConfigurationVariableSchema{Type: "array", Enum: []string{"a", "b", "c"}}
+
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": multiSelectVariable.Id}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "true"),
+							resource.TestCheckResourceAttr(accessor, "values.#", "2"),
+							resource.TestCheckResourceAttr(accessor, "values.0", "a"),
+							resource.TestCheckResourceAttr(accessor, "values.1", "b"),
+							resource.TestCheckResourceAttr(accessor, "enum.2", "c"),
+						),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariablesById(multiSelectVariable.Id).AnyTimes().Return(multiSelectVariable, nil)
+			})
+	})
+
+	t.Run("Not multi select", func(t *testing.T) {
+		runUnitTest(t,
+			resource.TestCase{
+				Steps: []resource.TestStep{
+					{
+						Config: dataSourceConfigCreate(resourceType, resourceName, map[string]any{"id": configurationVariable.Id}),
+						Check: resource.ComposeAggregateTestCheckFunc(
+							resource.TestCheckResourceAttr(accessor, "multi_select", "false"),
+							resource.TestCheckResourceAttr(accessor, "values.#", "0"),
+						),
+					},
+				},
+			},
+			func(mock *client.MockApiClientInterface) {
+				mock.EXPECT().ConfigurationVariablesById(configurationVariable.Id).AnyTimes().Return(configurationVariable, nil)
+			})
+	})
+
 	t.Run("ScopeTemplate", func(t *testing.T) {
 		runUnitTest(t,
 			resource.TestCase{

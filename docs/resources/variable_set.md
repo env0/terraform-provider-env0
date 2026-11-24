@@ -61,6 +61,14 @@ resource "env0_variable_set" "organization_scope_example" {
   }
 
   variable {
+    name            = "n7"
+    dropdown_values = ["o1", "o2", "o3"]
+    values          = ["o1", "o3"]
+    type            = "terraform"
+    format          = "multi_select"
+  }
+
+  variable {
     name         = "n6"
     value        = "v6"
     type         = "terraform"
@@ -119,9 +127,10 @@ Required:
 
 Optional:
 
-- `dropdown_values` (List of String) a list of variable values for 'dropdown' format
-- `format` (String) the value format: 'text' (free text), 'dropdown' (dropdown list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.
+- `dropdown_values` (List of String) a list of variable values for 'dropdown' and 'multi_select' formats
+- `format` (String) the value format: 'text' (free text), 'dropdown' (dropdown list), 'multi_select' (multi select list), 'hcl', 'json'. Note: 'hcl' and 'json' can only be used in terraform variables.
 - `is_read_only` (Boolean) is the variable read-only, i.e. it cannot be overridden in a lower scope (defaults to 'false')
-- `is_sensitive` (Boolean) is the value sensitive (defaults to 'false'). Note: 'dropdown' value format cannot be sensitive.
+- `is_sensitive` (Boolean) is the value sensitive (defaults to 'false'). Note: 'dropdown' and 'multi_select' value formats cannot be sensitive.
 - `type` (String) variable type: terraform or environment (defaults to 'environment')
 - `value` (String) variable value for 'hcl', 'json', or 'text' format
+- `values` (List of String) the selected values for 'multi_select' format. Each must be one of 'dropdown_values'. An empty list selects nothing

@@ -58,6 +58,14 @@ resource "env0_environment" "example_with_hcl_configuration" {
     EOF
     schema_format = "HCL"
   }
+
+  # Multi select list: 'schema_enum' lists the options and 'value' is a JSON array of the selected options.
+  configuration {
+    name        = "MULTI_SELECT"
+    value       = jsonencode(["a", "c"])
+    schema_type = "array"
+    schema_enum = ["a", "b", "c"]
+  }
 }
 
 # During destroy, wait for the env0 destroy deployment to finish.
@@ -160,7 +168,7 @@ Optional:
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `schema_enum` (List of String) a list of possible variable values
 - `schema_format` (String) the variable format
-- `schema_type` (String) the type the variable
+- `schema_type` (String) the type of the variable (defaults to 'string'). Set to 'array' for a multi select list: 'schema_enum' lists the options and 'value' is a JSON array of the selected options, e.g. jsonencode(["a", "b"])
 - `type` (String) variable type (allowed values are: terraform, environment)
 
 
@@ -199,7 +207,7 @@ Optional:
 - `regex` (String) the value of this variable must match provided regular expression (enforced only in env0 UI)
 - `schema_enum` (List of String) a list of possible variable values
 - `schema_format` (String) the variable format
-- `schema_type` (String) the type the variable
+- `schema_type` (String) the type of the variable (defaults to 'string'). Set to 'array' for a multi select list: 'schema_enum' lists the options and 'value' is a JSON array of the selected options, e.g. jsonencode(["a", "b"])
 - `type` (String) variable type (allowed values are: terraform, environment)
 
 
