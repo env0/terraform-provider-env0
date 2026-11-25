@@ -77,7 +77,6 @@ func TestUnitEnvironmentResourceWaitForDeployment(t *testing.T) {
 	expectRead := func(mock *client.MockApiClientInterface, env client.Environment) []any {
 		return []any{
 			mock.EXPECT().Environment(environment.Id).Times(1).Return(env, nil),
-			mock.EXPECT().ConfigurationVariablesByScope(client.ScopeEnvironment, environment.Id).Times(1).Return(client.ConfigurationChanges{}, nil),
 			mock.EXPECT().ConfigurationSetsAssignments("ENVIRONMENT", environment.Id).Times(1).Return(nil, nil),
 		}
 	}

@@ -15,7 +15,10 @@ import (
 
 const full_page = 100
 const partial_page = 33
-const expectedEnvironmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
+const expectedEnvironmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources," +
+	"latestDeploymentLog.variables,latestDeploymentLog.gitMetadata,latestDeploymentLog.providerVersions," +
+	"latestDeploymentLog.moduleVersions,latestDeploymentLog.stateFileHash,latestDeploymentLog.driftCause," +
+	"latestDeploymentLog.costEstimation"
 
 var _ = Describe("Environment Client", func() {
 	const (

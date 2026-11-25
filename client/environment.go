@@ -11,11 +11,15 @@ import (
 const ENVIRONMENT = "environment"
 
 // The API embeds the latest deployment log's full parsed plan in the environment response. The provider
-// never reads it - DeploymentLog below has no Plan or Resources field, so json.Unmarshal drops both - but
-// on environments with a large plan the response exceeds the 6 MB Lambda cap and the GET fails with a 502.
-// Both fields must be listed: the endpoint replaces its default exclusion list with the one sent here
+// never reads it, or the other fields listed here - DeploymentLog below has none of them, so json.Unmarshal
+// drops them - but on environments with a large plan the response exceeds the 6 MB Lambda cap and the GET
+// fails with a 502. The backend also skips excluded fields in its SQL query, so each read costs the DB less.
+// All fields must be listed: the endpoint replaces its default exclusion list with the one sent here
 // rather than merging, and resources is excluded by that default today.
-const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources"
+const environmentExcludeFields = "latestDeploymentLog.plan,latestDeploymentLog.resources," +
+	"latestDeploymentLog.variables,latestDeploymentLog.gitMetadata,latestDeploymentLog.providerVersions," +
+	"latestDeploymentLog.moduleVersions,latestDeploymentLog.stateFileHash,latestDeploymentLog.driftCause," +
+	"latestDeploymentLog.costEstimation"
 
 // EnvironmentDeploymentLog is used only while polling a deployment and its caller reads only Status. Exclude
 // the large response fields that are discarded on every poll. This endpoint returns the deployment log as
