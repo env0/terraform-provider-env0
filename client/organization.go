@@ -15,6 +15,7 @@ type Organization struct {
 	EnableOidc                          bool    `json:"enableOidc"`
 	EnforcePrCommenterPermissions       bool    `json:"enforcePrCommenterPermissions"`
 	AllowMergeableBypassForPrApply      bool    `json:"allowMergeableBypassForPrApply"`
+	RequireDestroyEnvironmentPermission bool    `json:"requireDestroyEnvironmentPermission"`
 	Description                         string  `json:"description"`
 	PhotoUrl                            string  `json:"photoUrl"`
 	CreatedBy                           string  `json:"createdBy"`
@@ -32,6 +33,7 @@ type OrganizationPolicyUpdatePayload struct {
 	EnableOidc                          *bool   `json:"enableOidc,omitempty"`
 	EnforcePrCommenterPermissions       *bool   `json:"enforcePrCommenterPermissions,omitempty"`
 	AllowMergeableBypassForPrApply      *bool   `json:"allowMergeableBypassForPrApply,omitempty"`
+	RequireDestroyEnvironmentPermission *bool   `json:"requireDestroyEnvironmentPermission,omitempty"`
 }
 
 func (client *ApiClient) Organization() (Organization, error) {

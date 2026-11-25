@@ -32,6 +32,7 @@ resource "env0_organization_policy" "policy_example" {
 - `enable_oidc` (Boolean) set to 'true' to enable OIDC token (JWT) availability during env0 deployments (defaults to 'false')
 - `enforce_pr_commenter_permissions` (Boolean) set to 'true' to enforce PR commenter permissions during env0 deployments (defaults to 'false'). Destroying the resource leaves this setting unchanged
 - `max_ttl` (String) the maximum environment time-to-live allowed on deploy time. Format is <number>-<M/w/d/h> (Examples: 12-h, 3-d, 1-w, 1-M). Omit for infinite ttl. must be equal or longer than default_ttl
+- `require_destroy_environment_permission` (Boolean) set to 'true' to require the 'DESTROY_ENVIRONMENT' permission to destroy an environment, approve a destroy or destroy a workflow sub-environment. The first time it turns on, env0 adds 'DESTROY_ENVIRONMENT' to every custom role with 'RUN_PLAN' or 'RUN_APPLY', so add it to the 'env0_custom_role' resources that keep destroy. Omit it to keep the organization's current setting. Destroying the resource leaves this setting unchanged
 
 ### Read-Only
 
