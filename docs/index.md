@@ -40,4 +40,5 @@ provider "env0" {
 - `api_endpoint` (String) env0 API endpoint. This can also be set via the ENV0_API_ENDPOINT environment variable, and is usually used for testing purposes.
 - `api_key` (String, Sensitive) env0 API key. This field can be removed from the provider block; instead of the field, you can set the value via the ENV0_API_KEY environment variable.
 - `api_secret` (String, Sensitive) env0 API secret. This field can be removed from the provider block; instead of the field, you can set the value via the ENV0_API_SECRET environment variable.
+- `max_requests_per_minute` (Number) the maximum number of requests per minute that the provider sends to the env0 API, across all endpoints, from 1 to 5000. Increase it to refresh large states faster. The per-endpoint limits of the env0 API still apply. This can also be set via the ENV0_MAX_REQUESTS_PER_MINUTE environment variable.
 - `organization_id` (String) when the API key is associated with multiple organizations, this field is required. If an API key has one organization, this field is ignored. This can also be set via the ENV0_ORGANIZATION_ID environment variable.
