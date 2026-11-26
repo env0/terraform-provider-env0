@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.0](https://github.com/env0/terraform-provider-env0/compare/v1.38.2...v1.39.0) (2026-11-26)
+
+
+### Features
+
+* Add require_destroy_environment_permission to env0_organization_policy (ATL-827) ([#1188](https://github.com/env0/terraform-provider-env0/issues/1188)) ([783f23c](https://github.com/env0/terraform-provider-env0/commit/783f23c7180a8b539438e862fea7f3dbbfd54796))
+
 ## [1.38.2](https://github.com/env0/terraform-provider-env0/compare/v1.38.1...v1.38.2) (2026-11-23)
 
 
