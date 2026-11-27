@@ -126,6 +126,58 @@ func TestUnitLogForwardingResource(t *testing.T) {
 		})
 	})
 
+	t.Run("Azure Storage", func(t *testing.T) {
+		store := &logForwardingStore{}
+
+		azureStorage := client.LogForwarding{
+			Id:                      uuid.NewString(),
+			OrganizationId:          "org0",
+			Name:                    "AZURE_STORAGE",
+			Type:                    client.LogForwardingTypeAzureStorage,
+			DeploymentLogForwarding: true,
+			AuditLogForwarding:      true,
+		}
+
+		testCase := resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					Config: config("AZURE_STORAGE", `jsonencode({
+	storageAccountName = "env0logs"
+	containerName      = "env0"
+	blobPath           = "audit"
+	tenantId           = "00000000-0000-0000-0000-000000000001"
+	clientId           = "00000000-0000-0000-0000-000000000002"
+})`, true, true),
+					Check: resource.ComposeAggregateTestCheckFunc(
+						resource.TestCheckResourceAttr(accessor, "id", azureStorage.Id),
+						resource.TestCheckResourceAttr(accessor, "type", "AZURE_STORAGE"),
+					),
+				},
+			},
+		}
+
+		runUnitTest(t, testCase, func(mock *client.MockApiClientInterface) {
+			mock.EXPECT().LogForwardings().AnyTimes().DoAndReturn(store.list)
+			mock.EXPECT().LogForwardingUpsert(client.LogForwardingUpsertPayload{
+				Type: client.LogForwardingTypeAzureStorage,
+				Value: map[string]any{
+					"storageAccountName": "env0logs",
+					"containerName":      "env0",
+					"blobPath":           "audit",
+					"tenantId":           "00000000-0000-0000-0000-000000000001",
+					"clientId":           "00000000-0000-0000-0000-000000000002",
+				},
+				DeploymentLogForwarding: true,
+				AuditLogForwarding:      true,
+			}).Times(1).DoAndReturn(func(client.LogForwardingUpsertPayload) (*client.LogForwarding, error) {
+				store.set(azureStorage)
+
+				return &azureStorage, nil
+			})
+			mock.EXPECT().LogForwardingDelete(azureStorage.Id).Times(1)
+		})
+	})
+
 	// The API upserts by organization and type, so an update of a configuration deleted outside Terraform
 	// (unseen with -refresh=false) creates a new one with a new id.
 	t.Run("Update keeps the id the upsert returns", func(t *testing.T) {
