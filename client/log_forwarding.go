@@ -13,6 +13,7 @@ const (
 	LogForwardingTypeGrafanaLoki        LogForwardingType = "GRAFANA_LOKI"
 	LogForwardingTypeCloudWatch         LogForwardingType = "CLOUDWATCH"
 	LogForwardingTypeS3                 LogForwardingType = "S3"
+	LogForwardingTypeAzureStorage       LogForwardingType = "AZURE_STORAGE"
 )
 
 var LogForwardingTypes = []LogForwardingType{
@@ -26,6 +27,7 @@ var LogForwardingTypes = []LogForwardingType{
 	LogForwardingTypeGrafanaLoki,
 	LogForwardingTypeCloudWatch,
 	LogForwardingTypeS3,
+	LogForwardingTypeAzureStorage,
 }
 
 // The API never returns the configuration value, so it is not part of this model.

@@ -20,3 +20,18 @@ resource "env0_log_forwarding" "s3" {
   })
   audit_log_forwarding = true
 }
+
+# Audit and deployment logs to an Azure Storage container. env0 exchanges its OIDC token for an Entra ID token
+# through a federated credential on the app registration, so the value holds no secret.
+resource "env0_log_forwarding" "azure_storage" {
+  type = "AZURE_STORAGE"
+  value = jsonencode({
+    storageAccountName = "env0logs"
+    containerName      = "env0"
+    blobPath           = "env0/logs"
+    tenantId           = "00000000-0000-0000-0000-000000000000"
+    clientId           = "11111111-1111-1111-1111-111111111111"
+  })
+  audit_log_forwarding      = true
+  deployment_log_forwarding = true
+}
